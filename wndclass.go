@@ -21,7 +21,7 @@ type WNDCLASS struct {
 
 type _WNDCLASSW struct {
 	style				uint32
-	lpfnWndProc		WNDPROC
+	lpfnWndProc		uintptr
 	cbClsExtra		int
 	cbWndExtra		int
 	hInstance			HANDLE
@@ -39,7 +39,7 @@ func (w *WNDCLASS) toNative() *_WNDCLASSW {
 	}
 	return &_WNDCLASSW{
 		style:			w.Style,
-		lpfnWndProc:		w.LpfnWndProc,
+		lpfnWndProc:		syscall.NewCallback(w.LpfnWndProc),
 		cbClsExtra:		w.CbClsExtra,
 		cbWndExtra:		w.CbWndExtra,
 		hInstance:		w.HInstance,
