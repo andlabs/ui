@@ -19,6 +19,27 @@ func fatalf(format string, args ...interface{}) {
 	panic(fmt.Sprintf("error trying to warn user of internal error: %v\ninternal error:\n%s", err, s))
 }
 
+func wndProc(hwnd HWND, msg uint32, wparam WPARAM, lparam LPARAM) LRESULT {
+	switch msg {
+	case WM_CLOSE:
+		err := DestroyWindow(hwnd)
+		if err != nil {
+			fatalf("error destroying window: %v", err)
+		}
+		return 0
+	case WM_DESTROY:
+		err := PostQuitMessage(0)
+		if err != nil {
+			fatalf("error posting quit message: %v", err)
+		}
+		return 0
+	default:
+		return DefWindowProc(hwnd, msg, wparam, lparam)
+	}
+	fatalf("major bug: forgot a return on wndProc for message %d", msg)
+	panic("unreachable")
+}
+
 const className = "mainwin"
 
 func main() {
@@ -44,7 +65,7 @@ func main() {
 
 	wc := &WNDCLASS{
 		LpszClassName:	className,
-		LpfnWndProc:		DefWindowProc,
+		LpfnWndProc:		wndProc,
 		HInstance:		hInstance,
 		HIcon:			icon,
 		HCursor:			cursor,

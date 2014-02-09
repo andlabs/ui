@@ -133,6 +133,7 @@ const (
 
 var (
 	createWindowEx = user32.NewProc("CreateWindowExW")
+	destroyWindow = user32.NewProc("DestroyWindow")
 	showWindow = user32.NewProc("ShowWindow")
 )
 
@@ -157,6 +158,14 @@ func CreateWindowEx(dwExStyle uint32, lpClassName string, lpWindowName string, d
 	return HWND(r1), nil
 }
 
+func DestroyWindow(hWnd HWND) (err error) {
+	r1, _, err := destroyWindow.Call(uintptr(hWnd))
+	if r1 == 0 {		// failure
+		return err
+	}
+	return nil
+}
+
 // TODO figure out how to handle errors
 func ShowWindow(hWnd HWND, nCmdShow int) (previouslyVisible bool, err error) {
 	r1, _, _ := showWindow.Call(
@@ -164,3 +173,114 @@ func ShowWindow(hWnd HWND, nCmdShow int) (previouslyVisible bool, err error) {
 		uintptr(nCmdShow))
 	return r1 != 0, nil
 }
+
+// WM_SETICON and WM_GETICON values.
+const (
+	ICON_BIG = 1
+	ICON_SMALL = 0
+	ICON_SMALL2 = 2		// WM_GETICON only?
+)
+
+// Window messages.
+const (
+	MN_GETHMENU = 0x01E1
+	WM_ERASEBKGND = 0x0014
+	WM_GETFONT = 0x0031
+	WM_GETTEXT = 0x000D
+	WM_GETTEXTLENGTH = 0x000E
+	WM_SETFONT = 0x0030
+	WM_SETICON = 0x0080
+	WM_SETTEXT = 0x000C
+)
+
+// WM_INPUTLANGCHANGEREQUEST values.
+const (
+	INPUTLANGCHANGE_BACKWARD = 0x0004
+	INPUTLANGCHANGE_FORWARD = 0x0002
+	INPUTLANGCHANGE_SYSCHARSET = 0x0001
+)
+
+// WM_NCCALCSIZE return values.
+const (
+	WVR_ALIGNTOP = 0x0010
+	WVR_ALIGNRIGHT = 0x0080
+	WVR_ALIGNLEFT = 0x0020
+	WVR_ALIGNBOTTOM = 0x0040
+	WVR_HREDRAW = 0x0100
+	WVR_VREDRAW = 0x0200
+	WVR_REDRAW = 0x0300
+	WVR_VALIDRECTS = 0x0400
+)
+
+// WM_SHOWWINDOW reasons (lParam).
+const (
+	SW_OTHERUNZOOM = 4
+	SW_OTHERZOOM = 2
+	SW_PARENTCLOSING = 1
+	SW_PARENTOPENING = 3
+)
+
+// WM_SIZE values.
+const (
+	SIZE_MAXHIDE = 4
+	SIZE_MAXIMIZED = 2
+	SIZE_MAXSHOW = 3
+	SIZE_MINIMIZED = 1
+	SIZE_RESTORED = 0
+)
+
+// WM_SIZING edge values (wParam).
+const (
+	WMSZ_BOTTOM = 6
+	WMSZ_BOTTOMLEFT = 7
+	WMSZ_BOTTOMRIGHT = 8
+	WMSZ_LEFT = 1
+	WMSZ_RIGHT = 2
+	WMSZ_TOP = 3
+	WMSZ_TOPLEFT = 4
+	WMSZ_TOPRIGHT = 5
+)
+
+// WM_STYLECHANGED and WM_STYLECHANGING values (wParam).
+const (
+	GWL_EXSTYLE = -20
+	GWL_STYLE = -16
+)
+
+// Window notifications.
+const (
+	WM_ACTIVATEAPP = 0x001C
+	WM_CANCELMODE = 0x001F
+	WM_CHILDACTIVATE = 0x0022
+	WM_CLOSE = 0x0010
+	WM_COMPACTING = 0x0041
+	WM_CREATE = 0x0001
+	WM_DESTROY = 0x0002
+//	WM_DPICHANGED = 0x02E0		// Windows 8.1 and newer only
+	WM_ENABLE = 0x000A
+	WM_ENTERSIZEMOVE = 0x0231
+	WM_EXITSIZEMOVE = 0x0232
+	WM_GETICON = 0x007F
+	WM_GETMINMAXINFO = 0x0024
+	WM_INPUTLANGCHANGE = 0x0051
+	WM_INPUTLANGCHANGEREQUEST = 0x0050
+	WM_MOVE = 0x0003
+	WM_MOVING = 0x0216
+	WM_NCACTIVATE = 0x0086
+	WM_NCCALCSIZE = 0x0083
+	WM_NCCREATE = 0x0081
+	WM_NCDESTROY = 0x0082
+	WM_NULL = 0x0000
+	WM_QUERYDRAGICON = 0x0037
+	WM_QUERYOPEN = 0x0013
+	WM_QUIT = 0x0012
+	WM_SHOWWINDOW = 0x0018
+	WM_SIZE = 0x0005
+	WM_SIZING = 0x0214
+	WM_STYLECHANGED = 0x007D
+	WM_STYLECHANGING = 0x007C
+//	WM_THEMECHANGED = 0x031A		// Windows XP and newer only
+//	WM_USERCHANGED = 0x0054			// Windows XP only: [Note  This message is not supported as of Windows Vista.; also listed as not supported by server Windows]
+	WM_WINDOWPOSCHANGED = 0x0047
+	WM_WINDOWPOSCHANGING = 0x0046
+)

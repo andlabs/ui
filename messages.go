@@ -18,6 +18,7 @@ type MSG struct {
 var (
 	dispatchMessage = user32.NewProc("DispatchMessageW")
 	getMessage = user32.NewProc("GetMessageW")
+	postQuitMessage = user32.NewProc("PostQuitMessage")
 	translateMessage = user32.NewProc("TranslateMessage")
 )
 
@@ -40,6 +41,12 @@ func GetMessage(hWnd HWND, wMsgFilterMin uint32, wMsgFilterMax uint32) (lpMsg *M
 		return nil, false, err
 	}
 	return lpMsg, r1 == 0, nil
+}
+
+// TODO handle errors
+func PostQuitMessage(nExitCode int) (err error) {
+	postQuitMessage.Call(uintptr(nExitCode))
+	return nil
 }
 
 // TODO handle errors
