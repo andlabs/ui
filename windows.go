@@ -1,0 +1,104 @@
+// 8 february 2014
+package main
+
+import (
+	"syscall"
+	"unsafe"
+)
+
+// Extended window styles.
+const (
+	WS_EX_ACCEPTFILES = 0x00000010
+	WS_EX_APPWINDOW = 0x00040000
+	WS_EX_CLIENTEDGE = 0x00000200
+//	WS_EX_COMPOSITED = 0x02000000	// [Windows 2000:This style is not supported.]
+	WS_EX_CONTEXTHELP = 0x00000400
+	WS_EX_CONTROLPARENT = 0x00010000
+	WS_EX_DLGMODALFRAME = 0x00000001
+	WS_EX_LAYERED = 0x00080000
+	WS_EX_LAYOUTRTL = 0x00400000
+	WS_EX_LEFT = 0x00000000
+	WS_EX_LEFTSCROLLBAR = 0x00004000
+	WS_EX_LTRREADING = 0x00000000
+	WS_EX_MDICHILD = 0x00000040
+	WS_EX_NOACTIVATE = 0x08000000
+	WS_EX_NOINHERITLAYOUT = 0x00100000
+	WS_EX_NOPARENTNOTIFY = 0x00000004
+	WS_EX_OVERLAPPEDWINDOW = (WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE)
+	WS_EX_PALETTEWINDOW = (WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST)
+	WS_EX_RIGHT = 0x00001000
+	WS_EX_RIGHTSCROLLBAR = 0x00000000
+	WS_EX_RTLREADING = 0x00002000
+	WS_EX_STATICEDGE = 0x00020000
+	WS_EX_TOOLWINDOW = 0x00000080
+	WS_EX_TOPMOST = 0x00000008
+	WS_EX_TRANSPARENT = 0x00000020
+	WS_EX_WINDOWEDGE = 0x00000100
+)
+
+// TODO CW_USEDEFAULT
+
+// GetSysColor values. These can be cast to HBRUSH (after adding 1) for WNDCLASS as well.
+const (
+	COLOR_3DDKSHADOW = 21
+	COLOR_3DFACE = 15
+	COLOR_3DHIGHLIGHT = 20
+	COLOR_3DHILIGHT = 20
+	COLOR_3DLIGHT = 22
+	COLOR_3DSHADOW = 16
+	COLOR_ACTIVEBORDER = 10
+	COLOR_ACTIVECAPTION = 2
+	COLOR_APPWORKSPACE = 12
+	COLOR_BACKGROUND = 1
+	COLOR_BTNFACE = 15
+	COLOR_BTNHIGHLIGHT = 20
+	COLOR_BTNHILIGHT = 20
+	COLOR_BTNSHADOW = 16
+	COLOR_BTNTEXT = 18
+	COLOR_CAPTIONTEXT = 9
+	COLOR_DESKTOP = 1
+	COLOR_GRADIENTACTIVECAPTION = 27
+	COLOR_GRADIENTINACTIVECAPTION = 28
+	COLOR_GRAYTEXT = 17
+	COLOR_HIGHLIGHT = 13
+	COLOR_HIGHLIGHTTEXT = 14
+	COLOR_HOTLIGHT = 26
+	COLOR_INACTIVEBORDER = 11
+	COLOR_INACTIVECAPTION = 3
+	COLOR_INACTIVECAPTIONTEXT = 19
+	COLOR_INFOBK = 24
+	COLOR_INFOTEXT = 23
+	COLOR_MENU = 4
+//	COLOR_MENUHILIGHT = 29	// [Windows 2000:This value is not supported.]
+//	COLOR_MENUBAR = 30		// [Windows 2000:This value is not supported.]
+	COLOR_MENUTEXT = 7
+	COLOR_SCROLLBAR = 0
+	COLOR_WINDOW = 5
+	COLOR_WINDOWFRAME = 6
+	COLOR_WINDOWTEXT = 8
+)
+
+var (
+	createWindowEx = user32.NewProc("CreateWindowExW")
+)
+
+// TODO use lpParam
+func CreateWindowEx(dwExStyle uint32, lpClassName string, lpWindowName string, dwStyle uint32, x int, y int, nWidth int, nHeight int, hwndParent HWND, hMenu HANDLE, hInstance HANDLE, lpParam interface{}) (hwnd HWND, err error) {
+	r1, _, err := createWindowEx.Call(
+		uintptr(dwExStyle),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpClassName))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpWindowName))),
+		uintptr(dwStyle),
+		uintptr(x),
+		uintptr(y),
+		uintptr(nWidth),
+		uintptr(nHeight),
+		uintptr(hwndParent),
+		uintptr(hMenu),
+		uintptr(hInstance),
+		uintptr(0))
+	if r1 == 0 {		// failure
+		return NULL, err
+	}
+	return HWND(r1), nil
+}
