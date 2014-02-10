@@ -22,6 +22,7 @@ const (
 type ATOM uint16
 
 // TODO pull the thanks for these three from the old wingo source
+// TODO put these in windows.go
 type WPARAM uintptr
 type LPARAM uintptr
 type LRESULT uintptr
