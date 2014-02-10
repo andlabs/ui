@@ -26,6 +26,7 @@ const (
 	IDC_EDIT
 	IDC_LIST
 	IDC_LABEL
+	IDC_CHECK
 )
 
 var varCombo, fixCombo, edit, list HWND
@@ -68,14 +69,20 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 			}
 			// TODO get text from index
 
+			checkState, err := IsDlgButtonChecked(hwnd, IDC_CHECK)
+			if err != nil {
+				fatalf("error getting checkbox check state: %v", err)
+			}
+
 			MessageBox(hwnd,
 				fmt.Sprintf("button state: %s\n" +
 					"variable combo box text: %s\n" +
 					"fixed combo box text with WM_GETTEXT: %s\n" +
 					"fixed combo box current index: %d\n" +
 					"edit field text: %s\n" +
-					"list box current index: %d\n",
-					buttonclick, varText, fixTextWM, fixTextIndex, editText, listIndex),
+					"list box current index: %d\n" +
+					"check box checked: %v\n",
+					buttonclick, varText, fixTextWM, fixTextIndex, editText, listIndex, checkState == BST_CHECKED),
 				"note",
 				MB_OK)
 		}
@@ -230,6 +237,16 @@ func main() {
 		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
 	if err != nil {
 		fatalf("error creating label: %v", err)
+	}
+
+	_, err = CreateWindowEx(
+		0,
+		"BUTTON", "Checkbox",
+		BS_AUTOCHECKBOX | controlStyle,
+		140, 110, 100, 20,
+		hwnd, HMENU(IDC_CHECK), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating checkbox: %v", err)
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)
