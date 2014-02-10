@@ -24,9 +24,10 @@ const (
 	IDC_VARCOMBO
 	IDC_FIXCOMBO
 	IDC_EDIT
+	IDC_LIST
 )
 
-var varCombo, fixCombo, edit HWND
+var varCombo, fixCombo, edit, list HWND
 
 func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 	switch msg {
@@ -60,13 +61,20 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 				fatalf("error getting edit field text: %v", err)
 			}
 
+			listIndex, err := SendMessage(list, LB_GETCURSEL, 0, 0)
+			if err != nil {
+				fatalf("error getting fixed list box current selection: %v", err)
+			}
+			// TODO get text from index
+
 			MessageBox(hwnd,
 				fmt.Sprintf("button state: %s\n" +
 					"variable combo box text: %s\n" +
 					"fixed combo box text with WM_GETTEXT: %s\n" +
 					"fixed combo box current index: %d\n" +
-					"edit field text: %s\n",
-					buttonclick, varText, fixTextWM, fixTextIndex, editText),
+					"edit field text: %s\n" +
+					"list box current index: %d\n",
+					buttonclick, varText, fixTextWM, fixTextIndex, editText, listIndex),
 				"note",
 				MB_OK)
 		}
@@ -192,6 +200,25 @@ func main() {
 		hwnd, HMENU(IDC_EDIT), hInstance, NULL)
 	if err != nil {
 		fatalf("error creating edit field: %v", err)
+	}
+
+	list, err = CreateWindowEx(
+		0,
+		"LISTBOX", "",
+		LBS_STANDARD | controlStyle,
+		20, 80, 100, 100,
+		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating list box: %v", err)
+	}
+	lItems := []string{"i", "j", "k", "l"}
+	for _, v := range lItems {
+		_, err := SendMessage(list, LB_ADDSTRING, 0,
+			LPARAMFromString(v))
+		if err != nil {
+			fatalf("error adding %q to list box: %v", v, err)
+		}
+		// TODO check actual return value as THAT indicates an error
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)

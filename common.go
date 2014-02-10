@@ -6,7 +6,8 @@ import (
 	"unsafe"
 )
 
-// TODO filter out commctrl.h stuff because the combobox stuff has values that differ between windows versions and bleh
+// TODO filter out commctrl.h stuff because the combobox and listbox stuff has values that differ between windows versions and bleh
+// either that or switch to ComboBoxEx and ListView because they might not have that problem???
 
 var (
 	user32 = syscall.NewLazyDLL("user32.dll")
