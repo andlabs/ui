@@ -138,7 +138,7 @@ var (
 )
 
 // TODO use lpParam
-func CreateWindowEx(dwExStyle uint32, lpClassName string, lpWindowName string, dwStyle uint32, x int, y int, nWidth int, nHeight int, hwndParent HWND, hMenu HANDLE, hInstance HANDLE, lpParam interface{}) (hwnd HWND, err error) {
+func CreateWindowEx(dwExStyle uint32, lpClassName string, lpWindowName string, dwStyle uint32, x int, y int, nWidth int, nHeight int, hwndParent HWND, hMenu HMENU, hInstance HANDLE, lpParam interface{}) (hwnd HWND, err error) {
 	r1, _, err := createWindowEx.Call(
 		uintptr(dwExStyle),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpClassName))),

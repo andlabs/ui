@@ -13,6 +13,7 @@ var (
 type HANDLE uintptr
 type HWND HANDLE
 type HBRUSH HANDLE
+type HMENU HANDLE
 
 const (
 	NULL = 0
@@ -24,6 +25,16 @@ type ATOM uint16
 type WPARAM uintptr
 type LPARAM uintptr
 type LRESULT uintptr
+
+func (w WPARAM) LOWORD() uint16 {
+	// according to windef.h
+	return uint16(w & 0xFFFF)
+}
+
+func (w WPARAM) HIWORD() uint16 {
+	// according to windef.h
+	return uint16((w >> 16) & 0xFFFF)
+}
 
 // microsoft's header files do this
 func MAKEINTRESOURCE(what uint16) uintptr {

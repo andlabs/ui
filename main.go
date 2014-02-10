@@ -19,8 +19,21 @@ func fatalf(format string, args ...interface{}) {
 	panic(fmt.Sprintf("error trying to warn user of internal error: %v\ninternal error:\n%s", err, s))
 }
 
-func wndProc(hwnd HWND, msg uint32, wparam WPARAM, lparam LPARAM) LRESULT {
+const (
+	IDC_BUTTON = 100
+)
+
+func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 	switch msg {
+	case WM_COMMAND:
+		if wParam.LOWORD() == IDC_BUTTON {
+			if wParam.HIWORD() == BN_CLICKED {
+				MessageBox(hwnd, "clicked", "", MB_OK)
+			} else if wParam.HIWORD() == BN_DOUBLECLICKED {
+				MessageBox(hwnd, "double clicked", "", MB_OK)
+			}
+		}
+		return 0
 	case WM_CLOSE:
 		err := DestroyWindow(hwnd)
 		if err != nil {
@@ -34,7 +47,7 @@ func wndProc(hwnd HWND, msg uint32, wparam WPARAM, lparam LPARAM) LRESULT {
 		}
 		return 0
 	default:
-		return DefWindowProc(hwnd, msg, wparam, lparam)
+		return DefWindowProc(hwnd, msg, wParam, lParam)
 	}
 	fatalf("major bug: forgot a return on wndProc for message %d", msg)
 	panic("unreachable")
@@ -84,6 +97,16 @@ func main() {
 		NULL, NULL, hInstance, NULL)
 	if err != nil {
 		fatalf("error creating window: %v", err)
+	}
+
+	_, err = CreateWindowEx(
+		0,
+		"BUTTON", "Click Me",
+		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		20, 20, 100, 100,
+		hwnd, HMENU(IDC_BUTTON), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating button: %v", err)
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)
