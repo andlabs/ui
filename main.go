@@ -20,12 +20,13 @@ func fatalf(format string, args ...interface{}) {
 }
 
 const (
-	IDC_BUTTON = 100
-	IDC_VARCOMBO = 101
-	IDC_FIXCOMBO = 102
+	IDC_BUTTON = 100 + iota
+	IDC_VARCOMBO
+	IDC_FIXCOMBO
+	IDC_EDIT
 )
 
-var varCombo, fixCombo HWND
+var varCombo, fixCombo, edit HWND
 
 func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 	switch msg {
@@ -54,12 +55,18 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 			}
 			// TODO get text from index
 
+			editText, err := getText(edit)
+			if err != nil {
+				fatalf("error getting edit field text: %v", err)
+			}
+
 			MessageBox(hwnd,
 				fmt.Sprintf("button state: %s\n" +
 					"variable combo box text: %s\n" +
 					"fixed combo box text with WM_GETTEXT: %s\n" +
-					"fixed combo box current index: %d\n",
-					buttonclick, varText, fixTextWM, fixTextIndex),
+					"fixed combo box current index: %d\n" +
+					"edit field text: %s\n",
+					buttonclick, varText, fixTextWM, fixTextIndex, editText),
 				"note",
 				MB_OK)
 		}
@@ -129,10 +136,12 @@ func main() {
 		fatalf("error creating window: %v", err)
 	}
 
+	const controlStyle = WS_CHILD | WS_VISIBLE | WS_TABSTOP
+
 	_, err = CreateWindowEx(
 		0,
 		"BUTTON", "Click Me",
-		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		BS_PUSHBUTTON | controlStyle,
 		20, 20, 100, 20,
 		hwnd, HMENU(IDC_BUTTON), hInstance, NULL)
 	if err != nil {
@@ -142,7 +151,7 @@ func main() {
 	varCombo, err = CreateWindowEx(
 		0,
 		"COMBOBOX", "",
-		CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		CBS_DROPDOWN | CBS_AUTOHSCROLL | controlStyle,
 		140, 20, 100, 20,
 		hwnd, HMENU(IDC_VARCOMBO), hInstance, NULL)
 	if err != nil {
@@ -160,7 +169,7 @@ func main() {
 	fixCombo, err = CreateWindowEx(
 		0,
 		"COMBOBOX", "",
-		CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		CBS_DROPDOWNLIST | controlStyle,
 		140, 50, 100, 20,
 		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
 	if err != nil {
@@ -173,6 +182,16 @@ func main() {
 		if err != nil {
 			fatalf("error adding %q to fixed combo box: %v", v, err)
 		}
+	}
+
+	edit, err = CreateWindowEx(
+		0,
+		"EDIT", "",
+		ES_AUTOHSCROLL | ES_NOHIDESEL | WS_BORDER | controlStyle,
+		20, 50, 100, 20,
+		hwnd, HMENU(IDC_EDIT), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating edit field: %v", err)
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)

@@ -67,6 +67,7 @@ const (
 )
 
 // Combobox WM_COMMAND notificaitons.
+// TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
 	CBN_ERRSPACE = (-1)		// TODO this will blow up the Go compiler if it's used
