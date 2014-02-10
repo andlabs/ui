@@ -25,6 +25,7 @@ const (
 	IDC_FIXCOMBO
 	IDC_EDIT
 	IDC_LIST
+	IDC_LABEL
 )
 
 var varCombo, fixCombo, edit, list HWND
@@ -219,6 +220,16 @@ func main() {
 			fatalf("error adding %q to list box: %v", v, err)
 		}
 		// TODO check actual return value as THAT indicates an error
+	}
+
+	_, err = CreateWindowEx(
+		0,
+		"STATIC", "Label",
+		SS_NOPREFIX | controlStyle,
+		140, 80, 100, 20,
+		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating label: %v", err)
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)
