@@ -21,17 +21,47 @@ func fatalf(format string, args ...interface{}) {
 
 const (
 	IDC_BUTTON = 100
+	IDC_VARCOMBO = 101
+	IDC_FIXCOMBO = 102
 )
+
+var varCombo, fixCombo HWND
 
 func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 	switch msg {
 	case WM_COMMAND:
 		if wParam.LOWORD() == IDC_BUTTON {
+			buttonclick := "neither clicked nor double clicked (somehow)"
 			if wParam.HIWORD() == BN_CLICKED {
-				MessageBox(hwnd, "clicked", "", MB_OK)
+				buttonclick = "clicked"
 			} else if wParam.HIWORD() == BN_DOUBLECLICKED {
-				MessageBox(hwnd, "double clicked", "", MB_OK)
+				buttonclick = "double clicked"
 			}
+
+			varText, err := getText(varCombo)
+			if err != nil {
+				fatalf("error getting variable combo box text: %v", err)
+			}
+
+			fixTextWM, err := getText(fixCombo)
+			if err != nil {
+				fatalf("error getting fixed combo box text with WM_GETTEXT: %v", err)
+			}
+
+			fixTextIndex, err := SendMessage(fixCombo, CB_GETCURSEL, 0, 0)
+			if err != nil {
+				fatalf("error getting fixed combo box current selection: %v", err)
+			}
+			// TODO get text from index
+
+			MessageBox(hwnd,
+				fmt.Sprintf("button state: %s\n" +
+					"variable combo box text: %s\n" +
+					"fixed combo box text with WM_GETTEXT: %s\n" +
+					"fixed combo box current index: %d\n",
+					buttonclick, varText, fixTextWM, fixTextIndex),
+				"note",
+				MB_OK)
 		}
 		return 0
 	case WM_CLOSE:
@@ -103,10 +133,46 @@ func main() {
 		0,
 		"BUTTON", "Click Me",
 		BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-		20, 20, 100, 100,
+		20, 20, 100, 20,
 		hwnd, HMENU(IDC_BUTTON), hInstance, NULL)
 	if err != nil {
 		fatalf("error creating button: %v", err)
+	}
+
+	varCombo, err = CreateWindowEx(
+		0,
+		"COMBOBOX", "",
+		CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		140, 20, 100, 20,
+		hwnd, HMENU(IDC_VARCOMBO), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating variable combo box: %v", err)
+	}
+	vcItems := []string{"a", "b", "c", "d"}
+	for _, v := range vcItems {
+		_, err := SendMessage(varCombo, CB_ADDSTRING, 0,
+			LPARAMFromString(v))
+		if err != nil {
+			fatalf("error adding %q to variable combo box: %v", v, err)
+		}
+	}
+
+	fixCombo, err = CreateWindowEx(
+		0,
+		"COMBOBOX", "",
+		CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+		140, 50, 100, 20,
+		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
+	if err != nil {
+		fatalf("error creating fixed combo box: %v", err)
+	}
+	fcItems := []string{"e", "f", "g", "h"}
+	for _, v := range fcItems {
+		_, err := SendMessage(fixCombo, CB_ADDSTRING, 0,
+			LPARAMFromString(v))
+		if err != nil {
+			fatalf("error adding %q to fixed combo box: %v", v, err)
+		}
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)

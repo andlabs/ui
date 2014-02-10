@@ -6,6 +6,11 @@ import (
 	"unsafe"
 )
 
+// SendMessage constants.
+const (
+	HWND_BROADCAST = HWND(0xFFFF)
+)
+
 type MSG struct {
 	Hwnd	HWND
 	Message	uint32
@@ -19,6 +24,7 @@ var (
 	dispatchMessage = user32.NewProc("DispatchMessageW")
 	getMessage = user32.NewProc("GetMessageW")
 	postQuitMessage = user32.NewProc("PostQuitMessage")
+	sendMessage = user32.NewProc("SendMessageW")
 	translateMessage = user32.NewProc("TranslateMessage")
 )
 
@@ -47,6 +53,16 @@ func GetMessage(hWnd HWND, wMsgFilterMin uint32, wMsgFilterMax uint32) (lpMsg *M
 func PostQuitMessage(nExitCode int) (err error) {
 	postQuitMessage.Call(uintptr(nExitCode))
 	return nil
+}
+
+// TODO handle errors
+func SendMessage(hWnd HWND, Msg uint32, wParam WPARAM, lParam LPARAM) (result LRESULT, err error) {
+	r1, _, _ := sendMessage.Call(
+		uintptr(hWnd),
+		uintptr(Msg),
+		uintptr(wParam),
+		uintptr(lParam))
+	return LRESULT(r1), nil
 }
 
 // TODO handle errors
