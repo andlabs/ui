@@ -24,11 +24,8 @@ type uiret struct {
 func ui(initDone chan error) {
 	runtime.LockOSThread()
 
-	// initialize hInstance
-	// initialize nCmdShow
-	// initialize the common window class
 	uitask = make(chan *uimsg)
-	initDone <- nil
+	initDone <- doWindowsInit()
 
 	for m := range uitask {
 		r1, _, err := m.msg.Call(m.p...)
