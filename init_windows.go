@@ -11,7 +11,6 @@ var (
 	hInstance		HANDLE
 	nCmdShow	int
 	// TODO font
-	// TODO common window class
 )
 
 // TODO is this trick documented in MSDN?
