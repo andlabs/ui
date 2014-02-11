@@ -69,7 +69,7 @@ func doWindowsInit() (err error) {
 	}
 	err = registerStdWndClass()
 	if err != nil {
-		reteurn fmt.Errorf("error registering standard window class: %v", err)
+		return fmt.Errorf("error registering standard window class: %v", err)
 	}
 	// TODO others
 	return nil		// all ready to go

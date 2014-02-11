@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
-	"sync"
 )
 
 const (
@@ -34,7 +33,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		return 0
 	case _WM_CLOSE:
 		if sysData.closing != nil {
-			sysData.closing <- struct{}
+			sysData.closing <- struct{}{}
 		}
 		return 0
 	default:

@@ -19,7 +19,7 @@ func (c *cSysData) make() error {
 func (c *cSysData) show() error {
 	panic(runtime.GOOS + " sysData does not define show()")
 }
-func (c *cSysData) show() error {
+func (c *cSysData) hide() error {
 	panic(runtime.GOOS + " sysData does not define hide()")
 }
 
