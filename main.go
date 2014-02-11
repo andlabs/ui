@@ -87,6 +87,11 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 				MB_OK)
 		}
 		return 0
+	case WM_GETMINMAXINFO:
+		mm := lParam.MINMAXINFO()
+		mm.PtMinTrackSize.X = 320
+		mm.PtMinTrackSize.Y = 240
+		return 0
 	case WM_CLOSE:
 		err := DestroyWindow(hwnd)
 		if err != nil {

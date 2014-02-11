@@ -306,3 +306,15 @@ const (
 	WM_WINDOWPOSCHANGED = 0x0047
 	WM_WINDOWPOSCHANGING = 0x0046
 )
+
+type MINMAXINFO struct {
+	PtReserved		POINT
+	PtMaxSize			POINT
+	PtMaxPosition		POINT
+	PtMinTrackSize		POINT
+	PtMaxTrackSize	POINT
+}
+
+func (l LPARAM) MINMAXINFO() *MINMAXINFO {
+	return (*MINMAXINFO)(unsafe.Pointer(l))
+}
