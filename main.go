@@ -106,6 +106,14 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 	panic("unreachable")
 }
 
+func setFontAll(hwnd HWND, lParam LPARAM) (cont bool) {
+	_, err := SendMessage(hwnd, WM_SETFONT, WPARAM(lParam), LPARAM(TRUE))
+	if err != nil {
+		fatalf("error setting window font: %v", err)
+	}
+	return true
+}
+
 const className = "mainwin"
 
 func main() {
@@ -118,6 +126,10 @@ func main() {
 	nCmdShow, err := getWinMainnCmdShow()
 	if err != nil {
 		fatalf("error getting WinMain nCmdShow: %v", err)
+	}
+	font, err := getStandardWindowFont()
+	if err != nil {
+		fatalf("error getting standard window font: %v", err)
 	}
 
 	icon, err := LoadIcon_ResourceID(NULL, IDI_APPLICATION)
@@ -135,7 +147,7 @@ func main() {
 		HInstance:		hInstance,
 		HIcon:			icon,
 		HCursor:			cursor,
-		HbrBackground:	HBRUSH(COLOR_WINDOW + 1),
+		HbrBackground:	HBRUSH(COLOR_BTNFACE + 1),
 	}
 	_, err = RegisterClass(wc)
 	if err != nil {
@@ -143,7 +155,7 @@ func main() {
 	}
 
 	hwnd, err := CreateWindowEx(
-		WS_EX_OVERLAPPEDWINDOW,
+		0,
 		className, "Main Window",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, 320, 240,
@@ -247,6 +259,12 @@ func main() {
 		hwnd, HMENU(IDC_CHECK), hInstance, NULL)
 	if err != nil {
 		fatalf("error creating checkbox: %v", err)
+	}
+
+	setFontAll(hwnd, LPARAM(font))
+	err = EnumChildWindows(hwnd, setFontAll, LPARAM(font))
+	if err != nil {
+		fatalf("error setting font on controls: %v", err)
 	}
 
 	_, err = ShowWindow(hwnd, nCmdShow)

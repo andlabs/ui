@@ -134,6 +134,7 @@ const (
 var (
 	createWindowEx = user32.NewProc("CreateWindowExW")
 	destroyWindow = user32.NewProc("DestroyWindow")
+	enumChildWindows = user32.NewProc("EnumChildWindows")
 	showWindow = user32.NewProc("ShowWindow")
 )
 
@@ -163,6 +164,27 @@ func DestroyWindow(hWnd HWND) (err error) {
 	if r1 == 0 {		// failure
 		return err
 	}
+	return nil
+}
+
+type WNDENUMPROC func(hwnd HWND, lParam LPARAM) (cont bool)
+type _WNDENUMPROC func(hwnd HWND, lParam LPARAM) int
+
+func enumChildProc(p WNDENUMPROC) _WNDENUMPROC {
+	return func(hwnd HWND, lParam LPARAM) int {
+		if p(hwnd, lParam) {
+			return TRUE
+		}
+		return FALSE
+	}
+}
+
+// TODO figure out how to handle errors
+func EnumChildWindows(hWndParent HWND, lpEnumFunc WNDENUMPROC, lParam LPARAM) (err error) {
+	enumChildWindows.Call(
+		uintptr(hWndParent),
+		syscall.NewCallback(enumChildProc(lpEnumFunc)),
+		uintptr(lParam))
 	return nil
 }
 

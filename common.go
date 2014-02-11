@@ -12,6 +12,7 @@ import (
 var (
 	user32 = syscall.NewLazyDLL("user32.dll")
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
+	gdi32 = syscall.NewLazyDLL("gdi32.dll")
 )
 
 type HANDLE uintptr
@@ -21,6 +22,8 @@ type HMENU HANDLE
 
 const (
 	NULL = 0
+	FALSE = 0			// from windef.h
+	TRUE = 1			// from windef.h
 )
 
 type ATOM uint16
