@@ -48,6 +48,8 @@ var (
 )
 
 func msgloop() {
+	runtime.LockOSThread()
+
 	var msg struct {
 		Hwnd	_HWND
 		Message	uint32
