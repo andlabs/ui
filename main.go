@@ -92,6 +92,11 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 		mm.PtMinTrackSize.X = 320
 		mm.PtMinTrackSize.Y = 240
 		return 0
+	case WM_SIZE:
+		if wParam != SIZE_MINIMIZED {
+			resize(hwnd)
+		}
+		return 0
 	case WM_CLOSE:
 		err := DestroyWindow(hwnd)
 		if err != nil {
@@ -117,6 +122,22 @@ func setFontAll(hwnd HWND, lParam LPARAM) (cont bool) {
 		fatalf("error setting window font: %v", err)
 	}
 	return true
+}
+
+func resize(hwnd HWND) {
+	cr, err := GetClientRect(hwnd)
+	if err != nil {
+		fatalf("error getting window client rect: %v", err)
+	}
+	cr.Bottom -= 80		// Y position of listbox
+	cr.Bottom -= 20		// amount of pixels to leave behind
+	err = SetWindowPos(list,
+		HWND_TOP,
+		20, 80, 100, int(cr.Bottom),
+		0)
+	if err != nil {
+		fatalf("error resizing listbox: %v", err)
+	}
 }
 
 const className = "mainwin"
@@ -271,6 +292,7 @@ func main() {
 	if err != nil {
 		fatalf("error setting font on controls: %v", err)
 	}
+	resize(hwnd)
 
 	_, err = ShowWindow(hwnd, nCmdShow)
 	if err != nil {

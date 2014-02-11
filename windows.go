@@ -114,6 +114,39 @@ const (
 	COLOR_WINDOWTEXT = 8
 )
 
+// SetWindowPos hWndInsertAfter values.
+const (
+	HWND_BOTTOM = HWND(1)
+	HWND_TOP = HWND(0)
+)
+
+// SetWindowPos hWndInsertAfter values that Go won't allow as constants.
+var (
+	_HWND_NOTOPMOST = -2
+	HWND_NOTOPMOST = HWND(_HWND_NOTOPMOST)
+	_HWND_TOPMOST = -1
+	HWND_TOPMOST = HWND(_HWND_TOPMOST)
+)
+
+// SetWindowPos uFlags values.
+const (
+	SWP_DRAWFRAME = 0x0020
+	SWP_FRAMECHANGED = 0x0020
+	SWP_HIDEWINDOW = 0x0080
+	SWP_NOACTIVATE = 0x0010
+	SWP_NOCOPYBITS = 0x0100
+	SWP_NOMOVE = 0x0002
+	SWP_NOOWNERZORDER = 0x0200
+	SWP_NOREDRAW = 0x0008
+	SWP_NOREPOSITION = 0x0200
+	SWP_NOSENDCHANGING = 0x0400
+	SWP_NOSIZE = 0x0001
+	SWP_NOZORDER = 0x0004
+	SWP_SHOWWINDOW = 0x0040
+	SWP_ASYNCWINDOWPOS = 0x4000
+	SWP_DEFERERASE = 0x2000
+)
+
 // ShowWindow settings.
 const (
 	SW_FORCEMINIMIZE = 11
@@ -134,7 +167,9 @@ const (
 var (
 	createWindowEx = user32.NewProc("CreateWindowExW")
 	destroyWindow = user32.NewProc("DestroyWindow")
+	getClientRect = user32.NewProc("GetClientRect")
 	enumChildWindows = user32.NewProc("EnumChildWindows")
+	setWindowPos = user32.NewProc("SetWindowPos")
 	showWindow = user32.NewProc("ShowWindow")
 )
 
@@ -185,6 +220,33 @@ func EnumChildWindows(hWndParent HWND, lpEnumFunc WNDENUMPROC, lParam LPARAM) (e
 		uintptr(hWndParent),
 		syscall.NewCallback(enumChildProc(lpEnumFunc)),
 		uintptr(lParam))
+	return nil
+}
+
+// TODO return the rect itself?
+func GetClientRect(hWnd HWND) (lpRect *RECT, err error) {
+	lpRect = new(RECT)
+	r1, _, err := getClientRect.Call(
+		uintptr(hWnd),
+		uintptr(unsafe.Pointer(lpRect)))
+	if r1 == 0 {		// failure
+		return nil, err
+	}
+	return lpRect, nil
+}
+
+func SetWindowPos(hWnd HWND, hWndInsertAfter HWND, X int, Y int, cx int, cy int, uFlags uint32) (err error) {
+	r1, _, err := setWindowPos.Call(
+		uintptr(hWnd),
+		uintptr(hWndInsertAfter),
+		uintptr(X),
+		uintptr(Y),
+		uintptr(cx),
+		uintptr(cy),
+		uintptr(uFlags))
+	if r1 == 0 {		// failure
+		return err
+	}
 	return nil
 }
 
