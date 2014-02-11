@@ -2,63 +2,77 @@
 package main
 
 import (
+	"fmt"
 	"syscall"
 	"unsafe"
 )
 
-type WNDCLASS struct {
-	Style				uint32
-	LpfnWndProc		WNDPROC
-	CbClsExtra		int		// TODO exact Go type for C int? MSDN says C int
-	CbWndExtra		int		// TODO exact Go type for C int? MSDN says C int
-	HInstance			HANDLE	// actually HINSTANCE
-	HIcon			HANDLE	// actually HICON
-	HCursor			HANDLE	// actually HCURSOR
-	HbrBackground	HBRUSH
-	LpszMenuName	*string	// TODO this should probably just be a regular string with "" indicating no name but MSDN doesn't say if that's legal or not
-	LpszClassName	string
+const (
+	stdWndClass = "gouiwndclass"
+)
+
+var (
+	defWindowProc = user32.NewProc("DefWindowProcW")
+)
+
+func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	// TODO get CreateWindowEx data
+	switch uMsg {
+	default:
+		r1, _, _ := defWindowProc.Call(
+			uintptr(hwnd),
+			uintptr(uMsg),
+			uintptr(wParam),
+			uintptr(lParam))
+		return LRESULT(r1)
+	}
+	panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
 }
 
-type _WNDCLASSW struct {
+type _WNDCLASS struct {
 	style				uint32
 	lpfnWndProc		uintptr
 	cbClsExtra		int
 	cbWndExtra		int
-	hInstance			HANDLE
-	hIcon			HANDLE
-	hCursor			HANDLE
-	hbrBackground	HBRUSH
+	hInstance			_HANDLE
+	hIcon			_HANDLE
+	hCursor			_HANDLE
+	hbrBackground	_HBRUSH
 	lpszMenuName	*uint16
 	lpszClassName		*uint16
 }
 
-func (w *WNDCLASS) toNative() *_WNDCLASSW {
-	menuName := (*uint16)(nil)
-	if w.LpszMenuName != nil {
-		menuName = syscall.StringToUTF16Ptr(*w.LpszMenuName)
-	}
-	return &_WNDCLASSW{
-		style:			w.Style,
-		lpfnWndProc:		syscall.NewCallback(w.LpfnWndProc),
-		cbClsExtra:		w.CbClsExtra,
-		cbWndExtra:		w.CbWndExtra,
-		hInstance:		w.HInstance,
-		hIcon:			w.HIcon,
-		hCursor:			w.HCursor,
-		hbrBackground:	w.HbrBackground,
-		lpszMenuName:	menuName,
-		lpszClassName:	syscall.StringToUTF16Ptr(w.LpszClassName),
-	}
-}
+func registerStdWndClass() (err error) {
+	const (
+		_IDI_APPLICATION = 32512
+		_IDC_ARROW = 32512
+	)
 
-var (
-	registerClass = user32.NewProc("RegisterClassW")
-)
+	icon, err := user32.NewProc("LoadIconW").Call(
+		uintptr(_NULL),
+		uintptr(_IDI_APPLICATION))
+	if err != nil {
+		return fmt.Errorf("error getting window icon: %v", err)
+	}
+	cursor, err := user32.NewProc("LoadCursorW").Call(
+		uintptr(_NULL),
+		uintptr(_IDC_ARROW))
+	if err != nil {
+		return fmt.Errorf("error getting window cursor: %v", err)
+	}
 
-func RegisterClass(lpWndClass *WNDCLASS) (class ATOM, err error) {
-	r1, _, err := registerClass.Call(uintptr(unsafe.Pointer(lpWndClass.toNative())))
+	wc := &_WNDCLASS{
+		lpszClassName:	syscall.StringToUTF16Ptr(stdWndClass),
+		lpfnWndProc:		syscall.NewCallback(stdWndProc),
+		hInstance:		hInstance,
+		hIcon:			icon,
+		hCursor:			cursor,
+		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+	}
+
+	r1, _, err := user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
 	if r1 == 0 {		// failure
-		return 0, err
+		return fmt.Errorf("error registering class: %v", err)
 	}
-	return ATOM(r1), nil
+	return nil
 }

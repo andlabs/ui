@@ -24,7 +24,7 @@ type classData struct {
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
-		name:	uintptr(unsafe.Pointer(windowclass)),
+		name:	uintptr(unsafe.Pointer(stdWndClass)),
 		style:	xxxx,
 		xstyle:	xxxx,
 	},

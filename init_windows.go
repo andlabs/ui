@@ -7,10 +7,6 @@ import (
 	"unsafe"
 )
 
-const (
-	windowclass = "gouiwndclass"
-)
-
 var (
 	hInstance		HANDLE
 	nCmdShow	int
@@ -71,6 +67,10 @@ func doWindowsInit() (err error) {
 	err = getWinMainnCmdShow()
 	if err != nil {
 		return fmt.Errorf("error getting WinMain nCmdShow: %v", err)
+	}
+	err = registerStdWndClass()
+	if err != nil {
+		reteurn fmt.Errorf("error registering standard window class: %v", err)
 	}
 	// TODO others
 	return nil		// all ready to go
