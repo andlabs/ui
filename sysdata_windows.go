@@ -43,7 +43,7 @@ func (s *sysData) show() (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		os_showWindow,
+		call:		_showWindow,
 		p:		[]uintptr{uintptr(s.hwnd, _SW_SHOW},
 		ret:		ret,
 	}

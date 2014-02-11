@@ -2,28 +2,30 @@
 package main
 
 import (
+	"fmt"
 //	"syscall"
 	"unsafe"
 )
 
-// this provides the hInstance and nCmdShow that are normally passed to WinMain()
-
 const (
-	STARTF_USESHOWWINDOW = 0x00000001
+	windowclass = "gouiwndclass"
 )
 
 var (
-	getModuleHandle = kernel32.NewProc("GetModuleHandleW")
-	getStartupInfo = kernel32.NewProc("GetStartupInfoW")
+	hInstance		HANDLE
+	nCmdShow	int
+	// TODO font
+	// TODO common window class
 )
 
 // TODO is this trick documented in MSDN?
-func getWinMainhInstance() (hInstance HANDLE, err error) {
-	r1, _, err := getModuleHandle.Call(uintptr(NULL))
-	if r1 == 0 {
-		return NULL, err
+func getWinMainhInstance() (err error) {
+	r1, _, err := kernel32.NewProc("GetModuleHandleW").Call(uintptr(NULL))
+	if r1 == 0 {		// failure
+		return err
 	}
-	return HANDLE(r1), nil
+	hInstance = HANDLE(r1)
+	return nil
 }
 
 // TODO this is what MinGW-w64's crt (svn revision xxx) does; is it best? is any of this documented anywhere on MSDN?
@@ -49,11 +51,27 @@ func getWinMainnCmdShow() (nCmdShow int, err error) {
 		hStdOutput		HANDLE
 		hStdError			HANDLE
 	}
+	const _STARTF_USESHOWWINDOW = 0x00000001
 
 	// does not fail according to MSDN
-	getStartupInfo.Call(uintptr(unsafe.Pointer(&info)))
-	if info.dwFlags & STARTF_USESHOWWINDOW != 0 {
-		return int(info.wShowWindow), nil
+	kernel32.NewProc("GetStartupInfoW").Call(uintptr(unsafe.Pointer(&info)))
+	if info.dwFlags & _STARTF_USESHOWWINDOW != 0 {
+		nCmdShow = int(info.wShowWindow)
+		return nil
 	}
-	return SW_SHOWDEFAULT, nil
+	nCmdShow = _SW_SHOWDEFAULT
+	return nil
+}
+
+func doWindowsInit() (err error) {
+	err = getWinMainhInstance()
+	if err != nil {
+		return fmt.Errorf("error getting WinMain hInstance: %v", err)
+	}
+	err = getWinMainnCmdShow()
+	if err != nil {
+		return fmt.Errorf("error getting WinMain nCmdShow: %v", err)
+	}
+	// TODO others
+	return nil		// all ready to go
 }
