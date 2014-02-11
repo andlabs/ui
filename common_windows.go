@@ -15,46 +15,47 @@ var (
 	gdi32 = syscall.NewLazyDLL("gdi32.dll")
 )
 
-type HANDLE uintptr
-type HWND HANDLE
-type HBRUSH HANDLE
-type HMENU HANDLE
+type _HANDLE uintptr
+type _HWND _HANDLE
+type _HBRUSH _HANDLE
+type _HMENU _HANDLE
 
 const (
-	NULL = 0
-	FALSE = 0			// from windef.h
-	TRUE = 1			// from windef.h
+	_NULL = 0
+	_FALSE = 0		// from windef.h
+	_TRUE = 1			// from windef.h
 )
-
-type ATOM uint16
 
 // TODO pull the thanks for these three from the old wingo source
 // TODO put these in windows.go
-type WPARAM uintptr
-type LPARAM uintptr
-type LRESULT uintptr
+type _WPARAM uintptr
+type _LPARAM uintptr
+type _LRESULT uintptr
 
-func (w WPARAM) LOWORD() uint16 {
+func (w _WPARAM) LOWORD() uint16 {
 	// according to windef.h
 	return uint16(w & 0xFFFF)
 }
 
-func (w WPARAM) HIWORD() uint16 {
+func (w _WPARAM) HIWORD() uint16 {
 	// according to windef.h
 	return uint16((w >> 16) & 0xFFFF)
 }
 
-func LPARAMFromString(str string) LPARAM {
-	return LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(str)))
+func _LPARAMFromString(str string) _LPARAM {
+	return _LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(str)))
 }
 
 // microsoft's header files do this
-func MAKEINTRESOURCE(what uint16) uintptr {
+func _MAKEINTRESOURCE(what uint16) uintptr {
 	return uintptr(what)
 }
 
+/*
+// TODO migrate
+
 // TODO adorn error messages with which step failed?
-func getText(hwnd HWND) (text string, err error) {
+func getText(hwnd _HWND) (text string, err error) {
 	var tc []uint16
 
 	length, err := SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0)
@@ -70,4 +71,17 @@ func getText(hwnd HWND) (text string, err error) {
 		return "", err
 	}
 	return syscall.UTF16ToString(tc), nil
+}
+*/
+
+type _POINT struct {
+	X	int32
+	Y	int32
+}
+
+type _RECT struct {
+	Left		int32
+	Top		int32
+	Right	int32
+	Bottom	int32
 }
