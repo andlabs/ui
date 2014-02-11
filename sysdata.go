@@ -9,6 +9,9 @@ import (
 type cSysData struct {
 	ctype	int
 	text		string
+
+	// for Window
+	closing	chan struct{}
 }
 func (c *cSysData) make() error {
 	panic(runtime.GOOS + " sysData does not define make()")

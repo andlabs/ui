@@ -57,6 +57,7 @@ func (w *Window) Open() (err error) {
 
 	// If the window has already been created, show it.
 	if !w.created {
+		w.sysData.closing = w.Closing
 		err = w.sysData.make()
 		if err != nil {
 			return err
@@ -72,6 +73,7 @@ func (w *Window) Open() (err error) {
 }
 
 // Close closes the window. The window is not destroyed; it is merely hidden.
+// TODO don't send on w.Closing
 func (w *Window) Close() (err error) {
 	return w.sysData.hide()
 }

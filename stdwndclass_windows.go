@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
+	"sync"
 )
 
 const (
@@ -16,8 +17,26 @@ var (
 )
 
 func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-	// TODO get CreateWindowEx data
+	sysData := getSysData(hwnd)
 	switch uMsg {
+	case _WM_COMMAND:
+		id := wParam.LOWORD()
+		// ... member events
+		_ = id
+		return 0
+	case _WM_GETMINMAXINFO:
+		mm := lParam.MINMAXINFO()
+		// ... minimum size
+		_ = mm
+		return 0
+	case _WM_SIZE:
+		// TODO
+		return 0
+	case _WM_CLOSE:
+		if sysData.closing != nil {
+			sysData.closing <- struct{}
+		}
+		return 0
 	default:
 		r1, _, _ := defWindowProc.Call(
 			uintptr(hwnd),
