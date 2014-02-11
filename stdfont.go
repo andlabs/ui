@@ -52,6 +52,7 @@ var (
 )
 
 // TODO adorn errors with which step failed?
+// TODO this specific font doesn't seem like the right one but that's all I could find for what people actually use; also I need to return the other ones and check HWND types to make sure I apply the right font to the right thing...
 func getStandardWindowFont() (hfont HANDLE, err error) {
 	var ncm NONCLIENTMETRICS
 
