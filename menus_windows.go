@@ -1,4 +1,5 @@
 // 10 february 2014
+//package ui
 package main
 
 import (
@@ -8,5 +9,5 @@ import (
 
 // Menu notifications.
 const (
-	WM_COMMAND = 0x0111
+	_WM_COMMAND = 0x0111
 )

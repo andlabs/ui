@@ -31,7 +31,7 @@ func ui(initDone chan error) {
 	go msgloop()
 
 	for m := range uitask {
-		r1, _, err := m.msg.Call(m.p...)
+		r1, _, err := m.call.Call(m.p...)
 		m.ret <- uiret{
 			ret:	r1,
 			err:	err,
@@ -47,6 +47,8 @@ var (
 	_translateMessage = user32.NewProc("TranslateMessage")
 )
 
+var getMessageFail = -1		// because Go doesn't let me
+
 func msgloop() {
 	runtime.LockOSThread()
 
@@ -60,7 +62,7 @@ func msgloop() {
 	}
 
 	for {
-		r1, _, err := getMessage.Call(
+		r1, _, err := _getMessage.Call(
 			uintptr(unsafe.Pointer(&msg)),
 			uintptr(_NULL),
 			uintptr(0),

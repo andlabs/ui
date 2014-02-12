@@ -46,7 +46,7 @@ func (s *sysData) make() (err error) {
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
 			ct.name,
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s.title))),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s.text))),
 			uintptr(ct.style),
 			uintptr(_CW_USEDEFAULT),		// TODO
 			uintptr(_CW_USEDEFAULT),

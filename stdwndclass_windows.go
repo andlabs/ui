@@ -42,7 +42,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			uintptr(uMsg),
 			uintptr(wParam),
 			uintptr(lParam))
-		return LRESULT(r1)
+		return _LRESULT(r1)
 	}
 	panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
 }
@@ -66,18 +66,21 @@ func registerStdWndClass() (err error) {
 		_IDC_ARROW = 32512
 	)
 
-	icon, err := user32.NewProc("LoadIconW").Call(
+	r1, _, err := user32.NewProc("LoadIconW").Call(
 		uintptr(_NULL),
 		uintptr(_IDI_APPLICATION))
 	if err != nil {
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
-	cursor, err := user32.NewProc("LoadCursorW").Call(
+	icon := _HANDLE(r1)
+
+	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
 		uintptr(_IDC_ARROW))
 	if err != nil {
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
+	cursor := _HANDLE(r1)
 
 	wc := &_WNDCLASS{
 		lpszClassName:	syscall.StringToUTF16Ptr(stdWndClass),
@@ -88,7 +91,7 @@ func registerStdWndClass() (err error) {
 		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
 	}
 
-	r1, _, err := user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
+	r1, _, err = user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
 	if r1 == 0 {		// failure
 		return fmt.Errorf("error registering class: %v", err)
 	}

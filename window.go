@@ -24,8 +24,10 @@ type Window struct {
 func NewWindow(title string) *Window {
 	return &Window{
 		sysData:	&sysData{
-			ctype:	c_window,
-			text:		title,
+			cSysData:		cSysData{
+				ctype:	c_window,
+				text:		title,
+			},
 		},
 	}
 }
