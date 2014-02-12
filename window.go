@@ -32,23 +32,17 @@ func NewWindow(title string) *Window {
 	}
 }
 
-// SetControl sets the window's central control to control.
+// SetControl sets the window's central control to control. This function cannot be called once the window has been opened.
 func (w *Window) SetControl(control Control) (err error) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
-	w.control = control
-	err = w.control.unapply()
-	if err != nil {
-		return err
-	}
-	w.control.setParent(w)
 	if w.created {
-		err = w.control.apply()
-		if err != nil {
-			return err
-		}
+		panic("cannot set window control after window has been opened")
 	}
+	w.control = control
+	w.control.setParent(w)
+	w.control.setParentWindow(w)
 	return nil
 }
 
@@ -85,9 +79,9 @@ func (w *Window) Close() (err error) {
 func (w *Window) apply() error {
 	panic("Window.apply() should never be called")
 }
-func (w *Window) unapply() error {
-	panic("Window.unapply() should never be called")
-}
 func (w *Window) setParent(c Control) {
+	panic("Window.setParent() should never be called")
+}
+func (w *Window) setParentWindow(w *Window) {
 	panic("Window.setParent() should never be called")
 }
