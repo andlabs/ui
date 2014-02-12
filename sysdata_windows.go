@@ -26,7 +26,7 @@ type classData struct {
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
-		name:	uintptr(unsafe.Pointer(stdWndClass)),
+		name:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
 		style:	_WS_OVERLAPPEDWINDOW,
 		xstyle:	0,
 	},
@@ -57,7 +57,7 @@ func (s *sysData) make() (err error) {
 			uintptr(hInstance),
 			uintptr(_NULL),
 		},
-		ret:	ret
+		ret:	ret,
 	}
 	r := <-ret
 	if r.err != nil {
@@ -87,7 +87,7 @@ func (s *sysData) show() (err error) {
 	defer close(ret)
 	uitask <- &uimsg{
 		call:		_showWindow,
-		p:		[]uintptr{uintptr(s.hwnd, show},
+		p:		[]uintptr{uintptr(s.hwnd), show},
 		ret:		ret,
 	}
 	r := <-ret

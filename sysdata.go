@@ -26,4 +26,5 @@ func (c *cSysData) hide() error {
 const (
 	c_window = iota
 	c_button
+	nctypes
 )

@@ -15,7 +15,7 @@ type sdcEntry struct {
 
 var (
 	sysDatas = map[_HWND]*sdcEntry{}
-	sysDatasLock sys.Mutex
+	sysDatasLock sync.Mutex
 )
 
 func addSysData(hwnd _HWND, s *sysData) {

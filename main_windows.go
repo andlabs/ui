@@ -1,7 +1,7 @@
+// +build ignore
+
 // 7 february 2014
 package main
-
-//+build skip
 
 import (
 	"fmt"

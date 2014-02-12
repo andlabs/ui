@@ -2,7 +2,7 @@
 package main
 
 import (
-	"syscall"
+//	"syscall"
 	"unsafe"
 )
 
@@ -173,27 +173,7 @@ var (
 	_showWindow = user32.NewProc("ShowWindow")
 )
 
-// TODO use lpParam
-func CreateWindowEx(dwExStyle uint32, lpClassName string, lpWindowName string, dwStyle uint32, x int, y int, nWidth int, nHeight int, hwndParent HWND, hMenu HMENU, hInstance HANDLE, lpParam interface{}) (hwnd HWND, err error) {
-	r1, _, err := createWindowEx.Call(
-		uintptr(dwExStyle),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpClassName))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpWindowName))),
-		uintptr(dwStyle),
-		uintptr(x),
-		uintptr(y),
-		uintptr(nWidth),
-		uintptr(nHeight),
-		uintptr(hwndParent),
-		uintptr(hMenu),
-		uintptr(hInstance),
-		uintptr(0))
-	if r1 == 0 {		// failure
-		return NULL, err
-	}
-	return HWND(r1), nil
-}
-
+/*
 func DestroyWindow(hWnd HWND) (err error) {
 	r1, _, err := destroyWindow.Call(uintptr(hWnd))
 	if r1 == 0 {		// failure
@@ -249,14 +229,7 @@ func SetWindowPos(hWnd HWND, hWndInsertAfter HWND, X int, Y int, cx int, cy int,
 	}
 	return nil
 }
-
-// TODO figure out how to handle errors
-func ShowWindow(hWnd HWND, nCmdShow int) (previouslyVisible bool, err error) {
-	r1, _, _ := showWindow.Call(
-		uintptr(hWnd),
-		uintptr(nCmdShow))
-	return r1 != 0, nil
-}
+*/
 
 // WM_SETICON and WM_GETICON values.
 const (
@@ -377,6 +350,6 @@ type _MINMAXINFO struct {
 	PtMaxTrackSize	_POINT
 }
 
-func (l _LPARAM) MINMAXINFO() *MINMAXINFO {
+func (l _LPARAM) MINMAXINFO() *_MINMAXINFO {
 	return (*_MINMAXINFO)(unsafe.Pointer(l))
 }

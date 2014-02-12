@@ -8,24 +8,24 @@ import (
 )
 
 var (
-	hInstance		HANDLE
+	hInstance		_HANDLE
 	nCmdShow	int
 	// TODO font
 )
 
 // TODO is this trick documented in MSDN?
 func getWinMainhInstance() (err error) {
-	r1, _, err := kernel32.NewProc("GetModuleHandleW").Call(uintptr(NULL))
+	r1, _, err := kernel32.NewProc("GetModuleHandleW").Call(uintptr(_NULL))
 	if r1 == 0 {		// failure
 		return err
 	}
-	hInstance = HANDLE(r1)
+	hInstance = _HANDLE(r1)
 	return nil
 }
 
-// TODO this is what MinGW-w64's crt (svn revision xxx) does; is it best? is any of this documented anywhere on MSDN?
+// TODO this is what MinGW-w64's crt (svn revision TODO) does; is it best? is any of this documented anywhere on MSDN?
 // TODO I highly doubt Windows API functions ever not fail, so figure out what to do should an error actually occur
-func getWinMainnCmdShow() (nCmdShow int, err error) {
+func getWinMainnCmdShow() (err error) {
 	var info struct {
 		cb				uint32
 		lpReserved		*uint16
@@ -42,9 +42,9 @@ func getWinMainnCmdShow() (nCmdShow int, err error) {
 		wShowWindow		uint16
 		cbReserved2		uint16
 		lpReserved2		*byte
-		hStdInput			HANDLE
-		hStdOutput		HANDLE
-		hStdError			HANDLE
+		hStdInput			_HANDLE
+		hStdOutput		_HANDLE
+		hStdError			_HANDLE
 	}
 	const _STARTF_USESHOWWINDOW = 0x00000001
 
