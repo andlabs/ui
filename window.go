@@ -56,7 +56,7 @@ func (w *Window) SetTitle(title string) (err error) {
 	defer w.lock.Unlock()
 
 	if w.created {
-		panic("TODO")
+		return w.sysData.setText(title)
 	}
 	w.initTitle = title
 	return nil
@@ -93,6 +93,7 @@ func (w *Window) Open() (err error) {
 				return err
 			}
 		}
+		w.created = true
 	}
 	return w.sysData.show()
 }

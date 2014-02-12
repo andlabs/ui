@@ -16,7 +16,10 @@ mainloop:
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
-			println("clicked")
+			err := w.SetTitle("Button Clicked")
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 	w.Close()

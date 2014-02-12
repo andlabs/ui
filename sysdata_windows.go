@@ -143,3 +143,21 @@ func (s *sysData) hide() (err error) {
 	<-ret
 	return nil
 }
+
+func (s *sysData) setText(text string) error {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_setWindowText,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(text))),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {		// failure
+		return r.err
+	}
+	return nil
+}

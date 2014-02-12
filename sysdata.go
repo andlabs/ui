@@ -25,6 +25,9 @@ func (c *cSysData) show() error {
 func (c *cSysData) hide() error {
 	panic(runtime.GOOS + " sysData does not define hide()")
 }
+func (c *cSysData) setText(text string) error {
+	panic(runtime.GOOS + " sysData does not define setText()")
+}
 
 const (
 	c_window = iota

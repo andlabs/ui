@@ -1,6 +1,7 @@
 so I don't forget:
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetSize(Window.OptimalSize())`) for sizing a window to the control's interest
 - Control.Show()/Control.Hide()
+- Control.SetText()
 
 super ultra important things:
 - the windows build appears to be unstable:

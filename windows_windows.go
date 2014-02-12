@@ -170,6 +170,7 @@ var (
 	_getClientRect = user32.NewProc("GetClientRect")
 	_enumChildWindows = user32.NewProc("EnumChildWindows")
 	_setWindowPos = user32.NewProc("SetWindowPos")
+	_setWindowText = user32.NewProc("SetWindowTextW")
 	_showWindow = user32.NewProc("ShowWindow")
 )
 
