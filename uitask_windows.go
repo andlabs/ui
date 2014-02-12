@@ -28,13 +28,34 @@ func ui(initDone chan error) {
 	uitask = make(chan *uimsg)
 	initDone <- doWindowsInit()
 
-	go msgloop()
+//	go msgloop()
+	var msg struct {
+		Hwnd	_HWND
+		Message	uint32
+		WParam	_WPARAM
+		LParam	_LPARAM
+		Time		uint32
+		Pt		_POINT
+	}
+	var _peekMessage = user32.NewProc("PeekMessageW")
+	const _PM_REMOVE = 0x0001
 
-	for m := range uitask {
-		r1, _, err := m.call.Call(m.p...)
-		m.ret <- uiret{
-			ret:	r1,
-			err:	err,
+	for {
+		select {
+		case m := <-uitask:
+			r1, _, err := m.call.Call(m.p...)
+			m.ret <- uiret{
+				ret:	r1,
+				err:	err,
+			}
+		default:
+			// TODO figure out how to handle errors
+			_peekMessage.Call(
+				uintptr(unsafe.Pointer(&msg)),
+				uintptr(_NULL),
+				0,
+				0,
+				uintptr(_PM_REMOVE))
 		}
 	}
 }
