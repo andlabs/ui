@@ -42,7 +42,7 @@ var classTypes = [nctypes]*classData{
 
 var (
 	cid _HMENU = 0
-	cidLock sys.Mutex
+	cidLock sync.Mutex
 )
 
 func nextID() _HMENU {
@@ -52,7 +52,7 @@ func nextID() _HMENU {
 	return cid
 }
 
-func (s *sysData) make() (err error) {
+func (s *sysData) make(initText string) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
@@ -64,7 +64,7 @@ func (s *sysData) make() (err error) {
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(ct.name))),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s.text))),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
 			uintptr(ct.style),
 			uintptr(_CW_USEDEFAULT),		// TODO
 			uintptr(_CW_USEDEFAULT),

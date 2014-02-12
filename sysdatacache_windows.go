@@ -9,9 +9,9 @@ import (
 // I need a way to get a sysData for a given HWND or a given HWND/control ID. So, this.
 
 var (
-	sysDatas = map[_HWND]*sdcEntry{}
+	sysDatas = map[_HWND]*sysData{}
 	sysDatasLock sync.Mutex
-	sysDataIDs = map[_HMENU]*sdcEntry{}
+	sysDataIDs = map[_HMENU]*sysData{}
 	sysDataIDsLock sync.Mutex
 )
 
@@ -21,7 +21,7 @@ func addSysData(hwnd _HWND, s *sysData) {
 	sysDatas[hwnd] = s
 }
 
-func addIDSysData(id _HMENU, s *sysData) {
+func addSysDataID(id _HMENU, s *sysData) {
 	sysDataIDsLock.Lock()
 	defer sysDataIDsLock.Unlock()
 	sysDataIDs[id] = s
@@ -36,11 +36,11 @@ func getSysData(hwnd _HWND) *sysData {
 	return nil
 }
 
-func getIDSysData(id _HMENU) *sysData {
+func getSysDataID(id _HMENU) *sysData {
 	sysDataIDsLock.Lock()
 	defer sysDataIDsLock.Unlock()
 	if ss, ok := sysDataIDs[id]; ok {
 		return ss
 	}
-	panic(fmt.Sprintf("getting nonexistent ID %d for HWND %d\n", id, hwnd))
+	panic(fmt.Sprintf("getting nonexistent ID %d\n", id))
 }

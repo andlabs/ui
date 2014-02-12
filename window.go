@@ -18,6 +18,7 @@ type Window struct {
 	created	bool
 	control	Control
 	sysData	*sysData
+	initText	string
 }
 
 // NewWindow creates a new window with the given title. The window is not constructed at the OS level until a call to Open().
@@ -26,9 +27,9 @@ func NewWindow(title string) *Window {
 		sysData:	&sysData{
 			cSysData:		cSysData{
 				ctype:	c_window,
-				text:		title,
 			},
 		},
+		initText:	title,
 	}
 }
 
@@ -54,7 +55,7 @@ func (w *Window) Open() (err error) {
 	// If the window has already been created, show it.
 	if !w.created {
 		w.sysData.closing = w.Closing
-		err = w.sysData.make()
+		err = w.sysData.make(w.initText)
 		if err != nil {
 			return err
 		}
@@ -82,6 +83,6 @@ func (w *Window) apply() error {
 func (w *Window) setParent(c Control) {
 	panic("Window.setParent() should never be called")
 }
-func (w *Window) setParentWindow(w *Window) {
+func (w *Window) setParentWindow(w2 *Window) {
 	panic("Window.setParent() should never be called")
 }
