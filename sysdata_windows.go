@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
+	"sync"
 )
 
 type sysData struct {
@@ -19,6 +20,7 @@ type classData struct {
 	name	string
 	style		uint32
 	xstyle	uint32
+	mkid		bool
 }
 
 //const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
@@ -34,13 +36,29 @@ var classTypes = [nctypes]*classData{
 //		name:	"BUTTON"
 //		style:	_BS_PUSHBUTTON | controlstyle,
 //		xstyle:	0 | controlxstyle,
+//		mkid:	true,
 //	},
+}
+
+var (
+	cid _HMENU = 0
+	cidLock sys.Mutex
+)
+
+func nextID() _HMENU {
+	cidLock.Lock()
+	defer cidLock.Unlock()
+	cid++
+	return cid
 }
 
 func (s *sysData) make() (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
+	if ct.mkid {
+		s.cid = nextID()
+	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
 		p:		[]uintptr{
@@ -65,7 +83,9 @@ func (s *sysData) make() (err error) {
 	}
 	s.hwnd = _HWND(r.ret)
 	addSysData(s.hwnd, s)
-	// TODO parent
+	if ct.mkid {
+		addSysDataID(s.cid, s)
+	}
 	return nil
 }
 
