@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"syscall"
 	"unsafe"
 	"runtime"
@@ -28,19 +27,8 @@ func ui(initDone chan error) {
 	uitask = make(chan *uimsg)
 	initDone <- doWindowsInit()
 
-//	go msgloop()
-	var msg struct {
-		Hwnd	_HWND
-		Message	uint32
-		WParam	_WPARAM
-		LParam	_LPARAM
-		Time		uint32
-		Pt		_POINT
-	}
-	var _peekMessage = user32.NewProc("PeekMessageW")
-	const _PM_REMOVE = 0x0001
-
-	for {
+	quit := false
+	for !quit {
 		select {
 		case m := <-uitask:
 			r1, _, err := m.call.Call(m.p...)
@@ -49,20 +37,19 @@ func ui(initDone chan error) {
 				err:	err,
 			}
 		default:
-			// TODO figure out how to handle errors
-			_peekMessage.Call(
-				uintptr(unsafe.Pointer(&msg)),
-				uintptr(_NULL),
-				0,
-				0,
-				uintptr(_PM_REMOVE))
+			quit = msgloopstep()
 		}
 	}
 }
 
+const (
+	_PM_REMOVE = 0x0001
+)
+
 var (
 	_dispatchMessage = user32.NewProc("DispatchMessageW")
 	_getMessage = user32.NewProc("GetMessageW")
+	_peekMessage = user32.NewProc("PeekMessageW")
 	_postQuitMessage = user32.NewProc("PostQuitMessage")
 	_sendMessage = user32.NewProc("SendMessageW")
 	_translateMessage = user32.NewProc("TranslateMessage")
@@ -70,9 +57,7 @@ var (
 
 var getMessageFail = -1		// because Go doesn't let me
 
-func msgloop() {
-	runtime.LockOSThread()
-
+func msgloopstep() (quit bool) {
 	var msg struct {
 		Hwnd	_HWND
 		Message	uint32
@@ -82,19 +67,21 @@ func msgloop() {
 		Pt		_POINT
 	}
 
-	for {
-		r1, _, err := _getMessage.Call(
-			uintptr(unsafe.Pointer(&msg)),
-			uintptr(_NULL),
-			uintptr(0),
-			uintptr(0))
-		if r1 == uintptr(getMessageFail) {		// failure
-			panic(fmt.Sprintf("GetMessage failed: %v", err))
-		} else if r1 == 0 {	// quit
-			break
-		}
-		// TODO handle potential errors in TranslateMessage() and DispatchMessage()
-		_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
-		_dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
+	// TODO figure out how to handle errors
+	r1, _, _ := _peekMessage.Call(
+		uintptr(unsafe.Pointer(&msg)),
+		uintptr(_NULL),
+		uintptr(0),
+		uintptr(0),
+		uintptr(_PM_REMOVE))
+	if r1 == 0 {		// no message available
+		return false
 	}
+	if msg.Message == _WM_QUIT {
+		return true
+	}
+	// TODO handle potential errors in TranslateMessage() and DispatchMessage()
+	_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
+	_dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
+	return false
 }
