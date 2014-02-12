@@ -38,9 +38,6 @@ var classTypes = [nctypes]*classData{
 }
 
 func (s *sysData) make() (err error) {
-	sysDatasLock.Lock()
-	defer sysDatasLock.Unlock()
-
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]

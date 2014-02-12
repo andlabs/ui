@@ -16,7 +16,10 @@ var (
 )
 
 func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-//	sysData := getSysData(hwnd)
+	sysData := getSysData(hwnd)
+	if sysData == nil {	// not ready for events yet
+		goto defwndproc
+	}
 	switch uMsg {
 	case _WM_COMMAND:
 		id := wParam.LOWORD()
@@ -32,19 +35,21 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		// TODO
 		return 0
 	case _WM_CLOSE:
-/*		if sysData.closing != nil {
+		if sysData.closing != nil {
 			sysData.closing <- struct{}{}
 		}
-*/		return 0
+		return 0
 	default:
-		r1, _, _ := defWindowProc.Call(
-			uintptr(hwnd),
-			uintptr(uMsg),
-			uintptr(wParam),
-			uintptr(lParam))
-		return _LRESULT(r1)
+		goto defwndproc
 	}
 	panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
+defwndproc:
+	r1, _, _ := defWindowProc.Call(
+		uintptr(hwnd),
+		uintptr(uMsg),
+		uintptr(wParam),
+		uintptr(lParam))
+	return _LRESULT(r1)
 }
 
 type _WNDCLASS struct {
