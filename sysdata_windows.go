@@ -16,7 +16,7 @@ type sysData struct {
 }
 
 type classData struct {
-	name	uintptr
+	name	string
 	style		uint32
 	xstyle	uint32
 }
@@ -26,12 +26,12 @@ type classData struct {
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
-		name:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
+		name:	stdWndClass,
 		style:	_WS_OVERLAPPEDWINDOW,
 		xstyle:	0,
 	},
 //	c_button:		&classData{
-//		name:	uintptr(unsafe.Pointer("BUTTON"))
+//		name:	"BUTTON"
 //		style:	_BS_PUSHBUTTON | controlstyle,
 //		xstyle:	0 | controlxstyle,
 //	},
@@ -48,7 +48,7 @@ func (s *sysData) make() (err error) {
 		call:		_createWindowEx,	
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
-			ct.name,
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(ct.name))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(s.text))),
 			uintptr(ct.style),
 			uintptr(_CW_USEDEFAULT),		// TODO

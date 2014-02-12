@@ -7,7 +7,7 @@ import (
 	"unsafe"
 )
 
-const (
+var (
 	stdWndClass = "gouiwndclass"
 )
 
@@ -57,7 +57,7 @@ type _WNDCLASS struct {
 	hCursor			_HANDLE
 	hbrBackground	_HBRUSH
 	lpszMenuName	*uint16
-	lpszClassName		*uint16
+	lpszClassName		uintptr
 }
 
 func registerStdWndClass() (err error) {
@@ -83,7 +83,7 @@ func registerStdWndClass() (err error) {
 	cursor := _HANDLE(r1)
 
 	wc := &_WNDCLASS{
-		lpszClassName:	syscall.StringToUTF16Ptr(stdWndClass),
+		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
 		lpfnWndProc:		syscall.NewCallback(stdWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,
