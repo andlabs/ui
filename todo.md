@@ -9,3 +9,5 @@ important things:
 
 far off:
 - localization
+- strip unused constants from the Windows files
+- combine more Windows files; rename some?
