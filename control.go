@@ -10,5 +10,5 @@ import (
 type Control interface {
 	apply() error
 	setParent(c Control)
-	setParentWindow(w *Window)
+	parentWindow() *Window
 }

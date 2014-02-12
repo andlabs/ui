@@ -7,7 +7,8 @@ import (
 
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
-	ctype	int
+	ctype			int
+	parentWindow		*sysData
 
 	// for Window
 	closing	chan struct{}

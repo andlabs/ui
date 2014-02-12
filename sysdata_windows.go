@@ -23,8 +23,8 @@ type classData struct {
 	mkid		bool
 }
 
-//const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
-//const controlxstyle = 0
+const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
+const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
@@ -32,12 +32,12 @@ var classTypes = [nctypes]*classData{
 		style:	_WS_OVERLAPPEDWINDOW,
 		xstyle:	0,
 	},
-//	c_button:		&classData{
-//		name:	"BUTTON"
-//		style:	_BS_PUSHBUTTON | controlstyle,
-//		xstyle:	0 | controlxstyle,
-//		mkid:	true,
-//	},
+	c_button:		&classData{
+		name:	"BUTTON",
+		style:	_BS_PUSHBUTTON | controlstyle,
+		xstyle:	0 | controlxstyle,
+		mkid:	true,
+	},
 }
 
 var (
@@ -56,8 +56,10 @@ func (s *sysData) make(initText string, initWidth int, initHeight int) (err erro
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
+	pwin := uintptr(_NULL)
 	if ct.mkid {
 		s.cid = nextID()
+		pwin = uintptr(s.parentWindow.hwnd)
 	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
@@ -70,7 +72,7 @@ func (s *sysData) make(initText string, initWidth int, initHeight int) (err erro
 			uintptr(_CW_USEDEFAULT),
 			uintptr(initWidth),
 			uintptr(initHeight),
-			uintptr(_NULL),					// TODO parent
+			pwin,
 			uintptr(s.cid),
 			uintptr(hInstance),
 			uintptr(_NULL),

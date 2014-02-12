@@ -47,7 +47,6 @@ func (w *Window) SetControl(control Control) (err error) {
 	}
 	w.control = control
 	w.control.setParent(w)
-	w.control.setParentWindow(w)
 	return nil
 }
 
@@ -112,6 +111,6 @@ func (w *Window) apply() error {
 func (w *Window) setParent(c Control) {
 	panic("Window.setParent() should never be called")
 }
-func (w *Window) setParentWindow(w2 *Window) {
-	panic("Window.setParent() should never be called")
+func (w *Window) parentWindow() *Window {
+	panic("Window.parentWindow() should never be called")
 }
