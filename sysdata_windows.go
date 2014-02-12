@@ -38,6 +38,9 @@ var classTypes = [nctypes]*classData{
 }
 
 func (s *sysData) make() (err error) {
+	sysDatasLock.Lock()
+	defer sysDatasLock.Unlock()
+
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
@@ -64,6 +67,8 @@ func (s *sysData) make() (err error) {
 		return r.err
 	}
 	s.hwnd = _HWND(r.ret)
+	addSysData(s.hwnd, s)
+	// TODO parent
 	return nil
 }
 

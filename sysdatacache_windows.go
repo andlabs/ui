@@ -18,18 +18,16 @@ var (
 	sysDatasLock sync.Mutex
 )
 
+// MUST HAVE LOCKED BEFORE CALLING
 func addSysData(hwnd _HWND, s *sysData) {
-	sysDatasLock.Lock()
-	defer sysDatasLock.Unlock()
 	sysDatas[hwnd] = &sdcEntry{
 		s:			s,
 		members:		map[_HMENU]*sysData{},
 	}
 }
 
+// MUST HAVE LOCKED BEFORE CALLING
 func addIDSysData(hwnd _HWND, id _HMENU, s *sysData) {
-	sysDatasLock.Lock()
-	defer sysDatasLock.Unlock()
 	if ss, ok := sysDatas[hwnd]; ok {
 		ss.members[id] = s
 	}
