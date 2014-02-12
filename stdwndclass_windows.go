@@ -69,7 +69,7 @@ func registerStdWndClass() (err error) {
 	r1, _, err := user32.NewProc("LoadIconW").Call(
 		uintptr(_NULL),
 		uintptr(_IDI_APPLICATION))
-	if err != nil {
+	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
 	icon := _HANDLE(r1)
@@ -77,7 +77,7 @@ func registerStdWndClass() (err error) {
 	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
 		uintptr(_IDC_ARROW))
-	if err != nil {
+	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
 	cursor := _HANDLE(r1)
