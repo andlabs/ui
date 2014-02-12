@@ -52,7 +52,7 @@ func nextID() _HMENU {
 	return cid
 }
 
-func (s *sysData) make(initText string) (err error) {
+func (s *sysData) make(initText string, initWidth int, initHeight int) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
@@ -68,8 +68,8 @@ func (s *sysData) make(initText string) (err error) {
 			uintptr(ct.style),
 			uintptr(_CW_USEDEFAULT),		// TODO
 			uintptr(_CW_USEDEFAULT),
-			uintptr(_CW_USEDEFAULT),
-			uintptr(_CW_USEDEFAULT),
+			uintptr(initWidth),
+			uintptr(initHeight),
 			uintptr(_NULL),					// TODO parent
 			uintptr(s.cid),
 			uintptr(hInstance),

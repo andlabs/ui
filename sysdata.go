@@ -12,7 +12,7 @@ type cSysData struct {
 	// for Window
 	closing	chan struct{}
 }
-func (c *cSysData) make(initText string) error {
+func (c *cSysData) make(initText string, initWidth int, initHeight int) error {
 	panic(runtime.GOOS + " sysData does not define make()")
 }
 func (c *cSysData) show() error {

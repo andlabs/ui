@@ -12,24 +12,28 @@ import (
 type Window struct {
 	// If this channel is non-nil, the event loop will receive on this when the user clicks the window's close button.
 	// This channel can only be set before initially opening the window.
-	Closing	chan struct{}
+	Closing		chan struct{}
 
-	lock		sync.Mutex
-	created	bool
-	control	Control
-	sysData	*sysData
-	initText	string
+	lock			sync.Mutex
+	created		bool
+	control		Control
+	sysData		*sysData
+	initTitle		string
+	initWidth		int
+	initHeight		int
 }
 
-// NewWindow creates a new window with the given title. The window is not constructed at the OS level until a call to Open().
-func NewWindow(title string) *Window {
+// NewWindow creates a new window with the given title and size. The window is not constructed at the OS level until a call to Open().
+func NewWindow(title string, width int, height int) *Window {
 	return &Window{
-		sysData:	&sysData{
+		sysData:		&sysData{
 			cSysData:		cSysData{
 				ctype:	c_window,
 			},
 		},
-		initText:	title,
+		initTitle:		title,
+		initWidth:		width,
+		initHeight:	height,
 	}
 }
 
@@ -47,6 +51,31 @@ func (w *Window) SetControl(control Control) (err error) {
 	return nil
 }
 
+// SetTitle sets the window's title.
+func (w *Window) SetTitle(title string) (err error) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	if w.created {
+		panic("TODO")
+	}
+	w.initTitle = title
+	return nil
+}
+
+// SetSize sets the window's size.
+func (w *Window) SetSize(width int, height int) (err error) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	if w.created {
+		panic("TODO")
+	}
+	w.initWidth = width
+	w.initHeight = height
+	return nil
+}
+
 // Open opens the window. If the OS window has not been created yet, this function will.
 func (w *Window) Open() (err error) {
 	w.lock.Lock()
@@ -55,7 +84,7 @@ func (w *Window) Open() (err error) {
 	// If the window has already been created, show it.
 	if !w.created {
 		w.sysData.closing = w.Closing
-		err = w.sysData.make(w.initText)
+		err = w.sysData.make(w.initTitle, w.initWidth, w.initHeight)
 		if err != nil {
 			return err
 		}
