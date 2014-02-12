@@ -22,9 +22,14 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 	}
 	switch uMsg {
 	case _WM_COMMAND:
-		id := wParam.LOWORD()
-		// ... member events
-		_ = id
+		id := _HMENU(wParam.LOWORD())
+		sysData = getSysDataID(id)
+		switch sysData.ctype {
+		case c_button:
+			if wParam.HIWORD() == _BN_CLICKED {
+				sysData.clicked <- struct{}{}
+			}
+		}
 		return 0
 	case _WM_GETMINMAXINFO:
 		mm := lParam.MINMAXINFO()
