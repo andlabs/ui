@@ -90,22 +90,20 @@ func (s *sysData) show() (err error) {
 	}
 	ret := make(chan uiret)
 	defer close(ret)
+	// TODO figure out how to handle error
 	uitask <- &uimsg{
 		call:		_showWindow,
 		p:		[]uintptr{uintptr(s.hwnd), show},
 		ret:		ret,
 	}
-	r := <-ret
-	if r.err != nil {
-		return r.err
-	}
+	<-ret
 	if !s.shownAlready {
 		uitask <- &uimsg{
 			call:		_updateWindow,
 			p:		[]uintptr{uintptr(s.hwnd)},
 			ret:		ret,
 		}
-		r = <-ret
+		r := <-ret
 		if r.ret == 0 {		// failure
 			return fmt.Errorf("error updating window for the first time: %v", r.err)
 		}
@@ -117,12 +115,12 @@ func (s *sysData) show() (err error) {
 func (s *sysData) hide() (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
+	// TODO figure out how to handle error
 	uitask <- &uimsg{
 		call:		_showWindow,
 		p:		[]uintptr{uintptr(s.hwnd), _SW_HIDE},
 		ret:		ret,
 	}
-	r := <-ret
-	close(ret)
-	return r.err
+	<-ret
+	return nil
 }
