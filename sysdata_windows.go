@@ -60,7 +60,7 @@ func (s *sysData) make() (err error) {
 		ret:	ret,
 	}
 	r := <-ret
-	if r.err != nil {
+	if r.ret == 0 {		// failure
 		return r.err
 	}
 	s.hwnd = _HWND(r.ret)

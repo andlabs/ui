@@ -4,7 +4,10 @@ package main
 func main() {
 	w := NewWindow("Main Window")
 	w.Closing = make(chan struct{})
-	w.Open()
+	err := w.Open()
+	if err != nil {
+		panic(err)
+	}
 	<-w.Closing
 	w.Close()
 }
