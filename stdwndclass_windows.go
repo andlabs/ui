@@ -5,56 +5,60 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
+	"sync"
+)
+
+const (
+	stdWndClassFormat = "gouiwnd%X"
 )
 
 var (
-	stdWndClass = "gouiwndclass"
+	curWndClassNum uintptr
+	curWndClassNumLock sync.Mutex
 )
 
 var (
 	defWindowProc = user32.NewProc("DefWindowProcW")
 )
 
-func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-	sysData := getSysData(hwnd)
-	if sysData == nil {	// not ready for events yet
-		goto defwndproc
-	}
-	switch uMsg {
-	case _WM_COMMAND:
-		id := _HMENU(wParam.LOWORD())
-		sysData = getSysDataID(id)
-		switch sysData.ctype {
-		case c_button:
-			if wParam.HIWORD() == _BN_CLICKED {
-				sysData.clicked <- struct{}{}
+func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+		switch uMsg {
+		case _WM_COMMAND:
+			id := _HMENU(wParam.LOWORD())
+			s.childrenLock.Lock()
+			defer s.childrenLock.Unlock()
+			ss = s.children[id]
+			switch ss.ctype {
+			case c_button:
+				if wParam.HIWORD() == _BN_CLICKED {
+					sysData.event <- struct{}{}
+				}
 			}
+			return 0
+		case _WM_GETMINMAXINFO:
+			mm := lParam.MINMAXINFO()
+			// ... minimum size
+			_ = mm
+			return 0
+		case _WM_SIZE:
+			// TODO
+			return 0
+		case _WM_CLOSE:
+			if sysData.closing != nil {
+				sysData.closing <- struct{}{}
+			}
+			return 0
+		default:
+			r1, _, _ := defWindowProc.Call(
+				uintptr(hwnd),
+				uintptr(uMsg),
+				uintptr(wParam),
+				uintptr(lParam))
+			return _LRESULT(r1)
 		}
-		return 0
-	case _WM_GETMINMAXINFO:
-		mm := lParam.MINMAXINFO()
-		// ... minimum size
-		_ = mm
-		return 0
-	case _WM_SIZE:
-		// TODO
-		return 0
-	case _WM_CLOSE:
-		if sysData.closing != nil {
-			sysData.closing <- struct{}{}
-		}
-		return 0
-	default:
-		goto defwndproc
+		panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
 	}
-	panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
-defwndproc:
-	r1, _, _ := defWindowProc.Call(
-		uintptr(hwnd),
-		uintptr(uMsg),
-		uintptr(wParam),
-		uintptr(lParam))
-	return _LRESULT(r1)
 }
 
 type _WNDCLASS struct {
@@ -70,7 +74,37 @@ type _WNDCLASS struct {
 	lpszClassName		uintptr
 }
 
-func registerStdWndClass() (err error) {
+var (
+	icon, cursor _HANDLE
+)
+
+var (
+	_registerClass = user32.NewProc("RegisterClassW")
+)
+
+func registerStdWndClass(s *sysData) (newClassName string, err error) {
+	curWndClassNumLock.Lock()
+	newClassName = fmt.Sprintf(stdWndClassFormat, curWndClassNum)
+	curWndClassNum++
+	curWndClassNumLock.Unlock()
+
+	wc := &_WNDCLASS{
+		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
+		lpfnWndProc:		syscall.NewCallback(stdWndProc(s)),
+		hInstance:		hInstance,
+		hIcon:			icon,
+		hCursor:			cursor,
+		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+	}
+
+	r1, _, err = user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
+	if r1 == 0 {		// failure
+		return "", err
+	}
+	return newClassName, nil
+}
+
+func initWndClassInfo() (err error) {
 	const (
 		_IDI_APPLICATION = 32512
 		_IDC_ARROW = 32512
@@ -82,7 +116,7 @@ func registerStdWndClass() (err error) {
 	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
-	icon := _HANDLE(r1)
+	icon = _HANDLE(r1)
 
 	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
@@ -90,20 +124,7 @@ func registerStdWndClass() (err error) {
 	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
-	cursor := _HANDLE(r1)
+	cursor = _HANDLE(r1)
 
-	wc := &_WNDCLASS{
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
-		lpfnWndProc:		syscall.NewCallback(stdWndProc),
-		hInstance:		hInstance,
-		hIcon:			icon,
-		hCursor:			cursor,
-		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
-	}
-
-	r1, _, err = user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
-	if r1 == 0 {		// failure
-		return fmt.Errorf("error registering class: %v", err)
-	}
 	return nil
 }

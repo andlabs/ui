@@ -67,9 +67,9 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error getting WinMain nCmdShow: %v", err)
 	}
-	err = registerStdWndClass()
+	err = initWndClassInfo()
 	if err != nil {
-		return fmt.Errorf("error registering standard window class: %v", err)
+		return fmt.Errorf("error initializing standard window class auxiliary info: %v", err)
 	}
 	// TODO others
 	return nil		// all ready to go
