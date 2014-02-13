@@ -12,7 +12,9 @@ type sysData struct {
 	cSysData
 
 	hwnd			_HWND
-	cid				_HMENU
+	children			map[_HMENU]*sysData
+	nextChildID		_HMENU
+	childrenLock		sync.Mutex
 	shownAlready		bool
 }
 
@@ -36,30 +38,32 @@ var classTypes = [nctypes]*classData{
 		name:	"BUTTON",
 		style:	_BS_PUSHBUTTON | controlstyle,
 		xstyle:	0 | controlxstyle,
-		mkid:	true,
 	},
 }
 
-var (
-	cid _HMENU = 0
-	cidLock sync.Mutex
-)
-
-func nextID() _HMENU {
-	cidLock.Lock()
-	defer cidLock.Unlock()
-	cid++
-	return cid
+func (s *sysData) addChild(chlid *sysData) _HMENU {
+	s.childrenLock.Lock()
+	defer s.childrenLock.Unlock()
+	s.nextChildID++		// start at 1
+	s.children[s.nextChildID] = child
+	return s.nextChildID
 }
 
-func (s *sysData) make(initText string, initWidth int, initHeight int) (err error) {
+func (s *sysData) delChild(id _HMENU) {
+	s.childrenLock.Lock()
+	defer s.childrenLock.Unlock()
+	delete(s.children, id)
+}
+
+func (s *sysData) make(initText string, initWidth int, initHeight int, window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
+	cid := _HMENU(0)
 	pwin := uintptr(_NULL)
-	if ct.mkid {
-		s.cid = nextID()
-		pwin = uintptr(s.parentWindow.hwnd)
+	if window != nil {		// this is a child control
+		cid = window.addChild(s)
+		pwin = uintptr(window.hwnd)
 	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
@@ -73,7 +77,7 @@ func (s *sysData) make(initText string, initWidth int, initHeight int) (err erro
 			uintptr(initWidth),
 			uintptr(initHeight),
 			pwin,
-			uintptr(s.cid),
+			uintptr(cid),
 			uintptr(hInstance),
 			uintptr(_NULL),
 		},
@@ -81,13 +85,12 @@ func (s *sysData) make(initText string, initWidth int, initHeight int) (err erro
 	}
 	r := <-ret
 	if r.ret == 0 {		// failure
+		if window != nil {
+			window.delChild(cid)
+		}
 		return r.err
 	}
 	s.hwnd = _HWND(r.ret)
-	addSysData(s.hwnd, s)
-	if ct.mkid {
-		addSysDataID(s.cid, s)
-	}
 	return nil
 }
 
