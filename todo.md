@@ -3,9 +3,6 @@ so I don't forget:
 - Control.Show()/Control.Hide()
 - Control.SetText()
 
-implementation things:
-- the only thing sysData needs from a window's control is the method to trigger a resize; write that in when I handle resizes
-
 super ultra important things:
 - the windows build appears to be unstable:
 	- 64-bit doesn't work, period: it crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 CreateWindowExW complains about an unregistered window class, yet the RegisterClassW appears to have succeeded and examining the stack in WinDbg indicates the correct class name is being sent (see below)
