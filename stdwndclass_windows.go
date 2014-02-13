@@ -97,9 +97,16 @@ func registerStdWndClass(s *sysData) (newClassName string, err error) {
 		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
 	}
 
-	r1, _, err = user32.NewProc("RegisterClassW").Call(uintptr(unsafe.Pointer(wc)))
-	if r1 == 0 {		// failure
-		return "", err
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_registerClass,
+		p:		[]uintptr{uintptr(unsafe.Pointer(wc))},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {		// failure
+		return "", r.err
 	}
 	return newClassName, nil
 }
