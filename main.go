@@ -1,6 +1,10 @@
 // 11 february 2014
 package main
 
+import (
+	"fmt"
+)
+
 func main() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = make(chan struct{})
@@ -23,7 +27,7 @@ mainloop:
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
-			err := w.SetTitle("Button Clicked")
+			err := w.SetTitle(fmt.Sprintf("Check State: %v", c.Checked()))
 			if err != nil {
 				panic(err)
 			}

@@ -201,3 +201,21 @@ func (s *sysData) setRect(x int, y int, width int, height int) error {
 	}
 	return nil
 }
+
+// TODO figure out how to handle error
+func (s *sysData) isChecked() (bool, error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_BM_GETCHECK),
+			uintptr(0),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	return r.ret == _BST_CHECKED, nil
+}

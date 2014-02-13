@@ -39,7 +39,17 @@ func (c *Checkbox) SetText(text string) (err error) {
 	return nil
 }
 
-// TODO Checked()
+// Checked() returns whether or not the checkbox has been checked.
+func (c *Checkbox) Checked() bool {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	check, err := c.sysData.isChecked()
+	if err != nil {
+		panic(err)		// TODO
+	}
+	return check
+}
 
 func (c *Checkbox) apply(window *sysData) error {
 	c.lock.Lock()

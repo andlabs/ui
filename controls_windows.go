@@ -38,10 +38,25 @@ const (
 	_BS_FLAT = 0x00008000
 	_BS_RIGHTBUTTON = _BS_LEFTTEXT
 	// from commctrl.h
-//	_BS_SPLITBUTTON = 0x0000000C		// Windows Vista and newer and(/or?) comctl6 only
-//	_BS_DEFSPLITBUTTON = 0x0000000D	// Windows Vista and newer and(/or?) comctl6 only
+//	_BS_SPLITBUTTON = 0x0000000C			// Windows Vista and newer and(/or?) comctl6 only
+//	_BS_DEFSPLITBUTTON = 0x0000000D		// Windows Vista and newer and(/or?) comctl6 only
 //	_BS_COMMANDLINK = 0x0000000E		// Windows Vista and newer and(/or?) comctl6 only
-//	_BS_DEFCOMMANDLINK = 0x0000000F	// Windows Vista and newer and(/or?) comctl6 only
+//	_BS_DEFCOMMANDLINK = 0x0000000F		// Windows Vista and newer and(/or?) comctl6 only
+)
+
+// Button messages.
+// TODO check if any are not defined on Windows 2000
+const (
+	// from winuser.h
+	_BM_GETCHECK = 0x00F0
+	_BM_SETCHECK = 0x00F1
+	_BM_GETSTATE = 0x00F2
+	_BM_SETSTATE = 0x00F3
+	_BM_SETSTYLE = 0x00F4
+	_BM_CLICK = 0x00F5
+	_BM_GETIMAGE = 0x00F6
+	_BM_SETIMAGE = 0x00F7
+	_BM_SETDONTCLICK = 0x00F8
 )
 
 // Button WM_COMMAND notifications.
