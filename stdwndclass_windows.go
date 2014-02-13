@@ -45,8 +45,8 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 			// TODO
 			return 0
 		case _WM_CLOSE:
-			if sysData.closing != nil {
-				sysData.closing <- struct{}{}
+			if s.event != nil {
+				s.event <- struct{}{}
 			}
 			return 0
 		default:

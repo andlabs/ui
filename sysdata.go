@@ -8,15 +8,9 @@ import (
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
 	ctype			int
-	parentWindow		*sysData
-
-	// for Window
-	closing	chan struct{}
-
-	// for Button
-	clicked	chan struct{}
+	event			chan struct{}
 }
-func (c *cSysData) make(initText string, initWidth int, initHeight int) error {
+func (c *cSysData) make(initText string, initWidth int, initHeight int, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
 }
 func (c *cSysData) show() error {
