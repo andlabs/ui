@@ -77,6 +77,7 @@ func (w *Window) Open(control Control) (err error) {
 		return err
 	}
 	if control != nil {
+		w.sysData.resize = control.setRect
 		err = control.apply(w.sysData)
 		if err != nil {
 			return err
@@ -100,6 +101,9 @@ func (w *Window) Hide() (err error) {
 // If I decide not to support windows as controls, a better way to deal with controls would be in order. Perhaps separate interfaces...? Making Windows Controls seems the cleanest option for now (and with correct usage of the library costs nothing).
 func (w *Window) apply(window *sysData) error {
 	panic("Window.apply() should never be called")
+}
+func (w *Window) setRect(x int, y int, width int, height int) error {
+	panic("Window.setRect() should never be called")
 }
 func (w *Window) setParent(c Control) {
 	panic("Window.setParent() should never be called")

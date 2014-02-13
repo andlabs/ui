@@ -169,6 +169,7 @@ var (
 	_destroyWindow = user32.NewProc("DestroyWindow")
 	_getClientRect = user32.NewProc("GetClientRect")
 	_enumChildWindows = user32.NewProc("EnumChildWindows")
+	_moveWindow = user32.NewProc("MoveWindow")
 	_setWindowPos = user32.NewProc("SetWindowPos")
 	_setWindowText = user32.NewProc("SetWindowTextW")
 	_showWindow = user32.NewProc("ShowWindow")
@@ -201,33 +202,6 @@ func EnumChildWindows(hWndParent HWND, lpEnumFunc WNDENUMPROC, lParam LPARAM) (e
 		uintptr(hWndParent),
 		syscall.NewCallback(enumChildProc(lpEnumFunc)),
 		uintptr(lParam))
-	return nil
-}
-
-// TODO return the rect itself?
-func GetClientRect(hWnd HWND) (lpRect *RECT, err error) {
-	lpRect = new(RECT)
-	r1, _, err := getClientRect.Call(
-		uintptr(hWnd),
-		uintptr(unsafe.Pointer(lpRect)))
-	if r1 == 0 {		// failure
-		return nil, err
-	}
-	return lpRect, nil
-}
-
-func SetWindowPos(hWnd HWND, hWndInsertAfter HWND, X int, Y int, cx int, cy int, uFlags uint32) (err error) {
-	r1, _, err := setWindowPos.Call(
-		uintptr(hWnd),
-		uintptr(hWndInsertAfter),
-		uintptr(X),
-		uintptr(Y),
-		uintptr(cx),
-		uintptr(cy),
-		uintptr(uFlags))
-	if r1 == 0 {		// failure
-		return err
-	}
 	return nil
 }
 */

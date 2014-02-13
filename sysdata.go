@@ -9,6 +9,7 @@ import (
 type cSysData struct {
 	ctype	int
 	event	chan struct{}
+	resize	func(x int, y int, width int, height int) error
 }
 func (c *cSysData) make(initText string, initWidth int, initHeight int, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
@@ -21,6 +22,9 @@ func (c *cSysData) hide() error {
 }
 func (c *cSysData) setText(text string) error {
 	panic(runtime.GOOS + " sysData does not define setText()")
+}
+func (c *cSysData) setRect(x int, y int, width int, height int) error {
+	panic(runtime.GOOS + " sysData does not define setRect()")
 }
 
 const (

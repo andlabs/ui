@@ -174,3 +174,25 @@ func (s *sysData) setText(text string) error {
 	}
 	return nil
 }
+
+func (s *sysData) setRect(x int, y int, width int, height int) error {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_moveWindow,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(x),
+			uintptr(y),
+			uintptr(width),
+			uintptr(height),
+			uintptr(_TRUE),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {		// failure
+		return r.err
+	}
+	return nil
+}

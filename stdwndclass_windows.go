@@ -42,7 +42,20 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 			_ = mm
 			return 0
 		case _WM_SIZE:
-			// TODO
+			if s.resize != nil {
+				var r _RECT
+
+				r1, _, err := _getClientRect.Call(
+					uintptr(hwnd),
+					uintptr(unsafe.Pointer(&r)))
+				if r1 == 0 {
+					panic("GetClientRect failed: " + err.Error())
+				}
+				err = s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom))
+				if err != nil {
+					panic("child resize failed: " + err.Error())
+				}
+			}
 			return 0
 		case _WM_CLOSE:
 			if s.event != nil {

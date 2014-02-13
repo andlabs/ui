@@ -49,6 +49,13 @@ func (b *Button) apply(window *sysData) error {
 	// TODO size to parent size
 }
 
+func (b *Button) setRect(x int, y int, width int, height int) error {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
+	return b.sysData.setRect(x, y, width, height)
+}
+
 func (b *Button) setParent(c Control) {
 	b.parent = c
 }
