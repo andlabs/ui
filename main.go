@@ -5,8 +5,7 @@ func main() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = make(chan struct{})
 	b := NewButton("Click Me")
-	w.SetControl(b)
-	err := w.Open()
+	err := w.Open(b)
 	if err != nil {
 		panic(err)
 	}
@@ -22,6 +21,6 @@ mainloop:
 			}
 		}
 	}
-	w.Close()
+	w.Hide()
 }
 

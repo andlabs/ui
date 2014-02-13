@@ -30,7 +30,6 @@ const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
-		name:	stdWndClass,
 		style:	_WS_OVERLAPPEDWINDOW,
 		xstyle:	0,
 	},
@@ -59,17 +58,24 @@ func (s *sysData) make(initText string, initWidth int, initHeight int, window *s
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
+	classname := ct.name
 	cid := _HMENU(0)
 	pwin := uintptr(_NULL)
 	if window != nil {		// this is a child control
 		cid = window.addChild(s)
 		pwin = uintptr(window.hwnd)
+	} else {				// need a new class
+		n, err := registerStdWndClass(s)
+		if err != nil {
+			return r.err
+		}
+		classname = n
 	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(ct.name))),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
 			uintptr(ct.style),
 			uintptr(_CW_USEDEFAULT),		// TODO
