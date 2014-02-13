@@ -14,7 +14,6 @@ type Button struct {
 	lock		sync.Mutex
 	created	bool
 	parent	Control
-	pWin		*Window
 	sysData	*sysData
 	initText	string
 }
@@ -44,31 +43,15 @@ func (b *Button) SetText(text string) (err error) {
 	return nil
 }
 
-func (b *Button) apply() error {
+func (b *Button) apply(window *sysData) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	if b.pWin == nil {
-		panic(fmt.Sprintf("button (initial text: %q) without parent window", b.initText))
-	}
-	if !b.pWin.created {
-		b.sysData.clicked = b.Clicked
-		b.sysData.parentWindow = b.pWin.sysData
-		return b.sysData.make(b.initText, 300, 300)
-		// TODO size to parent size
-	}
-	return b.sysData.show()
+	b.sysData.clicked = b.Clicked
+	return b.sysData.make(b.initText, 300, 300, window)
+	// TODO size to parent size
 }
 
 func (b *Button) setParent(c Control) {
 	b.parent = c
-	if w, ok := b.parent.(*Window); ok {
-		b.pWin = w
-	} else {
-		b.pWin = c.parentWindow()
-	}
-}
-
-func (b *Button) parentWindow() *Window {
-	return b.pWin
 }
