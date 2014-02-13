@@ -27,12 +27,12 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 		case _WM_COMMAND:
 			id := _HMENU(wParam.LOWORD())
 			s.childrenLock.Lock()
-			defer s.childrenLock.Unlock()
-			ss = s.children[id]
+			ss := s.children[id]
+			s.childrenLock.Unlock()
 			switch ss.ctype {
 			case c_button:
 				if wParam.HIWORD() == _BN_CLICKED {
-					sysData.event <- struct{}{}
+					ss.event <- struct{}{}
 				}
 			}
 			return 0

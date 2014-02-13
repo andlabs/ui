@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -36,9 +35,7 @@ func (b *Button) SetText(text string) (err error) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	if b.pWin != nil && b.pWin.created {
-		panic("TODO")
-	}
+	// TODO handle created
 	b.initText = text
 	return nil
 }

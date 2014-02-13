@@ -40,10 +40,13 @@ var classTypes = [nctypes]*classData{
 	},
 }
 
-func (s *sysData) addChild(chlid *sysData) _HMENU {
+func (s *sysData) addChild(child *sysData) _HMENU {
 	s.childrenLock.Lock()
 	defer s.childrenLock.Unlock()
 	s.nextChildID++		// start at 1
+	if s.children == nil {
+		s.children = map[_HMENU]*sysData{}
+	}
 	s.children[s.nextChildID] = child
 	return s.nextChildID
 }
@@ -54,6 +57,7 @@ func (s *sysData) delChild(id _HMENU) {
 	delete(s.children, id)
 }
 
+// TODO adorn error messages with what stage failed?
 func (s *sysData) make(initText string, initWidth int, initHeight int, window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -67,7 +71,7 @@ func (s *sysData) make(initText string, initWidth int, initHeight int, window *s
 	} else {				// need a new class
 		n, err := registerStdWndClass(s)
 		if err != nil {
-			return r.err
+			return err
 		}
 		classname = n
 	}
