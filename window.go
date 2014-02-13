@@ -105,6 +105,3 @@ func (w *Window) apply(window *sysData) error {
 func (w *Window) setRect(x int, y int, width int, height int) error {
 	panic("Window.setRect() should never be called")
 }
-func (w *Window) setParent(c Control) {
-	panic("Window.setParent() should never be called")
-}

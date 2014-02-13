@@ -12,7 +12,6 @@ type Button struct {
 
 	lock		sync.Mutex
 	created	bool
-	parent	Control
 	sysData	*sysData
 	initText	string
 }
@@ -54,8 +53,4 @@ func (b *Button) setRect(x int, y int, width int, height int) error {
 	defer b.lock.Unlock()
 
 	return b.sysData.setRect(x, y, width, height)
-}
-
-func (b *Button) setParent(c Control) {
-	b.parent = c
 }
