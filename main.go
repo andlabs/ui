@@ -9,14 +9,10 @@ func main() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = make(chan struct{})
 	b := NewButton("Click Me")
-	err := w.Open(b)
-	if err != nil {
-		panic(err)
-	}
-
-	w2 := NewWindow("Checkbox Window", 200, 100)
 	c := NewCheckbox("Check Me")
-	err = w2.Open(c)
+	s := NewStack(Vertical)
+	s.Controls = []Control{b, c}
+	err := w.Open(s)
 	if err != nil {
 		panic(err)
 	}

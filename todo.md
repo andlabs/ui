@@ -2,6 +2,7 @@ so I don't forget:
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetSize(Window.OptimalSize())`) for sizing a window to the control's interest
 - Control.Show()/Control.Hide()
 - Control.SetText()
+- Groupbox
 
 super ultra important things:
 - the windows build appears to be unstable:
@@ -16,3 +17,7 @@ far off:
 - localization
 - strip unused constants from the Windows files
 - combine more Windows files; rename some?
+- normalize error handling to adorn errors with function call information
+
+maybe:
+- rename Stack to Box?
