@@ -30,5 +30,6 @@ func (c *cSysData) setRect(x int, y int, width int, height int) error {
 const (
 	c_window = iota
 	c_button
+	c_checkbox
 	nctypes
 )

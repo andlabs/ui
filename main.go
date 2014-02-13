@@ -9,6 +9,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	w2 := NewWindow("Checkbox Window", 200, 100)
+	c := NewCheckbox("Check Me")
+	err = w2.Open(c)
+	if err != nil {
+		panic(err)
+	}
+
 mainloop:
 	for {
 		select {

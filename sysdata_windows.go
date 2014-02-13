@@ -38,6 +38,11 @@ var classTypes = [nctypes]*classData{
 		style:	_BS_PUSHBUTTON | controlstyle,
 		xstyle:	0 | controlxstyle,
 	},
+	c_checkbox:	&classData{
+		name:	"BUTTON",
+		style:	_BS_AUTOCHECKBOX | controlstyle,
+		xstyle:	0 | controlxstyle,
+	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {
