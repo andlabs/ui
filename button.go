@@ -47,7 +47,7 @@ func (b *Button) apply(window *sysData) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	b.sysData.clicked = b.Clicked
+	b.sysData.event = b.Clicked
 	return b.sysData.make(b.initText, 300, 300, window)
 	// TODO size to parent size
 }
