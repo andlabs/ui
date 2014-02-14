@@ -4,6 +4,8 @@ so I don't forget:
 - Control.SetText()
 - Groupbox
 - determine if a selection in a non-editable combobox has been made
+- see if we really need to track errors on Combobox.Selection()
+	- in fact, see if we really need to track errors on a lot of things...
 
 super ultra important things:
 - the windows build appears to be unstable:
