@@ -23,7 +23,7 @@ type classData struct {
 	style				uint32
 	xstyle			uint32
 	mkid				bool
-	editStyle			uint32
+	altStyle			uint32
 	appendMsg		uintptr
 	insertAfterMsg		uintptr
 	deleteMsg			uintptr
@@ -51,7 +51,7 @@ var classTypes = [nctypes]*classData{
 		name:			"COMBOBOX",
 		style:			_CBS_DROPDOWNLIST | controlstyle,
 		xstyle:			0 | controlxstyle,
-		editStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | controlstyle,
+		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | controlstyle,
 		appendMsg:		_CB_ADDSTRING,
 		insertAfterMsg:		_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
@@ -104,8 +104,8 @@ func (s *sysData) make(initText string, initWidth int, initHeight int, window *s
 		classname = n
 	}
 	style := uintptr(ct.style)
-	if s.editable {
-		style = uintptr(ct.editStyle)
+	if s.alternate {
+		style = uintptr(ct.altStyle)
 	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	

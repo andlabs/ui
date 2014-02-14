@@ -22,7 +22,7 @@ func NewCombobox(editable bool, items ...string) (c *Combobox) {
 		sysData:		mksysdata(c_combobox),
 		initItems:		items,
 	}
-	c.sysData.editable = editable
+	c.sysData.alternate = editable
 	return c
 }
 
