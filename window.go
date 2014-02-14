@@ -74,7 +74,7 @@ func (w *Window) Open(control Control) (err error) {
 	}
 	if control != nil {
 		w.sysData.resize = control.setRect
-		err = control.apply(w.sysData)
+		err = control.make(w.sysData)
 		if err != nil {
 			return err
 		}
@@ -95,8 +95,8 @@ func (w *Window) Hide() (err error) {
 
 // These satisfy the Control interface, allowing a window to own a control. As a consequence, Windows are themselves Controls. THIS IS UNDOCUMENTED AND UNSUPPORTED. I can make it supported in the future, but for now, no. You shouldn't be depending on the internals of the library to develop your programs: if the documentation is incomplete and/or wrong, get the person responsible to fix it, as the documentation, not the implementation, is your contract to what you can or cannot do. Don't worry, this package is in good company: Go itself was designed spec-first for this reason.
 // If I decide not to support windows as controls, a better way to deal with controls would be in order. Perhaps separate interfaces...? Making Windows Controls seems the cleanest option for now (and with correct usage of the library costs nothing).
-func (w *Window) apply(window *sysData) error {
-	panic("Window.apply() should never be called")
+func (w *Window) make(window *sysData) error {
+	panic("Window.make() should never be called")
 }
 func (w *Window) setRect(x int, y int, width int, height int) error {
 	panic("Window.setRect() should never be called")

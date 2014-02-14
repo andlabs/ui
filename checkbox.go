@@ -47,7 +47,7 @@ func (c *Checkbox) Checked() bool {
 	return check
 }
 
-func (c *Checkbox) apply(window *sysData) error {
+func (c *Checkbox) make(window *sysData) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 

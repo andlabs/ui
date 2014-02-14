@@ -33,9 +33,9 @@ func NewStack(o Orientation, controls ...Control) *Stack {
 }
 
 // TODO adorn errors with which stage failed
-func (s *Stack) apply(window *sysData) error {
+func (s *Stack) make(window *sysData) error {
 	for _, c := range s.controls {
-		err := c.apply(window)
+		err := c.make(window)
 		if err != nil {
 			return err
 		}

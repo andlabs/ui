@@ -35,7 +35,7 @@ func (b *Button) SetText(text string) (err error) {
 	return nil
 }
 
-func (b *Button) apply(window *sysData) error {
+func (b *Button) make(window *sysData) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
