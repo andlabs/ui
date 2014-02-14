@@ -10,8 +10,7 @@ func main() {
 	w.Closing = make(chan struct{})
 	b := NewButton("Click Me")
 	c := NewCheckbox("Check Me")
-	s := NewStack(Vertical)
-	s.Controls = []Control{b, c}
+	s := NewStack(Vertical, b, c)
 	err := w.Open(s)
 	if err != nil {
 		panic(err)
