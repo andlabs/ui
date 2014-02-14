@@ -56,6 +56,11 @@ var classTypes = [nctypes]*classData{
 		insertAfterMsg:		_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
 	},
+	c_lineedit:	&classData{
+		name:			"EDIT",
+		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
+		xstyle:			0 | controlxstyle,
+	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {
