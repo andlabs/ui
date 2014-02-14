@@ -51,29 +51,6 @@ func _MAKEINTRESOURCE(what uint16) uintptr {
 	return uintptr(what)
 }
 
-/*
-// TODO migrate
-
-// TODO adorn error messages with which step failed?
-func getText(hwnd _HWND) (text string, err error) {
-	var tc []uint16
-
-	length, err := SendMessage(hwnd, WM_GETTEXTLENGTH, 0, 0)
-	if err != nil {
-		return "", err
-	}
-	tc = make([]uint16, length + 1)
-	_, err = SendMessage(hwnd,
-		WM_GETTEXT,
-		WPARAM(length + 1),
-		LPARAM(unsafe.Pointer(&tc[0])))
-	if err != nil {
-		return "", err
-	}
-	return syscall.UTF16ToString(tc), nil
-}
-*/
-
 type _POINT struct {
 	X	int32
 	Y	int32
