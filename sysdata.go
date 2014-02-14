@@ -37,6 +37,7 @@ func (c *cSysData) append(string) error {
 	panic(runtime.GOOS + " sysData does not define append()")
 }
 // TODO insertAfter
+// TODO selectedIndex, selectedIndices, selectedTexts
 
 const (
 	c_window = iota
@@ -45,6 +46,7 @@ const (
 	c_combobox
 	c_lineedit
 	c_label
+	c_listbox
 	nctypes
 )
 

@@ -14,7 +14,9 @@ func main() {
 	cb2 := NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
 	e := NewLineEdit("Enter text here too")
 	l := NewLabel("This is a label")
-	s := NewStack(Vertical, b, c, cb1, cb2, e, l)
+	s0 := NewStack(Vertical, b, c, cb1, cb2, e, l)
+	lb := NewListbox(true, "Select One", "Or More", "To Continue")
+	s := NewStack(Horizontal, lb, s0)
 	err := w.Open(s)
 	if err != nil {
 		panic(err)

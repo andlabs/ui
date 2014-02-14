@@ -66,6 +66,15 @@ var classTypes = [nctypes]*classData{
 		style:			_SS_NOPREFIX | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
+	c_listbox:		&classData{
+		name:			"LISTBOX",
+		style:			0 | controlstyle,
+		xstyle:			0 | controlxstyle,
+		altStyle:			_LBS_EXTENDEDSEL | controlstyle,
+		appendMsg:		_LB_ADDSTRING,
+		insertAfterMsg:		_LB_INSERTSTRING,
+		deleteMsg:		_LB_DELETESTRING,
+	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {
