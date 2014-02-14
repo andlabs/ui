@@ -3,6 +3,7 @@ so I don't forget:
 - Control.Show()/Control.Hide()
 - Control.SetText()
 - Groupbox
+- determine if a selection in a non-editable combobox has been made
 
 super ultra important things:
 - the windows build appears to be unstable:

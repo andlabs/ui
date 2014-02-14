@@ -10,6 +10,7 @@ type cSysData struct {
 	ctype	int
 	event	chan struct{}
 	resize	func(x int, y int, width int, height int) error
+	editable	bool		// for Combobox
 }
 func (c *cSysData) make(initText string, initWidth int, initHeight int, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
@@ -29,11 +30,19 @@ func (c *cSysData) setRect(x int, y int, width int, height int) error {
 func (c *cSysData) isChecked() (bool, error) {
 	panic(runtime.GOOS + " sysData does not define isChecked()")
 }
+func (c *cSysData) text() (string, error) {
+	panic(runtime.GOOS + " sysData does not define text()")
+}
+func (c *cSysData) append(string) error {
+	panic(runtime.GOOS + " sysData does not define append()")
+}
+// TODO insertAfter
 
 const (
 	c_window = iota
 	c_button
 	c_checkbox
+	c_combobox
 	nctypes
 )
 

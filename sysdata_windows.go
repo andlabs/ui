@@ -19,29 +19,42 @@ type sysData struct {
 }
 
 type classData struct {
-	name	string
-	style		uint32
-	xstyle	uint32
-	mkid		bool
+	name			string
+	style				uint32
+	xstyle			uint32
+	mkid				bool
+	editStyle			uint32
+	appendMsg		uintptr
+	insertAfterMsg		uintptr
+	deleteMsg			uintptr
 }
 
 const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
 const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
-	c_window:	&classData{
-		style:	_WS_OVERLAPPEDWINDOW,
-		xstyle:	0,
+	c_window:			&classData{
+		style:			_WS_OVERLAPPEDWINDOW,
+		xstyle:			0,
 	},
 	c_button:		&classData{
-		name:	"BUTTON",
-		style:	_BS_PUSHBUTTON | controlstyle,
-		xstyle:	0 | controlxstyle,
+		name:			"BUTTON",
+		style:			_BS_PUSHBUTTON | controlstyle,
+		xstyle:			0 | controlxstyle,
 	},
 	c_checkbox:	&classData{
-		name:	"BUTTON",
-		style:	_BS_AUTOCHECKBOX | controlstyle,
-		xstyle:	0 | controlxstyle,
+		name:			"BUTTON",
+		style:			_BS_AUTOCHECKBOX | controlstyle,
+		xstyle:			0 | controlxstyle,
+	},
+	c_combobox:	&classData{
+		name:			"COMBOBOX",
+		style:			_CBS_DROPDOWNLIST | controlstyle,
+		xstyle:			0 | controlxstyle,
+		editStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | controlstyle,
+		appendMsg:		_CB_ADDSTRING,
+		insertAfterMsg:		_CB_INSERTSTRING,
+		deleteMsg:		_CB_DELETESTRING,
 	},
 }
 
@@ -80,13 +93,17 @@ func (s *sysData) make(initText string, initWidth int, initHeight int, window *s
 		}
 		classname = n
 	}
+	style := uintptr(ct.style)
+	if s.editable {
+		style = uintptr(ct.editStyle)
+	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
-			uintptr(ct.style),
+			style,
 			uintptr(_CW_USEDEFAULT),		// TODO
 			uintptr(_CW_USEDEFAULT),
 			uintptr(initWidth),
@@ -218,4 +235,59 @@ func (s *sysData) isChecked() (bool, error) {
 	}
 	r := <-ret
 	return r.ret == _BST_CHECKED, nil
+}
+
+// TODO adorn error messages with which part failed
+func (s *sysData) text() (str string, err error) {
+	var tc []uint16
+
+	ret := make(chan uiret)
+	defer close(ret)
+	// TODO figure out how to handle errors
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_WM_GETTEXTLENGTH),
+			uintptr(0),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	length := r.ret + 1		// terminating null
+	tc = make([]uint16, length)
+	// TODO figure out how to handle errors
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_WM_GETTEXT),
+			uintptr(_WPARAM(length)),
+			uintptr(_LPARAM(unsafe.Pointer(&tc[0]))),
+		},
+		ret:		ret,
+	}
+	<-ret
+	// TODO check character count
+	return syscall.UTF16ToString(tc), nil
+}
+
+// TODO figure out how to handle errors
+func (s *sysData) append(what string) (err error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(classTypes[s.ctype].appendMsg),
+			uintptr(_WPARAM(0)),
+			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
+		},
+		ret:		ret,
+	}
+	<-ret
+	// TODO error handling
+	return nil
 }
