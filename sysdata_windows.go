@@ -61,6 +61,11 @@ var classTypes = [nctypes]*classData{
 		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
+	c_label:		&classData{
+		name:			"STATIC",
+		style:			_SS_NOPREFIX | controlstyle,
+		xstyle:			0 | controlxstyle,
+	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {

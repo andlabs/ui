@@ -44,6 +44,7 @@ const (
 	c_checkbox
 	c_combobox
 	c_lineedit
+	c_label
 	nctypes
 )
 
