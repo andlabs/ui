@@ -12,6 +12,7 @@ so I don't forget:
 - scrollbars on listboxes (shouldn't they be automatic? or is that just wine being dumb?)
 - [Windows] should ListBox have a border style?
 - padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
+- change Stack/Combobox/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
 
 super ultra important things:
 - the windows build appears to be unstable:
