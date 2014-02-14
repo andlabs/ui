@@ -36,3 +36,11 @@ const (
 	c_checkbox
 	nctypes
 )
+
+func mksysdata(ctype int) *sysData {
+	return &sysData{
+		cSysData:		cSysData{
+			ctype:	ctype,
+		},
+	}
+}

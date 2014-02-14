@@ -25,11 +25,7 @@ type Window struct {
 // NewWindow creates a new window with the given title and size. The window is not constructed at the OS level until a call to Open().
 func NewWindow(title string, width int, height int) *Window {
 	return &Window{
-		sysData:		&sysData{
-			cSysData:		cSysData{
-				ctype:	c_window,
-			},
-		},
+		sysData:		mksysdata(c_window),
 		initTitle:		title,
 		initWidth:		width,
 		initHeight:	height,

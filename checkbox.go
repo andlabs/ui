@@ -20,11 +20,7 @@ type Checkbox struct {
 // NewCheckbox creates a new checkbox with the specified text.
 func NewCheckbox(text string) (c *Checkbox) {
 	return &Checkbox{
-		sysData:	&sysData{
-			cSysData:		cSysData{
-				ctype:	c_checkbox,
-			},
-		},
+		sysData:	mksysdata(c_checkbox),
 		initText:	text,
 	}
 }

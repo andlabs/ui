@@ -19,11 +19,7 @@ type Button struct {
 // NewButton creates a new button with the specified text.
 func NewButton(text string) (b *Button) {
 	return &Button{
-		sysData:	&sysData{
-			cSysData:		cSysData{
-				ctype:	c_button,
-			},
-		},
+		sysData:	mksysdata(c_button),
 		initText:	text,
 		Clicked:	make(chan struct{}),
 	}
