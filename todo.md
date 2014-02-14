@@ -8,6 +8,10 @@ so I don't forget:
 	- in fact, see if we really need to track errors on a lot of things...
 - password entry fields, character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
+- more flexible size appropriation: allow a small button to be at the top of everything in the main() example here
+- scrollbars on listboxes (shouldn't they be automatic? or is that just wine being dumb?)
+- [Windows] should ListBox have a border style?
+- padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
 
 super ultra important things:
 - the windows build appears to be unstable:
@@ -17,6 +21,7 @@ super ultra important things:
 important things:
 - maybe make it so sysData doesn't need specialized info on every control type?
 - write an implementation documentation.
+- Control.preferredSize() (definitely needed for Grid and Form)
 
 far off:
 - localization
