@@ -12,7 +12,7 @@ type cSysData struct {
 	resize	func(x int, y int, width int, height int) error
 	alternate	bool		// editable for Combobox, multi-select for listbox
 }
-func (c *cSysData) make(initText string, initWidth int, initHeight int, window *sysData) error {
+func (c *cSysData) make(initText string, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
 }
 func (c *cSysData) show() error {

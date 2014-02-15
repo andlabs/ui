@@ -45,7 +45,7 @@ func (c *Combobox) make(window *sysData) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	err = c.sysData.make("", 300, 300, window)
+	err = c.sysData.make("", window)
 	if err != nil {
 		return err
 	}

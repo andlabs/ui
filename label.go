@@ -29,7 +29,7 @@ func (l *Label) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	err := l.sysData.make(l.initText, 300, 300, window)
+	err := l.sysData.make(l.initText, window)
 	if err != nil {
 		return err
 	}

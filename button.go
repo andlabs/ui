@@ -42,7 +42,7 @@ func (b *Button) make(window *sysData) error {
 	defer b.lock.Unlock()
 
 	b.sysData.event = b.Clicked
-	err := b.sysData.make(b.initText, 300, 300, window)
+	err := b.sysData.make(b.initText, window)
 	if err != nil {
 		return err
 	}

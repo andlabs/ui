@@ -53,7 +53,7 @@ func (c *Checkbox) make(window *sysData) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	err := c.sysData.make(c.initText, 300, 300, window)
+	err := c.sysData.make(c.initText, window)
 	if err != nil {
 		return err
 	}

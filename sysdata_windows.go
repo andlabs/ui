@@ -102,7 +102,7 @@ func (s *sysData) delChild(id _HMENU) {
 }
 
 // TODO adorn error messages with what stage failed?
-func (s *sysData) make(initText string, initWidth int, initHeight int, window *sysData) (err error) {
+func (s *sysData) make(initText string, window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
@@ -130,10 +130,10 @@ func (s *sysData) make(initText string, initWidth int, initHeight int, window *s
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
 			style,
-			uintptr(_CW_USEDEFAULT),		// TODO
 			uintptr(_CW_USEDEFAULT),
-			uintptr(initWidth),
-			uintptr(initHeight),
+			uintptr(_CW_USEDEFAULT),
+			uintptr(_CW_USEDEFAULT),
+			uintptr(_CW_USEDEFAULT),
 			pwin,
 			uintptr(cid),
 			uintptr(hInstance),
