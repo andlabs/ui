@@ -30,7 +30,7 @@ func (c *cSysData) setRect(x int, y int, width int, height int) error {
 func (c *cSysData) isChecked() bool {
 	panic(runtime.GOOS + " sysData does not define isChecked()")
 }
-func (c *cSysData) text() (string, error) {
+func (c *cSysData) text() string {
 	panic(runtime.GOOS + " sysData does not define text()")
 }
 func (c *cSysData) append(string) error {
@@ -39,13 +39,13 @@ func (c *cSysData) append(string) error {
 func (c *cSysData) insertBefore(string, int) error {
 	panic(runtime.GOOS + " sysData does not define insertBefore()")
 }
-func (c *cSysData) selectedIndex() (int, error) {
+func (c *cSysData) selectedIndex() int {
 	panic(runtime.GOOS + " sysData does not define selectedIndex()")
 }
-func (c *cSysData) selectedIndices() ([]int, error) {
+func (c *cSysData) selectedIndices() []int {
 	panic(runtime.GOOS + " sysData does not define selectedIndices()")
 }
-func (c *cSysData) selectedTexts() ([]string, error) {
+func (c *cSysData) selectedTexts() []string {
 	panic(runtime.GOOS + " sysData does not define selectedIndex()")
 }
 func (c *cSysData) setWindowSize(int, int) error {

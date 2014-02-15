@@ -29,6 +29,7 @@ type classData struct {
 	deleteMsg			uintptr
 	selectedIndexMsg	uintptr
 	selectedIndexErr	int
+	addSpaceErr		int
 }
 
 const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
@@ -59,6 +60,7 @@ var classTypes = [nctypes]*classData{
 		deleteMsg:		_CB_DELETESTRING,
 		selectedIndexMsg:	_CB_GETCURSEL,
 		selectedIndexErr:	_CB_ERR,
+		addSpaceErr:		_CB_ERRSPACE,
 	},
 	c_lineedit:	&classData{
 		name:			"EDIT",
@@ -81,6 +83,7 @@ var classTypes = [nctypes]*classData{
 		deleteMsg:		_LB_DELETESTRING,
 		selectedIndexMsg:	_LB_GETCURSEL,
 		selectedIndexErr:	_LB_ERR,
+		addSpaceErr:		_LB_ERRSPACE,
 	},
 }
 
@@ -293,7 +296,6 @@ func (s *sysData) text() (str string) {
 	return syscall.UTF16ToString(tc)
 }
 
-// TODO figure out how to handle errors
 func (s *sysData) append(what string) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -307,12 +309,15 @@ func (s *sysData) append(what string) (err error) {
 		},
 		ret:		ret,
 	}
-	<-ret
-	// TODO error handling
+	r := <-ret
+	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
+		return fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err)
+	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
+		return fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err)
+	}
 	return nil
 }
 
-// TODO figure out how to handle errors
 func (s *sysData) insertBefore(what string, index int) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -326,14 +331,17 @@ func (s *sysData) insertBefore(what string, index int) (err error) {
 		},
 		ret:		ret,
 	}
-	<-ret
-	// TODO error handling
+	r := <-ret
+	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
+		return fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err)
+	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
+		return fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err)
+	}
 	return nil
 }
 
-// TODO handle actual errors
 // TODO differentiate between nothing selected and custom text entered for a Combobox
-func (s *sysData) selectedIndex() (int, error) {
+func (s *sysData) selectedIndex() int {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -348,19 +356,14 @@ func (s *sysData) selectedIndex() (int, error) {
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {		// no selection
-		return -1, nil
+		return -1
 	}
-	return int(r.ret), nil
+	return int(r.ret)
 }
 
-// TODO handle actual errors
-func (s *sysData) selectedIndices() ([]int, error) {
+func (s *sysData) selectedIndices() []int {
 	if !s.alternate {		// single-selection list box; use single-selection method
-		index, err := s.selectedIndex()
-		if err != nil {
-			return nil, fmt.Errorf("error getting indices of single-selection list box: %v", err)
-		}
-		return []int{index}, nil
+		return []int{s.selectedIndex()}
 	}
 
 	ret := make(chan uiret)
@@ -376,7 +379,9 @@ func (s *sysData) selectedIndices() ([]int, error) {
 		ret:		ret,
 	}
 	r := <-ret
-	// TODO handle errors
+	if r.ret == uintptr(_LB_ERR) {
+		panic("UI library internal error: LB_ERR from LB_GETSELCOUNT in what we know is a multi-selection listbox")
+	}
 	indices := make([]int, r.ret)
 	uitask <- &uimsg{
 		call:		_sendMessage,
@@ -388,16 +393,15 @@ func (s *sysData) selectedIndices() ([]int, error) {
 		},
 		ret:		ret,
 	}
-	<-ret
-	// TODO handle errors
-	return indices, nil
+	r = <-ret
+	if r.ret == uintptr(_LB_ERR) {
+		panic("UI library internal error: LB_ERR from LB_GETSELITEMS in what we know is a multi-selection listbox")
+	}
+	return indices
 }
 
-func (s *sysData) selectedTexts() ([]string, error) {
-	indices, err := s.selectedIndices()
-	if err != nil {
-		return nil, fmt.Errorf("error getting selected indices for selected texts: %v", err)
-	}
+func (s *sysData) selectedTexts() []string {
+	indices := s.selectedIndices()
 	ret := make(chan uiret)
 	defer close(ret)
 	strings := make([]string, len(indices))
@@ -413,7 +417,9 @@ func (s *sysData) selectedTexts() ([]string, error) {
 			ret:		ret,
 		}
 		r := <-ret
-		// TODO handle errors
+		if r.ret == uintptr(_LB_ERR) {
+			panic("UI library internal error: LB_ERR from LB_GETTEXTLEN in what we know is a valid listbox index (came from LB_GETSELITEMS")
+		}
 		str := make([]uint16, r.ret)
 		uitask <- &uimsg{
 			call:		_sendMessage,
@@ -426,10 +432,12 @@ func (s *sysData) selectedTexts() ([]string, error) {
 			ret:		ret,
 		}
 		<-ret
-		// TODO handle errors
+		if r.ret == uintptr(_LB_ERR) {
+			panic("UI library internal error: LB_ERR from LB_GETTEXT in what we know is a valid listbox index (came from LB_GETSELITEMS")
+		}
 		strings[i] = syscall.UTF16ToString(str)
 	}
-	return strings, nil
+	return strings
 }
 
 func (s *sysData) setWindowSize(width int, height int) error {

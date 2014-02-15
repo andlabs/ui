@@ -2,3 +2,6 @@
 - BM_GETCHECK (sysData.isChecked())
 - WM_GETTEXTLENGTH (LRESULT is unsinged so) (sysData.text())
 - WM_GETTEXT (WM_GETTEXTLENGTH docs say its result may be larger than the actual length, so we can't use that) (sysData.text())
+- CB_GETCURSEL/LB_GETCURSEL (sysData.selectedIndex())
+- LB_GETSELCOUNT/LB_GETSELITEMS (LB_ERR is returned if this is a single-selection listbox; are there actual errors?) (sysData.selectedIndices())
+- LB_GETTEXTLEN/LB_GETTEXT (LB_ERR is returned if the given index is invalid, but since we get indices from LB_GETSELITEMS this shouldn't happen; are there actual errors?) (sysData.selectedTexts())
