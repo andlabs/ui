@@ -26,7 +26,32 @@ func NewListbox(multiple bool, items ...string) (l *Listbox) {
 	return l
 }
 
-// TODO Append, InsertBefore, Delete
+// Append adds an item to the end of the Listbox's list.
+func (l *Listbox) Append(what string) (err error) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.append(what)
+	}
+	l.initItems = append(l.initItems, what)
+	return nil
+}
+
+// InsertBefore inserts a new item in the Listbox before the item at the given position.
+func (l *Listbox) InsertBefore(what string, before int) (err error) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.insertBefore(what, before)
+	}
+	m := make([]string, 0, len(l.initItems) + 1)
+	m = append(m, l.initItems[:before]...)
+	m = append(m, what)
+	l.initItems = append(m, l.initItems[before:]...)
+	return nil
+}
 
 // TODO Selection
 
