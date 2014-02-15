@@ -25,7 +25,7 @@ type classData struct {
 	mkid				bool
 	altStyle			uint32
 	appendMsg		uintptr
-	insertAfterMsg		uintptr
+	insertBeforeString	uintptr
 	deleteMsg			uintptr
 }
 
@@ -53,7 +53,7 @@ var classTypes = [nctypes]*classData{
 		xstyle:			0 | controlxstyle,
 		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | controlstyle,
 		appendMsg:		_CB_ADDSTRING,
-		insertAfterMsg:		_CB_INSERTSTRING,
+		insertBeforeMsg:	_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
 	},
 	c_lineedit:	&classData{
@@ -73,7 +73,7 @@ var classTypes = [nctypes]*classData{
 		xstyle:			0 | controlxstyle,
 		altStyle:			_LBS_EXTENDEDSEL | _WS_VSCROLL | controlstyle,
 		appendMsg:		_LB_ADDSTRING,
-		insertAfterMsg:		_LB_INSERTSTRING,
+		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
 	},
 }
@@ -303,6 +303,25 @@ func (s *sysData) append(what string) (err error) {
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].appendMsg),
 			uintptr(_WPARAM(0)),
+			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
+		},
+		ret:		ret,
+	}
+	<-ret
+	// TODO error handling
+	return nil
+}
+
+// TODO figure out how to handle errors
+func (s *sysData) insertBefore(what string, index int) (err error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(classTypes[s.ctype].insertBeforeMsg),
+			uintptr(_WPARAM(index)),
 			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
 		},
 		ret:		ret,

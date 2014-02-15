@@ -36,7 +36,9 @@ func (c *cSysData) text() (string, error) {
 func (c *cSysData) append(string) error {
 	panic(runtime.GOOS + " sysData does not define append()")
 }
-// TODO insertAfter
+func (c *cSysData) insertBefore(string, int) error {
+	panic(runtime.GOOS + " sysData does not define insertBefore()")
+}
 // TODO selectedIndex, selectedIndices, selectedTexts
 
 const (
