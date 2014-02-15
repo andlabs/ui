@@ -340,7 +340,6 @@ func (s *sysData) insertBefore(what string, index int) (err error) {
 	return nil
 }
 
-// TODO differentiate between nothing selected and custom text entered for a Combobox
 func (s *sysData) selectedIndex() int {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -355,7 +354,7 @@ func (s *sysData) selectedIndex() int {
 		ret:		ret,
 	}
 	r := <-ret
-	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {		// no selection
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {		// no selection or manually entered text (apparently, for the latter)
 		return -1
 	}
 	return int(r.ret)

@@ -76,7 +76,16 @@ func (c *Combobox) Selection() string {
 	return ""
 }
 
-// TODO SelectedIndex
+// SelectedIndex returns the index of the current selection in the Combobox. It returns -1 either if no selection was made or if text was manually entered in an editable Combobox.
+func (c *Combobox) SelectedIndex() int {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.selectedIndex()
+	}
+	return -1
+}
 
 func (c *Combobox) make(window *sysData) (err error) {
 	c.lock.Lock()

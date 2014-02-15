@@ -16,7 +16,9 @@ func main() {
 	cb2 := NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
 	e := NewLineEdit("Enter text here too")
 	l := NewLabel("This is a label")
-	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, l)
+	b3 := NewButton("List Info")
+	s3 := NewStack(Horizontal, l, b3)
+	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3)
 	lb := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
@@ -55,6 +57,11 @@ mainloop:
 			cb2.Delete(2)
 			lb.Delete(3)
 			lb2.Delete(4)
+		case <-b3.Clicked:
+			MsgBox("List Info",
+				"cb1: %d %q\ncb2: %d %q",
+				cb1.SelectedIndex(), cb1.Selection(),
+				cb2.SelectedIndex(), cb2.Selection())
 		}
 	}
 	w.Hide()
