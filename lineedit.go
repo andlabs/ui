@@ -27,14 +27,14 @@ func NewLineEdit(text string) *LineEdit {
 // TODO SetText
 
 // Text returns the LineEdit's text.
-func (l *LineEdit) Text() (string, error) {
+func (l *LineEdit) Text() string {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
 		return l.sysData.text()
 	}
-	return l.initText, nil
+	return l.initText
 }
 
 // TODO adorn errors with what failed

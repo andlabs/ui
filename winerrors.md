@@ -1,0 +1,4 @@
+- all SendMessage() calls
+- BM_GETCHECK (sysData.isChecked())
+- WM_GETTEXTLENGTH (LRESULT is unsinged so) (sysData.text())
+- WM_GETTEXT (WM_GETTEXTLENGTH docs say its result may be larger than the actual length, so we can't use that) (sysData.text())

@@ -244,8 +244,7 @@ func (s *sysData) setRect(x int, y int, width int, height int) error {
 	return nil
 }
 
-// TODO figure out how to handle error
-func (s *sysData) isChecked() (bool, error) {
+func (s *sysData) isChecked() bool {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -259,16 +258,14 @@ func (s *sysData) isChecked() (bool, error) {
 		ret:		ret,
 	}
 	r := <-ret
-	return r.ret == _BST_CHECKED, nil
+	return r.ret == _BST_CHECKED
 }
 
-// TODO adorn error messages with which part failed
-func (s *sysData) text() (str string, err error) {
+func (s *sysData) text() (str string) {
 	var tc []uint16
 
 	ret := make(chan uiret)
 	defer close(ret)
-	// TODO figure out how to handle errors
 	uitask <- &uimsg{
 		call:		_sendMessage,
 		p:		[]uintptr{
@@ -282,7 +279,6 @@ func (s *sysData) text() (str string, err error) {
 	r := <-ret
 	length := r.ret + 1		// terminating null
 	tc = make([]uint16, length)
-	// TODO figure out how to handle errors
 	uitask <- &uimsg{
 		call:		_sendMessage,
 		p:		[]uintptr{
@@ -294,8 +290,7 @@ func (s *sysData) text() (str string, err error) {
 		ret:		ret,
 	}
 	<-ret
-	// TODO check character count
-	return syscall.UTF16ToString(tc), nil
+	return syscall.UTF16ToString(tc)
 }
 
 // TODO figure out how to handle errors

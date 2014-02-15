@@ -27,7 +27,7 @@ func (c *cSysData) setText(text string) error {
 func (c *cSysData) setRect(x int, y int, width int, height int) error {
 	panic(runtime.GOOS + " sysData does not define setRect()")
 }
-func (c *cSysData) isChecked() (bool, error) {
+func (c *cSysData) isChecked() bool {
 	panic(runtime.GOOS + " sysData does not define isChecked()")
 }
 func (c *cSysData) text() (string, error) {

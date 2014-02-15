@@ -30,19 +30,11 @@ mainloop:
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
-			cs1, err := cb1.Selection()
-			if err != nil {
-				panic(err)
-			}
-			cs2, err := cb2.Selection()
-			if err != nil {
-				panic(err)
-			}
-			et, err := e.Text()
-			if err != nil {
-				panic(err)
-			}
-			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s", c.Checked(), cs1, cs2, et))
+			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s",
+				c.Checked(),
+				cb1.Selection(),
+				cb2.Selection(),
+				e.Text()))
 			if err != nil {
 				panic(err)
 			}

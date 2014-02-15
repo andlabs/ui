@@ -42,11 +42,7 @@ func (c *Checkbox) Checked() bool {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	check, err := c.sysData.isChecked()
-	if err != nil {
-		panic(err)		// TODO
-	}
-	return check
+	return c.sysData.isChecked()
 }
 
 func (c *Checkbox) make(window *sysData) error {

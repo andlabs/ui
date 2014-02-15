@@ -29,14 +29,14 @@ func NewCombobox(editable bool, items ...string) (c *Combobox) {
 // TODO Append, InsertBefore, Delete
 
 // Selection returns the current selection.
-func (c *Combobox) Selection() (string, error) {
+func (c *Combobox) Selection() string {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if c.created {
 		return c.sysData.text()
 	}
-	return "", nil
+	return ""
 }
 
 // TODO SelectedIndex
