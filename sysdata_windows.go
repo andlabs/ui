@@ -25,7 +25,7 @@ type classData struct {
 	mkid				bool
 	altStyle			uint32
 	appendMsg		uintptr
-	insertBeforeString	uintptr
+	insertBeforeMsg	uintptr
 	deleteMsg			uintptr
 	selectedIndexMsg	uintptr
 	selectedIndexErr	int
@@ -353,7 +353,7 @@ func (s *sysData) selectedIndex() (int, error) {
 		ret:		ret,
 	}
 	r := <-ret
-	if r.ret == classTypes[s.ctype].selectedIndexErr {
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
 		return -1, nil
 	}
 	return int(r.ret), nil
@@ -379,12 +379,12 @@ func (s *sysData) selectedIndices() ([]int, error) {
 			uintptr(0),
 			uintptr(0),
 		},
-		ret:		ret
+		ret:		ret,
 	}
 	r := <-ret
 	// TODO handle errors
 	indices := make([]int, r.ret)
-	uitask <- &uimisg{
+	uitask <- &uimsg{
 		call:		_sendMessage,
 		p:		[]uintptr{
 			uintptr(s.hwnd),

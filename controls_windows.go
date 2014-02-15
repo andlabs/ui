@@ -186,7 +186,8 @@ const (
 // TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
-	// TODO get _CB_ERR out
+	_CB_ERR = (-1)
+	_CB_ERRSPACE = (-2)
 	_CBN_ERRSPACE = (-1)		// TODO this will blow up the Go compiler if it's used
 	_CBN_SELCHANGE = 1
 	_CBN_DBLCLK = 2
@@ -363,6 +364,7 @@ const (
 	// from winuser.h
 	_LB_OKAY = 0
 	_LB_ERR = (-1)				// TODO this will blow up the Go compiler if it's used
+	_LB_ERRSPACE = (-2)
 	_LBN_ERRSPACE = (-2)		// TODO this will blow up the Go compiler if it's used
 	_LBN_SELCHANGE = 1
 	_LBN_DBLCLK = 2
