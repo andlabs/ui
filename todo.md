@@ -35,7 +35,6 @@ far off:
 - localization
 - strip unused constants from the Windows files
 - combine more Windows files; rename some?
-- normalize error handling to adorn errors with function call information
 
 maybe:
 - rename Stack to Box?

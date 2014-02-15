@@ -32,19 +32,17 @@ func NewStack(o Orientation, controls ...Control) *Stack {
 	}
 }
 
-// TODO adorn errors with which stage failed
 func (s *Stack) make(window *sysData) error {
-	for _, c := range s.controls {
+	for i, c := range s.controls {
 		err := c.make(window)
 		if err != nil {
-			return err
+			return fmt.Errorf("error adding control %d: %v", i, err)
 		}
 	}
 	s.created = true
 	return nil
 }
 
-// TODO adorn errors with which stage failed
 func (s *Stack) setRect(x int, y int, width int, height int) error {
 	var dx, dy int
 
@@ -61,10 +59,10 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 	default:
 		panic(fmt.Sprintf("invalid orientation %d given to Stack.setRect()", s.orientation))
 	}
-	for _, c := range s.controls {
+	for i, c := range s.controls {
 		err := c.setRect(x, y, width, height)
 		if err != nil {
-			return err
+			return fmt.Errorf("error setting size of control %d: %v", i, err)
 		}
 		x += dx
 		y += dy

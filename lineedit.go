@@ -37,7 +37,6 @@ func (l *LineEdit) Text() string {
 	return l.initText
 }
 
-// TODO adorn errors with what failed
 func (l *LineEdit) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()

@@ -24,7 +24,6 @@ func NewLabel(text string) *Label {
 
 // TODO SetText()/Text()?
 
-// TODO adorn error messages
 func (l *Label) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
