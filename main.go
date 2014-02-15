@@ -12,6 +12,13 @@ func main() {
 	c := NewCheckbox("Check Me")
 	cb1 := NewCombobox(true, "You can edit me!", "Yes you can!", "Yes you will!")
 	cb2 := NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
+	i := 0
+	doAdjustments := func() {
+		cb1.Append("append")
+		cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
+		i++
+	}
+	doAdjustments()
 	e := NewLineEdit("Enter text here too")
 	l := NewLabel("This is a label")
 	s0 := NewStack(Vertical, b, c, cb1, cb2, e, l)
@@ -38,6 +45,7 @@ mainloop:
 			if err != nil {
 				panic(err)
 			}
+			doAdjustments()
 		}
 	}
 	w.Hide()

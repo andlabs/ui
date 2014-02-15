@@ -26,7 +26,34 @@ func NewCombobox(editable bool, items ...string) (c *Combobox) {
 	return c
 }
 
-// TODO Append, InsertBefore, Delete
+// Append adds an item to the end of the Combobox's list.
+func (c *Combobox) Append(what string) (err error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.append(what)
+	}
+	c.initItems = append(c.initItems, what)
+	return nil
+}
+
+// InsertBefore inserts a new item in the Combobox before the item at the given position.
+func (c *Combobox) InsertBefore(what string, before int) (err error) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.insertBefore(what, before)
+	}
+	m := make([]string, 0, len(c.initItems) + 1)
+	m = append(m, c.initItems[:before]...)
+	m = append(m, what)
+	c.initItems = append(m, c.initItems[before:]...)
+	return nil
+}
+
+// TODO Delete
 
 // Selection returns the current selection.
 func (c *Combobox) Selection() string {
