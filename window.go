@@ -53,7 +53,11 @@ func (w *Window) SetSize(width int, height int) (err error) {
 	defer w.lock.Unlock()
 
 	if w.created {
-		panic("TODO")
+		err := w.sysData.setWindowSize(width, height)
+		if err != nil {
+			return fmt.Errorf("error setting window size: %v", err)
+		}
+		return nil
 	}
 	w.initWidth = width
 	w.initHeight = height
