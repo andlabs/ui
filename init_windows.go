@@ -24,8 +24,7 @@ func getWinMainhInstance() (err error) {
 }
 
 // TODO this is what MinGW-w64's crt (svn revision TODO) does; is it best? is any of this documented anywhere on MSDN?
-// TODO I highly doubt Windows API functions ever not fail, so figure out what to do should an error actually occur
-func getWinMainnCmdShow() (err error) {
+func getWinMainnCmdShow() {
 	var info struct {
 		cb				uint32
 		lpReserved		*uint16
@@ -52,10 +51,9 @@ func getWinMainnCmdShow() (err error) {
 	kernel32.NewProc("GetStartupInfoW").Call(uintptr(unsafe.Pointer(&info)))
 	if info.dwFlags & _STARTF_USESHOWWINDOW != 0 {
 		nCmdShow = int(info.wShowWindow)
-		return nil
+	} else {
+		nCmdShow = _SW_SHOWDEFAULT
 	}
-	nCmdShow = _SW_SHOWDEFAULT
-	return nil
 }
 
 func doWindowsInit() (err error) {
@@ -63,10 +61,7 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error getting WinMain hInstance: %v", err)
 	}
-	err = getWinMainnCmdShow()
-	if err != nil {
-		return fmt.Errorf("error getting WinMain nCmdShow: %v", err)
-	}
+	getWinMainnCmdShow()
 	err = initWndClassInfo()
 	if err != nil {
 		return fmt.Errorf("error initializing standard window class auxiliary info: %v", err)

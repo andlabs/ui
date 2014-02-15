@@ -67,7 +67,6 @@ func msgloopstep() (quit bool) {
 		Pt		_POINT
 	}
 
-	// TODO figure out how to handle errors
 	r1, _, _ := _peekMessage.Call(
 		uintptr(unsafe.Pointer(&msg)),
 		uintptr(_NULL),
@@ -80,7 +79,6 @@ func msgloopstep() (quit bool) {
 	if msg.Message == _WM_QUIT {
 		return true
 	}
-	// TODO handle potential errors in TranslateMessage() and DispatchMessage()
 	_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
 	_dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
 	return false
