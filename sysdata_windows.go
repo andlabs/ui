@@ -52,9 +52,9 @@ var classTypes = [nctypes]*classData{
 	},
 	c_combobox:	&classData{
 		name:			"COMBOBOX",
-		style:			_CBS_DROPDOWNLIST | controlstyle,
+		style:			_CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
-		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | controlstyle,
+		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | _WS_VSCROLL | controlstyle,
 		appendMsg:		_CB_ADDSTRING,
 		insertBeforeMsg:	_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
