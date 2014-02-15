@@ -101,7 +101,6 @@ func (s *sysData) delChild(id _HMENU) {
 	delete(s.children, id)
 }
 
-// TODO adorn error messages with what stage failed?
 func (s *sysData) make(initText string, window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -115,7 +114,7 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 	} else {				// need a new class
 		n, err := registerStdWndClass(s)
 		if err != nil {
-			return err
+			return fmt.Errorf("error creating window class for new window: %v", err)
 		}
 		classname = n
 	}
@@ -146,7 +145,7 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 		if window != nil {
 			window.delChild(cid)
 		}
-		return r.err
+		return fmt.Errorf("error actually creating window/control: %v", r.err)
 	}
 	s.hwnd = _HWND(r.ret)
 	return nil
@@ -353,7 +352,7 @@ func (s *sysData) selectedIndex() (int, error) {
 		ret:		ret,
 	}
 	r := <-ret
-	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {		// no selection
 		return -1, nil
 	}
 	return int(r.ret), nil
