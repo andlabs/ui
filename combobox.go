@@ -33,7 +33,10 @@ func (c *Combobox) Selection() (string, error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	return c.sysData.text()
+	if c.created {
+		return c.sysData.text()
+	}
+	return "", nil
 }
 
 // TODO SelectedIndex
@@ -52,6 +55,7 @@ func (c *Combobox) make(window *sysData) (err error) {
 			return err
 		}
 	}
+	c.created = true
 	return nil
 }
 

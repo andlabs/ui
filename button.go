@@ -30,7 +30,9 @@ func (b *Button) SetText(text string) (err error) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	// TODO handle created
+	if b.created {
+		return b.sysData.setText(text)
+	}
 	b.initText = text
 	return nil
 }
@@ -40,8 +42,12 @@ func (b *Button) make(window *sysData) error {
 	defer b.lock.Unlock()
 
 	b.sysData.event = b.Clicked
-	return b.sysData.make(b.initText, 300, 300, window)
-	// TODO size to parent size
+	err := b.sysData.make(b.initText, 300, 300, window)
+	if err != nil {
+		return err
+	}
+	b.created = true
+	return nil
 }
 
 func (b *Button) setRect(x int, y int, width int, height int) error {

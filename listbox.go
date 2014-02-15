@@ -46,6 +46,7 @@ func (l *Listbox) make(window *sysData) (err error) {
 			return err
 		}
 	}
+	l.created = true
 	return nil
 }
 

@@ -29,7 +29,12 @@ func (l *Label) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	return l.sysData.make(l.initText, 300, 300, window)
+	err := l.sysData.make(l.initText, 300, 300, window)
+	if err != nil {
+		return err
+	}
+	l.created = true
+	return nil
 }
 
 func (l *Label) setRect(x int, y int, width int, height int) error {

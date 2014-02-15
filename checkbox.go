@@ -30,7 +30,9 @@ func (c *Checkbox) SetText(text string) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	// TODO handle created
+	if c.created {
+		return c.sysData.setText(text)
+	}
 	c.initText = text
 	return nil
 }
@@ -51,8 +53,12 @@ func (c *Checkbox) make(window *sysData) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	return c.sysData.make(c.initText, 300, 300, window)
-	// TODO size to parent size
+	err := c.sysData.make(c.initText, 300, 300, window)
+	if err != nil {
+		return err
+	}
+	c.created = true
+	return nil
 }
 
 func (c *Checkbox) setRect(x int, y int, width int, height int) error {

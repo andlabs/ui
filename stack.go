@@ -40,6 +40,7 @@ func (s *Stack) make(window *sysData) error {
 			return err
 		}
 	}
+	s.created = true
 	return nil
 }
 
