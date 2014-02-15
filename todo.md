@@ -13,6 +13,7 @@ so I don't forget:
 - [Windows] should ListBox have a border style?
 - padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
 - change Stack/Combobox/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
+- allow Combobox to have initial settings
 
 super ultra important things:
 - the windows build appears to be unstable:
