@@ -68,9 +68,10 @@ var classTypes = [nctypes]*classData{
 	},
 	c_listbox:		&classData{
 		name:			"LISTBOX",
-		style:			0 | controlstyle,
+		// TODO also _WS_HSCROLL?
+		style:			_WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
-		altStyle:			_LBS_EXTENDEDSEL | controlstyle,
+		altStyle:			_LBS_EXTENDEDSEL | _WS_VSCROLL | controlstyle,
 		appendMsg:		_LB_ADDSTRING,
 		insertAfterMsg:		_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
