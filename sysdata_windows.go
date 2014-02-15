@@ -27,6 +27,8 @@ type classData struct {
 	appendMsg		uintptr
 	insertBeforeString	uintptr
 	deleteMsg			uintptr
+	selectedIndexMsg	uintptr
+	selectedIndexErr	int
 }
 
 const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
@@ -55,6 +57,8 @@ var classTypes = [nctypes]*classData{
 		appendMsg:		_CB_ADDSTRING,
 		insertBeforeMsg:	_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
+		selectedIndexMsg:	_CB_GETCURSEL,
+		selectedIndexErr:	_CB_ERR,
 	},
 	c_lineedit:	&classData{
 		name:			"EDIT",
@@ -75,6 +79,8 @@ var classTypes = [nctypes]*classData{
 		appendMsg:		_LB_ADDSTRING,
 		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
+		selectedIndexMsg:	_LB_GETCURSEL,
+		selectedIndexErr:	_LB_ERR,
 	},
 }
 
@@ -329,4 +335,105 @@ func (s *sysData) insertBefore(what string, index int) (err error) {
 	<-ret
 	// TODO error handling
 	return nil
+}
+
+// TODO handle actual errors
+// TODO differentiate between nothing selected and custom text entered for a Combobox
+func (s *sysData) selectedIndex() (int, error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(classTypes[s.ctype].selectedIndexMsg),
+			uintptr(_WPARAM(0)),
+			uintptr(_LPARAM(0)),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == classTypes[s.ctype].selectedIndexErr {
+		return -1, nil
+	}
+	return int(r.ret), nil
+}
+
+// TODO handle actual errors
+func (s *sysData) selectedIndices() ([]int, error) {
+	if !s.alternate {		// single-selection list box; use single-selection method
+		index, err := s.selectedIndex()
+		if err != nil {
+			return nil, fmt.Errorf("error getting indices of single-selection list box: %v", err)
+		}
+		return []int{index}, nil
+	}
+
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_LB_GETSELCOUNT),
+			uintptr(0),
+			uintptr(0),
+		},
+		ret:		ret
+	}
+	r := <-ret
+	// TODO handle errors
+	indices := make([]int, r.ret)
+	uitask <- &uimisg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_LB_GETSELITEMS),
+			uintptr(_WPARAM(r.ret)),
+			uintptr(_LPARAM(unsafe.Pointer(&indices[0]))),
+		},
+		ret:		ret,
+	}
+	<-ret
+	// TODO handle errors
+	return indices, nil
+}
+
+func (s *sysData) selectedTexts() ([]string, error) {
+	indices, err := s.selectedIndices()
+	if err != nil {
+		return nil, fmt.Errorf("error getting selected indices for selected texts: %v", err)
+	}
+	ret := make(chan uiret)
+	defer close(ret)
+	strings := make([]string, len(indices))
+	for i, v := range indices {
+		uitask <- &uimsg{
+			call:		_sendMessage,
+			p:		[]uintptr{
+				uintptr(s.hwnd),
+				uintptr(_LB_GETTEXTLEN),
+				uintptr(_WPARAM(v)),
+				uintptr(0),
+			},
+			ret:		ret,
+		}
+		r := <-ret
+		// TODO handle errors
+		str := make([]uint16, r.ret)
+		uitask <- &uimsg{
+			call:		_sendMessage,
+			p:		[]uintptr{
+				uintptr(s.hwnd),
+				uintptr(_LB_GETTEXT),
+				uintptr(_WPARAM(v)),
+				uintptr(_LPARAM(unsafe.Pointer(&str[0]))),
+			},
+			ret:		ret,
+		}
+		<-ret
+		// TODO handle errors
+		strings[i] = syscall.UTF16ToString(str)
+	}
+	return strings, nil
 }

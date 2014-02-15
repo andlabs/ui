@@ -39,7 +39,15 @@ func (c *cSysData) append(string) error {
 func (c *cSysData) insertBefore(string, int) error {
 	panic(runtime.GOOS + " sysData does not define insertBefore()")
 }
-// TODO selectedIndex, selectedIndices, selectedTexts
+func (c *cSysData) selectedIndex() (int, error) {
+	panic(runtime.GOOS + " sysData does not define selectedIndex()")
+}
+func (c *cSysData) selectedIndices() ([]int, error) {
+	panic(runtime.GOOS + " sysData does not define selectedIndices()")
+}
+func (c *cSysData) selectedTexts() ([]string, error) {
+	panic(runtime.GOOS + " sysData does not define selectedIndex()")
+}
 
 const (
 	c_window = iota
