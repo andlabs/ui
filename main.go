@@ -19,18 +19,18 @@ func main() {
 	b3 := NewButton("List Info")
 	s3 := NewStack(Horizontal, l, b3)
 	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3)
-	lb := NewListbox(true, "Select One", "Or More", "To Continue")
+	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
 	doAdjustments := func() {
 		cb1.Append("append")
 		cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
-		lb.InsertBefore(fmt.Sprintf("%d", i), 2)
+		lb1.InsertBefore(fmt.Sprintf("%d", i), 2)
 		lb2.Append("Please")
 		i++
 	}
 	doAdjustments()
-	s1 := NewStack(Vertical, lb2, lb)
+	s1 := NewStack(Vertical, lb2, lb1)
 	s := NewStack(Horizontal, s1, s0)
 	err := w.Open(s)
 	if err != nil {
@@ -55,13 +55,15 @@ mainloop:
 		case <-b2.Clicked:
 			cb1.Delete(1)
 			cb2.Delete(2)
-			lb.Delete(3)
+			lb1.Delete(3)
 			lb2.Delete(4)
 		case <-b3.Clicked:
 			MsgBox("List Info",
-				"cb1: %d %q\ncb2: %d %q",
+				"cb1: %d %q\ncb2: %d %q\nlb1: %d %q\nlb2: %d %q",
 				cb1.SelectedIndex(), cb1.Selection(),
-				cb2.SelectedIndex(), cb2.Selection())
+				cb2.SelectedIndex(), cb2.Selection(),
+				lb1.SelectedIndices(), lb1.Selection(),
+				lb2.SelectedIndices(), lb2.Selection())
 		}
 	}
 	w.Hide()

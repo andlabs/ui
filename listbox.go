@@ -65,9 +65,27 @@ func (l *Listbox) Delete(index int) error {
 	return nil
 }
 
-// TODO Selection
+// Selection returns a list of strings currently selected in the Listbox, or an empty list if none have been selected. This list will have at most one item on a single-selection Listbox.
+func (l *Listbox) Selection() []string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 
-// TODO SelectedIndices
+	if l.created {
+		return l.sysData.selectedTexts()
+	}
+	return nil
+}
+
+// SelectedIndices returns a list of the currently selected indexes in the Listbox, or an empty list if none have been selected. This list will have at most one item on a single-selection Listbox.
+func (l *Listbox) SelectedIndices() []int {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.selectedIndices()
+	}
+	return nil
+}
 
 func (l *Listbox) make(window *sysData) (err error) {
 	l.lock.Lock()

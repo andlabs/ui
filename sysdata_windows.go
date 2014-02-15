@@ -385,6 +385,9 @@ func (s *sysData) selectedIndices() []int {
 	if r.ret == uintptr(_LB_ERR) {
 		panic("UI library internal error: LB_ERR from LB_GETSELCOUNT in what we know is a multi-selection listbox")
 	}
+	if r.ret == 0 {		// nothing selected
+		return nil
+	}
 	indices := make([]int, r.ret)
 	uitask <- &uimsg{
 		call:		_sendMessage,
