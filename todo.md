@@ -23,6 +23,8 @@ important things:
 - maybe make it so sysData doesn't need specialized info on every control type?
 - write an implementation documentation.
 - Control.preferredSize() (definitely needed for Grid and Form)
+- make specific wording in documentation consistent (make/create, etc.)
+- make passing of parameters and type conversions of parameters to uitask consistent
 
 far off:
 - localization
