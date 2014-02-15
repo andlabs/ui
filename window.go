@@ -6,8 +6,6 @@ import (
 	"sync"
 )
 
-// TODO adorn errors in each stage with which stage failed?
-
 // Window represents an on-screen window.
 type Window struct {
 	// If this channel is non-nil, the event loop will receive on this when the user clicks the window's close button.
@@ -38,7 +36,11 @@ func (w *Window) SetTitle(title string) (err error) {
 	defer w.lock.Unlock()
 
 	if w.created {
-		return w.sysData.setText(title)
+		err = w.sysData.setText(title)
+		if err != nil {
+			return fmt.Errorf("error setting window title: %v", err)
+		}
+		return nil
 	}
 	w.initTitle = title
 	return nil
@@ -70,27 +72,39 @@ func (w *Window) Open(control Control) (err error) {
 	w.sysData.event = w.Closing
 	err = w.sysData.make(w.initTitle, w.initWidth, w.initHeight, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("error opening window: %v", err)
 	}
 	if control != nil {
 		w.sysData.resize = control.setRect
 		err = control.make(w.sysData)
 		if err != nil {
-			return err
+			return fmt.Errorf("error adding window's control: %v", err)
 		}
 	}
-	w.created = true
 	// TODO resize window to apply control sizes
-	// TODO ensure the window has been shown before setting create?
-	return w.sysData.show()
+	// TODO separate showing?
+	err = w.sysData.show()
+	if err != nil {
+		return fmt.Errorf("error showing window (in Window.Open()): %v", err)
+	}
+	w.created = true
+	return nil
 }
 
 // Show shows the window.
 func (w *Window) Show() (err error) {
-	return w.sysData.show()
+	err = w.sysData.show()
+	if err != nil {
+		return fmt.Errorf("error showing window: %v", err)
+	}
+	return nil
 }
 
 // Hide hides the window.
 func (w *Window) Hide() (err error) {
-	return w.sysData.hide()
+	err = w.sysData.hide()
+	if err != nil {
+		return fmt.Errorf("error hiding window: %v", err)
+	}
+	return nil
 }
