@@ -363,7 +363,11 @@ func (s *sysData) selectedIndex() int {
 
 func (s *sysData) selectedIndices() []int {
 	if !s.alternate {		// single-selection list box; use single-selection method
-		return []int{s.selectedIndex()}
+		index := s.selectedIndex()
+		if index == -1 {
+			return nil
+		}
+		return []int{index}
 	}
 
 	ret := make(chan uiret)
