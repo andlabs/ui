@@ -13,6 +13,10 @@ so I don't forget:
 - padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
 - change Stack/Combobox/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
 - allow Combobox to have initial settings
+- Combobox and Listbox insertions and deletions should allow bulk (...string)
+- Combobox/Listbox.DeleteAll
+- Combobox/Listbox.Select (with Listbox.Select allowing bulk)
+- Listbox.SelectAll
 
 super ultra important things:
 - the windows build appears to be unstable:
@@ -35,3 +39,4 @@ far off:
 
 maybe:
 - rename Stack to Box?
+- make Combobox and Listbox satisfy sort.Interface?
