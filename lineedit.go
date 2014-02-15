@@ -24,7 +24,17 @@ func NewLineEdit(text string) *LineEdit {
 	}
 }
 
-// TODO SetText
+// SetText sets the LineEdit's text.
+func (l *LineEdit) SetText(text string) (err error) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.setText(text)
+	}
+	l.initText = text
+	return nil
+}
 
 // Text returns the LineEdit's text.
 func (l *LineEdit) Text() string {

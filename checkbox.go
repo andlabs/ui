@@ -37,11 +37,23 @@ func (c *Checkbox) SetText(text string) (err error) {
 	return nil
 }
 
+// Text returns the checkbox's text.
+func (c *Checkbox) Text() string {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.text()
+	}
+	return c.initText
+}
+
 // Checked() returns whether or not the checkbox has been checked.
 func (c *Checkbox) Checked() bool {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
+	// TODO if not created
 	return c.sysData.isChecked()
 }
 

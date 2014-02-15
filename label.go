@@ -22,7 +22,28 @@ func NewLabel(text string) *Label {
 	}
 }
 
-// TODO SetText()/Text()?
+// SetText sets the Label's text.
+func (l *Label) SetText(text string) (err error) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.setText(text)
+	}
+	l.initText = text
+	return nil
+}
+
+// Text returns the Label's text.
+func (l *Label) Text() string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.text()
+	}
+	return l.initText
+}
 
 func (l *Label) make(window *sysData) error {
 	l.lock.Lock()

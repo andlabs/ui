@@ -37,6 +37,17 @@ func (b *Button) SetText(text string) (err error) {
 	return nil
 }
 
+// Text returns the button's text.
+func (b *Button) Text() string {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
+	if b.created {
+		return b.sysData.text()
+	}
+	return b.initText
+}
+
 func (b *Button) make(window *sysData) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
