@@ -182,13 +182,18 @@ const (
 	_CB_GETCOMBOBOXINFO = 0x0164
 )
 
+// Combobox errors.
+var (		// var so they can be cast to uintptr
+	// from winuser.h
+	_CB_ERR = (-1)
+	_CB_ERRSPACE = (-2)
+	_CBN_ERRSPACE = (-1)
+)
+
 // Combobox WM_COMMAND notificaitons.
 // TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
-	_CB_ERR = (-1)
-	_CB_ERRSPACE = (-2)
-	_CBN_ERRSPACE = (-1)		// TODO this will blow up the Go compiler if it's used
 	_CBN_SELCHANGE = 1
 	_CBN_DBLCLK = 2
 	_CBN_SETFOCUS = 3
@@ -358,14 +363,19 @@ const (
 	_LB_GETLISTBOXINFO = 0x01B2
 )
 
+// Listbox errors.
+var (		// var so they can be cast to uintptr
+	// from winuser.h
+	_LB_OKAY = 0
+	_LB_ERR = (-1)
+	_LB_ERRSPACE = (-2)
+	_LBN_ERRSPACE = (-2)
+)
+
 // Listbox WM_COMMAND notifications and message returns.
 // TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
-	_LB_OKAY = 0
-	_LB_ERR = (-1)				// TODO this will blow up the Go compiler if it's used
-	_LB_ERRSPACE = (-2)
-	_LBN_ERRSPACE = (-2)		// TODO this will blow up the Go compiler if it's used
 	_LBN_SELCHANGE = 1
 	_LBN_DBLCLK = 2
 	_LBN_SELCANCEL = 3
