@@ -166,45 +166,12 @@ const (
 
 var (
 	_createWindowEx = user32.NewProc("CreateWindowExW")
-	_destroyWindow = user32.NewProc("DestroyWindow")
 	_getClientRect = user32.NewProc("GetClientRect")
-	_enumChildWindows = user32.NewProc("EnumChildWindows")
 	_moveWindow = user32.NewProc("MoveWindow")
 	_setWindowPos = user32.NewProc("SetWindowPos")
 	_setWindowText = user32.NewProc("SetWindowTextW")
 	_showWindow = user32.NewProc("ShowWindow")
 )
-
-/*
-func DestroyWindow(hWnd HWND) (err error) {
-	r1, _, err := destroyWindow.Call(uintptr(hWnd))
-	if r1 == 0 {		// failure
-		return err
-	}
-	return nil
-}
-
-type WNDENUMPROC func(hwnd HWND, lParam LPARAM) (cont bool)
-type _WNDENUMPROC func(hwnd HWND, lParam LPARAM) int
-
-func enumChildProc(p WNDENUMPROC) _WNDENUMPROC {
-	return func(hwnd HWND, lParam LPARAM) int {
-		if p(hwnd, lParam) {
-			return TRUE
-		}
-		return FALSE
-	}
-}
-
-// TODO figure out how to handle errors
-func EnumChildWindows(hWndParent HWND, lpEnumFunc WNDENUMPROC, lParam LPARAM) (err error) {
-	enumChildWindows.Call(
-		uintptr(hWndParent),
-		syscall.NewCallback(enumChildProc(lpEnumFunc)),
-		uintptr(lParam))
-	return nil
-}
-*/
 
 // WM_SETICON and WM_GETICON values.
 const (
