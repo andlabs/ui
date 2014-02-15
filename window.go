@@ -80,6 +80,8 @@ func (w *Window) Open(control Control) (err error) {
 		}
 	}
 	w.created = true
+	// TODO resize window to apply control sizes
+	// TODO ensure the window has been shown before setting create?
 	return w.sysData.show()
 }
 
