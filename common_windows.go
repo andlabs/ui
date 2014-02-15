@@ -26,8 +26,7 @@ const (
 	_TRUE = 1			// from windef.h
 )
 
-// TODO pull the thanks for these three from the old wingo source
-// TODO put these in windows.go
+// In MSDN, _LPARAM and _LRESULT are listed as signed pointers, however their interpretation is message-specific. Ergo, just cast them yourself; it'll be the same. (Thanks to Tv` in #go-nuts for helping me realize this.)
 type _WPARAM uintptr
 type _LPARAM uintptr
 type _LRESULT uintptr

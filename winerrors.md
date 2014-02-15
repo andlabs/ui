@@ -1,6 +1,6 @@
 - all SendMessage() calls
 - BM_GETCHECK (sysData.isChecked())
-- WM_GETTEXTLENGTH (LRESULT is unsinged so) (sysData.text())
+- WM_GETTEXTLENGTH (LRESULT is signed but we treat it as unsigned and MSDN says nothing about error returns) (sysData.text())
 - WM_GETTEXT (WM_GETTEXTLENGTH docs say its result may be larger than the actual length, so we can't use that) (sysData.text())
 - CB_GETCURSEL/LB_GETCURSEL (sysData.selectedIndex())
 - LB_GETSELCOUNT/LB_GETSELITEMS (LB_ERR is returned if this is a single-selection listbox; are there actual errors?) (sysData.selectedIndices())
