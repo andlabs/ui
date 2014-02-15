@@ -94,5 +94,5 @@ func MsgBox(title string, textfmt string, args ...interface{}) {
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
 func MsgBoxError(title string, textfmt string, args ...interface{}) {
 	// TODO add an icon?
-	msgBox(fmt.Sprintf(textfmt, args...), title, _MB_OK | _MB_ERROR)
+	msgBox(fmt.Sprintf(textfmt, args...), title, _MB_OK | _MB_ICONERROR)
 }
