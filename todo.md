@@ -17,6 +17,7 @@ so I don't forget:
 - Combobox/Listbox.DeleteAll
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
 - Listbox.SelectAll
+- have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index
 
 super ultra important things:
 - the windows build appears to be unstable:

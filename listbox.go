@@ -53,6 +53,18 @@ func (l *Listbox) InsertBefore(what string, before int) (err error) {
 	return nil
 }
 
+// Delete removes the given item from the Listbox.
+func (l *Listbox) Delete(index int) error {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.delete(index)
+	}
+	l.initItems = append(l.initItems[:index], l.initItems[index + 1:]...)
+	return nil
+}
+
 // TODO Selection
 
 // TODO SelectedIndices

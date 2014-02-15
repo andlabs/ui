@@ -9,12 +9,14 @@ func main() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = make(chan struct{})
 	b := NewButton("Click Me")
+	b2 := NewButton("Or Me")
+	s2 := NewStack(Horizontal, b, b2)
 	c := NewCheckbox("Check Me")
 	cb1 := NewCombobox(true, "You can edit me!", "Yes you can!", "Yes you will!")
 	cb2 := NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
 	e := NewLineEdit("Enter text here too")
 	l := NewLabel("This is a label")
-	s0 := NewStack(Vertical, b, c, cb1, cb2, e, l)
+	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, l)
 	lb := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
@@ -48,6 +50,11 @@ mainloop:
 				panic(err)
 			}
 			doAdjustments()
+		case <-b2.Clicked:
+			cb1.Delete(1)
+			cb2.Delete(2)
+			lb.Delete(3)
+			lb2.Delete(4)
 		}
 	}
 	w.Hide()

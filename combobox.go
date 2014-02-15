@@ -53,7 +53,17 @@ func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	return nil
 }
 
-// TODO Delete
+// Delete removes the given item from the Combobox.
+func (c *Combobox) Delete(index int) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.delete(index)
+	}
+	c.initItems = append(c.initItems[:index], c.initItems[index + 1:]...)
+	return nil
+}
 
 // Selection returns the current selection.
 func (c *Combobox) Selection() string {

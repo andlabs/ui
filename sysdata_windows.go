@@ -467,3 +467,23 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	}
 	return nil
 }
+
+func (s *sysData) delete(index int) (err error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(classTypes[s.ctype].deleteMsg),
+			uintptr(_WPARAM(index)),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
+		return fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", r.err)
+	}
+	return nil
+}
