@@ -240,7 +240,7 @@ func (s *sysData) setRect(x int, y int, width int, height int) error {
 	}
 	r := <-ret
 	if r.ret == 0 {		// failure
-		return r.err
+		return fmt.Errorf("error setting window/control rect: %v", r.err)
 	}
 	return nil
 }
@@ -436,4 +436,28 @@ func (s *sysData) selectedTexts() ([]string, error) {
 		strings[i] = syscall.UTF16ToString(str)
 	}
 	return strings, nil
+}
+
+func (s *sysData) setWindowSize(width int, height int) error {
+	var rect _RECT
+
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_getClientRect,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(unsafe.Pointer(&rect)),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {
+		return fmt.Errorf("error getting upper-left of window for resize: %v", r.err)
+	}
+	err := s.setRect(int(rect.Left), int(rect.Top), width, height)
+	if err != nil {
+		return fmt.Errorf("error actually resizing window: %v", err)
+	}
+	return nil
 }

@@ -48,6 +48,9 @@ func (c *cSysData) selectedIndices() ([]int, error) {
 func (c *cSysData) selectedTexts() ([]string, error) {
 	panic(runtime.GOOS + " sysData does not define selectedIndex()")
 }
+func (c *cSysData) setWindowSize(int, int) error {
+	panic(runtime.GOOS + " sysData does not define setWindowSize()")
+}
 
 const (
 	c_window = iota
