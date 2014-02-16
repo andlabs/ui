@@ -88,7 +88,6 @@ func (s *sysData) make(initText string, window *sysData) error {
 		ret <- ct.make()
 	}
 	s.widget = <-ret
-println(s.widget)
 	if window == nil {
 		uitask <- func() {
 			fixed := gtk_fixed_new()
@@ -157,7 +156,6 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-println(s.ctype, x, y, width, height)
 		gtk_fixed_move(s.container, s.widget, x, y)
 		gtk_widget_set_size_request(s.widget, width, height)
 		ret <- struct{}{}
