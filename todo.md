@@ -19,6 +19,10 @@ so I don't forget:
 - Listbox.SelectAll
 - have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index before creation
 
+important things:
+- the C.gdk_threads_add_idle logic is messy and will break when I implement actual connections...
+- there's no GTK+ error handling whatsoever; we need to figure out how it works
+
 super ultra important things:
 - the windows build appears to be unstable:
 	- 64-bit doesn't work, period: it crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 CreateWindowExW complains about an unregistered window class, yet the RegisterClassW appears to have succeeded and examining the stack in WinDbg indicates the correct class name is being sent (see below)
