@@ -5,9 +5,7 @@
 package main
 
 import (
-	"fmt"
 	"unsafe"
-	"reflect"
 )
 
 // #cgo pkg-config: gtk+-3.0
@@ -21,10 +19,6 @@ import "C"
 
 type (
 	gtkWidget C.GtkWidget
-
-	// these are needed for signals
-	gdkEvent C.GdkEvent
-	gpointer C.gpointer
 )
 
 func fromgbool(b C.gboolean) bool {
@@ -64,22 +58,16 @@ func gtk_window_new() *gtkWidget {
 	return (*gtkWidget)(unsafe.Pointer(C.gtk_window_new(0)))
 }
 
-// because *gtkWidget and *C.GtkWidget are not compatible
-func gtkwidget(g *gtkWidget) (*C.GtkWidget) {
-	return (*C.GtkWidget)(unsafe.Pointer(g))
+// shorthand
+func gtkwidget(what *gtkWidget) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(what))
 }
 
-// TODO do we need the argument?
-// TODO fine-tune the function type
-func g_signal_connect(obj *gtkWidget, sig string, callback interface{}) {
-	v := reflect.ValueOf(callback)
-	if v.Kind() != reflect.Func {
-		panic(fmt.Sprintf("UI library internal error: callback %v given to g_signal_connect not a function", v))
-	}
-	ccallback := C.GCallback(unsafe.Pointer(v.Pointer()))
+func g_signal_connect(obj *gtkWidget, sig string, callback func() bool) {
+	ccallback := callbacks[sig]
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
-	C.gSignalConnect(gtkwidget(obj), csig, ccallback, unsafe.Pointer(nil))
+	C.gSignalConnect(gtkwidget(obj), csig, ccallback, unsafe.Pointer(&callback))
 }
 
 // TODO ensure this works if called on an individual control

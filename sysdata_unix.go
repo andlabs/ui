@@ -19,16 +19,16 @@ type classData struct {
 	make	func() *gtkWidget
 	setText	func(widget *gtkWidget, text string)
 	// ...
-	signals	map[string]func(*sysData) interface{}
+	signals	map[string]func(*sysData) func() bool
 }
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
 		make:	gtk_window_new,
 		setText:	gtk_window_set_title,
-		signals:	map[string]func(*sysData) interface{}{
-			"delete-event":		func(w *sysData) interface{} {
-				return func(*gtkWidget, *gdkEvent, gpointer) bool {
+		signals:	map[string]func(*sysData) func() bool{
+			"delete-event":		func(w *sysData) func() bool {
+				return func() bool {
 					if w.event != nil {
 						w.event <- struct{}{}
 					}
