@@ -35,6 +35,19 @@ var classTypes = [nctypes]*classData{
 					return true		// do not close the window
 				}
 			},
+			"configure-event":	func(w *sysData) func() bool {
+				return func() bool {
+					if w.container != nil && w.resize != nil {		// wait for init
+						width, height := gtk_window_get_size(w.widget)
+						// run in another goroutine since this will be called in uitask
+						go func() {
+							w.resize(0, 0, width, height)
+						}()
+					}
+					// TODO really return true?
+					return true		// do not continue events; we just did so
+				}
+			},
 		},
 	},
 	c_button:		&classData{
@@ -80,6 +93,7 @@ println(s.widget)
 		uitask <- func() {
 			fixed := gtk_fixed_new()
 			gtk_container_add(s.widget, fixed)
+			// TODO return the container before assigning the signals?
 			for signal, generator := range ct.signals {
 				g_signal_connect(s.widget, signal, generator(s))
 			}
@@ -139,6 +153,7 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
+if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {

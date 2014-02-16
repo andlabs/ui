@@ -80,6 +80,13 @@ func gtk_window_resize(window *gtkWidget, width int, height int) {
 	C.gtk_window_resize((*C.GtkWindow)(unsafe.Pointer(window)), C.gint(width), C.gint(height))
 }
 
+func gtk_window_get_size(window *gtkWidget) (int, int) {
+	var width, height C.gint
+
+	C.gtk_window_get_size((*C.GtkWindow)(unsafe.Pointer(window)), &width, &height)
+	return int(width), int(height)
+}
+
 func gtk_fixed_new() *gtkWidget {
 	return (*gtkWidget)(unsafe.Pointer(C.gtk_fixed_new()))
 }

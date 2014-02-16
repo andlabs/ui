@@ -16,7 +16,7 @@ while we're at it the callback for our idle function will be handled here too fo
 // #cgo pkg-config: gtk+-3.0
 // #include <gtk/gtk.h>
 // extern gboolean our_callback(gpointer);
-// extern gboolean our_delete_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_window_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern void our_clicked_callback(GtkButton *, gpointer);
 import "C"
 
@@ -26,8 +26,8 @@ func our_callback(what C.gpointer) C.gboolean {
 	return togbool(f())
 }
 
-//export our_delete_event_callback
-func our_delete_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
+//export our_window_callback
+func our_window_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
 	return our_callback(what)
 }
 
@@ -38,6 +38,7 @@ func our_clicked_callback(button *C.GtkButton, what C.gpointer) {
 
 var callbacks = map[string]C.GCallback{
 	"idle":			C.GCallback(C.our_callback),
-	"delete-event":		C.GCallback(C.our_delete_event_callback),
+	"delete-event":		C.GCallback(C.our_window_callback),
+	"configure-event":	C.GCallback(C.our_window_callback),
 	"clicked":			C.GCallback(C.our_clicked_callback),
 }
