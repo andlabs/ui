@@ -12,9 +12,7 @@ import (
 // #include <stdlib.h>
 // #include <gtk/gtk.h>
 // /* because cgo is flaky with macros */
-// static inline void gSignalConnect(GtkWidget *widget, char *signal, GCallback callback, void *data) { g_signal_connect(widget, signal, callback, data); }
-// /* so we can call uistep */
-// extern gboolean our_thread_callback(gpointer);
+// void gSignalConnect(GtkWidget *widget, char *signal, GCallback callback, void *data) { g_signal_connect(widget, signal, callback, data); }
 import "C"
 
 type (
@@ -32,21 +30,13 @@ func togbool(b bool) C.gboolean {
 	return C.FALSE
 }
 
-//export our_thread_callback
-func our_thread_callback(C.gpointer) C.gboolean {
-	uistep()
-	return C.TRUE
-}
-
 func gtk_init() bool {
 	// TODO allow GTK+ standard command-line argument processing
-	b := fromgbool(C.gtk_init_check((*C.int)(nil), (***C.char)(nil)))
-	if !b {
-		return false
-	}
-	// thanks to tristan in irc.gimp.net/#gtk
-	C.gdk_threads_add_idle(C.GSourceFunc(C.our_thread_callback), C.gpointer(unsafe.Pointer(nil)))
-	return true
+	return fromgbool(C.gtk_init_check((*C.int)(nil), (***C.char)(nil)))
+}
+
+func gdk_threads_add_idle(what func() bool) {
+	C.gdk_threads_add_idle(callbacks["idle"], C.gpointer(unsafe.Pointer(&what)))
 }
 
 func gtk_main() {

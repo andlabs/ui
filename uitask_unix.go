@@ -21,15 +21,16 @@ func ui(initDone chan error) {
 	}
 	initDone <- nil
 
+	// thanks to tristan in irc.gimp.net/#gtk
+	gdk_threads_add_idle(func() bool {
+		select {
+		case f := <-uitask:
+			f()
+		default:		// do not block
+		}
+		return true	// don't destroy the callback
+	})
 	gtk_main()
-}
-
-func uistep() {
-	select {
-	case f := <-uitask:
-		f()
-	default:		// do not block
-	}
 }
 
 // temporary
