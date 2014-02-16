@@ -17,6 +17,7 @@ while we're at it the callback for our idle function will be handled here too fo
 // #include <gtk/gtk.h>
 // extern gboolean our_callback(gpointer);
 // extern gboolean our_delete_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern void our_clicked_callback(GtkButton *, gpointer);
 import "C"
 
 //export our_callback
@@ -30,7 +31,13 @@ func our_delete_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gp
 	return our_callback(what)
 }
 
+//export our_clicked_callback
+func our_clicked_callback(button *C.GtkButton, what C.gpointer) {
+	our_callback(what)
+}
+
 var callbacks = map[string]C.GCallback{
 	"idle":			C.GCallback(C.our_callback),
 	"delete-event":		C.GCallback(C.our_delete_event_callback),
+	"clicked":			C.GCallback(C.our_clicked_callback),
 }

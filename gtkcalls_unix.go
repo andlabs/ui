@@ -88,11 +88,22 @@ func gtk_container_add(container *gtkWidget, widget *gtkWidget) {
 	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(container)), gtkwidget(widget))
 }
 
-func gtk_fixed_put(container *gtkWidget, widget *gtkWidget, x int, y int) {
-	C.gtk_fixed_put((*C.GtkFixed)(unsafe.Pointer(container)), gtkwidget(widget),
+func gtk_fixed_move(container *gtkWidget, widget *gtkWidget, x int, y int) {
+	C.gtk_fixed_move((*C.GtkFixed)(unsafe.Pointer(container)), gtkwidget(widget),
 		C.gint(x), C.gint(y))
 }
 
 func gtk_widget_set_size_request(widget *gtkWidget, width int, height int) {
 	C.gtk_widget_set_size_request(gtkwidget(widget), C.gint(width), C.gint(height))
+}
+
+func gtk_button_new() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_button_new()))
+}
+
+func gtk_button_set_label(button *gtkWidget, label string) {
+	clabel := C.CString(label)
+	defer C.free(unsafe.Pointer(clabel))
+	C.gtk_button_set_label((*C.GtkButton)(unsafe.Pointer(button)),
+		(*C.gchar)(unsafe.Pointer(clabel)))
 }

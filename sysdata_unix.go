@@ -38,7 +38,18 @@ var classTypes = [nctypes]*classData{
 		},
 	},
 	c_button:		&classData{
-//		make:	gtk_button_new,
+		make:	gtk_button_new,
+		setText:	gtk_button_set_label,
+		signals:	map[string]func(*sysData) func() bool{
+			"clicked":		func(w *sysData) func() bool {
+				return func() bool {
+					if w.event != nil {
+						w.event <- struct{}{}
+					}
+					return true		// do not close the window
+				}
+			},
+		},
 	},
 	c_checkbox:	&classData{
 	},
@@ -77,6 +88,14 @@ println(s.widget)
 		s.container = <-ret
 	} else {
 		s.container = window.container
+		uitask <- func() {
+			gtk_container_add(s.container, s.widget)
+			for signal, generator := range ct.signals {
+				g_signal_connect(s.widget, signal, generator(s))
+			}
+			ret <- nil
+		}
+		<-ret
 	}
 	err := s.setText(initText)
 	if err != nil {
@@ -123,7 +142,8 @@ func (s *sysData) setRect(x int, y int, width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		gtk_fixed_put(s.container, s.widget, x, y)
+println(s.ctype, x, y, width, height)
+		gtk_fixed_move(s.container, s.widget, x, y)
 		gtk_widget_set_size_request(s.widget, width, height)
 		ret <- struct{}{}
 	}
