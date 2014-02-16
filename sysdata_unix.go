@@ -65,6 +65,8 @@ var classTypes = [nctypes]*classData{
 		},
 	},
 	c_checkbox:	&classData{
+		make:	gtk_check_button_new,
+		setText:	gtk_button_set_label,
 	},
 	c_combobox:	&classData{
 	},
@@ -165,8 +167,12 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil
 }
 
 func (s *sysData) isChecked() bool {
-	// TODO
-	return false
+	ret := make(chan bool)
+	defer close(ret)
+	uitask <- func() {
+		ret <- gtk_toggle_button_get_active(s.widget)
+	}
+	return <-ret
 }
 
 func (s *sysData) text() string {

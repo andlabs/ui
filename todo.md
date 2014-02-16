@@ -28,6 +28,8 @@ super ultra important things:
 	- 64-bit doesn't work, period: it crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 CreateWindowExW complains about an unregistered window class, yet the RegisterClassW appears to have succeeded and examining the stack in WinDbg indicates the correct class name is being sent (see below)
 	- 32-bit: it works now, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
 - handle in-library panics (internal errors) by reporting them to the user
+- david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
+	- I get soft deadlock if I mash the Click Me button repeatedly
 
 important things:
 - maybe make it so sysData doesn't need specialized info on every control type?

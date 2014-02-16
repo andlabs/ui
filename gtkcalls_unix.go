@@ -114,3 +114,11 @@ func gtk_button_set_label(button *gtkWidget, label string) {
 	C.gtk_button_set_label((*C.GtkButton)(unsafe.Pointer(button)),
 		(*C.gchar)(unsafe.Pointer(clabel)))
 }
+
+func gtk_check_button_new() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_check_button_new()))
+}
+
+func gtk_toggle_button_get_active(widget *gtkWidget) bool {
+	return fromgbool(C.gtk_toggle_button_get_active((*C.GtkToggleButton)(unsafe.Pointer(widget))))
+}
