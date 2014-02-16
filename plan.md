@@ -11,6 +11,13 @@ http://github.com/andlabs
 - Error-safe
 - Correct: uses APIs properly and conforms to system-specific UI design guidelines
 
+## Support
+- Windows: all versions listed as supported by Go; that means Windows 2000 and newer
+- Mac: all versions listed as supported by Go; that means Mac OS X 10.6 (Snow Leopard) and newer
+- other Unix: GTK+
+	- I am deciding to support at least the versions of glib/gobject and GDK/GTK+ supported by Ubuntu 12.04 LTS (Precise Pangolin; the earliest LTS that ships with GTK+ 3); that is, glib/gobject 2.32.1 and GDK/GTK+ 3.4.1
+		- however the avaialble (on http://developer.gnome.org/) documentation is actually for glib/gobject 2.32.4 and GDK/GTK+ 3.4.4; I hope the point differences won't hurt me
+
 ## Layouts
 Layouts control positioning and sizing. Layouts are controls, so they can be added recursively. The layout types are:
 * `Stack`: a stack of controls, all sized alike, with padding between controls and spacing around the whole set. Controls can be arranged horizontally or vertically. (Analogues: Qt's `QBoxLayout`)
