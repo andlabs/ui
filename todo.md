@@ -30,6 +30,7 @@ super ultra important things:
 - handle in-library panics (internal errors) by reporting them to the user
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	- I get soft deadlock if I mash the Click Me button repeatedly
+	- occasionally maximizing/restoring a window will abort early and stay that way...?
 
 important things:
 - maybe make it so sysData doesn't need specialized info on every control type?
