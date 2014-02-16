@@ -22,6 +22,7 @@ so I don't forget:
 important things:
 - the C.gdk_threads_add_idle logic is messy and will break when I implement actual connections...
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
+- make sure GTK+ documentation point differences don't matter
 
 super ultra important things:
 - the windows build appears to be unstable:
