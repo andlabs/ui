@@ -15,6 +15,8 @@ import (
 // void gSignalConnect(GtkWidget *widget, char *signal, GCallback callback, void *data) { g_signal_connect(widget, signal, callback, data); }
 import "C"
 
+// BIG TODO reduce the amount of explicit casting
+
 type (
 	gtkWidget C.GtkWidget
 )
@@ -76,6 +78,10 @@ func gtk_window_set_title(window *gtkWidget, title string) {
 		(*C.gchar)(unsafe.Pointer(ctitle)))
 }
 
+func gtk_window_get_title(window *gtkWidget) string {
+	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_window_get_title((*C.GtkWindow)(unsafe.Pointer(window))))))
+}
+
 func gtk_window_resize(window *gtkWidget, width int, height int) {
 	C.gtk_window_resize((*C.GtkWindow)(unsafe.Pointer(window)), C.gint(width), C.gint(height))
 }
@@ -113,6 +119,10 @@ func gtk_button_set_label(button *gtkWidget, label string) {
 	defer C.free(unsafe.Pointer(clabel))
 	C.gtk_button_set_label((*C.GtkButton)(unsafe.Pointer(button)),
 		(*C.gchar)(unsafe.Pointer(clabel)))
+}
+
+func gtk_button_get_label(button *gtkWidget) string {
+	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_button_get_label((*C.GtkButton)(unsafe.Pointer(button))))))
 }
 
 func gtk_check_button_new() *gtkWidget {

@@ -18,6 +18,7 @@ type sysData struct {
 type classData struct {
 	make	func() *gtkWidget
 	setText	func(widget *gtkWidget, text string)
+	text		func(widget *gtkWidget) string
 	// ...
 	signals	map[string]func(*sysData) func() bool
 }
@@ -26,6 +27,7 @@ var classTypes = [nctypes]*classData{
 	c_window:	&classData{
 		make:	gtk_window_new,
 		setText:	gtk_window_set_title,
+		text:		gtk_window_get_title,
 		signals:	map[string]func(*sysData) func() bool{
 			"delete-event":		func(w *sysData) func() bool {
 				return func() bool {
@@ -53,6 +55,7 @@ var classTypes = [nctypes]*classData{
 	c_button:		&classData{
 		make:	gtk_button_new,
 		setText:	gtk_button_set_label,
+		text:		gtk_button_get_label,
 		signals:	map[string]func(*sysData) func() bool{
 			"clicked":		func(w *sysData) func() bool {
 				return func() bool {
@@ -176,8 +179,13 @@ func (s *sysData) isChecked() bool {
 }
 
 func (s *sysData) text() string {
-	// TODO
-	return ""
+if classTypes[s.ctype] == nil || classTypes[s.ctype].text == nil { println(s.ctype,"unsupported text()"); return "" }
+	ret := make(chan string)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].text(s.widget)
+	}
+	return <-ret
 }
 
 func (s *sysData) append(what string) error {
