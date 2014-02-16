@@ -21,6 +21,10 @@ import "C"
 
 type (
 	gtkWidget C.GtkWidget
+
+	// these are needed for signals
+	gdkEvent C.GdkEvent
+	gpointer C.gpointer
 )
 
 func fromgbool(b C.gboolean) bool {

@@ -18,12 +18,24 @@ type sysData struct {
 type classData struct {
 	make	func() *gtkWidget
 	setText	func(widget *gtkWidget, text string)
+	// ...
+	signals	map[string]func(*sysData) interface{}
 }
 
 var classTypes = [nctypes]*classData{
 	c_window:	&classData{
 		make:	gtk_window_new,
 		setText:	gtk_window_set_title,
+		signals:	map[string]func(*sysData) interface{}{
+			"delete-event":		func(w *sysData) interface{} {
+				return func(*gtkWidget, *gdkEvent, gpointer) bool {
+					if w.event != nil {
+						w.event <- struct{}{}
+					}
+					return true		// do not close the window
+				}
+			},
+		},
 	},
 	c_button:		&classData{
 //		make:	gtk_button_new,
@@ -57,6 +69,9 @@ println(s.widget)
 		uitask <- func() {
 			fixed := gtk_fixed_new()
 			gtk_container_add(s.widget, fixed)
+			for signal, generator := range ct.signals {
+				g_signal_connect(s.widget, signal, generator(s))
+			}
 			ret <- fixed
 		}
 		s.container = <-ret
