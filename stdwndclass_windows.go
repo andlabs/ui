@@ -51,13 +51,10 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 				if r1 == 0 {
 					panic("GetClientRect failed: " + err.Error())
 				}
-				// run the resize in a goroutine, since the WndProc is being run on uitask
-				go func() {
-					err = s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom))
-					if err != nil {
-						panic("child resize failed: " + err.Error())
-					}
-				}()
+				err = s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom))
+				if err != nil {
+					panic("child resize failed: " + err.Error())
+				}
 			}
 			return 0
 		case _WM_CLOSE:

@@ -48,12 +48,13 @@ var classTypes = [nctypes]*classData{
 				return func() bool {
 					if w.container != nil && w.resize != nil {		// wait for init
 						width, height := gtk_window_get_size(w.widget)
-						// run in another goroutine since this will be called in uitask
-						go func() {
-							w.resize(0, 0, width, height)
-						}()
+						err := w.resize(0, 0, width, height)
+						if err != nil {
+							panic("child resize failed: " + err.Error())
+						}
 					}
 					// returning false indicates that we continue processing events related to configure-event; if we choose not to, then after some controls have been added, the layout fails completely and everything stays in the starting position/size
+					// TODO make sure this is the case
 					return false
 				}
 			},
@@ -198,14 +199,8 @@ func (s *sysData) setText(text string) error {
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		gtk_fixed_move(s.container, s.widget, x, y)
-		gtk_widget_set_size_request(s.widget, width, height)
-		ret <- struct{}{}
-	}
-	<-ret
+	gtk_fixed_move(s.container, s.widget, x, y)
+	gtk_widget_set_size_request(s.widget, width, height)
 	return nil
 }
 

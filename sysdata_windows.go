@@ -226,23 +226,15 @@ func (s *sysData) setText(text string) error {
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
-	ret := make(chan uiret)
-	defer close(ret)
-	uitask <- &uimsg{
-		call:		_moveWindow,
-		p:		[]uintptr{
-			uintptr(s.hwnd),
-			uintptr(x),
-			uintptr(y),
-			uintptr(width),
-			uintptr(height),
-			uintptr(_TRUE),
-		},
-		ret:		ret,
-	}
-	r := <-ret
-	if r.ret == 0 {		// failure
-		return fmt.Errorf("error setting window/control rect: %v", r.err)
+	r1, _, err := _moveWindow.Call(
+		uintptr(s.hwnd),
+		uintptr(x),
+		uintptr(y),
+		uintptr(width),
+		uintptr(height),
+		uintptr(_TRUE))
+	if r1 == 0 {		// failure
+		return fmt.Errorf("error setting window/control rect: %v", err)
 	}
 	return nil
 }
