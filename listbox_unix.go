@@ -7,18 +7,67 @@ import (
 	"unsafe"
 )
 
-// TODOs:
-// - document the magic stuff in the listbox code
+/*
+GTK+ 3.10 introduces a dedicated GtkListView type for simple listboxes like our Listbox. Unfortunately, since I want to target at least GTK+ 3.4, I need to do things the old, long, and hard way: manually with a GtkTreeView and GtkListStore model.
+
+You are not expected to understand this.
+
+if you must though:
+GtkTreeViews are model/view. We use a GtkListStore as a model.
+GtkTreeViews also separate selections into another type, but the GtkTreeView creates the selection object for us.
+GtkTreeViews can scroll, but do not draw scrollbars or borders; we need to use a GtkScrolledWindow to hold the GtkTreeView to do so. We return the GtkScrolledWindow and get its control out when we want to access the GtkTreeView.
+Like with Windows, there's a difference between signle-selection and multi-selection GtkTreeViews when it comes to getting the list of selections that we can exploit. The GtkTreeSelection class hands us an iterator and the model (for some reason). We pull a GtkTreePath out of the iterator, which we can then use to get the indices or text data.
+
+For more information, read
+	https://developer.gnome.org/gtk3/3.4/TreeWidget.html
+	http://ubuntuforums.org/showthread.php?t=1208655
+	http://scentric.net/tutorial/sec-treemodel-remove-row.html
+	http://gtk.10911.n7.nabble.com/Scrollbars-in-a-GtkTreeView-td58076.html
+	http://stackoverflow.com/questions/11407447/gtk-treeview-get-current-row-index-in-python (I think; I don't remember if I wound up using this one as a reference or not; I know after that I found the ubuntuforums link above)
+and the GTK+ reference documentation.
+*/
 
 // #cgo pkg-config: gtk+-3.0
 // #include <stdlib.h>
 // #include <gtk/gtk.h>
 // /* because cgo seems to choke on ... */
-// void gtkTreeModelGet(GtkTreeModel *model, GtkTreeIter *iter, gchar **gs) { gtk_tree_model_get(model, iter, 0, gs, -1); }
-// GtkListStore *gtkListStoreNew(void) { return gtk_list_store_new(1, G_TYPE_STRING); }
-// void gtkListStoreSet(GtkListStore *ls, GtkTreeIter *iter, char *gs) { gtk_list_store_set(ls, iter, 0, (gchar *) gs, -1); }
-// GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer) { return gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL); }
+// void gtkTreeModelGet(GtkTreeModel *model, GtkTreeIter *iter, gchar **gs)
+// {
+// 	/* 0 is the column #; we only have one column here */
+// 	gtk_tree_model_get(model, iter, 0, gs, -1);
+// }
+// GtkListStore *gtkListStoreNew(void)
+// {
+// 	/* 1 column that stores strings */
+// 	return gtk_list_store_new(1, G_TYPE_STRING);
+// }
+// void gtkListStoreSet(GtkListStore *ls, GtkTreeIter *iter, char *gs)
+// {
+// 	/* same parameters as in gtkTreeModelGet() */
+// 	gtk_list_store_set(ls, iter, 0, (gchar *) gs, -1);
+// }
+// GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer)
+// {
+// 	/* "" is the column header; "text" associates the text of the column with column 0 */
+// 	return gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL);
+// }
 import "C"
+
+func fromgtktreemodel(x *C.GtkTreeModel) *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(x))
+}
+
+func togtktreemodel(what *gtkWidget) *C.GtkTreeModel {
+	return (*C.GtkTreeModel)(unsafe.Pointer(what))
+}
+
+func fromgtktreeview(x *C.GtkTreeView) *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(x))
+}
+
+func togtktreeview(what *gtkWidget) *C.GtkTreeView {
+	return (*C.GtkTreeView)(unsafe.Pointer(what))
+}
 
 func gListboxNew(multisel bool) *gtkWidget {
 	store := C.gtkListStoreNew()
@@ -35,7 +84,7 @@ func gListboxNew(multisel bool) *gtkWidget {
 	C.gtk_tree_selection_set_mode(C.gtk_tree_view_get_selection(tv), C.GtkSelectionMode(sel))
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(scrollarea)), widget)
-	return (*gtkWidget)(unsafe.Pointer(scrollarea))
+	return fromgtkwidget(scrollarea)
 }
 
 func gListboxNewSingle() *gtkWidget {
@@ -46,8 +95,9 @@ func gListboxNewMulti() *gtkWidget {
 	return gListboxNew(true)
 }
 
-func getTreeViewFrom(widget *gtkWidget) *C.GtkWidget {
-	return C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(widget)))
+func getTreeViewFrom(widget *gtkWidget) *C.GtkTreeView {
+	wid := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(widget)))
+	return (*C.GtkTreeView)(unsafe.Pointer(wid))
 }
 
 func gListboxText(widget *gtkWidget) string {
@@ -55,19 +105,19 @@ func gListboxText(widget *gtkWidget) string {
 	var iter C.GtkTreeIter
 	var gs *C.gchar
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	sel := C.gtk_tree_view_get_selection(tv)
 	if !fromgbool(C.gtk_tree_selection_get_selected(sel, &model, &iter)) {
 		return ""
 	}
 	C.gtkTreeModelGet(model, &iter, &gs)
-	return C.GoString((*C.char)(unsafe.Pointer(gs)))
+	return C.GoString(fromgchar(gs))
 }
 
 func gListboxAppend(widget *gtkWidget, what string) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	C.gtk_list_store_append(ls, &iter)
 	cwhat := C.CString(what)
@@ -78,7 +128,7 @@ func gListboxAppend(widget *gtkWidget, what string) {
 func gListboxInsert(widget *gtkWidget, index int, what string) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	C.gtk_list_store_insert(ls, &iter, C.gint(index))
 	cwhat := C.CString(what)
@@ -90,23 +140,25 @@ func gListboxSelected(widget *gtkWidget) int {
 	var model *C.GtkTreeModel
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	sel := C.gtk_tree_view_get_selection(tv)
 	if !fromgbool(C.gtk_tree_selection_get_selected(sel, &model, &iter)) {
 		return -1
 	}
 	path := C.gtk_tree_model_get_path(model, &iter)
 	idx := C.gtk_tree_path_get_indices(path)
+	// idx is an array; simply derefernece the pointer to the first element to get the first element/only member
 	return int(*idx)
 }
 
 func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
 	var model *C.GtkTreeModel
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	sel := C.gtk_tree_view_get_selection(tv)
 	rows := C.gtk_tree_selection_get_selected_rows(sel, &model)
 	defer C.g_list_free_full(rows, C.GDestroyNotify(unsafe.Pointer(C.gtk_tree_path_free)))
+	// TODO needed?
 	len := C.g_list_length(rows)
 	if len == 0 {
 		return nil
@@ -126,7 +178,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 	var iter C.GtkTreeIter
 	var gs *C.gchar
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	sel := C.gtk_tree_view_get_selection(tv)
 	rows := C.gtk_tree_selection_get_selected_rows(sel, &model)
 	defer C.g_list_free_full(rows, C.GDestroyNotify(unsafe.Pointer(C.gtk_tree_path_free)))
@@ -142,7 +194,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 			return
 		}
 		C.gtkTreeModelGet(model, &iter, &gs)
-		texts[i] = C.GoString((*C.char)(unsafe.Pointer(gs)))
+		texts[i] = C.GoString(fromgchar(gs))
 		rows = rows.next
 	}
 	return texts
@@ -151,7 +203,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 func gListboxDelete(widget *gtkWidget, index int) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
+	tv := getTreeViewFrom(widget)
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	if !fromgbool(C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index))) {		// no such index
 		// TODO

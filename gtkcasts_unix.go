@@ -10,6 +10,7 @@ import (
 // this file contains functions that wrap around complex pointer casts to satisfy GTK+'s dumb type aliasing system
 // fromxxx() converts from GTK+ type to Go type
 // toxxxx() converts from Go type to GTK+ type
+// Listbox casts are stored in listbox_unix.go
 
 // #cgo pkg-config: gtk+-3.0
 // #include <gtk/gtk.h>
