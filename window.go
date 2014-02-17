@@ -1,5 +1,4 @@
 // 11 february 2014
-//package ui
 package main
 
 import (

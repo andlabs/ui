@@ -1,7 +1,6 @@
 // +build !windows,!darwin,!plan9
 
 // 16 february 2014
-//package ui
 package main
 
 import (
