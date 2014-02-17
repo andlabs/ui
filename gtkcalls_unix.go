@@ -166,3 +166,18 @@ func gtk_combo_box_get_active(widget *gtkWidget) int {
 func gtk_combo_box_text_remove(widget *gtkWidget, index int) {
 	C.gtk_combo_box_text_remove((*C.GtkComboBoxText)(unsafe.Pointer(widget)), C.gint(index))
 }
+
+func gtk_entry_new() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_entry_new()))
+}
+
+func gtk_entry_set_text(widget *gtkWidget, text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.gtk_entry_set_text((*C.GtkEntry)(unsafe.Pointer(widget)),
+		(*C.gchar)(unsafe.Pointer(ctext)))
+}
+
+func gtk_entry_get_text(widget *gtkWidget) string {
+	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_entry_get_text((*C.GtkEntry)(unsafe.Pointer(widget))))))
+}
