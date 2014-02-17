@@ -23,22 +23,9 @@ import (
 // GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer) { return gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL); }
 import "C"
 
-// BIG TODO reduce the amount of explicit casting
-
 type (
 	gtkWidget C.GtkWidget
 )
-
-func fromgbool(b C.gboolean) bool {
-	return b != C.FALSE
-}
-
-func togbool(b bool) C.gboolean {
-	if b {
-		return C.TRUE
-	}
-	return C.FALSE
-}
 
 func gtk_init() bool {
 	// TODO allow GTK+ standard command-line argument processing
@@ -55,158 +42,148 @@ func gtk_main() {
 
 func gtk_window_new() *gtkWidget {
 	// 0 == GTK_WINDOW_TOPLEVEL (the only other type, _POPUP, should not be used)
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_window_new(0)))
-}
-
-// shorthand
-func gtkwidget(what *gtkWidget) *C.GtkWidget {
-	return (*C.GtkWidget)(unsafe.Pointer(what))
+	return fromgtkwidget(C.gtk_window_new(0))
 }
 
 func g_signal_connect(obj *gtkWidget, sig string, callback func() bool) {
 	ccallback := callbacks[sig]
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
-	C.gSignalConnect(gtkwidget(obj), csig, ccallback, unsafe.Pointer(&callback))
+	C.gSignalConnect(togtkwidget(obj), csig, ccallback, unsafe.Pointer(&callback))
 }
 
 // TODO ensure this works if called on an individual control
 func gtk_widget_show(widget *gtkWidget) {
-	C.gtk_widget_show_all(gtkwidget(widget))
+	C.gtk_widget_show_all(togtkwidget(widget))
 }
 
 func gtk_widget_hide(widget *gtkWidget) {
-	C.gtk_widget_hide(gtkwidget(widget))
+	C.gtk_widget_hide(togtkwidget(widget))
 }
 
 func gtk_window_set_title(window *gtkWidget, title string) {
 	ctitle := C.CString(title)
 	defer C.free(unsafe.Pointer(ctitle))
-	C.gtk_window_set_title((*C.GtkWindow)(unsafe.Pointer(window)),
-		(*C.gchar)(unsafe.Pointer(ctitle)))
+	C.gtk_window_set_title(togtkwindow(window), togchar(ctitle))
 }
 
 func gtk_window_get_title(window *gtkWidget) string {
-	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_window_get_title((*C.GtkWindow)(unsafe.Pointer(window))))))
+	return C.GoString(fromgchar(C.gtk_window_get_title(togtkwindow(window))))
 }
 
 func gtk_window_resize(window *gtkWidget, width int, height int) {
-	C.gtk_window_resize((*C.GtkWindow)(unsafe.Pointer(window)), C.gint(width), C.gint(height))
+	C.gtk_window_resize(togtkwindow(window), C.gint(width), C.gint(height))
 }
 
 func gtk_window_get_size(window *gtkWidget) (int, int) {
 	var width, height C.gint
 
-	C.gtk_window_get_size((*C.GtkWindow)(unsafe.Pointer(window)), &width, &height)
+	C.gtk_window_get_size(togtkwindow(window), &width, &height)
 	return int(width), int(height)
 }
 
 func gtk_fixed_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_fixed_new()))
+	return fromgtkwidget(C.gtk_fixed_new())
 }
 
 func gtk_container_add(container *gtkWidget, widget *gtkWidget) {
-	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(container)), gtkwidget(widget))
+	C.gtk_container_add(togtkcontainer(container), togtkwidget(widget))
 }
 
 func gtk_fixed_move(container *gtkWidget, widget *gtkWidget, x int, y int) {
-	C.gtk_fixed_move((*C.GtkFixed)(unsafe.Pointer(container)), gtkwidget(widget),
+	C.gtk_fixed_move(togtkfixed(container), togtkwidget(widget),
 		C.gint(x), C.gint(y))
 }
 
 func gtk_widget_set_size_request(widget *gtkWidget, width int, height int) {
-	C.gtk_widget_set_size_request(gtkwidget(widget), C.gint(width), C.gint(height))
+	C.gtk_widget_set_size_request(togtkwidget(widget), C.gint(width), C.gint(height))
 }
 
 func gtk_button_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_button_new()))
+	return fromgtkwidget(C.gtk_button_new())
 }
 
 func gtk_button_set_label(button *gtkWidget, label string) {
 	clabel := C.CString(label)
 	defer C.free(unsafe.Pointer(clabel))
-	C.gtk_button_set_label((*C.GtkButton)(unsafe.Pointer(button)),
-		(*C.gchar)(unsafe.Pointer(clabel)))
+	C.gtk_button_set_label(togtkbutton(button), togchar(clabel))
 }
 
 func gtk_button_get_label(button *gtkWidget) string {
-	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_button_get_label((*C.GtkButton)(unsafe.Pointer(button))))))
+	return C.GoString(fromgchar(C.gtk_button_get_label(togtkbutton(button))))
 }
 
 func gtk_check_button_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_check_button_new()))
+	return fromgtkwidget(C.gtk_check_button_new())
 }
 
 func gtk_toggle_button_get_active(widget *gtkWidget) bool {
-	return fromgbool(C.gtk_toggle_button_get_active((*C.GtkToggleButton)(unsafe.Pointer(widget))))
+	return fromgbool(C.gtk_toggle_button_get_active(togtktogglebutton(widget)))
 }
 
 func gtk_combo_box_text_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_combo_box_text_new()))
+	return fromgtkwidget(C.gtk_combo_box_text_new())
 }
 
 func gtk_combo_box_text_new_with_entry() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_combo_box_text_new_with_entry()))
+	return fromgtkwidget(C.gtk_combo_box_text_new_with_entry())
 }
 
 func gtk_combo_box_text_get_active_text(widget *gtkWidget) string {
-	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_combo_box_text_get_active_text((*C.GtkComboBoxText)(unsafe.Pointer(widget))))))
+	return C.GoString(fromgchar(C.gtk_combo_box_text_get_active_text(togtkcombobox(widget))))
 }
 
 func gtk_combo_box_text_append_text(widget *gtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_combo_box_text_append_text((*C.GtkComboBoxText)(unsafe.Pointer(widget)),
-		(*C.gchar)(unsafe.Pointer(ctext)))
+	C.gtk_combo_box_text_append_text(togtkcombobox(widget), togchar(ctext))
 }
 
 func gtk_combo_box_text_insert_text(widget *gtkWidget, index int, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_combo_box_text_insert_text((*C.GtkComboBoxText)(unsafe.Pointer(widget)),
-		C.gint(index), (*C.gchar)(unsafe.Pointer(ctext)))
+	C.gtk_combo_box_text_insert_text(togtkcombobox(widget), C.gint(index), togchar(ctext))
 }
 
 func gtk_combo_box_get_active(widget *gtkWidget) int {
-	return int(C.gtk_combo_box_get_active((*C.GtkComboBox)(unsafe.Pointer(widget))))
+	cb := (*C.GtkComboBox)(unsafe.Pointer(widget))
+	return int(C.gtk_combo_box_get_active(cb))
 }
 
 func gtk_combo_box_text_remove(widget *gtkWidget, index int) {
-	C.gtk_combo_box_text_remove((*C.GtkComboBoxText)(unsafe.Pointer(widget)), C.gint(index))
+	C.gtk_combo_box_text_remove(togtkcombobox(widget), C.gint(index))
 }
 
 func gtk_entry_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_entry_new()))
+	return fromgtkwidget(C.gtk_entry_new())
 }
 
 func gtk_entry_set_text(widget *gtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_entry_set_text((*C.GtkEntry)(unsafe.Pointer(widget)),
-		(*C.gchar)(unsafe.Pointer(ctext)))
+	C.gtk_entry_set_text(togtkentry(widget), togchar(ctext))
 }
 
 func gtk_entry_get_text(widget *gtkWidget) string {
-	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_entry_get_text((*C.GtkEntry)(unsafe.Pointer(widget))))))
+	return C.GoString(fromgchar(C.gtk_entry_get_text(togtkentry(widget))))
 }
 
 var _emptystring = [1]C.gchar{0}
 var emptystring = &_emptystring[0]
 
 func gtk_label_new() *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(C.gtk_label_new(emptystring)))
+	return fromgtkwidget(C.gtk_label_new(emptystring))
 	// TODO left-justify?
 }
 
 func gtk_label_set_text(widget *gtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_label_set_text((*C.GtkLabel)(unsafe.Pointer(widget)),
-		(*C.gchar)(unsafe.Pointer(ctext)))
+	C.gtk_label_set_text(togtklabel(widget), togchar(ctext))
 }
 
 func gtk_label_get_text(widget *gtkWidget) string {
-	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_label_get_text((*C.GtkLabel)(unsafe.Pointer(widget))))))
+	return C.GoString(fromgchar(C.gtk_label_get_text(togtklabel(widget))))
 }
 
 // TODO split all this out into its own file?
