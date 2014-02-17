@@ -17,6 +17,7 @@ import (
 // void gtkTreeModelGet(GtkTreeModel *model, GtkTreeIter *iter, gchar **gs) { gtk_tree_model_get(model, iter, 0, gs, -1); }
 // GtkListStore *gtkListStoreNew(void) { return gtk_list_store_new(1, G_TYPE_STRING); }
 // void gtkListStoreSet(GtkListStore *ls, GtkTreeIter *iter, char *gs) { gtk_list_store_set(ls, iter, 0, (gchar *) gs, -1); }
+// GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer) { return gtk_tree_view_column_new_with_attributes("", renderer, NULL); }
 import "C"
 
 // BIG TODO reduce the amount of explicit casting
@@ -205,10 +206,16 @@ func gtk_label_get_text(widget *gtkWidget) string {
 	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_label_get_text((*C.GtkLabel)(unsafe.Pointer(widget))))))
 }
 
+// TODO split all this out into its own file?
+
 func gListboxNew(multisel bool) *gtkWidget {
 	store := C.gtkListStoreNew()
 	widget := C.gtk_tree_view_new_with_model((*C.GtkTreeModel)(unsafe.Pointer(store)))
 	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	column := C.gtkTreeViewColumnNewWithAttributes(C.gtk_cell_renderer_text_new())
+	// TODO set AUTOSIZE?
+	C.gtk_tree_view_append_column(tv, column)
+	C.gtk_tree_view_set_headers_visible(tv, C.FALSE)
 	sel := C.GTK_SELECTION_SINGLE
 	if multisel {
 		sel = C.GTK_SELECTION_MULTIPLE
