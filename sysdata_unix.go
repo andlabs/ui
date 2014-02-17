@@ -101,6 +101,10 @@ func (s *sysData) make(initText string, window *sysData) error {
 		println(s.ctype, "not implemented")
 		return nil
 	}
+	if s.alternate && ct.makeAlt == nil {		// not yet implemented
+		println(s.ctype, "alt not implemented")
+		return nil
+	}
 	ret := make(chan *gtkWidget)
 	defer close(ret)
 	uitask <- func() {
