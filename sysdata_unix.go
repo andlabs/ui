@@ -52,8 +52,8 @@ var classTypes = [nctypes]*classData{
 							w.resize(0, 0, width, height)
 						}()
 					}
-					// TODO really return true?
-					return true		// do not continue events; we just did so
+					// returning false indicates that we continue processing events related to configure-event; if we choose not to, then after some controls have been added, the layout fails completely and everything stays in the starting position/size
+					return false
 				}
 			},
 		},
