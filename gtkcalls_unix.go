@@ -287,7 +287,8 @@ func gListboxSelected(widget *gtkWidget) int {
 		return -1
 	}
 	path := C.gtk_tree_model_get_path(model, &iter)
-	return int(*C.gtk_tree_path_get_indices(path))
+	idx := C.gtk_tree_path_get_indices(path)
+	return int(*idx)
 }
 
 func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
@@ -305,7 +306,8 @@ func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
 	for i := C.guint(0); i < len; i++ {
 		d := (*C.GtkTreeRowReference)(unsafe.Pointer(rows.data))
 		path := C.gtk_tree_row_reference_get_path(d)
-		indices[i] = int(*C.gtk_tree_path_get_indices(path))
+		idx := C.gtk_tree_path_get_indices(path)
+		indices[i] = int(*idx)
 		rows = rows.next
 	}
 	return indices
