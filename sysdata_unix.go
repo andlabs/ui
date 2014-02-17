@@ -171,7 +171,7 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].setText == nil { return nil }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -193,7 +193,7 @@ func (s *sysData) isChecked() bool {
 }
 
 func (s *sysData) text() string {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].text == nil { println(s.ctype,"unsupported text()"); return "" }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { println(s.ctype,"unsupported text()"); return "" }
 	ret := make(chan string)
 	defer close(ret)
 	uitask <- func() {
@@ -203,7 +203,7 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].text == nil { println(s.cty
 }
 
 func (s *sysData) append(what string) error {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].append == nil { return nil }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -215,7 +215,7 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].append == nil { return nil 
 }
 
 func (s *sysData) insertBefore(what string, before int) error {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].insert == nil { return nil }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -227,7 +227,7 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].insert == nil { return nil 
 }
 
 func (s *sysData) selectedIndex() int {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].selected == nil { return -1 }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { return -1 }
 	ret := make(chan int)
 	defer close(ret)
 	uitask <- func() {
@@ -258,7 +258,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 }
 
 func (s *sysData) delete(index int) error {
-if classTypes[s.ctype] == nil || classTypes[s.ctype].delete == nil { return nil }
+if classTypes[s.ctype] == nil || classTypes[s.ctype].make == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
