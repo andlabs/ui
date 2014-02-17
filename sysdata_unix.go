@@ -79,7 +79,9 @@ var classTypes = [nctypes]*classData{
 	},
 	c_combobox:	&classData{
 		make:	gtk_combo_box_text_new,
-		makeAlt:	gtk_combo_box_text_new_with_entry,
+		// TODO creating an editable combobox causes GtkFixed to fail spectacularly for some reason
+//		makeAlt:	gtk_combo_box_text_new_with_entry,
+		makeAlt:	gtk_combo_box_text_new,
 		// TODO setText
 		text:		gtk_combo_box_text_get_active_text,
 		append:	gtk_combo_box_text_append_text,
@@ -108,6 +110,10 @@ func (s *sysData) make(initText string, window *sysData) error {
 	ret := make(chan *gtkWidget)
 	defer close(ret)
 	uitask <- func() {
+		if s.alternate {
+			ret <- ct.makeAlt()
+			return
+		}
 		ret <- ct.make()
 	}
 	s.widget = <-ret
