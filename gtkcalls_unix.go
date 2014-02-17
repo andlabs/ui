@@ -8,6 +8,9 @@ import (
 	"unsafe"
 )
 
+// TODOs:
+// - document the magic stuff in the listbox code
+
 // #cgo pkg-config: gtk+-3.0
 // #include <stdlib.h>
 // #include <gtk/gtk.h>
@@ -17,7 +20,7 @@ import (
 // void gtkTreeModelGet(GtkTreeModel *model, GtkTreeIter *iter, gchar **gs) { gtk_tree_model_get(model, iter, 0, gs, -1); }
 // GtkListStore *gtkListStoreNew(void) { return gtk_list_store_new(1, G_TYPE_STRING); }
 // void gtkListStoreSet(GtkListStore *ls, GtkTreeIter *iter, char *gs) { gtk_list_store_set(ls, iter, 0, (gchar *) gs, -1); }
-// GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer) { return gtk_tree_view_column_new_with_attributes("", renderer, NULL); }
+// GtkTreeViewColumn *gtkTreeViewColumnNewWithAttributes(GtkCellRenderer *renderer) { return gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL); }
 import "C"
 
 // BIG TODO reduce the amount of explicit casting
