@@ -93,6 +93,9 @@ var classTypes = [nctypes]*classData{
 		text:		gtk_entry_get_text,
 	},
 	c_label:		&classData{
+		make:	gtk_label_new,
+		setText:	gtk_label_set_text,
+		text:		gtk_label_get_text,
 	},
 	c_listbox:		&classData{
 	},

@@ -181,3 +181,22 @@ func gtk_entry_set_text(widget *gtkWidget, text string) {
 func gtk_entry_get_text(widget *gtkWidget) string {
 	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_entry_get_text((*C.GtkEntry)(unsafe.Pointer(widget))))))
 }
+
+var _emptystring = [1]C.gchar{0}
+var emptystring = &_emptystring[0]
+
+func gtk_label_new() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_label_new(emptystring)))
+	// TODO left-justify?
+}
+
+func gtk_label_set_text(widget *gtkWidget, text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.gtk_label_set_text((*C.GtkLabel)(unsafe.Pointer(widget)),
+		(*C.gchar)(unsafe.Pointer(ctext)))
+}
+
+func gtk_label_get_text(widget *gtkWidget) string {
+	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_label_get_text((*C.GtkLabel)(unsafe.Pointer(widget))))))
+}
