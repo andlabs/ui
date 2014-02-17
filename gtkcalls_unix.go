@@ -224,7 +224,9 @@ func gListboxNew(multisel bool) *gtkWidget {
 		sel = C.GTK_SELECTION_MULTIPLE
 	}
 	C.gtk_tree_selection_set_mode(C.gtk_tree_view_get_selection(tv), C.GtkSelectionMode(sel))
-	return (*gtkWidget)(unsafe.Pointer(widget))
+	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
+	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(scrollarea)), widget)
+	return (*gtkWidget)(unsafe.Pointer(scrollarea))
 }
 
 func gListboxNewSingle() *gtkWidget {
@@ -235,12 +237,16 @@ func gListboxNewMulti() *gtkWidget {
 	return gListboxNew(true)
 }
 
+func getTreeViewFrom(widget *gtkWidget) *C.GtkWidget {
+	return C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(widget)))
+}
+
 func gListboxText(widget *gtkWidget) string {
 	var model *C.GtkTreeModel
 	var iter C.GtkTreeIter
 	var gs *C.gchar
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	sel := C.gtk_tree_view_get_selection(tv)
 	if !fromgbool(C.gtk_tree_selection_get_selected(sel, &model, &iter)) {
 		return ""
@@ -252,7 +258,7 @@ func gListboxText(widget *gtkWidget) string {
 func gListboxAppend(widget *gtkWidget, what string) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	C.gtk_list_store_append(ls, &iter)
 	cwhat := C.CString(what)
@@ -263,7 +269,7 @@ func gListboxAppend(widget *gtkWidget, what string) {
 func gListboxInsert(widget *gtkWidget, index int, what string) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	C.gtk_list_store_insert(ls, &iter, C.gint(index))
 	cwhat := C.CString(what)
@@ -275,7 +281,7 @@ func gListboxSelected(widget *gtkWidget) int {
 	var model *C.GtkTreeModel
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	sel := C.gtk_tree_view_get_selection(tv)
 	if !fromgbool(C.gtk_tree_selection_get_selected(sel, &model, &iter)) {
 		return -1
@@ -287,7 +293,7 @@ func gListboxSelected(widget *gtkWidget) int {
 func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
 	var model *C.GtkTreeModel
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	sel := C.gtk_tree_view_get_selection(tv)
 	rows := C.gtk_tree_selection_get_selected_rows(sel, &model)
 	defer C.g_list_free_full(rows, C.GDestroyNotify(unsafe.Pointer(C.gtk_tree_path_free)))
@@ -310,7 +316,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 	var iter C.GtkTreeIter
 	var gs *C.gchar
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	sel := C.gtk_tree_view_get_selection(tv)
 	rows := C.gtk_tree_selection_get_selected_rows(sel, &model)
 	defer C.g_list_free_full(rows, C.GDestroyNotify(unsafe.Pointer(C.gtk_tree_path_free)))
@@ -336,7 +342,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 func gListboxDelete(widget *gtkWidget, index int) {
 	var iter C.GtkTreeIter
 
-	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
+	tv := (*C.GtkTreeView)(unsafe.Pointer(getTreeViewFrom(widget)))
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
 	if !fromgbool(C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index))) {		// no such index
 		// TODO
