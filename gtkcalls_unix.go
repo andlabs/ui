@@ -304,8 +304,7 @@ func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
 	}
 	indices = make([]int, len)
 	for i := C.guint(0); i < len; i++ {
-		d := (*C.GtkTreeRowReference)(unsafe.Pointer(rows.data))
-		path := C.gtk_tree_row_reference_get_path(d)
+		path := (*C.GtkTreePath)(unsafe.Pointer(rows.data))
 		idx := C.gtk_tree_path_get_indices(path)
 		indices[i] = int(*idx)
 		rows = rows.next
@@ -328,8 +327,7 @@ func gListboxSelMultiTexts(widget *gtkWidget) (texts []string) {
 	}
 	texts = make([]string, len)
 	for i := C.guint(0); i < len; i++ {
-		d := (*C.GtkTreeRowReference)(unsafe.Pointer(rows.data))
-		path := C.gtk_tree_row_reference_get_path(d)
+		path := (*C.GtkTreePath)(unsafe.Pointer(rows.data))
 		if !fromgbool(C.gtk_tree_model_get_iter(model, &iter, path)) {
 			// TODO
 			return
