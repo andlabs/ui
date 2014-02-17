@@ -18,6 +18,7 @@ so I don't forget:
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
 - Listbox.SelectAll
 - have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index before creation
+- make the Windows implementation of message boxes run on uitask
 
 important things:
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
