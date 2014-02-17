@@ -73,7 +73,7 @@ var (
 	_messageBox = user32.NewProc("MessageBoxW")
 )
 
-func msgBox(lpText string, lpCaption string, uType uint32) (result int) {
+func _msgBox(lpText string, lpCaption string, uType uint32) (result int) {
 	r1, _, err := _messageBox.Call(
 		uintptr(_NULL),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpText))),
@@ -85,13 +85,11 @@ func msgBox(lpText string, lpCaption string, uType uint32) (result int) {
 	return int(r1)
 }
 
-// MsgBox displays an informational message box to the user with just an OK button.
-func MsgBox(title string, textfmt string, args ...interface{}) {
+func msgBox(title string, text string) {
 	// TODO add an icon?
-	msgBox(fmt.Sprintf(textfmt, args...), title, _MB_OK)
+	_msgBox(text, title, _MB_OK)
 }
 
-// MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
-func MsgBoxError(title string, textfmt string, args ...interface{}) {
-	msgBox(fmt.Sprintf(textfmt, args...), title, _MB_OK | _MB_ICONERROR)
+func msgBoxError(title string, text string) {
+	_msgBox(text, title, _MB_OK | _MB_ICONERROR)
 }
