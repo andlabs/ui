@@ -17,8 +17,14 @@ type sysData struct {
 
 type classData struct {
 	make	func() *gtkWidget
+	makeAlt	func() *gtkWidget
 	setText	func(widget *gtkWidget, text string)
 	text		func(widget *gtkWidget) string
+	append	func(widget *gtkWidget, text string)
+	insert	func(widget *gtkWidget, index int, text string)
+	selected	func(widget *gtkWidget) int
+	// ...
+	delete	func(widget *gtkWidget, index int)
 	// ...
 	signals	map[string]func(*sysData) func() bool
 }
@@ -72,6 +78,14 @@ var classTypes = [nctypes]*classData{
 		setText:	gtk_button_set_label,
 	},
 	c_combobox:	&classData{
+		make:	gtk_combo_box_text_new,
+		makeAlt:	gtk_combo_box_text_new_with_entry,
+		// TODO setText
+		text:		gtk_combo_box_text_get_active_text,
+		append:	gtk_combo_box_text_append_text,
+		insert:	gtk_combo_box_text_insert_text,
+		selected:	gtk_combo_box_get_active,
+		delete:	gtk_combo_box_text_remove,
 	},
 	c_lineedit:	&classData{
 	},
@@ -189,18 +203,37 @@ if classTypes[s.ctype] == nil || classTypes[s.ctype].text == nil { println(s.cty
 }
 
 func (s *sysData) append(what string) error {
-	// TODO
+if classTypes[s.ctype] == nil || classTypes[s.ctype].append == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].append(s.widget, what)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
 func (s *sysData) insertBefore(what string, before int) error {
-	// TODO
+if classTypes[s.ctype] == nil || classTypes[s.ctype].insert == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].insert(s.widget, before, what)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
 func (s *sysData) selectedIndex() int {
-	// TODO
-	return -1
+if classTypes[s.ctype] == nil || classTypes[s.ctype].selected == nil { return -1 }
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selected(s.widget)
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedIndices() []int {
@@ -225,6 +258,13 @@ func (s *sysData) setWindowSize(width int, height int) error {
 }
 
 func (s *sysData) delete(index int) error {
-	// TODO
+if classTypes[s.ctype] == nil || classTypes[s.ctype].delete == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].delete(s.widget, index)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }

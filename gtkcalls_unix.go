@@ -132,3 +132,37 @@ func gtk_check_button_new() *gtkWidget {
 func gtk_toggle_button_get_active(widget *gtkWidget) bool {
 	return fromgbool(C.gtk_toggle_button_get_active((*C.GtkToggleButton)(unsafe.Pointer(widget))))
 }
+
+func gtk_combo_box_text_new() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_combo_box_text_new()))
+}
+
+func gtk_combo_box_text_new_with_entry() *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(C.gtk_combo_box_text_new_with_entry()))
+}
+
+func gtk_combo_box_text_get_active_text(widget *gtkWidget) string {
+	return C.GoString((*C.char)(unsafe.Pointer(C.gtk_combo_box_text_get_active_text((*C.GtkComboBoxText)(unsafe.Pointer(widget))))))
+}
+
+func gtk_combo_box_text_append_text(widget *gtkWidget, text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.gtk_combo_box_text_append_text((*C.GtkComboBoxText)(unsafe.Pointer(widget)),
+		(*C.gchar)(unsafe.Pointer(ctext)))
+}
+
+func gtk_combo_box_text_insert_text(widget *gtkWidget, index int, text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.gtk_combo_box_text_insert_text((*C.GtkComboBoxText)(unsafe.Pointer(widget)),
+		C.gint(index), (*C.gchar)(unsafe.Pointer(ctext)))
+}
+
+func gtk_combo_box_get_active(widget *gtkWidget) int {
+	return int(C.gtk_combo_box_get_active((*C.GtkComboBox)(unsafe.Pointer(widget))))
+}
+
+func gtk_combo_box_text_remove(widget *gtkWidget, index int) {
+	C.gtk_combo_box_text_remove((*C.GtkComboBoxText)(unsafe.Pointer(widget)), C.gint(index))
+}
