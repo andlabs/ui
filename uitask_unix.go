@@ -32,7 +32,3 @@ func ui(initDone chan error) {
 	})
 	gtk_main()
 }
-
-// temporary
-func MsgBox(string, string, ...interface{}) {}
-func MsgBoxError(title string, text string, args ...interface{}) {panic(title+"\n"+fmt.Sprintf(text,args...))}
