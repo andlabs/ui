@@ -34,7 +34,7 @@ func main() {
 	w.Closing = ui.Event()
 	b := ui.NewButton("Click Me")
 	b2 := ui.NewButton("Or Me")
-	s2 := ui.NewStack(Horizontal, b, b2)
+	s2 := ui.NewStack(ui.Horizontal, b, b2)
 	c := ui.NewCheckbox("Check Me")
 	cb1 := ui.NewCombobox(true, "You can edit me!", "Yes you can!", "Yes you will!")
 	cb2 := ui.NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
