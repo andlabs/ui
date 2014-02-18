@@ -37,7 +37,11 @@ func gtk_window_new() *gtkWidget {
 	return fromgtkwidget(C.gtk_window_new(0))
 }
 
+// the garbage collector has been found to eat my callback functions; this will stop it
+var callbackstore = make([]*func() bool, 0, 50)
+
 func g_signal_connect(obj *gtkWidget, sig string, callback func() bool) {
+	callbackstore = append(callbackstore, &callback)
 	ccallback := callbacks[sig]
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
