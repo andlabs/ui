@@ -97,4 +97,6 @@ mainloop:
 ## Contributing
 Contributions are welcome. File issues, pull requests, approach me on IRC (pietro10 in #go-nuts; andlabs elsewhere), etc. Even suggestions are welcome: while I'm mainly drawing from my own GUI programming experience, everyone is different.
 
-Read implementation.md: this is a description of how the library works. (Feel free to suggest improvements to this as well). The other .md files in this repository contain various development notes.
+If you want to dive in, read implementation.md: this is a description of how the library works. (Feel free to suggest improvements to this as well.) The other .md files in this repository contain various development notes.
+
+Please suggest documentation improvements as well.
