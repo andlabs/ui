@@ -55,6 +55,19 @@ func (c *cSysData) delete(int) error {
 	panic(runtime.GOOS + " sysData does not define delete()")
 }
 
+// signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
+// Thanks skelterjohn for this techinque: if we can't queue any more events, drop them; TODO this would be best if the channel is buffered
+func (s *cSysData) signal() {
+	if s.event != nil {
+		go func() {
+			select {
+			case s.event <- struct{}{}:
+			default:
+			}
+		}()
+	}
+}
+
 const (
 	c_window = iota
 	c_button

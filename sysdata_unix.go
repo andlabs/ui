@@ -35,19 +35,17 @@ var classTypes = [nctypes]*classData{
 		setText:	gtk_window_set_title,
 		text:		gtk_window_get_title,
 		signals:	map[string]func(*sysData) func() bool{
-			"delete-event":		func(w *sysData) func() bool {
+			"delete-event":		func(s *sysData) func() bool {
 				return func() bool {
-					if w.event != nil {
-						w.event <- struct{}{}
-					}
+					s.signal()
 					return true		// do not close the window
 				}
 			},
-			"configure-event":	func(w *sysData) func() bool {
+			"configure-event":	func(s *sysData) func() bool {
 				return func() bool {
-					if w.container != nil && w.resize != nil {		// wait for init
-						width, height := gtk_window_get_size(w.widget)
-						err := w.resize(0, 0, width, height)
+					if s.container != nil && s.resize != nil {		// wait for init
+						width, height := gtk_window_get_size(s.widget)
+						err := s.resize(0, 0, width, height)
 						if err != nil {
 							panic("child resize failed: " + err.Error())
 						}
@@ -64,11 +62,9 @@ var classTypes = [nctypes]*classData{
 		setText:	gtk_button_set_label,
 		text:		gtk_button_get_label,
 		signals:	map[string]func(*sysData) func() bool{
-			"clicked":		func(w *sysData) func() bool {
+			"clicked":		func(s *sysData) func() bool {
 				return func() bool {
-					if w.event != nil {
-						w.event <- struct{}{}
-					}
+					s.signal()
 					return true		// do not close the window
 				}
 			},

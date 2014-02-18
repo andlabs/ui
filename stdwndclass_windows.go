@@ -32,7 +32,7 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 			switch ss.ctype {
 			case c_button:
 				if wParam.HIWORD() == _BN_CLICKED {
-					ss.event <- struct{}{}
+					ss.signal()
 				}
 			}
 			return 0
@@ -58,9 +58,7 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 			}
 			return 0
 		case _WM_CLOSE:
-			if s.event != nil {
-				s.event <- struct{}{}
-			}
+			s.signal()
 			return 0
 		default:
 			r1, _, _ := defWindowProc.Call(
