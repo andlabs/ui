@@ -7,7 +7,7 @@ import (
 
 func main() {
 	w := NewWindow("Main Window", 320, 240)
-	w.Closing = make(chan struct{})
+	w.Closing = Event()
 	b := NewButton("Click Me")
 	b2 := NewButton("Or Me")
 	s2 := NewStack(Horizontal, b, b2)

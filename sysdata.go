@@ -5,6 +5,13 @@ import (
 	"runtime"
 )
 
+const eventbufsiz = 100		// suggested by skelterjohn
+
+// Event returns a new channel suitable for listening for events.
+func Event() chan struct{} {
+	return make(chan struct{}, eventbufsiz)
+}
+
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
 	ctype	int
@@ -56,7 +63,7 @@ func (c *cSysData) delete(int) error {
 }
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
-// Thanks skelterjohn for this techinque: if we can't queue any more events, drop them; TODO this would be best if the channel is buffered
+// Thanks skelterjohn for this techinque: if we can't queue any more events, drop them
 func (s *cSysData) signal() {
 	if s.event != nil {
 		go func() {
