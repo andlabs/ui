@@ -1,11 +1,12 @@
 // 11 february 2014
-package main
+package ui
 
 import (
 	"fmt"
+	"testing"
 )
 
-func main() {
+func TestMain(t *testing.T) {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = Event()
 	b := NewButton("Click Me")
@@ -67,5 +68,6 @@ mainloop:
 		}
 	}
 	w.Hide()
+println("exited loop")
 }
 

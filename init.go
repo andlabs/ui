@@ -1,5 +1,5 @@
 // 11 february 2014
-package main
+package ui
 
 import (
 	"os"
