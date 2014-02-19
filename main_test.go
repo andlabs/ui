@@ -68,6 +68,5 @@ mainloop:
 		}
 	}
 	w.Hide()
-println("exited loop")
 }
 
