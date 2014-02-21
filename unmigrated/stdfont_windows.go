@@ -30,17 +30,17 @@ type LOGFONT struct {
 
 type NONCLIENTMETRICS struct {
 	cbSize			uint32
-	iBorderWidth		int
-	iScrollWidth		int
-	iScrollHeight		int
-	iCaptionWidth		int
-	iCaptionHeight		int
+	iBorderWidth		int32		// originally int
+	iScrollWidth		int32		// originally int
+	iScrollHeight		int32		// originally int
+	iCaptionWidth		int32		// originally int
+	iCaptionHeight		int32		// originally int
 	lfCaptionFont		LOGFONT
-	iSmCaptionWidth	int
-	iSmCaptionHeight	int
+	iSmCaptionWidth	int32		// originally int
+	iSmCaptionHeight	int32		// originally int
 	lfSmCaptionFont	LOGFONT
-	iMenuWidth		int
-	iMenuHeight		int
+	iMenuWidth		int32		// originally int
+	iMenuHeight		int32		// originally int
 	lfMenuFont		LOGFONT
 	lfStatusFont		LOGFONT
 	lfMessageFont		LOGFONT

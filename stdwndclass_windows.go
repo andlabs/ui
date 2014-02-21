@@ -75,8 +75,8 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 type _WNDCLASS struct {
 	style				uint32
 	lpfnWndProc		uintptr
-	cbClsExtra		int
-	cbWndExtra		int
+	cbClsExtra		int32		// originally int
+	cbWndExtra		int32		// originally int
 	hInstance			_HANDLE
 	hIcon			_HANDLE
 	hCursor			_HANDLE
