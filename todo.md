@@ -1,7 +1,6 @@
 so I don't forget:
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetSize(Window.OptimalSize())`) for sizing a window to the control's interest
 - Control.Show()/Control.Hide()
-- Control.SetText()
 - Groupbox
 - determine if a selection in a non-editable combobox has been made
 - see if we really need to track errors on Combobox.Selection()
@@ -10,6 +9,7 @@ so I don't forget:
 	- possible rename of LineEdit?
 - more flexible size appropriation: allow a small button to be at the top of everything in the main() example here
 - [Windows] should ListBox have a border style?
+	- a different border on LineEdits?
 - padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
 - change Stack/Combobox/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
 - allow Combobox to have initial settings
@@ -19,6 +19,7 @@ so I don't forget:
 - Listbox.SelectAll
 - have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index before creation
 - make the Windows implementation of message boxes run on uitask
+	- ensure MsgBoxError can run if initialization failed if things change ever
 
 important things:
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
@@ -32,12 +33,8 @@ super ultra important things:
 - on 64-bit windows 7 comboboxes don't show their lists
 - handle in-library panics (internal errors) by reporting them to the user
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
-	- I get soft deadlock if I mash the Click Me button repeatedly
-	- occasionally maximizing/restoring a window will abort early and stay that way...?
 
 important things:
-- maybe make it so sysData doesn't need specialized info on every control type?
-- write an implementation documentation.
 - Control.preferredSize() (definitely needed for Grid and Form)
 - make specific wording in documentation consistent (make/create, etc.)
 - make passing of parameters and type conversions of parameters to uitask consistent
