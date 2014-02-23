@@ -1,9 +1,9 @@
 # Native UI library for Go
 ### THIS PACKAGE IS UNSTABLE AND PRELIMINARY. Though it installs to a package `ui`, and you can build software in it, it's far from feature-complete, and still in need of testing and crash-fixing. If you can help, please do! Run `go test -c` to build a test binary which runs a (mostly) feature-complete UI test.
 
-This is a simple library for building cross-platform GUI programs in Go. It targets Windows and all Unix variants (except Mac OS X until further notice; waiting for a PSU for my iMac) and provides a thread-safe, channel-based API.
+This is a simple library for building cross-platform GUI programs in Go. It targets Windows and all Unix variants (except Mac OS X until further notice) and provides a thread-safe, channel-based API.
 
-The API as it stands right now is frozen as it is the minimum I want to have working identically on all three platforms before continuing development. So once I get that PSU and write the initial OS X implementation, development will advance.
+The API is no longer frozen; instead I will have to continue without the OS X port and do more work later. Oh well :/
 
 Until then, check `todo.md` for more.
 
