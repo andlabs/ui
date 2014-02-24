@@ -60,11 +60,13 @@ var (
 	_releaseDC = user32.NewProc("ReleaseDC")
 )
 
+// This function runs on uitask; call the functions directly.
 func (s *sysData) preferredSize() (width int, height int) {
 	var dc _HANDLE
 	var tm _TEXTMETRICS
 	var baseX, baseY int
 
+	// TODO use GetDC() and not GetWindowDC()?
 	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
 	if r1 == 0 {		// failure
 		panic(err)		// TODO return it instead
