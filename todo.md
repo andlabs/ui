@@ -25,6 +25,8 @@ important things:
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - lock setRect() and preferredSize() in all Controls (including Stack)
+- button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins
+- sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 
 super ultra important things:
 - for some reason events are now delayed on windows
