@@ -9,4 +9,5 @@ import (
 type Control interface {
 	make(window *sysData) error
 	setRect(x int, y int, width int, height int) error
+	preferredSize() (width int, height int, err error)
 }
