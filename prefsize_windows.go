@@ -66,49 +66,30 @@ println("size of control", s.ctype)
 	var tm _TEXTMETRICS
 	var baseX, baseY int
 
-	ret := make(chan uiret)
-	defer close(ret)
 println("calling getWindowDC")
-	uitask <- &uimsg{
-		call:		_getWindowDC,
-		p:		[]uintptr{uintptr(s.hwnd)},
-		ret:		ret,
+	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
+println("getWindowDC",r1,err)
+	if r1 == 0 {		// failure
+		panic(err)		// TODO return it instead
 	}
-	r := <-ret
-println("getWindowDC",r.ret,r.err)
-	if r.ret == 0 {		// failure
-		panic(r.err)	// TODO return it instead
-	}
-	dc = _HANDLE(r.ret)
+	dc = _HANDLE(r1)
 println("getTextMetrics")
-	uitask <- &uimsg{
-		call:		_getTextMetrics,
-		p:		[]uintptr{
-			uintptr(dc),
-			uintptr(unsafe.Pointer(&tm)),
-		},
-		ret:		ret,
-	}
-	r = <-ret
-println("getTextMetrics",r.ret,r.err)
-	if r.ret == 0 {		// failure
-		panic(r.err)	// TODO return it instead
+	r1, _, err = _getTextMetrics.Call(
+		uintptr(dc),
+		uintptr(unsafe.Pointer(&tm)))
+println("getTextMetrics",r1,err)
+	if r1 == 0 {		// failure
+		panic(err)		// TODO return it instead
 	}
 	baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference has better way
 	baseY = int(tm.tmHeight)
 println("releaseDC")
-	uitask <- &uimsg{
-		call:		_releaseDC,
-		p:		[]uintptr{
-			uintptr(s.hwnd),
-			uintptr(dc),
-		},
-		ret:		ret,
-	}
-	r = <-ret
-println("releaseDC",r.ret,r.err)
-	if r.ret == 0 {		// failure
-		panic(r.err)	// TODO return it instead
+	r1, _, err = _releaseDC.Call(
+		uintptr(s.hwnd),
+		uintptr(dc))
+println("releaseDC",r1,err)
+	if r1 == 0 {		// failure
+		panic(err)		// TODO return it instead
 	}
 
 	// now that we have the conversion factors...
