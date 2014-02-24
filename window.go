@@ -85,14 +85,14 @@ func (w *Window) Open(control Control) (err error) {
 			return fmt.Errorf("error adding window's control: %v", err)
 		}
 	}
+	err = w.sysData.setWindowSize(w.initWidth, w.initHeight)
+	if err != nil {
+		return fmt.Errorf("error setting window size (in Window.Open()): %v", err)
+	}
 	// TODO separate showing?
 	err = w.sysData.show()
 	if err != nil {
 		return fmt.Errorf("error showing window (in Window.Open()): %v", err)
-	}
-	err = w.sysData.setWindowSize(w.initWidth, w.initHeight)
-	if err != nil {
-		return fmt.Errorf("error setting window size (in Window.Open()): %v", err)
 	}
 	w.created = true
 	return nil

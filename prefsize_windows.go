@@ -55,39 +55,32 @@ var stdDlgSizes = [nctypes]dlgunits{
 }
 
 var (
-	_getTextMetrics = user32.NewProc("GetTextMetricsW")
+	_getTextMetrics = gdi32.NewProc("GetTextMetricsW")
 	_getWindowDC = user32.NewProc("GetWindowDC")
 	_releaseDC = user32.NewProc("ReleaseDC")
 )
 
 func (s *sysData) preferredSize() (width int, height int) {
-println("size of control", s.ctype)
 	var dc _HANDLE
 	var tm _TEXTMETRICS
 	var baseX, baseY int
 
-println("calling getWindowDC")
 	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
-println("getWindowDC",r1,err)
 	if r1 == 0 {		// failure
 		panic(err)		// TODO return it instead
 	}
 	dc = _HANDLE(r1)
-println("getTextMetrics")
 	r1, _, err = _getTextMetrics.Call(
 		uintptr(dc),
 		uintptr(unsafe.Pointer(&tm)))
-println("getTextMetrics",r1,err)
 	if r1 == 0 {		// failure
 		panic(err)		// TODO return it instead
 	}
 	baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference has better way
 	baseY = int(tm.tmHeight)
-println("releaseDC")
 	r1, _, err = _releaseDC.Call(
 		uintptr(s.hwnd),
 		uintptr(dc))
-println("releaseDC",r1,err)
 	if r1 == 0 {		// failure
 		panic(err)		// TODO return it instead
 	}
@@ -100,7 +93,6 @@ println("releaseDC",r1,err)
 	height = stdDlgSizes[s.ctype].height
 	width = muldiv(width, baseX, 4)		// equivalent to right of rect
 	height = muldiv(height, baseY, 8)		// equivalent to bottom of rect
-println("result:", width, height)
 	return width, height
 }
 
