@@ -19,6 +19,8 @@ func TestMain(t *testing.T) {
 	l := NewLabel("This is a label")
 	b3 := NewButton("List Info")
 	s3 := NewStack(Horizontal, l, b3)
+	s3.SetStretchy(0)
+//	s3.SetStretchy(1)
 	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3)
 	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
@@ -32,7 +34,11 @@ func TestMain(t *testing.T) {
 	}
 	doAdjustments()
 	s1 := NewStack(Vertical, lb2, lb1)
+	s1.SetStretchy(0)
+	s1.SetStretchy(1)
 	s := NewStack(Horizontal, s1, s0)
+	s.SetStretchy(0)
+	s.SetStretchy(1)
 	err := w.Open(s)
 	if err != nil {
 		panic(err)
