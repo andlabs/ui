@@ -37,11 +37,14 @@ func NewStack(o Orientation, controls ...Control) *Stack {
 	}
 }
 
-// SetStretchy marks a control in a Stack as stretchy.
+// SetStretchy marks a control in a Stack as stretchy. This cannot be called once the Window containing the Stack has been opened.
 func (s *Stack) SetStretchy(index int) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+	if s.created {
+		panic("call to Stack.SetStretchy() after Stack has been created")
+	}
 	s.stretchy[index] = true			// TODO explicitly check for index out of bounds?
 }
 
