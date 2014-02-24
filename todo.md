@@ -34,6 +34,10 @@ super ultra important things:
 - on 64-bit windows 7 comboboxes don't show their lists
 - handle in-library panics (internal errors) by reporting them to the user
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
+	TODO re-evaluate; I think I fixed them all ages ago now
+- occasionally I get
+		panic: error sending message to message loop to call function: Invalid thread ID.
+	when starting up the windows/386 build; race in ui()/msgloop()?
 
 important things:
 - Control.preferredSize() (definitely needed for Grid and Form)
