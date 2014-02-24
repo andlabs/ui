@@ -13,6 +13,7 @@ import (
 // - http://msdn.microsoft.com/en-us/library/windows/desktop/aa511279.aspx#controlsizing for control sizes
 // - http://msdn.microsoft.com/en-us/library/ms645502%28VS.85%29.aspx - the calculation needed
 // - http://support.microsoft.com/kb/125681 - to get the base X and Y
+// (thanks to http://stackoverflow.com/questions/58620/default-button-size)
 
 // As we are left with incomplete data, an arbitrary size will be chosen
 const (
