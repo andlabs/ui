@@ -23,8 +23,7 @@ type Stack struct {
 	orientation	Orientation
 	controls		[]Control
 	stretchy		[]bool
-	xpos, ypos	[]int		// caches to avoid reallocating these each time
-	width, height	[]int
+	width, height	[]int		// caches to avoid reallocating these each time
 }
 
 // NewStack creates a new Stack with the specified orientation.
@@ -33,8 +32,6 @@ func NewStack(o Orientation, controls ...Control) *Stack {
 		orientation:	o,
 		controls:		controls,
 		stretchy:		make([]bool, len(controls)),
-		xpos:		make([]int, len(controls)),
-		ypos:		make([]int, len(controls)),
 		width:		make([]int, len(controls)),
 		height:		make([]int, len(controls)),
 	}
@@ -61,25 +58,60 @@ func (s *Stack) make(window *sysData) error {
 
 func (s *Stack) setRect(x int, y int, width int, height int) error {
 	var dx, dy int
+	var stretchywid, stretchyht int
 
 	if len(s.controls) == 0 {		// do nothing if there's nothing to do
 		return nil
 	}
-	switch s.orientation {
-	case Horizontal:
-		dx = width / len(s.controls)
-		width = dx
-	case Vertical:
-		dy = height / len(s.controls)
-		height = dy
-	}
+	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
+	stretchywid = width
+	stretchyht = height
+	nStretchy := 0
 	for i, c := range s.controls {
-		err := c.setRect(x, y, width, height)
-		if err != nil {
-			return fmt.Errorf("error setting size of control %d: %v", i, err)
+		if s.stretchy[i] {
+			nStretchy++
+			continue
 		}
-		x += dx
-		y += dy
+		w, h, err := c.preferredSize()
+		if err != nil {
+			return fmt.Errorf("error getting preferred size of control %d in Stack.setRect(): %v", i, err)
+		}
+		if s.orientation == Horizontal {			// all controls have same height
+			s.width[i] = w
+			s.height[i] = height
+			stretchywid -= w
+		} else {							// all controls have same width
+			s.width[i] = width
+			s.height[i] = h
+			stretchyht -= h
+		}
+	}
+	// 2) figure out size of stretchy controls
+	if nStretchy != 0 {
+		if s.orientation == Horizontal {			// split rest of width
+			stretchywid /= nStretchy
+		} else {							// split rest of height
+			stretchyht /= nStretchy
+		}
+	}
+	for i, c := range controls {
+		if !s.stretchy[i] {
+			continue
+		}
+		c.width[i] = stretchywid
+		c.height[i] = stretchyht
+	}
+	// 3) now actually place controls
+	for i, c := range s.controls {
+		err := c.setRect(x, y, s.width[i], s.height[i])
+		if err != nil {
+			return fmt.Errorf("error setting size of control %d in Stack.setRect(): %v", i, err)
+		}
+		if s.orientation == Horizontal {
+			x += s.width[i]
+		} else {
+			y += s.height[i]
+		}
 	}
 	return nil
 }
