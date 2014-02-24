@@ -7,10 +7,10 @@ import (
 )
 
 // Orientation defines the orientation of controls in a Stack.
-type Orientation int
+type Orientation bool
 const (
-	Horizontal Orientation = iota
-	Vertical
+	Horizontal Orientation = false
+	Vertical Orientation = true
 )
 
 // A Stack stacks controls horizontally or vertically within the Stack's parent.
@@ -29,9 +29,6 @@ type Stack struct {
 
 // NewStack creates a new Stack with the specified orientation.
 func NewStack(o Orientation, controls ...Control) *Stack {
-	if o != Horizontal && o != Vertical {
-		panic(fmt.Sprintf("invalid orientation %d given to NewStack()", o))
-	}
 	return &Stack{
 		orientation:	o,
 		controls:		controls,
@@ -75,8 +72,6 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 	case Vertical:
 		dy = height / len(s.controls)
 		height = dy
-	default:
-		panic(fmt.Sprintf("invalid orientation %d given to Stack.setRect()", s.orientation))
 	}
 	for i, c := range s.controls {
 		err := c.setRect(x, y, width, height)
