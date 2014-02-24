@@ -61,6 +61,9 @@ func (c *cSysData) setWindowSize(int, int) error {
 func (c *cSysData) delete(int) error {
 	panic(runtime.GOOS + " sysData does not define delete()")
 }
+func (c *cSysData) preferredSize() (int, int) {
+	panic(runtime.GOOS + " sysData does not define preferredSize()")
+}
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
 // Thanks skelterjohn for this techinque: if we can't queue any more events, drop them

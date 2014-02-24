@@ -181,3 +181,11 @@ func gtk_label_set_text(widget *gtkWidget, text string) {
 func gtk_label_get_text(widget *gtkWidget) string {
 	return C.GoString(fromgchar(C.gtk_label_get_text(togtklabel(widget))))
 }
+
+func gtk_widget_get_preferred_size(w *gtkWidget) (minWidth int, minHeight int, natWidth int, natHeight int) {
+	var minimum, natural C.GtkRequisition
+
+	C.gtk_widget_get_preferred_size(togtkwidget(w), &minimum, &natural)
+	return int(minimum.width), int(minimum.height),
+		int(natural.width), int(natural.height)
+}
