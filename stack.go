@@ -57,7 +57,6 @@ func (s *Stack) make(window *sysData) error {
 }
 
 func (s *Stack) setRect(x int, y int, width int, height int) error {
-	var dx, dy int
 	var stretchywid, stretchyht int
 
 	if len(s.controls) == 0 {		// do nothing if there's nothing to do
@@ -94,12 +93,12 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 			stretchyht /= nStretchy
 		}
 	}
-	for i, c := range s.controls {
+	for i := range s.controls {
 		if !s.stretchy[i] {
 			continue
 		}
-		c.width[i] = stretchywid
-		c.height[i] = stretchyht
+		s.width[i] = stretchywid
+		s.height[i] = stretchyht
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
@@ -114,4 +113,49 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 		}
 	}
 	return nil
+}
+
+// The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
+func (s *Stack) preferredSize() (width int, height int, err error) {
+	max := func(a int, b int) int {
+		if a > b {
+			return a
+		}
+		return b
+	}
+
+	var nStretchy int
+	var maxswid, maxsht int
+
+	if len(s.controls) == 0 {		// no controls, so return emptiness
+		return 0, 0, nil
+	}
+	for i, c := range s.controls {
+		w, h, err := c.preferredSize()
+		if err != nil {
+			return 0, 0, fmt.Errorf("error getting preferred size of control %d in Stack.preferredSize(): %v", i, err)
+		}
+		if s.stretchy[i] {
+			nStretchy++
+			maxswid = max(maxswid, w)
+			maxsht = max(maxsht, h)
+		}
+		if s.orientation == Horizontal {			// max vertical size
+			if !s.stretchy[i] {
+				width += w
+			}
+			height = max(height, h)
+		} else {
+			width = max(width, w)
+			if !s.stretchy[i] {
+				height += h
+			}
+		}
+	}
+	if s.orientation == Horizontal {
+		width += nStretchy * maxswid
+	} else {
+		height += nStretchy * maxsht
+	}
+	return
 }
