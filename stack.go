@@ -42,7 +42,7 @@ func (s *Stack) SetStretchy(index int) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	s[index] = true			// TODO explicitly check for index out of bounds?
+	s.stretchy[index] = true			// TODO explicitly check for index out of bounds?
 }
 
 func (s *Stack) make(window *sysData) error {
@@ -94,7 +94,7 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 			stretchyht /= nStretchy
 		}
 	}
-	for i, c := range controls {
+	for i, c := range s.controls {
 		if !s.stretchy[i] {
 			continue
 		}
