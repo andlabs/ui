@@ -24,6 +24,7 @@ so I don't forget:
 important things:
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
+- lock setRect() and preferredSize() in all Controls (including Stack)
 
 super ultra important things:
 - for some reason events are now delayed on windows
