@@ -6,6 +6,7 @@ WINDOWS
 - Status Bar
 - Tooltip (should be a property of each control)
 - Trackbar for Sliders
+	- cannot automatically snap to custom step; need to do it manually
 - Tree View
 - Up-Down Control for Spinners
 - maybe:
@@ -17,6 +18,8 @@ WINDOWS
 GTK+
 - GtkNotebook for Tabs
 - GtkScale for Sliders
+	- cannot automatically snap to INTEGERS (let alone to custom steps); need to do it manually
+	- natural size is 0x0 for some reason
 - GtkSpinButton for Spinners
 - GtkStatusBar
 - GtkToolbar
