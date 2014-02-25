@@ -24,76 +24,7 @@ Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 
 The following is an example program to illustrate what programming with ui is like:
 ```go
-package main
-
-import (
-	"fmt"
-	"github.com/andlabs/ui"
-)
-
-func main() {
-	w := ui.NewWindow("Main Window", 320, 240)
-	w.Closing = ui.Event()
-	b := ui.NewButton("Click Me")
-	b2 := ui.NewButton("Or Me")
-	s2 := ui.NewStack(ui.Horizontal, b, b2)
-	c := ui.NewCheckbox("Check Me")
-	cb1 := ui.NewCombobox(true, "You can edit me!", "Yes you can!", "Yes you will!")
-	cb2 := ui.NewCombobox(false, "You can't edit me!", "No you can't!", "No you won't!")
-	e := ui.NewLineEdit("Enter text here too")
-	l := ui.NewLabel("This is a label")
-	b3 := ui.NewButton("List Info")
-	s3 := ui.NewStack(ui.Horizontal, l, b3)
-	s0 := ui.NewStack(ui.Vertical, s2, c, cb1, cb2, e, s3)
-	lb1 := ui.NewListbox(true, "Select One", "Or More", "To Continue")
-	lb2 := ui.NewListbox(false, "Select", "Only", "One", "Please")
-	i := 0
-	doAdjustments := func() {
-		cb1.Append("append")
-		cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
-		lb1.InsertBefore(fmt.Sprintf("%d", i), 2)
-		lb2.Append("Please")
-		i++
-	}
-	doAdjustments()
-	s1 := ui.NewStack(ui.Vertical, lb2, lb1)
-	s := ui.NewStack(ui.Horizontal, s1, s0)
-	err := w.Open(s)
-	if err != nil {
-		panic(err)
-	}
-
-mainloop:
-	for {
-		select {
-		case <-w.Closing:
-			break mainloop
-		case <-b.Clicked:
-			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s",
-				c.Checked(),
-				cb1.Selection(),
-				cb2.Selection(),
-				e.Text()))
-			if err != nil {
-				panic(err)
-			}
-			doAdjustments()
-		case <-b2.Clicked:
-			cb1.Delete(1)
-			cb2.Delete(2)
-			lb1.Delete(3)
-			lb2.Delete(4)
-		case <-b3.Clicked:
-			MsgBox("List Info",
-				"cb1: %d %q\ncb2: %d %q\nlb1: %d %q\nlb2: %d %q",
-				cb1.SelectedIndex(), cb1.Selection(),
-				cb2.SelectedIndex(), cb2.Selection(),
-				lb1.SelectedIndices(), lb1.Selection(),
-				lb2.SelectedIndices(), lb2.Selection())
-		}
-	}
-	w.Hide()
-}
+(see main_test.go)
 ```
 
 ## Contributing
