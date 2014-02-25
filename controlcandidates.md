@@ -27,9 +27,9 @@ GTK+
 		- same for GtkColorButton
 	- GtkIconView
 	- GtkSeparator (I think Windows makes this a mode of Static controls?)
-notes to self:
-- groupbox is GtkFrame
-- GtkTreeView can do tree views and Tables
+- notes to self:
+	- groupbox is GtkFrame
+	- GtkTreeView can do tree views and Tables
 
 COCOA
 - NSOutlineView for tree views
@@ -46,11 +46,11 @@ COCOA
 	- NSColorWell is the color button
 	- NSOpenGLView for OpenGL; need to see how much OpenGL-specific stuff I need to expose
 	- NSRuleEditor/NSPredicateEditor look nice too but
-notes to self:
-- groupbox is NSBox
-- non-editable combobox is NSPopUpButton
-- editable combobox is NSCombobox
-- don't look at NSForm; though it arranges in the ideal form layout, it only allows single-line text entry fields as controls
-- NSSecureTextField does password entries
-TODO:
-- what does NSPathControl look like?
+- notes to self:
+	- groupbox is NSBox
+	- non-editable combobox is NSPopUpButton
+	- editable combobox is NSCombobox
+	- don't look at NSForm; though it arranges in the ideal form layout, it only allows single-line text entry fields as controls
+	- NSSecureTextField does password entries
+- TODO:
+	- what does NSPathControl look like?
