@@ -18,6 +18,7 @@ WINDOWS
 	- commcntl.h has stuff on a font control that isn't documented?
 
 GTK+
+- GtkCalendar for date selection (TODO doesn't handle times)
 - GtkNotebook for Tabs
 - GtkScale for Sliders
 	- cannot automatically snap to INTEGERS (let alone to custom steps); need to do it manually
@@ -35,6 +36,7 @@ GTK+
 	- GtkTreeView can do tree views and Tables
 
 COCOA
+- NSDatePicker for date/time selection
 - NSOutlineView for tree views
 - NSSlider for Sliders
 - NSStatusBar
