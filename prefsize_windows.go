@@ -53,6 +53,10 @@ var stdDlgSizes = [nctypes]dlgunits{
 		// height is not clearly defined here ("an integral number of items (3 items minimum)") so just use a three-line edit control
 		height:	14 + 10 + 10,
 	},
+	c_progressbar:		dlgunits{
+		width:	237,		// the first reference says 107 also works; TODO decide which to use
+		height:	8,
+	},
 }
 
 var (

@@ -37,23 +37,23 @@ const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
 const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
-	c_window:			&classData{
+	c_window:		&classData{
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
 	},
-	c_button:		&classData{
+	c_button:			&classData{
 		name:			"BUTTON",
 		style:			_BS_PUSHBUTTON | controlstyle,
 		xstyle:			0 | controlxstyle,
 		font:				&controlFont,
 	},
-	c_checkbox:	&classData{
+	c_checkbox:		&classData{
 		name:			"BUTTON",
 		style:			_BS_AUTOCHECKBOX | controlstyle,
 		xstyle:			0 | controlxstyle,
 		font:				&controlFont,
 	},
-	c_combobox:	&classData{
+	c_combobox:		&classData{
 		name:			"COMBOBOX",
 		style:			_CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
@@ -66,19 +66,19 @@ var classTypes = [nctypes]*classData{
 		selectedIndexErr:	_CB_ERR,
 		addSpaceErr:		_CB_ERRSPACE,
 	},
-	c_lineedit:	&classData{
+	c_lineedit:		&classData{
 		name:			"EDIT",
 		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
 		xstyle:			0 | controlxstyle,
 		font:				&controlFont,
 	},
-	c_label:		&classData{
+	c_label:			&classData{
 		name:			"STATIC",
 		style:			_SS_NOPREFIX | controlstyle,
 		xstyle:			0 | controlxstyle,
 		font:				&controlFont,
 	},
-	c_listbox:		&classData{
+	c_listbox:			&classData{
 		name:			"LISTBOX",
 		// TODO also _WS_HSCROLL?
 		style:			_WS_VSCROLL | controlstyle,
@@ -91,6 +91,11 @@ var classTypes = [nctypes]*classData{
 		selectedIndexMsg:	_LB_GETCURSEL,
 		selectedIndexErr:	_LB_ERR,
 		addSpaceErr:		_LB_ERRSPACE,
+	},
+	c_progressbar:		&classData{
+		name:			XXXXX,
+		style:			_PBS_SMOOTH | controlstyle,
+		xstyle:			0 | controlxstyle,
 	},
 }
 
@@ -500,4 +505,20 @@ func (s *sysData) delete(index int) (err error) {
 		return fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", r.err)
 	}
 	return nil
+}
+
+func (s *sysData) setProgress(percent int) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_PBM_SETPOS),
+			uintptr(_WPARAM(percent)),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	<-ret
 }
