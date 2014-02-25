@@ -55,3 +55,25 @@ COCOA
 	- NSProgressIndicator for ProgressBar
 - TODO:
 	- what does NSPathControl look like?
+
+# Slider Capabilities
+Capability | Windows | GTK+ | Cocoa
+-|-|-|-
+Data Type | int | float | TODO
+Can Simulate ints? | yes | TODO | TODO
+Mouse Step Snap | 1, fixed | something; likely 0.1 but not sure | TODO
+Keyboard Step Snap | configurable | configurable | TODO
+Current Value Display | tooltip during drag | label, always visible | TODO
+Ticks | configurable display, configurable interval | TODO | TODO
+Can Catch Mouse Events to Snap? | I think this is how to do it | TODO | TODO
+Preferred Size | given in UI guidelines | natural: 0x0; minimum: TODO | TODO
+
+# Spinner Capabilities
+Capability | Windows | GTK+ | Cocoa
+-|-|-|-
+Data Type | int | float | TODO
+Can Simulate ints? | yes | yes | TODO
+Mouse Step Snap | 1, fixed | configurable | TODO
+Keyboard Step Snap | 1, fixed | configurable (uses same value as mouse) | TODO
+Can Catch Events To Snap? | TODO | no need | TODO
+Preferred Size | TODO | TODO | TODO
