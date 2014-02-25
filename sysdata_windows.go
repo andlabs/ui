@@ -70,6 +70,7 @@ var classTypes = [nctypes]*classData{
 		name:			"EDIT",
 		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
 		xstyle:			0 | controlxstyle,
+		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
 		font:				&controlFont,
 	},
 	c_label:			&classData{

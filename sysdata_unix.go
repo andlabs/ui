@@ -86,6 +86,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_lineedit:		&classData{
 		make:		gtk_entry_new,
+		makeAlt:		gtkPasswordEntryNew,
 		setText:		gtk_entry_set_text,
 		text:			gtk_entry_get_text,
 	},

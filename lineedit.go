@@ -9,10 +9,11 @@ import (
 type LineEdit struct {
 	// TODO Typing event
 
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initText	string
+	lock			sync.Mutex
+	created		bool
+	sysData		*sysData
+	initText		string
+	password		bool
 }
 
 // NewLineEdit makes a new LineEdit with the specified text.
@@ -20,6 +21,14 @@ func NewLineEdit(text string) *LineEdit {
 	return &LineEdit{
 		sysData:	mksysdata(c_lineedit),
 		initText:	text,
+	}
+}
+
+// NewPasswordEdit makes a new LineEdit which allows the user to enter a password.
+func NewPasswordEdit() *LineEdit {
+	return &LineEdit{
+		sysData:		mksysdata(c_lineedit),
+		password:		true,
 	}
 }
 
@@ -50,6 +59,7 @@ func (l *LineEdit) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
+	l.sysData.alternate = l.password
 	err := l.sysData.make(l.initText, window)
 	if err != nil {
 		return err

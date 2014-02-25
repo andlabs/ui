@@ -5,8 +5,9 @@ so I don't forget:
 - determine if a selection in a non-editable combobox has been made
 - see if we really need to track errors on Combobox.Selection()
 	- in fact, see if we really need to track errors on a lot of things...
-- password entry fields, character-limited entry fields, numeric entry fields, multiline entry fields
+- character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
+		- especially for password fields - NewPasswordEntry()?
 - more flexible size appropriation: allow a small button to be at the top of everything in the main() example here
 - [Windows] should ListBox have a border style?
 	- a different border on LineEdits?

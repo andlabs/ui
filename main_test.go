@@ -26,7 +26,8 @@ func TestMain(t *testing.T) {
 	incButton := NewButton("Inc")
 	decButton := NewButton("Dec")
 	sincdec := NewStack(Horizontal, incButton, decButton)
-	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3, pbar, sincdec)
+	password := NewPasswordEdit()
+	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3, pbar, sincdec, password)
 	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
@@ -55,11 +56,12 @@ mainloop:
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
-			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s",
+			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
 				c.Checked(),
 				cb1.Selection(),
 				cb2.Selection(),
-				e.Text()))
+				e.Text(),
+				password.Text()))
 			if err != nil {
 				panic(err)
 			}

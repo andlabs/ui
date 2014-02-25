@@ -154,6 +154,12 @@ func gtk_entry_new() *gtkWidget {
 	return fromgtkwidget(C.gtk_entry_new())
 }
 
+func gtkPasswordEntryNew() *gtkWidget {
+	e := gtk_entry_new()
+	C.gtk_entry_set_visibility(togtkentry(e), C.FALSE)
+	return e
+}
+
 func gtk_entry_set_text(widget *gtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
