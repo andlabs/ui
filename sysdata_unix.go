@@ -30,11 +30,11 @@ type classData struct {
 }
 
 var classTypes = [nctypes]*classData{
-	c_window:	&classData{
-		make:	gtk_window_new,
-		setText:	gtk_window_set_title,
-		text:		gtk_window_get_title,
-		signals:	map[string]func(*sysData) func() bool{
+	c_window:		&classData{
+		make:		gtk_window_new,
+		setText:		gtk_window_set_title,
+		text:			gtk_window_get_title,
+		signals:		map[string]func(*sysData) func() bool{
 			"delete-event":		func(s *sysData) func() bool {
 				return func() bool {
 					s.signal()
@@ -57,11 +57,11 @@ var classTypes = [nctypes]*classData{
 			},
 		},
 	},
-	c_button:		&classData{
-		make:	gtk_button_new,
-		setText:	gtk_button_set_label,
-		text:		gtk_button_get_label,
-		signals:	map[string]func(*sysData) func() bool{
+	c_button:			&classData{
+		make:		gtk_button_new,
+		setText:		gtk_button_set_label,
+		text:			gtk_button_get_label,
+		signals:		map[string]func(*sysData) func() bool{
 			"clicked":		func(s *sysData) func() bool {
 				return func() bool {
 					s.signal()
@@ -70,41 +70,44 @@ var classTypes = [nctypes]*classData{
 			},
 		},
 	},
-	c_checkbox:	&classData{
-		make:	gtk_check_button_new,
-		setText:	gtk_button_set_label,
+	c_checkbox:		&classData{
+		make:		gtk_check_button_new,
+		setText:		gtk_button_set_label,
 	},
-	c_combobox:	&classData{
-		make:	gtk_combo_box_text_new,
-		makeAlt:	gtk_combo_box_text_new_with_entry,
+	c_combobox:		&classData{
+		make:		gtk_combo_box_text_new,
+		makeAlt:		gtk_combo_box_text_new_with_entry,
 		// TODO setText
-		text:		gtk_combo_box_text_get_active_text,
-		append:	gtk_combo_box_text_append_text,
-		insert:	gtk_combo_box_text_insert_text,
-		selected:	gtk_combo_box_get_active,
-		delete:	gtk_combo_box_text_remove,
+		text:			gtk_combo_box_text_get_active_text,
+		append:		gtk_combo_box_text_append_text,
+		insert:		gtk_combo_box_text_insert_text,
+		selected:		gtk_combo_box_get_active,
+		delete:		gtk_combo_box_text_remove,
 	},
-	c_lineedit:	&classData{
-		make:	gtk_entry_new,
-		setText:	gtk_entry_set_text,
-		text:		gtk_entry_get_text,
+	c_lineedit:		&classData{
+		make:		gtk_entry_new,
+		setText:		gtk_entry_set_text,
+		text:			gtk_entry_get_text,
 	},
-	c_label:		&classData{
-		make:	gtk_label_new,
-		setText:	gtk_label_set_text,
-		text:		gtk_label_get_text,
+	c_label:			&classData{
+		make:		gtk_label_new,
+		setText:		gtk_label_set_text,
+		text:			gtk_label_get_text,
 	},
-	c_listbox:		&classData{
-		make:	gListboxNewSingle,
-		makeAlt:	gListboxNewMulti,
+	c_listbox:			&classData{
+		make:		gListboxNewSingle,
+		makeAlt:		gListboxNewMulti,
 		// TODO setText
-		text:		gListboxText,
-		append:	gListboxAppend,
-		insert:	gListboxInsert,
-		selected:	gListboxSelected,
-		selMulti:	gListboxSelectedMulti,
-		smtexts:	gListboxSelMultiTexts,
-		delete:	gListboxDelete,
+		text:			gListboxText,
+		append:		gListboxAppend,
+		insert:		gListboxInsert,
+		selected:		gListboxSelected,
+		selMulti:		gListboxSelectedMulti,
+		smtexts:		gListboxSelMultiTexts,
+		delete:		gListboxDelete,
+	},
+	c_progressbar:		&classData{
+		make:		gtk_progress_bar_new,
 	},
 }
 
@@ -286,4 +289,14 @@ func (s *sysData) delete(index int) error {
 	}
 	<-ret
 	return nil
+}
+
+func (s *sysData) setProgress(percent int) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		gtk_progress_bar_set_fraction(s.widget, percent)
+		ret <- struct{}{}
+	}
+	<-ret
 }

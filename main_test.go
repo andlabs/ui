@@ -21,7 +21,12 @@ func TestMain(t *testing.T) {
 	s3 := NewStack(Horizontal, l, b3)
 	s3.SetStretchy(0)
 //	s3.SetStretchy(1)
-	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3)
+	pbar := NewProgressBar()
+	prog := 0
+	incButton := NewButton("Inc")
+	decButton := NewButton("Dec")
+	sincdec := NewStack(Horizontal, incButton, decButton)
+	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3, pbar, sincdec)
 	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
@@ -71,8 +76,19 @@ mainloop:
 				cb2.SelectedIndex(), cb2.Selection(),
 				lb1.SelectedIndices(), lb1.Selection(),
 				lb2.SelectedIndices(), lb2.Selection())
+		case <-incButton.Clicked:
+			prog++
+			if prog > 100 {
+				prog = 100
+			}
+			pbar.SetProgress(prog)
+		case <-decButton.Clicked:
+			prog--
+			if prog < 0 {
+				prog = 0
+			}
+			pbar.SetProgress(prog)
 		}
 	}
 	w.Hide()
 }
-

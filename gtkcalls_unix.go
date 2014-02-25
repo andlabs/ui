@@ -189,3 +189,12 @@ func gtk_widget_get_preferred_size(w *gtkWidget) (minWidth int, minHeight int, n
 	return int(minimum.width), int(minimum.height),
 		int(natural.width), int(natural.height)
 }
+
+func gtk_progress_bar_new() *gtkWidget {
+	return fromgtkwidget(C.gtk_progress_bar_new())
+}
+
+func gtk_progress_bar_set_fraction(w *gtkWidget, percent int) {
+	p := C.gdouble(percent) / 100
+	C.gtk_progress_bar_set_fraction(togtkprogressbar(w), p)
+}

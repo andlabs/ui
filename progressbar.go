@@ -2,7 +2,7 @@
 package ui
 
 import (
-	// ...
+	"sync"
 )
 
 // A ProgressBar is a horizontal rectangle that fills up from left to right to indicate the progress of a long-running task.

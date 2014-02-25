@@ -107,3 +107,11 @@ func fromgtklabel(x *C.GtkLabel) *gtkWidget {
 func togtklabel(what *gtkWidget) *C.GtkLabel {
 	return (*C.GtkLabel)(unsafe.Pointer(what))
 }
+
+func fromgtkprogressbar(x *C.GtkProgressBar) *gtkWidget {
+	return (*gtkWidget)(unsafe.Pointer(x))
+}
+
+func togtkprogressbar(what *gtkWidget) *C.GtkProgressBar {
+	return (*C.GtkProgressBar)(unsafe.Pointer(what))
+}
