@@ -63,8 +63,6 @@ const (
 	_CCM_SETBKCOLOR = (_CCM_FIRST + 1)
 )
 
-// TODO move _WM_USER here?
-
 // Progress Bar styles.
 const (
 	_PBS_SMOOTH = 0x01
