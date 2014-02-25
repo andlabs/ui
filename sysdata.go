@@ -64,6 +64,9 @@ func (c *cSysData) delete(int) error {
 func (c *cSysData) preferredSize() (int, int) {
 	panic(runtime.GOOS + " sysData does not define preferredSize()")
 }
+func (c *cSysData) setProgress(int) {
+	panic(runtime.GOOS + " sysData does not define setProgress()")
+}
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
 // Thanks skelterjohn for this techinque: if we can't queue any more events, drop them
@@ -86,6 +89,7 @@ const (
 	c_lineedit
 	c_label
 	c_listbox
+	c_progressbar
 	nctypes
 )
 
