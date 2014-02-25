@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -13,7 +14,7 @@ type Grid struct {
 	lock					sync.Mutex
 	created				bool
 	controls				[][]Control
-	cwidths, cheights		[][]int		// caches to avoid reallocating each time
+	widths, heights			[][]int		// caches to avoid reallocating each time
 	rowheights, colwidths	[]int
 }
 
@@ -29,10 +30,10 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 	if len(controls) % nPerRow != 0 {
 		panic(fmt.Errorf("incomplete grid given to NewGrid() (not enough controls to evenly divide %d controls into rows of %d controls each)", len(controls), nPerRow))
 	}
-	nRows = len(controls) / nPerRow
+	nRows := len(controls) / nPerRow
 	cc := make([][]Control, nRows)
 	cw := make([][]int, nRows)
-	ch := make([][]int, nRow)
+	ch := make([][]int, nRows)
 	i := 0
 	for row := 0; row < nRows; row++ {
 		cc[row] = make([]Control, nPerRow)
@@ -57,7 +58,7 @@ func (g *Grid) make(window *sysData) error {
 	defer g.lock.Unlock()
 
 	for row, xcol := range g.controls {
-		for col, c := range xcol
+		for col, c := range xcol {
 			err := c.make(window)
 			if err != nil {
 				return fmt.Errorf("error adding control (%d,%d) to Grid: %v", row, col, err)
@@ -93,24 +94,24 @@ func (g *Grid) setRect(x int, y int, width int, height int) error {
 			if err != nil {
 				return fmt.Errorf("error getting preferred size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
 			}
-			widths[row][col] = w
+			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
-			g.colwidths[col] = max(g.colwidths[row], w)
+			g.colwidths[col] = max(g.colwidths[col], w)
 		}
 	}
 	// 3) draw
 	startx := x
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			err = c.setRect(x, y, g.widths[row][col], g.heights[row][col])
+			err := c.setRect(x, y, g.widths[row][col], g.heights[row][col])
 			if err != nil {
 				return fmt.Errorf("error setting size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
 			}
-			x += colwidths[col]
+			x += g.colwidths[col]
 		}
 		x = startx
-		y += rowheights[row]
+		y += g.rowheights[row]
 	}
 	return nil
 }
@@ -138,12 +139,12 @@ func (g *Grid) preferredSize() (width int, height int, err error) {
 		for col, c := range xcol {
 			w, h, err := c.preferredSize()
 			if err != nil {
-				return fmt.Errorf("error getting preferred size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
+				return 0, 0, fmt.Errorf("error getting preferred size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
 			}
-			widths[row][col] = w
+			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
-			g.colwidths[col] = max(g.colwidths[row], w)
+			g.colwidths[col] = max(g.colwidths[col], w)
 		}
 	}
 	// 3) now compute

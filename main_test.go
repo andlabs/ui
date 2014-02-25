@@ -6,6 +6,23 @@ import (
 	"testing"
 )
 
+func gridWindow() (*Window, error) {
+	w := NewWindow("Grid Test", 400, 400)
+	b00 := NewButton("0,0")
+	b01 := NewButton("0,1")
+	b02 := NewButton("0,2")
+	l11 := NewListbox(true, "1,1")
+	b12 := NewButton("1,2")
+	l20 := NewLabel("2,0")
+	c21 := NewCheckbox("2,1")
+	l22 := NewLabel("2,2")
+	g := NewGrid(3,
+		b00, b01, b02,
+		Space(), l11, b12,
+		l20, c21, l22)
+	return w, w.Open(g)
+}
+
 func TestMain(t *testing.T) {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = Event()
@@ -47,6 +64,10 @@ func TestMain(t *testing.T) {
 	s.SetStretchy(0)
 	s.SetStretchy(1)
 	err := w.Open(s)
+	if err != nil {
+		panic(err)
+	}
+	gw, err := gridWindow()
 	if err != nil {
 		panic(err)
 	}
@@ -93,5 +114,6 @@ mainloop:
 			pbar.SetProgress(prog)
 		}
 	}
+	gw.Hide()
 	w.Hide()
 }
