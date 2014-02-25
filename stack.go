@@ -16,6 +16,7 @@ const (
 // A Stack stacks controls horizontally or vertically within the Stack's parent.
 // A horizontal Stack gives all controls the same height and their preferred widths.
 // A vertical Stack gives all controls the same width and their preferred heights.
+// Any extra space at the end of a Stack is left blank.
 // Some controls may be marked as "stretchy": when the Window they are in changes size, stretchy controls resize to take up the remaining space after non-stretchy controls are laid out. If multiple controls are marked stretchy, they are alloted equal distribution of the remaining space.
 type Stack struct {
 	lock			sync.Mutex
@@ -161,4 +162,11 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 		height += nStretchy * maxsht
 	}
 	return
+}
+
+// Space() returns a null control intended for padding layouts with blank space where otherwise impossible (for instance, at the beginning or in the middle of a Stack).
+// In order for Space() to work, it must be marked as stretchy in its parent layout; otherwise its size is undefined.
+func Space() Control {
+	// As above, a stack with no controls draws nothing and reports no errors; its parent will still size it properly.
+	return NewStack(Horizontal)
 }

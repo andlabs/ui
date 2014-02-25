@@ -27,7 +27,8 @@ func TestMain(t *testing.T) {
 	decButton := NewButton("Dec")
 	sincdec := NewStack(Horizontal, incButton, decButton)
 	password := NewPasswordEdit()
-	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3, pbar, sincdec, password)
+	s0 := NewStack(Vertical, s2, c, cb1, cb2, e, s3, pbar, sincdec, Space(), password)
+	s0.SetStretchy(8)
 	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
 	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
 	i := 0
