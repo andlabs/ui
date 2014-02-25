@@ -1,7 +1,6 @@
 WINDOWS
 - DateTime Picker
 - ListView for Tables
-- Progress Bar
 - either Property Sheets or Tabs for Tabs
 - either Rebar or Toolbar for Toolbars
 - Status Bar
@@ -17,7 +16,6 @@ WINDOWS
 
 GTK+
 - GtkNotebook for Tabs
-- GtkProgressBar
 - GtkScale for Sliders
 - GtkSpinButton for Spinners
 - GtkStatusBar
@@ -33,7 +31,6 @@ GTK+
 
 COCOA
 - NSOutlineView for tree views
-- NSProgressIndicator for ProgressBar
 - NSSlider for Sliders
 - NSStatusBar
 - NSStepper for Spinners
@@ -52,5 +49,6 @@ COCOA
 	- editable combobox is NSCombobox
 	- don't look at NSForm; though it arranges in the ideal form layout, it only allows single-line text entry fields as controls
 	- NSSecureTextField does password entries
+	- NSProgressIndicator for ProgressBar
 - TODO:
 	- what does NSPathControl look like?
