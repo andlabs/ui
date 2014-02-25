@@ -37,6 +37,7 @@ COCOA
 - NSSlider for Sliders
 - NSStatusBar
 - NSStepper for Spinners
+	- TODO does this require me to manually pair it with a single-line text entry field?
 - NSTabView for Tabs
 - NSTableView for Tables
 - NSToolbar
@@ -59,22 +60,22 @@ COCOA
 # Slider Capabilities
 Capability | Windows | GTK+ | Cocoa
 ----- | ----- | ----- | -----
-Data Type | int | float | TODO
+Data Type | int | float | float
 Can Simulate ints? | yes | TODO | TODO
-Mouse Step Snap | 1, fixed | something; likely 0.1 but not sure | TODO
-Keyboard Step Snap | configurable | configurable | TODO
+Mouse Step Snap | 1, fixed | something; likely 0.1 but not sure | yes (`setAllowsTickMarkValuesOnly:`); caveat: must specify an exact number of ticks (see below)
+Keyboard Step Snap | configurable | configurable | TODO (same as mouse?)
 Current Value Display | tooltip during drag | label, always visible | TODO
-Ticks | configurable display, configurable interval | TODO | TODO
+Tooltips? | TODO | TODO | TODO
+Ticks | configurable display, configurable interval | TODO | configurable display; configurable COUNT (not interval!)
 Can Catch Mouse Events to Snap? | I think this is how to do it | TODO | TODO
 Preferred Size | given in UI guidelines | natural: 0x0; minimum: TODO | TODO
 
 # Spinner Capabilities
-
 Capability | Windows | GTK+ | Cocoa
------|-----|-----|-----
-Data Type | int | float | TODO
+----- | ----- | ----- | -----
+Data Type | int | float | flaot
 Can Simulate ints? | yes | yes | TODO
-Mouse Step Snap | 1, fixed | configurable | TODO
-Keyboard Step Snap | 1, fixed | configurable (uses same value as mouse) | TODO
+Mouse Step Snap | 1, fixed | configurable | configurable
+Keyboard Step Snap | 1, fixed | configurable (uses same value as mouse) | TODO (same as mouse?)
 Can Catch Events To Snap? | TODO | no need | TODO
 Preferred Size | TODO | TODO | TODO
