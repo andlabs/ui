@@ -14,6 +14,8 @@ WINDOWS
 	- IP Address control (iff GTK+ and Cocoa have it; maybe not necessary if we allow arbitrary target addresses?)
 	- ListView for its Icon View?
 	- something similar to Task Dialog might be useful to have as a convenience template later
+- TODO
+	- commcntl.h has stuff on a font control that isn't documented?
 
 GTK+
 - GtkNotebook for Tabs
