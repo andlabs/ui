@@ -7,7 +7,8 @@ import (
 
 // A Button represents a clickable button with some text.
 type Button struct {
-	// This channel gets a message when the button is clicked. Unlike other channels in this package, this channel is initialized to non-nil when creating a new button, and cannot be set to nil later.
+	// This channel gets a message when the button is clicked.
+	// Unlike other channels in this package, this channel is initialized to non-nil when creating a new button, and cannot be set to nil later.
 	Clicked	chan struct{}
 
 	lock		sync.Mutex
