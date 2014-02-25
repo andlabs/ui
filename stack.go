@@ -165,8 +165,8 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 }
 
 // Space returns a null control intended for padding layouts with blank space where otherwise impossible (for instance, at the beginning or in the middle of a Stack).
-// In order for Space() to work, it must be marked as stretchy in its parent layout; otherwise its size is undefined.
+// In order for a Space to work, it must be marked as stretchy in its parent layout; otherwise its size is undefined.
 func Space() Control {
-	// As above, a stack with no controls draws nothing and reports no errors; its parent will still size it properly.
+	// As above, a Stack with no controls draws nothing and reports no errors; its parent will still size it properly if made stretchy.
 	return NewStack(Horizontal)
 }
