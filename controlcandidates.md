@@ -58,7 +58,7 @@ COCOA
 
 # Slider Capabilities
 Capability | Windows | GTK+ | Cocoa
--|-|-|-
+- | - | - | -
 Data Type | int | float | TODO
 Can Simulate ints? | yes | TODO | TODO
 Mouse Step Snap | 1, fixed | something; likely 0.1 but not sure | TODO
@@ -69,6 +69,7 @@ Can Catch Mouse Events to Snap? | I think this is how to do it | TODO | TODO
 Preferred Size | given in UI guidelines | natural: 0x0; minimum: TODO | TODO
 
 # Spinner Capabilities
+
 Capability | Windows | GTK+ | Cocoa
 -|-|-|-
 Data Type | int | float | TODO
