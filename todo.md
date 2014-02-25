@@ -55,7 +55,10 @@ maybe:
 - rename Stack to Box?
 - make Combobox and Listbox satisfy sort.Interface?
 - this:
-	[16:27] <cespare> pietro10: depends what you mean by safe
-	[16:27] <cespare> pietro10: sounds like you should move this functionality into a function though.
-	[16:28] <cespare> (so the user can decide what to do with the error)
-	[16:28] <cespare> typically people don't like their libraries calling exit :)
+```
+[16:27] <cespare> pietro10: depends what you mean by safe
+[16:27] <cespare> pietro10: sounds like you should move this functionality into a function though.
+[16:28] <cespare> (so the user can decide what to do with the error)
+[16:28] <cespare> typically people don't like their libraries calling exit :)
+```
+- indeterminate progress bars (not supported on Windows 2000)
