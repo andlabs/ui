@@ -15,14 +15,23 @@ type Combobox struct {
 	initItems	[]string
 }
 
-// NewCombobox makes a new combobox with the given items. If editable is true, the combobox is editable.
-func NewCombobox(editable bool, items ...string) (c *Combobox) {
+func newCombobox(editable bool, items ...string) (c *Combobox) {
 	c = &Combobox{
 		sysData:		mksysdata(c_combobox),
 		initItems:		items,
 	}
 	c.sysData.alternate = editable
 	return c
+}
+
+// NewCombobox makes a new Combobox with the given items.
+func NewCombobox(items ...string) *Combobox {
+	return newCombobox(false, items...)
+}
+
+// NewEditableCombobox makes a new editable Combobox with the given items.
+func NewEditableCombobox(items ...string) *Combobox {
+	return newCombobox(true, items...)
 }
 
 // Append adds an item to the end of the Combobox's list.
