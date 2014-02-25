@@ -70,6 +70,10 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error getting standard window fonts: %v", err)
 	}
+	err = initCommonControls()
+	if err != nil {
+		return fmt.Errorf("error initializing Common Controls (comctl32.dll): %v", err)
+	}
 	// TODO others
 	return nil		// all ready to go
 }

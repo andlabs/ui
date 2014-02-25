@@ -10,6 +10,7 @@ var (
 	user32 = syscall.NewLazyDLL("user32.dll")
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
 	gdi32 = syscall.NewLazyDLL("gdi32.dll")
+	comctl32 = syscall.NewLazyDLL("comctl32.dll")
 )
 
 type _HANDLE uintptr

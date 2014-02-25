@@ -93,7 +93,7 @@ var classTypes = [nctypes]*classData{
 		addSpaceErr:		_LB_ERRSPACE,
 	},
 	c_progressbar:		&classData{
-		name:			XXXXX,
+		name:			_PROGRESS_CLASS,
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
