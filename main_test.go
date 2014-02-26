@@ -20,6 +20,7 @@ func gridWindow() (*Window, error) {
 		b00, b01, b02,
 		Space(), l11, b12,
 		l20, c21, l22)
+	g.SetFilling(1, 2)
 	return w, w.Open(g)
 }
 
