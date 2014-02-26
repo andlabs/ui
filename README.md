@@ -1,5 +1,5 @@
 # Native UI library for Go
-### THIS PACKAGE IS UNSTABLE. Though it installs to a package `ui`, and you can build software in it, it's far from feature-complete, and still in need of testing and crash-fixing. If you can help, please do! Run `go test -c` to build a test binary which runs a (mostly) feature-complete UI test.
+### THIS PACKAGE IS UNSTABLE. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `go test -c` to build a test binary which runs a (mostly) feature-complete UI test.
 
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows and all Unix variants (except Mac OS X until further notice) and provides a thread-safe, channel-based API.
 
