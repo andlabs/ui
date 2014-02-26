@@ -164,8 +164,12 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 	return
 }
 
-// Space returns a null control intended for padding layouts with blank space where otherwise impossible (for instance, at the beginning or in the middle of a Stack).
-// In order for a Space to work, it must be marked as stretchy in its parent layout; otherwise its size is undefined.
+// Space returns a null control intended for padding layouts with blank space.
+// It appears to its owner as a control of 0x0 size.
+//
+// For a Stack, Space can be used to insert spaces in the beginning or middle of Stacks (Stacks by nature handle spaces at the end themselves). In order for this to work properly, make the Space stretchy.
+//
+// For a Grid, Space can be used to have an empty cell. (TODO stretching/sizing rules)
 func Space() Control {
 	// As above, a Stack with no controls draws nothing and reports no errors; its parent will still size it properly if made stretchy.
 	return NewStack(Horizontal)

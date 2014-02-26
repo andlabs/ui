@@ -9,7 +9,9 @@ import (
 // A Grid arranges Controls in a two-dimensional grid.
 // All Controls in a Grid maintain their preferred sizes.
 // The height of each row and the width of each column is the maximum preferred height and width (respectively) of all the controls in that row or column (respectively).
+// Controls are aligned to the top left corner of each cell.
 // Unlike other UI toolkit Grids, this Grid does not (yet?) allow Controls to span multiple rows or columns.
+// TODO differnet row/column control alignment; stretchy controls or other resizing options
 type Grid struct {
 	lock					sync.Mutex
 	created				bool
