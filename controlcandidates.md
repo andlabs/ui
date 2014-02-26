@@ -16,6 +16,7 @@ WINDOWS
 	- something similar to Task Dialog might be useful to have as a convenience template later
 - TODO
 	- commcntl.h has stuff on a font control that isn't documented?
+		- actually not a control, but localization support: http://msdn.microsoft.com/en-us/library/windows/desktop/bb775454%28v=vs.85%29.aspx
 
 GTK+
 - GtkCalendar for date selection (TODO doesn't handle times)
