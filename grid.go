@@ -11,6 +11,8 @@ import (
 // Controls are aligned to the top left corner of each cell.
 // All Controls in a Grid maintain their preferred sizes by default; if a Control is marked as being "filling", it will be sized to fill its cell.
 // Even if a Control is marked as filling, its preferred size is used to calculate cell sizes.
+// One Control can be marked as "stretchy": when the Window containing the Grid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
+// A stretchy Control implicitly fills its cell.
 // All cooridnates in a Grid are given in (row,column) form with (0,0) being the top-left cell.
 // Unlike other UI toolkit Grids, this Grid does not (yet? TODO) allow Controls to span multiple rows or columns.
 // TODO differnet row/column control alignment; stretchy controls or other resizing options
@@ -19,6 +21,7 @@ type Grid struct {
 	created				bool
 	controls				[][]Control
 	filling				[][]bool
+	stretchyrow, stretchycol	int
 	widths, heights			[][]int		// caches to avoid reallocating each time
 	rowheights, colwidths	[]int
 }
@@ -54,6 +57,8 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 	return &Grid{
 		controls:		cc,
 		filling:		cf,
+		stretchyrow:	-1,
+		stretchycol:	-1,
 		widths:		cw,
 		heights:		ch,
 		rowheights:	make([]int, nRows),
@@ -61,7 +66,7 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 	}
 }
 
-// SetFilling sets the given control of the Grid as filling its cell instead of staying at its preferred size.
+// SetFilling sets the given Control of the Grid as filling its cell instead of staying at its preferred size.
 // This function cannot be called after the Window that contains the Grid has been created.
 func (g *Grid) SetFilling(row int, column int) {
 	g.lock.Lock()
@@ -70,6 +75,21 @@ func (g *Grid) SetFilling(row int, column int) {
 	if g.created {
 		panic("Grid.SetFilling() called after window create")		// TODO
 	}
+	g.filling[row][column] = true
+}
+
+// SetStretchy sets the given Control of the Grid as stretchy.
+// Stretchy implies filling.
+// This function cannot be called after the Window that contains the Grid has been created.
+func (g *Grid) SetStretchy(row int, column int) {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
+	if g.created {
+		panic("Grid.SetFilling() called after window create")		// TODO
+	}
+	g.stretchyrow = row
+	g.stretchycol = column
 	g.filling[row][column] = true
 }
 
@@ -120,7 +140,22 @@ func (g *Grid) setRect(x int, y int, width int, height int) error {
 			g.colwidths[col] = max(g.colwidths[col], w)
 		}
 	}
-	// 3) draw
+	// 3) handle the stretchy control
+	if g.stretchyrow != -1 && g.stretchycol != -1 {		// TODO internal error if one is -1 but not both
+		for i, w := range g.colwidths {
+			if i != g.stretchycol {
+				width -= w
+			}
+		}
+		for i, h := range g.rowheights {
+			if i != g.stretchyrow {
+				height -= h
+			}
+		}
+		g.colwidths[g.stretchycol] = width
+		g.rowheights[g.stretchyrow] = height
+	}
+	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
@@ -142,6 +177,7 @@ func (g *Grid) setRect(x int, y int, width int, height int) error {
 	return nil
 }
 
+// filling and stretchy are ignored for preferred size calculation
 func (g *Grid) preferredSize() (width int, height int, err error) {
 	g.lock.Lock()
 	defer g.lock.Unlock()

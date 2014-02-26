@@ -21,6 +21,7 @@ func gridWindow() (*Window, error) {
 		Space(), l11, b12,
 		l20, c21, l22)
 	g.SetFilling(1, 2)
+	g.SetStretchy(1, 1)
 	return w, w.Open(g)
 }
 
