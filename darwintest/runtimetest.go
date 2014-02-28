@@ -98,6 +98,10 @@ func notify(source string) {
 	csource := C.CString(source)
 	defer C.free(unsafe.Pointer(csource))
 
+	// we need to make an NSAutoreleasePool, otherwise we get leak warnings on stderr
+	pool := C.objc_msgSend_noargs(
+		objc_getClass("NSAutoreleasePool"),
+		sel_getUid("new"))
 	src := C.objc_msgSend_strarg(
 		objc_getClass("NSString"),
 		sel_getUid("stringWithUTF8String:"),
@@ -107,7 +111,9 @@ func notify(source string) {
 		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:"),
 		notesel,
 		src,
-		C.BOOL(C.FALSE))		// don't wait; we're using a channel for this (in the final ui code)
+		C.BOOL(C.TRUE))		// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
+	C.objc_msgSend_noargs(pool,
+		sel_getUid("release"))
 }
 
 func main() {
