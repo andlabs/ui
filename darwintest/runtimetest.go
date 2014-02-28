@@ -23,6 +23,7 @@ import (
 // id objc_msgSend_id(id obj, SEL sel, id a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_NSRect(id obj, SEL sel, CGRect a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_sel(id obj, SEL sel, SEL a) { return objc_msgSend(obj, sel, a); }
+// id objc_msgSend_uint(id obj, SEL sel, NSUInteger a) { return objc_msgSend(obj, sel, a); }
 // Class NilClass = Nil; /* for newtypes.go */
 import "C"
 
@@ -68,6 +69,10 @@ const (
 	NSBackingStoreBuffered = 2
 )
 
+const (
+	NSRoundedBezelStyle = 1
+)
+
 var alloc = sel_getUid("alloc")
 
 func main() {
@@ -109,6 +114,9 @@ func main() {
 	C.objc_msgSend_sel(button,
 		sel_getUid("setAction:"),
 		sel_getUid("buttonClicked:"))
+	C.objc_msgSend_uint(button,
+		sel_getUid("setBezelStyle:"),
+		C.NSUInteger(NSRoundedBezelStyle))
 	C.objc_msgSend_id(windowView,
 		sel_getUid("addSubview:"),
 		button)
