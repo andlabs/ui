@@ -12,7 +12,8 @@ import (
 // #include <objc/message.h>
 // #include <objc/objc.h>
 // #include <objc/runtime.h>
-// extern void ourMethod(id, SEL);
+// extern void windowShouldClose(id, SEL, id);
+// extern id objc_msgSend_id(id, SEL, id);
 // /* cgo doesn't like Nil */
 // extern Class NilClass; /* in runtimetest.go because of cgo limitations */
 import "C"
@@ -30,20 +31,25 @@ func newClass(name string) C.Class {
 	return c
 }
 
-//export ourMethod
-func ourMethod(self C.id, sel C.SEL) {
-	fmt.Println("hello, world")
+//export windowShouldClose
+func windowShouldClose(self C.id, sel C.SEL, sender C.id) {
+	fmt.Println("-[hello windowShouldClose:]")
+	C.objc_msgSend_id(NSApp,
+		sel_getUid("stop:"),
+		sender)
 }
 
 func addOurMethod(class C.Class, sel C.SEL) {
-	ty := []C.char{'v', '@', ':', 0}		// according to the example for class_addMethod()
+//	ty := []C.char{'v', '@', ':', 0}		// according to the example for class_addMethod()
+	ty := []C.char{'v', '@', ':', '@', 0}
 
 	// clas methods get stored in the metaclass; the objc_allocateClassPair() docs say this will work
-	metaclass := C.object_getClass(C.id(unsafe.Pointer(class)))
-	ok := C.class_addMethod(metaclass,
+//	metaclass := C.object_getClass(C.id(unsafe.Pointer(class)))
+//	ok := C.class_addMethod(metaclass,
+	ok := C.class_addMethod(class,
 		sel,
 		// using &C.ourMethod causes faults for some reason
-		C.IMP(unsafe.Pointer(C.ourMethod)),
+		C.IMP(unsafe.Pointer(C.windowShouldClose)),
 		&ty[0])
 	if ok == C.BOOL(C.NO) {
 		panic("unable to add ourMethod")

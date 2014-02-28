@@ -38,10 +38,16 @@ func sel_getUid(sel string) C.SEL {
 	return C.sel_getUid(csel)
 }
 
-func main() {
-	sel := sel_getUid("ourMethod")
-	C.objc_msgSend_noargs(mk("hello", sel),
-		sel)
+var NSApp C.id
+
+func init() {
+	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
+	NSApplication := objc_getClass("NSApplication")
+	sharedApplication := sel_getUid("sharedApplication")
+	NSApp = C.objc_msgSend_noargs(NSApplication, sharedApplication)
+
+	sel := sel_getUid("windowShouldClose:")
+	mk("hello", sel)
 }
 
 const (
@@ -61,16 +67,12 @@ const (
 
 var alloc = sel_getUid("alloc")
 
-func wintest() {
+func main() {
 	NSWindow := objc_getClass("NSWindow")
 	NSWindowinit :=
 		sel_getUid("initWithContentRect:styleMask:backing:defer:")
+	setDelegate := sel_getUid("setDelegate:")
 	makeKeyAndOrderFront := sel_getUid("makeKeyAndOrderFront:")
-
-	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
-	NSApplication := objc_getClass("NSApplication")
-	sharedApplication := sel_getUid("sharedApplication")
-	C.objc_msgSend_noargs(NSApplication, sharedApplication)
 
 	rect := C.CGRect{
 		origin:	C.CGPoint{100, 100},
@@ -82,7 +84,13 @@ func wintest() {
 	window := C.objc_msgSend_noargs(NSWindow, alloc)
 	window = C.objc_msgSend_NSRect_uint_uint_bool(window, NSWindowinit, rect, style, backing, deferx)
 	C.objc_msgSend_id(window, makeKeyAndOrderFront, window)
-	select{}
+	delegate := C.objc_msgSend_noargs(
+		objc_getClass("hello"),
+		alloc)
+	C.objc_msgSend_id(window, setDelegate,
+		delegate)
+	C.objc_msgSend_noargs(NSApp,
+		sel_getUid("run"))
 }
 
 func helloworld() {
