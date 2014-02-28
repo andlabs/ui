@@ -9,26 +9,12 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
-// #include <objc/message.h>
-// #include <objc/objc.h>
-// #include <objc/runtime.h>
-// /* TODO <objc/NSObjCRuntime.h not found?!?! */
-// /* TODO this HAS to be unsafe */
-// typedef unsigned long NSUInteger;
+// #include "objc_darwin.h"
 // /* avoid depending on Objective-C */
 // #include <CoreGraphics/CGGeometry.h>
 // /* cgo doesn't handle ... */
-// id objc_msgSend_noargs(id obj, SEL sel) { return objc_msgSend(obj, sel); }
-// id objc_msgSend_strarg(id obj, SEL sel, char *a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_NSRect_uint_uint_bool(id obj, SEL sel, CGRect a, NSUInteger b, NSUInteger c, BOOL d) { return objc_msgSend(obj, sel, a, b, c, d); }
-// id objc_msgSend_id(id obj, SEL sel, id a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_NSRect(id obj, SEL sel, CGRect a) { return objc_msgSend(obj, sel, a); }
-// id objc_msgSend_sel(id obj, SEL sel, SEL a) { return objc_msgSend(obj, sel, a); }
-// id objc_msgSend_uint(id obj, SEL sel, NSUInteger a) { return objc_msgSend(obj, sel, a); }
-// id objc_msgSend_id_sel_id_id(id obj, SEL sel, id a, SEL b, id c, id d) { return objc_msgSend(obj, sel, a, b, c, d); }
-// id objc_msgSend_id_id_id(id obj, SEL sel, id a, id b, id c) { return objc_msgSend(obj, sel, a, b, c); }
-// id objc_msgSend_id_id(id obj, SEL sel, id a, id b) { return objc_msgSend(obj, sel, a, b); }
-// id objc_msgSend_sel_id_bool(id obj, SEL sel, SEL a, id b, BOOL c) { return objc_msgSend(obj, sel, a, b, c); }
 // Class NilClass = Nil; /* for newtypes.go */
 // id Nilid = nil;
 import "C"
@@ -102,7 +88,7 @@ func notify(source string) {
 	pool := C.objc_msgSend_noargs(
 		objc_getClass("NSAutoreleasePool"),
 		sel_getUid("new"))
-	src := C.objc_msgSend_strarg(
+	src := C.objc_msgSend_str(
 		objc_getClass("NSString"),
 		sel_getUid("stringWithUTF8String:"),
 		csource)
@@ -178,7 +164,7 @@ func helloworld() {
 	NSString := objc_getClass("NSString")
 	stringWithUTF8String :=
 		sel_getUid("stringWithUTF8String:")
-	str := C.objc_msgSend_strarg(NSString,
+	str := C.objc_msgSend_str(NSString,
 		stringWithUTF8String,
 		_hello)
 	UTF8String := sel_getUid("UTF8String")

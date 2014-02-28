@@ -9,16 +9,11 @@ import (
 // #cgo CFLAGS: -Dqqq
 // #cgo LDFLAGS: -lobjc -framework Foundation
 // #include <stdlib.h>
-// #include <objc/message.h>
-// #include <objc/objc.h>
-// #include <objc/runtime.h>
+// #include "objc_darwin.h"
 // extern void windowShouldClose(id, SEL, id);
-// extern id objc_msgSend_id(id, SEL, id);
 // extern void buttonClicked(id, SEL, id);
 // extern void gotNotification(id, SEL, id);
-// extern id objc_msgSend_id_id_id(id, SEL, id, id, id);
 // /* cgo doesn't like nil or Nil */
-// extern id objc_msgSend_noargs(id, SEL);
 // extern Class NilClass; /* in runtimetest.go because of cgo limitations */
 // extern id Nilid;
 import "C"
