@@ -21,6 +21,7 @@ import (
 // id objc_msgSend_strarg(id obj, SEL sel, char *a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_NSRect_uint_uint_bool(id obj, SEL sel, CGRect a, NSUInteger b, NSUInteger c, BOOL d) { return objc_msgSend(obj, sel, a, b, c, d); }
 // id objc_msgSend_id(id obj, SEL sel, id a) { return objc_msgSend(obj, sel, a); }
+// Class NilClass = Nil; /* for newtypes.go */
 import "C"
 
 func objc_getClass(class string) C.id {
@@ -35,6 +36,12 @@ func sel_getUid(sel string) C.SEL {
 	defer C.free(unsafe.Pointer(csel))
 
 	return C.sel_getUid(csel)
+}
+
+func main() {
+	sel := sel_getUid("ourMethod")
+	C.objc_msgSend_noargs(mk("hello", sel),
+		sel)
 }
 
 const (
@@ -54,7 +61,7 @@ const (
 
 var alloc = sel_getUid("alloc")
 
-func main() {
+func wintest() {
 	NSWindow := objc_getClass("NSWindow")
 	NSWindowinit :=
 		sel_getUid("initWithContentRect:styleMask:backing:defer:")
