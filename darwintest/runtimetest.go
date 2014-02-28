@@ -21,6 +21,8 @@ import (
 // id objc_msgSend_strarg(id obj, SEL sel, char *a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_NSRect_uint_uint_bool(id obj, SEL sel, CGRect a, NSUInteger b, NSUInteger c, BOOL d) { return objc_msgSend(obj, sel, a, b, c, d); }
 // id objc_msgSend_id(id obj, SEL sel, id a) { return objc_msgSend(obj, sel, a); }
+// id objc_msgSend_NSRect(id obj, SEL sel, CGRect a) { return objc_msgSend(obj, sel, a); }
+// id objc_msgSend_sel(id obj, SEL sel, SEL a) { return objc_msgSend(obj, sel, a); }
 // Class NilClass = Nil; /* for newtypes.go */
 import "C"
 
@@ -46,8 +48,9 @@ func init() {
 	sharedApplication := sel_getUid("sharedApplication")
 	NSApp = C.objc_msgSend_noargs(NSApplication, sharedApplication)
 
-	sel := sel_getUid("windowShouldClose:")
-	mk("hello", sel)
+	selW := sel_getUid("windowShouldClose:")
+	selB := sel_getUid("buttonClicked:")
+	mk("hello", selW, selB)
 }
 
 const (
@@ -89,6 +92,27 @@ func main() {
 		alloc)
 	C.objc_msgSend_id(window, setDelegate,
 		delegate)
+	windowView := C.objc_msgSend_noargs(window,
+		sel_getUid("contentView"))
+
+	NSButton := objc_getClass("NSButton")
+	button := C.objc_msgSend_noargs(NSButton, alloc)
+	button = C.objc_msgSend_NSRect(button,
+		sel_getUid("initWithFrame:"),
+		C.CGRect{
+			origin:	C.CGPoint{20, 20},
+			size:		C.CGSize{200, 200},
+		})
+	C.objc_msgSend_id(button,
+		sel_getUid("setTarget:"),
+		delegate)
+	C.objc_msgSend_sel(button,
+		sel_getUid("setAction:"),
+		sel_getUid("buttonClicked:"))
+	C.objc_msgSend_id(windowView,
+		sel_getUid("addSubview:"),
+		button)
+
 	C.objc_msgSend_noargs(NSApp,
 		sel_getUid("run"))
 }

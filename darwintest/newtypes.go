@@ -14,6 +14,7 @@ import (
 // #include <objc/runtime.h>
 // extern void windowShouldClose(id, SEL, id);
 // extern id objc_msgSend_id(id, SEL, id);
+// extern void buttonClicked(id, SEL, id);
 // /* cgo doesn't like Nil */
 // extern Class NilClass; /* in runtimetest.go because of cgo limitations */
 import "C"
@@ -39,7 +40,12 @@ func windowShouldClose(self C.id, sel C.SEL, sender C.id) {
 		sender)
 }
 
-func addOurMethod(class C.Class, sel C.SEL) {
+//export buttonClicked
+func buttonClicked(self C.id, sel C.SEL, sender C.id) {
+	fmt.Println("button clicked")
+}
+
+func addOurMethod(class C.Class, sel C.SEL, imp C.IMP) {
 //	ty := []C.char{'v', '@', ':', 0}		// according to the example for class_addMethod()
 	ty := []C.char{'v', '@', ':', '@', 0}
 
@@ -48,17 +54,20 @@ func addOurMethod(class C.Class, sel C.SEL) {
 //	ok := C.class_addMethod(metaclass,
 	ok := C.class_addMethod(class,
 		sel,
-		// using &C.ourMethod causes faults for some reason
-		C.IMP(unsafe.Pointer(C.windowShouldClose)),
+		imp,
 		&ty[0])
 	if ok == C.BOOL(C.NO) {
 		panic("unable to add ourMethod")
 	}
 }
 
-func mk(name string, sel C.SEL) C.id {
+func mk(name string, selW C.SEL, selB C.SEL) C.id {
 	class := newClass(name)
-	addOurMethod(class, sel)
+	addOurMethod(class, selW,
+	// using &C.ourMethod causes faults for some reason
+		C.IMP(unsafe.Pointer(C.windowShouldClose)))
 	C.objc_registerClassPair(class)
+	addOurMethod(class, selB,
+		C.IMP(unsafe.Pointer(C.buttonClicked)))
 	return objc_getClass(name)
 }
