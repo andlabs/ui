@@ -28,6 +28,7 @@ import (
 // id objc_msgSend_id_sel_id_id(id obj, SEL sel, id a, SEL b, id c, id d) { return objc_msgSend(obj, sel, a, b, c, d); }
 // id objc_msgSend_id_id_id(id obj, SEL sel, id a, id b, id c) { return objc_msgSend(obj, sel, a, b, c); }
 // id objc_msgSend_id_id(id obj, SEL sel, id a, id b) { return objc_msgSend(obj, sel, a, b); }
+// id objc_msgSend_sel_id_bool(id obj, SEL sel, SEL a, id b, BOOL c) { return objc_msgSend(obj, sel, a, b, c); }
 // Class NilClass = Nil; /* for newtypes.go */
 // id Nilid = nil;
 import "C"
@@ -49,8 +50,7 @@ func sel_getUid(sel string) C.SEL {
 var NSApp C.id
 var defNC C.id
 var delegate C.id
-var note C.id
-var notekey C.id
+var notesel C.SEL
 
 func init() {
 	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
@@ -70,19 +70,7 @@ func init() {
 		objc_getClass("hello"),
 		alloc)
 
-	noteStr := []C.char{'g', 'o', 'n', 'o', 't', 'e', 0}
-	note = C.objc_msgSend_strarg(
-		objc_getClass("NSString"),
-		sel_getUid("stringWithUTF8String:"),
-		&noteStr[0])
-	notekey = note
-	C.objc_msgSend_id_sel_id_id(
-		defNC,
-		sel_getUid("addObserver:selector:name:object:"),
-		delegate,
-		selN,
-		note,
-		C.Nilid)
+	notesel = selN
 }
 
 const (
@@ -114,17 +102,12 @@ func notify(source string) {
 		objc_getClass("NSString"),
 		sel_getUid("stringWithUTF8String:"),
 		csource)
-	dict := C.objc_msgSend_id_id(
-		objc_getClass("NSDictionary"),
-		sel_getUid("dictionaryWithObject:forKey:"),
+	C.objc_msgSend_sel_id_bool(
+		delegate,
+		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:"),
+		notesel,
 		src,
-		notekey)
-	C.objc_msgSend_id_id_id(
-		defNC,
-		sel_getUid("postNotificationName:object:userInfo:"),
-		note,
-		C.Nilid,
-		dict)
+		C.BOOL(C.FALSE))		// don't wait; we're using a channel for this (in the final ui code)
 }
 
 func main() {

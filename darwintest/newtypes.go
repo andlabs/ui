@@ -51,14 +51,9 @@ func buttonClicked(self C.id, sel C.SEL, sender C.id) {
 }
 
 //export gotNotification
-func gotNotification(self C.id, sel C.SEL, note C.id) {
-	data := C.objc_msgSend_noargs(note,
-		sel_getUid("userInfo"))
-	val := C.objc_msgSend_id(data,
-		sel_getUid("objectForKey:"),
-		notekey)
+func gotNotification(self C.id, sel C.SEL, object C.id) {
 	source := (*C.char)(unsafe.Pointer(
-		C.objc_msgSend_noargs(val,
+		C.objc_msgSend_noargs(object,
 			sel_getUid("UTF8String"))))
 	fmt.Println("got notification from %s",
 		C.GoString(source))
