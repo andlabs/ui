@@ -15,8 +15,12 @@ import (
 // extern void windowShouldClose(id, SEL, id);
 // extern id objc_msgSend_id(id, SEL, id);
 // extern void buttonClicked(id, SEL, id);
-// /* cgo doesn't like Nil */
+// extern void gotNotification(id, SEL, id);
+// extern id objc_msgSend_id_id_id(id, SEL, id, id, id);
+// /* cgo doesn't like nil or Nil */
+// extern id objc_msgSend_noargs(id, SEL);
 // extern Class NilClass; /* in runtimetest.go because of cgo limitations */
+// extern id Nilid;
 import "C"
 
 var NSObject = C.object_getClass(objc_getClass("NSObject"))
@@ -42,7 +46,22 @@ func windowShouldClose(self C.id, sel C.SEL, sender C.id) {
 
 //export buttonClicked
 func buttonClicked(self C.id, sel C.SEL, sender C.id) {
-	fmt.Println("button clicked")
+	fmt.Println("button clicked; sending notification...")
+	notify("button")
+}
+
+//export gotNotification
+func gotNotification(self C.id, sel C.SEL, note C.id) {
+	data := C.objc_msgSend_noargs(note,
+		sel_getUid("userInfo"))
+	val := C.objc_msgSend_id(data,
+		sel_getUid("objectForKey:"),
+		notekey)
+	source := (*C.char)(unsafe.Pointer(
+		C.objc_msgSend_noargs(val,
+			sel_getUid("UTF8String"))))
+	fmt.Println("got notification from %s",
+		C.GoString(source))
 }
 
 func addOurMethod(class C.Class, sel C.SEL, imp C.IMP) {
@@ -61,7 +80,7 @@ func addOurMethod(class C.Class, sel C.SEL, imp C.IMP) {
 	}
 }
 
-func mk(name string, selW C.SEL, selB C.SEL) C.id {
+func mk(name string, selW C.SEL, selB C.SEL, selN C.SEL) C.id {
 	class := newClass(name)
 	addOurMethod(class, selW,
 	// using &C.ourMethod causes faults for some reason
@@ -69,5 +88,7 @@ func mk(name string, selW C.SEL, selB C.SEL) C.id {
 	C.objc_registerClassPair(class)
 	addOurMethod(class, selB,
 		C.IMP(unsafe.Pointer(C.buttonClicked)))
+	addOurMethod(class, selN,
+		C.IMP(unsafe.Pointer(C.gotNotification)))
 	return objc_getClass(name)
 }

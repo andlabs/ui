@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"unsafe"
+	"time"
 )
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -24,7 +25,11 @@ import (
 // id objc_msgSend_NSRect(id obj, SEL sel, CGRect a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_sel(id obj, SEL sel, SEL a) { return objc_msgSend(obj, sel, a); }
 // id objc_msgSend_uint(id obj, SEL sel, NSUInteger a) { return objc_msgSend(obj, sel, a); }
+// id objc_msgSend_id_sel_id_id(id obj, SEL sel, id a, SEL b, id c, id d) { return objc_msgSend(obj, sel, a, b, c, d); }
+// id objc_msgSend_id_id_id(id obj, SEL sel, id a, id b, id c) { return objc_msgSend(obj, sel, a, b, c); }
+// id objc_msgSend_id_id(id obj, SEL sel, id a, id b) { return objc_msgSend(obj, sel, a, b); }
 // Class NilClass = Nil; /* for newtypes.go */
+// id Nilid = nil;
 import "C"
 
 func objc_getClass(class string) C.id {
@@ -42,6 +47,10 @@ func sel_getUid(sel string) C.SEL {
 }
 
 var NSApp C.id
+var defNC C.id
+var delegate C.id
+var note C.id
+var notekey C.id
 
 func init() {
 	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
@@ -49,9 +58,31 @@ func init() {
 	sharedApplication := sel_getUid("sharedApplication")
 	NSApp = C.objc_msgSend_noargs(NSApplication, sharedApplication)
 
+	defNC = C.objc_msgSend_noargs(
+		objc_getClass("NSNotificationCenter"),
+		sel_getUid("defaultCenter"))
+
 	selW := sel_getUid("windowShouldClose:")
 	selB := sel_getUid("buttonClicked:")
-	mk("hello", selW, selB)
+	selN := sel_getUid("gotNotification:")
+	mk("hello", selW, selB, selN)
+	delegate = C.objc_msgSend_noargs(
+		objc_getClass("hello"),
+		alloc)
+
+	noteStr := []C.char{'g', 'o', 'n', 'o', 't', 'e', 0}
+	note = C.objc_msgSend_strarg(
+		objc_getClass("NSString"),
+		sel_getUid("stringWithUTF8String:"),
+		&noteStr[0])
+	notekey = note
+	C.objc_msgSend_id_sel_id_id(
+		defNC,
+		sel_getUid("addObserver:selector:name:object:"),
+		delegate,
+		selN,
+		note,
+		C.Nilid)
 }
 
 const (
@@ -75,6 +106,27 @@ const (
 
 var alloc = sel_getUid("alloc")
 
+func notify(source string) {
+	csource := C.CString(source)
+	defer C.free(unsafe.Pointer(csource))
+
+	src := C.objc_msgSend_strarg(
+		objc_getClass("NSString"),
+		sel_getUid("stringWithUTF8String:"),
+		csource)
+	dict := C.objc_msgSend_id_id(
+		objc_getClass("NSDictionary"),
+		sel_getUid("dictionaryWithObject:forKey:"),
+		src,
+		notekey)
+	C.objc_msgSend_id_id_id(
+		defNC,
+		sel_getUid("postNotificationName:object:userInfo:"),
+		note,
+		C.Nilid,
+		dict)
+}
+
 func main() {
 	NSWindow := objc_getClass("NSWindow")
 	NSWindowinit :=
@@ -92,9 +144,6 @@ func main() {
 	window := C.objc_msgSend_noargs(NSWindow, alloc)
 	window = C.objc_msgSend_NSRect_uint_uint_bool(window, NSWindowinit, rect, style, backing, deferx)
 	C.objc_msgSend_id(window, makeKeyAndOrderFront, window)
-	delegate := C.objc_msgSend_noargs(
-		objc_getClass("hello"),
-		alloc)
 	C.objc_msgSend_id(window, setDelegate,
 		delegate)
 	windowView := C.objc_msgSend_noargs(window,
@@ -120,6 +169,14 @@ func main() {
 	C.objc_msgSend_id(windowView,
 		sel_getUid("addSubview:"),
 		button)
+
+	go func() {
+		for {
+			<-time.After(5 * time.Second)
+			fmt.Println("five seconds passed; sending notification...")
+			notify("timer")
+		}
+	}()
 
 	C.objc_msgSend_noargs(NSApp,
 		sel_getUid("run"))
