@@ -82,6 +82,12 @@ func objc_msgSend_uint(obj C.id, sel C.SEL, a uintptr) C.id {
 	return C._objc_msgSend_uint(obj, sel, C.uintptr_t(a))
 }
 
+func objc_msgSend_rect_bool(obj C.id, sel C.SEL, x int, y int, w int, h int, b C.BOOL) C.id {
+	return C._objc_msgSend_rect_bool(obj, sel,
+		C.int64_t(x), C.int64_t(y), C.int64_t(w), C.int64_t(h),
+		b)
+}
+
 func objc_msgSend_rect_uint_uint_bool(obj C.id, sel C.SEL, x int, y int, w int, h int, b uintptr, c uintptr, d C.BOOL) C.id {
 	return C._objc_msgSend_rect_uint_uint_bool(obj, sel,
 		C.int64_t(x), C.int64_t(y), C.int64_t(w), C.int64_t(h),
