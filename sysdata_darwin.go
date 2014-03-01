@@ -4,6 +4,7 @@ package ui
 import (
 	"fmt"
 	"unsafe"
+	"sync"
 )
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -96,6 +97,29 @@ var classTypes = [nctypes]*classData{
 	},
 }
 
+// I need to access sysData from appDelegate, but appDelegate doesn't store any data. So, this.
+var (
+	sysdatas = make(map[C.id]*sysData)
+	sysdatalock sync.Mutex
+)
+
+func addSysData(key C.id, value *sysData) {
+	sysdatalock.Lock()
+	sysdatas[key] = value
+	sysdatalock.Unlock()
+}
+
+func getSysData(key C.id) *sysData {
+	sysdatalock.Lock()
+	defer sysdatalock.Unlock()
+
+	v, ok := sysdatas[key]
+	if !ok {
+		panic(fmt.Errorf("internal error: getSysData(%v) unknown", key))
+	}
+	return v
+}
+
 func (s *sysData) make(initText string, window *sysData) error {
 	var parentWindow C.id
 
@@ -117,6 +141,7 @@ func (s *sysData) make(initText string, window *sysData) error {
 	if err != nil {
 		return fmt.Errorf("error setting initial text of new window/control: %v", err)
 	}
+	addSysData(s.id, s)
 	return nil
 }
 
