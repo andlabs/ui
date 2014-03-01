@@ -25,6 +25,7 @@ so I don't forget:
 important things:
 - ui.Go() should exit when the main() you pass in exits
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
+- Cocoa coordinates have (0,0) at the bottom left: need to fix this somehow
 - Cocoa windows seem to ignore the minizeable flag and closing them always works (is the latter because I don't have a delegate yet?)
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
