@@ -16,9 +16,6 @@ The format should be self-explanatory.
 
 #include <stdint.h>
 
-/* TODO this HAS to be unsafe, but <objc/NSObjCRuntime.h> not found?! */
-typedef unsigned long NSUInteger;
-
 inline id objc_msgSend_noargs(id obj, SEL sel)
 {
 	return objc_msgSend(obj, sel);
