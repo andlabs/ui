@@ -13,23 +13,18 @@ import "C"
 
 var (
 	_NSApplication = objc_getClass("NSApplication")
-	_NSNotificationCenter = objc_getClass("NSNotificationCenter")
 
 	_sharedApplication = sel_getUid("sharedApplication")
-	_defaultCenter = sel_getUid("defaultCenter")
 	_run = sel_getUid("run")
 )
 
 var NSApp C.id
-var defNC C.id
 var delegate C.id
 var notesel C.SEL
 
 func init() {
 	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
 	NSApp = C.objc_msgSend_noargs(_NSApplication, _sharedApplication)
-
-	defNC = C.objc_msgSend_noargs(_NSNotificationCenter, _defaultCenter)
 
 	selW := sel_getUid("windowShouldClose:")
 	selB := sel_getUid("buttonClicked:")
