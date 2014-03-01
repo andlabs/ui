@@ -87,6 +87,11 @@ func initCocoa() (NSApp C.id, appDelegate C.id, err error) {
 	var appdelegateclass C.Class
 
 	NSApp = C.objc_msgSend_noargs(_NSApplication, _sharedApplication)
+	appdelegateclass, err = makeDelegateClass(_goAppDelegate)
+	if err != nil {
+		err = fmt.Errorf("error creating NSApplication delegate: %v", err)
+		return
+	}
 	err = addDelegateMethod(appdelegateclass, _uitask, C.appDelegate_uitask)
 	if err != nil {
 		err = fmt.Errorf("error adding NSApplication delegate uitask: method (to do UI tasks): %v", err)
