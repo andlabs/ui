@@ -97,7 +97,7 @@ func mainThread() {
 		return
 	}
 	appDelegate := objc_new(objc_getClass(_goAppDelegate))
-	C.objc_msgSend_id(_NSApp, _setDelegate, appDelegate)
+	objc_setDelegate(_NSApp, appDelegate)
 	// and that's it, really
 	C.objc_msgSend_noargs(_NSApp, _run)
 }
