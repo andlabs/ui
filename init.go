@@ -1,20 +1,11 @@
 // 11 february 2014
 package ui
 
-import (
-	"os"
-)
-
-func init() {
-	initDone := make(chan error)
-	go ui(initDone)
-	err := <-initDone
-	if err != nil {
-		// TODO provide copying instructions? will need to be system-specific
-		MsgBoxError("UI Library Init Failure",
-			"A failure occured during UI library initialization:\n%v\n" +
-			"Please report this to the application developer or on http://github.com/andlabs/ui.",
-			err)
-		os.Exit(1)
-	}
+// Go sets up the UI environment and runs main in a goroutine.
+// If initialization fails, Go returns an error.
+// Otherwise, Go does not return to its caller until (unless? TODO) the application loop exits, at which point it returns nil.
+//
+// This model is undesirable, but Cocoa limitations require it.
+func Go(main func()) error {
+	return ui(main)
 }

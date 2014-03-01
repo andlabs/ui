@@ -1,9 +1,9 @@
 // 11 february 2014
-package ui
+package main
 
 import (
 	"fmt"
-	"testing"
+	. ".."
 )
 
 func gridWindow() (*Window, error) {
@@ -25,7 +25,7 @@ func gridWindow() (*Window, error) {
 	return w, w.Open(g)
 }
 
-func TestMain(t *testing.T) {
+func myMain() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = Event()
 	b := NewButton("Click Me")
@@ -118,4 +118,11 @@ mainloop:
 	}
 	gw.Hide()
 	w.Hide()
+}
+
+func main() {
+	err := Go(myMain)
+	if err != nil {
+		panic(err)
+	}
 }

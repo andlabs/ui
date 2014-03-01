@@ -10,15 +10,13 @@ import (
 
 var uitask chan func()
 
-func ui(initDone chan error) {
+func ui(main func()) error {
 	runtime.LockOSThread()
 
 	uitask = make(chan func())
 	if gtk_init() != true {
-		initDone <- fmt.Errorf("gtk_init failed (reason unknown; TODO)")
-		return
+		return fmt.Errorf("gtk_init failed (reason unknown; TODO)")
 	}
-	initDone <- nil
 
 	// thanks to tristan in irc.gimp.net/#gtk
 	gdk_threads_add_idle(func() bool {
@@ -29,5 +27,9 @@ func ui(initDone chan error) {
 		}
 		return true	// don't destroy the callback
 	})
+
+	go main()
+
 	gtk_main()
+	return nil
 }

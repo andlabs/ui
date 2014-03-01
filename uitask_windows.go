@@ -35,16 +35,21 @@ var (
 	_postThreadMessage = user32.NewProc("PostThreadMessageW")
 )
 
-func ui(initDone chan error) {
+func ui(main func()) error {
 	runtime.LockOSThread()
 
 	uitask = make(chan *uimsg)
-	initDone <- doWindowsInit()
+	err := doWindowsInit()
+	if err != nil {
+		return err
+	}
 
 	threadIDReq := make(chan uintptr)
 	msglooperrs := make(chan error)
 	go msgloop(threadIDReq, msglooperrs)
 	threadID := <-threadIDReq
+
+	go main()
 
 	quit := false
 	for !quit {
@@ -66,6 +71,8 @@ func ui(initDone chan error) {
 			}
 		}
 	}
+
+	return nil
 }
 
 var (
