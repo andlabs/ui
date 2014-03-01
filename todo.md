@@ -23,6 +23,8 @@ so I don't forget:
 	- ensure MsgBoxError can run if initialization failed if things change ever
 
 important things:
+- ui.Go() should exit when the main() you pass in exits
+- because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins
@@ -55,11 +57,4 @@ far off:
 maybe:
 - rename Stack to Box?
 - make Combobox and Listbox satisfy sort.Interface?
-- this:
-```
-[16:27] <cespare> pietro10: depends what you mean by safe
-[16:27] <cespare> pietro10: sounds like you should move this functionality into a function though.
-[16:28] <cespare> (so the user can decide what to do with the error)
-[16:28] <cespare> typically people don't like their libraries calling exit :)
-```
 - indeterminate progress bars (not supported on Windows 2000)
