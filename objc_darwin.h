@@ -21,6 +21,15 @@ inline id objc_msgSend_noargs(id obj, SEL sel)
 	return objc_msgSend(obj, sel);
 }
 
+struct xrect {
+	int64_t x;
+	int64_t y;
+	int64_t width;
+	int64_t height;
+};
+
+extern struct xrect objc_msgSend_stret_rect_noargs(id obj, SEL sel);
+
 struct xsize {
 	int64_t width;
 	int64_t height;

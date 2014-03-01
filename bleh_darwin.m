@@ -29,6 +29,20 @@ These are the objc_msgSend() wrappers around NSRect. The problem is that while o
 I use int64_t for maximum safety, as my coordinates are stored as Go ints and Go int -> C int (which is what is documented as happening) isn't reliable.
 */
 
+struct xrect objc_msgSend_stret_rect_noargs(id obj, SEL sel)
+{
+	NSRect s;
+	struct xrect t;
+
+	objc_msgSend_stret(&s, obj, sel);
+	t.x = (int64_t) s.origin.x;
+	t.y = (int64_t) s.origin.y;
+	t.width = (int64_t) s.size.width;
+	t.height = (int64_t) s.size.height;
+	return t;
+}
+
+
 #define OurRect() (NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) w, (CGFloat) h))
 
 id _objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h)
