@@ -14,6 +14,8 @@ The format should be self-explanatory.
 #include <objc/objc.h>
 #include <objc/runtime.h>
 
+#include <stdint.h>
+
 /* TODO this HAS to be unsafe, but <objc/NSObjCRuntime.h> not found?! */
 typedef unsigned long NSUInteger;
 
@@ -48,14 +50,14 @@ inline id objc_msgSend_noargs(id obj, SEL sel)
 
 m1(str, char *)		/* TODO Go string? */
 m1(id, id)
-/* TODO NSRect */
+extern id _objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h);
 m1(sel, SEL)
-m1(uint, NSUInteger)
+extern id _objc_msgSend_uint(id obj, SEL sel, uintptr_t a);
 
 m2(id_id, id, id)
 
 m3(id_id_id, id, id, id)
 m3(sel_id_bool, SEL, id, BOOL)
 
-/* TODO NSRect */
+extern id _objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, uintptr_t b, uintptr_t c, BOOL d);
 m4(id_sel_id_id, id, SEL, id, id)

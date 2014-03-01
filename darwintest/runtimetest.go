@@ -10,11 +10,6 @@ import (
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
-// /* avoid depending on Objective-C */
-// #include <CoreGraphics/CGGeometry.h>
-// /* cgo doesn't handle ... */
-// id objc_msgSend_NSRect_uint_uint_bool(id obj, SEL sel, CGRect a, NSUInteger b, NSUInteger c, BOOL d) { return objc_msgSend(obj, sel, a, b, c, d); }
-// id objc_msgSend_NSRect(id obj, SEL sel, CGRect a) { return objc_msgSend(obj, sel, a); }
 // Class NilClass = Nil; /* for newtypes.go */
 // id Nilid = nil;
 import "C"
@@ -97,7 +92,7 @@ func notify(source string) {
 		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:"),
 		notesel,
 		src,
-		C.BOOL(C.TRUE))		// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
+		C.BOOL(C.YES))			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
 	C.objc_msgSend_noargs(pool,
 		sel_getUid("release"))
 }
@@ -109,15 +104,13 @@ func main() {
 	setDelegate := sel_getUid("setDelegate:")
 	makeKeyAndOrderFront := sel_getUid("makeKeyAndOrderFront:")
 
-	rect := C.CGRect{
-		origin:	C.CGPoint{100, 100},
-		size:		C.CGSize{320, 240},
-	}
-	style := C.NSUInteger(NSTitledWindowMask | NSClosableWindowMask)
-	backing := C.NSUInteger(NSBackingStoreBuffered)
+	style := uintptr(NSTitledWindowMask | NSClosableWindowMask)
+	backing := uintptr(NSBackingStoreBuffered)
 	deferx := C.BOOL(C.YES)
 	window := C.objc_msgSend_noargs(NSWindow, alloc)
-	window = C.objc_msgSend_NSRect_uint_uint_bool(window, NSWindowinit, rect, style, backing, deferx)
+	window = objc_msgSend_rect_uint_uint_bool(window, NSWindowinit,
+		100, 100, 320, 240,
+		style, backing, deferx)
 	C.objc_msgSend_id(window, makeKeyAndOrderFront, window)
 	C.objc_msgSend_id(window, setDelegate,
 		delegate)
@@ -126,21 +119,18 @@ func main() {
 
 	NSButton := objc_getClass("NSButton")
 	button := C.objc_msgSend_noargs(NSButton, alloc)
-	button = C.objc_msgSend_NSRect(button,
+	button = objc_msgSend_rect(button,
 		sel_getUid("initWithFrame:"),
-		C.CGRect{
-			origin:	C.CGPoint{20, 20},
-			size:		C.CGSize{200, 200},
-		})
+		20, 20, 200, 200)
 	C.objc_msgSend_id(button,
 		sel_getUid("setTarget:"),
 		delegate)
 	C.objc_msgSend_sel(button,
 		sel_getUid("setAction:"),
 		sel_getUid("buttonClicked:"))
-	C.objc_msgSend_uint(button,
+	objc_msgSend_uint(button,
 		sel_getUid("setBezelStyle:"),
-		C.NSUInteger(NSRoundedBezelStyle))
+		NSRoundedBezelStyle)
 	C.objc_msgSend_id(windowView,
 		sel_getUid("addSubview:"),
 		button)
