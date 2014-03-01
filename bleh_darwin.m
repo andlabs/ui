@@ -31,7 +31,7 @@ I use int64_t for maximum safety, as my coordinates are stored as Go ints and Go
 */
 
 /*
-This is not documented in the docs, but is in various places on apple.com. In fact, the docs are actually WRONG: they imply you pass a pointer to the structure as the first argument to objc_msgSend_stret! And there might be some cases where we can't use stret because the struct is small enough... we'll see. (TODO)
+This is not documented in the docs, but is in various places on apple.com. In fact, the docs are actually WRONG: they say you pass a pointer to the structure as the first argument to objc_msgSend_stret()! And there might be some cases where we can't use stret because the struct is small enough... we'll see. (TODO)
 */
 static NSRect (*objc_msgSend_stret_rect)(id, SEL, ...) =
 	(NSRect (*)(id, SEL, ...)) objc_msgSend_stret;
