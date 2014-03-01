@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -16,9 +17,9 @@ type sysData struct {
 }
 
 type classData struct {
-	make:		func(parentWindow C.id) C.id
-	show:		func(what C.id)
-	hide:			func(what C.id)
+	make		func(parentWindow C.id) C.id
+	show		func(what C.id)
+	hide			func(what C.id)
 	settextsel		C.SEL
 	textsel		C.SEL
 }
@@ -70,10 +71,10 @@ var classTypes = [nctypes]*classData{
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 		},
 		show:		func(what C.id) {
-			C.objc_sendMsg_id(what, _makeKeyAndOrderFront, what)
+			C.objc_msgSend_id(what, _makeKeyAndOrderFront, what)
 		},
 		hide:			func(what C.id) {
-			C.objc_sendMsg_id(what, _orderOut, what)
+			C.objc_msgSend_id(what, _orderOut, what)
 		},
 		settextsel:		_setTitle,
 		textsel:		_title,
@@ -157,13 +158,12 @@ if classTypes[s.ctype].settextsel == zero { return nil }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
 if classTypes[s.ctype].make == nil { return nil }
-	C.objc_msgSend_rect(s.id, _setFrame,
-		C.int64_t(x), C.int64_t(y), C.int64_t(width), C.int64_t(height))
+	objc_msgSend_rect(s.id, _setFrame, x, y, width, height)
 	return nil
 }
 
 func (s *sysData) isChecked() bool {
-if classTypes[s.ctype].make == nil { return nil }
+if classTypes[s.ctype].make == nil { return false }
 	const (
 		NSOnState = 1
 	)
@@ -179,7 +179,7 @@ if classTypes[s.ctype].make == nil { return nil }
 
 func (s *sysData) text() string {
 var zero C.SEL
-if classTypes[s.ctype].textsel == zero { return nil }
+if classTypes[s.ctype].textsel == zero { return "" }
 	ret := make(chan string)
 	defer close(ret)
 	uitask <- func() {
@@ -201,7 +201,7 @@ func (s *sysData) insertBefore(what string, before int) error {
 
 func (s *sysData) selectedIndex() int {
 	// TODO
-	reteurn -1
+	return -1
 }
 
 func (s *sysData) selectedIndices() []int {
@@ -214,12 +214,13 @@ func (s *sysData) selectedTexts() []string {
 	return nil
 }
 
-func (s *sysData) setWindowSize(x int, y int, width int, height int) error {
+func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
+		// we need to get the top left point
 		objc_msgSend_rect_bool(s.id, _setFrameDisplay,
-			x, y, w, h,
+			x, y, width, height,
 			C.BOOL(C.YES))		// TODO set to NO to prevent subviews from being redrawn before they are resized?
 		ret <- struct{}{}
 	}

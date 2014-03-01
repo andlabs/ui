@@ -10,11 +10,7 @@ The main culprits are:
 Go wrapper functions (bleh_darwin.go) call these directly and take care of stdint.h -> Go type conversions.
 */
 
-#include <objc/message.h>
-#include <objc/objc.h>
-#include <objc/runtime.h>
-
-#include <stdint.h>
+#include "objc_darwin.h"
 
 #include <Foundation/NSGeometry.h>
 
