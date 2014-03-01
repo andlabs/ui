@@ -100,7 +100,9 @@ func mainThread() {
 		mtret <- fmt.Errorf("error adding NSApplication delegate uitask: method (to do UI tasks): %v", err)
 		return
 	}
-	appDelegate := objc_new(objc_getClass(_goAppDelegate))
+	// TODO using objc_new() causes a segfault; find out why
+	// TODO make alloc followed by init (I thought NSObject provided its own init?)
+	appDelegate := objc_alloc(objc_getClass(_goAppDelegate))
 	objc_setDelegate(_NSApp, appDelegate)
 	// and that's it, really
 	C.objc_msgSend_noargs(_NSApp, _run)
