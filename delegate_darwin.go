@@ -19,6 +19,7 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 // #include "objc_darwin.h"
 // extern void appDelegate_uitask(id, SEL, id);		/* from uitask_darwin.go */
 // extern BOOL appDelegate_windowShouldClose(id, SEL, id);
+// extern void appDelegate_windowDidResize(id, SEL, id);
 import "C"
 
 var (
@@ -32,6 +33,7 @@ const (
 var (
 	_uitask = sel_getUid("uitask:")
 	_windowShouldClose = sel_getUid("windowShouldClose:")
+	_windowDidResize = sel_getUid("windowDidResize:")
 )
 
 func mkAppDelegate() error {
@@ -49,6 +51,11 @@ func mkAppDelegate() error {
 	if err != nil {
 		return fmt.Errorf("error adding NSApplication delegate windowShouldClose: method (to handle window close button events): %v", err)
 	}
+	err = addDelegateMethod(appdelegateclass, _windowDidResize,
+		C.appDelegate_windowDidResize, delegate_void)
+	if err != nil {
+		return fmt.Errorf("error adding NSApplication delegate windowDidResize: method (to handle window resize events): %v", err)
+	}
 	// TODO using objc_new() causes a segfault; find out why
 	// TODO make alloc followed by init (I thought NSObject provided its own init?)
 	appDelegate = objc_alloc(objc_getClass(_goAppDelegate))
@@ -60,6 +67,23 @@ func appDelegate_windowShouldClose(self C.id, sel C.SEL, win C.id) C.BOOL {
 	sysData := getSysData(win)
 	sysData.signal()
 	return C.BOOL(C.NO)		// don't close
+}
+
+var (
+	_object = sel_getUid("object")
+)
+
+//export appDelegate_windowDidResize
+func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
+	win := C.objc_msgSend_noargs(notification, _object)
+	sysData := getSysData(win)
+	r := C.objc_msgSend_stret_rect_noargs(win, _frame)
+	if sysData.resize != nil {
+		err := sysData.resize(int(r.x), int(r.y), int(r.width), int(r.height))
+		if err != nil {
+			panic("child resize failed: " + err.Error())
+		}
+	}
 }
 
 // this actually constructs the delegate class

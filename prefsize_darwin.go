@@ -15,6 +15,7 @@ var (
 )
 
 func (s *sysData) preferredSize() (width int, height int) {
+if classTypes[s.ctype].make == nil { return 0, 0 }	// prevent lockup during window resize
 	cell := C.objc_msgSend_noargs(s.id, _cell)
 	cs := C.objc_msgSend_stret_size_noargs(cell, _cellSize)
 	return int(cs.width), int(cs.height)
