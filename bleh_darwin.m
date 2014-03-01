@@ -44,3 +44,18 @@ id _objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int6
 {
 	return objc_msgSend(obj, sel, OurRect(), (NSUInteger) b, (NSUInteger) c, d);
 }
+
+/*
+Same as NSRect above, but for NSSize now.
+*/
+
+struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
+{
+	NSSize s;
+	struct xsize t;
+
+	objc_msgSend_stret(&s, obj, sel);
+	t.width = (int64_t) s.width;
+	t.height = (int64_t) s.height;
+	return t;
+}

@@ -21,6 +21,13 @@ inline id objc_msgSend_noargs(id obj, SEL sel)
 	return objc_msgSend(obj, sel);
 }
 
+struct xsize {
+	int64_t width;
+	int64_t height;
+};
+
+extern struct xsize objc_msgsSend_stret_size_noargs(id obj, SEL sel);
+
 #define m1(name, type1) \
 	inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a) \
 	{ \
