@@ -17,13 +17,13 @@ var (
 	_NSObject_Class = C.object_getClass(_NSObject)
 )
 
-func newDelegateClass(name string) (C.Class, error) {
+func makeDelegateClass(name string) (C.Class, error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
 	c := C.objc_allocateClassPair(_NSObject_Class, cname, 0)
 	if c == C.NilClass {
-		return fmt.Errorf("unable to create Objective-C class %s; reason unknown", name)
+		return C.NilClass, fmt.Errorf("unable to create Objective-C class %s; reason unknown", name)
 	}
 	C.objc_registerClassPair(c)
 	return c, nil

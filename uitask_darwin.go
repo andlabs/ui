@@ -21,6 +21,10 @@ We will create an Objective-C class goAppDelegate. It contains two methods:
 // extern void appDelegate_uitask(id, SEL, id);
 import "C"
 
+// temporary for now
+func msgBox(string, string){}
+func msgBoxError(string, string){}
+
 var uitask chan func()
 
 var mtret chan interface{}
@@ -43,7 +47,7 @@ func ui(initDone chan error) {
 	mtret = make(chan interface{})
 	go mainThread()
 	v := <-mtret
-	if err, ok := v.(error); err {
+	if err, ok := v.(error); ok {
 		initDone <- fmt.Errorf("error initializing Cocoa: %v", err)
 		return
 	}
