@@ -10,11 +10,18 @@ Furthermore, Objective-C selectors work by basically sending the arguments to ob
 The format should be self-explanatory.
 */
 
+/* for some reason I now have to use an include guard after commit [master 9b4e30c] ("Started to build a single global delegate object; now to fix issues.") */
+#ifndef _OBJC_DARWIN_H_
+#define _OBJC_DARWIN_H_
+
 #include <objc/message.h>
 #include <objc/objc.h>
 #include <objc/runtime.h>
 
 #include <stdint.h>
+
+/* for delegate_darwin.go */
+extern Class NilClass;
 
 inline id objc_msgSend_noargs(id obj, SEL sel)
 {
@@ -77,3 +84,5 @@ m3(sel_id_bool, SEL, id, BOOL)
 
 extern id _objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, uintptr_t b, uintptr_t c, BOOL d);
 m4(id_sel_id_id, id, SEL, id, id)
+
+#endif

@@ -19,8 +19,6 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 // #include "objc_darwin.h"
 // extern void appDelegate_uitask(id, SEL, id);		/* from uitask_darwin.go */
 // extern BOOL appDelegate_windowShouldClose(id, SEL, id);
-// /* because cgo doesn't like Nil */
-// static Class NilClass = Nil;
 import "C"
 
 var (
@@ -37,9 +35,7 @@ var (
 )
 
 func mkAppDelegate() error {
-	var appdelegateclass C.Class
-
-	appdelegateclass, err = makeDelegateClass(_goAppDelegate)
+	appdelegateclass, err := makeDelegateClass(_goAppDelegate)
 	if err != nil {
 		return fmt.Errorf("error creating NSApplication delegate: %v", err)
 	}

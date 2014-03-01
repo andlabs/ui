@@ -15,6 +15,9 @@ Go wrapper functions (bleh_darwin.go) call these directly and take care of stdin
 
 #include <Foundation/NSGeometry.h>
 
+/* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
+Class NilClass = Nil;
+
 /*
 NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, I'll just place things here for maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
 */
