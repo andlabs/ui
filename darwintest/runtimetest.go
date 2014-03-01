@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"unsafe"
 	"time"
 )
 
@@ -14,19 +13,14 @@ import (
 // id Nilid = nil;
 import "C"
 
-func objc_getClass(class string) C.id {
-	cclass := C.CString(class)
-	defer C.free(unsafe.Pointer(cclass))
+var (
+	_NSApplication = objc_getClass("NSApplication")
+	_NSNotificationCenter = objc_getClass("NSNotificationCenter")
 
-	return C.objc_getClass(cclass)
-}
-
-func sel_getUid(sel string) C.SEL {
-	csel := C.CString(sel)
-	defer C.free(unsafe.Pointer(csel))
-
-	return C.sel_getUid(csel)
-}
+	_sharedApplication = sel_getUid("sharedApplication")
+	_defaultCenter = sel_getUid("defaultCenter")
+	_run = sel_getUid("run")
+)
 
 var NSApp C.id
 var defNC C.id
@@ -35,21 +29,15 @@ var notesel C.SEL
 
 func init() {
 	// need an NSApplication first - see https://github.com/TooTallNate/NodObjC/issues/21
-	NSApplication := objc_getClass("NSApplication")
-	sharedApplication := sel_getUid("sharedApplication")
-	NSApp = C.objc_msgSend_noargs(NSApplication, sharedApplication)
+	NSApp = C.objc_msgSend_noargs(_NSApplication, _sharedApplication)
 
-	defNC = C.objc_msgSend_noargs(
-		objc_getClass("NSNotificationCenter"),
-		sel_getUid("defaultCenter"))
+	defNC = C.objc_msgSend_noargs(_NSNotificationCenter, _defaultCenter)
 
 	selW := sel_getUid("windowShouldClose:")
 	selB := sel_getUid("buttonClicked:")
 	selN := sel_getUid("gotNotification:")
 	mk("hello", selW, selB, selN)
-	delegate = C.objc_msgSend_noargs(
-		objc_getClass("hello"),
-		alloc)
+	delegate = objc_alloc(objc_getClass("hello"))
 
 	notesel = selN
 }
@@ -71,69 +59,67 @@ const (
 
 const (
 	NSRoundedBezelStyle = 1
+	// TODO copy in the rest?
 )
 
-var alloc = sel_getUid("alloc")
+var (
+	_NSAutoreleasePool = objc_getClass("NSAutoreleasePool")
+
+	_performSelectorOnMainThread =
+		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:")
+)
 
 func notify(source string) {
-	csource := C.CString(source)
-	defer C.free(unsafe.Pointer(csource))
-
 	// we need to make an NSAutoreleasePool, otherwise we get leak warnings on stderr
-	pool := C.objc_msgSend_noargs(
-		objc_getClass("NSAutoreleasePool"),
-		sel_getUid("new"))
-	src := C.objc_msgSend_str(
-		objc_getClass("NSString"),
-		sel_getUid("stringWithUTF8String:"),
-		csource)
+	pool := objc_new(_NSAutoreleasePool)
+	src := toNSString(source)
 	C.objc_msgSend_sel_id_bool(
 		delegate,
-		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:"),
+		_performSelectorOnMainThread,
 		notesel,
 		src,
 		C.BOOL(C.YES))			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
-	C.objc_msgSend_noargs(pool,
-		sel_getUid("release"))
+	objc_release(pool)
 }
 
-func main() {
-	NSWindow := objc_getClass("NSWindow")
-	NSWindowinit :=
-		sel_getUid("initWithContentRect:styleMask:backing:defer:")
-	setDelegate := sel_getUid("setDelegate:")
-	makeKeyAndOrderFront := sel_getUid("makeKeyAndOrderFront:")
+var (
+	_NSWindow = objc_getClass("NSWindow")
+	_NSButton = objc_getClass("NSButton")
 
+	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
+	_setDelegate = sel_getUid("setDelegate:")
+	_makeKeyAndOrderFront = sel_getUid("makeKeyAndOrderFront:")
+	_contentView = sel_getUid("contentView")
+	_initWithFrame = sel_getUid("initWithFrame:")
+	_setTarget = sel_getUid("setTarget:")
+	_setAction = sel_getUid("setAction:")
+	_setBezelStyle = sel_getUid("setBezelStyle:")
+	_addSubview = sel_getUid("addSubview:")
+)
+
+func main() {
 	style := uintptr(NSTitledWindowMask | NSClosableWindowMask)
 	backing := uintptr(NSBackingStoreBuffered)
 	deferx := C.BOOL(C.YES)
-	window := C.objc_msgSend_noargs(NSWindow, alloc)
-	window = objc_msgSend_rect_uint_uint_bool(window, NSWindowinit,
+	window := objc_alloc(_NSWindow)
+	window = objc_msgSend_rect_uint_uint_bool(window,
+		_initWithContentRect,
 		100, 100, 320, 240,
 		style, backing, deferx)
-	C.objc_msgSend_id(window, makeKeyAndOrderFront, window)
-	C.objc_msgSend_id(window, setDelegate,
-		delegate)
-	windowView := C.objc_msgSend_noargs(window,
-		sel_getUid("contentView"))
+	C.objc_msgSend_id(window, _makeKeyAndOrderFront, window)
+	C.objc_msgSend_id(window, _setDelegate, delegate)
+	windowView := C.objc_msgSend_noargs(window, _contentView)
 
-	NSButton := objc_getClass("NSButton")
-	button := C.objc_msgSend_noargs(NSButton, alloc)
+	button := objc_alloc(_NSButton)
 	button = objc_msgSend_rect(button,
-		sel_getUid("initWithFrame:"),
+		_initWithFrame,
 		20, 20, 200, 200)
-	C.objc_msgSend_id(button,
-		sel_getUid("setTarget:"),
-		delegate)
+	C.objc_msgSend_id(button, _setTarget, delegate)
 	C.objc_msgSend_sel(button,
-		sel_getUid("setAction:"),
+		_setAction,
 		sel_getUid("buttonClicked:"))
-	objc_msgSend_uint(button,
-		sel_getUid("setBezelStyle:"),
-		NSRoundedBezelStyle)
-	C.objc_msgSend_id(windowView,
-		sel_getUid("addSubview:"),
-		button)
+	objc_msgSend_uint(button, _setBezelStyle, NSRoundedBezelStyle)
+	C.objc_msgSend_id(windowView, _addSubview, button)
 
 	go func() {
 		for {
@@ -143,23 +129,5 @@ func main() {
 		}
 	}()
 
-	C.objc_msgSend_noargs(NSApp,
-		sel_getUid("run"))
-}
-
-func helloworld() {
-	_hello := C.CString("hello, world\n")
-	defer C.free(unsafe.Pointer(_hello))
-
-	NSString := objc_getClass("NSString")
-	stringWithUTF8String :=
-		sel_getUid("stringWithUTF8String:")
-	str := C.objc_msgSend_str(NSString,
-		stringWithUTF8String,
-		_hello)
-	UTF8String := sel_getUid("UTF8String")
-	res := C.objc_msgSend_noargs(str,
-			UTF8String)
-	cres := (*C.char)(unsafe.Pointer(res))
-	fmt.Printf("%s", C.GoString(cres))
+	C.objc_msgSend_noargs(NSApp, _run)
 }
