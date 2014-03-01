@@ -27,6 +27,7 @@ important things:
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
+- make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 
 super ultra important things:
 - for some reason events are now delayed on windows
