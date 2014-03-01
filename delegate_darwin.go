@@ -10,7 +10,7 @@ import (
 This creates a class goAppDelegate that will be used as the delegate for /everything/. Specifically, it:
 	- runs uitask requests (uitask:)
 	- handles window close events (windowShouldClose:)
-	- handles window resize events (xxxx:)
+	- handles window resize events (windowDidResize: (TODO also windowDidEndLiveResize:?))
 	- handles button click events (buttonClick:)
 */
 
@@ -82,7 +82,7 @@ func makeDelegateClass(name string) (C.Class, error) {
 
 var (
 	delegate_void = []C.char{'v', '@', ':', '@', 0}		// void (*)(id, SEL, id)
-	delegate_bool = []C.char{'#', '@', ':', '@', 0}		// BOOL (*)(id, SEL, id)
+	delegate_bool = []C.char{'c', '@', ':', '@', 0}		// BOOL (*)(id, SEL, id)
 )
 
 // according to errors spit out by cgo, C function pointers are unsafe.Pointer

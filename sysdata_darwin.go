@@ -65,12 +65,14 @@ var classTypes = [nctypes]*classData{
 
 			// we have to specify a content rect to start; it will be overridden soon though
 			win := objc_alloc(_NSWindow)
-			return objc_msgSend_rect_uint_uint_bool(win,
+			win = objc_msgSend_rect_uint_uint_bool(win,
 				_initWithContentRect,
 				0, 0, 100, 100,
 				NSTitledWindowMask | NSClosableWindowMask | NSClosableWindowMask | NSResizableWindowMask,
 				2,					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
 				C.BOOL(C.YES))			// defer creation of device until we show the window
+			objc_setDelegate(win, appDelegate)
+			return win
 		},
 		show:		func(what C.id) {
 			C.objc_msgSend_id(what, _makeKeyAndOrderFront, what)
