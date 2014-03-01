@@ -38,7 +38,7 @@ var (
 	_title = sel_getUid("title")
 	_stringValue = sel_getUid("stringValue")
 	// TODO others
-	_frame = sel_getUid("_frame")
+	_frame = sel_getUid("frame")
 	_setFrameDisplay = sel_getUid("setFrame:display:")
 )
 
