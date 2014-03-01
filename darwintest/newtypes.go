@@ -13,30 +13,34 @@ import (
 // extern void windowShouldClose(id, SEL, id);
 // extern void buttonClicked(id, SEL, id);
 // extern void gotNotification(id, SEL, id);
-// /* cgo doesn't like nil or Nil */
-// extern Class NilClass; /* in runtimetest.go because of cgo limitations */
-// extern id Nilid;
+// /* because cgo doesn't like Nil */
+// extern Class NilClass;		/* defined in runtimetest.go due to cgo limitations */
 import "C"
 
-var NSObject = C.object_getClass(objc_getClass("NSObject"))
+var (
+	_NSObject_Class = C.object_getClass(_NSObject)
+)
 
 func newClass(name string) C.Class {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
-	c := C.objc_allocateClassPair(NSObject, cname, 0)
+	c := C.objc_allocateClassPair(_NSObject_Class, cname, 0)
 	if c == C.NilClass {
 		panic("unable to create Objective-C class " + name)
 	}
 	return c
 }
 
+// TODO move these around later
+var (
+	_stop = sel_getUid("stop:")
+)
+
 //export windowShouldClose
 func windowShouldClose(self C.id, sel C.SEL, sender C.id) {
 	fmt.Println("-[hello windowShouldClose:]")
-	C.objc_msgSend_id(NSApp,
-		sel_getUid("stop:"),
-		sender)
+	C.objc_msgSend_id(NSApp, _stop, sender)
 }
 
 //export buttonClicked
@@ -47,11 +51,7 @@ func buttonClicked(self C.id, sel C.SEL, sender C.id) {
 
 //export gotNotification
 func gotNotification(self C.id, sel C.SEL, object C.id) {
-	source := (*C.char)(unsafe.Pointer(
-		C.objc_msgSend_noargs(object,
-			sel_getUid("UTF8String"))))
-	fmt.Println("got notification from %s",
-		C.GoString(source))
+	fmt.Printf("got notification from %s\n", fromNSString(object))
 }
 
 func addOurMethod(class C.Class, sel C.SEL, imp C.IMP) {

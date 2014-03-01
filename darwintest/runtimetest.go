@@ -9,8 +9,7 @@ import (
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
-// Class NilClass = Nil; /* for newtypes.go */
-// id Nilid = nil;
+// Class NilClass = Nil;		/* for newtypes.go; here due to cgo limitations */
 import "C"
 
 var (

@@ -26,6 +26,7 @@ func sel_getUid(sel string) C.SEL {
 
 // Common Objective-C types and selectors.
 var (
+	_NSObject = objc_getClass("NSObject")
 	_NSString = objc_getClass("NSString")
 
 	_alloc = sel_getUid("alloc")
