@@ -68,7 +68,7 @@ var classTypes = [nctypes]*classData{
 			win = objc_msgSend_rect_uint_uint_bool(win,
 				_initWithContentRect,
 				0, 0, 100, 100,
-				NSTitledWindowMask | NSClosableWindowMask | NSClosableWindowMask | NSResizableWindowMask,
+				NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask,
 				2,					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			objc_setDelegate(win, appDelegate)
