@@ -26,6 +26,7 @@ type classData struct {
 	alttextsel		C.SEL
 	append		func(id C.id, what string, alternate bool)
 	insertBefore	func(id C.id, what string, before int, alternate bool)
+	selIndex		func(id C.id) int
 	// TODO others
 	delete		func(id C.id, index int)
 }
@@ -179,6 +180,9 @@ var classTypes = [nctypes]*classData{
 			} else {
 				C.objc_msgSend_id_int(id, _insertItemWithTitleAtIndex, str, C.intptr_t(before))
 			}
+		},
+		selIndex:		func(id C.id) int {
+			return int(C.objc_msgSend_intret_noargs(id, _indexOfSelectedItem))
 		},
 		delete:		func(id C.id, index int) {
 			C.objc_msgSend_int(id, _removeItemAtIndex, C.intptr_t(index))
@@ -341,8 +345,13 @@ if classTypes[s.ctype].insertBefore == nil { return nil }
 }
 
 func (s *sysData) selectedIndex() int {
-	// TODO
-	return -1
+if classTypes[s.ctype].selIndex == nil { return -1 }
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selIndex(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedIndices() []int {

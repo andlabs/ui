@@ -31,6 +31,11 @@ id _objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
 same as above, but for NSInteger
 */
 
+intptr_t objc_msgSend_intret_noargs(id obj, SEL sel)
+{
+	return (intptr_t) ((NSInteger) objc_msgSend(obj, sel));
+}
+
 id objc_msgSend_int(id obj, SEL sel, intptr_t a)
 {
 	return objc_msgSend(obj, sel, (NSInteger) a);

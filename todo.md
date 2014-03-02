@@ -28,6 +28,7 @@ important things:
 - Cocoa coordinates have (0,0) at the bottom left: need to fix this somehow
 - I think Cocoa NSButton text is not vertically aligned properly...?
 - resizing Cocoa windows does not redraw controls correctly
+- NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - figure out what to do about deleting a nonexistent item; each backend responds differently by default
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
