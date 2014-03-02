@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -66,10 +67,17 @@ var (
 	_NSApplication = objc_getClass("NSApplication")
 
 	_sharedApplication = sel_getUid("sharedApplication")
+	_setActivationPolicy = sel_getUid("setActivationPolicy:")
 )
 
 func initCocoa() (NSApp C.id, err error) {
 	NSApp = C.objc_msgSend_noargs(_NSApplication, _sharedApplication)
+	r := C.objc_msgSend_int(NSApp, _setActivationPolicy,
+		0)		// NSApplicationActivationPolicyRegular
+	if C.BOOL(uintptr(unsafe.Pointer(r))) != C.BOOL(C.YES) {
+		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, menu, window resizing, etc.) (unknown reason)")
+		return
+	}
 	err = mkAppDelegate()
 	return
 }

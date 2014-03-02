@@ -28,6 +28,15 @@ id _objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
 }
 
 /*
+same as above, but for NSInteger
+*/
+
+id objc_msgSend_int(id obj, SEL sel, intptr_t a)
+{
+	return objc_msgSend(obj, sel, (NSInteger) a);
+}
+
+/*
 These are the objc_msgSend() wrappers around NSRect. The problem is that while on 32-bit systems, NSRect is a concrete structure, on 64-bit systems it's just a typedef to CGRect. While in practice just using CGRect everywhere seems to work, better to be safe than sorry.
 
 I use int64_t for maximum safety, as my coordinates are stored as Go ints and Go int -> C int (which is what is documented as happening) isn't reliable.
