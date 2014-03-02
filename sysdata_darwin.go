@@ -48,6 +48,7 @@ var (
 	_setAction = sel_getUid("setAction:")
 	_contentView = sel_getUid("contentView")
 	_addSubview = sel_getUid("addSubview:")
+	_setButtonType = sel_getUid("setButtonType:")
 )
 
 func controlShow(what C.id) {
@@ -109,6 +110,19 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_checkbox:		&classData{
+		make:		func(parentWindow C.id) C.id {
+			checkbox := objc_alloc(_NSButton)
+			checkbox = objc_msgSend_rect(checkbox, _initWithFrame,
+				0, 0, 100, 100)
+			objc_msgSend_uint(checkbox, _setButtonType, 3)		// NSSwitchButton
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, checkbox)
+			return checkbox
+		},
+		show:		controlShow,
+		hide:			controlHide,
+		settextsel:		_setTitle,
+		textsel:		_title,
 	},
 	c_combobox:		&classData{
 	},
