@@ -11,10 +11,6 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-// temporary for now
-func msgBox(string, string){}
-func msgBoxError(string, string){}
-
 var uitask chan func()
 
 var (
