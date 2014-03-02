@@ -23,6 +23,7 @@ type classData struct {
 	hide			func(what C.id)
 	settextsel		C.SEL
 	textsel		C.SEL
+	alttextsel		C.SEL
 }
 
 var (
@@ -245,10 +246,14 @@ if classTypes[s.ctype].make == nil { return false }
 func (s *sysData) text() string {
 var zero C.SEL
 if classTypes[s.ctype].textsel == zero { return "" }
+	sel := classTypes[s.ctype].textsel
+	if s.alternate {
+		sel = classTypes[s.ctype].alttextsel
+	}
 	ret := make(chan string)
 	defer close(ret)
 	uitask <- func() {
-		str := C.objc_msgSend_noargs(s.id, classTypes[s.ctype].textsel)
+		str := C.objc_msgSend_noargs(s.id, sel)
 		ret <- fromNSString(str)
 	}
 	return <-ret
