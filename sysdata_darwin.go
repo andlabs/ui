@@ -18,7 +18,7 @@ type sysData struct {
 }
 
 type classData struct {
-	make		func(parentWindow C.id) C.id
+	make		func(parentWindow C.id, alternate bool) C.id
 	show		func(what C.id)
 	hide			func(what C.id)
 	settextsel		C.SEL
@@ -61,7 +61,7 @@ func controlHide(what C.id) {
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
-		make:		func(parentWindow C.id) C.id {
+		make:		func(parentWindow C.id, alternate bool) C.id {
 			const (
 				NSBorderlessWindowMask = 0
 				NSTitledWindowMask = 1 << 0
@@ -92,7 +92,7 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_button:			&classData{
-		make:		func(parentWindow C.id) C.id {
+		make:		func(parentWindow C.id, alternate bool) C.id {
 			button := objc_alloc(_NSButton)
 			// NSControl requires that we specify a frame; dummy frame for now
 			button = objc_msgSend_rect(button, _initWithFrame,
@@ -110,7 +110,7 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_checkbox:		&classData{
-		make:		func(parentWindow C.id) C.id {
+		make:		func(parentWindow C.id, alternate bool) C.id {
 			checkbox := objc_alloc(_NSButton)
 			checkbox = objc_msgSend_rect(checkbox, _initWithFrame,
 				0, 0, 100, 100)
@@ -173,7 +173,7 @@ func (s *sysData) make(initText string, window *sysData) error {
 	ret := make(chan C.id)
 	defer close(ret)
 	uitask <- func() {
-		ret <- ct.make(parentWindow)
+		ret <- ct.make(parentWindow, s.alternate)
 	}
 	s.id = <-ret
 	err := s.setText(initText)
