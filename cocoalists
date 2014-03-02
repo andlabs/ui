@@ -1,0 +1,78 @@
+NSPopUpButton (non-editable combo box)
+	make:
+		b = [[NSPopUpButton alloc]
+			initWithFrame:(0, 0, 100, 100)
+			pullsDown:NO]
+	add:
+		[b addItemWithTitle:toNSString(s)]
+	insertBefore:
+		[b insertItemWithTitle:toNSString(s)
+			atIndex:index]		(NSInteger)
+	remove:
+		[b removeItemAtIndex:index]		(NSInteger)
+	selection:
+		fromNSString([b titleOfSelectedItem])
+			(returns nil if nothing is selected; need to edit to return "" if so)
+	selectedIndex:
+		[b indexOfSelectedItem]		(NSInteger)
+			(returns -1 if nothing is selected)
+NSComboBox (editable combo box)
+	make:
+		b = [[NSComboBox alloc]
+			initWithFrame:(0, 0, 100, 100)]
+		[b setUsesDataSource:NO]		// internal data soruce
+	add:
+		[b addItemWithObjectValue:toNSString(s)]
+	insertBefore:
+		[b insertItemWithObjectValue:toNSString(s)
+			atIndex:index]			(NSInteger)
+	remove:
+		[b removeItemAtIndex:index]		(NSInteger)
+	selection:
+		this depends on if the /user/ selecting an item changes the edit box
+		this appears to be the case, so
+			fromNSString([b stringValue])
+		note that if we ever add Combobox.SetText(), we are responsible for managing both the edit field AND the list, as they are programmatically separate
+	selectedIndex:
+		[b indexOfSelectedItem]		(NSInteger)
+			(returns -1 if nothing is selected)
+			(TODO custom text?)
+NSTableView (listbox)
+	make:
+		b = [[NSTableView alloc]
+			initWithFrame:(0, 0, 100, 100)]
+		col = [[NSTableColumn alloc]
+			initWithIdentifier:@"listboxcolumn"]
+		listDict = [NSMutableDictionary xxxx]
+		listItems = [[xxx]]
+		[listItems addObject:listDict]
+		[col bind:@"value"
+			toObject:listItems
+			withKeyPath:@"xxxxx.listboxcolumn"
+			options:nilid]
+		[b addTableColumn:col]
+		// TODO autoresizing
+	add:
+	insertBefore:
+	remove:
+	selection:
+		idx = [b selectedRow]	(NSInteger)
+		if idx == -1 {
+			return ""
+		}
+		dataSource = [b dataSource]
+	selectedIndex:
+		[b selectedRow]		(NSInteger)
+			(returns -1 if none selected)
+	selectedIndices:
+		nsidx = [b selectedRowIndexes]
+		c = [nsidx count]		(NSUInteger)
+		nsidxbuf = C.makeNSUIntegerArray(c)
+		[nsidx getIndexes:nsidxbuf
+			maxCont:c
+			inIndexRange:nilid]
+		// and just copy out of nsidxbuf somehow
+		// I think this is going to have to make 2 temporary arrays; a better option will be needed! TODO
+	selectedTexts:
+		indices := selectedIndices()
+		dataSource = [b dataSource]

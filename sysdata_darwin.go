@@ -24,11 +24,14 @@ type classData struct {
 	settextsel		C.SEL
 	textsel		C.SEL
 	alttextsel		C.SEL
+	append		func(id C.id, what string, alternate bool)
 }
 
 var (
 	_NSWindow = objc_getClass("NSWindow")
 	_NSButton = objc_getClass("NSButton")
+	_NSPopUpButton = objc_getClass("NSPopUpButton")
+	_NSComboBox = objc_getClass("NSComboBox")
 
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
 	_initWithFrame = sel_getUid("initWithFrame:")
@@ -50,6 +53,15 @@ var (
 	_contentView = sel_getUid("contentView")
 	_addSubview = sel_getUid("addSubview:")
 	_setButtonType = sel_getUid("setButtonType:")
+	_initWithFramePullsDown = sel_getUid("initWithFrame:pullsDown:")
+	_setUsesDataSource = sel_getUid("setUsesDataSource:")
+	_addItemWithTitle = sel_getUid("addItemWithTitle:")
+	_insertItemWithTitleAtIndex = sel_getUid("insertItemWithTitle:atIndex:")
+	_removeItemAtIndex = sel_getUid("removeItemAtIndex:")
+	_titleOfSelectedItem = sel_getUid("titleOfSelectedItem")
+	_indexOfSelectedItem = sel_getUid("indexOfSelectedItem")
+	_addItemWithObjectValue = sel_getUid("addItemWithObjectValue:")
+	_insertItemWithObjectValueAtIndex = sel_getUid("insertItemWithObjectValue:atIndex:")
 )
 
 func controlShow(what C.id) {
@@ -126,6 +138,37 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_combobox:		&classData{
+		make:		func(parentWindow C.id, alternate bool) C.id {
+			var combobox C.id
+
+			if alternate {
+				combobox = objc_alloc(_NSComboBox)
+				combobox = objc_msgSend_rect(combobox, _initWithFrame,
+					0, 0, 100, 100)
+				C.objc_msgSend_bool(combobox, _setUsesDataSource, C.BOOL(C.NO))
+			} else {
+				combobox = objc_alloc(_NSPopUpButton)
+				combobox = objc_msgSend_rect_bool(combobox, _initWithFramePullsDown,
+					0, 0, 100, 100,
+					C.BOOL(C.NO))
+			}
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, combobox)
+			return combobox
+		},
+		show:		controlShow,
+		hide:			controlHide,
+		// TODO setText
+		textsel:		_titleOfSelectedItem,
+		alttextsel:		_stringValue,
+		append:		func(id C.id, what string, alternate bool) {
+			str := toNSString(what)
+			if alternate {
+				C.objc_msgSend_id(id, _addItemWithObjectValue, str)
+			} else {
+				C.objc_msgSend_id(id, _addItemWithTitle, str)
+			}
+		},
 	},
 	c_lineedit:		&classData{
 	},
@@ -260,7 +303,14 @@ if classTypes[s.ctype].textsel == zero { return "" }
 }
 
 func (s *sysData) append(what string) error {
-	// TODO
+if classTypes[s.ctype].append == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].append(s.id, what, s.alternate)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
