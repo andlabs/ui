@@ -28,6 +28,7 @@ important things:
 - Cocoa coordinates have (0,0) at the bottom left: need to fix this somehow
 - I think Cocoa NSButton text is not vertically aligned properly...?
 - resizing Cocoa windows does not redraw controls correctly
+- figure out what to do about deleting a nonexistent item; each backend responds differently by default
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins

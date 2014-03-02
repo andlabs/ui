@@ -36,6 +36,11 @@ id objc_msgSend_int(id obj, SEL sel, intptr_t a)
 	return objc_msgSend(obj, sel, (NSInteger) a);
 }
 
+id objc_msgSend_id_int(id obj, SEL sel, id a, intptr_t b)
+{
+	return objc_msgSend(obj, sel, a, (NSInteger) b);
+}
+
 /*
 These are the objc_msgSend() wrappers around NSRect. The problem is that while on 32-bit systems, NSRect is a concrete structure, on 64-bit systems it's just a typedef to CGRect. While in practice just using CGRect everywhere seems to work, better to be safe than sorry.
 

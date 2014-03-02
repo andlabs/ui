@@ -25,6 +25,9 @@ type classData struct {
 	textsel		C.SEL
 	alttextsel		C.SEL
 	append		func(id C.id, what string, alternate bool)
+	insertBefore	func(id C.id, what string, before int, alternate bool)
+	// TODO others
+	delete		func(id C.id, index int)
 }
 
 var (
@@ -168,6 +171,17 @@ var classTypes = [nctypes]*classData{
 			} else {
 				C.objc_msgSend_id(id, _addItemWithTitle, str)
 			}
+		},
+		insertBefore:	func(id C.id, what string, before int, alternate bool) {
+			str := toNSString(what)
+			if alternate {
+				C.objc_msgSend_id_int(id, _insertItemWithObjectValueAtIndex, str, C.intptr_t(before))
+			} else {
+				C.objc_msgSend_id_int(id, _insertItemWithTitleAtIndex, str, C.intptr_t(before))
+			}
+		},
+		delete:		func(id C.id, index int) {
+			C.objc_msgSend_int(id, _removeItemAtIndex, C.intptr_t(index))
 		},
 	},
 	c_lineedit:		&classData{
@@ -315,7 +329,14 @@ if classTypes[s.ctype].append == nil { return nil }
 }
 
 func (s *sysData) insertBefore(what string, before int) error {
-	// TODO
+if classTypes[s.ctype].insertBefore == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].insertBefore(s.id, what, before, s.alternate)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
@@ -350,7 +371,14 @@ func (s *sysData) setWindowSize(width int, height int) error {
 }
 
 func (s *sysData) delete(index int) error {
-	// TODO
+if classTypes[s.ctype].delete == nil { return nil }
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].delete(s.id, index)
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
