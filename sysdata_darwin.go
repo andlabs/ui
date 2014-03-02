@@ -27,8 +27,10 @@ type classData struct {
 
 var (
 	_NSWindow = objc_getClass("NSWindow")
+	_NSButton = objc_getClass("NSButton")
 
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
+	_initWithFrame = sel_getUid("initWithFrame:")
 	_makeKeyAndOrderFront = sel_getUid("makeKeyAndOrderFront:")
 	_orderOut = sel_getUid("orderOut:")
 	_setHidden = sel_getUid("setHidden:")
@@ -41,6 +43,11 @@ var (
 	// TODO others
 	_frame = sel_getUid("frame")
 	_setFrameDisplay = sel_getUid("setFrame:display:")
+	_setBezelStyle = sel_getUid("setBezelStyle:")
+	_setTarget = sel_getUid("setTarget:")
+	_setAction = sel_getUid("setAction:")
+	_contentView = sel_getUid("contentView")
+	_addSubview = sel_getUid("addSubview:")
 )
 
 func controlShow(what C.id) {
@@ -84,6 +91,22 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_button:			&classData{
+		make:		func(parentWindow C.id) C.id {
+			button := objc_alloc(_NSButton)
+			// NSControl requires that we specify a frame; dummy frame for now
+			button = objc_msgSend_rect(button, _initWithFrame,
+				0, 0, 100, 100)
+			objc_msgSend_uint(button, _setBezelStyle, 1)		// NSRoundedBezelStyle
+			C.objc_msgSend_id(button, _setTarget, appDelegate)
+			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, button)
+			return button
+		},
+		show:		controlShow,
+		hide:			controlHide,
+		settextsel:		_setTitle,
+		textsel:		_title,
 	},
 	c_checkbox:		&classData{
 	},

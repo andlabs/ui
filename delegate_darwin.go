@@ -11,7 +11,7 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 	- runs uitask requests (uitask:)
 	- handles window close events (windowShouldClose:)
 	- handles window resize events (windowDidResize: (TODO also windowDidEndLiveResize:?))
-	- handles button click events (buttonClick:)
+	- handles button click events (buttonClicked:)
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -20,6 +20,7 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 // extern void appDelegate_uitask(id, SEL, id);		/* from uitask_darwin.go */
 // extern BOOL appDelegate_windowShouldClose(id, SEL, id);
 // extern void appDelegate_windowDidResize(id, SEL, id);
+// extern void appDelegate_buttonClicked(id, SEL, id);
 import "C"
 
 var (
@@ -34,6 +35,7 @@ var (
 	_uitask = sel_getUid("uitask:")
 	_windowShouldClose = sel_getUid("windowShouldClose:")
 	_windowDidResize = sel_getUid("windowDidResize:")
+	_buttonClicked = sel_getUid("buttonClicked:")
 )
 
 func mkAppDelegate() error {
@@ -55,6 +57,11 @@ func mkAppDelegate() error {
 		C.appDelegate_windowDidResize, delegate_void)
 	if err != nil {
 		return fmt.Errorf("error adding NSApplication delegate windowDidResize: method (to handle window resize events): %v", err)
+	}
+	err = addDelegateMethod(appdelegateclass, _buttonClicked,
+		C.appDelegate_buttonClicked, delegate_void)
+	if err != nil {
+		return fmt.Errorf("error adding NSApplication delegate buttonClicked: method (to handle button clicks): %v", err)
 	}
 	// TODO using objc_new() causes a segfault; find out why
 	// TODO make alloc followed by init (I thought NSObject provided its own init?)
@@ -84,6 +91,12 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 			panic("child resize failed: " + err.Error())
 		}
 	}
+}
+
+//export appDelegate_buttonClicked
+func appDelegate_buttonClicked(self C.id, sel C.SEL, button C.id) {
+	sysData := getSysData(button)
+	sysData.signal()
 }
 
 // this actually constructs the delegate class
