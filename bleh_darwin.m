@@ -83,7 +83,7 @@ Same as NSRect above, but for NSSize now.
 */
 
 /*
-...like this one. (Note which function is being cast below.)
+...like this one. (Note which function is being cast below.) This is an Intel-specific optimization; though this code won't run on PowerPC Macs (Go, and thus package ui, requires 10.6), if desktop ARM becomes a thing all bets are off. (tl;dr TODO)
 */
 static NSSize (*objc_msgSend_stret_size)(id, SEL, ...) =
 	(NSSize (*)(id, SEL, ...)) objc_msgSend;
