@@ -75,9 +75,10 @@ func initCocoa() (NSApp C.id, err error) {
 	r := C.objc_msgSend_int(NSApp, _setActivationPolicy,
 		0)		// NSApplicationActivationPolicyRegular
 	if C.BOOL(uintptr(unsafe.Pointer(r))) != C.BOOL(C.YES) {
-		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, menu, window resizing, etc.) (unknown reason)")
+		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
 		return
 	}
+	// TODO we need to call [NSApp activateIgnoringOtherApps:YES] here when we are ready to have the program become active (for now I won't)
 	err = mkAppDelegate()
 	return
 }
