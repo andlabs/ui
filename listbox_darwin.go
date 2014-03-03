@@ -154,7 +154,7 @@ var (
 	_NSTableColumn = objc_getClass("NSTableColumn")
 
 	_initWithIdentifier = sel_getUid("initWithIdentifier:")
-	_columnWithIdentifier = sel_getUid("columnWithIdentifier:")
+	_tableColumnWithIdentifier = sel_getUid("tableColumnWithIdentifier:")
 )
 
 func newListboxTableColumn() C.id {
@@ -166,7 +166,7 @@ func newListboxTableColumn() C.id {
 }
 
 func listboxTableColumn(listbox C.id) C.id {
-	return C.objc_msgSend_id(listbox, _columnWithIdentifier, listboxItemKey)
+	return C.objc_msgSend_id(listbox, _tableColumnWithIdentifier, listboxItemKey)
 }
 
 /*
