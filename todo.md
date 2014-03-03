@@ -64,6 +64,7 @@ far off:
 - localization
 - strip unused constants from the Windows files
 - combine more Windows files; rename some?
+- tab stops
 
 maybe:
 - rename Stack to Box?
