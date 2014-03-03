@@ -12,6 +12,8 @@ The Cocoa API was not designed to be used directly in code; you were intended to
 Under normal circumstances we would have to build our own data source class, as Cocoa doesn't provide premade data sources. Thankfully, Mac OS X 10.3 introduced the bindings system, which avoids all that. It's just not documented too well (again, because you're supposed to use Interface Builder). Bear with me here.
 
 PERSONAL TODO - make a post somewhere that does all this in Objective-C itself, for the benefit of the programming community.
+
+TODO - change the name of some of these functions? specifically the functions that get data about the NSTableView?
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -176,6 +178,9 @@ The NSTableViews don't draw their own scrollbars; we have to drop our NSTableVie
 var (
 	_NSScrollView = objc_getClass("NSScrollView")
 
+	_setHasHorizontalScroller = sel_getUid("setHasHorizontalScroller:")
+	_setHasVerticalScroller = sel_getUid("setHasVerticalScroller:")
+	_setAutohidesScrollers = sel_getUid("setAutohidesScrollers:")
 	_setDocumentView = sel_getUid("setDocumentView:")
 	_documentView = sel_getUid("documentView")
 )
@@ -184,6 +189,9 @@ func newListboxScrollView(listbox C.id) C.id {
 	scrollview := objc_alloc(_NSScrollView)
 	scrollview = objc_msgSend_rect(scrollview, _initWithFrame,
 		0, 0, 100, 100)
+	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
 	C.objc_msgSend_id(scrollview, _setDocumentView, listbox)
 	return scrollview
 }

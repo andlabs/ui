@@ -40,6 +40,7 @@ important things:
 	- Cocoa has similar margining issues (like on Comboboxes)
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
+- make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 
 super ultra important things:
 - for some reason events are now delayed on windows
