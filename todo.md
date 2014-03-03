@@ -37,6 +37,7 @@ important things:
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins
+	- Cocoa has similar margining issues (like on Comboboxes)
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 
