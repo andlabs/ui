@@ -139,7 +139,7 @@ func bindListboxArray(tableColumn C.id, array C.id) {
 		C.nilid)				// no options
 }
 
-func listboxArray(tableColumn C.id) C.id {
+func listboxArrayController(tableColumn C.id) C.id {
 	dict := C.objc_msgSend_id(tableColumn, _infoForBinding, tableColumnBinding)
 	return C.objc_msgSend_id(dict, _objectForKey, *C._NSObservedObjectKey)
 }
@@ -167,6 +167,37 @@ func newListboxTableColumn() C.id {
 
 func listboxTableColumn(listbox C.id) C.id {
 	return C.objc_msgSend_id(listbox, _tableColumnWithIdentifier, listboxItemKey)
+}
+
+/*
+The NSTableViews don't draw their own scrollbars; we have to drop our NSTableViews in NSScrollViews for this.
+*/
+
+var (
+	_NSScrollView = objc_getClass("NSScrollView")
+
+	_setDocumentView = sel_getUid("setDocumentView:")
+	_documentView = sel_getUid("documentView")
+)
+
+func newListboxScrollView(listbox C.id) C.id {
+	scrollview := objc_alloc(_NSScrollView)
+	scrollview = objc_msgSend_rect(scrollview, _initWithFrame,
+		0, 0, 100, 100)
+	C.objc_msgSend_id(scrollview, _setDocumentView, listbox)
+	return scrollview
+}
+
+func listboxInScrollView(scrollview C.id) C.id {
+	return C.objc_msgSend_noargs(scrollview, _documentView)
+}
+
+/*
+And now, a helper function that takes a scroll view and gets out the array.
+*/
+
+func listboxArray(listbox C.id) C.id {
+	return listboxArrayController(listboxTableColumn(listboxInScrollView(listbox)))
 }
 
 /*
@@ -199,18 +230,19 @@ func makeListbox(parentWindow C.id, alternate bool) C.id {
 	C.objc_msgSend_bool(listbox, _setAllowsEmptySelection, C.BOOL(C.YES))
 	C.objc_msgSend_id(listbox, _setHeaderView, C.nilid)
 	// TODO others?
+	listbox = newListboxScrollView(listbox)
 	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
 	C.objc_msgSend_id(windowView, _addSubview, listbox)
 	return listbox
 }
 
 func appendListbox(listbox C.id, what string, alternate bool) {
-	array := listboxArray(listboxTableColumn(listbox))
+	array := listboxArray(listbox)
 	appendListboxArray(array, what)
 }
 
 func insertListboxBefore(listbox C.id, what string, before int, alternate bool) {
-	array := listboxArray(listboxTableColumn(listbox))
+	array := listboxArray(listbox)
 	insertListboxArrayBefore(array, what, before)
 }
 
@@ -220,7 +252,7 @@ func insertListboxBefore(listbox C.id, what string, before int, alternate bool) 
 func selectedListboxIndices(listbox C.id) (list []int) {
 	var cindices []C.uintptr_t
 
-	indices := C.objc_msgSend_noargs(listbox, _selectedRowIndexes)
+	indices := C.objc_msgSend_noargs(listboxInScrollView(listbox), _selectedRowIndexes)
 	count := int(C.objc_msgSend_uintret_noargs(indices, _count))
 	if count == 0 {
 		return nil
@@ -243,7 +275,7 @@ func selectedListboxTexts(listbox C.id) (texts []string) {
 	if len(indices) == 0 {
 		return nil
 	}
-	array := listboxArray(listboxTableColumn(listbox))
+	array := listboxArray(listbox)
 	texts = make([]string, len(indices))
 	for i := 0; i < len(texts); i++ {
 		texts[i] = indexListboxArray(array, indices[i])
@@ -252,6 +284,6 @@ func selectedListboxTexts(listbox C.id) (texts []string) {
 }
 
 func deleteListbox(listbox C.id, index int) {
-	array := listboxArray(listboxTableColumn(listbox))
+	array := listboxArray(listbox)
 	deleteListboxArray(array, index)
 }

@@ -12,7 +12,6 @@ Cocoa doesn't provide a reliable way to get the preferred size of a control (you
 var (
 	_sizeToFit = sel_getUid("sizeToFit")
 	// _frame in sysdata_darwin.go
-	// _documentView in listbox_darwin.go
 )
 
 // standard case: control immediately passed in
@@ -24,8 +23,7 @@ func controlPrefSize(control C.id) (width int, height int) {
 
 // NSTableView is actually in a NSScrollView so we have to get it out first
 func listboxPrefSize(control C.id) (width int, height int) {
-//	return controlPrefSize(C.objc_msgSend_noargs(control, _documentView))
-	return controlPrefSize(control)
+	return controlPrefSize(listboxInScrollView(control))
 }
 
 var prefsizefuncs = [nctypes]func(C.id) (int, int){
