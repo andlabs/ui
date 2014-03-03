@@ -9,8 +9,8 @@ so I don't forget:
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
 - more flexible size appropriation: allow a small button to be at the top of everything in the main() example here
-- [Windows] should ListBox have a border style?
-	- a different border on LineEdits?
+- [Windows, Mac OS X] should ListBox have a border style?
+	- [Windows] a different border on LineEdits?
 - padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
 - change Stack/Combobox/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
 - allow Combobox to have initial settings
