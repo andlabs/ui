@@ -27,7 +27,8 @@ type classData struct {
 	append		func(id C.id, what string, alternate bool)
 	insertBefore	func(id C.id, what string, before int, alternate bool)
 	selIndex		func(id C.id) int
-	// TODO others
+	selIndices		func(id C.id) []int
+	selTexts		func(id C.id) []string
 	delete		func(id C.id, index int)
 }
 
@@ -232,6 +233,14 @@ var classTypes = [nctypes]*classData{
 		textsel:		_stringValue,
 	},
 	c_listbox:			&classData{
+		make:		makeListbox,
+		show:		controlShow,
+		hide:			controlHide,
+		append:		appendListbox,
+		insertBefore:	insertListboxBefore,
+		selIndices:	selectedListboxIndices,
+		selTexts:		selectedListboxTexts,
+		delete:		deleteListbox,
 	},
 	c_progressbar:		&classData{
 	},

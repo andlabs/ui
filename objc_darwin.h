@@ -23,6 +23,9 @@ The format should be self-explanatory.
 /* for delegate_darwin.go */
 extern Class NilClass;
 
+/* for listbox_darwin.go */
+extern id *_NSObservedObjectKey;
+
 inline id objc_msgSend_noargs(id obj, SEL sel)
 {
 	return objc_msgSend(obj, sel);
@@ -88,5 +91,8 @@ m3(sel_id_bool, SEL, id, BOOL)
 
 extern id _objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, uintptr_t b, uintptr_t c, BOOL d);
 m4(id_sel_id_id, id, SEL, id, id)
+
+/* for listbox_darwin.go */
+extern uintptr_t *NSIndexSetEntries(id, uintptr_t);
 
 #endif

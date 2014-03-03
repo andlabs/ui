@@ -13,10 +13,16 @@ Go wrapper functions (bleh_darwin.go) call these directly and take care of stdin
 
 #include "objc_darwin.h"
 
+#include <stdlib.h>
+
 #include <Foundation/NSGeometry.h>
+#include <AppKit/NSKeyValueBinding.h>
 
 /* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
 Class NilClass = Nil;
+
+/* used by listbox_darwin.go; requires NSString */
+id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
 
 /*
 NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, I'll just place things here for maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
@@ -107,4 +113,30 @@ struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
 	t.width = (int64_t) s.width;
 	t.height = (int64_t) s.height;
 	return t;
+}
+
+/*
+This is a doozy: it deals with a NSUInteger array needed for this one selector, and converts them all into a uintptr_t array so we can use it from Go. The two arrays are created at runtime with malloc(); only the NSUInteger one is freed here, while Go frees the returned one. It's not optimal.
+*/
+
+static SEL getIndexes = sel_getUid("getIndexes:maxCount:inRange:");
+
+uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
+{
+	NSUInteger *nsuints;
+	uintptr_t *ret;
+	uintptr_t i;
+	size_t countsize;
+
+	countsize = (size_t) count;
+	nsuints = (NSUInteger *) malloc(countsize * sizeof (NSUInteger));
+	/* TODO check return value */
+	objc_msgSend(indexset, getIndexes,
+		nsuints, (NSUInteger) count, nil);
+	ret = (uintptr_t *) malloc(countsize * sizeof (uintptr_t));
+	for (i = 0; i < count; i++) {
+		ret[i] = (uintptr_t) nsuints[i];
+	}
+	free(nsuints);
+	return ret;
 }
