@@ -239,8 +239,7 @@ func makeListbox(parentWindow C.id, alternate bool) C.id {
 	C.objc_msgSend_id(listbox, _setHeaderView, C.nilid)
 	// TODO others?
 	listbox = newListboxScrollView(listbox)
-	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-	C.objc_msgSend_id(windowView, _addSubview, listbox)
+	addControl(parentWindow, listbox)
 	return listbox
 }
 

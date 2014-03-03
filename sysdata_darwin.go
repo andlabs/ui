@@ -78,6 +78,11 @@ var (
 	_setDoubleValue = sel_getUid("setDoubleValue:")
 )
 
+func addControl(parentWindow C.id, control C.id) {
+	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+	C.objc_msgSend_id(windowView, _addSubview, control)
+}
+
 func controlShow(what C.id) {
 	C.objc_msgSend_bool(what, _setHidden, C.BOOL(C.NO))
 }
@@ -127,8 +132,7 @@ var classTypes = [nctypes]*classData{
 			objc_msgSend_uint(button, _setBezelStyle, 1)		// NSRoundedBezelStyle
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, button)
+			addControl(parentWindow, button)
 			return button
 		},
 		show:		controlShow,
@@ -142,8 +146,7 @@ var classTypes = [nctypes]*classData{
 			checkbox = objc_msgSend_rect(checkbox, _initWithFrame,
 				0, 0, 100, 100)
 			objc_msgSend_uint(checkbox, _setButtonType, 3)		// NSSwitchButton
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, checkbox)
+			addControl(parentWindow, checkbox)
 			return checkbox
 		},
 		show:		controlShow,
@@ -166,8 +169,7 @@ var classTypes = [nctypes]*classData{
 					0, 0, 100, 100,
 					C.BOOL(C.NO))
 			}
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, combobox)
+			addControl(parentWindow, combobox)
 			return combobox
 		},
 		show:		controlShow,
@@ -209,8 +211,7 @@ var classTypes = [nctypes]*classData{
 			}
 			lineedit = objc_msgSend_rect(lineedit, _initWithFrame,
 				0, 0, 100, 100)
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, lineedit)
+			addControl(parentWindow, lineedit)
 			return lineedit
 		},
 		show:		controlShow,
@@ -228,8 +229,7 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
 			// TODO others?
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, label)
+			addControl(parentWindow, label)
 			return label
 		},
 		show:		controlShow,
@@ -256,8 +256,7 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle
 			objc_msgSend_uint(pbar, _setControlSize, 0)		// NSRegularControlSize
 			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
-			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-			C.objc_msgSend_id(windowView, _addSubview, pbar)
+			addControl(parentWindow, pbar)
 			return pbar
 		},
 		show:		controlShow,
