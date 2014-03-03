@@ -25,7 +25,7 @@ func ui(initErrors chan error) {
 ```
 `uitask` is a channel that transmits messages. These messages indicate platform-specific functions to call and their arguments.
 
-All `sysData` methods except `sysData.setRect()` dispatch through `uitask`. Control resizing is handled within the UI goroutine itself, so `sysData.setRect()` (and thus `sysData.resize()`) call resizing functions directly. (The GTK+ backend broke spectacularly otherwise.)
+All `sysData` methods except `sysData.setRect()` and `sysData.preferredSize()` dispatch through `uitask`. Control resizing is handled within the UI goroutine itself, so `sysData.setRect()` (and thus `sysData.resize()`) call resizing functions directly. (The GTK+ backend broke spectacularly otherwise.) `sysData.preferredSize()` is called by the resizing functions, so thus must also run on directly.
 
 ## Windows
 On Windows, all controls are windows, window classes are used to define their type, and messages are used to perform actions on windows and dispatch(different word? TODO) events. The data that we need to store, then, is the class name, initial styles, and combobox/listbox messages.
@@ -52,4 +52,16 @@ GTK+ layout managers are not used since the UI library's layout managers are cod
 The only major snag with the GTK+ implementation is the implementation of `Listbox`; see `listbox_unix.go` for details.
 
 ## Mac OS X
-The Mac OS X implementation has yet to be written. (My Mac is presently out of comission; I'm waiting for a replacement PSU to arrive.) It will use Cocoa and call the Objective-C runtime manually (by using cgo to link to libobjc and calling `objc_msgSend`, etc.). The `uitask` channel will likely behave as it does on Windows.
+The Mac OS X backend uses Cocoa. As Cocoa uses Objective-C, we work through the Objective-C runtime, whose various methods are called directly from the Go code. The biggest problem is that the message dispatch function, `objc_msgSend`, takes a variable number of arguments, and cgo can't handle this. Consequently, I have to use a bunch of wrapper functions, made in `objc_darwin.h` and `bleh_darwin.m`, instead. `bleh_darwin.m` implements a bunch of edge cases where limitations of cgo or problems with the documentation or implementation do not allow otherwise (hence the filename).
+
+Before the Mac OS X backend was written, you put your code in `main.main()`. Unfortunately, Cocoa **requires** that you place its event loop on the very first OS thread created, called the "main thread", and provides no way to move things to another thread. (Windows and GTK+ don't seem to care which thread you use so long as you use one thread.) This is why you have to put your code in another function and call `ui.Go()` to use the library.
+
+Otherwise, the `sysData` for Cocoa just uses a bunch of functions that call the necessary Objective-C functions ("selectors") to create and modify controls.
+
+Event handling is done with a delegate class in `delegate_darwin.go`. This class is created at runtime (a feature that seems to have been introduced in Mac OS X 10.5) and a single instance is shared by everything. This instance is also responsible for `uitask` dispatch: Cocoa provides facilities for running an object's selector on the main thread. `uitask` communicates `func()` literals, just like the GTK+ backend.
+
+Cocoa coordinate systems have (0,0) at the bottom-left corner of each rectangle (be it the screen, a window, or a control) and has Y go up as it increases; everything else places (0,0) at the top-left and has Y go down as it increases. The various `setSize()` methods have thus been adorned with the window's content area's height to do the necessary fixup. This was done to avoid polling the window's height many times each time a window is resized.
+
+The biggest problem with Cocoa is that you were never intended to use it directly for GUI work: you were intended to use Interface Builder for everything. For the most part, we can get by, as there aren't too many functions and most things are documented well enough. Listboxes and other cases of NSTableView, on the other hand, are not. Read `listbox_darwin.go` for more details.
+
+Other limitations caused by Cocoa are described in their respective soruce files.
