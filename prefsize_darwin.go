@@ -5,18 +5,40 @@ package ui
 // #include "objc_darwin.h"
 import "C"
 
-// -[NSCell cellSize] is documented as determining the minimum size needed to draw its receiver. This will work for our case; it appears to be what GTK+ does as well.
-// See also: http://stackoverflow.com/questions/1056079/is-there-a-way-to-programmatically-determine-the-proper-sizes-for-apples-built
-// TODO figure out what to do if one of our controls returns the sentinel (10000, 10000) that indicates we can't use -[NSCell cellSize]
+/*
+Cocoa doesn't provide a reliable way to get the preferred size of a control (you're supposed to use Interface Builder and have it set up autoresizing for you). The best we can do is call [control sizeToFit] (which is defined for NSControls and has a custom implementation for the other types here) and read the preferred size. Though this changes the size, we're immediately overriding the change on return from sysData.preferredSize(), so no harm done. (This is similar to what we are doing with GTK+, except GTK+ does not actually change the size.)
+*/
 
 var (
-	_cell = sel_getUid("cell")
-	_cellSize = sel_getUid("cellSize")
+	_sizeToFit = sel_getUid("sizeToFit")
+	// _frame in sysdata_darwin.go
+	// _documentView in listbox_darwin.go
 )
+
+// standard case: control immediately passed in
+func controlPrefSize(control C.id) (width int, height int) {
+	C.objc_msgSend_noargs(control, _sizeToFit)
+	r := C.objc_msgSend_stret_rect_noargs(control, _frame)
+	return int(r.width), int(r.height)
+}
+
+// NSTableView is actually in a NSScrollView so we have to get it out first
+func listboxPrefSize(control C.id) (width int, height int) {
+//	return controlPrefSize(C.objc_msgSend_noargs(control, _documentView))
+	return controlPrefSize(control)
+}
+
+var prefsizefuncs = [nctypes]func(C.id) (int, int){
+	c_button:			controlPrefSize,
+	c_checkbox:		controlPrefSize,
+	c_combobox:		controlPrefSize,
+	c_lineedit:		controlPrefSize,
+	c_label:			controlPrefSize,
+	c_listbox:			listboxPrefSize,
+	c_progressbar:		controlPrefSize,
+}
 
 func (s *sysData) preferredSize() (width int, height int) {
 if classTypes[s.ctype].make == nil { return 0, 0 }	// prevent lockup during window resize
-	cell := C.objc_msgSend_noargs(s.id, _cell)
-	cs := C.objc_msgSend_stret_size_noargs(cell, _cellSize)
-	return int(cs.width), int(cs.height)
+	return prefsizefuncs[s.ctype](s.id)
 }

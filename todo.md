@@ -32,7 +32,7 @@ important things:
 - NSPopUpButton doesn't seem to allow no initial selection? need to be sure
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - figure out what to do about deleting a nonexistent item; each backend responds differently by default
-- some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness; Labels in the grid test window get cropped
+- some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
 - find out how to deselect the first item in the NSTableView when first creating the Listbox (to make it work like on other platforms)
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
