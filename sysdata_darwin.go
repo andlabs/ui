@@ -403,13 +403,21 @@ if classTypes[s.ctype].selIndex == nil { return -1 }
 }
 
 func (s *sysData) selectedIndices() []int {
-	// TODO
-	return nil
+	ret := make(chan []int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selIndices(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedTexts() []string {
-	// TODO
-	return nil
+	ret := make(chan []string)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selTexts(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) setWindowSize(width int, height int) error {
