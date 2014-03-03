@@ -37,6 +37,5 @@ var prefsizefuncs = [nctypes]func(C.id) (int, int){
 }
 
 func (s *sysData) preferredSize() (width int, height int) {
-if classTypes[s.ctype].make == nil { return 0, 0 }	// prevent lockup during window resize
 	return prefsizefuncs[s.ctype](s.id)
 }
