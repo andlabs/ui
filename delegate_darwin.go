@@ -85,7 +85,8 @@ var (
 func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 	win := C.objc_msgSend_noargs(notification, _object)
 	sysData := getSysData(win)
-	r := C.objc_msgSend_stret_rect_noargs(win, _frame)
+	wincv := C.objc_msgSend_noargs(win, _contentView)		// we want the content view's size, not the window's; selector defined in sysdata_darwin.go
+	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
 	if sysData.resize != nil {
 		err := sysData.resize(int(r.x), int(r.y), int(r.width), int(r.height))
 		if err != nil {
