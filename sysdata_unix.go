@@ -114,14 +114,6 @@ var classTypes = [nctypes]*classData{
 
 func (s *sysData) make(initText string, window *sysData) error {
 	ct := classTypes[s.ctype]
-	if ct.make == nil {		// not yet implemented
-		println(s.ctype, "not implemented")
-		return nil
-	}
-	if s.alternate && ct.makeAlt == nil {		// not yet implemented
-		println(s.ctype, "alt not implemented")
-		return nil
-	}
 	ret := make(chan *gtkWidget)
 	defer close(ret)
 	uitask <- func() {

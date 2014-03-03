@@ -292,10 +292,6 @@ func (s *sysData) make(initText string, window *sysData) error {
 	var parentWindow C.id
 
 	ct := classTypes[s.ctype]
-	if ct.make == nil {
-		println(s.ctype, "not implemented")
-		return nil
-	}
 	if window != nil {
 		parentWindow = window.id
 	}
@@ -314,7 +310,6 @@ func (s *sysData) make(initText string, window *sysData) error {
 }
 
 func (s *sysData) show() error {
-if classTypes[s.ctype].show == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -326,7 +321,6 @@ if classTypes[s.ctype].show == nil { return nil }
 }
 
 func (s *sysData) hide() error {
-if classTypes[s.ctype].hide == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -338,8 +332,11 @@ if classTypes[s.ctype].hide == nil { return nil }
 }
 
 func (s *sysData) setText(text string) error {
-var zero C.SEL
-if classTypes[s.ctype].settextsel == zero { return nil }
+	var zeroSel C.SEL
+
+	if classTypes[s.ctype].settextsel == zeroSel {		// does not have concept of text
+		return nil
+	}
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -351,13 +348,11 @@ if classTypes[s.ctype].settextsel == zero { return nil }
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int) error {
-if classTypes[s.ctype].make == nil { return nil }
 	objc_msgSend_rect(s.id, _setFrame, x, y, width, height)
 	return nil
 }
 
 func (s *sysData) isChecked() bool {
-if classTypes[s.ctype].make == nil { return false }
 	const (
 		NSOnState = 1
 	)
@@ -372,8 +367,6 @@ if classTypes[s.ctype].make == nil { return false }
 }
 
 func (s *sysData) text() string {
-var zero C.SEL
-if classTypes[s.ctype].textsel == zero { return "" }
 	sel := classTypes[s.ctype].textsel
 	if s.alternate {
 		sel = classTypes[s.ctype].alttextsel
@@ -388,7 +381,6 @@ if classTypes[s.ctype].textsel == zero { return "" }
 }
 
 func (s *sysData) append(what string) error {
-if classTypes[s.ctype].append == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -400,7 +392,6 @@ if classTypes[s.ctype].append == nil { return nil }
 }
 
 func (s *sysData) insertBefore(what string, before int) error {
-if classTypes[s.ctype].insertBefore == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -412,7 +403,6 @@ if classTypes[s.ctype].insertBefore == nil { return nil }
 }
 
 func (s *sysData) selectedIndex() int {
-if classTypes[s.ctype].selIndex == nil { return -1 }
 	ret := make(chan int)
 	defer close(ret)
 	uitask <- func() {
@@ -455,7 +445,6 @@ func (s *sysData) setWindowSize(width int, height int) error {
 }
 
 func (s *sysData) delete(index int) error {
-if classTypes[s.ctype].delete == nil { return nil }
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
