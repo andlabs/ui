@@ -78,6 +78,7 @@ func appDelegate_windowShouldClose(self C.id, sel C.SEL, win C.id) C.BOOL {
 
 var (
 	_object = sel_getUid("object")
+	_display = sel_getUid("display")
 )
 
 //export appDelegate_windowDidResize
@@ -91,6 +92,7 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 			panic("child resize failed: " + err.Error())
 		}
 	}
+	C.objc_msgSend_noargs(win, _display)		// redraw everything; TODO only if resize() was called?
 }
 
 //export appDelegate_buttonClicked
