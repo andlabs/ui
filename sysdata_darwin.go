@@ -346,8 +346,10 @@ func (s *sysData) setText(text string) error {
 	return nil
 }
 
-func (s *sysData) setRect(x int, y int, width int, height int) error {
-	objc_msgSend_rect(s.id, _setFrame, x, y, width, height)
+func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
+	// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
+	// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
+	objc_msgSend_rect(s.id, _setFrame, x, (winheight - y) - height, width, height)
 	return nil
 }
 

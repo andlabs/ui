@@ -63,7 +63,7 @@ func (s *Stack) make(window *sysData) error {
 	return nil
 }
 
-func (s *Stack) setRect(x int, y int, width int, height int) error {
+func (s *Stack) setRect(x int, y int, width int, height int, winheight int) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -112,7 +112,7 @@ func (s *Stack) setRect(x int, y int, width int, height int) error {
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		err := c.setRect(x, y, s.width[i], s.height[i])
+		err := c.setRect(x, y, s.width[i], s.height[i], winheight)
 		if err != nil {
 			return fmt.Errorf("error setting size of control %d in Stack.setRect(): %v", i, err)
 		}

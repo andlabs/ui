@@ -113,11 +113,11 @@ func (c *Combobox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (c *Combobox) setRect(x int, y int, width int, height int) error {
+func (c *Combobox) setRect(x int, y int, width int, height int, winheight int) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	return c.sysData.setRect(x, y, width, height)
+	return c.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (c *Combobox) preferredSize() (width int, height int, err error) {

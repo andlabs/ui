@@ -27,7 +27,8 @@ so I don't forget:
 important things:
 - ui.Go() should exit when the main() you pass in exits
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
-- Cocoa coordinates have (0,0) at the bottom left: need to fix this somehow
+- figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
+	- also provide a method to center windoes; Cocoa provides one for us but
 - I think Cocoa NSButton text is not vertically aligned properly...?
 - NSPopUpButton doesn't seem to allow no initial selection? need to be sure
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)

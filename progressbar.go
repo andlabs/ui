@@ -49,11 +49,11 @@ func (p *ProgressBar) make(window *sysData) error {
 	return nil
 }
 
-func (p *ProgressBar) setRect(x int, y int, width int, height int) error {
+func (p *ProgressBar) setRect(x int, y int, width int, height int, winheight int) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	return p.sysData.setRect(x, y, width, height)
+	return p.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (p *ProgressBar) preferredSize() (width int, height int, err error) {

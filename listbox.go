@@ -104,11 +104,11 @@ func (l *Listbox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (l *Listbox) setRect(x int, y int, width int, height int) error {
+func (l *Listbox) setRect(x int, y int, width int, height int, winheight int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	return l.sysData.setRect(x, y, width, height)
+	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (l *Listbox) preferredSize() (width int, height int, err error) {

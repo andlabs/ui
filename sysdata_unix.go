@@ -45,7 +45,8 @@ var classTypes = [nctypes]*classData{
 				return func() bool {
 					if s.container != nil && s.resize != nil {		// wait for init
 						width, height := gtk_window_get_size(s.widget)
-						err := s.resize(0, 0, width, height)
+						// top-left is (0,0) so no need for winheight
+						err := s.resize(0, 0, width, height, 0)
 						if err != nil {
 							panic("child resize failed: " + err.Error())
 						}
@@ -189,7 +190,7 @@ func (s *sysData) setText(text string) error {
 	return nil
 }
 
-func (s *sysData) setRect(x int, y int, width int, height int) error {
+func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
 	gtk_fixed_move(s.container, s.widget, x, y)
 	gtk_widget_set_size_request(s.widget, width, height)
 	return nil

@@ -62,11 +62,11 @@ func (b *Button) make(window *sysData) error {
 	return nil
 }
 
-func (b *Button) setRect(x int, y int, width int, height int) error {
+func (b *Button) setRect(x int, y int, width int, height int, winheight int) error {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	return b.sysData.setRect(x, y, width, height)
+	return b.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (b *Button) preferredSize() (width int, height int, err error) {

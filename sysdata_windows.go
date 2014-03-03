@@ -251,7 +251,7 @@ func (s *sysData) setText(text string) error {
 	return nil
 }
 
-func (s *sysData) setRect(x int, y int, width int, height int) error {
+func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
 	r1, _, err := _moveWindow.Call(
 		uintptr(s.hwnd),
 		uintptr(x),
@@ -481,7 +481,8 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	if r.ret == 0 {
 		return fmt.Errorf("error getting upper-left of window for resize: %v", r.err)
 	}
-	err := s.setRect(int(rect.Left), int(rect.Top), width, height)
+	// 0 because (0,0) is top-left so no winheight
+	err := s.setRect(int(rect.Left), int(rect.Top), width, height, 0)
 	if err != nil {
 		return fmt.Errorf("error actually resizing window: %v", err)
 	}

@@ -56,11 +56,11 @@ func (l *Label) make(window *sysData) error {
 	return nil
 }
 
-func (l *Label) setRect(x int, y int, width int, height int) error {
+func (l *Label) setRect(x int, y int, width int, height int, winheight int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	return l.sysData.setRect(x, y, width, height)
+	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (l *Label) preferredSize() (width int, height int, err error) {

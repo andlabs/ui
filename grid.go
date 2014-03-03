@@ -109,7 +109,7 @@ func (g *Grid) make(window *sysData) error {
 	return nil
 }
 
-func (g *Grid) setRect(x int, y int, width int, height int) error {
+func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
@@ -165,7 +165,7 @@ func (g *Grid) setRect(x int, y int, width int, height int) error {
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			err := c.setRect(x, y, w, h)
+			err := c.setRect(x, y, w, h, winheight)
 			if err != nil {
 				return fmt.Errorf("error setting size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
 			}

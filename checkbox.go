@@ -68,11 +68,11 @@ func (c *Checkbox) make(window *sysData) error {
 	return nil
 }
 
-func (c *Checkbox) setRect(x int, y int, width int, height int) error {
+func (c *Checkbox) setRect(x int, y int, width int, height int, winheight int) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	return c.sysData.setRect(x, y, width, height)
+	return c.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (c *Checkbox) preferredSize() (width int, height int, err error) {

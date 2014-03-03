@@ -68,11 +68,11 @@ func (l *LineEdit) make(window *sysData) error {
 	return nil
 }
 
-func (l *LineEdit) setRect(x int, y int, width int, height int) error {
+func (l *LineEdit) setRect(x int, y int, width int, height int, winheight int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	return l.sysData.setRect(x, y, width, height)
+	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (l *LineEdit) preferredSize() (width int, height int, err error) {
