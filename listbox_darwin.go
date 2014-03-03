@@ -58,7 +58,7 @@ NSArrayController is what we bind.
 This is what provides the actual list modification methods.
 	- (void)addObject:(id)object
 		adds object to the end of the list
-	- (void)insertObject:(id)object atArrangedObjectsIndex:(NSInteger)index
+	- (void)insertObject:(id)object atArrangedObjectIndex:(NSInteger)index
 		adds object in the list before index
 	- (void)removeObjectAtArrangedObjectIndex:(NSInteger)index
 		removes the object at index
@@ -75,8 +75,8 @@ var (
 
 	_setAutomaticallyRearrangesObjects = sel_getUid("setAutomaticallyRearrangesObjects:")
 	_addObject = sel_getUid("addObject:")
-	_insertObjectAtArrangedObjectsIndex = sel_getUid("insertObject:atArrangedObjectsIndex:")
-	_removeObjectAtArrangedObjectsIndex = sel_getUid("removeObjectAtArrangedObjectsIndex:")
+	_insertObjectAtArrangedObjectIndex = sel_getUid("insertObject:atArrangedObjectIndex:")
+	_removeObjectAtArrangedObjectIndex = sel_getUid("removeObjectAtArrangedObjectIndex:")
 	_arrangedObjects = sel_getUid("arrangedObjects")
 	_objectAtIndex = sel_getUid("objectAtIndex:")
 )
@@ -92,12 +92,12 @@ func appendListboxArray(array C.id, what string) {
 }
 
 func insertListboxArrayBefore(array C.id, what string, before int) {
-	C.objc_msgSend_id_uint(array, _insertObjectAtArrangedObjectsIndex,
+	C.objc_msgSend_id_uint(array, _insertObjectAtArrangedObjectIndex,
 		toListboxItem(what), C.uintptr_t(before))
 }
 
 func deleteListboxArray(array C.id, index int) {
-	objc_msgSend_uint(array, _removeObjectAtArrangedObjectsIndex, uintptr(index))
+	objc_msgSend_uint(array, _removeObjectAtArrangedObjectIndex, uintptr(index))
 }
 
 func indexListboxArray(array C.id, index int) string {

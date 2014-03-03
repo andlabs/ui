@@ -29,9 +29,11 @@ important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
 - Cocoa coordinates have (0,0) at the bottom left: need to fix this somehow
 - I think Cocoa NSButton text is not vertically aligned properly...?
+- NSPopUpButton doesn't seem to allow no initial selection? need to be sure
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - figure out what to do about deleting a nonexistent item; each backend responds differently by default
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness; Labels in the grid test window get cropped
+- find out how to deselect the first item in the NSTableView when first creating the Listbox (to make it work like on other platforms)
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins

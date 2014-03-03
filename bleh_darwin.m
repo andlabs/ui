@@ -140,7 +140,7 @@ uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 	size_t countsize;
 
 	if (getIndexes_init == NO) {
-		getIndexes = sel_getUid("getIndexes:maxCount:inRange:");
+		getIndexes = sel_getUid("getIndexes:maxCount:inIndexRange:");
 		getIndexes_init = YES;
 	}
 	countsize = (size_t) count;
