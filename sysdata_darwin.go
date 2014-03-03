@@ -36,6 +36,8 @@ var (
 	_NSButton = objc_getClass("NSButton")
 	_NSPopUpButton = objc_getClass("NSPopUpButton")
 	_NSComboBox = objc_getClass("NSComboBox")
+	_NSTextField = objc_getClass("NSTextField")
+	_NSSecureTextField = objc_getClass("NSSecureTextField")
 
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
 	_initWithFrame = sel_getUid("initWithFrame:")
@@ -48,7 +50,6 @@ var (
 	_state = sel_getUid("state")
 	_title = sel_getUid("title")
 	_stringValue = sel_getUid("stringValue")
-	// TODO others
 	_frame = sel_getUid("frame")
 	_setFrameDisplay = sel_getUid("setFrame:display:")
 	_setBezelStyle = sel_getUid("setBezelStyle:")
@@ -189,6 +190,25 @@ var classTypes = [nctypes]*classData{
 		},
 	},
 	c_lineedit:		&classData{
+		make:		func(parentWindow C.id, alternate bool) C.id {
+			var lineedit C.id
+
+			if alternate {
+				lineedit = objc_alloc(_NSSecureTextField)
+			} else {
+				lineedit = objc_alloc(_NSTextField)
+			}
+			lineedit = objc_msgSend_rect(lineedit, _initWithFrame,
+				0, 0, 100, 100)
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, lineedit)
+			return lineedit
+		},
+		show:		controlShow,
+		hide:			controlHide,
+		settextsel:		_setStringValue,
+		textsel:		_stringValue,
+		alttextsel:		_stringValue,
 	},
 	c_label:			&classData{
 	},
