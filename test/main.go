@@ -6,6 +6,13 @@ import (
 	. ".."
 )
 
+func listboxPreferredSizeTest() (*Window, error) {
+	lb := NewListbox(false, "xxxxx", "y", "zzz")
+	g := NewGrid(1, lb)
+	w := NewWindow("Listbox Preferred Size Test", 300, 300)
+	return w, w.Open(g)
+}
+
 func gridWindow() (*Window, error) {
 	w := NewWindow("Grid Test", 400, 400)
 	b00 := NewButton("0,0")
@@ -70,6 +77,10 @@ func myMain() {
 		panic(err)
 	}
 	gw, err := gridWindow()
+	if err != nil {
+		panic(err)
+	}
+	_, err = listboxPreferredSizeTest()
 	if err != nil {
 		panic(err)
 	}
