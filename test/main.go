@@ -3,9 +3,11 @@ package main
 
 import (
 	"fmt"
+	"flag"
 	. ".."
 )
 
+var prefsizetest = flag.Bool("prefsize", false, "")
 func listboxPreferredSizeTest() (*Window, error) {
 	lb := NewListbox(false, "xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
@@ -13,6 +15,7 @@ func listboxPreferredSizeTest() (*Window, error) {
 	return w, w.Open(g)
 }
 
+var gridtest = flag.Bool("grid", false, "")
 func gridWindow() (*Window, error) {
 	w := NewWindow("Grid Test", 400, 400)
 	b00 := NewButton("0,0")
@@ -76,13 +79,17 @@ func myMain() {
 	if err != nil {
 		panic(err)
 	}
-	gw, err := gridWindow()
-	if err != nil {
-		panic(err)
+	if *gridtest {
+		_, err := gridWindow()
+		if err != nil {
+			panic(err)
+		}
 	}
-	_, err = listboxPreferredSizeTest()
-	if err != nil {
-		panic(err)
+	if *prefsizetest {
+		_, err = listboxPreferredSizeTest()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 mainloop:
@@ -127,11 +134,11 @@ mainloop:
 			pbar.SetProgress(prog)
 		}
 	}
-	gw.Hide()
 	w.Hide()
 }
 
 func main() {
+	flag.Parse()
 	err := Go(myMain)
 	if err != nil {
 		panic(err)
