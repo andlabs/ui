@@ -47,6 +47,8 @@ struct xsize {
 
 extern struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel);
 
+extern uintptr_t objc_msgSend_uintret_noargs(id objc, SEL sel);
+
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
 
 #define m1(name, type1) \
@@ -85,12 +87,14 @@ extern id objc_msgSend_int(id obj, SEL sel, intptr_t a);
 m2(id_id, id, id)
 extern id _objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b);
 extern id objc_msgSend_id_int(id obj, SEL sel, id a, intptr_t b);
+extern id objc_msgSend_id_uint(id obj, SEL sel, id a, uintptr_t b);
 
 m3(id_id_id, id, id, id)
 m3(sel_id_bool, SEL, id, BOOL)
 
 extern id _objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, uintptr_t b, uintptr_t c, BOOL d);
 m4(id_sel_id_id, id, SEL, id, id)
+m4(id_id_id_id, id, id, id, id)
 
 /* for listbox_darwin.go */
 extern uintptr_t *NSIndexSetEntries(id, uintptr_t);

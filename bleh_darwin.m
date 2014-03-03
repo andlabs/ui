@@ -28,9 +28,19 @@ id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
 NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, I'll just place things here for maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
 */
 
+uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel)
+{
+	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel));
+}
+
 id _objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
 {
 	return objc_msgSend(obj, sel, (NSUInteger) a);
+}
+
+id objc_msgSend_id_uint(id obj, SEL sel, id a, uintptr_t b)
+{
+	return objc_msgSend(obj, sel, a, (NSUInteger) b);
 }
 
 /*
@@ -119,7 +129,8 @@ struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
 This is a doozy: it deals with a NSUInteger array needed for this one selector, and converts them all into a uintptr_t array so we can use it from Go. The two arrays are created at runtime with malloc(); only the NSUInteger one is freed here, while Go frees the returned one. It's not optimal.
 */
 
-static SEL getIndexes = sel_getUid("getIndexes:maxCount:inRange:");
+static SEL getIndexes;
+static BOOL getIndexes_init = NO;		/* because we can't initialize it out here */
 
 uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 {
@@ -128,6 +139,10 @@ uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 	uintptr_t i;
 	size_t countsize;
 
+	if (getIndexes_init == NO) {
+		getIndexes = sel_getUid("getIndexes:maxCount:inRange:");
+		getIndexes_init = YES;
+	}
 	countsize = (size_t) count;
 	nsuints = (NSUInteger *) malloc(countsize * sizeof (NSUInteger));
 	/* TODO check return value */

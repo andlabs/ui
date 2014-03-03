@@ -2,7 +2,7 @@
 package ui
 
 import (
-	"runtime"
+	"reflect"
 	"unsafe"
 )
 
@@ -15,7 +15,10 @@ PERSONAL TODO - make a post somewhere that does all this in Objective-C itself, 
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
+// #include <stdlib.h>
 // #include "objc_darwin.h"
+// /* cgo doesn't like nil */
+// id nilid = nil;
 import "C"
 
 /*
@@ -89,12 +92,12 @@ func appendListboxArray(array C.id, what string) {
 }
 
 func insertListboxArrayBefore(array C.id, what string, before int) {
-	objc_msgSend_id_uint(array, _insertObjectAtArrangedObjectsIndex,
-		toListboxItem(what), uintptr(before))
+	C.objc_msgSend_id_uint(array, _insertObjectAtArrangedObjectsIndex,
+		toListboxItem(what), C.uintptr_t(before))
 }
 
 func deleteListboxArray(array C.id, index int) {
-	objc_msgSend_id(array, _removeObjectAtArrangedObjectsIndex, uintptr(index))
+	objc_msgSend_uint(array, _removeObjectAtArrangedObjectsIndex, uintptr(index))
 }
 
 func indexListboxArray(array C.id, index int) string {
@@ -133,7 +136,7 @@ func bindListboxArray(tableColumn C.id, array C.id) {
 	C.objc_msgSend_id_id_id_id(tableColumn, _bindToObjectWithKeyPathOptions,
 		tableColumnBinding,
 		array, listboxItemKeyPath,
-		C.id(C.nil))			// no options
+		C.nilid)				// no options
 }
 
 func listboxArray(tableColumn C.id) C.id {
@@ -194,19 +197,19 @@ func makeListbox(parentWindow C.id, alternate bool) C.id {
 	}
 	C.objc_msgSend_bool(listbox, _setAllowsMultipleSelection, multi)
 	C.objc_msgSend_bool(listbox, _setAllowsEmptySelection, C.BOOL(C.YES))
-	C.objc_msgSend_id(listbox, _setHeaderView, C.id(C.nil))
+	C.objc_msgSend_id(listbox, _setHeaderView, C.nilid)
 	// TODO others?
 	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
 	C.objc_msgSend_id(windowView, _addSubview, listbox)
 	return listbox
 }
 
-func appendListbox(listbox C.id, what string) {
+func appendListbox(listbox C.id, what string, alternate bool) {
 	array := listboxArray(listboxTableColumn(listbox))
 	appendListboxArray(array, what)
 }
 
-func insertListboxBefore(listbox C.id, what string, before int) {
+func insertListboxBefore(listbox C.id, what string, before int, alternate bool) {
 	array := listboxArray(listboxTableColumn(listbox))
 	insertListboxArrayBefore(array, what, before)
 }
@@ -215,24 +218,24 @@ func insertListboxBefore(listbox C.id, what string, before int) {
 // C.NSIndexSetEntries() makes two arrays of size count: one NSUInteger array and one C.uintptr_t array for returning; this makes a third of type []int for using
 // if only NSUInteger was usable (see bleh_darwin.m)
 func selectedListboxIndices(listbox C.id) (list []int) {
-	var cindices []C.uintptr
+	var cindices []C.uintptr_t
 
 	indices := C.objc_msgSend_noargs(listbox, _selectedRowIndexes)
-	count := int(C.objc_msgSend_uintret(indices, _count))
+	count := int(C.objc_msgSend_uintret_noargs(indices, _count))
 	if count == 0 {
-		ret
+		return nil
 	}
 	list = make([]int, count)
 	cidx := C.NSIndexSetEntries(indices, C.uintptr_t(count))
-	defer C.free(cidx)
+	defer C.free(unsafe.Pointer(cidx))
 	pcindices := (*reflect.SliceHeader)(unsafe.Pointer(&cindices))
 	pcindices.Cap = count
 	pcindices.Len = count
-	pcindices.Data = uintptr(cidx)
+	pcindices.Data = uintptr(unsafe.Pointer(cidx))
 	for i := 0; i < count; i++ {
-		indices[i] = int(cidx[i])
+		list[i] = int(cindices[i])
 	}
-	return indices
+	return list
 }
 
 func selectedListboxTexts(listbox C.id) (texts []string) {
