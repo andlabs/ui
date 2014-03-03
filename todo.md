@@ -21,6 +21,8 @@ so I don't forget:
 - have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index before creation
 - make the Windows implementation of message boxes run on uitask
 	- ensure MsgBoxError can run if initialization failed if things change ever
+- should Labels be selectable?
+	- should message box text be selectable on all platforms or only on those that make it the default?
 
 important things:
 - ui.Go() should exit when the main() you pass in exits
@@ -29,6 +31,7 @@ important things:
 - I think Cocoa NSButton text is not vertically aligned properly...?
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - figure out what to do about deleting a nonexistent item; each backend responds differently by default
+- some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness; Labels in the grid test window get cropped
 - there's no GTK+ error handling whatsoever; we need to figure out how it works
 - make sure GTK+ documentation point differences don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins

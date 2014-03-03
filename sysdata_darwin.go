@@ -67,6 +67,9 @@ var (
 	_indexOfSelectedItem = sel_getUid("indexOfSelectedItem")
 	_addItemWithObjectValue = sel_getUid("addItemWithObjectValue:")
 	_insertItemWithObjectValueAtIndex = sel_getUid("insertItemWithObjectValue:atIndex:")
+	_setEditable = sel_getUid("setEditable:")
+	_setBordered = sel_getUid("setBordered:")
+	_setDrawsBackground = sel_getUid("setDrawsBackground:")
 )
 
 func controlShow(what C.id) {
@@ -211,6 +214,22 @@ var classTypes = [nctypes]*classData{
 		alttextsel:		_stringValue,
 	},
 	c_label:			&classData{
+		make:		func(parentWindow C.id, alternate bool) C.id {
+			label := objc_alloc(_NSTextField)
+			label = objc_msgSend_rect(label, _initWithFrame,
+				0, 0, 100, 100)
+			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
+			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
+			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
+			// TODO others?
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, label)
+			return label
+		},
+		show:		controlShow,
+		hide:			controlHide,
+		settextsel:		_setStringValue,
+		textsel:		_stringValue,
 	},
 	c_listbox:			&classData{
 	},
