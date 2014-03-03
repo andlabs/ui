@@ -183,7 +183,7 @@ var (
 	_setAllowsEmptySelection = sel_getUid("setAllowsEmptySelection:")
 	_setHeaderView = sel_getUid("setHeaderView:")
 	_selectedRowIndexes = sel_getUid("selectedRowIndexes")
-	_count = sel_getUid("_count")
+	_count = sel_getUid("count")
 )
 
 func makeListbox(parentWindow C.id, alternate bool) C.id {
