@@ -39,6 +39,7 @@ var (
 	_NSComboBox = objc_getClass("NSComboBox")
 	_NSTextField = objc_getClass("NSTextField")
 	_NSSecureTextField = objc_getClass("NSSecureTextField")
+	_NSProgressIndicator = objc_getClass("NSProgressIndicator")
 
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
 	_initWithFrame = sel_getUid("initWithFrame:")
@@ -71,6 +72,10 @@ var (
 	_setEditable = sel_getUid("setEditable:")
 	_setBordered = sel_getUid("setBordered:")
 	_setDrawsBackground = sel_getUid("setDrawsBackground:")
+	_setStyle = sel_getUid("setStyle:")
+	_setControlSize = sel_getUid("setControlSize:")
+	_setIndeterminate = sel_getUid("setIndeterminate:")
+	_setDoubleValue = sel_getUid("setDoubleValue:")
 )
 
 func controlShow(what C.id) {
@@ -243,6 +248,20 @@ var classTypes = [nctypes]*classData{
 		delete:		deleteListbox,
 	},
 	c_progressbar:		&classData{
+		make:		func(parentWindow C.id, alternate bool) C.id {
+			pbar := objc_alloc(_NSProgressIndicator)
+			pbar = objc_msgSend_rect(pbar, _initWithFrame,
+				0, 0, 100, 100)
+			// TODO really int?
+			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle
+			objc_msgSend_uint(pbar, _setControlSize, 0)		// NSRegularControlSize
+			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
+			windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
+			C.objc_msgSend_id(windowView, _addSubview, pbar)
+			return pbar
+		},
+		show:		controlShow,
+		hide:			controlHide,
 	},
 }
 
@@ -448,5 +467,11 @@ if classTypes[s.ctype].delete == nil { return nil }
 }
 
 func (s *sysData) setProgress(percent int) {
-	// TODO
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		C.objc_msgSend_double(s.id, _setDoubleValue, C.double(percent))
+		ret <- struct{}{}
+	}
+	<-ret
 }
