@@ -1,13 +1,6 @@
 # Native UI library for Go
-### THIS PACKAGE IS UNSTABLE. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `go test -c` to build a test binary which runs a (mostly) feature-complete UI test.
+### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `./test` to build a test binary `test/main` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
 
-This is a simple library for building cross-platform GUI programs in Go. It targets Windows and all Unix variants (except Mac OS X until further notice) and provides a thread-safe, channel-based API.
-
-The API is no longer frozen; instead I will have to continue without the OS X port and do more work later. Oh well :/
-
-Until then, check `todo.md` for more.
-
-## Future Readme Contents
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 
 ui aims to run on all supported versions of supported platforms. To be more precise, the system requirements are:
@@ -24,7 +17,7 @@ Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 
 The following is an example program to illustrate what programming with ui is like:
 ```go
-(see main_test.go)
+(see test/main.go)
 ```
 
 ## Contributing
