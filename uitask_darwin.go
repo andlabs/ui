@@ -1,4 +1,6 @@
 // 28 february 2014
+
+//
 package ui
 
 import (
@@ -15,13 +17,12 @@ var uitask chan func()
 
 var (
 	_NSAutoreleasePool = objc_getClass("NSAutoreleasePool")
-	_NSValue = objc_getClass("NSValue")
+	_NSValue           = objc_getClass("NSValue")
 
-	_valueWithPointer = sel_getUid("valueWithPointer:")
-	_performSelectorOnMainThread =
-		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:")
+	_valueWithPointer            = sel_getUid("valueWithPointer:")
+	_performSelectorOnMainThread = sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:")
 	_pointerValue = sel_getUid("pointerValue")
-	_run = sel_getUid("run")
+	_run          = sel_getUid("run")
 )
 
 func ui(main func()) error {
@@ -46,7 +47,7 @@ func ui(main func()) error {
 				_performSelectorOnMainThread,
 				_uitask,
 				fp,
-				C.BOOL(C.YES))			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
+				C.BOOL(C.YES)) // wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
 			objc_release(pool)
 		}
 	}()
@@ -62,14 +63,14 @@ func ui(main func()) error {
 var (
 	_NSApplication = objc_getClass("NSApplication")
 
-	_sharedApplication = sel_getUid("sharedApplication")
+	_sharedApplication   = sel_getUid("sharedApplication")
 	_setActivationPolicy = sel_getUid("setActivationPolicy:")
 )
 
 func initCocoa() (NSApp C.id, err error) {
 	NSApp = C.objc_msgSend_noargs(_NSApplication, _sharedApplication)
 	r := C.objc_msgSend_int(NSApp, _setActivationPolicy,
-		0)		// NSApplicationActivationPolicyRegular
+		0) // NSApplicationActivationPolicyRegular
 	if C.BOOL(uintptr(unsafe.Pointer(r))) != C.BOOL(C.YES) {
 		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
 		return
@@ -82,6 +83,6 @@ func initCocoa() (NSApp C.id, err error) {
 //export appDelegate_uitask
 func appDelegate_uitask(self C.id, sel C.SEL, arg C.id) {
 	p := C.objc_msgSend_noargs(arg, _pointerValue)
-	f := (*func ())(unsafe.Pointer(p))
+	f := (*func())(unsafe.Pointer(p))
 	(*f)()
 }

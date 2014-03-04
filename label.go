@@ -1,4 +1,6 @@
 // 14 february 2014
+
+//
 package ui
 
 import (
@@ -7,17 +9,17 @@ import (
 
 // A Label is a static line of text used to mark other controls.
 type Label struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initText	string
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initText string
 }
 
 // NewLabel creates a new Label with the specified text.
 func NewLabel(text string) *Label {
 	return &Label{
-		sysData:	mksysdata(c_label),
-		initText:	text,
+		sysData:  mksysdata(c_label),
+		initText: text,
 	}
 }
 

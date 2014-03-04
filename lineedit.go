@@ -1,4 +1,6 @@
 // 14 february 2014
+
+//
 package ui
 
 import (
@@ -9,26 +11,26 @@ import (
 type LineEdit struct {
 	// TODO Typing event
 
-	lock			sync.Mutex
-	created		bool
-	sysData		*sysData
-	initText		string
-	password		bool
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initText string
+	password bool
 }
 
 // NewLineEdit makes a new LineEdit with the specified text.
 func NewLineEdit(text string) *LineEdit {
 	return &LineEdit{
-		sysData:	mksysdata(c_lineedit),
-		initText:	text,
+		sysData:  mksysdata(c_lineedit),
+		initText: text,
 	}
 }
 
 // NewPasswordEdit makes a new LineEdit which allows the user to enter a password.
 func NewPasswordEdit() *LineEdit {
 	return &LineEdit{
-		sysData:		mksysdata(c_lineedit),
-		password:		true,
+		sysData:  mksysdata(c_lineedit),
+		password: true,
 	}
 }
 

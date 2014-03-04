@@ -1,6 +1,8 @@
 // +build !windows,!darwin,!plan9
 
 // 16 february 2014
+
+//
 package ui
 
 import (
@@ -23,9 +25,9 @@ func ui(main func()) error {
 		select {
 		case f := <-uitask:
 			f()
-		default:		// do not block
+		default: // do not block
 		}
-		return true	// don't destroy the callback
+		return true // don't destroy the callback
 	})
 
 	go main()

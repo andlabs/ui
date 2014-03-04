@@ -1,8 +1,10 @@
 // 2 march 2014
+
+//
 package ui
 
 import (
-	// ...
+// ...
 )
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -11,19 +13,19 @@ import "C"
 
 // NSAlert styles.
 const (
-	_NSWarningAlertStyle = 0			// default
+	_NSWarningAlertStyle       = 0 // default
 	_NSInformationalAlertStyle = 1
-	_NSCriticalAlertStyle = 2
+	_NSCriticalAlertStyle      = 2
 )
 
 var (
 	_NSAlert = objc_getClass("NSAlert")
 
-	_setMessageText = sel_getUid("setMessageText:")
+	_setMessageText     = sel_getUid("setMessageText:")
 	_setInformativeText = sel_getUid("setInformativeText:")
-	_setAlertStyle = sel_getUid("setAlertStyle:")
+	_setAlertStyle      = sel_getUid("setAlertStyle:")
 	_addButtonWithTitle = sel_getUid("addButtonWithTitle:")
-	_runModal = sel_getUid("runModal")
+	_runModal           = sel_getUid("runModal")
 )
 
 func _msgBox(title string, text string, style uintptr, button0 string) {

@@ -1,109 +1,111 @@
 // 11 february 2014
+
+//
 package ui
 
 import (
 	"fmt"
+	"sync"
 	"syscall"
 	"unsafe"
-	"sync"
 )
 
 type sysData struct {
 	cSysData
 
-	hwnd			_HWND
-	children			map[_HMENU]*sysData
-	nextChildID		_HMENU
-	childrenLock		sync.Mutex
-	shownAlready		bool
+	hwnd         _HWND
+	children     map[_HMENU]*sysData
+	nextChildID  _HMENU
+	childrenLock sync.Mutex
+	shownAlready bool
 }
 
 type classData struct {
-	name			string
-	style				uint32
-	xstyle			uint32
-	mkid				bool
-	altStyle			uint32
-	font				*_HANDLE
-	appendMsg		uintptr
-	insertBeforeMsg	uintptr
-	deleteMsg			uintptr
-	selectedIndexMsg	uintptr
-	selectedIndexErr	int
-	addSpaceErr		int
+	name             string
+	style            uint32
+	xstyle           uint32
+	mkid             bool
+	altStyle         uint32
+	font             *_HANDLE
+	appendMsg        uintptr
+	insertBeforeMsg  uintptr
+	deleteMsg        uintptr
+	selectedIndexMsg uintptr
+	selectedIndexErr int
+	addSpaceErr      int
 }
 
 const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
 const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
-	c_window:		&classData{
-		style:			_WS_OVERLAPPEDWINDOW,
-		xstyle:			0,
+	c_window: &classData{
+		style:  _WS_OVERLAPPEDWINDOW,
+		xstyle: 0,
 	},
-	c_button:			&classData{
-		name:			"BUTTON",
-		style:			_BS_PUSHBUTTON | controlstyle,
-		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
+	c_button: &classData{
+		name:   "BUTTON",
+		style:  _BS_PUSHBUTTON | controlstyle,
+		xstyle: 0 | controlxstyle,
+		font:   &controlFont,
 	},
-	c_checkbox:		&classData{
-		name:			"BUTTON",
-		style:			_BS_AUTOCHECKBOX | controlstyle,
-		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
+	c_checkbox: &classData{
+		name:   "BUTTON",
+		style:  _BS_AUTOCHECKBOX | controlstyle,
+		xstyle: 0 | controlxstyle,
+		font:   &controlFont,
 	},
-	c_combobox:		&classData{
-		name:			"COMBOBOX",
-		style:			_CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
-		xstyle:			0 | controlxstyle,
-		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | _WS_VSCROLL | controlstyle,
-		font:				&controlFont,
-		appendMsg:		_CB_ADDSTRING,
-		insertBeforeMsg:	_CB_INSERTSTRING,
-		deleteMsg:		_CB_DELETESTRING,
-		selectedIndexMsg:	_CB_GETCURSEL,
-		selectedIndexErr:	_CB_ERR,
-		addSpaceErr:		_CB_ERRSPACE,
+	c_combobox: &classData{
+		name:             "COMBOBOX",
+		style:            _CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
+		xstyle:           0 | controlxstyle,
+		altStyle:         _CBS_DROPDOWN | _CBS_AUTOHSCROLL | _WS_VSCROLL | controlstyle,
+		font:             &controlFont,
+		appendMsg:        _CB_ADDSTRING,
+		insertBeforeMsg:  _CB_INSERTSTRING,
+		deleteMsg:        _CB_DELETESTRING,
+		selectedIndexMsg: _CB_GETCURSEL,
+		selectedIndexErr: _CB_ERR,
+		addSpaceErr:      _CB_ERRSPACE,
 	},
-	c_lineedit:		&classData{
-		name:			"EDIT",
-		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
-		xstyle:			0 | controlxstyle,
-		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
-		font:				&controlFont,
+	c_lineedit: &classData{
+		name:     "EDIT",
+		style:    _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
+		xstyle:   0 | controlxstyle,
+		altStyle: _ES_PASSWORD | _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
+		font:     &controlFont,
 	},
-	c_label:			&classData{
-		name:			"STATIC",
-		style:			_SS_NOPREFIX | controlstyle,
-		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
+	c_label: &classData{
+		name:   "STATIC",
+		style:  _SS_NOPREFIX | controlstyle,
+		xstyle: 0 | controlxstyle,
+		font:   &controlFont,
 	},
-	c_listbox:			&classData{
-		name:			"LISTBOX",
+	c_listbox: &classData{
+		name: "LISTBOX",
 		// TODO also _WS_HSCROLL?
-		style:			_WS_VSCROLL | controlstyle,
-		xstyle:			0 | controlxstyle,
-		altStyle:			_LBS_EXTENDEDSEL | _WS_VSCROLL | controlstyle,
-		font:				&controlFont,
-		appendMsg:		_LB_ADDSTRING,
-		insertBeforeMsg:	_LB_INSERTSTRING,
-		deleteMsg:		_LB_DELETESTRING,
-		selectedIndexMsg:	_LB_GETCURSEL,
-		selectedIndexErr:	_LB_ERR,
-		addSpaceErr:		_LB_ERRSPACE,
+		style:            _WS_VSCROLL | controlstyle,
+		xstyle:           0 | controlxstyle,
+		altStyle:         _LBS_EXTENDEDSEL | _WS_VSCROLL | controlstyle,
+		font:             &controlFont,
+		appendMsg:        _LB_ADDSTRING,
+		insertBeforeMsg:  _LB_INSERTSTRING,
+		deleteMsg:        _LB_DELETESTRING,
+		selectedIndexMsg: _LB_GETCURSEL,
+		selectedIndexErr: _LB_ERR,
+		addSpaceErr:      _LB_ERRSPACE,
 	},
-	c_progressbar:		&classData{
-		name:			_PROGRESS_CLASS,
-		style:			_PBS_SMOOTH | controlstyle,
-		xstyle:			0 | controlxstyle,
+	c_progressbar: &classData{
+		name:   _PROGRESS_CLASS,
+		style:  _PBS_SMOOTH | controlstyle,
+		xstyle: 0 | controlxstyle,
 	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {
 	s.childrenLock.Lock()
 	defer s.childrenLock.Unlock()
-	s.nextChildID++		// start at 1
+	s.nextChildID++ // start at 1
 	if s.children == nil {
 		s.children = map[_HMENU]*sysData{}
 	}
@@ -124,10 +126,10 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 	classname := ct.name
 	cid := _HMENU(0)
 	pwin := uintptr(_NULL)
-	if window != nil {		// this is a child control
+	if window != nil { // this is a child control
 		cid = window.addChild(s)
 		pwin = uintptr(window.hwnd)
-	} else {				// need a new class
+	} else { // need a new class
 		n, err := registerStdWndClass(s)
 		if err != nil {
 			return fmt.Errorf("error creating window class for new window: %v", err)
@@ -139,8 +141,8 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 		style = uintptr(ct.altStyle)
 	}
 	uitask <- &uimsg{
-		call:		_createWindowEx,	
-		p:		[]uintptr{
+		call: _createWindowEx,
+		p: []uintptr{
 			uintptr(ct.xstyle),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
@@ -154,10 +156,10 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 			uintptr(hInstance),
 			uintptr(_NULL),
 		},
-		ret:	ret,
+		ret: ret,
 	}
 	r := <-ret
-	if r.ret == 0 {		// failure
+	if r.ret == 0 { // failure
 		if window != nil {
 			window.delChild(cid)
 		}
@@ -166,14 +168,14 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 	s.hwnd = _HWND(r.ret)
 	if ct.font != nil {
 		uitask <- &uimsg{
-			call:		_sendMessage,
-			p:		[]uintptr{
+			call: _sendMessage,
+			p: []uintptr{
 				uintptr(s.hwnd),
 				uintptr(_WM_SETFONT),
 				uintptr(_WPARAM(*ct.font)),
 				uintptr(_LPARAM(_TRUE)),
 			},
-			ret:		ret,
+			ret: ret,
 		}
 		<-ret
 	}
@@ -189,7 +191,7 @@ var (
 // 	UpdateWindow(hwnd);
 // otherwise we go ahead and show the object normally with SW_SHOW
 func (s *sysData) show() (err error) {
-	if s.ctype != c_window {		// don't do the init ShowWindow/UpdateWindow chain on non-windows
+	if s.ctype != c_window { // don't do the init ShowWindow/UpdateWindow chain on non-windows
 		s.shownAlready = true
 	}
 	show := uintptr(_SW_SHOW)
@@ -200,19 +202,19 @@ func (s *sysData) show() (err error) {
 	defer close(ret)
 	// TODO figure out how to handle error
 	uitask <- &uimsg{
-		call:		_showWindow,
-		p:		[]uintptr{uintptr(s.hwnd), show},
-		ret:		ret,
+		call: _showWindow,
+		p:    []uintptr{uintptr(s.hwnd), show},
+		ret:  ret,
 	}
 	<-ret
 	if !s.shownAlready {
 		uitask <- &uimsg{
-			call:		_updateWindow,
-			p:		[]uintptr{uintptr(s.hwnd)},
-			ret:		ret,
+			call: _updateWindow,
+			p:    []uintptr{uintptr(s.hwnd)},
+			ret:  ret,
 		}
 		r := <-ret
-		if r.ret == 0 {		// failure
+		if r.ret == 0 { // failure
 			return fmt.Errorf("error updating window for the first time: %v", r.err)
 		}
 		s.shownAlready = true
@@ -225,9 +227,9 @@ func (s *sysData) hide() (err error) {
 	defer close(ret)
 	// TODO figure out how to handle error
 	uitask <- &uimsg{
-		call:		_showWindow,
-		p:		[]uintptr{uintptr(s.hwnd), _SW_HIDE},
-		ret:		ret,
+		call: _showWindow,
+		p:    []uintptr{uintptr(s.hwnd), _SW_HIDE},
+		ret:  ret,
 	}
 	<-ret
 	return nil
@@ -237,15 +239,15 @@ func (s *sysData) setText(text string) error {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_setWindowText,
-		p:		[]uintptr{
+		call: _setWindowText,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(text))),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
-	if r.ret == 0 {		// failure
+	if r.ret == 0 { // failure
 		return r.err
 	}
 	return nil
@@ -259,7 +261,7 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 		uintptr(width),
 		uintptr(height),
 		uintptr(_TRUE))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error setting window/control rect: %v", err)
 	}
 	return nil
@@ -269,14 +271,14 @@ func (s *sysData) isChecked() bool {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_BM_GETCHECK),
 			uintptr(0),
 			uintptr(0),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	return r.ret == _BST_CHECKED
@@ -288,27 +290,27 @@ func (s *sysData) text() (str string) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_WM_GETTEXTLENGTH),
 			uintptr(0),
 			uintptr(0),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
-	length := r.ret + 1		// terminating null
+	length := r.ret + 1 // terminating null
 	tc = make([]uint16, length)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_WM_GETTEXT),
 			uintptr(_WPARAM(length)),
 			uintptr(_LPARAM(unsafe.Pointer(&tc[0]))),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	<-ret
 	return syscall.UTF16ToString(tc)
@@ -318,14 +320,14 @@ func (s *sysData) append(what string) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].appendMsg),
 			uintptr(_WPARAM(0)),
 			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
@@ -340,14 +342,14 @@ func (s *sysData) insertBefore(what string, index int) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].insertBeforeMsg),
 			uintptr(_WPARAM(index)),
 			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
@@ -362,24 +364,24 @@ func (s *sysData) selectedIndex() int {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].selectedIndexMsg),
 			uintptr(_WPARAM(0)),
 			uintptr(_LPARAM(0)),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
-	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {		// no selection or manually entered text (apparently, for the latter)
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) { // no selection or manually entered text (apparently, for the latter)
 		return -1
 	}
 	return int(r.ret)
 }
 
 func (s *sysData) selectedIndices() []int {
-	if !s.alternate {		// single-selection list box; use single-selection method
+	if !s.alternate { // single-selection list box; use single-selection method
 		index := s.selectedIndex()
 		if index == -1 {
 			return nil
@@ -390,32 +392,32 @@ func (s *sysData) selectedIndices() []int {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_LB_GETSELCOUNT),
 			uintptr(0),
 			uintptr(0),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	if r.ret == uintptr(_LB_ERR) {
 		panic("UI library internal error: LB_ERR from LB_GETSELCOUNT in what we know is a multi-selection listbox")
 	}
-	if r.ret == 0 {		// nothing selected
+	if r.ret == 0 { // nothing selected
 		return nil
 	}
 	indices := make([]int, r.ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_LB_GETSELITEMS),
 			uintptr(_WPARAM(r.ret)),
 			uintptr(_LPARAM(unsafe.Pointer(&indices[0]))),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r = <-ret
 	if r.ret == uintptr(_LB_ERR) {
@@ -431,14 +433,14 @@ func (s *sysData) selectedTexts() []string {
 	strings := make([]string, len(indices))
 	for i, v := range indices {
 		uitask <- &uimsg{
-			call:		_sendMessage,
-			p:		[]uintptr{
+			call: _sendMessage,
+			p: []uintptr{
 				uintptr(s.hwnd),
 				uintptr(_LB_GETTEXTLEN),
 				uintptr(_WPARAM(v)),
 				uintptr(0),
 			},
-			ret:		ret,
+			ret: ret,
 		}
 		r := <-ret
 		if r.ret == uintptr(_LB_ERR) {
@@ -446,14 +448,14 @@ func (s *sysData) selectedTexts() []string {
 		}
 		str := make([]uint16, r.ret)
 		uitask <- &uimsg{
-			call:		_sendMessage,
-			p:		[]uintptr{
+			call: _sendMessage,
+			p: []uintptr{
 				uintptr(s.hwnd),
 				uintptr(_LB_GETTEXT),
 				uintptr(_WPARAM(v)),
 				uintptr(_LPARAM(unsafe.Pointer(&str[0]))),
 			},
-			ret:		ret,
+			ret: ret,
 		}
 		<-ret
 		if r.ret == uintptr(_LB_ERR) {
@@ -470,12 +472,12 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_getClientRect,
-		p:		[]uintptr{
+		call: _getClientRect,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(unsafe.Pointer(&rect)),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	if r.ret == 0 {
@@ -493,14 +495,14 @@ func (s *sysData) delete(index int) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].deleteMsg),
 			uintptr(_WPARAM(index)),
 			uintptr(0),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
@@ -513,14 +515,14 @@ func (s *sysData) setProgress(percent int) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
+		call: _sendMessage,
+		p: []uintptr{
 			uintptr(s.hwnd),
 			uintptr(_PBM_SETPOS),
 			uintptr(_WPARAM(percent)),
 			uintptr(0),
 		},
-		ret:		ret,
+		ret: ret,
 	}
 	<-ret
 }

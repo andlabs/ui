@@ -1,10 +1,12 @@
 // 11 february 2014
+
+//
 package ui
 
 import (
+	"runtime"
 	"syscall"
 	"unsafe"
-	"runtime"
 )
 
 /*
@@ -16,14 +18,14 @@ I had come up with this first but wanted to try other things before doing it (an
 var uitask chan *uimsg
 
 type uimsg struct {
-	call		*syscall.LazyProc
-	p		[]uintptr
-	ret		chan uiret
+	call *syscall.LazyProc
+	p    []uintptr
+	ret  chan uiret
 }
 
 type uiret struct {
-	ret		uintptr
-	err		error
+	ret uintptr
+	err error
 }
 
 const (
@@ -60,14 +62,14 @@ func ui(main func()) error {
 				msgRequested,
 				uintptr(0),
 				uintptr(unsafe.Pointer(m)))
-			if r1 == 0 {		// failure
-				panic("error sending message to message loop to call function: " + err.Error())		// TODO
+			if r1 == 0 { // failure
+				panic("error sending message to message loop to call function: " + err.Error()) // TODO
 			}
 		case err := <-msglooperrs:
-			if err == nil {		// WM_QUIT; no error
+			if err == nil { // WM_QUIT; no error
 				quit = true
 			} else {
-				panic("unexpected return from message loop: " + err.Error())		// TODO
+				panic("unexpected return from message loop: " + err.Error()) // TODO
 			}
 		}
 	}
@@ -76,26 +78,26 @@ func ui(main func()) error {
 }
 
 var (
-	_dispatchMessage = user32.NewProc("DispatchMessageW")
-	_getMessage = user32.NewProc("GetMessageW")
+	_dispatchMessage    = user32.NewProc("DispatchMessageW")
+	_getMessage         = user32.NewProc("GetMessageW")
 	_getCurrentThreadID = kernel32.NewProc("GetCurrentThreadId")
-	_postQuitMessage = user32.NewProc("PostQuitMessage")
-	_sendMessage = user32.NewProc("SendMessageW")
-	_translateMessage = user32.NewProc("TranslateMessage")
+	_postQuitMessage    = user32.NewProc("PostQuitMessage")
+	_sendMessage        = user32.NewProc("SendMessageW")
+	_translateMessage   = user32.NewProc("TranslateMessage")
 )
 
-var getMessageFail = -1		// because Go doesn't let me
+var getMessageFail = -1 // because Go doesn't let me
 
 func msgloop(threadID chan uintptr, errors chan error) {
 	runtime.LockOSThread()
 
 	var msg struct {
-		Hwnd	_HWND
-		Message	uint32
-		WParam	_WPARAM
-		LParam	_LPARAM
-		Time		uint32
-		Pt		_POINT
+		Hwnd    _HWND
+		Message uint32
+		WParam  _WPARAM
+		LParam  _LPARAM
+		Time    uint32
+		Pt      _POINT
 	}
 
 	r1, _, _ := _getCurrentThreadID.Call()
@@ -106,11 +108,11 @@ func msgloop(threadID chan uintptr, errors chan error) {
 			uintptr(_NULL),
 			uintptr(0),
 			uintptr(0))
-		if r1 == uintptr(getMessageFail) {		// error
+		if r1 == uintptr(getMessageFail) { // error
 			errors <- err
 			return
 		}
-		if r1 == 0 {		// WM_QUIT message
+		if r1 == 0 { // WM_QUIT message
 			errors <- nil
 			return
 		}
@@ -118,8 +120,8 @@ func msgloop(threadID chan uintptr, errors chan error) {
 			m := (*uimsg)(unsafe.Pointer(msg.LParam))
 			r1, _, err := m.call.Call(m.p...)
 			m.ret <- uiret{
-				ret:	r1,
-				err:	err,
+				ret: r1,
+				err: err,
 			}
 			continue
 		}

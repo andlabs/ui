@@ -1,13 +1,16 @@
 // 11 february 2014
+
+//
 package main
 
 import (
-	"fmt"
-	"flag"
 	. ".."
+	"flag"
+	"fmt"
 )
 
 var prefsizetest = flag.Bool("prefsize", false, "")
+
 func listboxPreferredSizeTest() (*Window, error) {
 	lb := NewListbox(false, "xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
@@ -16,6 +19,7 @@ func listboxPreferredSizeTest() (*Window, error) {
 }
 
 var gridtest = flag.Bool("grid", false, "")
+
 func gridWindow() (*Window, error) {
 	w := NewWindow("Grid Test", 400, 400)
 	b00 := NewButton("0,0")
@@ -49,7 +53,7 @@ func myMain() {
 	b3 := NewButton("List Info")
 	s3 := NewStack(Horizontal, l, b3)
 	s3.SetStretchy(0)
-//	s3.SetStretchy(1)
+	//	s3.SetStretchy(1)
 	pbar := NewProgressBar()
 	prog := 0
 	incButton := NewButton("Inc")

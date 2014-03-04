@@ -1,4 +1,6 @@
 // 1 march 2014
+
+//
 package ui
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -27,13 +29,13 @@ func listboxPrefSize(control C.id) (width int, height int) {
 }
 
 var prefsizefuncs = [nctypes]func(C.id) (int, int){
-	c_button:			controlPrefSize,
-	c_checkbox:		controlPrefSize,
-	c_combobox:		controlPrefSize,
-	c_lineedit:		controlPrefSize,
-	c_label:			controlPrefSize,
-	c_listbox:			listboxPrefSize,
-	c_progressbar:		controlPrefSize,
+	c_button:      controlPrefSize,
+	c_checkbox:    controlPrefSize,
+	c_combobox:    controlPrefSize,
+	c_lineedit:    controlPrefSize,
+	c_label:       controlPrefSize,
+	c_listbox:     listboxPrefSize,
+	c_progressbar: controlPrefSize,
 }
 
 func (s *sysData) preferredSize() (width int, height int) {

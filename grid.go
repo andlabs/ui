@@ -1,4 +1,6 @@
 // 25 february 2014
+
+//
 package ui
 
 import (
@@ -17,13 +19,13 @@ import (
 // Unlike other UI toolkit Grids, this Grid does not (yet? TODO) allow Controls to span multiple rows or columns.
 // TODO differnet row/column control alignment; stretchy controls or other resizing options
 type Grid struct {
-	lock					sync.Mutex
-	created				bool
-	controls				[][]Control
-	filling				[][]bool
-	stretchyrow, stretchycol	int
-	widths, heights			[][]int		// caches to avoid reallocating each time
-	rowheights, colwidths	[]int
+	lock                     sync.Mutex
+	created                  bool
+	controls                 [][]Control
+	filling                  [][]bool
+	stretchyrow, stretchycol int
+	widths, heights          [][]int // caches to avoid reallocating each time
+	rowheights, colwidths    []int
 }
 
 // NewGrid creates a new Grid with the given Controls.
@@ -35,7 +37,7 @@ type Grid struct {
 // 		control10, control11, control12,
 // 		control20, control21, control22)
 func NewGrid(nPerRow int, controls ...Control) *Grid {
-	if len(controls) % nPerRow != 0 {
+	if len(controls)%nPerRow != 0 {
 		panic(fmt.Errorf("incomplete grid given to NewGrid() (not enough controls to evenly divide %d controls into rows of %d controls each)", len(controls), nPerRow))
 	}
 	nRows := len(controls) / nPerRow
@@ -55,14 +57,14 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 		}
 	}
 	return &Grid{
-		controls:		cc,
-		filling:		cf,
-		stretchyrow:	-1,
-		stretchycol:	-1,
-		widths:		cw,
-		heights:		ch,
-		rowheights:	make([]int, nRows),
-		colwidths:		make([]int, nPerRow),
+		controls:    cc,
+		filling:     cf,
+		stretchyrow: -1,
+		stretchycol: -1,
+		widths:      cw,
+		heights:     ch,
+		rowheights:  make([]int, nRows),
+		colwidths:   make([]int, nPerRow),
 	}
 }
 
@@ -73,7 +75,7 @@ func (g *Grid) SetFilling(row int, column int) {
 	defer g.lock.Unlock()
 
 	if g.created {
-		panic("Grid.SetFilling() called after window create")		// TODO
+		panic("Grid.SetFilling() called after window create") // TODO
 	}
 	g.filling[row][column] = true
 }
@@ -86,7 +88,7 @@ func (g *Grid) SetStretchy(row int, column int) {
 	defer g.lock.Unlock()
 
 	if g.created {
-		panic("Grid.SetFilling() called after window create")		// TODO
+		panic("Grid.SetFilling() called after window create") // TODO
 	}
 	g.stretchyrow = row
 	g.stretchycol = column
@@ -141,7 +143,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 		}
 	}
 	// 3) handle the stretchy control
-	if g.stretchyrow != -1 && g.stretchycol != -1 {		// TODO internal error if one is -1 but not both
+	if g.stretchyrow != -1 && g.stretchycol != -1 { // TODO internal error if one is -1 but not both
 		for i, w := range g.colwidths {
 			if i != g.stretchycol {
 				width -= w

@@ -1,4 +1,6 @@
 // 12 february 2014
+
+//
 package ui
 
 import (
@@ -9,20 +11,20 @@ import (
 type Button struct {
 	// This channel gets a message when the button is clicked.
 	// Unlike other channels in this package, this channel is initialized to non-nil when creating a new button, and cannot be set to nil later.
-	Clicked	chan struct{}
+	Clicked chan struct{}
 
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initText	string
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initText string
 }
 
 // NewButton creates a new button with the specified text.
 func NewButton(text string) (b *Button) {
 	return &Button{
-		sysData:	mksysdata(c_button),
-		initText:	text,
-		Clicked:	Event(),
+		sysData:  mksysdata(c_button),
+		initText: text,
+		Clicked:  Event(),
 	}
 }
 

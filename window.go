@@ -1,4 +1,6 @@
 // 11 february 2014
+
+//
 package ui
 
 import (
@@ -10,23 +12,23 @@ import (
 type Window struct {
 	// If this channel is non-nil, the event loop will receive on this when the user clicks the window's close button.
 	// This channel can only be set before initially opening the window.
-	Closing		chan struct{}
+	Closing chan struct{}
 
-	lock			sync.Mutex
-	created		bool
-	sysData		*sysData
-	initTitle		string
-	initWidth		int
-	initHeight		int
+	lock       sync.Mutex
+	created    bool
+	sysData    *sysData
+	initTitle  string
+	initWidth  int
+	initHeight int
 }
 
 // NewWindow creates a new window with the given title and size. The window is not constructed at the OS level until a call to Open().
 func NewWindow(title string, width int, height int) *Window {
 	return &Window{
-		sysData:		mksysdata(c_window),
-		initTitle:		title,
-		initWidth:		width,
-		initHeight:	height,
+		sysData:    mksysdata(c_window),
+		initTitle:  title,
+		initWidth:  width,
+		initHeight: height,
 	}
 }
 

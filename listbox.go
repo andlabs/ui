@@ -1,4 +1,6 @@
 // 14 february 2014
+
+//
 package ui
 
 import (
@@ -9,17 +11,17 @@ import (
 type Listbox struct {
 	// TODO Select event
 
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initItems	[]string
+	lock      sync.Mutex
+	created   bool
+	sysData   *sysData
+	initItems []string
 }
 
 // NewCombobox makes a new combobox with the given items. If multiple is true, the listbox allows multiple selection.
 func NewListbox(multiple bool, items ...string) (l *Listbox) {
 	l = &Listbox{
-		sysData:		mksysdata(c_listbox),
-		initItems:		items,
+		sysData:   mksysdata(c_listbox),
+		initItems: items,
 	}
 	l.sysData.alternate = multiple
 	return l
@@ -45,7 +47,7 @@ func (l *Listbox) InsertBefore(what string, before int) (err error) {
 	if l.created {
 		return l.sysData.insertBefore(what, before)
 	}
-	m := make([]string, 0, len(l.initItems) + 1)
+	m := make([]string, 0, len(l.initItems)+1)
 	m = append(m, l.initItems[:before]...)
 	m = append(m, what)
 	l.initItems = append(m, l.initItems[before:]...)
@@ -60,7 +62,7 @@ func (l *Listbox) Delete(index int) error {
 	if l.created {
 		return l.sysData.delete(index)
 	}
-	l.initItems = append(l.initItems[:index], l.initItems[index + 1:]...)
+	l.initItems = append(l.initItems[:index], l.initItems[index+1:]...)
 	return nil
 }
 
