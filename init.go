@@ -1,6 +1,9 @@
 // 11 february 2014
 
+// ui is a simple library for building cross-platform GUI programs in Go.
 //
+// It targets Windows, Mac OS X, Linux, and other Unixes, and provides a
+// thread-safe, channel-based API.
 package ui
 
 // Go sets up the UI environment and runs main in a goroutine.
