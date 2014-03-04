@@ -1,6 +1,8 @@
 // +build ignore
 
 // 7 february 2014
+
+//
 package ui
 
 import (
@@ -12,9 +14,9 @@ import (
 func fatalf(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
 	_, err := MessageBox(NULL,
-		"An internal error has occured:\n" + s,
+		"An internal error has occured:\n"+s,
 		os.Args[0],
-		MB_OK | MB_ICONERROR)
+		MB_OK|MB_ICONERROR)
 	if err == nil {
 		os.Exit(1)
 	}
@@ -77,12 +79,12 @@ func wndProc(hwnd HWND, msg uint32, wParam WPARAM, lParam LPARAM) LRESULT {
 			}
 
 			MessageBox(hwnd,
-				fmt.Sprintf("button state: %s\n" +
-					"variable combo box text: %s\n" +
-					"fixed combo box text with WM_GETTEXT: %s\n" +
-					"fixed combo box current index: %d\n" +
-					"edit field text: %s\n" +
-					"list box current index: %d\n" +
+				fmt.Sprintf("button state: %s\n"+
+					"variable combo box text: %s\n"+
+					"fixed combo box text with WM_GETTEXT: %s\n"+
+					"fixed combo box current index: %d\n"+
+					"edit field text: %s\n"+
+					"list box current index: %d\n"+
 					"check box checked: %v\n",
 					buttonclick, varText, fixTextWM, fixTextIndex, editText, listIndex, checkState == BST_CHECKED),
 				"note",
@@ -131,8 +133,8 @@ func resize(hwnd HWND) {
 	if err != nil {
 		fatalf("error getting window client rect: %v", err)
 	}
-	cr.Bottom -= 80		// Y position of listbox
-	cr.Bottom -= 20		// amount of pixels to leave behind
+	cr.Bottom -= 80 // Y position of listbox
+	cr.Bottom -= 20 // amount of pixels to leave behind
 	err = SetWindowPos(list,
 		HWND_TOP,
 		20, 80, 100, int(cr.Bottom),
@@ -170,12 +172,12 @@ func main() {
 	}
 
 	wc := &WNDCLASS{
-		LpszClassName:	className,
-		LpfnWndProc:		wndProc,
-		HInstance:		hInstance,
-		HIcon:			icon,
-		HCursor:			cursor,
-		HbrBackground:	HBRUSH(COLOR_BTNFACE + 1),
+		LpszClassName: className,
+		LpfnWndProc:   wndProc,
+		HInstance:     hInstance,
+		HIcon:         icon,
+		HCursor:       cursor,
+		HbrBackground: HBRUSH(COLOR_BTNFACE + 1),
 	}
 	_, err = RegisterClass(wc)
 	if err != nil {
@@ -197,7 +199,7 @@ func main() {
 	_, err = CreateWindowEx(
 		0,
 		"BUTTON", "Click Me",
-		BS_PUSHBUTTON | controlStyle,
+		BS_PUSHBUTTON|controlStyle,
 		20, 20, 100, 20,
 		hwnd, HMENU(IDC_BUTTON), hInstance, NULL)
 	if err != nil {
@@ -207,7 +209,7 @@ func main() {
 	varCombo, err = CreateWindowEx(
 		0,
 		"COMBOBOX", "",
-		CBS_DROPDOWN | CBS_AUTOHSCROLL | controlStyle,
+		CBS_DROPDOWN|CBS_AUTOHSCROLL|controlStyle,
 		140, 20, 100, 20,
 		hwnd, HMENU(IDC_VARCOMBO), hInstance, NULL)
 	if err != nil {
@@ -225,7 +227,7 @@ func main() {
 	fixCombo, err = CreateWindowEx(
 		0,
 		"COMBOBOX", "",
-		CBS_DROPDOWNLIST | controlStyle,
+		CBS_DROPDOWNLIST|controlStyle,
 		140, 50, 100, 20,
 		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
 	if err != nil {
@@ -243,7 +245,7 @@ func main() {
 	edit, err = CreateWindowEx(
 		0,
 		"EDIT", "",
-		ES_AUTOHSCROLL | ES_NOHIDESEL | WS_BORDER | controlStyle,
+		ES_AUTOHSCROLL|ES_NOHIDESEL|WS_BORDER|controlStyle,
 		20, 50, 100, 20,
 		hwnd, HMENU(IDC_EDIT), hInstance, NULL)
 	if err != nil {
@@ -253,7 +255,7 @@ func main() {
 	list, err = CreateWindowEx(
 		0,
 		"LISTBOX", "",
-		LBS_STANDARD | controlStyle,
+		LBS_STANDARD|controlStyle,
 		20, 80, 100, 100,
 		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
 	if err != nil {
@@ -272,7 +274,7 @@ func main() {
 	_, err = CreateWindowEx(
 		0,
 		"STATIC", "Label",
-		SS_NOPREFIX | controlStyle,
+		SS_NOPREFIX|controlStyle,
 		140, 80, 100, 20,
 		hwnd, HMENU(IDC_FIXCOMBO), hInstance, NULL)
 	if err != nil {
@@ -282,7 +284,7 @@ func main() {
 	_, err = CreateWindowEx(
 		0,
 		"BUTTON", "Checkbox",
-		BS_AUTOCHECKBOX | controlStyle,
+		BS_AUTOCHECKBOX|controlStyle,
 		140, 110, 100, 20,
 		hwnd, HMENU(IDC_CHECK), hInstance, NULL)
 	if err != nil {
@@ -323,4 +325,3 @@ func main() {
 		}
 	}
 }
-

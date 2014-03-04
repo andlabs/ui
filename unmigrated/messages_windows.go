@@ -1,8 +1,10 @@
 // 9 february 2014
+
+//
 package ui
 
 import (
-//	"syscall"
+	//	"syscall"
 	"unsafe"
 )
 
@@ -12,19 +14,19 @@ const (
 )
 
 type MSG struct {
-	Hwnd	HWND
-	Message	uint32
-	WParam	WPARAM
-	LParam	LPARAM
-	Time		uint32
-	Pt		POINT
+	Hwnd    HWND
+	Message uint32
+	WParam  WPARAM
+	LParam  LPARAM
+	Time    uint32
+	Pt      POINT
 }
 
 var (
-	dispatchMessage = user32.NewProc("DispatchMessageW")
-	getMessage = user32.NewProc("GetMessageW")
-	postQuitMessage = user32.NewProc("PostQuitMessage")
-	sendMessage = user32.NewProc("SendMessageW")
+	dispatchMessage  = user32.NewProc("DispatchMessageW")
+	getMessage       = user32.NewProc("GetMessageW")
+	postQuitMessage  = user32.NewProc("PostQuitMessage")
+	sendMessage      = user32.NewProc("SendMessageW")
 	translateMessage = user32.NewProc("TranslateMessage")
 )
 
@@ -34,7 +36,7 @@ func DispatchMessage(lpmsg *MSG) (result LRESULT, err error) {
 	return LRESULT(r1), nil
 }
 
-var getMessageFail = -1		// because Go doesn't let me
+var getMessageFail = -1 // because Go doesn't let me
 
 func GetMessage(hWnd HWND, wMsgFilterMin uint32, wMsgFilterMax uint32) (lpMsg *MSG, quit bool, err error) {
 	lpMsg = new(MSG)
@@ -43,7 +45,7 @@ func GetMessage(hWnd HWND, wMsgFilterMin uint32, wMsgFilterMax uint32) (lpMsg *M
 		uintptr(hWnd),
 		uintptr(wMsgFilterMin),
 		uintptr(wMsgFilterMax))
-	if r1 == uintptr(getMessageFail) {		// failure
+	if r1 == uintptr(getMessageFail) { // failure
 		return nil, false, err
 	}
 	return lpMsg, r1 == 0, nil
