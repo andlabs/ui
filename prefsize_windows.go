@@ -1,8 +1,10 @@
 // 24 february 2014
+
+//
 package ui
 
 import (
-//	"syscall"
+	//	"syscall"
 	"unsafe"
 )
 
@@ -17,52 +19,52 @@ import (
 
 // As we are left with incomplete data, an arbitrary size will be chosen
 const (
-	defaultWidth = 100		// 2 * preferred width of buttons
+	defaultWidth = 100 // 2 * preferred width of buttons
 )
 
 type dlgunits struct {
-	width	int
-	height	int
-	longest	bool		// TODO actually use this
+	width   int
+	height  int
+	longest bool // TODO actually use this
 }
 
 var stdDlgSizes = [nctypes]dlgunits{
-	c_button:		dlgunits{
-		width:	50,
-		height:	14,
+	c_button: dlgunits{
+		width:  50,
+		height: 14,
 	},
-	c_checkbox:	dlgunits{
+	c_checkbox: dlgunits{
 		// widtdh is not defined here so assume longest
-		longest:	true,
-		height:	10,
+		longest: true,
+		height:  10,
 	},
-	c_combobox:	dlgunits{
-		longest:	true,
-		height:	14,
+	c_combobox: dlgunits{
+		longest: true,
+		height:  14,
 	},
-	c_lineedit:	dlgunits{
-		longest:	true,
-		height:	14,
+	c_lineedit: dlgunits{
+		longest: true,
+		height:  14,
 	},
-	c_label:		dlgunits{
-		longest:	true,
-		height:	8,
+	c_label: dlgunits{
+		longest: true,
+		height:  8,
 	},
-	c_listbox:		dlgunits{
-		longest:	true,
+	c_listbox: dlgunits{
+		longest: true,
 		// height is not clearly defined here ("an integral number of items (3 items minimum)") so just use a three-line edit control
-		height:	14 + 10 + 10,
+		height: 14 + 10 + 10,
 	},
-	c_progressbar:		dlgunits{
-		width:	237,		// the first reference says 107 also works; TODO decide which to use
-		height:	8,
+	c_progressbar: dlgunits{
+		width:  237, // the first reference says 107 also works; TODO decide which to use
+		height: 8,
 	},
 }
 
 var (
 	_getTextMetrics = gdi32.NewProc("GetTextMetricsW")
-	_getWindowDC = user32.NewProc("GetWindowDC")
-	_releaseDC = user32.NewProc("ReleaseDC")
+	_getWindowDC    = user32.NewProc("GetWindowDC")
+	_releaseDC      = user32.NewProc("ReleaseDC")
 )
 
 // This function runs on uitask; call the functions directly.
@@ -73,23 +75,23 @@ func (s *sysData) preferredSize() (width int, height int) {
 
 	// TODO use GetDC() and not GetWindowDC()?
 	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
-	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+	if r1 == 0 { // failure
+		panic(err) // TODO return it instead
 	}
 	dc = _HANDLE(r1)
 	r1, _, err = _getTextMetrics.Call(
 		uintptr(dc),
 		uintptr(unsafe.Pointer(&tm)))
-	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+	if r1 == 0 { // failure
+		panic(err) // TODO return it instead
 	}
-	baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference has better way
+	baseX = int(tm.tmAveCharWidth) // TODO not optimal; third reference has better way
 	baseY = int(tm.tmHeight)
 	r1, _, err = _releaseDC.Call(
 		uintptr(s.hwnd),
 		uintptr(dc))
-	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+	if r1 == 0 { // failure
+		panic(err) // TODO return it instead
 	}
 
 	// now that we have the conversion factors...
@@ -98,8 +100,8 @@ func (s *sysData) preferredSize() (width int, height int) {
 		width = defaultWidth
 	}
 	height = stdDlgSizes[s.ctype].height
-	width = muldiv(width, baseX, 4)		// equivalent to right of rect
-	height = muldiv(height, baseY, 8)		// equivalent to bottom of rect
+	width = muldiv(width, baseX, 4)   // equivalent to right of rect
+	height = muldiv(height, baseY, 8) // equivalent to bottom of rect
 	return width, height
 }
 
@@ -113,24 +115,24 @@ func muldiv(ma int, mb int, div int) int {
 }
 
 type _TEXTMETRICS struct {
-	tmHeight				int32
-	tmAscent				int32
-	tmDescent			int32
-	tmInternalLeading		int32
-	tmExternalLeading		int32
-	tmAveCharWidth		int32
-	tmMaxCharWidth		int32
-	tmWeight				int32
-	tmOverhang			int32
-	tmDigitizedAspectX		int32
-	tmDigitizedAspectY		int32
-	tmFirstChar			uint16
-	tmLastChar			uint16
-	tmDefaultChar			uint16
-	tmBreakChar			uint16
-	tmItalic				byte
-	tmUnderlined			byte
-	tmStruckOut			byte
-	tmPitchAndFamily		byte
-	tmCharSet			byte
+	tmHeight           int32
+	tmAscent           int32
+	tmDescent          int32
+	tmInternalLeading  int32
+	tmExternalLeading  int32
+	tmAveCharWidth     int32
+	tmMaxCharWidth     int32
+	tmWeight           int32
+	tmOverhang         int32
+	tmDigitizedAspectX int32
+	tmDigitizedAspectY int32
+	tmFirstChar        uint16
+	tmLastChar         uint16
+	tmDefaultChar      uint16
+	tmBreakChar        uint16
+	tmItalic           byte
+	tmUnderlined       byte
+	tmStruckOut        byte
+	tmPitchAndFamily   byte
+	tmCharSet          byte
 }

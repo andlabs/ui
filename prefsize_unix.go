@@ -1,10 +1,12 @@
 // +build !windows,!darwin,!plan9
 
 // 23 february 2014
+
+//
 package ui
 
 import (
-	// ...
+// ...
 )
 
 // GTK+ 3 makes this easy: controls can tell us what their preferred size is!

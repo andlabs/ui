@@ -1,11 +1,13 @@
 // 8 february 2014
+
+//
 package ui
 
 import (
 	"fmt"
+	"sync"
 	"syscall"
 	"unsafe"
-	"sync"
 )
 
 const (
@@ -13,7 +15,7 @@ const (
 )
 
 var (
-	curWndClassNum uintptr
+	curWndClassNum     uintptr
 	curWndClassNumLock sync.Mutex
 )
 
@@ -74,16 +76,16 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 }
 
 type _WNDCLASS struct {
-	style				uint32
-	lpfnWndProc		uintptr
-	cbClsExtra		int32		// originally int
-	cbWndExtra		int32		// originally int
-	hInstance			_HANDLE
-	hIcon			_HANDLE
-	hCursor			_HANDLE
-	hbrBackground	_HBRUSH
-	lpszMenuName	*uint16
-	lpszClassName		uintptr
+	style         uint32
+	lpfnWndProc   uintptr
+	cbClsExtra    int32 // originally int
+	cbWndExtra    int32 // originally int
+	hInstance     _HANDLE
+	hIcon         _HANDLE
+	hCursor       _HANDLE
+	hbrBackground _HBRUSH
+	lpszMenuName  *uint16
+	lpszClassName uintptr
 }
 
 var (
@@ -101,23 +103,23 @@ func registerStdWndClass(s *sysData) (newClassName string, err error) {
 	curWndClassNumLock.Unlock()
 
 	wc := &_WNDCLASS{
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
-		lpfnWndProc:		syscall.NewCallback(stdWndProc(s)),
-		hInstance:		hInstance,
-		hIcon:			icon,
-		hCursor:			cursor,
-		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+		lpszClassName: uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
+		lpfnWndProc:   syscall.NewCallback(stdWndProc(s)),
+		hInstance:     hInstance,
+		hIcon:         icon,
+		hCursor:       cursor,
+		hbrBackground: _HBRUSH(_COLOR_BTNFACE + 1),
 	}
 
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_registerClass,
-		p:		[]uintptr{uintptr(unsafe.Pointer(wc))},
-		ret:		ret,
+		call: _registerClass,
+		p:    []uintptr{uintptr(unsafe.Pointer(wc))},
+		ret:  ret,
 	}
 	r := <-ret
-	if r.ret == 0 {		// failure
+	if r.ret == 0 { // failure
 		return "", r.err
 	}
 	return newClassName, nil
@@ -126,13 +128,13 @@ func registerStdWndClass(s *sysData) (newClassName string, err error) {
 func initWndClassInfo() (err error) {
 	const (
 		_IDI_APPLICATION = 32512
-		_IDC_ARROW = 32512
+		_IDC_ARROW       = 32512
 	)
 
 	r1, _, err := user32.NewProc("LoadIconW").Call(
 		uintptr(_NULL),
 		uintptr(_IDI_APPLICATION))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
 	icon = _HANDLE(r1)
@@ -140,7 +142,7 @@ func initWndClassInfo() (err error) {
 	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
 		uintptr(_IDC_ARROW))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
 	cursor = _HANDLE(r1)

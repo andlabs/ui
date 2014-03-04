@@ -1,10 +1,11 @@
 // 7 february 2014
+
+//
 package ui
 
 import (
 	"fmt"
 )
-
 
 // MsgBox displays an informational message box to the user with just an OK button.
 func MsgBox(title string, textfmt string, args ...interface{}) {

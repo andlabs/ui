@@ -1,4 +1,6 @@
 // 14 february 2014
+
+//
 package ui
 
 import (
@@ -9,16 +11,16 @@ import (
 type Combobox struct {
 	// TODO Select event
 
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initItems	[]string
+	lock      sync.Mutex
+	created   bool
+	sysData   *sysData
+	initItems []string
 }
 
 func newCombobox(editable bool, items ...string) (c *Combobox) {
 	c = &Combobox{
-		sysData:		mksysdata(c_combobox),
-		initItems:		items,
+		sysData:   mksysdata(c_combobox),
+		initItems: items,
 	}
 	c.sysData.alternate = editable
 	return c
@@ -54,7 +56,7 @@ func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	if c.created {
 		return c.sysData.insertBefore(what, before)
 	}
-	m := make([]string, 0, len(c.initItems) + 1)
+	m := make([]string, 0, len(c.initItems)+1)
 	m = append(m, c.initItems[:before]...)
 	m = append(m, what)
 	c.initItems = append(m, c.initItems[before:]...)
@@ -69,7 +71,7 @@ func (c *Combobox) Delete(index int) error {
 	if c.created {
 		return c.sysData.delete(index)
 	}
-	c.initItems = append(c.initItems[:index], c.initItems[index + 1:]...)
+	c.initItems = append(c.initItems[:index], c.initItems[index+1:]...)
 	return nil
 }
 

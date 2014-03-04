@@ -1,4 +1,6 @@
 // 7 february 2014
+
+//
 package ui
 
 import (
@@ -7,9 +9,9 @@ import (
 )
 
 var (
-	user32 = syscall.NewLazyDLL("user32.dll")
+	user32   = syscall.NewLazyDLL("user32.dll")
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
-	gdi32 = syscall.NewLazyDLL("gdi32.dll")
+	gdi32    = syscall.NewLazyDLL("gdi32.dll")
 	comctl32 = syscall.NewLazyDLL("comctl32.dll")
 )
 
@@ -19,9 +21,9 @@ type _HBRUSH _HANDLE
 type _HMENU _HANDLE
 
 const (
-	_NULL = 0
-	_FALSE = 0		// from windef.h
-	_TRUE = 1			// from windef.h
+	_NULL  = 0
+	_FALSE = 0 // from windef.h
+	_TRUE  = 1 // from windef.h
 )
 
 // In MSDN, _LPARAM and _LRESULT are listed as signed pointers, however their interpretation is message-specific. Ergo, just cast them yourself; it'll be the same. (Thanks to Tv` in #go-nuts for helping me realize this.)
@@ -49,13 +51,13 @@ func _MAKEINTRESOURCE(what uint16) uintptr {
 }
 
 type _POINT struct {
-	X	int32
-	Y	int32
+	X int32
+	Y int32
 }
 
 type _RECT struct {
-	Left		int32
-	Top		int32
-	Right	int32
-	Bottom	int32
+	Left   int32
+	Top    int32
+	Right  int32
+	Bottom int32
 }

@@ -1,4 +1,6 @@
 // 11 february 2014
+
+//
 package ui
 
 // Go sets up the UI environment and runs main in a goroutine.

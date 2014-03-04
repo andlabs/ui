@@ -1,4 +1,6 @@
 // 28 february 2014
+
+//
 package ui
 
 import (
@@ -29,12 +31,12 @@ var (
 	_NSObject = objc_getClass("NSObject")
 	_NSString = objc_getClass("NSString")
 
-	_alloc = sel_getUid("alloc")
-	_new = sel_getUid("new")
-	_release = sel_getUid("release")
+	_alloc                = sel_getUid("alloc")
+	_new                  = sel_getUid("new")
+	_release              = sel_getUid("release")
 	_stringWithUTF8String = sel_getUid("stringWithUTF8String:")
-	_UTF8String = sel_getUid("UTF8String")
-	_setDelegate = sel_getUid("setDelegate:")
+	_UTF8String           = sel_getUid("UTF8String")
+	_setDelegate          = sel_getUid("setDelegate:")
 )
 
 // some helper functions

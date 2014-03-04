@@ -1,6 +1,8 @@
 // +build !windows,!darwin,!plan9
 
 // 17 february 2014
+
+//
 package ui
 
 import (
@@ -205,7 +207,7 @@ func gListboxDelete(widget *gtkWidget, index int) {
 
 	tv := getTreeViewFrom(widget)
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
-	if !fromgbool(C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index))) {		// no such index
+	if !fromgbool(C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index))) { // no such index
 		// TODO
 		return
 	}

@@ -1,11 +1,13 @@
 // 11 february 2014
+
+//
 package ui
 
 import (
 	"runtime"
 )
 
-const eventbufsiz = 100		// suggested by skelterjohn
+const eventbufsiz = 100 // suggested by skelterjohn
 
 // Event returns a new channel suitable for listening for events.
 func Event() chan struct{} {
@@ -14,11 +16,12 @@ func Event() chan struct{} {
 
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
-	ctype	int
-	event	chan struct{}
-	resize	func(x int, y int, width int, height int, winheight int) error
-	alternate	bool		// editable for Combobox, multi-select for listbox, password for lineedit
+	ctype     int
+	event     chan struct{}
+	resize    func(x int, y int, width int, height int, winheight int) error
+	alternate bool // editable for Combobox, multi-select for listbox, password for lineedit
 }
+
 func (c *cSysData) make(initText string, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
 }
@@ -95,8 +98,8 @@ const (
 
 func mksysdata(ctype int) *sysData {
 	return &sysData{
-		cSysData:		cSysData{
-			ctype:	ctype,
+		cSysData: cSysData{
+			ctype: ctype,
 		},
 	}
 }

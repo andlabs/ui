@@ -1,4 +1,6 @@
 // 25 february 2014
+
+//
 package ui
 
 import (
@@ -8,16 +10,16 @@ import (
 // A ProgressBar is a horizontal rectangle that fills up from left to right to indicate the progress of a long-running task.
 // This progress is typically a percentage, so within the range [0,100].
 type ProgressBar struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initProg	int
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initProg int
 }
 
 // NewProgressBar creates a new ProgressBar.
 func NewProgressBar() *ProgressBar {
 	return &ProgressBar{
-		sysData:	mksysdata(c_progressbar),
+		sysData: mksysdata(c_progressbar),
 	}
 }
 
@@ -27,7 +29,7 @@ func (p *ProgressBar) SetProgress(percent int) {
 	defer p.lock.Unlock()
 
 	if percent < 0 || percent > 100 {
-		panic("invalid percent")		// TODO
+		panic("invalid percent") // TODO
 	}
 	if p.created {
 		p.sysData.setProgress(percent)

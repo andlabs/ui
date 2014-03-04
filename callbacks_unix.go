@@ -1,6 +1,8 @@
 // +build !windows,!darwin,!plan9
 
 // 16 february 2014
+
+//
 package ui
 
 import (
@@ -37,8 +39,8 @@ func our_clicked_callback(button *C.GtkButton, what C.gpointer) {
 }
 
 var callbacks = map[string]C.GCallback{
-	"idle":			C.GCallback(C.our_callback),
-	"delete-event":		C.GCallback(C.our_window_callback),
-	"configure-event":	C.GCallback(C.our_window_callback),
-	"clicked":			C.GCallback(C.our_clicked_callback),
+	"idle":            C.GCallback(C.our_callback),
+	"delete-event":    C.GCallback(C.our_window_callback),
+	"configure-event": C.GCallback(C.our_window_callback),
+	"clicked":         C.GCallback(C.our_clicked_callback),
 }
