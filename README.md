@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/tompao/ui.png?branch=travis-ci)](https://travis-ci.org/tompao/ui)
+[![Build Status](https://travis-ci.org/andlabs/ui.png)](https://travis-ci.org/andlabs/ui)
 
 # Native UI library for Go
 ### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
