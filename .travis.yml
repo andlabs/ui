@@ -3,21 +3,24 @@ language: go
 go:
   - tip
 
+# TODO
+# linux/386 build tries to do apt's legendary remove all 64-bit libraries and install 32-bit ones instead (else it can't find sys/types.h) so that build is disabled for now
+
 env:
-  - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32
+#  - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32
   - GOOS=linux GOARCH=amd64
   - GOOS=windows GOARCH=386
   - GOOS=windows GOARCH=amd64
 
 before_install:
  - sudo apt-get update -qq
- - sudo apt-get install -qq libgtk-3-dev libgtk-3-0:i386 gcc-multilib
+ - sudo apt-get install -qq libgtk-3-dev libgtk-3-0:i386 # gcc-multilib
  - go tool dist install cmd/8a
  - go tool dist install cmd/8c
  - go tool dist install cmd/8g
  - go tool dist install cmd/8l
- - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32 go tool dist install pkg/runtime
- - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32 go install std
+# - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32 go tool dist install pkg/runtime
+# - GOOS=linux GOARCH=386 CGO_ENABLED=1 CFLAGS=-m32 LDFLAGS=-m32 go install std
  - GOOS=windows GOARCH=386 go tool dist install pkg/runtime
  - GOOS=windows GOARCH=386 go install std
  - GOOS=windows GOARCH=amd64 go tool dist install pkg/runtime
