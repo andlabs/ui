@@ -26,7 +26,7 @@ extern Class NilClass;
 /* for listbox_darwin.go */
 extern id *_NSObservedObjectKey;
 
-inline id objc_msgSend_noargs(id obj, SEL sel)
+static inline id objc_msgSend_noargs(id obj, SEL sel)
 {
 	return objc_msgSend(obj, sel);
 }
@@ -52,25 +52,25 @@ extern uintptr_t objc_msgSend_uintret_noargs(id objc, SEL sel);
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
 
 #define m1(name, type1) \
-	inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a) \
+	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a) \
 	{ \
 		return objc_msgSend(obj, sel, a); \
 	}
 
 #define m2(name, type1, type2) \
-	inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b) \
+	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b) \
 	{ \
 		return objc_msgSend(obj, sel, a, b); \
 	}
 
 #define m3(name, type1, type2, type3) \
-	inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b, type3 c) \
+	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b, type3 c) \
 	{ \
 		return objc_msgSend(obj, sel, a, b, c); \
 	}
 
 #define m4(name, type1, type2, type3, type4) \
-	inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b, type3 c, type4 d) \
+	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a, type2 b, type3 c, type4 d) \
 	{ \
 		return objc_msgSend(obj, sel, a, b, c, d); \
 	}
