@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 	"flag"
-	. ".."
+	. "github.com/andlabs/ui"
 )
 
 var prefsizetest = flag.Bool("prefsize", false, "")

@@ -1,2 +1,2 @@
 cd test
-go build main.go
+go build "$@"
