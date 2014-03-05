@@ -29,6 +29,7 @@ type uiret struct {
 const (
 	_WM_APP = 0x8000 + iota
 	msgRequested
+	msgQuit
 )
 
 var (
@@ -49,7 +50,17 @@ func ui(main func()) error {
 	go msgloop(threadIDReq, msglooperrs)
 	threadID := <-threadIDReq
 
-	go main()
+	go func() {
+		main()
+		r1, _, err := _postThreadMessage.Call(
+			threadID,
+			msgQuit,
+			uintptr(0),
+			uintptr(0))
+		if r1 == 0 {		// failure
+			panic("error sending quit message to message loop: " + err.Error())		// TODO
+		}
+	}()
 
 	quit := false
 	for !quit {
@@ -121,6 +132,11 @@ func msgloop(threadID chan uintptr, errors chan error) {
 				ret:	r1,
 				err:	err,
 			}
+			continue
+		}
+		if msg.Message == msgQuit {
+			// does not return a value according to MSDN
+			_postQuitMessage.Call(0)
 			continue
 		}
 		_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
