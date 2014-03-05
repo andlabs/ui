@@ -28,7 +28,10 @@ func ui(main func()) error {
 		return true	// don't destroy the callback
 	})
 
-	go main()
+	go func() {
+		main()
+		uitask <- gtk_main_quit
+	}()
 
 	gtk_main()
 	return nil

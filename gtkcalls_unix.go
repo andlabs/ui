@@ -32,6 +32,10 @@ func gtk_main() {
 	C.gtk_main()
 }
 
+func gtk_main_quit() {
+	C.gtk_main_quit()
+}
+
 func gtk_window_new() *gtkWidget {
 	// 0 == GTK_WINDOW_TOPLEVEL (the only other type, _POPUP, should not be used)
 	return fromgtkwidget(C.gtk_window_new(0))
