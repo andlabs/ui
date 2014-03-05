@@ -25,3 +25,6 @@ before_install:
  - GOOS=windows GOARCH=386 go install std
  - GOOS=windows GOARCH=amd64 go tool dist install pkg/runtime
  - GOOS=windows GOARCH=amd64 go install std
+
+install:
+ - go install ./...
