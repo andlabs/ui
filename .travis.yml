@@ -3,3 +3,6 @@ language: go
 go:
   - tip
 
+before_install:
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq libgtk-3-dev
