@@ -25,7 +25,6 @@ so I don't forget:
 	- should message box text be selectable on all platforms or only on those that make it the default?
 
 important things:
-- ui.Go() should exit when the main() you pass in exits
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windoes; Cocoa provides one for us but
