@@ -20,6 +20,8 @@ var (
 	_valueWithPointer = sel_getUid("valueWithPointer:")
 	_performSelectorOnMainThread =
 		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:")
+	_stop = sel_getUid("stop:")
+	_postEventAtStart = sel_getUid("postEvent:atStart:")
 	_pointerValue = sel_getUid("pointerValue")
 	_run = sel_getUid("run")
 )
@@ -51,7 +53,20 @@ func ui(main func()) error {
 		}
 	}()
 
-	go main()
+	go func() {
+		main()
+		uitask <- func() {
+			// -[NSApplication stop:] stops the event loop; it won't do a clean termination, but we're not too concerned with that (at least not on the other platforms either so)
+			// we can't call -[NSApplication terminate:] because that will just quit the program, ensuring we never leave ui.Go()
+			C.objc_msgSend_id(NSApp, _stop, NSApp)
+			// simply calling -[NSApplication stop:] is not good enough, as the stop flag is only checked when an event comes in
+			// we have to create a "proper" event; a blank event will just throw an exception
+			C.objc_msgSend_id_bool(NSApp,
+				_postEventAtStart,
+				C.makeDummyEvent(),
+				C.BOOL(C.NO))			// not at start, just in case there are other events pending (TODO is this correct?)
+		}
+	}()
 
 	C.objc_msgSend_noargs(NSApp, _run)
 	return nil

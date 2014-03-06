@@ -7,6 +7,7 @@ The main culprits are:
 - data types listed as being defined in nonexistent headers
 - 32-bit/64-bit type differences that are more than just a different typedef
 - wrong documentation
+though this is not always the case.
 
 Go wrapper functions (bleh_darwin.go) call these directly and take care of stdint.h -> Go type conversions.
 */
@@ -17,6 +18,7 @@ Go wrapper functions (bleh_darwin.go) call these directly and take care of stdin
 
 #include <Foundation/NSGeometry.h>
 #include <AppKit/NSKeyValueBinding.h>
+#include <AppKit/NSEvent.h>
 
 /* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
 Class NilClass = Nil;
@@ -154,4 +156,31 @@ uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 	}
 	free(nsuints);
 	return ret;
+}
+
+/*
+See uitask_darwin.go: we need to synthesize a NSEvent so -[NSApplication stop:] will work. We cannot simply init the default NSEvent though (it throws an exception) so we must do it "the right way". This involves a very convoluted initializer; we'll just do it here to keep things clean on the Go side (this will only be run once anyway, on program exit).
+*/
+
+static id c_NSEvent;
+static SEL s_newEvent;
+static BOOL newEvent_init = NO;
+
+id makeDummyEvent()
+{
+	if (newEvent_init == NO) {
+		c_NSEvent = objc_getClass("NSEvent");
+		s_newEvent = sel_getUid("otherEventWithType:location:modifierFlags:timestamp:windowNumber:context:subtype:data1:data2:");
+		newEvent_init = YES;
+	}
+	return objc_msgSend(c_NSEvent, s_newEvent,
+		(NSUInteger) NSApplicationDefined,			/* otherEventWithType: */
+		NSMakePoint(0, 0),						/* location: */
+		(NSUInteger) 0,							/* modifierFlags: */
+		(double) 0,							/* timestamp: */
+		(NSInteger) 0,							/* windowNumber: */
+		nil,									/* context: */
+		(short) 0,								/* subtype: */
+		(NSInteger) 0,							/* data1: */
+		(NSInteger) 0);							/* data2: */
 }
