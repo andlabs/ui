@@ -17,10 +17,7 @@ To install, simply `go get` this package. On Mac OS X, make sure you have the Ap
 
 Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 
-The following is an example program to illustrate what programming with ui is like:
-```go
-(see test/main.go)
-```
+For an example of how ui is used, see https://github.com/andlabs/wakeup, which is a small program that implements a basic alarm clock.
 
 ## Contributing
 Contributions are welcome. File issues, pull requests, approach me on IRC (pietro10 in #go-nuts; andlabs elsewhere), etc. Even suggestions are welcome: while I'm mainly drawing from my own GUI programming experience, everyone is different.
