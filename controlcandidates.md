@@ -54,11 +54,7 @@ COCOA
 	- NSRuleEditor/NSPredicateEditor look nice too but
 - notes to self:
 	- groupbox is NSBox
-	- non-editable combobox is NSPopUpButton
-	- editable combobox is NSCombobox
 	- don't look at NSForm; though it arranges in the ideal form layout, it only allows single-line text entry fields as controls
-	- NSSecureTextField does password entries
-	- NSProgressIndicator for ProgressBar
 - TODO:
 	- what does NSPathControl look like?
 
