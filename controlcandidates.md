@@ -39,6 +39,7 @@ GTK+
 	- GtkTreeView can do tree views and Tables
 	- OpenGL is done outside GTK+: https://projects.gnome.org/gtkglext/
 		- only an issue if I want to provide OpenGL by default...
+		- http://stackoverflow.com/questions/3815806/gtk-and-opengl-bindings suggest GtkGLArea is better but that seems to be a Mono thing? also indicates Clutter (with its Cogl) is not an option
 
 COCOA
 - NSDatePicker for date/time selection
