@@ -31,6 +31,7 @@ important things:
 	- also provide a method to center windows; Cocoa provides one for us but
 - I think Cocoa NSButton text is not vertically aligned properly...?
 - NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it
+	- need to use it /after/ adding initial items, otherwise it won't work
 	- find out if I can do the same with the ListBoxes
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
@@ -68,8 +69,8 @@ important things:
 	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms
 		- for instance, initial selection state of Combobox and Listbox
 			- related: should a noneditable Combobox be allowed to return to unselected mode by the user?
-- make passing of parameters and type conversions of parameters to uitask consistent
-	- TODO figure out what I meant by this; I don't remember
+- make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
+	- do this for type signatures in exported functions: (err error) or just error?
 
 far off:
 - localization
