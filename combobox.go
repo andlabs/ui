@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -34,15 +35,21 @@ func NewEditableCombobox(items ...string) *Combobox {
 	return newCombobox(true, items...)
 }
 
-// Append adds an item to the end of the Combobox's list.
-func (c *Combobox) Append(what string) (err error) {
+// Append adds items to the end of the Combobox's list.
+func (c *Combobox) Append(what ...string) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if c.created {
-		return c.sysData.append(what)
+		for i, s := range what {
+			err := c.sysData.append(s)
+			if err != nil {
+				return fmt.Errorf("error adding element %d in Combobox.Append() (%q): %v", i, s, err)
+			}
+		}
+		return nil
 	}
-	c.initItems = append(c.initItems, what)
+	c.initItems = append(c.initItems, what...)
 	return nil
 }
 

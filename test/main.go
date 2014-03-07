@@ -69,6 +69,8 @@ func myMain() {
 		i++
 	}
 	doAdjustments()
+	cb1.Append("append multi 1", "append multi 2")
+	lb2.Append("append multi 1", "append multi 2")
 	s1 := NewVerticalStack(lb2, lb1)
 	s1.SetStretchy(0)
 	s1.SetStretchy(1)
@@ -126,6 +128,8 @@ mainloop:
 				prog = 100
 			}
 			pbar.SetProgress(prog)
+			cb1.Append("append multi 1", "append multi 2")
+			lb2.Append("append multi 1", "append multi 2")
 		case <-decButton.Clicked:
 			prog--
 			if prog < 0 {

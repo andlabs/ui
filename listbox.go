@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -25,15 +26,21 @@ func NewListbox(multiple bool, items ...string) (l *Listbox) {
 	return l
 }
 
-// Append adds an item to the end of the Listbox's list.
-func (l *Listbox) Append(what string) (err error) {
+// Append adds items to the end of the Listbox's list.
+func (l *Listbox) Append(what ...string) (err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
-		return l.sysData.append(what)
+		for i, s := range what {
+			err := l.sysData.append(s)
+			if err != nil {
+				return fmt.Errorf("error adding element %d in Listbox.Append() (%q): %v", i, s, err)
+			}
+		}
+		return nil
 	}
-	l.initItems = append(l.initItems, what)
+	l.initItems = append(l.initItems, what...)
 	return nil
 }
 
