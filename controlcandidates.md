@@ -39,8 +39,10 @@ GTK+
 	- GtkTreeView can do tree views and Tables
 	- OpenGL is done outside GTK+: https://projects.gnome.org/gtkglext/
 		- only an issue if I want to provide OpenGL by default...
-		- http://stackoverflow.com/questions/3815806/gtk-and-opengl-bindings suggest GtkGLArea is better but that seems to be a Mono thing? also indicates Clutter (with its Cogl) is not an option
+		- http://stackoverflow.com/questions/3815806/gtk-and-opengl-bindings suggest GtkGLArea is better but that seems to be a Mono thing? also indicates Clutter (with its Cogl) is not an option because it locks you out of using the OpenGL API directly
 			- er no, the Mono thing is just the homepage... but it doesn't say if this targets GTK+ 2 or GTK+ 3, hm. (also it appears to not have been updated since Precise; in Ubuntu it's libgtkgl)
+			- and gtkglext doesn't support GTK+ 3 officially anyway
+			- and cairo doesn't seem to support OpenGL explicitly so it looks like I will need to communicate with glx directly: http://stackoverflow.com/questions/17628241/how-can-i-use-gtk3-and-opengl-together
 
 COCOA
 - NSDatePicker for date/time selection
