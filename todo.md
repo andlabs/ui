@@ -57,6 +57,7 @@ important things:
 - make specific wording in documentation consistent (make/create, etc.)
 	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms
 		- for instance, initial selection state of Combobox and Listbox
+			- related: should a noneditable Combobox be allowed to return to unselected mode by the user?
 - make passing of parameters and type conversions of parameters to uitask consistent
 	- TODO figure out what I meant by this; I don't remember
 
