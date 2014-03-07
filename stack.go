@@ -6,11 +6,11 @@ import (
 	"sync"
 )
 
-// Orientation defines the orientation of controls in a Stack.
-type Orientation bool
+type orientation bool
+
 const (
-	Horizontal Orientation = false
-	Vertical Orientation = true
+	horizontal orientation = false
+	vertical orientation = true
 )
 
 // A Stack stacks controls horizontally or vertically within the Stack's parent.
@@ -21,14 +21,13 @@ const (
 type Stack struct {
 	lock			sync.Mutex
 	created		bool
-	orientation	Orientation
+	orientation	orientation
 	controls		[]Control
 	stretchy		[]bool
 	width, height	[]int		// caches to avoid reallocating these each time
 }
 
-// NewStack creates a new Stack with the specified orientation.
-func NewStack(o Orientation, controls ...Control) *Stack {
+func newStack(o orientation, controls ...Control) *Stack {
 	return &Stack{
 		orientation:	o,
 		controls:		controls,
@@ -36,6 +35,16 @@ func NewStack(o Orientation, controls ...Control) *Stack {
 		width:		make([]int, len(controls)),
 		height:		make([]int, len(controls)),
 	}
+}
+
+// NewHorizontalStack creates a new Stack that arranges the given Controls horizontally.
+func NewHorizontalStack(controls ...Control) *Stack {
+	return newStack(horizontal, controls...)
+}
+
+// NewVerticalStack creates a new Stack that arranges the given Controls vertically.
+func NewVerticalStack(controls ...Control) *Stack {
+	return newStack(vertical, controls...)
 }
 
 // SetStretchy marks a control in a Stack as stretchy. This cannot be called once the Window containing the Stack has been opened.
@@ -85,7 +94,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, winheight int) erro
 		if err != nil {
 			return fmt.Errorf("error getting preferred size of control %d in Stack.setRect(): %v", i, err)
 		}
-		if s.orientation == Horizontal {			// all controls have same height
+		if s.orientation == horizontal {			// all controls have same height
 			s.width[i] = w
 			s.height[i] = height
 			stretchywid -= w
@@ -97,7 +106,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, winheight int) erro
 	}
 	// 2) figure out size of stretchy controls
 	if nStretchy != 0 {
-		if s.orientation == Horizontal {			// split rest of width
+		if s.orientation == horizontal {			// split rest of width
 			stretchywid /= nStretchy
 		} else {							// split rest of height
 			stretchyht /= nStretchy
@@ -116,7 +125,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, winheight int) erro
 		if err != nil {
 			return fmt.Errorf("error setting size of control %d in Stack.setRect(): %v", i, err)
 		}
-		if s.orientation == Horizontal {
+		if s.orientation == horizontal {
 			x += s.width[i]
 		} else {
 			y += s.height[i]
@@ -153,7 +162,7 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 			maxswid = max(maxswid, w)
 			maxsht = max(maxsht, h)
 		}
-		if s.orientation == Horizontal {			// max vertical size
+		if s.orientation == horizontal {			// max vertical size
 			if !s.stretchy[i] {
 				width += w
 			}
@@ -165,7 +174,7 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 			}
 		}
 	}
-	if s.orientation == Horizontal {
+	if s.orientation == horizontal {
 		width += nStretchy * maxswid
 	} else {
 		height += nStretchy * maxsht
@@ -181,5 +190,5 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 // For a Grid, Space can be used to have an empty cell. (TODO stretching/sizing rules)
 func Space() Control {
 	// As above, a Stack with no controls draws nothing and reports no errors; its parent will still size it properly if made stretchy.
-	return NewStack(Horizontal)
+	return newStack(horizontal)
 }

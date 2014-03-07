@@ -10,7 +10,7 @@ so I don't forget:
 - [Windows, Mac OS X] should ListBox have a border style?
 	- [Windows] a different border on LineEdits?
 - padding and spacing in Stack
-- change Stack/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
+- change Listbox constructor so that there's a separate constructor for each variant, rather than passing in parameters
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string)
 - Combobox/Listbox.DeleteAll
