@@ -22,6 +22,8 @@ so I don't forget:
 	- ensure MsgBoxError can run if initialization failed if things change ever
 - should Labels be selectable?
 	- should message box text be selectable on all platforms or only on those that make it the default?
+- Listbox/Combobox.Len(), Index(n)
+	- Index(n) is the name used by reflect.Value; use a different one?
 
 important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
@@ -53,6 +55,13 @@ super ultra important things:
 		panic: error sending message to message loop to call function: Invalid thread ID.
 	when starting up the windows/386 build; race in ui()/msgloop()?
 	- happens the first time I run a new build in wine; also if my computer is running too slowly when running in wine
+- GTK+: stderr is flooded with
+```
+(test:17575): Gdk-CRITICAL **: gdk_device_ungrab: assertion 'GDK_IS_DEVICE (device)' failed
+
+(test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
+```
+	figure out why
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
