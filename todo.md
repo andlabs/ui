@@ -2,14 +2,14 @@ so I don't forget:
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetOptimalSize())`) for sizing a window to the control's interest
 - Control.Show()/Control.Hide()
 - Groupbox
-- see if we really need to track errors on Combobox.Selection()
-	- in fact, see if we really need to track errors on a lot of things...
+- see if we really need to track errors on a lot of places that report errors
+	- Window.Show()/Window.Hide() report errors due to UpdateWindow(), which can fail, but that is only called when the window is first opened: split that functionality out
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
 - [Windows, Mac OS X] should ListBox have a border style?
 	- [Windows] a different border on LineEdits?
-- padding and spacing in Stack; maybe a setting in Stack which keeps controls at their preferred size?
+- padding and spacing in Stack
 - change Stack/Listbox constructors so that there's a separate constructor for each variant, rather than passing in parameters?
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string)
