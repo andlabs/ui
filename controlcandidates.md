@@ -17,6 +17,8 @@ WINDOWS
 - TODO
 	- commcntl.h has stuff on a font control that isn't documented?
 		- actually not a control, but localization support: http://msdn.microsoft.com/en-us/library/windows/desktop/bb775454%28v=vs.85%29.aspx
+- notes to self:
+	- OpenGL: http://msdn.microsoft.com/en-us/library/windows/desktop/dd374379%28v=vs.85%29.aspx
 
 GTK+
 - GtkCalendar for date selection (TODO doesn't handle times)
@@ -35,6 +37,8 @@ GTK+
 - notes to self:
 	- groupbox is GtkFrame
 	- GtkTreeView can do tree views and Tables
+	- OpenGL is done outside GTK+: https://projects.gnome.org/gtkglext/
+		- only an issue if I want to provide OpenGL by default...
 
 COCOA
 - NSDatePicker for date/time selection
