@@ -6,7 +6,8 @@ import (
 	"sync"
 )
 
-// A Listbox is a vertical list of items, of which one or (optionally) more items can be selected at any given time.
+// A Listbox is a vertical list of items, of which either at most one or any number of items can be selected at any given time.
+// On creation, no item is selected.
 type Listbox struct {
 	// TODO Select event
 
@@ -45,6 +46,7 @@ func (l *Listbox) Append(what ...string) (err error) {
 }
 
 // InsertBefore inserts a new item in the Listbox before the item at the given position.
+// (TODO action on invalid index)
 func (l *Listbox) InsertBefore(what string, before int) (err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
@@ -60,6 +62,7 @@ func (l *Listbox) InsertBefore(what string, before int) (err error) {
 }
 
 // Delete removes the given item from the Listbox.
+// (TODO action on invalid index)
 func (l *Listbox) Delete(index int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()

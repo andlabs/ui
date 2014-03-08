@@ -66,9 +66,7 @@ super ultra important things:
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
-	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms
-		- for instance, initial selection state of Combobox and Listbox
-			- related: should a noneditable Combobox be allowed to return to unselected mode by the user?
+	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms (are there any left?)
 - make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
 	- do this for type signatures in exported functions: (err error) or just error?
 
@@ -82,3 +80,4 @@ maybe:
 - rename Stack to Box?
 - make Combobox and Listbox satisfy sort.Interface?
 - indeterminate progress bars (not supported on Windows 2000)
+- should a noneditable Combobox be allowed to return to unselected mode by the user?

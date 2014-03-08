@@ -68,6 +68,7 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 
 // SetFilling sets the given Control of the Grid as filling its cell instead of staying at its preferred size.
 // This function cannot be called after the Window that contains the Grid has been created.
+// (TODO action if coorindate invalid)
 func (g *Grid) SetFilling(row int, column int) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
@@ -81,6 +82,7 @@ func (g *Grid) SetFilling(row int, column int) {
 // SetStretchy sets the given Control of the Grid as stretchy.
 // Stretchy implies filling.
 // This function cannot be called after the Window that contains the Grid has been created.
+// (TODO action if coorindate invalid)
 func (g *Grid) SetStretchy(row int, column int) {
 	g.lock.Lock()
 	defer g.lock.Unlock()

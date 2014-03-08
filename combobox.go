@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// A Combobox is a drop-down list of items, of which only one can be selected at any given time. You may optionally make the combobox editable to allow custom items.
+// A Combobox is a drop-down list of items, of which at most one can be selected at any given time. You may optionally make the combobox editable to allow custom items. Initially, no item will be selected (and no text entered in an editable Combobox's entry field).
 type Combobox struct {
 	// TODO Select event
 
@@ -53,7 +53,7 @@ func (c *Combobox) Append(what ...string) (err error) {
 	return nil
 }
 
-// InsertBefore inserts a new item in the Combobox before the item at the given position.
+// InsertBefore inserts a new item in the Combobox before the item at the given position. (TODO action if before is out of bounds)
 func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -68,7 +68,7 @@ func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	return nil
 }
 
-// Delete removes the given item from the Combobox.
+// Delete removes the given item from the Combobox. (TODO action if index is out of bounds)
 func (c *Combobox) Delete(index int) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
