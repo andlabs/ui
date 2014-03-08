@@ -102,6 +102,19 @@ func (c *Combobox) SelectedIndex() int {
 	return -1
 }
 
+// Len returns the number of items in the Combobox.
+//
+// On platforms for which this function may return an error, it panics if one is returned.
+func (c *Combobox) Len() int {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		return c.sysData.len()
+	}
+	return len(c.initItems)
+}
+
 func (c *Combobox) make(window *sysData) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()

@@ -96,6 +96,19 @@ func (l *Listbox) SelectedIndices() []int {
 	return nil
 }
 
+// Len returns the number of items in the Listbox.
+//
+// On platforms for which this function may return an error, it panics if one is returned.
+func (l *Listbox) Len() int {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	if l.created {
+		return l.sysData.len()
+	}
+	return len(l.initItems)
+}
+
 func (l *Listbox) make(window *sysData) (err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()

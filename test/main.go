@@ -117,11 +117,11 @@ mainloop:
 			lb2.Delete(4)
 		case <-b3.Clicked:
 			MsgBox("List Info",
-				"cb1: %d %q\ncb2: %d %q\nlb1: %d %q\nlb2: %d %q",
-				cb1.SelectedIndex(), cb1.Selection(),
-				cb2.SelectedIndex(), cb2.Selection(),
-				lb1.SelectedIndices(), lb1.Selection(),
-				lb2.SelectedIndices(), lb2.Selection())
+				"cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
+				cb1.SelectedIndex(), cb1.Selection(), cb1.Len(),
+				cb2.SelectedIndex(), cb2.Selection(), cb2.Len(),
+				lb1.SelectedIndices(), lb1.Selection(), lb1.Len(),
+				lb2.SelectedIndices(), lb2.Selection(), lb2.Len())
 		case <-incButton.Clicked:
 			prog++
 			if prog > 100 {

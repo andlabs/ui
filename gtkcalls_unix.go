@@ -155,6 +155,13 @@ func gtk_combo_box_text_remove(widget *gtkWidget, index int) {
 	C.gtk_combo_box_text_remove(togtkcombobox(widget), C.gint(index))
 }
 
+func gtkComboBoxLen(widget *gtkWidget) int {
+	cb := (*C.GtkComboBox)(unsafe.Pointer(widget))
+	model := C.gtk_combo_box_get_model(cb)
+	// this is the same as with a Listbox so
+	return gtkTreeModelListLen(model)
+}
+
 func gtk_entry_new() *gtkWidget {
 	return fromgtkwidget(C.gtk_entry_new())
 }

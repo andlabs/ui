@@ -25,6 +25,7 @@ type classData struct {
 	selMulti	func(widget *gtkWidget) []int
 	smtexts	func(widget *gtkWidget) []string
 	delete	func(widget *gtkWidget, index int)
+	len		func(widget *gtkWidget) int
 	// ...
 	signals	map[string]func(*sysData) func() bool
 }
@@ -84,6 +85,7 @@ var classTypes = [nctypes]*classData{
 		insert:		gtk_combo_box_text_insert_text,
 		selected:		gtk_combo_box_get_active,
 		delete:		gtk_combo_box_text_remove,
+		len:			gtkComboBoxLen,
 	},
 	c_lineedit:		&classData{
 		make:		gtk_entry_new,
@@ -107,6 +109,7 @@ var classTypes = [nctypes]*classData{
 		selMulti:		gListboxSelectedMulti,
 		smtexts:		gListboxSelMultiTexts,
 		delete:		gListboxDelete,
+		len:			gListboxLen,
 	},
 	c_progressbar:		&classData{
 		make:		gtk_progress_bar_new,
@@ -293,4 +296,13 @@ func (s *sysData) setProgress(percent int) {
 		ret <- struct{}{}
 	}
 	<-ret
+}
+
+func (s *sysData) len() int {
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].len(s.widget)
+	}
+	return <-ret
 }

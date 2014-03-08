@@ -67,6 +67,9 @@ func (c *cSysData) preferredSize() (int, int) {
 func (c *cSysData) setProgress(int) {
 	panic(runtime.GOOS + " sysData does not define setProgress()")
 }
+func (c *cSysData) len() int {
+	panic(runtime.GOOS + " sysData does not define len()")
+}
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
 // Thanks skelterjohn for this techinque: if we can't queue any more events, drop them

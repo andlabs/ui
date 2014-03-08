@@ -211,3 +211,15 @@ func gListboxDelete(widget *gtkWidget, index int) {
 	}
 	C.gtk_list_store_remove(ls, &iter)
 }
+
+// this is a separate function because Combobox uses it too
+func gtkTreeModelListLen(model *C.GtkTreeModel) int {
+	// "As a special case, if iter is NULL, then the number of toplevel nodes is returned."
+	return int(C.gtk_tree_model_iter_n_children(model, (*C.GtkTreeIter)(nil)))
+}
+
+func gListboxLen(widget *gtkWidget) int {
+	tv := getTreeViewFrom(widget)
+	model := C.gtk_tree_view_get_model(tv)
+	return gtkTreeModelListLen(model)
+}
