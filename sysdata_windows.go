@@ -31,6 +31,7 @@ type classData struct {
 	selectedIndexMsg	uintptr
 	selectedIndexErr	int
 	addSpaceErr		int
+	lenMsg			uintptr
 }
 
 const controlstyle = _WS_CHILD | _WS_VISIBLE | _WS_TABSTOP
@@ -65,6 +66,7 @@ var classTypes = [nctypes]*classData{
 		selectedIndexMsg:	_CB_GETCURSEL,
 		selectedIndexErr:	_CB_ERR,
 		addSpaceErr:		_CB_ERRSPACE,
+		lenMsg:			_CB_GETCOUNT,
 	},
 	c_lineedit:		&classData{
 		name:			"EDIT",
@@ -92,6 +94,7 @@ var classTypes = [nctypes]*classData{
 		selectedIndexMsg:	_LB_GETCURSEL,
 		selectedIndexErr:	_LB_ERR,
 		addSpaceErr:		_LB_ERRSPACE,
+		lenMsg:			_LB_GETCOUNT,
 	},
 	c_progressbar:		&classData{
 		name:			_PROGRESS_CLASS,
@@ -523,4 +526,24 @@ func (s *sysData) setProgress(percent int) {
 		ret:		ret,
 	}
 	<-ret
+}
+
+func (s *sysData) len() int {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(classTypes[s.ctype].lenMsg),
+			uintptr(_WPARAM(0)),
+			uintptr(_LPARAM(0)),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
+		panic(fmt.Errorf("unexpected error return from sysData.len(); GetLastError() says %v", r.err))
+	}
+	return int(r.ret)
 }
