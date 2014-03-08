@@ -27,6 +27,7 @@ so I don't forget:
 	- Index(n) is the name used by reflect.Value; use a different one?
 
 important things:
+- Cocoa Listboxes should not be editable
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windows; Cocoa provides one for us but
@@ -48,8 +49,8 @@ important things:
 
 super ultra important things:
 - the windows build appears to be unstable:
-	- 64-bit doesn't work, period: it crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
-	- 32-bit: it works now, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
+	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
+	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
 - handle in-library panics (internal errors) by reporting them to the user
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	TODO re-evaluate; I think I fixed them all ages ago now
@@ -64,12 +65,14 @@ super ultra important things:
 (test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
 ```
 	figure out why
+- Mac OS X 32-bit builds don't call runtime.sighandler() on a Cocoa exception like the 64-bit builds do
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
 	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms (are there any left?)
 - make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
 	- do this for type signatures in exported functions: (err error) or just error?
+	- do this for the names of GTK+ helper functions (gtkXXX or gXXX)
 
 far off:
 - localization
