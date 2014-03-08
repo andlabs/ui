@@ -188,8 +188,9 @@ func (s *Stack) preferredSize() (width int, height int, err error) {
 //
 // For a Stack, Space can be used to insert spaces in the beginning or middle of Stacks (Stacks by nature handle spaces at the end themselves). In order for this to work properly, make the Space stretchy.
 //
-// For a Grid, Space can be used to have an empty cell. A stretchy Grid cell with a Space can be used to anchor the perimeter of a Grid to the respective Window edges without resizing the other controls (leaving empty space in the Window otherwise). Otherwise, you do not need to do anything special for the Space to work (though remember that an entire row or column of Spaces will appear as having height or width zero, respectively, unless one is marked as stretchy).
+// For a Grid, Space can be used to have an empty cell. A stretchy Grid cell with a Space can be used to anchor the perimeter of a Grid to the respective Window edges without making one of the other controls stretchy instead (leaving empty space in the Window otherwise). Otherwise, you do not need to do anything special for the Space to work (though remember that an entire row or column of Spaces will appear as having height or width zero, respectively, unless one is marked as stretchy).
 func Space() Control {
 	// As above, a Stack with no controls draws nothing and reports no errors; its parent will still size it properly if made stretchy.
+	// TODO just have one shared Space implementation control instead of making a new one each time?
 	return newStack(horizontal)
 }
