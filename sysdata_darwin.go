@@ -30,6 +30,7 @@ type classData struct {
 	selIndices		func(id C.id) []int
 	selTexts		func(id C.id) []string
 	delete		func(id C.id, index int)
+	len			func(id C.id) int
 }
 
 var (
@@ -76,6 +77,7 @@ var (
 	_setControlSize = sel_getUid("setControlSize:")
 	_setIndeterminate = sel_getUid("setIndeterminate:")
 	_setDoubleValue = sel_getUid("setDoubleValue:")
+	_numberOfItems = sel_getUid("numberOfItems")
 )
 
 func addControl(parentWindow C.id, control C.id) {
@@ -199,6 +201,9 @@ var classTypes = [nctypes]*classData{
 		delete:		func(id C.id, index int) {
 			C.objc_msgSend_int(id, _removeItemAtIndex, C.intptr_t(index))
 		},
+		len:			func(id C.id) int {
+			return int(C.objc_msgSend_intret_noargs(id, _numberOfItems))
+		},
 	},
 	c_lineedit:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
@@ -246,6 +251,7 @@ var classTypes = [nctypes]*classData{
 		selIndices:	selectedListboxIndices,
 		selTexts:		selectedListboxTexts,
 		delete:		deleteListbox,
+		len:			listboxLen,
 	},
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
@@ -464,4 +470,13 @@ func (s *sysData) setProgress(percent int) {
 		ret <- struct{}{}
 	}
 	<-ret
+}
+
+func (s *sysData) len() int {
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].len(s.id)
+	}
+	return <-ret
 }

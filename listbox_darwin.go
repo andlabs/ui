@@ -223,6 +223,7 @@ var (
 	_setHeaderView = sel_getUid("setHeaderView:")
 	_selectedRowIndexes = sel_getUid("selectedRowIndexes")
 	_count = sel_getUid("count")
+	_numberOfRows = sel_getUid("numberOfRows")
 )
 
 func makeListbox(parentWindow C.id, alternate bool) C.id {
@@ -293,4 +294,8 @@ func selectedListboxTexts(listbox C.id) (texts []string) {
 func deleteListbox(listbox C.id, index int) {
 	array := listboxArray(listbox)
 	deleteListboxArray(array, index)
+}
+
+func listboxLen(listbox C.id) int {
+	return int(C.objc_msgSend_intret_noargs(listboxInScrollView(listbox), _numberOfRows))
 }
