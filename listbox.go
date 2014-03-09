@@ -34,7 +34,7 @@ func (l *Listbox) Append(what ...string) {
 	defer l.lock.Unlock()
 
 	if l.created {
-		for i, s := range what {
+		for _, s := range what {
 			l.sysData.append(s)
 		}
 		return
@@ -126,10 +126,7 @@ func (l *Listbox) make(window *sysData) (err error) {
 		return err
 	}
 	for _, s := range l.initItems {
-		err = l.sysData.append(s)
-		if err != nil {
-			return err
-		}
+		l.sysData.append(s)
 	}
 	l.created = true
 	return nil

@@ -42,7 +42,7 @@ func (c *Combobox) Append(what ...string) {
 	defer c.lock.Unlock()
 
 	if c.created {
-		for i, s := range what {
+		for _, s := range what {
 			c.sysData.append(s)
 		}
 		return
@@ -141,10 +141,7 @@ func (c *Combobox) make(window *sysData) (err error) {
 		return err
 	}
 	for _, s := range c.initItems {
-		err = c.sysData.append(s)
-		if err != nil {
-			return err
-		}
+		c.sysData.append(s)
 	}
 	c.created = true
 	return nil
