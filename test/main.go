@@ -37,6 +37,35 @@ func gridWindow() (*Window, error) {
 
 var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on deleting too far (debug lack of panic on 32-bit)")
 
+func invalidTest(c *Combobox, l *Listbox) {
+	x := func(what string ) {
+		if j := recover(); j == nil {
+			MsgBoxError("test", "%s: no panic", what)
+			panic("invalid test fail")
+		} else {
+			println("got", j.(error).Error())
+		}
+	}
+
+	func() {
+		defer x("Combobox.InsertBefore < 0"); c.InsertBefore("xxx", -5); panic(nil)
+	}()
+	func() {
+		defer x("Combobox.InsertBefore > len"); c.InsertBefore("xxx", c.Len() + 5); panic(nil)
+	}()
+	func() {
+		defer x("Combobox.Delete < 0"); c.Delete(-5); panic(nil)
+	}()
+	func() {
+		defer x("Listbox.Delete > len"); c.Delete(c.Len() + 5); panic(nil)
+	}()
+	// TODO
+	_ = l
+	MsgBox("test", "all working as intended")
+}
+
+var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
+
 func myMain() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = Event()
@@ -56,7 +85,8 @@ func myMain() {
 	prog := 0
 	incButton := NewButton("Inc")
 	decButton := NewButton("Dec")
-	sincdec := NewHorizontalStack(incButton, decButton)
+	invalidButton := NewButton("Run Invalid Test")
+	sincdec := NewHorizontalStack(incButton, decButton, invalidButton)
 	password := NewPasswordEdit()
 	s0 := NewVerticalStack(s2, c, cb1, cb2, e, s3, pbar, sincdec, Space(), password)
 	s0.SetStretchy(8)
@@ -79,6 +109,9 @@ func myMain() {
 	s := NewHorizontalStack(s1, s0)
 	s.SetStretchy(0)
 	s.SetStretchy(1)
+	if *invalidBefore {
+		invalidTest(cb1, lb1)
+	}
 	err := w.Open(s)
 	if err != nil {
 		panic(err)
@@ -146,6 +179,8 @@ mainloop:
 				prog = 0
 			}
 			pbar.SetProgress(prog)
+		case <-invalidButton.Clicked:
+			invalidTest(cb1, lb1)
 		}
 	}
 	w.Hide()

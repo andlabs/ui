@@ -53,31 +53,49 @@ func (c *Combobox) Append(what ...string) (err error) {
 	return nil
 }
 
-// InsertBefore inserts a new item in the Combobox before the item at the given position. (TODO action if before is out of bounds)
+// InsertBefore inserts a new item in the Combobox before the item at the given position. It panics if the given index is out of bounds.
 func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
+	var m []string
+
 	if c.created {
+		if before < 0 || before >= c.sysData.len() {
+			goto badrange
+		}
 		return c.sysData.insertBefore(what, before)
 	}
-	m := make([]string, 0, len(c.initItems) + 1)
+	if before < 0 || before >= len(c.initItems) {
+		goto badrange
+	}
+	m = make([]string, 0, len(c.initItems) + 1)
 	m = append(m, c.initItems[:before]...)
 	m = append(m, what)
 	c.initItems = append(m, c.initItems[before:]...)
 	return nil
+badrange:
+	panic(fmt.Errorf("index %d out of range in Combobox.InsertBefore()", before))
 }
 
-// Delete removes the given item from the Combobox. (TODO action if index is out of bounds)
+// Delete removes the given item from the Combobox. It panics if the given index is out of bounds.
 func (c *Combobox) Delete(index int) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if c.created {
+		if index < 0 || index >= c.sysData.len() {
+			goto badrange
+		}
 		return c.sysData.delete(index)
+	}
+	if index < 0 || index >= len(c.initItems) {
+		goto badrange
 	}
 	c.initItems = append(c.initItems[:index], c.initItems[index + 1:]...)
 	return nil
+badrange:
+	panic(fmt.Errorf("index %d out of range in Combobox.Delete()", index))
 }
 
 // Selection returns the current selection.
