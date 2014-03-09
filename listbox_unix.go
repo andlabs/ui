@@ -136,21 +136,6 @@ func gListboxInsert(widget *gtkWidget, index int, what string) {
 	C.gtkListStoreSet(ls, &iter, cwhat)
 }
 
-func gListboxSelected(widget *gtkWidget) int {
-	var model *C.GtkTreeModel
-	var iter C.GtkTreeIter
-
-	tv := getTreeViewFrom(widget)
-	sel := C.gtk_tree_view_get_selection(tv)
-	if !fromgbool(C.gtk_tree_selection_get_selected(sel, &model, &iter)) {
-		return -1
-	}
-	path := C.gtk_tree_model_get_path(model, &iter)
-	idx := C.gtk_tree_path_get_indices(path)
-	// idx is an array; simply derefernece the pointer to the first element to get the first element/only member
-	return int(*idx)
-}
-
 func gListboxSelectedMulti(widget *gtkWidget) (indices []int) {
 	var model *C.GtkTreeModel
 

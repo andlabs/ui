@@ -105,7 +105,6 @@ var classTypes = [nctypes]*classData{
 		text:			gListboxText,
 		append:		gListboxAppend,
 		insert:		gListboxInsert,
-		selected:		gListboxSelected,
 		selMulti:		gListboxSelectedMulti,
 		smtexts:		gListboxSelMultiTexts,
 		delete:		gListboxDelete,
