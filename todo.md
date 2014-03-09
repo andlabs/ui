@@ -27,11 +27,11 @@ so I don't forget:
 	- Index(n) is the name used by reflect.Value; use a different one?
 
 important things:
-- Cocoa Listboxes should not be editable
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windows; Cocoa provides one for us but
 - I think Cocoa NSButton text is not vertically aligned properly...?
+	- and listbox item text is too low?
 - NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it
 	- need to use it /after/ adding initial items, otherwise it won't work
 	- find out if I can do the same with the ListBoxes

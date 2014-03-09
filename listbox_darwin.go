@@ -150,6 +150,8 @@ func listboxArrayController(tableColumn C.id) C.id {
 Now with all that done, we're ready to creat a table column.
 
 Columns need string identifiers; we'll just reuse the item key.
+
+Editability is also handled here, as opposed to in NSTableView itself.
 */
 
 var (
@@ -157,11 +159,13 @@ var (
 
 	_initWithIdentifier = sel_getUid("initWithIdentifier:")
 	_tableColumnWithIdentifier = sel_getUid("tableColumnWithIdentifier:")
+	// _setEditable in sysdata_darwin.go
 )
 
 func newListboxTableColumn() C.id {
 	column := objc_alloc(_NSTableColumn)
 	column = C.objc_msgSend_id(column, _initWithIdentifier, listboxItemKey)
+	C.objc_msgSend_bool(column, _setEditable, C.BOOL(C.NO))
 	// TODO other properties?
 	bindListboxArray(column, newListboxArray())
 	return column
