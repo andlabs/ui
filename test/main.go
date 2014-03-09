@@ -35,6 +35,8 @@ func gridWindow() (*Window, error) {
 	return w, w.Open(g)
 }
 
+var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on deleting too far (debug lack of panic on 32-bit)")
+
 func myMain() {
 	w := NewWindow("Main Window", 320, 240)
 	w.Closing = Event()
@@ -111,10 +113,18 @@ mainloop:
 			}
 			doAdjustments()
 		case <-b2.Clicked:
-			cb1.Delete(1)
-			cb2.Delete(2)
-			lb1.Delete(3)
-			lb2.Delete(4)
+			if cb1.Len() > 1 {
+				cb1.Delete(1)
+			}
+			if cb2.Len() > 2 {
+				cb2.Delete(2)
+			}
+			if lb1.Len() > 3 || *macCrashTest {
+				lb1.Delete(3)
+			}
+			if lb2.Len() > 4 {
+				lb2.Delete(4)
+			}
 		case <-b3.Clicked:
 			MsgBox("List Info",
 				"cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
