@@ -17,13 +17,13 @@ so I don't forget:
 - Combobox/Listbox.DeleteAll
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
 - Listbox.SelectAll
-- have Combobox.InsertBefore, Listbox.InsertBefore, Combobox.Delete, and Listbox.Delete return an error on invalid index before creation, or have them panic like an invalid array index, etc.; decide which to do as these do differnet things on different platforms by default
+- have Listbox.Delete() panic on invalid index; it does not yet due to the Mac OS X signaling issue mentioned under "super important"
 	- same for other methods that take indices, like the Stack and Grid stretchy methods
 - make the Windows implementation of message boxes run on uitask
 	- ensure MsgBoxError can run if initialization failed if things change ever
 - should Labels be selectable?
 	- should message box text be selectable on all platforms or only on those that make it the default?
-- Listbox/Combobox.Len(), Index(n)
+- Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
 
 important things:
@@ -45,6 +45,7 @@ important things:
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
+	- pin down this behavior; also note non-editability
 - GTK+ windows cannot be resized smaller than their controls's current sizes in their current positions; find out how to overrule that so they can be freely resized
 
 super ultra important things:

@@ -59,8 +59,13 @@ func invalidTest(c *Combobox, l *Listbox) {
 	func() {
 		defer x("Listbox.Delete > len"); c.Delete(c.Len() + 5); panic(nil)
 	}()
-	// TODO
-	_ = l
+	func() {
+		defer x("Listbox.InsertBefore < 0"); l.InsertBefore("xxx", -5); panic(nil)
+	}()
+	func() {
+		defer x("Listbox.InsertBefore > len"); l.InsertBefore("xxx", l.Len() + 5); panic(nil)
+	}()
+	// TODO add Listbox.Delete() tests when I move that over
 	MsgBox("test", "all working as intended")
 }
 

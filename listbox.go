@@ -45,20 +45,29 @@ func (l *Listbox) Append(what ...string) (err error) {
 	return nil
 }
 
-// InsertBefore inserts a new item in the Listbox before the item at the given position.
-// (TODO action on invalid index)
+// InsertBefore inserts a new item in the Listbox before the item at the given position. It panics if the given index is out of bounds.
 func (l *Listbox) InsertBefore(what string, before int) (err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
+	var m []string
+
 	if l.created {
+		if before < 0 || before >= l.sysData.len() {
+			goto badrange
+		}
 		return l.sysData.insertBefore(what, before)
 	}
-	m := make([]string, 0, len(l.initItems) + 1)
+	if before < 0 || before >= len(l.initItems) {
+		goto badrange
+	}
+	m = make([]string, 0, len(l.initItems) + 1)
 	m = append(m, l.initItems[:before]...)
 	m = append(m, what)
 	l.initItems = append(m, l.initItems[before:]...)
 	return nil
+badrange:
+	panic(fmt.Errorf("index %d out of range in Listbox.InsertBefore()", before))
 }
 
 // Delete removes the given item from the Listbox.
