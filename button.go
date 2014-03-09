@@ -69,10 +69,9 @@ func (b *Button) setRect(x int, y int, width int, height int, winheight int) err
 	return b.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (b *Button) preferredSize() (width int, height int, err error) {
+func (b *Button) preferredSize() (width int, height int) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	width, height = b.sysData.preferredSize()
-	return
+	return b.sysData.preferredSize()
 }

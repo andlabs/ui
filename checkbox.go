@@ -75,10 +75,9 @@ func (c *Checkbox) setRect(x int, y int, width int, height int, winheight int) e
 	return c.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (c *Checkbox) preferredSize() (width int, height int, err error) {
+func (c *Checkbox) preferredSize() (width int, height int) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	width, height = c.sysData.preferredSize()
-	return
+	return c.sysData.preferredSize()
 }

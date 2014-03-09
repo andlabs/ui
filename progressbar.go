@@ -56,10 +56,9 @@ func (p *ProgressBar) setRect(x int, y int, width int, height int, winheight int
 	return p.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (p *ProgressBar) preferredSize() (width int, height int, err error) {
+func (p *ProgressBar) preferredSize() (width int, height int) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	width, height = p.sysData.preferredSize()
-	return
+	return p.sysData.preferredSize()
 }

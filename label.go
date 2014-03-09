@@ -63,10 +63,9 @@ func (l *Label) setRect(x int, y int, width int, height int, winheight int) erro
 	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (l *Label) preferredSize() (width int, height int, err error) {
+func (l *Label) preferredSize() (width int, height int) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	width, height = l.sysData.preferredSize()
-	return
+	return l.sysData.preferredSize()
 }

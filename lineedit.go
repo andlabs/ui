@@ -75,10 +75,9 @@ func (l *LineEdit) setRect(x int, y int, width int, height int, winheight int) e
 	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (l *LineEdit) preferredSize() (width int, height int, err error) {
+func (l *LineEdit) preferredSize() (width int, height int) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	width, height = l.sysData.preferredSize()
-	return
+	return l.sysData.preferredSize()
 }

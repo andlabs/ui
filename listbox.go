@@ -139,10 +139,9 @@ func (l *Listbox) setRect(x int, y int, width int, height int, winheight int) er
 	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
-func (l *Listbox) preferredSize() (width int, height int, err error) {
+func (l *Listbox) preferredSize() (width int, height int) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	width, height = l.sysData.preferredSize()
-	return
+	return l.sysData.preferredSize()
 }

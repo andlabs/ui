@@ -132,10 +132,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			w, h, err := c.preferredSize()
-			if err != nil {
-				return fmt.Errorf("error getting preferred size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
-			}
+			w, h := c.preferredSize()
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
@@ -180,7 +177,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 }
 
 // filling and stretchy are ignored for preferred size calculation
-func (g *Grid) preferredSize() (width int, height int, err error) {
+func (g *Grid) preferredSize() (width int, height int) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
@@ -201,10 +198,7 @@ func (g *Grid) preferredSize() (width int, height int, err error) {
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			w, h, err := c.preferredSize()
-			if err != nil {
-				return 0, 0, fmt.Errorf("error getting preferred size of control (%d,%d) in Grid.setRect(): %v", row, col, err)
-			}
+			w, h := c.preferredSize()
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
@@ -218,5 +212,5 @@ func (g *Grid) preferredSize() (width int, height int, err error) {
 	for _, h := range g.rowheights {
 		height += h
 	}
-	return width, height, nil
+	return width, height
 }
