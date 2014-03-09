@@ -2,6 +2,7 @@
 package ui
 
 import (
+	"fmt"
 //	"syscall"
 	"unsafe"
 )
@@ -74,14 +75,14 @@ func (s *sysData) preferredSize() (width int, height int) {
 	// TODO use GetDC() and not GetWindowDC()?
 	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
 	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
 	}
 	dc = _HANDLE(r1)
 	r1, _, err = _getTextMetrics.Call(
 		uintptr(dc),
 		uintptr(unsafe.Pointer(&tm)))
 	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+		panic(fmt.Errorf("error getting text metrics for preferred size calculations: %v", err))
 	}
 	baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference has better way
 	baseY = int(tm.tmHeight)
@@ -89,7 +90,7 @@ func (s *sysData) preferredSize() (width int, height int) {
 		uintptr(s.hwnd),
 		uintptr(dc))
 	if r1 == 0 {		// failure
-		panic(err)		// TODO return it instead
+		panic(fmt.Errorf("error releasing DC for preferred size calculations: %v", err))
 	}
 
 	// now that we have the conversion factors...
