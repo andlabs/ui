@@ -317,7 +317,7 @@ func (s *sysData) text() (str string) {
 	return syscall.UTF16ToString(tc)
 }
 
-func (s *sysData) append(what string) (err error) {
+func (s *sysData) append(what string) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -332,14 +332,13 @@ func (s *sysData) append(what string) (err error) {
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
-		return fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err)
+		panic(fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err))
 	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
-		return fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err)
+		panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err))
 	}
-	return nil
 }
 
-func (s *sysData) insertBefore(what string, index int) (err error) {
+func (s *sysData) insertBefore(what string, index int) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -354,11 +353,10 @@ func (s *sysData) insertBefore(what string, index int) (err error) {
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].addSpaceErr) {
-		return fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err)
+		panic(fmt.Errorf("out of space adding item to combobox/listbox (last error: %v)", r.err))
 	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
-		return fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err)
+		panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err))
 	}
-	return nil
 }
 
 func (s *sysData) selectedIndex() int {

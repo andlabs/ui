@@ -36,25 +36,23 @@ func NewEditableCombobox(items ...string) *Combobox {
 }
 
 // Append adds items to the end of the Combobox's list.
-func (c *Combobox) Append(what ...string) (err error) {
+// Append will panic if something goes wrong on platforms that do not abort themselves.
+func (c *Combobox) Append(what ...string) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if c.created {
 		for i, s := range what {
-			err := c.sysData.append(s)
-			if err != nil {
-				return fmt.Errorf("error adding element %d in Combobox.Append() (%q): %v", i, s, err)
-			}
+			c.sysData.append(s)
 		}
-		return nil
+		return
 	}
 	c.initItems = append(c.initItems, what...)
-	return nil
 }
 
 // InsertBefore inserts a new item in the Combobox before the item at the given position. It panics if the given index is out of bounds.
-func (c *Combobox) InsertBefore(what string, before int) (err error) {
+// InsertBefore will also panic if something goes wrong on platforms that do not abort themselves.
+func (c *Combobox) InsertBefore(what string, before int) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -64,7 +62,8 @@ func (c *Combobox) InsertBefore(what string, before int) (err error) {
 		if before < 0 || before >= c.sysData.len() {
 			goto badrange
 		}
-		return c.sysData.insertBefore(what, before)
+		c.sysData.insertBefore(what, before)
+		return
 	}
 	if before < 0 || before >= len(c.initItems) {
 		goto badrange
@@ -73,7 +72,7 @@ func (c *Combobox) InsertBefore(what string, before int) (err error) {
 	m = append(m, c.initItems[:before]...)
 	m = append(m, what)
 	c.initItems = append(m, c.initItems[before:]...)
-	return nil
+	return
 badrange:
 	panic(fmt.Errorf("index %d out of range in Combobox.InsertBefore()", before))
 }

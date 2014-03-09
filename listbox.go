@@ -28,25 +28,23 @@ func NewListbox(multiple bool, items ...string) (l *Listbox) {
 }
 
 // Append adds items to the end of the Listbox's list.
-func (l *Listbox) Append(what ...string) (err error) {
+// Append will panic if something goes wrong on platforms that do not abort themselves.
+func (l *Listbox) Append(what ...string) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
 		for i, s := range what {
-			err := l.sysData.append(s)
-			if err != nil {
-				return fmt.Errorf("error adding element %d in Listbox.Append() (%q): %v", i, s, err)
-			}
+			l.sysData.append(s)
 		}
-		return nil
+		return
 	}
 	l.initItems = append(l.initItems, what...)
-	return nil
 }
 
 // InsertBefore inserts a new item in the Listbox before the item at the given position. It panics if the given index is out of bounds.
-func (l *Listbox) InsertBefore(what string, before int) (err error) {
+// InsertBefore will also panic if something goes wrong on platforms that do not abort themselves.
+func (l *Listbox) InsertBefore(what string, before int) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
@@ -56,7 +54,8 @@ func (l *Listbox) InsertBefore(what string, before int) (err error) {
 		if before < 0 || before >= l.sysData.len() {
 			goto badrange
 		}
-		return l.sysData.insertBefore(what, before)
+		l.sysData.insertBefore(what, before)
+		return
 	}
 	if before < 0 || before >= len(l.initItems) {
 		goto badrange
@@ -65,7 +64,7 @@ func (l *Listbox) InsertBefore(what string, before int) (err error) {
 	m = append(m, l.initItems[:before]...)
 	m = append(m, what)
 	l.initItems = append(m, l.initItems[before:]...)
-	return nil
+	return
 badrange:
 	panic(fmt.Errorf("index %d out of range in Listbox.InsertBefore()", before))
 }

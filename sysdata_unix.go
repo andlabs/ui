@@ -216,7 +216,7 @@ func (s *sysData) text() string {
 	return <-ret
 }
 
-func (s *sysData) append(what string) error {
+func (s *sysData) append(what string) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -224,10 +224,9 @@ func (s *sysData) append(what string) error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
-func (s *sysData) insertBefore(what string, before int) error {
+func (s *sysData) insertBefore(what string, before int) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -235,7 +234,6 @@ func (s *sysData) insertBefore(what string, before int) error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) selectedIndex() int {

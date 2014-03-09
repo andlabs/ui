@@ -40,10 +40,10 @@ func (c *cSysData) isChecked() bool {
 func (c *cSysData) text() string {
 	panic(runtime.GOOS + " sysData does not define text()")
 }
-func (c *cSysData) append(string) error {
+func (c *cSysData) append(string) {
 	panic(runtime.GOOS + " sysData does not define append()")
 }
-func (c *cSysData) insertBefore(string, int) error {
+func (c *cSysData) insertBefore(string, int) {
 	panic(runtime.GOOS + " sysData does not define insertBefore()")
 }
 func (c *cSysData) selectedIndex() int {
