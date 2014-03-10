@@ -75,6 +75,7 @@ var classTypes = [nctypes]*classData{
 	c_checkbox:		&classData{
 		make:		gtk_check_button_new,
 		setText:		gtk_button_set_label,
+		text:			gtk_button_get_label,
 	},
 	c_combobox:		&classData{
 		make:		gtk_combo_box_text_new,
