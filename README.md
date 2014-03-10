@@ -31,7 +31,7 @@ dragonfly | untested | untested | ????
 freebsd | untested (VM failure) | untested (VM failure) | untested
 netbsd | untested | untested | ????
 openbsd | untested | untested | ????
-solaris | (invalid) | untested | (invalid)
+solaris | ???? | untested | ????
 plan9 | (not written yet; problems building Go) | (invalid?) | ????
 nacl | (not sure how to handle) | (not sure how to handle) | ????
 
@@ -45,10 +45,10 @@ Mandriva | untested | untested
 Slackware | untested | untested
 Gentoo | untested | untested
 
-(The above list should cover all the bases of major Linux distributions and variants thereof; I might add a dedicated Debian test later but other than that... suggestions welcome. Kubuntu 64-bit is my main system and the main development platform; the Windows builds are cross-compiled from here. And yes, this also implies I seriously consider a Plan 9 port of the library using [libcontrol](http://plan9.bell-labs.com/magic/man2html/2/control), though I'm guessing this will blow up in my face due to the conflict between libthread and Go's runtime.)
+(The above list should cover all the bases of major Linux distributions and variants thereof; I might add a dedicated Debian test later but other than that... suggestions welcome. Kubuntu 64-bit is my main system and the main development platform; the Windows builds are cross-compiled from here. And yes, this also implies I seriously consider a Plan 9 port of the library using [libcontrol](http://plan9.bell-labs.com/magic/man2html/2/control), though I'm guessing this will blow up in my face due to any possible conflicts between libthread and Go's runtime (I need to see how the Go runtime implements OS threads on Plan 9).)
 
 ## Contributing
-Contributions are welcome. File issues, pull requests, approach me on IRC (pietro10 in #go-nuts; andlabs elsewhere), etc. Even suggestions are welcome: while I'm mainly drawing from my own GUI programming experience, everyone is different.
+Contributions are welcome. File issues, pull requests, approach me on IRC (pietro10 in #go-nuts; andlabs elsewhere), etc. Even suggestions are welcome: while I'm mainly drawing from my own GUI programming experience, everyone is different. I have received emails, however I am not likely to see those right away, so I don't suggest contacting me by email if your communication is urgent.
 
 If you want to dive in, read implementation.md: this is a description of how the library works. (Feel free to suggest improvements to this as well.) The other .md files in this repository contain various development notes.
 
