@@ -19,6 +19,34 @@ Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 
 For an example of how ui is used, see https://github.com/andlabs/wakeup, which is a small program that implements a basic alarm clock.
 
+## Known To Have Ever Been Built Matrices
+For convenience's sake, here are matrices of builds that I have personally done at least once. Each cell represents the run status. These matrices represent builds that I have done at any point in development; it is not a guarantee that the current version works. (I built this list to answer questions of whether or not ui works with a specific configuration.) Only configurations marked with a * are tested during active development.
+
+   | 386 | amd64 | arm
+----- | ----- | ----- | -----
+windows | works on windows; works on wine* | works on windows; fails on wine | (invalid)
+linux | see table below | see table below | Raspian: works
+darwin (Mac OS X) | works* (cross-compiled from 64-bit) | works* | (not applicable)
+dragonfly | untested | untested | ????
+freebsd | untested (VM failure) | untested (VM failure) | untested
+netbsd | untested | untested | ????
+openbsd | untested | untested | ????
+solaris | (invalid) | untested | (invalid)
+plan9 | (not written yet; problems building Go) | (invalid?) | ????
+nacl | (not sure how to handle) | (not sure how to handle) | ????
+
+linux | 386 | amd64
+----- | ----- | ----- | -----
+Kubuntu (14.04) | works; cross-compiling on 64-bit Linux fails due to nonexistent .so symlinks | works*
+Fedora | untested | untested
+openSUSE | untested | untested
+Arch Linux | untested | untested
+Mandriva | untested | untested
+Slackware | untested | untested
+Gentoo | untested | untested
+
+(The above list should cover all the bases of major Linux distributions and variants thereof; I might add a dedicated Debian test later but other than that... suggestions welcome. Kubuntu 64-bit is my main system and the main development platform; the Windows builds are cross-compiled from here. And yes, this also implies I seriously consider a Plan 9 port of the library using [libcontrol](http://plan9.bell-labs.com/magic/man2html/2/control), though I'm guessing this will blow up in my face due to the conflict between libthread and Go's runtime.)
+
 ## Contributing
 Contributions are welcome. File issues, pull requests, approach me on IRC (pietro10 in #go-nuts; andlabs elsewhere), etc. Even suggestions are welcome: while I'm mainly drawing from my own GUI programming experience, everyone is different.
 
