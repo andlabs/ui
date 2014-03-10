@@ -254,7 +254,7 @@ func (s *sysData) setText(text string) {
 	}
 	r := <-ret
 	if r.ret == 0 {		// failure
-		panic(fmt.Errorf("error setting window/control text: %v", err))
+		panic(fmt.Errorf("error setting window/control text: %v", r.err))
 	}
 }
 

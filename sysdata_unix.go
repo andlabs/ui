@@ -4,7 +4,7 @@
 package ui
 
 import (
-	"fmt"
+	// ...
 )
 
 type sysData struct {
@@ -150,10 +150,7 @@ func (s *sysData) make(initText string, window *sysData) error {
 		}
 		<-ret
 	}
-	err := s.setText(initText)
-	if err != nil {
-		return fmt.Errorf("error setting initial text of new window/control: %v", err)
-	}
+	s.setText(initText)
 	return nil
 }
 
@@ -185,7 +182,7 @@ func (s *sysData) hide() {
 
 func (s *sysData) setText(text string) {
 	if classTypes[s.ctype].setText == nil {		// does not have concept of text
-		return nil
+		return
 	}
 	ret := make(chan struct{})
 	defer close(ret)

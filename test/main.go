@@ -140,15 +140,12 @@ mainloop:
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
-			err = w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
+			w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
 				c.Checked(),
 				cb1.Selection(),
 				cb2.Selection(),
 				e.Text(),
 				password.Text()))
-			if err != nil {
-				panic(err)
-			}
 			doAdjustments()
 		case <-b2.Clicked:
 			if cb1.Len() > 1 {
