@@ -99,19 +99,17 @@ func (w *Window) Open(control Control) (err error) {
 }
 
 // Show shows the window.
-func (w *Window) Show() (err error) {
-	err = w.sysData.show()
-	if err != nil {
-		return fmt.Errorf("error showing window: %v", err)
-	}
-	return nil
+func (w *Window) Show() {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	w.sysData.show()
 }
 
 // Hide hides the window.
-func (w *Window) Hide() (err error) {
-	err = w.sysData.hide()
-	if err != nil {
-		return fmt.Errorf("error hiding window: %v", err)
-	}
-	return nil
+func (w *Window) Hide() {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	w.sysData.hide()
 }
