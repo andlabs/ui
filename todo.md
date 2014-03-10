@@ -25,6 +25,9 @@ so I don't forget:
 	- should message box text be selectable on all platforms or only on those that make it the default?
 - Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
+- message boxes need cleanup:
+	- Windows: title: titlebar; text: message box text; no such thing as secondary text
+	- GTK+ AND Cocoa: title: message box text; text: secondary text; nothing: titlebar
 
 important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
@@ -87,3 +90,4 @@ maybe:
 - make Combobox and Listbox satisfy sort.Interface?
 - indeterminate progress bars (not supported on Windows 2000)
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
+- since all events are dispatched without blocking uitask, don't bother requiring explicit dispatch? remove ui.Event() and make Window.Closing initialized by default; if we don't listen on the channel, nothing will happen
