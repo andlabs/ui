@@ -156,6 +156,12 @@ func (s *sysData) make(initText string, window *sysData) error {
 	return nil
 }
 
+// used for Windows; nothing special needed elsewhere
+func (s *sysData) firstShow() error {
+	s.show()
+	return nil
+}
+
 func (s *sysData) show() error {
 	ret := make(chan struct{})
 	defer close(ret)

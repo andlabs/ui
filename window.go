@@ -90,7 +90,7 @@ func (w *Window) Open(control Control) (err error) {
 		return fmt.Errorf("error setting window size (in Window.Open()): %v", err)
 	}
 	// TODO separate showing?
-	err = w.sysData.show()
+	err = w.sysData.firstShow()
 	if err != nil {
 		return fmt.Errorf("error showing window (in Window.Open()): %v", err)
 	}

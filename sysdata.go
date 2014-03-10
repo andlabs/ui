@@ -22,6 +22,9 @@ type cSysData struct {
 func (c *cSysData) make(initText string, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
 }
+func (c *cSysData) firstShow() error {
+	panic(runtime.GOOS + " sysData does not define firstShow()")
+}
 func (c *cSysData) show() error {
 	panic(runtime.GOOS + " sysData does not define show()")
 }

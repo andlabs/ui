@@ -15,7 +15,6 @@ type sysData struct {
 	children			map[_HMENU]*sysData
 	nextChildID		_HMENU
 	childrenLock		sync.Mutex
-	shownAlready		bool
 }
 
 type classData struct {
@@ -190,36 +189,42 @@ var (
 // if the object is a window, we need to do the following the first time
 // 	ShowWindow(hwnd, nCmdShow);
 // 	UpdateWindow(hwnd);
-// otherwise we go ahead and show the object normally with SW_SHOW
-func (s *sysData) show() (err error) {
-	if s.ctype != c_window {		// don't do the init ShowWindow/UpdateWindow chain on non-windows
-		s.shownAlready = true
-	}
-	show := uintptr(_SW_SHOW)
-	if !s.shownAlready {
-		show = uintptr(nCmdShow)
-	}
+func (s *sysData) firstShow() error {
 	ret := make(chan uiret)
 	defer close(ret)
-	// TODO figure out how to handle error
 	uitask <- &uimsg{
 		call:		_showWindow,
-		p:		[]uintptr{uintptr(s.hwnd), show},
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(nCmdShow),
+		},
 		ret:		ret,
 	}
 	<-ret
-	if !s.shownAlready {
-		uitask <- &uimsg{
-			call:		_updateWindow,
-			p:		[]uintptr{uintptr(s.hwnd)},
-			ret:		ret,
-		}
-		r := <-ret
-		if r.ret == 0 {		// failure
-			return fmt.Errorf("error updating window for the first time: %v", r.err)
-		}
-		s.shownAlready = true
+	uitask <- &uimsg{
+		call:		_updateWindow,
+		p:		[]uintptr{uintptr(s.hwnd)},
+		ret:		ret,
 	}
+	r := <-ret
+	if r.ret == 0 {		// failure
+		return fmt.Errorf("error updating window for the first time: %v", r.err)
+	}
+	return nil
+}
+
+func (s *sysData) show() (err error) {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_showWindow,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_SW_SHOW),
+		},
+		ret:		ret,
+	}
+	<-ret
 	return nil
 }
 
