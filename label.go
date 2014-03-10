@@ -22,15 +22,15 @@ func NewLabel(text string) *Label {
 }
 
 // SetText sets the Label's text.
-func (l *Label) SetText(text string) (err error) {
+func (l *Label) SetText(text string) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
-		return l.sysData.setText(text)
+		l.sysData.setText(text)
+		return
 	}
 	l.initText = text
-	return nil
 }
 
 // Text returns the Label's text.

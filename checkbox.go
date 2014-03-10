@@ -25,15 +25,15 @@ func NewCheckbox(text string) (c *Checkbox) {
 }
 
 // SetText sets the checkbox's text.
-func (c *Checkbox) SetText(text string) (err error) {
+func (c *Checkbox) SetText(text string) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
 	if c.created {
-		return c.sysData.setText(text)
+		c.sysData.setText(text)
+		return
 	}
 	c.initText = text
-	return nil
 }
 
 // Text returns the checkbox's text.

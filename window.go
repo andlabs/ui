@@ -31,19 +31,15 @@ func NewWindow(title string, width int, height int) *Window {
 }
 
 // SetTitle sets the window's title.
-func (w *Window) SetTitle(title string) (err error) {
+func (w *Window) SetTitle(title string) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
 	if w.created {
-		err = w.sysData.setText(title)
-		if err != nil {
-			return fmt.Errorf("error setting window title: %v", err)
-		}
-		return nil
+		w.sysData.setText(title)
+		return
 	}
 	w.initTitle = title
-	return nil
 }
 
 // SetSize sets the window's size.

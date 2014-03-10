@@ -27,15 +27,15 @@ func NewButton(text string) (b *Button) {
 }
 
 // SetText sets the button's text.
-func (b *Button) SetText(text string) (err error) {
+func (b *Button) SetText(text string) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
 	if b.created {
-		return b.sysData.setText(text)
+		b.sysData.setText(text)
+		return
 	}
 	b.initText = text
-	return nil
 }
 
 // Text returns the button's text.

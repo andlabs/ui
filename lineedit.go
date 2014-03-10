@@ -33,15 +33,15 @@ func NewPasswordEdit() *LineEdit {
 }
 
 // SetText sets the LineEdit's text.
-func (l *LineEdit) SetText(text string) (err error) {
+func (l *LineEdit) SetText(text string) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
-		return l.sysData.setText(text)
+		l.sysData.setText(text)
+		return
 	}
 	l.initText = text
-	return nil
 }
 
 // Text returns the LineEdit's text.
