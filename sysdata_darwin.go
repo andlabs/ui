@@ -340,7 +340,7 @@ func (s *sysData) hide() {
 	<-ret
 }
 
-func (s *sysData) setText(text string) error {
+func (s *sysData) setText(text string) {
 	var zeroSel C.SEL
 
 	if classTypes[s.ctype].settextsel == zeroSel {		// does not have concept of text
@@ -353,7 +353,6 @@ func (s *sysData) setText(text string) error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {

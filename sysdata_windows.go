@@ -241,7 +241,7 @@ func (s *sysData) hide() {
 	<-ret
 }
 
-func (s *sysData) setText(text string) error {
+func (s *sysData) setText(text string) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -256,7 +256,6 @@ func (s *sysData) setText(text string) error {
 	if r.ret == 0 {		// failure
 		panic(fmt.Errorf("error setting window/control text: %v", err))
 	}
-	return nil
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {

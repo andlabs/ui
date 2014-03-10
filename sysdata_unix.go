@@ -183,7 +183,7 @@ func (s *sysData) hide() {
 	<-ret
 }
 
-func (s *sysData) setText(text string) error {
+func (s *sysData) setText(text string) {
 	if classTypes[s.ctype].setText == nil {		// does not have concept of text
 		return nil
 	}
@@ -194,7 +194,6 @@ func (s *sysData) setText(text string) error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {

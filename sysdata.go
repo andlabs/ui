@@ -31,7 +31,7 @@ func (c *cSysData) show() {
 func (c *cSysData) hide() {
 	panic(runtime.GOOS + " sysData does not define hide()")
 }
-func (c *cSysData) setText(text string) error {
+func (c *cSysData) setText(text string) {
 	panic(runtime.GOOS + " sysData does not define setText()")
 }
 func (c *cSysData) setRect(x int, y int, width int, height int, winheight int) error {
