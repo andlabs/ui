@@ -27,6 +27,7 @@ so I don't forget:
 - message boxes need cleanup:
 	- Windows: title: titlebar; text: message box text; no such thing as secondary text
 	- GTK+ AND Cocoa: title: message box text; text: secondary text; nothing: titlebar
+- change sysData.make() so it does not take the initial window text as an argument and instead have the respective Control/Window.make() call sysData.setText() expressly; this would allow me to remove the "no such concept of text" checks from the GTK+ and Mac OS X backends
 
 important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one
