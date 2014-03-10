@@ -71,6 +71,8 @@ super ultra important things:
 	figure out why
 - Mac OS X 32-bit builds don't call runtime.sighandler() on a Cocoa exception like the 64-bit builds do
 	- does array index out of bounds on 32-bit Cocoa not generate a SIGTRAP like invalid selector does? need to experiment... or is something clobbering SIGTRAP? I didn't catch it in my tests here...
+- the user can still [NSApp terminate:] from the Dock icon, bypassing Go itself
+	- ideally we need a QuitItem() function for this case if/when we add menus
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
