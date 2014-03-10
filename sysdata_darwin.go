@@ -320,7 +320,7 @@ func (s *sysData) firstShow() error {
 	return nil
 }
 
-func (s *sysData) show() error {
+func (s *sysData) show() {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -328,10 +328,9 @@ func (s *sysData) show() error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
-func (s *sysData) hide() error {
+func (s *sysData) hide() {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -339,7 +338,6 @@ func (s *sysData) hide() error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) setText(text string) error {

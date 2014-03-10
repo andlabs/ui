@@ -25,10 +25,10 @@ func (c *cSysData) make(initText string, window *sysData) error {
 func (c *cSysData) firstShow() error {
 	panic(runtime.GOOS + " sysData does not define firstShow()")
 }
-func (c *cSysData) show() error {
+func (c *cSysData) show() {
 	panic(runtime.GOOS + " sysData does not define show()")
 }
-func (c *cSysData) hide() error {
+func (c *cSysData) hide() {
 	panic(runtime.GOOS + " sysData does not define hide()")
 }
 func (c *cSysData) setText(text string) error {

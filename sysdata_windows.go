@@ -213,7 +213,7 @@ func (s *sysData) firstShow() error {
 	return nil
 }
 
-func (s *sysData) show() (err error) {
+func (s *sysData) show() {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -225,20 +225,20 @@ func (s *sysData) show() (err error) {
 		ret:		ret,
 	}
 	<-ret
-	return nil
 }
 
-func (s *sysData) hide() (err error) {
+func (s *sysData) hide() {
 	ret := make(chan uiret)
 	defer close(ret)
-	// TODO figure out how to handle error
 	uitask <- &uimsg{
 		call:		_showWindow,
-		p:		[]uintptr{uintptr(s.hwnd), _SW_HIDE},
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_SW_HIDE),
+		},
 		ret:		ret,
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) setText(text string) error {

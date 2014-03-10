@@ -3,7 +3,6 @@ so I don't forget:
 - Control.Show()/Control.Hide()
 - Groupbox
 - see if we really need to track errors on a lot of places that report errors
-	- Window.Show()/Window.Hide() report errors due to UpdateWindow(), which can fail, but that is only called when the window is first opened: split that functionality out
 	- it appears GTK+ and Cocoa both either don't provide a convenient way to grab errors or you're not supposed to; I assume you're supposed to just assume everything works... but on Windows we check errors for functions that return errors, and there's no guarantee that only certian errors will be returned...
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
