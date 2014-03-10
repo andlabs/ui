@@ -32,7 +32,7 @@ freebsd | untested (VM failure) | untested (VM failure) | untested
 netbsd | untested | untested | ????
 openbsd | untested | untested | ????
 solaris | ???? | untested | ????
-plan9 | (not written yet; problems building Go) | (invalid?) | ????
+plan9 | (not written yet; problems building Go) | untested | ????
 nacl | (not sure how to handle) | (not sure how to handle) | ????
 
 linux | 386 | amd64
