@@ -69,17 +69,24 @@ badrange:
 	panic(fmt.Errorf("index %d out of range in Listbox.InsertBefore()", before))
 }
 
-// Delete removes the given item from the Listbox.
-// (TODO action on invalid index)
+// Delete removes the given item from the Listbox. It panics if the given index is out of bounds.
 func (l *Listbox) Delete(index int) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
 	if l.created {
+		if index < 0 || index >= l.sysData.len() {
+			goto badrange
+		}
 		return l.sysData.delete(index)
+	}
+	if index < 0 || index >= len(l.initItems) {
+		goto badrange
 	}
 	l.initItems = append(l.initItems[:index], l.initItems[index + 1:]...)
 	return nil
+badrange:
+	panic(fmt.Errorf("index %d out of range in Listbox.Delete()", index))
 }
 
 // Selection returns a list of strings currently selected in the Listbox, or an empty list if none have been selected. This list will have at most one item on a single-selection Listbox.
