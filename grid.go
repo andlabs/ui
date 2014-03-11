@@ -15,7 +15,7 @@ import (
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a Grid are given in (row,column) form with (0,0) being the top-left cell.
 // Unlike other UI toolkit Grids, this Grid does not (yet? TODO) allow Controls to span multiple rows or columns.
-// TODO differnet row/column control alignment; stretchy controls or other resizing options
+// TODO differnet row/column control alignment
 type Grid struct {
 	lock					sync.Mutex
 	created				bool
@@ -66,29 +66,36 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 	}
 }
 
-// SetFilling sets the given Control of the Grid as filling its cell instead of staying at its preferred size.
+// SetFilling marks the given Control of the Grid as filling its cell instead of staying at its preferred size.
 // This function cannot be called after the Window that contains the Grid has been created.
-// (TODO action if coorindate invalid)
+// It panics if the given coordinate is invalid.
 func (g *Grid) SetFilling(row int, column int) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
 	if g.created {
-		panic("Grid.SetFilling() called after window create")		// TODO
+		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
+	}
+	if row < 0 || column < 0 || row > len(g,filling) || column > len(g.filling[row]) {
+		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetFilling()", row, column)
 	}
 	g.filling[row][column] = true
 }
 
-// SetStretchy sets the given Control of the Grid as stretchy.
+// SetStretchy marks the given Control of the Grid as stretchy.
 // Stretchy implies filling.
+// Only one control can be stretchy per Grid; calling SetStretchy multiple times merely changes which control is stretchy.
 // This function cannot be called after the Window that contains the Grid has been created.
-// (TODO action if coorindate invalid)
+// It panics if the given coordinate is invalid.
 func (g *Grid) SetStretchy(row int, column int) {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
 	if g.created {
-		panic("Grid.SetFilling() called after window create")		// TODO
+		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
+	}
+	if row < 0 || column < 0 || row > len(g,filling) || column > len(g.filling[row]) {
+		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetStretchy()", row, column)
 	}
 	g.stretchyrow = row
 	g.stretchycol = column
@@ -140,7 +147,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 		}
 	}
 	// 3) handle the stretchy control
-	if g.stretchyrow != -1 && g.stretchycol != -1 {		// TODO internal error if one is -1 but not both
+	if g.stretchyrow != -1 && g.stretchycol != -1 {
 		for i, w := range g.colwidths {
 			if i != g.stretchycol {
 				width -= w
@@ -154,6 +161,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 		g.colwidths[g.stretchycol] = width
 		g.rowheights[g.stretchyrow] = height
 	}
+	// TODO add a sanity check for g.stretchyrow xor g.stretchycol == -1?
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
