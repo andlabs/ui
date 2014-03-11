@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-// A Checkbox is a clickable square with a label. The square can be either checked or unchecked.
+// A Checkbox is a clickable square with a label. The square can be either checked or unchecked. Checkboxes start out unchecked.
 type Checkbox struct {
 	// TODO provide a channel for broadcasting check changes
 
@@ -52,8 +52,10 @@ func (c *Checkbox) Checked() bool {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	// TODO if not created
-	return c.sysData.isChecked()
+	if c.created {
+		return c.sysData.isChecked()
+	}
+	return false
 }
 
 func (c *Checkbox) make(window *sysData) error {
