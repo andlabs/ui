@@ -275,7 +275,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	return nil
 }
 
-func (s *sysData) delete(index int) error {
+func (s *sysData) delete(index int) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -283,7 +283,6 @@ func (s *sysData) delete(index int) error {
 		ret <- struct{}{}
 	}
 	<-ret
-	return nil
 }
 
 func (s *sysData) setProgress(percent int) {

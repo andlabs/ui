@@ -17,8 +17,7 @@ so I don't forget:
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
 	- Checkbox.Check or Checkbox.SetChecked
 - Listbox.SelectAll
-- have Listbox.Delete() panic on invalid index; it does not yet due to the Mac OS X signaling issue mentioned under "super important"
-	- same for other methods that take indices, like the Stack and Grid stretchy methods
+- have methods that take indices panic on invalid index, like the Stack and Grid stretchy methods
 - make the Windows implementation of message boxes run on uitask
 	- ensure MsgBoxError can run if initialization failed if things change ever
 - should Labels be selectable?

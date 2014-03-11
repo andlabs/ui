@@ -61,7 +61,7 @@ func (c *cSysData) selectedTexts() []string {
 func (c *cSysData) setWindowSize(int, int) error {
 	panic(runtime.GOOS + " sysData does not define setWindowSize()")
 }
-func (c *cSysData) delete(int) error {
+func (c *cSysData) delete(int) {
 	panic(runtime.GOOS + " sysData does not define delete()")
 }
 func (c *cSysData) preferredSize() (int, int) {

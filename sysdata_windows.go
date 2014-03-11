@@ -494,7 +494,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	return nil
 }
 
-func (s *sysData) delete(index int) (err error) {
+func (s *sysData) delete(index int) {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -509,9 +509,8 @@ func (s *sysData) delete(index int) (err error) {
 	}
 	r := <-ret
 	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
-		return fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", r.err)
+		panic(fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", r.err))
 	}
-	return nil
 }
 
 func (s *sysData) setProgress(percent int) {

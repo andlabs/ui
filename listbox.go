@@ -70,7 +70,7 @@ badrange:
 }
 
 // Delete removes the given item from the Listbox. It panics if the given index is out of bounds.
-func (l *Listbox) Delete(index int) error {
+func (l *Listbox) Delete(index int) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
@@ -78,13 +78,14 @@ func (l *Listbox) Delete(index int) error {
 		if index < 0 || index >= l.sysData.len() {
 			goto badrange
 		}
-		return l.sysData.delete(index)
+		l.sysData.delete(index)
+		return
 	}
 	if index < 0 || index >= len(l.initItems) {
 		goto badrange
 	}
 	l.initItems = append(l.initItems[:index], l.initItems[index + 1:]...)
-	return nil
+	return
 badrange:
 	panic(fmt.Errorf("index %d out of range in Listbox.Delete()", index))
 }

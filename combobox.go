@@ -78,7 +78,7 @@ badrange:
 }
 
 // Delete removes the given item from the Combobox. It panics if the given index is out of bounds.
-func (c *Combobox) Delete(index int) error {
+func (c *Combobox) Delete(index int) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -86,13 +86,14 @@ func (c *Combobox) Delete(index int) error {
 		if index < 0 || index >= c.sysData.len() {
 			goto badrange
 		}
-		return c.sysData.delete(index)
+		c.sysData.delete(index)
+		return
 	}
 	if index < 0 || index >= len(c.initItems) {
 		goto badrange
 	}
 	c.initItems = append(c.initItems[:index], c.initItems[index + 1:]...)
-	return nil
+	return
 badrange:
 	panic(fmt.Errorf("index %d out of range in Combobox.Delete()", index))
 }
