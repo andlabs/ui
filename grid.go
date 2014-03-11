@@ -99,6 +99,7 @@ func (g *Grid) SetStretchy(row int, column int) {
 	}
 	g.stretchyrow = row
 	g.stretchycol = column
+	// TODO if a stretchy row/column already exists, its filling value will not be reverted if necessary
 	g.filling[row][column] = true
 }
 
