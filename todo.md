@@ -15,6 +15,7 @@ so I don't forget:
 - Combobox and Listbox insertions and deletions should allow bulk (...string)
 - Combobox/Listbox.DeleteAll
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
+	- Checkbox.Check or Checkbox.SetChecked
 - Listbox.SelectAll
 - have Listbox.Delete() panic on invalid index; it does not yet due to the Mac OS X signaling issue mentioned under "super important"
 	- same for other methods that take indices, like the Stack and Grid stretchy methods
