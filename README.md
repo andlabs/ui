@@ -41,7 +41,7 @@ Kubuntu (14.04) | works; cross-compiling on 64-bit Linux fails due to nonexisten
 Fedora | untested | untested
 openSUSE | untested | untested
 Arch Linux | untested | untested
-Mandriva | untested | untested
+Mandriva (TODO choose between PCLinuxOS and Mageia - it appears the original Mandriva is either dead or nonfree and I would rather choose the fork that structures packages identically for parity; do they both?) | untested | untested
 Slackware | untested | untested
 Gentoo | untested | untested
 
