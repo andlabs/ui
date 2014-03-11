@@ -10,7 +10,7 @@ import (
 This creates a class goAppDelegate that will be used as the delegate for /everything/. Specifically, it:
 	- runs uitask requests (uitask:)
 	- handles window close events (windowShouldClose:)
-	- handles window resize events (windowDidResize: (TODO also windowDidEndLiveResize:?))
+	- handles window resize events (windowDidResize:)
 	- handles button click events (buttonClicked:)
 */
 
