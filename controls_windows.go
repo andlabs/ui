@@ -6,6 +6,8 @@ import (
 //	"unsafe"
 )
 
+// TODO for all: filter any not provided in Windows 2000
+
 // Button styles.
 const (
 	// from winuser.h
@@ -45,7 +47,6 @@ const (
 )
 
 // Button messages.
-// TODO check if any are not defined on Windows 2000
 const (
 	// from winuser.h
 	_BM_GETCHECK = 0x00F0
@@ -112,14 +113,6 @@ func CheckRadioButton(hDlg HWND, nIDFirstButton int, nIDLastButton int, nIDCheck
 	}
 	return nil
 }
-
-// TODO handle errors
-func IsDlgButtonChecked(hDlg HWND, nIDButton int) (state uint32, err error) {
-	r1, _, _ := isDlgButtonChecked.Call(
-		uintptr(hDlg),
-		uintptr(nIDButton))
-	return uint32(r1), nil
-}
 */
 
 // Combobox styles.
@@ -141,7 +134,6 @@ const (
 )
 
 // Combobox messages.
-// TODO filter out messages not provided in windows 2000
 const (
 	// from winuser.h
 	_CB_GETEDITSEL = 0x0140
@@ -191,7 +183,6 @@ var (		// var so they can be cast to uintptr
 )
 
 // Combobox WM_COMMAND notificaitons.
-// TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
 	_CBN_SELCHANGE = 1
@@ -226,7 +217,6 @@ const (
 )
 
 // Edit control messages.
-// TODO filter out messages not provided in windows 2000
 const (
 	// from winuser.h
 	_EM_GETSEL = 0x00B0
@@ -271,7 +261,6 @@ const (
 )
 
 // Edit control WM_COMMAND notifications.
-// TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
 	_EN_SETFOCUS = 0x0100
@@ -316,7 +305,6 @@ const (
 )
 
 // Listbox messages.
-// TODO filter out messages not provided in windows 2000
 const (
 	// from winuser.h
 	_LB_ADDSTRING = 0x0180
@@ -373,7 +361,6 @@ var (		// var so they can be cast to uintptr
 )
 
 // Listbox WM_COMMAND notifications and message returns.
-// TODO filter out notifications not provided in windows 2000
 const (
 	// from winuser.h
 	_LBN_SELCHANGE = 1
