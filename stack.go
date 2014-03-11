@@ -48,7 +48,7 @@ func NewVerticalStack(controls ...Control) *Stack {
 }
 
 // SetStretchy marks a control in a Stack as stretchy. This cannot be called once the Window containing the Stack has been opened.
-// (TODO action on invalid index)
+// It panics if index is out of range.
 func (s *Stack) SetStretchy(index int) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
@@ -56,7 +56,10 @@ func (s *Stack) SetStretchy(index int) {
 	if s.created {
 		panic("call to Stack.SetStretchy() after Stack has been created")
 	}
-	s.stretchy[index] = true			// TODO explicitly check for index out of bounds?
+	if index < 0 || index > len(s.stretchy) {
+		panic(fmt.Errorf("index %d out of range in Stack.SetStretchy()", index))
+	}
+	s.stretchy[index] = true
 }
 
 func (s *Stack) make(window *sysData) error {

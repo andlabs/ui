@@ -17,7 +17,6 @@ so I don't forget:
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
 	- Checkbox.Check or Checkbox.SetChecked
 - Listbox.SelectAll
-- have methods that take indices panic on invalid index, like the Stack and Grid stretchy methods
 - make the Windows implementation of message boxes run on uitask
 	- ensure MsgBoxError can run if initialization failed if things change ever
 - should Labels be selectable?

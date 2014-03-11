@@ -37,7 +37,7 @@ func gridWindow() (*Window, error) {
 
 var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on deleting too far (debug lack of panic on 32-bit)")
 
-func invalidTest(c *Combobox, l *Listbox) {
+func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 	x := func(what string ) {
 		if j := recover(); j == nil {
 			MsgBoxError("test", "%s: no panic", what)
@@ -71,6 +71,40 @@ func invalidTest(c *Combobox, l *Listbox) {
 	func() {
 		defer x("Listbox.Delete > len"); l.Delete(c.Len() + 5); panic(nil)
 	}()
+	if s != nil {
+		func() {
+			defer x("Stack.SetStretchy < 0"); s.SetStretchy(-5); panic(nil)
+		}()
+		func() {
+			defer x("Stack.SetStretchy > len"); s.SetStretchy(5555); panic(nil)
+		}()
+	}
+	if g != nil {
+		func() {
+			defer x("Grid.SetFilling x < 0"); g.SetFilling(-5, 0); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetFilling x > len"); g.SetFilling(5555, 0); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetFilling y < 0"); g.SetFilling(0, -5); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetFilling y > len"); g.SetFilling(0, 5555); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetStretchy x < 0"); g.SetStretchy(-5, 0); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetStretchy x > len"); g.SetStretchy(5555, 0); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetStretchy y < 0"); g.SetStretchy(0, -5); panic(nil)
+		}()
+		func() {
+			defer x("Grid.SetStretchy y > len"); g.SetStretchy(0, 5555); panic(nil)
+		}()
+	}
 	MsgBox("test", "all working as intended")
 }
 
@@ -120,7 +154,7 @@ func myMain() {
 	s.SetStretchy(0)
 	s.SetStretchy(1)
 	if *invalidBefore {
-		invalidTest(cb1, lb1)
+		invalidTest(cb1, lb1, s, NewGrid(1, Space()))
 	}
 	err := w.Open(s)
 	if err != nil {
@@ -187,7 +221,7 @@ mainloop:
 			}
 			pbar.SetProgress(prog)
 		case <-invalidButton.Clicked:
-			invalidTest(cb1, lb1)
+			invalidTest(cb1, lb1, nil, nil)
 		}
 	}
 	w.Hide()
