@@ -76,7 +76,7 @@ func (g *Grid) SetFilling(row int, column int) {
 	if g.created {
 		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
 	}
-	if row < 0 || column < 0 || row > len(g,filling) || column > len(g.filling[row]) {
+	if row < 0 || column < 0 || row > len(g.filling) || column > len(g.filling[row]) {
 		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetFilling()", row, column))
 	}
 	g.filling[row][column] = true
@@ -94,7 +94,7 @@ func (g *Grid) SetStretchy(row int, column int) {
 	if g.created {
 		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
 	}
-	if row < 0 || column < 0 || row > len(g,filling) || column > len(g.filling[row]) {
+	if row < 0 || column < 0 || row > len(g.filling) || column > len(g.filling[row]) {
 		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetStretchy()", row, column))
 	}
 	g.stretchyrow = row
