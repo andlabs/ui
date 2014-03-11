@@ -10,7 +10,6 @@ import (
 var (
 	hInstance		_HANDLE
 	nCmdShow	int
-	// TODO font
 )
 
 // TODO is this trick documented in MSDN?
