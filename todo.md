@@ -23,6 +23,7 @@ so I don't forget:
 - change sysData.make() so it does not take the initial window text as an argument and instead have the respective Control/Window.make() call sysData.setText() expressly; this would allow me to remove the "no such concept of text" checks from the GTK+ and Mac OS X backends
 
 important things:
+- GTK+ ProgressBar indeterminate animation is running like mad; pretty sure it's our idle task being evil
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windows; Cocoa provides one for us but

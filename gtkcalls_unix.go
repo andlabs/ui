@@ -216,3 +216,7 @@ func gtk_progress_bar_set_fraction(w *gtkWidget, percent int) {
 	p := C.gdouble(percent) / 100
 	C.gtk_progress_bar_set_fraction(togtkprogressbar(w), p)
 }
+
+func gtk_progress_bar_pulse(w *gtkWidget) {
+	C.gtk_progress_bar_pulse(togtkprogressbar(w))
+}

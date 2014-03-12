@@ -129,8 +129,9 @@ func myMain() {
 	prog := 0
 	incButton := NewButton("Inc")
 	decButton := NewButton("Dec")
+	indetButton := NewButton("Indeterminate")
 	invalidButton := NewButton("Run Invalid Test")
-	sincdec := NewHorizontalStack(incButton, decButton, invalidButton)
+	sincdec := NewHorizontalStack(incButton, decButton, indetButton, invalidButton)
 	password := NewPasswordEdit()
 	s0 := NewVerticalStack(s2, c, cb1, cb2, e, s3, pbar, sincdec, Space(), password)
 	s0.SetStretchy(8)
@@ -224,6 +225,8 @@ mainloop:
 				prog = 0
 			}
 			pbar.SetProgress(prog)
+		case <-indetButton.Clicked:
+			pbar.SetProgress(-1)
 		case <-invalidButton.Clicked:
 			invalidTest(cb1, lb1, nil, nil)
 		}

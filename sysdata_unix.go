@@ -4,7 +4,7 @@
 package ui
 
 import (
-	// ...
+	"time"
 )
 
 type sysData struct {
@@ -12,6 +12,7 @@ type sysData struct {
 
 	widget		*gtkWidget
 	container		*gtkWidget	// for moving
+	pulse		chan bool		// for sysData.progressPulse()
 }
 
 type classData struct {
@@ -285,7 +286,56 @@ func (s *sysData) delete(index int) {
 	<-ret
 }
 
+// With GTK+, we must manually pulse the indeterminate progressbar ourselves. This goroutine does that.
+func (s *sysData) progressPulse() {
+	pulse := func() {
+		ret := make(chan struct{})
+		defer close(ret)
+		uitask <- func() {
+			gtk_progress_bar_pulse(s.widget)
+			ret <- struct{}{}
+		}
+		<-ret
+	}
+
+	var ticker *time.Ticker
+	var tickchan <-chan time.Time
+
+	// the default on Windows
+	const pulseRate = 30 * time.Millisecond
+
+	for {
+		select {
+		case start := <-s.pulse:
+			if start {
+				ticker = time.NewTicker(pulseRate)
+				tickchan = ticker.C
+				pulse()			// start the pulse animation now, not 30ms later
+			} else {
+				if ticker != nil {
+					ticker.Stop()
+				}
+				ticker = nil
+				tickchan = nil
+				s.pulse <- true		// notify sysData.setProgress()
+			}
+		case <-tickchan:
+			pulse()
+		}
+	}
+}
+
 func (s *sysData) setProgress(percent int) {
+	if s.pulse == nil {
+		s.pulse = make(chan bool)
+		go s.progressPulse()
+	}
+	if percent == -1 {
+		s.pulse <- true
+		return
+	}
+	s.pulse <- false
+	<-s.pulse			// wait for sysData.progressPulse() to register that
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
