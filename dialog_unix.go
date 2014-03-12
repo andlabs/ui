@@ -12,7 +12,6 @@ import (
 // #include <gtk/gtk.h>
 // /* because cgo seems to choke on ... */
 // /* TODO does NULL parent make the box application-global? docs are unclear */
-// /* TODO does secondary text appear in the titlebar or above the message? if the latter, will gtk_window_set_title() work? */
 // GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text) { GtkWidget *k = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title); gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text); return k; }
 import "C"
 
