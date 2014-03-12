@@ -6,7 +6,9 @@ import (
 )
 
 // A ProgressBar is a horizontal rectangle that fills up from left to right to indicate the progress of a long-running task.
-// This progress is typically a percentage, so within the range [0,100].
+// This progress is represented by an integer within the range [0,100], representing a percentage.
+// Alternatively, a progressbar can show an animation indicating that progress is being made but how much is indeterminate.
+// Newly-created ProgressBars default to showing 0% progress.
 type ProgressBar struct {
 	lock		sync.Mutex
 	created	bool
@@ -21,13 +23,16 @@ func NewProgressBar() *ProgressBar {
 	}
 }
 
-// SetProgress sets the currently indicated progress amount on the ProgressBar. If this amount is outside the range [0,100] (ideally -1), the function will panic (TODO make it indeterminate).
+// SetProgress sets the currently indicated progress amount on the ProgressBar.
+// If percent is in the range [0,100], the progressBar shows that much percent complete.
+// If percent is -1, the ProgressBar is made indeterminate.
+// Otherwise, SetProgress panics.
 func (p *ProgressBar) SetProgress(percent int) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	if percent < 0 || percent > 100 {
-		panic("invalid percent")		// TODO
+	if percent < -1 || percent > 100 {
+		panic("percent value out of range")
 	}
 	if p.created {
 		p.sysData.setProgress(percent)
