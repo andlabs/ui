@@ -6,7 +6,7 @@ import (
 //	"unsafe"
 )
 
-// TODO for all: filter any not provided in Windows 2000
+// TODO for all: filter any not provided in Windows XP
 
 // Button styles.
 const (

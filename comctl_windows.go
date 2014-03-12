@@ -8,7 +8,7 @@ import (
 )
 
 // pretty much every constant here except _WM_USER is from commctrl.h
-// TODO for all: filter out constants not available in Windows 2000
+// TODO for all: filter out constants not available in Windows XP
 
 // InitCommonControlsEx constants.
 const (

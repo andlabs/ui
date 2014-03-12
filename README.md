@@ -2,11 +2,13 @@
 # Native UI library for Go
 ### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
 
+### UPDATE 12 March 2014: Windows 2000 is no longer supported [as it is no longer supported by Go](https://codereview.appspot.com/74790043).
+
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 
 ui aims to run on all supported versions of supported platforms. To be more precise, the system requirements are:
 
-* Windows: Windows 2000 or newer. The Windows backend uses package `syscall` and calls Windows DLLs directly, so does not rely on cgo.
+* Windows: Windows XP or newer. The Windows backend uses package `syscall` and calls Windows DLLs directly, so does not rely on cgo.
 * Mac OS X: Mac OS X 10.6 (Snow Leopard) or newer. Objective-C dispatch is done by interfacing with libobjc directly, and thus this uses cgo.
 	* Note: you will need Go 1.3 or newer for this verison, as it uses a single .m file due to technical restrictions (read the comments in `bleh_darwin.m` for details), and earlier versions of Go do not auto-build .m files.
 * Other Unixes: The Unix backend uses GTK+, and thus cgo. It requires GTK+ 3.4 or newer; for Ubuntu this means 12.04 LTS (Precise Pangolin) at minimum. Check your distribution.

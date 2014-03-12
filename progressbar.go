@@ -21,7 +21,7 @@ func NewProgressBar() *ProgressBar {
 	}
 }
 
-// SetProgress sets the currently indicated progress amount on the ProgressBar. If this amount is outside the range [0,100] (ideally -1), the function will panic (it should allow indeterminate progress bars, alas those are not supported on Windows 2000).
+// SetProgress sets the currently indicated progress amount on the ProgressBar. If this amount is outside the range [0,100] (ideally -1), the function will panic (TODO make it indeterminate).
 func (p *ProgressBar) SetProgress(percent int) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
