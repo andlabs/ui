@@ -7,8 +7,8 @@ so I don't forget:
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
-- [Windows, Mac OS X] should ListBox have a border style?
-	- [Windows] a different border on LineEdits?
+- [Mac OS X] Listbox should have a border style
+	- [Windows] a different border on LineEdits and Listboxes?
 - padding and spacing in Stack
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string)

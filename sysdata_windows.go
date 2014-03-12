@@ -83,9 +83,10 @@ var classTypes = [nctypes]*classData{
 	c_listbox:			&classData{
 		name:			"LISTBOX",
 		// TODO also _WS_HSCROLL?
-		style:			_WS_VSCROLL | controlstyle,
+		// we don't use _LBS_STANDARD because it sorts
+		style:			_LBS_NOTIFY | _WS_BORDER | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
-		altStyle:			_LBS_EXTENDEDSEL | _WS_VSCROLL | controlstyle,
+		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _WS_BORDER | _WS_VSCROLL | controlstyle,
 		font:				&controlFont,
 		appendMsg:		_LB_ADDSTRING,
 		insertBeforeMsg:	_LB_INSERTSTRING,
