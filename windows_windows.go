@@ -278,7 +278,7 @@ const (
 	_WM_SIZING = 0x0214
 	_WM_STYLECHANGED = 0x007D
 	_WM_STYLECHANGING = 0x007C
-//	_WM_THEMECHANGED = 0x031A		// Windows XP and newer only
+	_WM_THEMECHANGED = 0x031A
 //	_WM_USERCHANGED = 0x0054			// Windows XP only: [Note  This message is not supported as of Windows Vista.; also listed as not supported by server Windows]
 	_WM_WINDOWPOSCHANGED = 0x0047
 	_WM_WINDOWPOSCHANGING = 0x0046
