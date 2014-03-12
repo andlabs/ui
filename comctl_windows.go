@@ -10,6 +10,8 @@ import (
 // pretty much every constant here except _WM_USER is from commctrl.h
 // TODO for all: filter out constants not available in Windows XP
 
+// TODO ensure that comctl32.dll version 6 or newer is loaded as it provides marquee progress bars
+
 // InitCommonControlsEx constants.
 const (
 	_ICC_LISTVIEW_CLASSES = 0x00000001
@@ -67,6 +69,7 @@ const (
 const (
 	_PBS_SMOOTH = 0x01
 	_PBS_VERTICAL = 0x04
+	_PBS_MARQUEE = 0x08
 )
 
 // Progress Bar messages.
@@ -81,4 +84,5 @@ const (
 	_PBM_GETPOS = (_WM_USER + 8)
 	_PBM_SETBARCOLOR = (_WM_USER + 9)
 	_PBM_SETBKCOLOR = _CCM_SETBKCOLOR
+	_PBM_SETMARQUEE = (_WM_USER + 10)
 )

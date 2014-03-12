@@ -105,8 +105,8 @@ const (
 	_COLOR_INFOBK = 24
 	_COLOR_INFOTEXT = 23
 	_COLOR_MENU = 4
-	COLOR_MENUHILIGHT = 29
-	COLOR_MENUBAR = 30
+	_COLOR_MENUHILIGHT = 29
+	_COLOR_MENUBAR = 30
 	_COLOR_MENUTEXT = 7
 	_COLOR_SCROLLBAR = 0
 	_COLOR_WINDOW = 5
@@ -168,6 +168,7 @@ var (
 	_createWindowEx = user32.NewProc("CreateWindowExW")
 	_getClientRect = user32.NewProc("GetClientRect")
 	_moveWindow = user32.NewProc("MoveWindow")
+	_setWindowLong = user32.NewProc("SetWindowLongW")
 	_setWindowPos = user32.NewProc("SetWindowPos")
 	_setWindowText = user32.NewProc("SetWindowTextW")
 	_showWindow = user32.NewProc("ShowWindow")
@@ -241,7 +242,7 @@ const (
 )
 
 // WM_STYLECHANGED and WM_STYLECHANGING values (wParam).
-const (
+var (		// var because Go won't let me cast a negative const to a uintptr
 	_GWL_EXSTYLE = -20
 	_GWL_STYLE = -16
 )

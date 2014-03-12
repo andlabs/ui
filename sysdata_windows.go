@@ -15,6 +15,7 @@ type sysData struct {
 	children			map[_HMENU]*sysData
 	nextChildID		_HMENU
 	childrenLock		sync.Mutex
+	isMarquee		bool			// for sysData.setProgress()
 }
 
 type classData struct {
@@ -514,9 +515,71 @@ func (s *sysData) delete(index int) {
 	}
 }
 
-func (s *sysData) setProgress(percent int) {
+func (s *sysData) setIndeterminate() {
 	ret := make(chan uiret)
 	defer close(ret)
+	uitask <- &uimsg{
+		call:		_setWindowLong,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_GWL_STYLE),
+			uintptr(classTypes[s.ctype].style | _PBS_MARQUEE),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {
+		panic(fmt.Errorf("error setting progress bar style to enter indeterminate mode: %v", r.err))
+	}
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(_PBM_SETMARQUEE),
+			uintptr(_WPARAM(_TRUE)),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	<-ret
+	s.isMarquee = true
+}
+
+func (s *sysData) setProgress(percent int) {
+	if percent == -1 {
+		s.setIndeterminate()
+		return
+	}
+	ret := make(chan uiret)
+	defer close(ret)
+	if s.isMarquee {
+		// turn off marquee before switching back
+		uitask <- &uimsg{
+			call:		_sendMessage,
+			p:		[]uintptr{
+				uintptr(s.hwnd),
+				uintptr(_PBM_SETMARQUEE),
+				uintptr(_WPARAM(_FALSE)),
+				uintptr(0),
+			},
+			ret:		ret,
+		}
+		<-ret
+		uitask <- &uimsg{
+			call:		_setWindowLong,
+			p:		[]uintptr{
+				uintptr(s.hwnd),
+				uintptr(_GWL_STYLE),
+				uintptr(classTypes[s.ctype].style),
+			},
+			ret:		ret,
+		}
+		r := <-ret
+		if r.ret == 0 {
+			panic(fmt.Errorf("error setting progress bar style to leave indeterminate mode (percent %d): %v", percent, r.err))
+		}
+		s.isMarquee = false
+	}
 	uitask <- &uimsg{
 		call:		_sendMessage,
 		p:		[]uintptr{
