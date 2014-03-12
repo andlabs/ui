@@ -20,20 +20,20 @@ Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 For an example of how ui is used, see https://github.com/andlabs/wakeup, which is a small program that implements a basic alarm clock.
 
 ## Known To Have Ever Been Built Matrices
-For convenience's sake, here are matrices of builds that I have personally done at least once. Each cell represents the run status. These matrices represent builds that I have done at any point in development; it is not a guarantee that the current version works. (I built this list to answer questions of whether or not ui works with a specific configuration.) Only configurations marked with a * are tested during active development.
+For convenience's sake, here are matrices of builds that I have personally done at least once. Each cell represents the run status. These matrices represent builds that I have done at any point in development; it is not a guarantee that the current version works. (I built this list to answer questions of whether or not ui works with a specific configuration.) Only configurations marked with a * are tested during active development. "(invalid)" means the given OS/arch combination is not supported by Go.
 
    | 386 | amd64 | arm
 ----- | ----- | ----- | -----
 windows | works on windows; works on wine* | works on windows; fails on wine | (invalid)
 linux | see table below | see table below | Raspian: works
-darwin (Mac OS X) | works* (cross-compiled from 64-bit) | works* | (not applicable)
-dragonfly | untested | untested | ????
+darwin (Mac OS X) | works* (cross-compiled from 64-bit) | works* | (invalid)
+dragonfly | untested | untested | (invalid)
 freebsd | untested (VM failure) | untested (VM failure) | untested
-netbsd | untested | untested | ????
-openbsd | untested | untested | ????
-solaris | ???? | Oracle Solaris 11: **GTK+ 3 not available from official repos** | ????
-plan9 | (not written yet; problems building Go) | untested | ????
-nacl | (not sure how to handle) | (not sure how to handle) | ????
+netbsd | untested | untested | untested
+openbsd | untested | untested | (invalid)
+solaris | (invalid) | Oracle Solaris 11: **GTK+ 3 not available from official repos** | (invalid)
+plan9 | (not written yet; problems building Go) | (not written) | (invalid)
+nacl | (not sure how to handle) | (not sure how to handle) | (invalid)
 
 linux | 386 | amd64
 ----- | ----- | ----- | -----
