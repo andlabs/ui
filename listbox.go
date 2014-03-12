@@ -17,14 +17,23 @@ type Listbox struct {
 	initItems	[]string
 }
 
-// NewCombobox makes a new combobox with the given items. If multiple is true, the listbox allows multiple selection.
-func NewListbox(multiple bool, items ...string) (l *Listbox) {
+func newListbox(multiple bool, items ...string) (l *Listbox) {
 	l = &Listbox{
 		sysData:		mksysdata(c_listbox),
 		initItems:		items,
 	}
 	l.sysData.alternate = multiple
 	return l
+}
+
+// NewListbox creates a new single-selection Listbox with the given items loaded initially.
+func NewListbox(items ...string) *Listbox {
+	return newListbox(false, items...)
+}
+
+// NewMultiSelListbox creates a new multiple-selection Listbox with the given items loaded initially.
+func NewMultiSelListbox(items ...string) *Listbox {
+	return newListbox(true, items...)
 }
 
 // Append adds items to the end of the Listbox's list.

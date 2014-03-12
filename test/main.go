@@ -9,7 +9,7 @@ import (
 
 var prefsizetest = flag.Bool("prefsize", false, "")
 func listboxPreferredSizeTest() (*Window, error) {
-	lb := NewListbox(false, "xxxxx", "y", "zzz")
+	lb := NewListbox("xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
 	w := NewWindow("Listbox Preferred Size Test", 300, 300)
 	return w, w.Open(g)
@@ -21,7 +21,7 @@ func gridWindow() (*Window, error) {
 	b00 := NewButton("0,0")
 	b01 := NewButton("0,1")
 	b02 := NewButton("0,2")
-	l11 := NewListbox(true, "1,1")
+	l11 := NewMultiSelListbox("1,1")
 	b12 := NewButton("1,2")
 	l20 := NewLabel("2,0")
 	c21 := NewCheckbox("2,1")
@@ -134,8 +134,8 @@ func myMain() {
 	password := NewPasswordEdit()
 	s0 := NewVerticalStack(s2, c, cb1, cb2, e, s3, pbar, sincdec, Space(), password)
 	s0.SetStretchy(8)
-	lb1 := NewListbox(true, "Select One", "Or More", "To Continue")
-	lb2 := NewListbox(false, "Select", "Only", "One", "Please")
+	lb1 := NewMultiSelListbox("Select One", "Or More", "To Continue")
+	lb2 := NewListbox("Select", "Only", "One", "Please")
 	i := 0
 	doAdjustments := func() {
 		cb1.Append("append")
