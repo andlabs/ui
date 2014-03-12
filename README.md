@@ -31,7 +31,7 @@ dragonfly | untested | untested | ????
 freebsd | untested (VM failure) | untested (VM failure) | untested
 netbsd | untested | untested | ????
 openbsd | untested | untested | ????
-solaris | ???? | untested | ????
+solaris | ???? | Oracle Solaris 11: **GTK+ 3 not available from official repos** | ????
 plan9 | (not written yet; problems building Go) | untested | ????
 nacl | (not sure how to handle) | (not sure how to handle) | ????
 
