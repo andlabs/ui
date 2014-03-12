@@ -43,6 +43,7 @@ important things:
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 	- pin down this behavior; also note non-editability
 - GTK+ windows cannot be resized smaller than their controls's current sizes in their current positions; find out how to overrule that so they can be freely resized
+- the size of Listboxes on Windows does not fill the requested space completely (wait, wasn't there a style that governed this?)
 
 super ultra important things:
 - the windows build appears to be unstable:
