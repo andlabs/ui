@@ -3,6 +3,7 @@ package ui
 
 import (
 	"fmt"
+	"os"
 	"syscall"
 	"unsafe"
 )
@@ -73,23 +74,25 @@ var (
 	_messageBox = user32.NewProc("MessageBoxW")
 )
 
-func _msgBox(lpText string, lpCaption string, uType uint32) (result int) {
+func _msgBox(primarytext string, secondarytext string, uType uint32) (result int) {
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa511267.aspx says "Use task dialogs whenever appropriate to achieve a consistent look and layout. Task dialogs require Windows Vista® or later, so they aren't suitable for earlier versions of Windows. If you must use a message box, separate the main instruction from the supplemental instruction with two line breaks."
+	text := primarytext + "\n\n" + secondarytext
 	r1, _, err := _messageBox.Call(
 		uintptr(_NULL),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpText))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpCaption))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(text))),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(os.Args[0]))),
 		uintptr(uType))
 	if r1 == 0 {		// failure
-		panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", err, uType, lpCaption, lpText))
+		panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", err, uType, os.Args[0], text))
 	}
 	return int(r1)
 }
 
-func msgBox(title string, text string) {
+func msgBox(primarytext string, secondarytext string) {
 	// TODO add an icon?
-	_msgBox(text, title, _MB_OK)
+	_msgBox(primarytext, secondarytext, _MB_OK)
 }
 
-func msgBoxError(title string, text string) {
-	_msgBox(text, title, _MB_OK | _MB_ICONERROR)
+func msgBoxError(primarytext string, secondarytext string) {
+	_msgBox(primarytext, secondarytext, _MB_OK | _MB_ICONERROR)
 }

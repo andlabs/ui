@@ -2,16 +2,19 @@
 package ui
 
 import (
-	"fmt"
+	// ...
 )
 
-
 // MsgBox displays an informational message box to the user with just an OK button.
-func MsgBox(title string, textfmt string, args ...interface{}) {
-	msgBox(title, fmt.Sprintf(textfmt, args...))
+// primaryText should be a short string describing the message, and will be displayed with additional emphasis on platforms that support it.
+// secondaryText can be used to provide more information.
+// On platforms that allow for the message box window to have a title, os.Args[0] is used.
+func MsgBox(primaryText string, secondaryText string) {
+	msgBox(primaryText, secondaryText)
 }
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
-func MsgBoxError(title string, textfmt string, args ...interface{}) {
-	msgBoxError(title, fmt.Sprintf(textfmt, args...))
+// Otherwise, it behaves like MsgBox.
+func MsgBoxError(primaryText string, secondaryText string) {
+	msgBoxError(primaryText, secondaryText)
 }

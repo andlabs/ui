@@ -22,9 +22,6 @@ so I don't forget:
 	- should message box text be selectable on all platforms or only on those that make it the default?
 - Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
-- message boxes need cleanup:
-	- Windows: title: titlebar; text: message box text; no such thing as secondary text
-	- GTK+ AND Cocoa: title: message box text; text: secondary text; nothing: titlebar
 - change sysData.make() so it does not take the initial window text as an argument and instead have the respective Control/Window.make() call sysData.setText() expressly; this would allow me to remove the "no such concept of text" checks from the GTK+ and Mac OS X backends
 
 important things:

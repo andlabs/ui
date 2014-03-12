@@ -26,14 +26,13 @@ var (
 	_runModal = sel_getUid("runModal")
 )
 
-func _msgBox(title string, text string, style uintptr, button0 string) {
+func _msgBox(primarytext string, secondarytext string, style uintptr, button0 string) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
 		box := objc_new(_NSAlert)
-		// TODO is this appropriate for title?
-		C.objc_msgSend_id(box, _setMessageText, toNSString(title))
-		C.objc_msgSend_id(box, _setInformativeText, toNSString(text))
+		C.objc_msgSend_id(box, _setMessageText, toNSString(primarytext))
+		C.objc_msgSend_id(box, _setInformativeText, toNSString(secondarytext))
 		objc_msgSend_uint(box, _setAlertStyle, style)
 		C.objc_msgSend_id(box, _addButtonWithTitle, toNSString(button0))
 		C.objc_msgSend_noargs(box, _runModal)
@@ -42,11 +41,11 @@ func _msgBox(title string, text string, style uintptr, button0 string) {
 	<-ret
 }
 
-func msgBox(title string, text string) {
+func msgBox(primarytext string, secondarytext string) {
 	// TODO _NSInformationalAlertStyle?
-	_msgBox(title, text, _NSWarningAlertStyle, "OK")
+	_msgBox(primarytext, secondarytext, _NSWarningAlertStyle, "OK")
 }
 
-func msgBoxError(title string, text string) {
-	_msgBox(title, text, _NSCriticalAlertStyle, "OK")
+func msgBoxError(primarytext string, secondarytext string) {
+	_msgBox(primarytext, secondarytext, _NSCriticalAlertStyle, "OK")
 }

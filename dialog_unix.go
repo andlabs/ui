@@ -16,15 +16,15 @@ import (
 // GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text) { GtkWidget *k = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title); gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text); return k; }
 import "C"
 
-func _msgBox(text string, title string, msgtype C.GtkMessageType, buttons C.GtkButtonsType) (result C.gint) {
+func _msgBox(primarytext string, secondarytext string, msgtype C.GtkMessageType, buttons C.GtkButtonsType) (result C.gint) {
 	ret := make(chan C.gint)
 	defer close(ret)
 	uitask <- func() {
-		ctitle := C.CString(title)
-		defer C.free(unsafe.Pointer(ctitle))
-		ctext := C.CString(text)
-		defer C.free(unsafe.Pointer(ctext))
-		box := C.gtkNewMsgBox(msgtype, buttons, ctitle, ctext)
+		cprimarytext := C.CString(primarytext)
+		defer C.free(unsafe.Pointer(cprimarytext))
+		csecondarytext := C.CString(secondarytext)
+		defer C.free(unsafe.Pointer(csecondarytext))
+		box := C.gtkNewMsgBox(msgtype, buttons, cprimarytext, csecondarytext)
 		response := C.gtk_dialog_run((*C.GtkDialog)(unsafe.Pointer(box)))
 		C.gtk_widget_destroy(box)
 		ret <- response
@@ -32,11 +32,11 @@ func _msgBox(text string, title string, msgtype C.GtkMessageType, buttons C.GtkB
 	return <-ret
 }
 
-func msgBox(title string, text string) {
+func msgBox(primarytext string, secondarytext string) {
 	// TODO add an icon?
-	_msgBox(text, title, C.GtkMessageType(C.GTK_MESSAGE_OTHER), C.GtkButtonsType(C.GTK_BUTTONS_OK))
+	_msgBox(primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_OTHER), C.GtkButtonsType(C.GTK_BUTTONS_OK))
 }
 
-func msgBoxError(title string, text string) {
-	_msgBox(text, title, C.GtkMessageType(C.GTK_MESSAGE_ERROR), C.GtkButtonsType(C.GTK_BUTTONS_OK))
+func msgBoxError(primarytext string, secondarytext string) {
+	_msgBox(primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_ERROR), C.GtkButtonsType(C.GTK_BUTTONS_OK))
 }

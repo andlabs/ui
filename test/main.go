@@ -40,7 +40,7 @@ var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on de
 func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 	x := func(what string ) {
 		if j := recover(); j == nil {
-			MsgBoxError("test", "%s: no panic", what)
+			MsgBoxError("test", fmt.Sprintf("%s: no panic", what))
 			panic("invalid test fail")
 		} else {
 			println("got", j.(error).Error())
@@ -200,12 +200,16 @@ mainloop:
 				lb2.Delete(4)
 			}
 		case <-b3.Clicked:
-			MsgBox("List Info",
-				"cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
+			f := MsgBox
+			if c.Checked() {
+				f = MsgBoxError
+			}
+			f("List Info",
+				fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
 				cb1.SelectedIndex(), cb1.Selection(), cb1.Len(),
 				cb2.SelectedIndex(), cb2.Selection(), cb2.Len(),
 				lb1.SelectedIndices(), lb1.Selection(), lb1.Len(),
-				lb2.SelectedIndices(), lb2.Selection(), lb2.Len())
+				lb2.SelectedIndices(), lb2.Selection(), lb2.Len()))
 		case <-incButton.Clicked:
 			prog++
 			if prog > 100 {
