@@ -8,6 +8,8 @@ import (
 	"unsafe"
 )
 
+// TODO change what the default window titles are?
+
 // MessageBox button types.
 const (
 	_MB_ABORTRETRYIGNORE = 0x00000002
