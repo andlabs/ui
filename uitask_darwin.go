@@ -79,6 +79,7 @@ var (
 
 	_sharedApplication = sel_getUid("sharedApplication")
 	_setActivationPolicy = sel_getUid("setActivationPolicy:")
+	_activateIgnoringOtherApps = sel_getUid("activateIgnoringOtherApps:")
 )
 
 func initCocoa() (NSApp C.id, err error) {
@@ -89,7 +90,7 @@ func initCocoa() (NSApp C.id, err error) {
 		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
 		return
 	}
-	// TODO we need to call [NSApp activateIgnoringOtherApps:YES] here when we are ready to have the program become active (for now I won't)
+	C.objc_msgSend_bool(NSApp, _activateIgnoringOtherApps, C.BOOL(C.YES))		// TODO actually do C.NO here? Russ Cox does YES in his devdraw; the docs say the Finder does NO
 	err = mkAppDelegate()
 	return
 }
