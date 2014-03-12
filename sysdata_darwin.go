@@ -463,7 +463,12 @@ func (s *sysData) setProgress(percent int) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		C.objc_msgSend_double(s.id, _setDoubleValue, C.double(percent))
+		if percent == -1 {
+			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.YES))
+		} else {
+			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.NO))
+			C.objc_msgSend_double(s.id, _setDoubleValue, C.double(percent))
+		}
 		ret <- struct{}{}
 	}
 	<-ret
