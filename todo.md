@@ -22,6 +22,8 @@ so I don't forget:
 	- Index(n) is the name used by reflect.Value; use a different one?
 - change sysData.make() so it does not take the initial window text as an argument and instead have the respective Control/Window.make() call sysData.setText() expressly; this would allow me to remove the "no such concept of text" checks from the GTK+ and Mac OS X backends
 - Message boxes should not show secondary text if none is specified.
+- note that you can change event channels before opening the window; this allows unifying menus/toolbars/etc.
+	- will probably want to bring back Event() for this (but as NewEvent())
 
 important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
