@@ -9,8 +9,6 @@ Building GUIs is as simple as creating a Window, populating it with Controls, an
 
 Once a Window is open, you cannot make layout changes.
 
-At present, you must also hook Window.Closing with ui.Event() to monitor for attempts to close the Window.
-
 Once your Window is open, you can begin to handle events. Handling events is simple: because all events are channels exposed as exported members of the Window and Control types, simply select on them.
 
 Here is a simple, complete program that asks the user for their name and greets them after clicking a button.
@@ -22,7 +20,6 @@ Here is a simple, complete program that asks the user for their name and greets 
 
 	func myMain() {
 		w := ui.NewWindow("Hello", 400, 100)
-		w.Closing = ui.Event()
 		nameField := ui.NewLineEdit("Enter Your Name Here")
 		button := ui.NewButton("Click Here For a Greeting")
 		err := w.Open(ui.NewVerticalStack(nameField, button))

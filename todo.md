@@ -86,4 +86,3 @@ maybe:
 - rename Stack to Box?
 - make Combobox and Listbox satisfy sort.Interface?
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
-- since all events are dispatched without blocking uitask, don't bother requiring explicit dispatch? remove ui.Event() and make Window.Closing initialized by default; if we don't listen on the channel, nothing will happen

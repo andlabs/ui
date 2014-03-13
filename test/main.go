@@ -112,7 +112,6 @@ var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening
 
 func myMain() {
 	w := NewWindow("Main Window", 320, 240)
-	w.Closing = Event()
 	b := NewButton("Click Me")
 	b2 := NewButton("Or Me")
 	s2 := NewHorizontalStack(b, b2)

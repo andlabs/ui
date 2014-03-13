@@ -7,8 +7,8 @@ import (
 
 // A Button represents a clickable button with some text.
 type Button struct {
-	// This channel gets a message when the button is clicked.
-	// Unlike other channels in this package, this channel is initialized to non-nil when creating a new button, and cannot be set to nil later.
+	// Clicked gets a message when the button is clicked.
+	// You cannot change it once the Window containing the Button has been opened.
 	Clicked	chan struct{}
 
 	lock		sync.Mutex
@@ -22,7 +22,7 @@ func NewButton(text string) (b *Button) {
 	return &Button{
 		sysData:	mksysdata(c_button),
 		initText:	text,
-		Clicked:	Event(),
+		Clicked:	newEvent(),
 	}
 }
 

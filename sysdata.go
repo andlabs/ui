@@ -7,8 +7,8 @@ import (
 
 const eventbufsiz = 100		// suggested by skelterjohn
 
-// Event returns a new channel suitable for listening for events.
-func Event() chan struct{} {
+// newEvent returns a new channel suitable for listening for events.
+func newEvent() chan struct{} {
 	return make(chan struct{}, eventbufsiz)
 }
 

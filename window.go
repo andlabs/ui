@@ -8,8 +8,8 @@ import (
 
 // Window represents an on-screen window.
 type Window struct {
-	// If this channel is non-nil, the event loop will receive on this when the user clicks the window's close button.
-	// This channel can only be set before initially opening the window.
+	// Closing gets a message when the user clicks the window's close button.
+	// You cannot change it once the Window has been opened.
 	Closing		chan struct{}
 
 	lock			sync.Mutex
@@ -27,6 +27,7 @@ func NewWindow(title string, width int, height int) *Window {
 		initTitle:		title,
 		initWidth:		width,
 		initHeight:	height,
+		Closing:		newEvent(),
 	}
 }
 
