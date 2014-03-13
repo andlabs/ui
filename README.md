@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/andlabs/ui.png?branch=master)](https://travis-ci.org/andlabs/ui)
 # Native UI library for Go
-### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. Feel free to start using it, but mind: it's far from feature-complete, it's still in need of testing and crash-fixing, and the API can (and will) change. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
+### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. It can be used; the API is stable enough at this point, but keep in mind there may still be crashes and API changes, as suggestions are always open. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
 
 ### UPDATE 12 March 2014: Windows 2000 is no longer supported [as it is no longer supported by Go](https://codereview.appspot.com/74790043).
 
