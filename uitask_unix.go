@@ -18,15 +18,19 @@ func ui(main func()) error {
 		return fmt.Errorf("gtk_init failed (reason unknown; TODO)")
 	}
 
-	// thanks to tristan in irc.gimp.net/#gtk
-	gdk_threads_add_idle(func() bool {
-		select {
-		case f := <-uitask:
-			f()
-		default:		// do not block
+	// thanks to tristan and Daniel_S in irc.gimp.net/#gtk
+	// see our_idle_callback in callbacks_unix.go for details
+	go func() {
+		for f := range uitask {
+			done := make(chan struct{})
+			gdk_threads_add_idle(&gtkIdleOp{
+				what:	f,
+				done:	done,
+			})
+			<-done
+			close(done)
 		}
-		return true	// don't destroy the callback
-	})
+	}()
 
 	go func() {
 		main()

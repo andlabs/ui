@@ -24,12 +24,14 @@ func gtk_init() bool {
 	return fromgbool(C.gtk_init_check((*C.int)(nil), (***C.char)(nil)))
 }
 
-// the garbage collector has been found to eat my callback functions; this will stop it
-var callbackstore = make([]*func() bool, 0, 50)
+// see our_idle_callback in callbacks_unix.go for details
+type gtkIdleOp struct {
+	what		func()
+	done		chan struct{}
+}
 
-func gdk_threads_add_idle(what func() bool) {
-	callbackstore = append(callbackstore, &what)
-	C.gdk_threads_add_idle(callbacks["idle"], C.gpointer(unsafe.Pointer(&what)))
+func gdk_threads_add_idle(idleop *gtkIdleOp) {
+	C.gdk_threads_add_idle(callbacks["idle"], C.gpointer(unsafe.Pointer(idleop)))
 }
 
 func gtk_main() {
@@ -44,6 +46,9 @@ func gtk_window_new() *gtkWidget {
 	// 0 == GTK_WINDOW_TOPLEVEL (the only other type, _POPUP, should not be used)
 	return fromgtkwidget(C.gtk_window_new(0))
 }
+
+// the garbage collector has been found to eat my callback functions; this will stop it
+var callbackstore = make([]*func() bool, 0, 50)
 
 func g_signal_connect(obj *gtkWidget, sig string, callback func() bool) {
 	callbackstore = append(callbackstore, &callback)
