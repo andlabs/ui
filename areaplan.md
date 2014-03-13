@@ -127,6 +127,7 @@ func our_drawRect(self C.id, rect C.struct_xrect) {
 		hasAlpha:YES
 		isPlanar:NO
 		colorSpaceName:NSCalibratedRGBColorSpace		// TODO NSDeviceRGBColorSpace?
+		bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
 		bytesPerRow:i.Stride
 		bitsPerPixel:32]
 	[bitmap drawAtPoint:NSMakePoint(cliprect.x, cliprect.y)]
