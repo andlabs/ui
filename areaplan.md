@@ -88,7 +88,7 @@ GpStatus WINGDIPAPI GdipDrawImageI(GpGraphics *graphics, GpImage *image, INT x, 
 GpStatus WINGDIPAPI GdipDeleteGraphics(GpGraphics *graphics);
 GpStatus WINGDIPAPI GdipDisposeImage(GpImage *image);
 ```
-(`GpBitmap` extends `GpImage`.) The only problem is the pixel format: the most appropriate one is `PixelFormat32bppARGB`, which is not premultiplied, but the components are in the wrong order... (there is no RGBA pixel format in any bit width) (TODO `GdipDisposeImage` seems wrong since it bypasses `~Bitmap()` and goes right for `~Image()` but I don't see an explicit `~Bitmap()`...)
+(`GpBitmap` extends `GpImage`.) The only problem is the pixel format: the most appropriate one is `PixelFormat32bppARGB`, which is not premultiplied, but the components are in the wrong order... (specifically in BGRA order) (there is no RGBA pixel format in any bit width) (TODO `GdipDisposeImage` seems wrong since it bypasses `~Bitmap()` and goes right for `~Image()` but I don't see an explicit `~Bitmap()`...)
 
 Disregarding the RGBA issue, the draw code would be
 ```go
@@ -120,6 +120,33 @@ Disregarding the RGBA issue, the draw code would be
 	if status != 0 {		// failure
 		panic(fmt.Errorf("error freeing GDI+ bitmap to blit (GDI+ error code %d)", status))
 	}
+```
+
+Upon further review, there really doesn't seem to be any way around it: we have to shuffle the image data around. We seem to be in good company: [go.wde needs to do so as well](https://github.com/skelterjohn/go.wde/blob/master/win/dib_windows.go). But you can't be too sure...
+```go
+	realbits := make([]byte, 4 * i.Rect.Dx() * I.Rect.Dy())
+	q := 0
+	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
+		k := i.Pix[y * i.Stride:]
+		for x := i.Rect.Min.X; x < i.Rect.Max.X; x += 4 {
+			realbits[q + 0] = byte(k[y + x + 2])	// B
+			realbits[q + 1] = byte(k[y + x + 1])	// G
+			realbits[q + 2] = byte(k[y + x + 0])	// R
+			realbits[q + 3] = byte(k[y + x + 3])	// A
+			q += 4
+		}
+	}
+
+	var bitmap, graphics uintptr
+
+	status := GdipCreateBitmapFromScan0(
+		i.Rect.Dx(),
+		i.Rect.Dy(),
+		0,			// no stride anymore
+		PixelFormat32bppARGB,
+		&realbits[0],
+		&bitmap)
+	// rest of code
 ```
 
 We must also initialize and shut down GDI+ in uitask:
