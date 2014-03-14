@@ -229,7 +229,7 @@ On alpha premultiplication:
 12:31	andlabs	huh
 ```
 
-TODO figure out how scrolling plays into this
+`GtkDrawingArea` is not natively scrollable, so we use `gtk_scrolled_window_add_with_viewport()` to add it to a `GtkScrollingWindow` with an implicit `GtkViewport` that handles scrolling for us. Otherwise, it's like what we did for Listbox.
 
 TODO "Note that GDK automatically clears the exposed area to the background color before sending the expose event" decide what to do for the other platforms
 
@@ -258,6 +258,11 @@ void _our_drawRect(id self, SEL sel, NSRect r)
 ```
 This just leaves `our_drawRect` itself. For this mockup, I will use "Objective-Go":
 ```go
+var (
+	// for later
+	initWithBitmapDataPlanes = sel_getUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bitmapFormat:bytesPerRow:bitsPerPixel:")
+)
+
 //export our_drawRect
 func our_drawRect(self C.id, rect C.struct_xrect) {
 	s := getSysData(self)
@@ -281,7 +286,7 @@ func our_drawRect(self C.id, rect C.struct_xrect) {
 		hasAlpha:YES
 		isPlanar:NO
 		colorSpaceName:NSCalibratedRGBColorSpace		// TODO NSDeviceRGBColorSpace?
-		bitmapFormat:NSAlphaNonpremultipliedBitmapFormat		// this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things
+		bitmapFormat:NSAlphaNonpremultipliedBitmapFormat		// this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color.")
 		bytesPerRow:i.Stride
 		bitsPerPixel:32]
 	[bitmap drawAtPoint:NSMakePoint(cliprect.Min.X, cliprect.Min.Y)]
@@ -298,6 +303,6 @@ func our_isFlipped(self C.id, sel C.SEL) C.BOOL {
 }
 ```
 
-TODO figure out scrolling
+For scrolling, we simply wrap our view in a `NSScrollView` just as we did with Listbox; Cocoa handles all the details for us.
 
 TODO erase clip rect?
