@@ -132,7 +132,7 @@ var (
 	startupinfo := &GdiplusStartupInput{
 		GdiplusVersion:	1,
 	}
-	status := GdiplusStartup(&token, startupinfo, nil)
+	status := GdiplusStartup(&gdiplustoken, startupinfo, nil)
 	if status != 0 {		// failure
 		return fmt.Errorf("error initializing GDI+ (GDI+ error code %d)", status)
 	}
