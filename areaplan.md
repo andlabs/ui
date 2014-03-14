@@ -80,12 +80,12 @@ func repaint(s *sysData) HRESULT {
 We can use GDI+ (gdiplus.dll) and its flat API for drawing...
 ```c
 GpStatus WINGDIPAPI GdipCreateBitmapFromScan0(INT width, INT height, INT stride, PixelFormat format, BYTE* scan0, GpBitmap** bitmap);
-GpStatus WINGDIPAPI GdipCreateFromHDC(HDC hdc, GpGraphics **graphics)
-GpStatus WINGDIPAPI GdipDrawImageI(GpGraphics *graphics, GpImage *image, INT x, INT y)
-GpStatus WINGDIPAPI GdipDeleteGraphics(GpGraphics *graphics)
-GpStatus WINGDIPAPI GdipDisposeImage(GpImage *image)
+GpStatus WINGDIPAPI GdipCreateFromHDC(HDC hdc, GpGraphics **graphics);
+GpStatus WINGDIPAPI GdipDrawImageI(GpGraphics *graphics, GpImage *image, INT x, INT y);
+GpStatus WINGDIPAPI GdipDeleteGraphics(GpGraphics *graphics);
+GpStatus WINGDIPAPI GdipDisposeImage(GpImage *image);
 ```
-(`GpBitmap` extends `GpImage`.) The only problem is the pixel format: the most appropriate one is `PixelFormat32bppARGB`, which is not premultiplied, but the components are in the wrong order... (there is no RGBA pixel format in any bit width) (TODO `GdipDisposeImage` seems wrong since it bypasses `~Bitmap()` and goes right for `~Image()` but I don't see an explicit `~Bitmap`...)
+(`GpBitmap` extends `GpImage`.) The only problem is the pixel format: the most appropriate one is `PixelFormat32bppARGB`, which is not premultiplied, but the components are in the wrong order... (there is no RGBA pixel format in any bit width) (TODO `GdipDisposeImage` seems wrong since it bypasses `~Bitmap()` and goes right for `~Image()` but I don't see an explicit `~Bitmap()`...)
 
 Disregarding the RGBA issue, the draw code would be
 ```go
