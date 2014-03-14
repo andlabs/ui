@@ -43,6 +43,8 @@ func myAreaGoroutine(area *ui.Area, start <-chan bool) {
 
 TODO is there a race on `area.SetSize()`?
 
+TODO for all of the following: verify API call data types before moving code
+
 ## Windows
 We create another custom window class that does `WM_PAINT` and handles input events thereof.
 
@@ -70,7 +72,8 @@ func repaint(s *sysData) HRESULT {
 		Out:		imgret,
 	}
 	i := <-imgret
-	// TODO DRAW
+
+	// drawing code here; see below
 
 	EndPaint(s.hwnd, &ps)
 	return 0
@@ -121,7 +124,9 @@ Disregarding the RGBA issue, the draw code would be
 
 We must also initialize and shut down GDI+ in uitask:
 ```go
-	var gdiplustoken uintptr
+var (
+	gdiplustoken uintptr
+)
 
 	// init
 	startupinfo := &GdiplusStartupInput{
