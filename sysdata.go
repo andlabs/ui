@@ -19,6 +19,9 @@ type cSysData struct {
 	event	chan struct{}
 	resize	func(x int, y int, width int, height int, winheight int) error
 	alternate	bool		// editable for Combobox, multi-select for listbox, password for lineedit
+
+	// for Area
+	paint		chan PaintRequest
 }
 func (c *cSysData) make(initText string, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
@@ -97,6 +100,7 @@ const (
 	c_label
 	c_listbox
 	c_progressbar
+	c_area
 	nctypes
 )
 
