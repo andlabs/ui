@@ -142,7 +142,7 @@ Upon further review, there really doesn't seem to be any way around it: we have 
 	status := GdipCreateBitmapFromScan0(
 		i.Rect.Dx(),
 		i.Rect.Dy(),
-		0,			// no stride anymore
+		i.Rect.Dy() * 4,			// got rid of extra stride
 		PixelFormat32bppARGB,
 		&realbits[0],
 		&bitmap)
