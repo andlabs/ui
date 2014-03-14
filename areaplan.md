@@ -168,13 +168,20 @@ var (
 	GdiplusShutdown(gdiplustoken)
 ```
 
+For scrolling, the custom window class will come with scrollbars. We are reponsible for scrolling ourselves:
+- we handle `WM_HSCROLL` and `WM_VSCROLL` messages, extrapolating the scroll data
+	- we can use `GetScrollInfo` to get the current position, but the example code on MSDN adjusts it manually and then calls `ScrollWindow` then `UpdateWindow` (to accelerate redraw) and then `SetScrollInfo` (to update the scroll info)
+- line size is 1, page size is visible dimension
+- call `SetScrollInfo` on control resizes, passing in a `SCROLLINFO` which indicates the above, does not include `SIF_DISABLENOSCROLL` so scrollbars are auto-hidden, and does not change either thumb position (`nPos` and `nTrackPos`)
+- the clipping rectangle must take scrolling into account; `GetScrollInfo` and add the position to the sent-out `cliprect` (only; still need regular `cliprect` for drawing) with `cliprect.Add()`
+- we should probably cache the scroll position and window sizes so we wouldn't need to call those respective functions each `WM_PAINT` and `WM_HSCROLL`/`WM_VSCROLL`, respectively
+	- TODO will resizing a window with built-in scrollbars/adjusting the page size set the thumb and signal repaint properly?
+
 TODO is there a function to turn a `GpStatus` into a string?
 
 TODO note http://msdn.microsoft.com/en-us/library/windows/desktop/bb775501%28v=vs.85%29.aspx#win_class for information on handling some key presses, tab switch, etc. (need to do this for the ones below too)
 
-TODO figure out scrolling
-	- windows can have either standard or custom scrollbars; need to figure out how the standard scrollbars work
-	- standard scrollbars cannot be controlled by the keyboard; either we must provide an option for doing that or allow scrolling ourselves (the `myAreaGoroutine` would read the keyboard events and scroll manually, in the same way)
+TODO standard scrollbars cannot be controlled by the keyboard; either we must provide an option for doing that or allow scrolling ourselves (the `myAreaGoroutine` would read the keyboard events and scroll manually, in the same way)
 
 ## GTK+
 We can use `GtkDrawingArea`. We hook into the `draw` signal; it does something equivalent to
@@ -229,7 +236,7 @@ On alpha premultiplication:
 12:31	andlabs	huh
 ```
 
-`GtkDrawingArea` is not natively scrollable, so we use `gtk_scrolled_window_add_with_viewport()` to add it to a `GtkScrollingWindow` with an implicit `GtkViewport` that handles scrolling for us. Otherwise, it's like what we did for Listbox.
+`GtkDrawingArea` is not natively scrollable, so we use `gtk_scrolled_window_add_with_viewport()` to add it to a `GtkScrolledWindow` with an implicit `GtkViewport` that handles scrolling for us. Otherwise, it's like what we did for Listbox.
 
 TODO "Note that GDK automatically clears the exposed area to the background color before sending the expose event" decide what to do for the other platforms
 
