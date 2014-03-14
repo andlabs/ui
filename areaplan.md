@@ -181,12 +181,16 @@ We can use `GtkDrawingArea`. We hook into the `draw` signal; it does something e
 
 ```go
 func draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboolean {
+	var x, y, w, h C.double
+
 	s := (*sysData)(unsafe.Pointer(data))
-	// TODO get clip rectangle that needs drawing
+	// thanks to desrt in irc.gimp.net/#gtk+
+	C.cairo_clip_extents(cr, &x, &y, &w, &h)
+	cliprect := image.Rect(int(x), int(y), int(w), int(h))
 	imgret := make(chan *image.NRGBA)
 	defer close(imgret)
 	s.paint <- PaintRequest{
-		Rect:		/* clip rect */,
+		Rect:		cliprect,
 		Out:		imgret,
 	}
 	i := <-imgret
@@ -201,21 +205,33 @@ func draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboole
 		nil, nil)			// do not free data
 	C.gdk_cairo_set_source_pixbuf(cr,
 		pixbuf,
-		/* x of clip rect */,
-		/* y of clip rect */)
+		C.gdouble(cliprect.Min.X),
+		C.gdouble(cliprect.Min.Y))
+	C.g_object_unref((C.gpointer)(unsafe.Pointer(pixbuf)))		// free pixbuf
 	return C.FALSE		// TODO what does this return value mean? docs don't say
 }
 ```
 
-TODO delete pixbuf
+[Example 1 on this page](https://developer.gnome.org/gdk-pixbuf/2.26/gdk-pixbuf-The-GdkPixbuf-Structure.html) indicates the pixels are in RGBA order, which is good.
 
-TODO is the gdk-pixbuf alpha-premultiplied?
-
-TODO verify pixel order
+On alpha premultiplication:
+```
+12:27	andlabs	Hi. Is the pixel data fed to gdk-pixbuf alpha premultiplied, not alpha premultiplied, or is that settable? I need to feed it data from a source that doesn't know about the underlying rendering system. Thanks.
+12:29		*** KaL_out is now known as KaL
+12:29	desrt	andlabs: pixbuf is non-premultiplied
+12:30	mclasen	sad that this information is not obvious in the docs
+12:30	andlabs	there is no information about premultiplied in any of the GTK+ documentation, period
+12:30	desrt	andlabs: we have a utility function to copy it to a cairo surface that does the multiply for you...
+12:30	andlabs	(in versions compatible with ubuntu 12.04, at least)
+12:31	andlabs	good to know, thanks
+12:31	desrt	andlabs: i think it's because gdkpixbuf existed before premultiplication was a wide practice
+12:31	desrt	so at the time nobody would have asked the question
+12:31	andlabs	huh
+```
 
 TODO figure out how scrolling plays into this
 
-TODO double-check docs to see that the clip rect is cleared before the draw event is issued
+TODO "Note that GDK automatically clears the exposed area to the background color before sending the expose event" decide what to do for the other platforms
 
 ## Cocoa
 For this one we **must** create a subclass of `NSView` that overrides the drawing and keyboard/mouse event messages.
