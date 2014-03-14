@@ -44,7 +44,34 @@ func myAreaGoroutine(area *ui.Area, start <-chan bool) {
 TODO is there a race on `area.SetSize()`?
 
 ## Windows
-TODO
+We create another custom window class that does `WM_PAINT` and handles input events thereof.
+
+For this mockup, I'll extract the message handling into its own function and assume I can call Windows API functions and use their types and constants as normal. For `WM_PAINT` both `wparam` and `lparam` are unused.
+```go
+func repaint(s *sysData) HRESULT {
+	var xrect RECT
+	var ps PAINTSTRUCT
+
+	// TODO send TRUE if we want to erase the clip area
+	if GetUpdateRect(s.hwnd, &xrect, FALSE) == 0 {
+		// no update rect, so we're done
+		return 0
+	}
+	hdc, err := BeginPaint(s.hwnd, &ps)
+	if hdc == 0 {		// failure
+		panic(fmt.Errorf("error beginning Area repaint: %v", err))
+	}
+	// TODO DRAW
+	EndPaint(s.hwnd, &ps)
+	return 0
+}
+```
+
+TODO note http://msdn.microsoft.com/en-us/library/windows/desktop/bb775501%28v=vs.85%29.aspx#win_class for information on handling some key presses, tab switch, etc. (need to do this for the ones below too)
+
+TODO figure out scrolling
+	- windows can have either standard or custom scrollbars; need to figure out how the standard scrollbars work
+	- standard scrollbars cannot be controlled by the keyboard; either we must provide an option for doing that or allow scrolling ourselves (the `myAreaGoroutine` would read the keyboard events and scroll manually, in the same way)
 
 ## GTK+
 We can use `GtkDrawingArea`. We hook into the `draw` signal; it does something equivalent to
@@ -77,7 +104,15 @@ func draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboole
 }
 ```
 
+TODO delete pixbuf
+
+TODO is the gdk-pixbuf alpha-premultiplied?
+
+TODO verify pixel order
+
 TODO figure out how scrolling plays into this
+
+TODO double-check docs to see that the clip rect is cleared before the draw event is issued
 
 ## Cocoa
 For this one we **must** create a subclass of `NSView` that overrides the drawing and keyboard/mouse event messages.
@@ -127,14 +162,14 @@ func our_drawRect(self C.id, rect C.struct_xrect) {
 		hasAlpha:YES
 		isPlanar:NO
 		colorSpaceName:NSCalibratedRGBColorSpace		// TODO NSDeviceRGBColorSpace?
-		bitmapFormat:NSAlphaNonpremultipliedBitmapFormat
+		bitmapFormat:NSAlphaNonpremultipliedBitmapFormat		// this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things
 		bytesPerRow:i.Stride
 		bitsPerPixel:32]
 	[bitmap drawAtPoint:NSMakePoint(cliprect.x, cliprect.y)]
 	[bitmap release]
 }
 ```
-Due to the utter complexity of all that `NSImage` stuff, I might just have another C function that performs the `NSBitmapImageRep` constructor using the `image.NRGBA` fields.
+Due to the size of the `NSBitmapImageRep` constructor, I might just have another C function that performs the `NSBitmapImageRep` constructor using the `image.NRGBA` fields.
 
 Finally, we need to override `-[NSView isFlipped]` since we want to keep (0,0) at the top-left:
 ```go
@@ -145,3 +180,5 @@ func our_isFlipped(self C.id, sel C.SEL) C.BOOL {
 ```
 
 TODO figure out scrolling
+
+TODO erase clip rect?
