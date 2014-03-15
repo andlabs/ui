@@ -45,7 +45,9 @@ TODO is there a race on `area.SetSize()`?
 
 TODO for all of the following: verify API call data types before moving code
 
-## Windows
+## Drawing and Scrolling
+
+### Windows
 We create another custom window class that does `WM_PAINT` and handles input events thereof.
 
 For this mockup, I'll extract the message handling into its own function and assume I can call Windows API functions and use their types and constants as normal. For `WM_PAINT` both `wparam` and `lparam` are unused.
@@ -183,7 +185,7 @@ TODO note http://msdn.microsoft.com/en-us/library/windows/desktop/bb775501%28v=v
 
 TODO standard scrollbars cannot be controlled by the keyboard; either we must provide an option for doing that or allow scrolling ourselves (the `myAreaGoroutine` would read the keyboard events and scroll manually, in the same way)
 
-## GTK+
+### GTK+
 We can use `GtkDrawingArea`. We hook into the `draw` signal; it does something equivalent to
 
 ```go
@@ -240,7 +242,7 @@ On alpha premultiplication:
 
 TODO "Note that GDK automatically clears the exposed area to the background color before sending the expose event" decide what to do for the other platforms
 
-## Cocoa
+### Cocoa
 For this one we **must** create a subclass of `NSView` that overrides the drawing and keyboard/mouse event messages.
 
 The drawing message is `-[NSView drawRect:]`, which just takes the `NSRect` as an argument. So we already need to use `bleh_darwin.m` to grab the actual `NSRect` and convert it into something with a predictable data type before passing it back to Go. If we do this:
@@ -313,3 +315,57 @@ func our_isFlipped(self C.id, sel C.SEL) C.BOOL {
 For scrolling, we simply wrap our view in a `NSScrollView` just as we did with Listbox; Cocoa handles all the details for us.
 
 TODO erase clip rect?
+
+## Mouse Events
+
+### Windows
+TODO
+
+### GTK+
+- `"button-press-event"` for mouse button presses; needs `GDK_BUTTON_PRESS_MASK` and returns `GdkEventButton`
+- `"button-release-event"` for mouse button releases; needs `GDK_BUTTON_RELEASE_MASK` and returns `GdkEventButton`
+- `"enter-notify-event"` for when the mouse enters the widget; needs `GDK_ENTER_NOTIFY_MASK` and returns `GdkEventCrossing`
+- `"leave-notify-event"` for when the mouse leaves the widget; needs `GDK_LEAVE_NOTIFY_MASK` and returns `GdkEventCrossing`
+- `"motion-notify-event"` for when the mouse moves while inside the widget; needs `GDK_POINTER_MOTION_MASK` and returns `GdkEventMotion`
+
+The following events may also be of use:
+```
+GDK_BUTTON_MOTION_MASK
+	receive pointer motion events while any button is pressed
+
+GDK_BUTTON1_MOTION_MASK
+	receive pointer motion events while 1 button is pressed
+
+GDK_BUTTON2_MOTION_MASK
+	receive pointer motion events while 2 button is pressed
+
+GDK_BUTTON3_MOTION_MASK
+	receive pointer motion events while 3 button is pressed 
+```
+
+`GdkEventButton` tells us:
+- event type: click, double-click, triple-click, release
+	- a click event is always sent before a double-click and triple-click event
+		- double-click: click, release, click, double-click, release
+		- triple-click: C, R, C, DC, R, C, TC, R
+- x and y positions of event
+- modifier keys held during event: see https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#GdkModifierType
+	- does not appear to have a way to differentiate left and right modifier keys?
+	- TODO seems to have conflicting information about Alt and Meta
+	- TODO also has mouse button info?
+- button ID of event, with order 1 - left, 2 - middle, 3 - right
+
+`GdkEventCrossing` tells us
+- whether this was an enter or a leave
+- x and y positions of event
+- "crossing mode" and "notification type" [not sure if I'll need these - https://developer.gnome.org/gdk3/stable/gdk3-Event-Structures.html#GdkEventCrossing]
+- modifier flags (see above)
+	- I think the mouse buttons are used this time but what about the event flags above
+
+`GdkEventMotion` tells us
+- the type of the event (I assume this is always going to be `GDK_MOTION_NOTIFY`)
+- x and y positions of the event
+- modifier keys (as above) AND POINTER BUTTONS THIS TIME
+
+### Cocoa
+TODO
