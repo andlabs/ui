@@ -9,6 +9,7 @@ import (
 
 // Area represents a blank canvas upon which programs may draw anything and receive arbitrary events from the user.
 // An Area has an explicit size, represented in pixels, that may be different from the size shown in its Window; scrollbars are placed automatically should they be needed.
+// The coordinate system of an Area always has an origin of (0,0) which maps to the top-left corner; all image.Points and image.Rectangles sent across Area's channels conform to this.
 // To facilitate development and debugging, for the time being, Areas have a fixed size of 320x240 and only work on GTK+.
 type Area struct {
 	// Paint is signaled when the Area needs to be redrawn.
