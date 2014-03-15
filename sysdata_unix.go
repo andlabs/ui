@@ -92,6 +92,9 @@ var classTypes = [nctypes]*classData{
 	c_progressbar:		&classData{
 		make:		gtk_progress_bar_new,
 	},
+	c_area:			&classData{
+		make:		gtkAreaNew,
+	},
 }
 
 func (s *sysData) make(initText string, window *sysData) error {

@@ -4,6 +4,9 @@ package main
 import (
 	"fmt"
 	"flag"
+	"image"
+	"image/color"
+	"image/draw"
 	. "github.com/andlabs/ui"
 )
 
@@ -110,7 +113,43 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 
 var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
 
+var doArea = flag.Bool("area", false, "run area test instead")
+func areaTest() {
+	img := [2]*image.NRGBA{}
+	img[0] = image.NewNRGBA(image.Rect(0, 0, 320, 240))
+	color0 := color.NRGBA{128, 128, 0, 255}
+	draw.Draw(img[0], img[0].Rect, image.NewUniform(color0), image.ZP, draw.Over)
+	img[1] = image.NewNRGBA(image.Rect(0, 0, 320, 240))
+	color1 := color.NRGBA{0, 128, 128, 255}
+	draw.Draw(img[1], img[1].Rect, image.NewUniform(color1), image.ZP, draw.Over)
+	i := 0
+	lastrect := image.ZR
+	w := NewWindow("Area Test", 100, 100)
+	a := NewArea()
+	err := w.Open(a)
+	if err != nil {
+		panic(err)
+	}
+	for {
+		select {
+		case <-w.Closing:
+			return
+		case req := <-a.Paint:
+fmt.Println(req)
+			req.Out <- img[i].SubImage(req.Rect).(*image.NRGBA)
+			if lastrect != req.Rect {
+				lastrect = req.Rect
+				i = 1 - i
+			}
+		}
+	}
+}
+
 func myMain() {
+	if *doArea {
+		areaTest()
+		return
+	}
 	w := NewWindow("Main Window", 320, 240)
 	b := NewButton("Click Me")
 	b2 := NewButton("Or Me")

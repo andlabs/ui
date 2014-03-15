@@ -1,25 +1,32 @@
-// +build ignore
-// (ignored pending Go issues 7409 and 7548)
-// x+build !windows,!darwin,!plan9
+// +build !windows,!darwin,!plan9
 
 // 14 march 2014
 
 package ui
 
 import (
+	"unsafe"
 	"image"
 )
 
 // #cgo pkg-config: gtk+-3.0
+// /* GTK+ 3.8 deprecates gtk_scrolled_window_add_with_viewport(); we need 3.4 miniimum though
+// setting MIN_REQUIRED ensures nothing older; setting MAX_ALLOWED disallows newer functions - thanks to desrt in irc.gimp.net/#gtk+
+// TODO add this to the other files too */
+// #define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
+// #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 // #include <gtk/gtk.h>
 // extern gboolean our_draw_callback(GtkWidget *, cairo_t *, gpointer);
+// /* HACK - see https://code.google.com/p/go/issues/detail?id=7548 */
+// struct _cairo {};
 import "C"
 
 func gtkAreaNew() *gtkWidget {
 	drawingarea := C.gtk_drawing_area_new()
+	C.gtk_widget_set_size_request(drawingarea, 320, 240)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	// need a viewport because GtkDrawingArea isn't natively scrollable
-	C.gtk_scrolled_window_add_with_viewport(scrollarea, drawingarea)
+	C.gtk_scrolled_window_add_with_viewport((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), drawingarea)
 	return fromgtkwidget(scrollarea)
 }
 
@@ -54,7 +61,7 @@ func our_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gb
 		C.gdouble(cliprect.Min.X),
 		C.gdouble(cliprect.Min.Y))
 	C.g_object_unref((C.gpointer)(unsafe.Pointer(pixbuf)))		// free pixbuf
-	return C.FALSE		// TODO what does this return value mean? docs don't say
+	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
 }
 
 var draw_callback = C.GCallback(C.our_draw_callback)
