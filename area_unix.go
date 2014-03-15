@@ -66,6 +66,10 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 		pixbuf,
 		C.gdouble(cliprect.Min.X),
 		C.gdouble(cliprect.Min.Y))
+	// that just set the brush that cairo uses: we have to actually draw now
+	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
+	C.cairo_rectangle(cr, x, y, w, h)		// breaking the nrom here since we have the double data already
+	C.cairo_fill(cr)
 	C.g_object_unref((C.gpointer)(unsafe.Pointer(pixbuf)))		// free pixbuf
 	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
 }
