@@ -79,6 +79,7 @@ important things:
 - make specific wording in documentation consistent (make/create, etc.)
 	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms (are there any left?)
 		- what happens when the user clicks and drags on a listbox
+	- should field descriptions in method comments include the receiver name? (for instance e.Held vs. Held) - see what Go's own documentation does
 - make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
 	- do this for type signatures in exported functions: (err error) or just error?
 	- do this for the names of GTK+ helper functions (gtkXXX or gXXX)
