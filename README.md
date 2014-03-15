@@ -10,7 +10,7 @@ ui aims to run on all supported versions of supported platforms. To be more prec
 
 * Windows: Windows XP or newer. The Windows backend uses package `syscall` and calls Windows DLLs directly, so does not rely on cgo.
 * Mac OS X: Mac OS X 10.6 (Snow Leopard) or newer. Objective-C dispatch is done by interfacing with libobjc directly, and thus this uses cgo.
-	* Note: you will need Go 1.3 or newer for this verison, as it uses a single .m file due to technical restrictions (read the comments in `bleh_darwin.m` for details), and earlier versions of Go do not auto-build .m files.
+	* Note: you will need Go 1.3 or newer (so until it is released, [go tip](http://tip.golang.org/doc/install/source#head)) for this verison, as it uses a single .m file due to technical restrictions (read the comments in `bleh_darwin.m` for details), and earlier versions of Go do not auto-build .m files.
 * Other Unixes: The Unix backend uses GTK+, and thus cgo. It requires GTK+ 3.4 or newer; for Ubuntu this means 12.04 LTS (Precise Pangolin) at minimum. Check your distribution.
 
 ui itself has no outside Go package dependencies; it is entirely self-contained.
