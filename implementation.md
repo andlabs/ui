@@ -49,6 +49,8 @@ As the GTK+ main loop system does not quite run in a sane way (it allows recursi
 
 GTK+ layout managers are not used since the UI library's layout managers are coded in a portable way. (`GtkFixed` is used instead.) This isn't ideal, but it works for now.
 
+All event handlers take the `sysData` as their user data parameter; this means all the event-handling code is stored in static functions in callbacks_unix.go. (Early versions of the package generated signal handlers for each control on the fly, but this needed to be changed to accommodoate Area, which not only needs the `sysData` but also needs to connect to a subwidget of a subwidget (specifically the subwidget of the `GtkViewport` of a `GtkScrolledWindow`); the current setup also avoids creating closures for each and every Window and Button created, and also means we can stop having to shove those callbacks in an ever-growing slice to prevent them from being garbage collected.)
+
 The only major snag with the GTK+ implementation is the implementation of `Listbox`; see `listbox_unix.go` for details.
 
 ## Mac OS X

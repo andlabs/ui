@@ -29,7 +29,7 @@ type classData struct {
 	delete	func(widget *gtkWidget, index int)
 	len		func(widget *gtkWidget) int
 	// ...
-	signals	map[string]func(*sysData) func() bool
+	signals	callbackMap
 }
 
 var classTypes = [nctypes]*classData{
@@ -37,41 +37,17 @@ var classTypes = [nctypes]*classData{
 		make:		gtk_window_new,
 		setText:		gtk_window_set_title,
 		text:			gtk_window_get_title,
-		signals:		map[string]func(*sysData) func() bool{
-			"delete-event":		func(s *sysData) func() bool {
-				return func() bool {
-					s.signal()
-					return true		// do not close the window
-				}
-			},
-			"configure-event":	func(s *sysData) func() bool {
-				return func() bool {
-					if s.container != nil && s.resize != nil {		// wait for init
-						width, height := gtk_window_get_size(s.widget)
-						// top-left is (0,0) so no need for winheight
-						err := s.resize(0, 0, width, height, 0)
-						if err != nil {
-							panic("child resize failed: " + err.Error())
-						}
-					}
-					// returning false indicates that we continue processing events related to configure-event; if we choose not to, then after some controls have been added, the layout fails completely and everything stays in the starting position/size
-					// TODO make sure this is the case
-					return false
-				}
-			},
+		signals:		callbackMap{
+			"delete-event":		window_delete_event_callback,
+			"configure-event":	window_configure_event_callback,
 		},
 	},
 	c_button:			&classData{
 		make:		gtk_button_new,
 		setText:		gtk_button_set_label,
 		text:			gtk_button_get_label,
-		signals:		map[string]func(*sysData) func() bool{
-			"clicked":		func(s *sysData) func() bool {
-				return func() bool {
-					s.signal()
-					return true		// do not close the window
-				}
-			},
+		signals:		callbackMap{
+			"clicked":		button_clicked_callback,
 		},
 	},
 	c_checkbox:		&classData{
@@ -135,8 +111,8 @@ func (s *sysData) make(initText string, window *sysData) error {
 			fixed := gtk_fixed_new()
 			gtk_container_add(s.widget, fixed)
 			// TODO return the container before assigning the signals?
-			for signal, generator := range ct.signals {
-				g_signal_connect(s.widget, signal, generator(s))
+			for signame, sigfunc := range ct.signals {
+				g_signal_connect(s.widget, signame, sigfunc, s)
 			}
 			ret <- fixed
 		}
@@ -145,8 +121,8 @@ func (s *sysData) make(initText string, window *sysData) error {
 		s.container = window.container
 		uitask <- func() {
 			gtk_container_add(s.container, s.widget)
-			for signal, generator := range ct.signals {
-				g_signal_connect(s.widget, signal, generator(s))
+			for signame, sigfunc := range ct.signals {
+				g_signal_connect(s.widget, signame, sigfunc, s)
 			}
 			ret <- nil
 		}
