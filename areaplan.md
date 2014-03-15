@@ -321,7 +321,56 @@ TODO erase clip rect?
 TODO scroll wheel
 
 ### Windows
-TODO
+Back to our custom window prodcedure again. We receive:
+```
+WM_LBUTTONDBLCLK
+WM_LBUTTONDOWN
+WM_LBUTTONUP
+WM_MBUTTONDBLCLK
+WM_MBUTTONDOWN
+WM_MBUTTONUP
+WM_RBUTTONDBLCLK
+WM_RBUTTONDOWN
+WM_RBUTTONUP
+WM_XBUTTONDBLCLK
+WM_XBUTTONDOWN
+WM_XBUTTONUP 
+```
+which specify the left, middle, right, and up to two additional mouse buttons.
+
+Each of these returns the coordinates in the LPARAM and the modifier flags in the WPARAM:
+```
+MK_CONTROL
+MK_LBUTTON
+MK_MBUTTON
+MK_RBUTTON
+MK_SHIFT
+MK_XBUTTON1
+MK_XBUTTON2
+```
+where the button modifier flags allow handling simultaneous clicks. The XBUTTON messages also use WPARAM to encode which button was pressed.
+
+In order to register double-clicks, we have to specify the `CS_DBLCLKS` style when calling `RegisterClass`. A mouse click event will always be sent before a double-click event.
+
+That just leaves mouse moves. All mouse moves are handled with `WM_MOUSEMOVE`, which returns the same WPARAM and LPARAM format as above (so we use the WPARAM to see which mouse buttons were held during a move).
+
+All of these messages expect us to return 0, except the XBUTTON messages, which expect us to return TRUE.
+
+MSDN says to use macros to get the position and XBUTTON information:
+```c
+/* for all messages */
+xPos = GET_X_LPARAM(lParam);
+yPos = GET_Y_LPARAM(lParam);
+
+/* for XBUTTON messages */
+fwKeys = GET_KEYSTATE_WPARAM (wParam);
+fwButton = GET_XBUTTON_WPARAM (wParam);
+```
+We will need to reimplement these macros ourselves.
+
+All messages are supported on at least Windows 2000, so we're good using them all.
+
+There does not seem to be an equivalent to the mouse entered signal provided by GTK+ and Cocoa. There *is* an equivalent to mouse left (`WM_MOUSELEAVE`), but it requires tracking support, which has to be set up in special ways.
 
 ### GTK+
 - `"button-press-event"` for mouse button presses; needs `GDK_BUTTON_PRESS_MASK` and returns `GdkEventButton`
@@ -403,3 +452,10 @@ The click count is specified in `-[e clickCount]`, so we can distinguish between
 `-[e modifierFlags]` gives us the modifier flags. The flag reference is https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW14 - no info on left/right keys seems to be provided.
 
 TODO do we need to override `acceptsFirstMouse:` to return `YES` so a click event is sent when changing the current program to this one?
+
+### Consensus
+```go
+type MouseEvent struct {
+	xxx
+}
+```
