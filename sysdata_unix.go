@@ -30,6 +30,8 @@ type classData struct {
 	len		func(widget *gtkWidget) int
 	// ...
 	signals	callbackMap
+	child		func(widget *gtkWidget) *gtkWidget
+	childsigs	callbackMap
 }
 
 var classTypes = [nctypes]*classData{
@@ -94,6 +96,10 @@ var classTypes = [nctypes]*classData{
 	},
 	c_area:			&classData{
 		make:		gtkAreaNew,
+		child:		gtkAreaGetControl,
+		childsigs:		callbackMap{
+			"draw":		area_draw_callback,
+		},
 	},
 }
 
@@ -126,6 +132,12 @@ func (s *sysData) make(initText string, window *sysData) error {
 			gtk_container_add(s.container, s.widget)
 			for signame, sigfunc := range ct.signals {
 				g_signal_connect(s.widget, signame, sigfunc, s)
+			}
+			if ct.child != nil {
+				child := ct.child(s.widget)
+				for signame, sigfunc := range ct.childsigs {
+					g_signal_connect(child, signame, sigfunc, s)
+				}
 			}
 			ret <- nil
 		}

@@ -16,7 +16,7 @@ import (
 // #define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
 // #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 // #include <gtk/gtk.h>
-// extern gboolean our_draw_callback(GtkWidget *, cairo_t *, gpointer);
+// extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
 // /* HACK - see https://code.google.com/p/go/issues/detail?id=7548 */
 // struct _cairo {};
 import "C"
@@ -30,8 +30,14 @@ func gtkAreaNew() *gtkWidget {
 	return fromgtkwidget(scrollarea)
 }
 
-//export our_draw_callback
-func our_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboolean {
+func gtkAreaGetControl(scrollarea *gtkWidget) *gtkWidget {
+	viewport := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(scrollarea)))
+	control := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(viewport)))
+	return fromgtkwidget(control)
+}
+
+//export our_area_draw_callback
+func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboolean {
 	var x, y, w, h C.double
 
 	s := (*sysData)(unsafe.Pointer(data))
@@ -64,4 +70,4 @@ func our_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gb
 	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
 }
 
-var draw_callback = C.GCallback(C.our_draw_callback)
+var area_draw_callback = C.GCallback(C.our_area_draw_callback)
