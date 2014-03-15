@@ -66,12 +66,14 @@ super ultra important things:
 (test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
 ```
 	figure out why
+	- I think it has to do with invalid list deletions; roll back the panics and check
 - the user can still [NSApp terminate:] from the Dock icon, bypassing Go itself
 	- ideally we need a QuitItem() function for this case if/when we add menus
 - Cocoa: NSScrollView support is hacky at best
 	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
+	- GTK+: requested clip rect seems to be larger than the size of the Area (also larger than the visible portion? TODO)
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
