@@ -318,6 +318,8 @@ TODO erase clip rect?
 
 ## Mouse Events
 
+TODO scroll wheel
+
 ### Windows
 TODO
 
@@ -368,4 +370,36 @@ GDK_BUTTON3_MOTION_MASK
 - modifier keys (as above) AND POINTER BUTTONS THIS TIME
 
 ### Cocoa
-TODO
+Our `NSView` subclass will override the following
+```
+mouseDown:
+mouseDragged:
+mouseUp:
+mouseMoved:
+mouseEntered:
+mouseExited:
+rightMouseDragged:
+rightMouseUp:
+otherMouseDown:
+otherMouseDragged:
+otherMouseUp:
+```
+The `mouse...` selectors are for the left mouse button. Each of these selectors is of the form
+```objective-c
+- (void)selectorName:(NSEvent *)e
+```
+where `NSEvent` is a concrete type, not an abstract class, that contains all the information we need.
+
+...almost. `NSEvent` doesn't record mouse position. Instead, it has a static method `+[NSEvent mouseLocation]` that returns the mouse location instead. And this location is relative to the screen, so we need to get it relative to the container view instead. Fun. Fortunately, the NSView Programming Guide says we can do
+```go
+	nspoint := [self convertPoint:[e locationInWindow] fromView:nil]
+```
+to get the point we want. This *should* also obey `isFlipped:`, as that affects "the coordinate system of the receiver".
+
+For the button number, there's `-[e buttonNumber]`. Alas, the exact number is not documented in the reference, and neither the Event nor the NSView Programming Guides say anything. Once we do get it though, the reference also says "This method is intended for use with the NSOtherMouseDown, NSOtherMouseUp, and NSOtherMouseDragged events, but will return values for NSLeftMouse... and NSRightMouse... events also.", so since we build our class at runtime, we can just assign the same implementation function to each type of event (the `sel` argument will differ, but since we can just get the button number directly we don't have to worry). Of course, if the exact number isn't documented, we can't... **TODO**
+
+The click count is specified in `-[e clickCount]`, so we can distinguish between single-click and double-click easily. Note "Returns 0 for a mouse-up event if a time threshold has passed since the corresponding mouse-down event. This is because if this time threshold passes before the mouse button is released, it is no longer considered a mouse click, but a mouse-down event followed by a mouse-up event.". The Event Programing Guide says "Find out how many mouse clicks occurred in quick succession (clickCount); multiple mouse clicks are conceptually treated as a single mouse-down event within a narrow time threshold (although they arrive in a series of mouseDown: messages). As with modifier keys, a double- or triple-click can change the significance of a mouse event for an application. (See Listing 4-3 for an example.)" which indicates that a click event is sent before a double-click.
+
+`-[e modifierFlags]` gives us the modifier flags. The flag reference is https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW14 - no info on left/right keys seems to be provided.
+
+TODO do we need to override `acceptsFirstMouse:` to return `YES` so a click event is sent when changing the current program to this one?
