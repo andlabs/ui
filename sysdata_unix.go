@@ -117,7 +117,7 @@ func (s *sysData) make(initText string, window *sysData) error {
 	s.widget = <-ret
 	if window == nil {
 		uitask <- func() {
-			fixed := gtk_fixed_new()
+			fixed := gtkNewWindowLayout()
 			gtk_container_add(s.widget, fixed)
 			// TODO return the container before assigning the signals?
 			for signame, sigfunc := range ct.signals {
@@ -129,7 +129,7 @@ func (s *sysData) make(initText string, window *sysData) error {
 	} else {
 		s.container = window.container
 		uitask <- func() {
-			gtk_container_add(s.container, s.widget)
+			gtkAddWidgetToLayout(s.container, s.widget)
 			for signame, sigfunc := range ct.signals {
 				g_signal_connect(s.widget, signame, sigfunc, s)
 			}
@@ -187,7 +187,7 @@ func (s *sysData) setText(text string) {
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
-	gtk_fixed_move(s.container, s.widget, x, y)
+	gtkMoveWidgetInLayout(s.container, s.widget, x, y)
 	gtk_widget_set_size_request(s.widget, width, height)
 	return nil
 }

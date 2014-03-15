@@ -61,12 +61,12 @@ func togtkcontainer(what *gtkWidget) *C.GtkContainer {
 	return (*C.GtkContainer)(unsafe.Pointer(what))
 }
 
-func fromgtkfixed(x *C.GtkFixed) *gtkWidget {
+func fromgtklayout(x *C.GtkLayout) *gtkWidget {
 	return (*gtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkfixed(what *gtkWidget) *C.GtkFixed {
-	return (*C.GtkFixed)(unsafe.Pointer(what))
+func togtklayout(what *gtkWidget) *C.GtkLayout {
+	return (*C.GtkLayout)(unsafe.Pointer(what))
 }
 
 func fromgtkbutton(x *C.GtkButton) *gtkWidget {

@@ -45,7 +45,6 @@ important things:
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 	- pin down this behavior; also note non-editability
-- GTK+ windows cannot be resized smaller than their controls's current sizes in their current positions; find out how to overrule that so they can be freely resized
 - the size of Listboxes on Windows does not fill the requested space completely (wait, wasn't there a style that governed this?)
 
 super ultra important things:
@@ -74,6 +73,7 @@ super ultra important things:
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 	- GTK+: requested clip rect seems to be larger than the size of the Area (also larger than the visible portion? TODO)
+- when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)

@@ -66,16 +66,30 @@ func gtk_window_get_size(window *gtkWidget) (int, int) {
 	return int(width), int(height)
 }
 
-func gtk_fixed_new() *gtkWidget {
-	return fromgtkwidget(C.gtk_fixed_new())
+// this should allow us to resize the window arbitrarily
+// thanks to Company in irc.gimp.net/#gtk+
+func gtkNewWindowLayout() *gtkWidget {
+	layout := C.gtk_layout_new(nil, nil)
+	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
+	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(scrollarea)), layout)
+	// never show scrollbars; we're just doing this to allow arbitrary resizes
+	C.gtk_scrolled_window_set_policy((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)),
+		C.GTK_POLICY_NEVER, C.GTK_POLICY_NEVER)
+	return fromgtkwidget(scrollarea)
 }
 
 func gtk_container_add(container *gtkWidget, widget *gtkWidget) {
 	C.gtk_container_add(togtkcontainer(container), togtkwidget(widget))
 }
 
-func gtk_fixed_move(container *gtkWidget, widget *gtkWidget, x int, y int) {
-	C.gtk_fixed_move(togtkfixed(container), togtkwidget(widget),
+func gtkAddWidgetToLayout(container *gtkWidget, widget *gtkWidget) {
+	layout := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(container)))
+	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(layout)), togtkwidget(widget))
+}
+
+func gtkMoveWidgetInLayout(container *gtkWidget, widget *gtkWidget, x int, y int) {
+	layout := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(container)))
+	C.gtk_layout_move((*C.GtkLayout)(unsafe.Pointer(layout)), togtkwidget(widget),
 		C.gint(x), C.gint(y))
 }
 
