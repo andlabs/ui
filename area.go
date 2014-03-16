@@ -74,8 +74,8 @@ type MouseEvent struct {
 	Modifiers		Modifiers
 
 	// Held is a slice of button IDs that indicate which mouse buttons are being held during the event.
+	// Held will not include Down and Up.
 	// (TODO "There is no guarantee that Held is sorted."?)
-	// (TODO will this include or exclude Down and Up?)
 	Held			[]uint
 }
 
