@@ -9,6 +9,7 @@ import (
 	"image/draw"
 	_ "image/png"
 	"bytes"
+	"time"
 	. "github.com/andlabs/ui"
 )
 
@@ -136,7 +137,12 @@ func areaTest() {
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
 	w := NewWindow("Area Test", 100, 100)
 	a := NewArea()
-	err = w.Open(a)
+	timedisp := NewLabel("")
+	timechan := time.Tick(time.Second)
+	layout := NewVerticalStack(a,
+		NewHorizontalStack(timedisp))
+	layout.SetStretchy(0)
+	err = w.Open(layout)
 	if err != nil {
 		panic(err)
 	}
@@ -144,6 +150,8 @@ func areaTest() {
 		select {
 		case <-w.Closing:
 			return
+		case t := <-timechan:
+			timedisp.SetText(t.String())
 		case req := <-a.Paint:
 fmt.Println(req)
 /*
