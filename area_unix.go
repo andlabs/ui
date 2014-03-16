@@ -17,6 +17,9 @@ import (
 // #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 // #include <gtk/gtk.h>
 // extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
+// extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_button_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_motion_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // /* HACK - see https://code.google.com/p/go/issues/detail?id=7548 */
 // struct _cairo {};
 import "C"
@@ -24,6 +27,9 @@ import "C"
 func gtkAreaNew() *gtkWidget {
 	drawingarea := C.gtk_drawing_area_new()
 	C.gtk_widget_set_size_request(drawingarea, 320, 240)
+	// we need to explicitly subscribe to mouse events with GtkDrawingArea
+	C.gtk_widget_add_events(drawingarea,
+		C.GDK_BUTTON_PRESS_MASK | C.GDK_BUTTON_RELEASE_MASK | C.GDK_POINTER_MOTION_MASK | C.GDK_BUTTON_MOTION_MASK)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	// need a viewport because GtkDrawingArea isn't natively scrollable
 	C.gtk_scrolled_window_add_with_viewport((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), drawingarea)
@@ -75,3 +81,89 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 }
 
 var area_draw_callback = C.GCallback(C.our_area_draw_callback)
+
+// shared code for finishing up and sending a mouse event
+func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint) {
+	s := (*sysData)(unsafe.Pointer(data))
+	// GDK doesn't initialize the modifier flags fully; we have to explicitly tell it to (thanks to Daniel_S and daniels (two different people) in irc.gimp.net/#gtk+)
+	C.gdk_keymap_add_virtual_modifiers(C.gdk_keymap_get_default(),
+		(*C.GdkModifierType)(unsafe.Pointer(&state)))
+	if (state & C.GDK_CONTROL_MASK) != 0 {
+		me.Modifiers |= Ctrl
+	}
+	if (state & C.GDK_META_MASK) != 0 {
+		me.Modifiers |= Alt
+	}
+	if (state & C.GDK_SHIFT_MASK) != 0 {
+		me.Modifiers |= Shift
+	}
+	// the mb != # checks exclude the Up/Down button from Held
+	if mb != 1 && (state & C.GDK_BUTTON1_MASK) != 0 {
+		me.Held = append(me.Held, 1)
+	}
+	if mb != 2 && (state & C.GDK_BUTTON2_MASK) != 0 {
+		me.Held = append(me.Held, 2)
+	}
+	if mb != 3 && (state & C.GDK_BUTTON3_MASK) != 0 {
+		me.Held = append(me.Held, 3)
+	}
+	// TODO keep?
+	if mb != 4 && (state & C.GDK_BUTTON4_MASK) != 0 {
+		me.Held = append(me.Held, 4)
+	}
+	if mb != 5 && (state & C.GDK_BUTTON5_MASK) != 0 {
+		me.Held = append(me.Held, 5)
+	}
+	me.Pos = image.Pt(int(x), int(y))
+	// see cSysData.signal() in sysdata.go
+	go func() {
+		select {
+		case s.mouse <- me:
+		default:
+		}
+	}()
+}
+
+//export our_area_button_press_event_callback
+func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	e := (*C.GdkEventButton)(unsafe.Pointer(event))
+	me := MouseEvent{
+		// GDK button ID == our button ID
+		Down:	uint(e.button),
+	}
+	switch e._type {
+	case C.GDK_BUTTON_PRESS:
+		me.Count = 1
+	case C.GDK_2BUTTON_PRESS:
+		me.Count = 2
+	default:		// ignore triple-clicks and beyond; we don't handle those
+		return C.FALSE		// TODO really false?
+	}
+	finishMouseEvent(data, me, me.Down, e.x, e.y, e.state)
+	return C.FALSE			// TODO really false?
+}
+
+var area_button_press_event_callback = C.GCallback(C.our_area_button_press_event_callback)
+
+//export our_area_button_release_event_callback
+func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	e := (*C.GdkEventButton)(unsafe.Pointer(event))
+	me := MouseEvent{
+		// GDK button ID == our button ID
+		Up:		uint(e.button),
+	}
+	finishMouseEvent(data, me, me.Up, e.x, e.y, e.state)
+	return C.FALSE			// TODO really false?
+}
+
+var area_button_release_event_callback = C.GCallback(C.our_area_button_release_event_callback)
+
+//export our_area_motion_notify_event_callback
+func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	e := (*C.GdkEventMotion)(unsafe.Pointer(event))
+	me := MouseEvent{}
+	finishMouseEvent(data, me, 0, e.x, e.y, e.state)
+	return C.FALSE			// TODO really false?
+}
+
+var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)

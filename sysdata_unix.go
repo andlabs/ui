@@ -98,7 +98,10 @@ var classTypes = [nctypes]*classData{
 		make:		gtkAreaNew,
 		child:		gtkAreaGetControl,
 		childsigs:		callbackMap{
-			"draw":		area_draw_callback,
+			"draw":				area_draw_callback,
+			"button-press-event":	area_button_press_event_callback,
+			"button-release-event":	area_button_release_event_callback,
+			"motion-notify-event":	area_motion_notify_event_callback,
 		},
 	},
 }
