@@ -74,6 +74,7 @@ super ultra important things:
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 	- GTK+: requested clip rect seems to be larger than the size of the Area (also larger than the visible portion? TODO)
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
+- the window background of a GTK+ window seems to be... off - I think it has to do with the GtkLayout
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
