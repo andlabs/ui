@@ -83,10 +83,11 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 var area_draw_callback = C.GCallback(C.our_area_draw_callback)
 
 // shared code for finishing up and sending a mouse event
-func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint) {
+func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
 	s := (*sysData)(unsafe.Pointer(data))
 	// GDK doesn't initialize the modifier flags fully; we have to explicitly tell it to (thanks to Daniel_S and daniels (two different people) in irc.gimp.net/#gtk+)
-	C.gdk_keymap_add_virtual_modifiers(C.gdk_keymap_get_default(),
+	C.gdk_keymap_add_virtual_modifiers(
+		C.gdk_keymap_get_for_display(C.gdk_window_get_display(gdkwindow)),
 		(*C.GdkModifierType)(unsafe.Pointer(&state)))
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		me.Modifiers |= Ctrl
@@ -139,7 +140,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 	default:		// ignore triple-clicks and beyond; we don't handle those
 		return C.FALSE		// TODO really false?
 	}
-	finishMouseEvent(data, me, me.Down, e.x, e.y, e.state)
+	finishMouseEvent(data, me, me.Down, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -152,7 +153,7 @@ func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEve
 		// GDK button ID == our button ID
 		Up:		uint(e.button),
 	}
-	finishMouseEvent(data, me, me.Up, e.x, e.y, e.state)
+	finishMouseEvent(data, me, me.Up, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -162,7 +163,7 @@ var area_button_release_event_callback = C.GCallback(C.our_area_button_release_e
 func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventMotion)(unsafe.Pointer(event))
 	me := MouseEvent{}
-	finishMouseEvent(data, me, 0, e.x, e.y, e.state)
+	finishMouseEvent(data, me, 0, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
