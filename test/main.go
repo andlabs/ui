@@ -154,6 +154,8 @@ fmt.Println(req)
 			}
 */
 			req.Out <- img.SubImage(req.Rect).(*image.NRGBA)
+		case e := <-a.Mouse:
+			fmt.Printf("%#v\n", e)
 		}
 	}
 }
