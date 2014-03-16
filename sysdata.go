@@ -22,6 +22,7 @@ type cSysData struct {
 
 	// for Area
 	paint		chan PaintRequest
+	mouse	chan MouseEvent
 }
 func (c *cSysData) make(initText string, window *sysData) error {
 	panic(runtime.GOOS + " sysData does not define make()")
