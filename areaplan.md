@@ -372,7 +372,7 @@ All messages are supported on at least Windows 2000, so we're good using them al
 
 There does not seem to be an equivalent to the mouse entered signal provided by GTK+ and Cocoa. There *is* an equivalent to mouse left (`WM_MOUSELEAVE`), but it requires tracking support, which has to be set up in special ways.
 
-TODO what about Alt modifier?
+Finally, the Alt key has to be retrieved a differnet way. [This](http://stackoverflow.com/questions/9205534/win32-mouse-and-keyboard-combination) says we can use `GetKeyState(VK_MENU)`.
 
 ### GTK+
 - `"button-press-event"` for mouse button presses; needs `GDK_BUTTON_PRESS_MASK` and returns `GdkEventButton`
@@ -399,26 +399,31 @@ GDK_BUTTON3_MOTION_MASK
 `GdkEventButton` tells us:
 - event type: click, double-click, triple-click, release
 	- a click event is always sent before a double-click and triple-click event
-		- double-click: click, release, click, double-click, release
+		- double-click: click, release, <u>click</u>, double-click, release
 		- triple-click: C, R, C, DC, R, C, TC, R
+			- this goes against other OSs which don't send both a click and double-click on the double-click
 - x and y positions of event
-- modifier keys held during event: see https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#GdkModifierType
-	- does not appear to have a way to differentiate left and right modifier keys?
-	- TODO seems to have conflicting information about Alt and Meta
-	- TODO also has mouse button info?
+- modifier keys and other mouse buttons held during event: see https://developer.gnome.org/gdk3/stable/gdk3-Windows.html#GdkModifierType
+	- does not appear to have a way to differentiate left and right modifier keys
+	- see note below about Alt/Meta
 - button ID of event, with order 1 - left, 2 - middle, 3 - right
 
 `GdkEventCrossing` tells us
 - whether this was an enter or a leave
 - x and y positions of event
 - "crossing mode" and "notification type" [not sure if I'll need these - https://developer.gnome.org/gdk3/stable/gdk3-Event-Structures.html#GdkEventCrossing]
-- modifier flags (see above)
-	- I think the mouse buttons are used this time but what about the event flags above
+- modifier/mose button held flags (see above)
 
 `GdkEventMotion` tells us
 - the type of the event (I assume this is always going to be `GDK_MOTION_NOTIFY`)
 - x and y positions of the event
-- modifier keys (as above) AND POINTER BUTTONS THIS TIME
+- modifier keys/mouse buttons held (as above)
+
+GDK by default doesn't map *all* the modifier keys away from their device-speicifc values into portable values; we have to tell it to do so:
+```go
+	C.gdk_keymap_add_virtual_modifiers(C.gdk_keymap_get_default(), &e.state)
+```
+(thanks to Daniel_S and daniels (two different people) in irc.gimp.net/#gtk+) (note: the GDK 3.4 documentation has a rather complex description of what `gdk_keymap_add_virtual_modifiers()` does; the latest version has a much better description)
 
 ### Cocoa
 Our `NSView` subclass will override the following:
@@ -447,11 +452,15 @@ where `NSEvent` is a concrete type, not an abstract class, that contains all the
 ```
 to get the point we want. This *should* also obey `isFlipped:`, as that affects "the coordinate system of the receiver".
 
-For the button number, there's `-[e buttonNumber]`. Alas, the exact number is not documented in the reference, and neither the Event nor the NSView Programming Guides say anything. Once we do get it though, the reference also says "This method is intended for use with the NSOtherMouseDown, NSOtherMouseUp, and NSOtherMouseDragged events, but will return values for NSLeftMouse... and NSRightMouse... events also.", so since we build our class at runtime, we can just assign the same implementation function to each type of event (the `sel` argument will differ, but since we can just get the button number directly we don't have to worry). Of course, if the exact number isn't documented, we can't... **TODO**
+For the button number, there's `-[e buttonNumber]`. The exact number is described below. The reference also says "This method is intended for use with the NSOtherMouseDown, NSOtherMouseUp, and NSOtherMouseDragged events, but will return values for NSLeftMouse... and NSRightMouse... events also.", so since we build our class at runtime, we can just assign the same implementation function to each type of event (the `sel` argument will differ, but since we can just get the button number directly we don't have to worry).
 
 The click count is specified in `-[e clickCount]`, so we can distinguish between single-click and double-click easily. Note "Returns 0 for a mouse-up event if a time threshold has passed since the corresponding mouse-down event. This is because if this time threshold passes before the mouse button is released, it is no longer considered a mouse click, but a mouse-down event followed by a mouse-up event.". The Event Programing Guide says "Find out how many mouse clicks occurred in quick succession (clickCount); multiple mouse clicks are conceptually treated as a single mouse-down event within a narrow time threshold (although they arrive in a series of mouseDown: messages). As with modifier keys, a double- or triple-click can change the significance of a mouse event for an application. (See Listing 4-3 for an example.)" which indicates that a click event is sent before a double-click.
 
 `-[e modifierFlags]` gives us the modifier flags. The flag reference is https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW14 - no info on left/right keys seems to be provided.
+
+The first held mouse button could be handled by the drag events. The rest can be grabbed with `+[NSEvent pressedMouseButtons]` (thanks to Psy| in irc.freenode.net/#macdev for confirming)
+
+Also according to Psy|, the bit order of `pressedMouseButtons` corresponds to the `buttonNumber`, so 0 is the left button, 1 is the right button, 2 is the middle button, and so on.
 
 TODO do we need to override `acceptsFirstMouse:` to return `YES` so a click event is sent when changing the current program to this one?
 
@@ -459,7 +468,7 @@ TODO do we need to override `acceptsFirstMouse:` to return `YES` so a click even
 ```go
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
 // Mouse button IDs start at 1, with 1 being the left mouse button, 2 being the middle mouse button, and 3 being the right mouse button.
-// (TODO If additional buttons are supported, will they be returned with 4 being the first additional button (XBUTTON1 on Windows), 5 being the second (XBUTTON2 on Windows), and so on?) (TODO get the user-facing name for XBUTTON1/2)
+// (TODO "If additional buttons are supported, they will be returned with 4 being the first additional button (XBUTTON1 on Windows), 5 being the second (XBUTTON2 on Windows), and so on."?) (TODO get the user-facing name for XBUTTON1/2; find out if there's a way to query available button count)
 type MouseEvent struct {
 	// Pos is the position of the mouse relative to the top-left of the area.
 	Pos			image.Point
@@ -473,14 +482,16 @@ type MouseEvent struct {
 	Up			uint
 
 	// If Down is nonzero, Count indicates the number of clicks: 1 for single-click, 2 for double-click.
-	// If Count > 1, at least one (TODO exactly one?) Count-1 event will be sent before a Count event.
+	// If Count == 2, AT LEAST one event with Count == 1 will have been sent prior.
+	// (This is a platform-specific issue: some platforms send one, some send two.)
 	Count		uint
 
 	// Modifiers is a bit mask indicating the modifier keys being held during the event.
 	Modifiers		Modifiers
 
 	// Held is a slice of button IDs that indicate which mouse buttons are being held during the event.
-	// (TODO Is thisonly guarnateed to be valid if both Down and Up are zero (which indicates a mouse move)?))
+	// (TODO "There is no guarantee that Held is sorted."?)
+	// (TODO will this include or exclude Down and Up?)
 	Held			[]uint
 }
 
@@ -495,10 +506,10 @@ func (e MousEvent) HeldBits() (h uintptr) {
 
 // Modifiers indicates modifier keys being held during a mouse event.
 // There is no way to differentiate between left and right modifier keys.
-type Modifiers int
+type Modifiers uintptr
 const (
-	Ctrl Modifiers = 1 << iota		// the canonical Ctrl keys (Command on Mac OS X, Control on others)
-	Alt						// the canonical Alt keys (Option on Mac OS X, Meta on Unix systems, Alt on others)
+	Ctrl Modifiers = 1 << iota		// the canonical Ctrl keys ([TODO] on Mac OS X, Control on others)
+	Alt						// the canonical Alt keys ([TODO] on Mac OS X, Meta on Unix systems, Alt on others)
 	Shift						// the Shift keys
 )
 ```
