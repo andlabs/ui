@@ -10,12 +10,7 @@ import (
 )
 
 // #cgo pkg-config: gtk+-3.0
-// /* GTK+ 3.8 deprecates gtk_scrolled_window_add_with_viewport(); we need 3.4 miniimum though
-// setting MIN_REQUIRED ensures nothing older; setting MAX_ALLOWED disallows newer functions - thanks to desrt in irc.gimp.net/#gtk+
-// TODO add this to the other files too */
-// #define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
-// #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
-// #include <gtk/gtk.h>
+// #include "gtk_unix.h"
 // extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_button_release_event_callback(GtkWidget *, GdkEvent *, gpointer);

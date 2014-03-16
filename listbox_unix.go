@@ -30,7 +30,7 @@ and the GTK+ reference documentation.
 
 // #cgo pkg-config: gtk+-3.0
 // #include <stdlib.h>
-// #include <gtk/gtk.h>
+// #include "gtk_unix.h"
 // /* because cgo seems to choke on ... */
 // void gtkTreeModelGet(GtkTreeModel *model, GtkTreeIter *iter, gchar **gs)
 // {

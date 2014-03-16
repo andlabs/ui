@@ -14,7 +14,7 @@ import (
 // Listbox casts are stored in listbox_unix.go
 
 // #cgo pkg-config: gtk+-3.0
-// #include <gtk/gtk.h>
+// #include "gtk_unix.h"
 import "C"
 
 func fromgbool(b C.gboolean) bool {

@@ -10,7 +10,7 @@ import (
 
 // #cgo pkg-config: gtk+-3.0
 // #include <stdlib.h>
-// #include <gtk/gtk.h>
+// #include "gtk_unix.h"
 // /* because cgo seems to choke on ... */
 // /* TODO does NULL parent make the box application-global? docs are unclear */
 // GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text) { GtkWidget *k = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title); gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text); return k; }

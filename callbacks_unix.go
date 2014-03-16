@@ -15,7 +15,7 @@ while we're at it the callback for our idle function will be handled here too
 */
 
 // #cgo pkg-config: gtk+-3.0
-// #include <gtk/gtk.h>
+// #include "gtk_unix.h"
 // #include <stdlib.h>
 // extern gboolean our_window_delete_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_window_configure_event_callback(GtkWidget *, GdkEvent *, gpointer);
