@@ -40,24 +40,20 @@ func NewMultiSelListbox(items ...string) *Listbox {
 // Append adds items to the end of the Listbox's list.
 // Append will panic if something goes wrong on platforms that do not abort themselves.
 func (l *Listbox) Append(what ...string) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		for _, s := range what {
 			l.sysData.append(s)
 		}
 		return
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	l.initItems = append(l.initItems, what...)
 }
 
 // InsertBefore inserts a new item in the Listbox before the item at the given position. It panics if the given index is out of bounds.
 // InsertBefore will also panic if something goes wrong on platforms that do not abort themselves.
 func (l *Listbox) InsertBefore(what string, before int) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	var m []string
 
 	if l.created {
@@ -67,6 +63,8 @@ func (l *Listbox) InsertBefore(what string, before int) {
 		l.sysData.insertBefore(what, before)
 		return
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	if before < 0 || before >= len(l.initItems) {
 		goto badrange
 	}
@@ -81,9 +79,6 @@ badrange:
 
 // Delete removes the given item from the Listbox. It panics if the given index is out of bounds.
 func (l *Listbox) Delete(index int) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		if index < 0 || index >= l.sysData.len() {
 			goto badrange
@@ -91,6 +86,8 @@ func (l *Listbox) Delete(index int) {
 		l.sysData.delete(index)
 		return
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	if index < 0 || index >= len(l.initItems) {
 		goto badrange
 	}
@@ -102,23 +99,21 @@ badrange:
 
 // Selection returns a list of strings currently selected in the Listbox, or an empty list if none have been selected. This list will have at most one item on a single-selection Listbox.
 func (l *Listbox) Selection() []string {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		return l.sysData.selectedTexts()
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	return nil
 }
 
 // SelectedIndices returns a list of the currently selected indexes in the Listbox, or an empty list if none have been selected. This list will have at most one item on a single-selection Listbox.
 func (l *Listbox) SelectedIndices() []int {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		return l.sysData.selectedIndices()
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	return nil
 }
 
@@ -126,12 +121,11 @@ func (l *Listbox) SelectedIndices() []int {
 //
 // On platforms for which this function may return an error, it panics if one is returned.
 func (l *Listbox) Len() int {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		return l.sysData.len()
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	return len(l.initItems)
 }
 
@@ -151,15 +145,9 @@ func (l *Listbox) make(window *sysData) (err error) {
 }
 
 func (l *Listbox) setRect(x int, y int, width int, height int, winheight int) error {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (l *Listbox) preferredSize() (width int, height int) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	return l.sysData.preferredSize()
 }

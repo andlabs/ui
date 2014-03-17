@@ -27,35 +27,32 @@ func NewCheckbox(text string) (c *Checkbox) {
 
 // SetText sets the checkbox's text.
 func (c *Checkbox) SetText(text string) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		c.sysData.setText(text)
 		return
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.initText = text
 }
 
 // Text returns the checkbox's text.
 func (c *Checkbox) Text() string {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.text()
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return c.initText
 }
 
 // Checked() returns whether or not the checkbox has been checked.
 func (c *Checkbox) Checked() bool {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.isChecked()
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return false
 }
 
@@ -72,15 +69,9 @@ func (c *Checkbox) make(window *sysData) error {
 }
 
 func (c *Checkbox) setRect(x int, y int, width int, height int, winheight int) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	return c.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (c *Checkbox) preferredSize() (width int, height int) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	return c.sysData.preferredSize()
 }

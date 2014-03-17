@@ -121,9 +121,6 @@ func (g *Grid) make(window *sysData) error {
 }
 
 func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error {
-	g.lock.Lock()
-	defer g.lock.Unlock()
-
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -188,9 +185,6 @@ func (g *Grid) setRect(x int, y int, width int, height int, winheight int) error
 
 // filling and stretchy are ignored for preferred size calculation
 func (g *Grid) preferredSize() (width int, height int) {
-	g.lock.Lock()
-	defer g.lock.Unlock()
-
 	max := func(a int, b int) int {
 		if a > b {
 			return a

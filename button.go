@@ -29,24 +29,22 @@ func NewButton(text string) (b *Button) {
 
 // SetText sets the button's text.
 func (b *Button) SetText(text string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	if b.created {
 		b.sysData.setText(text)
 		return
 	}
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.initText = text
 }
 
 // Text returns the button's text.
 func (b *Button) Text() string {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	if b.created {
 		return b.sysData.text()
 	}
+	b.lock.Lock()
+	defer b.lock.Unlock()
 	return b.initText
 }
 
@@ -64,15 +62,9 @@ func (b *Button) make(window *sysData) error {
 }
 
 func (b *Button) setRect(x int, y int, width int, height int, winheight int) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	return b.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (b *Button) preferredSize() (width int, height int) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	return b.sysData.preferredSize()
 }

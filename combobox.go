@@ -39,24 +39,20 @@ func NewEditableCombobox(items ...string) *Combobox {
 // Append adds items to the end of the Combobox's list.
 // Append will panic if something goes wrong on platforms that do not abort themselves.
 func (c *Combobox) Append(what ...string) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		for _, s := range what {
 			c.sysData.append(s)
 		}
 		return
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.initItems = append(c.initItems, what...)
 }
 
 // InsertBefore inserts a new item in the Combobox before the item at the given position. It panics if the given index is out of bounds.
 // InsertBefore will also panic if something goes wrong on platforms that do not abort themselves.
 func (c *Combobox) InsertBefore(what string, before int) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	var m []string
 
 	if c.created {
@@ -66,6 +62,8 @@ func (c *Combobox) InsertBefore(what string, before int) {
 		c.sysData.insertBefore(what, before)
 		return
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	if before < 0 || before >= len(c.initItems) {
 		goto badrange
 	}
@@ -80,9 +78,6 @@ badrange:
 
 // Delete removes the given item from the Combobox. It panics if the given index is out of bounds.
 func (c *Combobox) Delete(index int) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		if index < 0 || index >= c.sysData.len() {
 			goto badrange
@@ -90,6 +85,8 @@ func (c *Combobox) Delete(index int) {
 		c.sysData.delete(index)
 		return
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	if index < 0 || index >= len(c.initItems) {
 		goto badrange
 	}
@@ -101,23 +98,21 @@ badrange:
 
 // Selection returns the current selection.
 func (c *Combobox) Selection() string {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.text()
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return ""
 }
 
 // SelectedIndex returns the index of the current selection in the Combobox. It returns -1 either if no selection was made or if text was manually entered in an editable Combobox.
 func (c *Combobox) SelectedIndex() int {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.selectedIndex()
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return -1
 }
 
@@ -125,12 +120,11 @@ func (c *Combobox) SelectedIndex() int {
 //
 // On platforms for which this function may return an error, it panics if one is returned.
 func (c *Combobox) Len() int {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.len()
 	}
+	c.lock.Lock()
+	defer c.lock.Unlock()
 	return len(c.initItems)
 }
 
@@ -150,15 +144,9 @@ func (c *Combobox) make(window *sysData) (err error) {
 }
 
 func (c *Combobox) setRect(x int, y int, width int, height int, winheight int) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	return c.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (c *Combobox) preferredSize() (width int, height int) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	return c.sysData.preferredSize()
 }

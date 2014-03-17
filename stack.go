@@ -78,9 +78,6 @@ func (s *Stack) make(window *sysData) error {
 }
 
 func (s *Stack) setRect(x int, y int, width int, height int, winheight int) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
 	var stretchywid, stretchyht int
 
 	if len(s.controls) == 0 {		// do nothing if there's nothing to do
@@ -138,9 +135,6 @@ func (s *Stack) setRect(x int, y int, width int, height int, winheight int) erro
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
 func (s *Stack) preferredSize() (width int, height int) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
 	max := func(a int, b int) int {
 		if a > b {
 			return a

@@ -30,9 +30,6 @@ func NewProgressBar() *ProgressBar {
 // Otherwise, SetProgress panics.
 // TODO what happens if you repeatedly call SetProgress(-1)?
 func (p *ProgressBar) SetProgress(percent int) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
 	if percent < -1 || percent > 100 {
 		panic("percent value out of range")
 	}
@@ -40,6 +37,8 @@ func (p *ProgressBar) SetProgress(percent int) {
 		p.sysData.setProgress(percent)
 		return
 	}
+	p.lock.Lock()
+	defer p.lock.Unlock()
 	p.initProg = percent
 }
 
@@ -57,15 +56,9 @@ func (p *ProgressBar) make(window *sysData) error {
 }
 
 func (p *ProgressBar) setRect(x int, y int, width int, height int, winheight int) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
 	return p.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (p *ProgressBar) preferredSize() (width int, height int) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
 	return p.sysData.preferredSize()
 }
