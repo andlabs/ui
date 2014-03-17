@@ -243,9 +243,13 @@ func myMain() {
 		}
 	}
 
+	ticker := time.Tick(time.Second)
+
 mainloop:
 	for {
 		select {
+		case curtime := <-ticker:
+			l.SetText(curtime.String())
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
