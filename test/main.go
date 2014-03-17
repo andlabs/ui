@@ -116,6 +116,24 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 
 var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
 
+type areaHandler struct {
+	img		*image.NRGBA
+}
+func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
+fmt.Println(rect)
+/*
+	req.Out <- img[i].SubImage(req.Rect).(*image.NRGBA)
+	if lastrect != req.Rect {
+		lastrect = req.Rect
+		i = 1 - i
+	}
+*/
+	return a.img.SubImage(rect).(*image.NRGBA)
+}
+func (a *areaHandler) Mouse(e MouseEvent) {
+	fmt.Printf("%#v\n", e)
+}
+
 var doArea = flag.Bool("area", false, "run area test instead")
 func areaTest() {
 /*
@@ -136,7 +154,9 @@ func areaTest() {
 	img := image.NewNRGBA(ximg.Bounds())
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
 	w := NewWindow("Area Test", 100, 100)
-	a := NewArea()
+	a := NewArea(&areaHandler{
+		img:		img,
+	})
 	timedisp := NewLabel("")
 	timechan := time.Tick(time.Second)
 	layout := NewVerticalStack(a,
@@ -152,18 +172,6 @@ func areaTest() {
 			return
 		case t := <-timechan:
 			timedisp.SetText(t.String())
-		case req := <-a.Paint:
-fmt.Println(req)
-/*
-			req.Out <- img[i].SubImage(req.Rect).(*image.NRGBA)
-			if lastrect != req.Rect {
-				lastrect = req.Rect
-				i = 1 - i
-			}
-*/
-			req.Out <- img.SubImage(req.Rect).(*image.NRGBA)
-		case e := <-a.Mouse:
-			fmt.Printf("%#v\n", e)
 		}
 	}
 }

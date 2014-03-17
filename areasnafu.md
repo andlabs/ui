@@ -86,3 +86,20 @@ type Area interface {
 but I don't know how I'm going to handle the Control embed, as that uses unexported methods. The unexported methods are needed to do the acutal OS-dependent work, and I figured exporting these to the public would result in misuse.
 
 So I'm stuck. Unless there's a way I can get either attempt working, or I can figure out some other Go-like approach... I personally felt weird about Attempt 2, but go.wde does it. I personally don't want to use a delegate type that provides the event functions and have Area require one, as that sounds both not-Go-like and more OOP-like than I want this to be. I already silently reject requests for the callback approach as it is (I should respond to them)...
+
+## Attempt 3: Delegates
+Well I did it anyway
+```
+type Area {
+	handler	AreaHandler
+	// ...
+}
+type AreaHandler interface {
+	Paint(image.Rectangle) *image.NRGBA
+	Mouse(MouseEvent)
+}
+func NewArea(handler AreaHandler) *Area {
+	// ...
+}
+```
+This seems to have fixed the deadlocks!... but I can still deadlock elsewhere, so something /else/ is wrong, sigh...
