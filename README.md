@@ -2,14 +2,14 @@
 # Native UI library for Go
 ### CRITICAL UPDATE 17 March 2014: Due to deadlocks between resizing and setting label text once a second (see below), all Controls no longer lock their internal mutex locks after their Window has been created. This seems to not have issues, and the Go race detector isn't saying anything, so IDK... Please help spot issues or suggest actual solutions if you can.
 The issue:
-- the time.Ticker ticks, which causes label.SetText() or whatever to be called; it locks its mutex
+- a time.Ticker ticks, which causes label.SetText() or whatever to be called; it locks its mutex
 - at the same time, a resize event comes in; the resize event runs before the SetText action ever does
 - the resize eventually comes to the label, whose resizing functions also try to lock the already-locked mutex
 - because the drawing function is now stuck waiting for the mutex to be unlocked, the label.SetText() system-dependent operation never runs, so the mutex is never unlocked
 - this fools Go's deadlock detector; it never reports anything
 - changing from standard mutexes to R/W mutexes does not work
 - making resizes concurrent causes resizes to become too slow to be acceptable (they trail behind the actual user resizing by a significant amount)
-If you know a better way I can do things, **please** help... I'm at my wits end here
+If you know a better way I can do things, **please** help... I'm at my wits end here<br>`test/test -area` will run the Area test with the ticking label; I should probably add one to the main test so it can be tested on all platforms...
 
 
 
