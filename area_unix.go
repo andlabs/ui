@@ -45,13 +45,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	// thanks to desrt in irc.gimp.net/#gtk+
 	C.cairo_clip_extents(cr, &x, &y, &w, &h)
 	cliprect := image.Rect(int(x), int(y), int(w), int(h))
-	imgret := make(chan *image.NRGBA)
-	defer close(imgret)
-	s.paint <- PaintRequest{
-		Rect:		cliprect,
-		Out:		imgret,
-	}
-	i := <-imgret
+	i := s.handler.Paint(cliprect)
 	// pixel order is [R G B A] (see Example 1 on https://developer.gnome.org/gdk-pixbuf/2.26/gdk-pixbuf-The-GdkPixbuf-Structure.html) so we don't have to convert anything
 	// gdk-pixbuf is not alpha-premultiplied (thanks to desrt in irc.gimp.net/#gtk+)
 	pixbuf := C.gdk_pixbuf_new_from_data(
@@ -111,13 +105,7 @@ func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.
 		me.Held = append(me.Held, 5)
 	}
 	me.Pos = image.Pt(int(x), int(y))
-	// see cSysData.signal() in sysdata.go
-	go func() {
-		select {
-		case s.mouse <- me:
-		default:
-		}
-	}()
+	s.handler.Mouse(me)
 }
 
 //export our_area_button_press_event_callback
