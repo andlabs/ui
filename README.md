@@ -9,6 +9,7 @@ The issue:
 - this fools Go's deadlock detector; it never reports anything
 - changing from standard mutexes to R/W mutexes does not work
 - making resizes concurrent causes resizes to become too slow to be acceptable (they trail behind the actual user resizing by a significant amount)
+
 If you know a better way I can do things, **please** help... I'm at my wits end here<br>The main test (`test/test`) now has its label show the current time; GTK+ users can run `test/test -area` for the Area test that sparked this whole calamity.
 
 
