@@ -122,15 +122,9 @@ func (a *Area) make(window *sysData) error {
 }
 
 func (a *Area) setRect(x int, y int, width int, height int, winheight int) error {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-
 	return a.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (a *Area) preferredSize() (width int, height int) {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-
 	return a.sysData.preferredSize()
 }

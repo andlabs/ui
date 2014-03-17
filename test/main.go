@@ -120,7 +120,7 @@ type areaHandler struct {
 	img		*image.NRGBA
 }
 func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
-fmt.Println(rect)
+//fmt.Println(rect)
 /*
 	req.Out <- img[i].SubImage(req.Rect).(*image.NRGBA)
 	if lastrect != req.Rect {
@@ -131,7 +131,7 @@ fmt.Println(rect)
 	return a.img.SubImage(rect).(*image.NRGBA)
 }
 func (a *areaHandler) Mouse(e MouseEvent) {
-	fmt.Printf("%#v\n", e)
+//	fmt.Printf("%#v\n", e)
 }
 
 var doArea = flag.Bool("area", false, "run area test instead")

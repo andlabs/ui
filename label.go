@@ -24,24 +24,22 @@ func NewLabel(text string) *Label {
 
 // SetText sets the Label's text.
 func (l *Label) SetText(text string) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		l.sysData.setText(text)
 		return
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	l.initText = text
 }
 
 // Text returns the Label's text.
 func (l *Label) Text() string {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		return l.sysData.text()
 	}
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	return l.initText
 }
 
@@ -58,15 +56,9 @@ func (l *Label) make(window *sysData) error {
 }
 
 func (l *Label) setRect(x int, y int, width int, height int, winheight int) error {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	return l.sysData.setRect(x, y, width, height, winheight)
 }
 
 func (l *Label) preferredSize() (width int, height int) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	return l.sysData.preferredSize()
 }

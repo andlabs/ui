@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/andlabs/ui.png?branch=master)](https://travis-ci.org/andlabs/ui)
 # Native UI library for Go
+### CRITICAL UPDATE 17 March 2014: Due to deadlocks between resizing and setting label text once a second, Labels and Areas do not lock their internal mutex locks after their Window has been created. This seems to not have issues, and the Go race detector isn't saying anything, so IDK... Please help with this if you can. I will have to remove the mutexes from the other classes (later) to make this work properly.
+
 ### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. It can be used; the API is stable enough at this point, but keep in mind there may still be crashes and API changes, as suggestions are always open. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
 
 ### UPDATE 12 March 2014: Windows 2000 is no longer supported [as it is no longer supported by Go](https://codereview.appspot.com/74790043).
