@@ -1,3 +1,9 @@
+```
+git checkout ab4d286c78b4e240a82b2b191f0d9c8d43c7b44c -- area.go area_unix.go sysdata.go test/main.go
+```
+
+--------------
+
 ```go
 type Area struct {		// implements Control
 	// Paint receives requests to redraw from the window system.
@@ -602,3 +608,49 @@ Modifier keys, especially on OS X, also get in the way real bad.
 In order to form a consensus I'm going to have to run experiments, or see what Russ Cox does in his plan9ports devdraw...
 
 We also need to decide if we should ever stop the event chain if we handle a keystroke or not. I might have to have you return a bool value here...
+
+### What Other Things Do
+#### go.wde
+`Window.EventChan()` returns a channel of events. Among the various events available, there are
+- `KeyEvent`, which is shared by all keyboard events and contains but a single member, `Key` (type string)
+- `KeyDownEvent` and `KeyUpEvent`, which are just `KeyEvent` but situational
+- `KeyTypedEvent`, which I assume is shorthand for the two above and provide extra information (also strings):
+	- `Glyph`, which is the character to enter
+	- `Chord`, which is a sorted list of which keys were pressed in the event, separated by `+`
+
+Note that `Key` is **NOT** the character code (that's `Glyph`); rather, it is the virtual key code. go.wde has virtual key codes as strings, not integers.
+
+- Windows:
+	- [virtual key code mapping](https://github.com/skelterjohn/go.wde/blob/master/win/keys_windows.go)
+	- the `CHAR` events are not used, nor are the `SYS` events; instead, go.wde converts the Windows virtual key codes to go.wde's; the library knows how to compose keys itself; [code](https://github.com/skelterjohn/go.wde/blob/master/win/events_windows.go#L143)
+		- actually the code seems tosend a dummy `KeyTypedEvent` with the `KeyDownEvent`???? TODO
+- Unix:
+	- [virtual key code mappings](https://github.com/skelterjohn/go.wde/blob/master/xgb/keys.go)
+	- TODO I'm actually not sure how key events work here; will need to read through it more carefully
+- Mac:
+	- [virtual key code mappings](https://github.com/skelterjohn/go.wde/blob/master/cocoa/keys_cocoa.go)
+	- this is a two part thing I don't quite understand (TODO)
+		- [part 1](https://github.com/skelterjohn/go.wde/blob/master/cocoa/framework/gomacdraw/EventWindow.m#L128)
+		- [part 2](https://github.com/skelterjohn/go.wde/blob/master/cocoa/events_darwin.go#L88)
+	- one important thing is that it uses `[NSView flagsChanged;]` to track when the modifier flags are changed; I might need to do that as well... TODO
+
+#### devdraw
+devdraw converts the OS key code into [the Plan 9 format](http://plan9.bell-labs.com/magic/man2html/2/event).
+
+- **Unix** (X11, not GTK+): ([see here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-itrans.c?at=default) [and here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-srv.c?at=default#cl-488) [and here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-keysym2ucs.c?at=default))
+- **Mac**: [uses `[NSEvent characters]` and handles dead keys specially](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/cocoa-screen.m?at=default#cl-816), so even though programs support [the standard Plan 9 compose key system](http://plan9.bell-labs.com/magic/man2html/6/keyboard) they will interpret Mac OS X's conventional IME as well (albeit without the typical visual feedback, I think?)
+
+#### glfw (suggested by james4k in #go-nuts)
+GLFW has a callback system with two callback functions:
+```c
+void keyCallback(GLFWwindow *window, int key, int scancode,
+	int action, int modifier);
+void charCallback(GLFWwindow *window, unsigned int codepoint);
+```
+For `keyCallback`, `key` is the virtual key code, which are GLFW-specific [and listed here](http://www.glfw.org/docs/latest/group__keys.html), `action` is whether the key was pressed, held, or released, and `modifier` are the [modifier flags](http://www.glfw.org/docs/latest/group__mods.html). `charCallback`, on the other hand, should be obvious.
+
+Any key not recognized by GLFW returns the special code `GLFW_KEY_UNKNOWN`. The key code table is based on the standard 101-key US English keyboard layout.
+
+There is also `glfwGetKey()`, which returns whether or not a given virtual key code is pressed or released.
+
+TODO get the implementation details
