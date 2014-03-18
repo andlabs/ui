@@ -24,22 +24,24 @@ func NewLabel(text string) *Label {
 
 // SetText sets the Label's text.
 func (l *Label) SetText(text string) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		l.sysData.setText(text)
 		return
 	}
-	l.lock.Lock()
-	defer l.lock.Unlock()
 	l.initText = text
 }
 
 // Text returns the Label's text.
 func (l *Label) Text() string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		return l.sysData.text()
 	}
-	l.lock.Lock()
-	defer l.lock.Unlock()
 	return l.initText
 }
 

@@ -29,22 +29,24 @@ func NewButton(text string) (b *Button) {
 
 // SetText sets the button's text.
 func (b *Button) SetText(text string) {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
 	if b.created {
 		b.sysData.setText(text)
 		return
 	}
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.initText = text
 }
 
 // Text returns the button's text.
 func (b *Button) Text() string {
+	b.lock.Lock()
+	defer b.lock.Unlock()
+
 	if b.created {
 		return b.sysData.text()
 	}
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	return b.initText
 }
 

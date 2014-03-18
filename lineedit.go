@@ -35,22 +35,24 @@ func NewPasswordEdit() *LineEdit {
 
 // SetText sets the LineEdit's text.
 func (l *LineEdit) SetText(text string) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		l.sysData.setText(text)
 		return
 	}
-	l.lock.Lock()
-	defer l.lock.Unlock()
 	l.initText = text
 }
 
 // Text returns the LineEdit's text.
 func (l *LineEdit) Text() string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		return l.sysData.text()
 	}
-	l.lock.Lock()
-	defer l.lock.Unlock()
 	return l.initText
 }
 
