@@ -143,8 +143,14 @@ func (c *Combobox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (c *Combobox) setRect(x int, y int, width int, height int, winheight int) error {
-	return c.sysData.setRect(x, y, width, height, winheight)
+func (c *Combobox) setRect(x int, y int, width int, height int) []resizerequest {
+	return []resizerequest{resizerequest{
+		sysData:	c.sysData,
+		x:		x,
+		y:		y,
+		width:	width,
+		height:	height,
+	}}
 }
 
 func (c *Combobox) preferredSize() (width int, height int) {

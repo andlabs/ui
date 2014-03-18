@@ -67,8 +67,14 @@ func (l *LineEdit) make(window *sysData) error {
 	return nil
 }
 
-func (l *LineEdit) setRect(x int, y int, width int, height int, winheight int) error {
-	return l.sysData.setRect(x, y, width, height, winheight)
+func (l *LineEdit) setRect(x int, y int, width int, height int) []resizerequest {
+	return []resizerequest{resizerequest{
+		sysData:	l.sysData,
+		x:		x,
+		y:		y,
+		width:	width,
+		height:	height,
+	}}
 }
 
 func (l *LineEdit) preferredSize() (width int, height int) {

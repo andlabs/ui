@@ -17,7 +17,7 @@ func newEvent() chan struct{} {
 type cSysData struct {
 	ctype	int
 	event	chan struct{}
-	resize	func(x int, y int, width int, height int, winheight int) error
+	resize	func(x int, y int, width int, height int) []resizerequest
 	alternate	bool			// editable for Combobox, multi-select for listbox, password for lineedit
 	handler	AreaHandler	// for Areas
 }
@@ -108,4 +108,12 @@ func mksysdata(ctype int) *sysData {
 			ctype:	ctype,
 		},
 	}
+}
+
+type resizerequest struct {
+	sysData	*sysData
+	x		int
+	y		int
+	width	int
+	height	int
 }

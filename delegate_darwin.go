@@ -90,9 +90,12 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
 	if sysData.resize != nil {
 		// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
-		err := sysData.resize(int(r.x), int(r.y), int(r.width), int(r.height), int(r.height))
-		if err != nil {
-			panic("child resize failed: " + err.Error())
+		resizeList := sysData.resize(int(r.x), int(r.y), int(r.width), int(r.height))
+		for _, s := range resizeList {
+			err := s.sysData.setRect(s.x, s.y, s.width, s.height, int(r.height))
+			if err != nil {
+				panic("child resize failed: " + err.Error())
+			}
 		}
 	}
 	C.objc_msgSend_noargs(win, _display)		// redraw everything; TODO only if resize() was called?

@@ -55,8 +55,14 @@ func (p *ProgressBar) make(window *sysData) error {
 	return nil
 }
 
-func (p *ProgressBar) setRect(x int, y int, width int, height int, winheight int) error {
-	return p.sysData.setRect(x, y, width, height, winheight)
+func (p *ProgressBar) setRect(x int, y int, width int, height int) []resizerequest {
+	return []resizerequest{resizerequest{
+		sysData:	p.sysData,
+		x:		x,
+		y:		y,
+		width:	width,
+		height:	height,
+	}}
 }
 
 func (p *ProgressBar) preferredSize() (width int, height int) {

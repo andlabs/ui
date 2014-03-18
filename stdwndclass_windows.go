@@ -53,9 +53,12 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 					panic("GetClientRect failed: " + err.Error())
 				}
 				// top-left corner is (0,0) so no need for winheight
-				err = s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom), 0)
-				if err != nil {
-					panic("child resize failed: " + err.Error())
+				resizeList := s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom))
+				for _, s := range resizeList {
+					err = s.sysData.setRect(s.x, s.y, s.width, s.height, 0)
+					if err != nil {
+						panic("child resize failed: " + err.Error())
+					}
 				}
 			}
 			return 0
