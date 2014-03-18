@@ -8,7 +8,8 @@ The issue:
 - because the drawing function is now stuck waiting for the mutex to be unlocked, the label.SetText() system-dependent operation never runs, so the mutex is never unlocked
 - this fools Go's deadlock detector; it never reports anything
 - changing from standard mutexes to R/W mutexes does not work
-- making resizes concurrent causes resizes to become too slow to be acceptable (they trail behind the actual user resizing by a significant amount)
+- making resizes concurrent causes resizes to become too slow to be acceptable: the control resizing doesn't take effect until at least a second after the user lets go, and keeping a grip too long overloads the scheduler with goroutines
+- making Label use a goroutine and channels for internal communication did not get rid of the locks
 
 If you know a better way I can do things, **please** help... I'm at my wits end here<br>The main test (`test/test`) now has its label show the current time; GTK+ users can run `test/test -area` for the Area test that sparked this whole calamity.
 
