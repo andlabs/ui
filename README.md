@@ -4,7 +4,7 @@
 
 ### UPDATE 12 March 2014: Windows 2000 is no longer supported [as it is no longer supported by Go](https://codereview.appspot.com/74790043).
 
-### UPDATE 18 March 2014: Resizes are now assumed to stop other UI event processing, and thus do not run with locks anymore. I changed real control resizing so that it doesn't need to lock (it just fills an array with data fed in), but real control `preferredSize()` and `Stack`/`Grid.setRect()` could potentially still be racy... if I am right it won't be an issue, but if anyone else knows, please let me know.
+### UPDATE 18 March 2014: Resizes are now assumed to stop other UI event processing, and thus do not run with locks anymore. I changed real control resizing so that it doesn't need to lock (it just fills an array with data fed in), but real control `preferredSize()` and `Stack`/`Grid.setRect()` could potentially still be racy... if I am right it won't be an issue, but if anyone else knows, please let me know. (Everything else is thread-safe again.)
 
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 
