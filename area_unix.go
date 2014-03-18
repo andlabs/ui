@@ -7,6 +7,7 @@ package ui
 import (
 	"unsafe"
 	"image"
+"fmt"
 )
 
 // #cgo pkg-config: gtk+-3.0
@@ -15,6 +16,8 @@ import (
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_button_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_motion_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // /* HACK - see https://code.google.com/p/go/issues/detail?id=7548 */
 // struct _cairo {};
 import "C"
@@ -25,6 +28,8 @@ func gtkAreaNew() *gtkWidget {
 	// we need to explicitly subscribe to mouse events with GtkDrawingArea
 	C.gtk_widget_add_events(drawingarea,
 		C.GDK_BUTTON_PRESS_MASK | C.GDK_BUTTON_RELEASE_MASK | C.GDK_POINTER_MOTION_MASK | C.GDK_BUTTON_MOTION_MASK)
+	// and we need to allow focusing on a GtkDrawingArea to enable keyboard events
+	C.gtk_widget_set_can_focus(drawingarea, C.TRUE)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	// need a viewport because GtkDrawingArea isn't natively scrollable
 	C.gtk_scrolled_window_add_with_viewport((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), drawingarea)
@@ -151,3 +156,21 @@ func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEven
 }
 
 var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)
+
+//export our_area_key_press_event_callback
+func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	e := (*C.GdkEventKey)(unsafe.Pointer(event))
+	fmt.Printf("PRESS %#v\n", e)
+	return C.FALSE			// TODO really false?
+}
+
+var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callback)
+
+//export our_area_key_release_event_callback
+func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	e := (*C.GdkEventKey)(unsafe.Pointer(event))
+	fmt.Printf("RELEASE %#v\n", e)
+	return C.FALSE			// TODO really false?
+}
+
+var area_key_release_event_callback = C.GCallback(C.our_area_key_release_event_callback)

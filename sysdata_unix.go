@@ -102,6 +102,8 @@ var classTypes = [nctypes]*classData{
 			"button-press-event":	area_button_press_event_callback,
 			"button-release-event":	area_button_release_event_callback,
 			"motion-notify-event":	area_motion_notify_event_callback,
+			"key-press-event":		area_key_press_event_callback,
+			"key-release-event":	area_key_release_event_callback,
 		},
 	},
 }
