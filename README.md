@@ -1,29 +1,10 @@
 [![Build Status](https://travis-ci.org/andlabs/ui.png?branch=master)](https://travis-ci.org/andlabs/ui)
 # Native UI library for Go
-### CRITICAL UPDATE 17 March 2014: Due to deadlocks between resizing and setting label text once a second (see below), all Controls no longer lock their internal mutex locks after their Window has been created. This seems to not have issues, and the Go race detector isn't saying anything, so IDK... Please help spot issues or suggest actual solutions if you can.
-The issue:
-- a time.Ticker ticks, which causes label.SetText() or whatever to be called; it locks its mutex
-- at the same time, a resize event comes in; the resize event runs before the SetText action ever does
-- the resize eventually comes to the label, whose resizing functions also try to lock the already-locked mutex
-- because the drawing function is now stuck waiting for the mutex to be unlocked, the label.SetText() system-dependent operation never runs, so the mutex is never unlocked
-- this fools Go's deadlock detector; it never reports anything
-- changing from standard mutexes to R/W mutexes does not work
-- making resizes concurrent causes resizes to become too slow to be acceptable: the control resizing doesn't take effect until at least a second after the user lets go, and keeping a grip too long overloads the scheduler with goroutines
-- making Label use a goroutine and channels for internal communication did not get rid of the locks
-
-If you know a better way I can do things, **please** help... I'm at my wits end here<br>The main test (`test/test`) now has its label show the current time; GTK+ users can run `test/test -area` for the Area test that sparked this whole calamity.
-
-
-
-
-
-
-
-
-
 ### THIS PACKAGE IS UNDER ACTIVE DEVELOPMENT. It can be used; the API is stable enough at this point, but keep in mind there may still be crashes and API changes, as suggestions are always open. If you can help, please do! Run `./test` to build a test binary `test/test` which runs a (mostly) feature-complete UI test. Run `./d32 ./test` to build a 32-bit version (you will need a cgo-enabled 32-bit go environment, and I have only tested this on Mac OS X).
 
 ### UPDATE 12 March 2014: Windows 2000 is no longer supported [as it is no longer supported by Go](https://codereview.appspot.com/74790043).
+
+### UPDATE 18 March 2014: Resizes are now assumed to stop other UI event processing, and thus do not run with locks anymore. I changed real control resizing so that it doesn't need to lock (it just fills an array with data fed in), but real control `preferredSize()` and `Stack`/`Grid.setRect()` could potentially still be racy... if I am right it won't be an issue, but if anyone else knows, please let me know.
 
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 

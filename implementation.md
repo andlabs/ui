@@ -1,3 +1,5 @@
+## UPDATE 18 March 2014: this document is out of date and could use some rewriting
+
 # ui library implementation information
 
 All platform-specific functionality is isolated in a mega-type `sysData` that stores OS toolkit handles and provides methods that do the work for the frontend API. The file `sysdata.go` defines a type `cSysData` that contains everything all platforms have in common and dummy definitions of the `sysData` functions that panic. The platform-specific `sysData` embeds `cSysData`.
