@@ -513,3 +513,92 @@ const (
 	Shift						// the Shift keys
 )
 ```
+
+## Keyboard Events
+You thought mouse events were vaguely compromise-y? Get ready... this is going to hurt. *Bad*.
+
+### Windows
+There's `WM_KEYDOWN` and `WM_KEYUP` for our custom window procedure. Available on Windows 2000; return zero.
+
+Er wait, no, there's something called "system keystrokes". Remember how the mouse event didn't let us capture Alt explicitly and we need to call a separate function to do it? This is why: system keystrokes capture Alt+(other key) (and even just F10 in some cases?) and send them to the active window's main menu, and also capture all keys when there is no "active window" on screen. Thankfully this is easy enough to deal with: just do `WM_SYSKEYDOWN` and `WM_SYSKEYUP` as well... and then ALSO send the event to `DefWindowProc()`, because this covers **ALL** Alt key events, including Alt+Tab. Whee. I'll probably need a way to let the programmer say "not handling this Alt-xxx" combination; pass it up" or something; this is going to be painful. Defined in Windows 2000; return zero if not handled as above.
+
+For all four of these, the WPARAM is the virtual key code.
+
+Now how about repetitions? Windows will send multiple DOWNs for one UP, but it also has a field in the LPARAM that gives us the number of repeats (up to 65535), so we can use that as well.
+
+...what, did you think we were done yet? Haha no
+```c
+while (GetMessage(&msg, NULL, 0, 0) > 0) {
+	TranslateMessage(&msg);
+	DispatchMessage(&msg);
+}
+```
+This is the typical form of a Windows message loop. `GetMessage()` and `DispatchMessage()` are obvious, but what does `TranslateMessage()` do?
+
+...oh, it converts `WM_KEYDOWN` and 'WM_SYSKEYDOWN' to `WM_CHAR` and `WM_SYSCHAR` (respectively) and replaces the virtual key code with a character representation of the key, keeping the message unconverted if this isn't possible. Things get even trickier here.
+
+Er, oops, sorry; this isn't clear until you read `TranslateMessage()`'s docs itself or scroll down a bit in the About Keyboard Input page to the part about dead characters: the original message is NOT removed from the message queue; it's still sent out. It just queues a converted message. Nor is there any relaiable way to check if a conversion even happened, since it will always return nonzero on the various DOWN (and even UP) messages.
+
+But the docs also say that we shouldn't call `TranslateMessage()` if we're going to be handling virtual key codes directly. (Do you see how confused I am?)
+
+Now the important thing to note is that `TranslateMessage()` does locale-specific work for us. It sends out a `WM_(SYS)DEADCHAR` message, which we can safely ignore, if the user's keyboard layout uses a dead key to signal an IME change. Then, when the `WM_(SYS)CHAR` message comes in, the WPARAM will contain the resultant UTF-16 code from that whole combination. (There's also `WM_UNICHAR`, which does UTF-32 instead.)
+
+`WM_(SYS)CHAR` are in Windows 2000 and we return zero; `WM_UNICHAR` is in Windows XP and we return TRUE if WPARAM == `UNICODE_NOCHAR` and FALSE otherwise. There does not seem to be a `WM_SYSUNICHAR`. LPARAMs are the same (but the Alt key code mentioned below is meaningless now!). TODO do we return `DefWindowProc()` on `WM_SYSCHAR` too?
+
+TODO will we get multiple `WM_CHAR` messages in some Unicode cases? `WM_UNICHAR` indicates it may send multiple ANSI-specific messages...
+
+What we don't get, when all is said and done:
+- modifiers, except Alt ("context code" flag, and only on KEYDOWN, not on CHAR; specifically it will only apply to the last KEYDOWN sent before a CHAR)
+
+### GTK+
+Prerequisite: the `GtkDrawingArea` must have `set-focus` on.
+
+There are only two keyboard events: `key-press-event` and `key-release-event`. They have the same function signature as the mouse events above, and their `GdkEvent` parameters are both `GdkEventKey`s.
+
+So what can `GdkEventKey` tell us?
+- the modifier flags, as above
+- the GDK key code (not listed; have to pull them out of a header file according to the docs)
+
+What we do NOT get:
+- if the key was held or not, and how many times
+	- instead, GDK will send multiple press events for one release event
+- the textual representation of the key (actually there is a string field but it's locale-specific and thus deprecated)
+	- we call `gdk_keyval_to_unicode()` (the docs incorrectly have the inverse function linked instead) instead
+		- but how are multi-keystroke characters handled in this case? TODO
+
+### Cocoa
+Our `NSView` subclass overrides `keyDown:` and `keyUp:` here. They take the form
+```objective-c
+- (void)keyXXX:(NSEvent *)e
+```
+
+`NSEvent` provides the following selectors:
+- `keyCode`, which returns the virtual key code, which is the same as in Carbon and thus just uses the Carbon constants which I will now have to get out
+- `isARepeat`, which simply returns if there was a repeat, not how many times
+- `modifierFlags`, which returns the modifier flags
+- ... `characters` and `charactersIgnoringModifiers`, which both try to return a text interpretation, but in subtly different ways: OS X has locale-specific Option-(key) IME, and `characters` returns an empty string if we're in the middle of a multi-character insertion of this form, and `charactersIgnoringModifiers` returns the base key
+	- `charactersIgnoringModifiers` seems to provide functionality similar to `keyCode` with special Cocoa key codes, see [this](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/EventOverview/HandlingKeyEvents/HandlingKeyEvents.html#//apple_ref/doc/uid/10000060i-CH7-SW16)
+
+In the case of text, it seems you aren't really supposed to read this yourself, but rather by subclassing `insertText:` and `doCommandBySelector:` and calling `interpretKeyEvents:` with the given event instead, and also conform to the `NSTextInput` protocol.
+
+We must call the superclass implementation of `keyDown:` (TODO `keyUp:` as well?) if we ignore keystrokes.
+
+What we don't get:
+- repeat count
+- TODO does it return events for modifier keys alone?
+- TODO is `keyDown:` sent multiple times on repeat?
+
+### What we don't get in any case
+- Multiple keys at once
+	- related: a guarantee that keys arrive in a certain order
+
+TODO for all of these: see how Shift plays into the character conversion (it DOES happen on Mac OS X; that's for sure)
+
+### Consensus?
+The biggest problem here is how to handle text input. As I demonstrated above, there's no "clean" way to do it.
+
+Modifier keys, especially on OS X, also get in the way real bad.
+
+In order to form a consensus I'm going to have to run experiments, or see what Russ Cox does in his plan9ports devdraw...
+
+We also need to decide if we should ever stop the event chain if we handle a keystroke or not. I might have to have you return a bool value here...
