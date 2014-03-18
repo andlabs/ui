@@ -144,14 +144,14 @@ func (l *Listbox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (l *Listbox) setRect(x int, y int, width int, height int) []resizerequest {
-	return []resizerequest{resizerequest{
+func (l *Listbox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+	*rr = append(*rr, resizerequest{
 		sysData:	l.sysData,
 		x:		x,
 		y:		y,
 		width:	width,
 		height:	height,
-	}}
+	})
 }
 
 func (l *Listbox) preferredSize() (width int, height int) {

@@ -121,14 +121,14 @@ func (a *Area) make(window *sysData) error {
 	return nil
 }
 
-func (a *Area) setRect(x int, y int, width int, height int) []resizerequest {
-	return []resizerequest{resizerequest{
+func (a *Area) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+	*rr = append(*rr, resizerequest{
 		sysData:	a.sysData,
 		x:		x,
 		y:		y,
 		width:	width,
 		height:	height,
-	}}
+	})
 }
 
 func (a *Area) preferredSize() (width int, height int) {

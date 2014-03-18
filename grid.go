@@ -120,7 +120,7 @@ func (g *Grid) make(window *sysData) error {
 	return nil
 }
 
-func (g *Grid) setRect(x int, y int, width int, height int) (rr []resizerequest) {
+func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -171,13 +171,13 @@ func (g *Grid) setRect(x int, y int, width int, height int) (rr []resizerequest)
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			rr = append(rr, c.setRect(x, y, w, h)...)
+			c.setRect(x, y, w, h, rr)
 			x += g.colwidths[col]
 		}
 		x = startx
 		y += g.rowheights[row]
 	}
-	return rr
+	return
 }
 
 // filling and stretchy are ignored for preferred size calculation

@@ -90,8 +90,9 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
 	if sysData.resize != nil {
 		// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
-		resizeList := sysData.resize(int(r.x), int(r.y), int(r.width), int(r.height))
-		for _, s := range resizeList {
+		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
+		s.resize(0, 0, width, height, &s.resizes)
+		for _, s := range s.resizes {
 			err := s.sysData.setRect(s.x, s.y, s.width, s.height, int(r.height))
 			if err != nil {
 				panic("child resize failed: " + err.Error())

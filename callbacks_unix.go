@@ -42,8 +42,9 @@ func our_window_configure_event_callback(widget *C.GtkWidget, event *C.GdkEvent,
 	if s.container != nil && s.resize != nil {		// wait for init
 		width, height := gtk_window_get_size(s.widget)
 		// top-left is (0,0) so no need for winheight
-		resizeList := s.resize(0, 0, width, height)
-		for _, s := range resizeList {
+		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
+		s.resize(0, 0, width, height, &s.resizes)
+		for _, s := range s.resizes {
 			err := s.sysData.setRect(s.x, s.y, s.width, s.height, 0)
 			if err != nil {
 				panic("child resize failed: " + err.Error())

@@ -68,14 +68,14 @@ func (c *Checkbox) make(window *sysData) error {
 	return nil
 }
 
-func (c *Checkbox) setRect(x int, y int, width int, height int) []resizerequest {
-	return []resizerequest{resizerequest{
+func (c *Checkbox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+	*rr = append(*rr, resizerequest{
 		sysData:	c.sysData,
 		x:		x,
 		y:		y,
 		width:	width,
 		height:	height,
-	}}
+	})
 }
 
 func (c *Checkbox) preferredSize() (width int, height int) {

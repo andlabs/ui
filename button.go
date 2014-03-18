@@ -61,14 +61,14 @@ func (b *Button) make(window *sysData) error {
 	return nil
 }
 
-func (b *Button) setRect(x int, y int, width int, height int) []resizerequest {
-	return []resizerequest{resizerequest{
+func (b *Button) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+	*rr = append(*rr, resizerequest{
 		sysData:	b.sysData,
 		x:		x,
 		y:		y,
 		width:	width,
 		height:	height,
-	}}
+	})
 }
 
 func (b *Button) preferredSize() (width int, height int) {

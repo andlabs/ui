@@ -77,11 +77,11 @@ func (s *Stack) make(window *sysData) error {
 	return nil
 }
 
-func (s *Stack) setRect(x int, y int, width int, height int) (rr []resizerequest) {
+func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	var stretchywid, stretchyht int
 
 	if len(s.controls) == 0 {		// do nothing if there's nothing to do
-		return nil
+		return
 	}
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
@@ -120,14 +120,14 @@ func (s *Stack) setRect(x int, y int, width int, height int) (rr []resizerequest
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		rr = append(rr, c.setRect(x, y, s.width[i], s.height[i])...)
+		c.setRect(x, y, s.width[i], s.height[i], rr)
 		if s.orientation == horizontal {
 			x += s.width[i]
 		} else {
 			y += s.height[i]
 		}
 	}
-	return rr
+	return
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
