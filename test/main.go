@@ -249,7 +249,8 @@ mainloop:
 	for {
 		select {
 		case curtime := <-ticker:
-			l.SetText(curtime.String())
+//			l.SetText(curtime.String())
+_=curtime
 		case <-w.Closing:
 			break mainloop
 		case <-b.Clicked:
