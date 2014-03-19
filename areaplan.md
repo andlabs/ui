@@ -647,3 +647,8 @@ type KeyEvent struct {
 }
 // also note: add Super to Modifiers
 ```
+
+### Er wait oops
+I forgot I wanted to make a tracker, whose input should in theory be layout independent; if we do the above we can't do this... we would need to use the key codes and hope key codes are keymap-dependent on both Windows and GTK+...
+
+yeah
