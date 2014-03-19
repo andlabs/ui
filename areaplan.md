@@ -518,148 +518,132 @@ const (
 You thought mouse events were vaguely compromise-y? Get ready... this is going to hurt. *Bad*.
 
 ### Windows
-There's `WM_KEYDOWN` and `WM_KEYUP` for our custom window procedure. Available on Windows 2000; return zero.
+> Note: all messages here except `WM_UNICHAR` work on Windows 2000 and newer and require us to return 0 on handled. All messages (including `WM_UNICHAR` take the same parameter format.
 
-Er wait, no, there's something called "system keystrokes". Remember how the mouse event didn't let us capture Alt explicitly and we need to call a separate function to do it? This is why: system keystrokes capture Alt+(other key) (and even just F10 in some cases?) and send them to the active window's main menu, and also capture all keys when there is no "active window" on screen. Thankfully this is easy enough to deal with: just do `WM_SYSKEYDOWN` and `WM_SYSKEYUP` as well... and then ALSO send the event to `DefWindowProc()`, because this covers **ALL** Alt key events, including Alt+Tab. Whee. I'll probably need a way to let the programmer say "not handling this Alt-xxx" combination; pass it up" or something; this is going to be painful. Defined in Windows 2000; return zero if not handled as above.
+**The good**: Windows keyboard message parameters are in a consistent, predictable format<br>
+**The bad**: everything else is not
 
-For all four of these, the WPARAM is the virtual key code.
+Windows distinguishes between typical user input and "system keys"; system keys constitute three conditions:
+* Alt+(any key)
+* F10 (in some cases? *TODO*)
+* any key when there is no active window on screen
+System keys are special: if we don't handle them explicitly, we have to send them up to the `DefWindowProc()`. If we don't, things like Alt+Tab (!) won't be handled.
 
-Now how about repetitions? Windows will send multiple DOWNs for one UP, but it also has a field in the LPARAM that gives us the number of repeats (up to 65535), so we can use that as well.
+The `TranslateMessage()` call that appears in the message loop takes key down events, and if possible, converts them into Unicode character requests, handling IME properly. The key down events are not removed; new character events are inserted instead. There does not seem to be a good way to tell if one (or more! different parts of the docs say different things about how many character events come in per key down event **TODO**) has been inserted except with `PeekMessage()`, as `TranslateMessage()` always returns nonzero if a key down event is passed in, regardless of whether or not it was converted.
 
-...what, did you think we were done yet? Haha no
-```c
-while (GetMessage(&msg, NULL, 0, 0) > 0) {
-	TranslateMessage(&msg);
-	DispatchMessage(&msg);
-}
-```
-This is the typical form of a Windows message loop. `GetMessage()` and `DispatchMessage()` are obvious, but what does `TranslateMessage()` do?
+At the end of the day, the messages:
 
-...oh, it converts `WM_KEYDOWN` and 'WM_SYSKEYDOWN' to `WM_CHAR` and `WM_SYSCHAR` (respectively) and replaces the virtual key code with a character representation of the key, keeping the message unconverted if this isn't possible. Things get even trickier here.
+ | Regular | System
+----- | ----- | -----
+Key down | `WM_KEYDOWN` | `WM_SYSKEYDOWN`
+Key up | `WM_KEYUP` | `WM_SYSKEYUP`
+Character | `WM_CHAR` | `WM_SYSCHAR`
+Dead key (character; we can ignore these) | `WM_DEADCHAR` | `WM_SYSDEADCHAR`
 
-Er, oops, sorry; this isn't clear until you read `TranslateMessage()`'s docs itself or scroll down a bit in the About Keyboard Input page to the part about dead characters: the original message is NOT removed from the message queue; it's still sent out. It just queues a converted message. Nor is there any relaiable way to check if a conversion even happened, since it will always return nonzero on the various DOWN (and even UP) messages.
+The WPARAM is the key code or UTF-16 character value. [List of virtual key codes](http://msdn.microsoft.com/en-us/library/dd375731%28VS.85%29.aspx)
 
-But the docs also say that we shouldn't call `TranslateMessage()` if we're going to be handling virtual key codes directly. (Do you see how confused I am?)
+The low word of the LPARAM is the repeat count. Multiple key down events will be sent, but we can use this to hold a count for convenience.
 
-Now the important thing to note is that `TranslateMessage()` does locale-specific work for us. It sends out a `WM_(SYS)DEADCHAR` message, which we can safely ignore, if the user's keyboard layout uses a dead key to signal an IME change. Then, when the `WM_(SYS)CHAR` message comes in, the WPARAM will contain the resultant UTF-16 code from that whole combination. (There's also `WM_UNICHAR`, which does UTF-32 instead.)
+There's a lot of information in the high word of the LPARAM, but none of that is really important (and is useless for the character messages because of multi-character codes; it'll just match the last key down event). GLFW does use bit 24, the "extended key" bit, to differentiate between left and right keys (which is documented0, however there are some catches that we'll get to in a bit. For reference, though, the docs say
+> For enhanced 101- and 102-key keyboards, extended keys are the right ALT and the right CTRL keys on the main section of the keyboard; the INS, DEL, HOME, END, PAGE UP, PAGE DOWN and arrow keys in the clusters to the left of the numeric keypad; and the divide (/) and ENTER keys in the numeric keypad. Some other keyboards may support the extended-key bit in the lParam parameter. 
 
-`WM_(SYS)CHAR` are in Windows 2000 and we return zero; `WM_UNICHAR` is in Windows XP and we return TRUE if WPARAM == `UNICODE_NOCHAR` and FALSE otherwise. There does not seem to be a `WM_SYSUNICHAR`. LPARAMs are the same (but the Alt key code mentioned below is meaningless now!). TODO do we return `DefWindowProc()` on `WM_SYSCHAR` too?
+I'm not entirely sure if this is the case, but GLFW seems to think  Windows sends the base `VK_xxx` codes on keys that have both left and right equivalents, not the dedicated `VK_Lxxx`/`VK_Rxxx` codes. (Compatibility?) For most cases, the extended key bit mentioned above is sufficient to differentiate. There are two exceptions
+* Shift requires [checking the hardware scancode](https://github.com/glfw/glfw/blob/master/src/win32_window.c#L182) (which, fortunately, Windows provides a way to find out from the virtual key code at runtime)
+* left Control: Windows apparently does not send a single key code on the ["AltGr" key found on some keyboards](https://en.wikipedia.org/wiki/AltGr_key), but rather both a left Control and a right Alt at the same time; [fortunately we can check](https://github.com/glfw/glfw/blob/master/src/win32_window.c#L199)
 
-TODO will we get multiple `WM_CHAR` messages in some Unicode cases? `WM_UNICHAR` indicates it may send multiple ANSI-specific messages...
+Key release also has some snags that the GLFW sources point out:
+* The Shift key differentiation in Windows is broken: [only one key up is sent, even if two Shift keys were released](https://github.com/glfw/glfw/blob/master/src/win32_window.c#L538)
+* Print Screen never sends a key down event!
 
-What we don't get, when all is said and done:
-- modifiers, except Alt ("context code" flag, and only on KEYDOWN, not on CHAR; specifically it will only apply to the last KEYDOWN sent before a CHAR)
+Finally, Windows XP adds `WM_UNICHAR`, another key down event. According to the GLFW sources, Windows itself doesn't use this, but some IME drivers do. WPARAM (which is 32-bit now) stores the UTF-32 representation of a requested character, and LPARAM works as usual.
+* If WPARAM is the special constant `UNICODE_NOCHAR`, we return `TRUE` if we handle this event, and `FALSE` otherwise (`DefWindowProc()` returns `FALSE`). This is how drivers will tell if we support `WM_UNICHAR` at all.
+* Otherwise, we handle the character and return `FALSE`.
+
+I do not know if `WM_UNICHAR` follows the same rules as `WM_CHAR`. *TODO*
+
+*TODO*
+* do `WM_CHAR`/`WM_SYSCHAR`/`WM_UNICHAR` get sent on repeat?
 
 ### GTK+
-Prerequisite: the `GtkDrawingArea` must have `set-focus` on.
+> Note: GLFW doesn't really help here since we're using GDK for event handling and GLFW uses X11 directly. (I don't want to call out to X11 functions because of Wayland support; hell I don't know if GDK even provides the X11 key code!)
 
-There are only two keyboard events: `key-press-event` and `key-release-event`. They have the same function signature as the mouse events above, and their `GdkEvent` parameters are both `GdkEventKey`s.
+Before our `GtkDrawingArea` can take keyboard input, we need to turn its `can-focus` property on.
 
-So what can `GdkEventKey` tell us?
-- the modifier flags, as above
-- the GDK key code (not listed; have to pull them out of a header file according to the docs)
+There are two events here: `key-press-event` and `key-release-event`. These take the same shared event function prototype as the mouse events above, with the `GdkEvent` actual type being `GdkEventKey`. This type tells us:
+- the modifier flags, just like with mouse events (even mouse buttons!)
+- the GDK virtual key code, which aren't explicitly listed in the documentation; the docs say to [check `<gdk/gdkkeysyms.h>` instead](https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeysyms.h?h=gtk-3-4).
 
-What we do NOT get:
-- if the key was held or not, and how many times
-	- instead, GDK will send multiple press events for one release event
-- the textual representation of the key (actually there is a string field but it's locale-specific and thus deprecated)
-	- we call `gdk_keyval_to_unicode()` (the docs incorrectly have the inverse function linked instead) instead
-		- but how are multi-keystroke characters handled in this case? TODO
+Repeats are not documented; it appears that we just get sent multiple `key-press-event`s in a row, with no way to tell if a key was repeated.
+
+Character conversion is iffy. There doesn't really seem to be a way to handle character input properly...
+- Originally the `GdkEventKey` had fields that gave you that information, but this is now deprecated because of GTK+ input methods.
+- There's `gdk_keyval_to_unicode()`, but you can only handle one key at a time this way.
+- The only way to properly handle IME with GTK+ is to use GTK+ input methods via `GtkIMContext`, however there does not seem to be a way to get available contexts, only make new ones or pull the context from an existing `GtkEntry`/`GtkTextView`. *TODO*
 
 ### Cocoa
-Our `NSView` subclass overrides `keyDown:` and `keyUp:` here. They take the form
+**Windows**: either virtual key codes or character codes<br>
+**GTK+**: virtual key codes only<br>
+**Cocoa**: take a wild guess -_-
+
+Our `NSView` subclass has three selectors to override:
 ```objective-c
-- (void)keyXXX:(NSEvent *)e
+- (void)keyDown:(NSEvent *e)			// key down
+- (void)keyUp:(NSEvent *e)			// key up
+- (void)flagsChanged:(NSEvent *e)		// modifier key state changed
 ```
 
-`NSEvent` provides the following selectors:
-- `keyCode`, which returns the virtual key code, which is the same as in Carbon and thus just uses the Carbon constants which I will now have to get out
-- `isARepeat`, which simply returns if there was a repeat, not how many times
-- `modifierFlags`, which returns the modifier flags
-- ... `characters` and `charactersIgnoringModifiers`, which both try to return a text interpretation, but in subtly different ways: OS X has locale-specific Option-(key) IME, and `characters` returns an empty string if we're in the middle of a multi-character insertion of this form, and `charactersIgnoringModifiers` returns the base key
-	- `charactersIgnoringModifiers` seems to provide functionality similar to `keyCode` with special Cocoa key codes, see [this](https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/EventOverview/HandlingKeyEvents/HandlingKeyEvents.html#//apple_ref/doc/uid/10000060i-CH7-SW16)
-
-In the case of text, it seems you aren't really supposed to read this yourself, but rather by subclassing `insertText:` and `doCommandBySelector:` and calling `interpretKeyEvents:` with the given event instead, and also conform to the `NSTextInput` protocol.
-
-We must call the superclass implementation of `keyDown:` (TODO `keyUp:` as well?) if we ignore keystrokes.
-
-What we don't get:
-- repeat count
-- TODO does it return events for modifier keys alone?
-- TODO is `keyDown:` sent multiple times on repeat?
-
-BUT WAIT
-[this](http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes) says `keyCode` is unreliable! and Apple doesn't have a published list of key codes... (other than the ancient Inside Macintosh ones)
-
-### What we don't get in any case
-- Multiple keys at once
-	- related: a guarantee that keys arrive in a certain order
-
-TODO for all of these: see how Shift plays into the character conversion (it DOES happen on Mac OS X; that's for sure)
-
-### Consensus?
-The biggest problem here is how to handle text input. As I demonstrated above, there's no "clean" way to do it.
-
-Modifier keys, especially on OS X, also get in the way real bad.
-
-In order to form a consensus I'm going to have to run experiments, or see what Russ Cox does in his plan9ports devdraw...
-
-We also need to decide if we should ever stop the event chain if we handle a keystroke or not. I might have to have you return a bool value here...
-
-### What Other Things Do
-#### go.wde
-`Window.EventChan()` returns a channel of events. Among the various events available, there are
-- `KeyEvent`, which is shared by all keyboard events and contains but a single member, `Key` (type string)
-- `KeyDownEvent` and `KeyUpEvent`, which are just `KeyEvent` but situational
-- `KeyTypedEvent`, which I assume is shorthand for the two above and provide extra information (also strings):
-	- `Glyph`, which is the character to enter
-	- `Chord`, which is a sorted list of which keys were pressed in the event, separated by `+`
-
-Note that `Key` is **NOT** the character code (that's `Glyph`); rather, it is the virtual key code. go.wde has virtual key codes as strings, not integers.
-
-- Windows:
-	- [virtual key code mapping](https://github.com/skelterjohn/go.wde/blob/master/win/keys_windows.go)
-	- the `CHAR` events are not used, nor are the `SYS` events; instead, go.wde converts the Windows virtual key codes to go.wde's; the library knows how to compose keys itself; [code](https://github.com/skelterjohn/go.wde/blob/master/win/events_windows.go#L143)
-		- actually the code seems tosend a dummy `KeyTypedEvent` with the `KeyDownEvent`???? TODO
-- Unix:
-	- [virtual key code mappings](https://github.com/skelterjohn/go.wde/blob/master/xgb/keys.go)
-	- TODO I'm actually not sure how key events work here; will need to read through it more carefully
-- Mac:
-	- [virtual key code mappings](https://github.com/skelterjohn/go.wde/blob/master/cocoa/keys_cocoa.go)
-	- this is a two part thing I don't quite understand (TODO)
-		- [part 1](https://github.com/skelterjohn/go.wde/blob/master/cocoa/framework/gomacdraw/EventWindow.m#L128)
-		- [part 2](https://github.com/skelterjohn/go.wde/blob/master/cocoa/events_darwin.go#L88)
-	- one important thing is that it uses `[NSView flagsChanged;]` to track when the modifier flags are changed; I might need to do that as well... TODO
-
-#### devdraw
-devdraw converts the OS key code into [the Plan 9 format](http://plan9.bell-labs.com/magic/man2html/2/event).
-
-- **Unix** (X11, not GTK+): ([see here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-itrans.c?at=default) [and here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-srv.c?at=default#cl-488) [and here](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/x11-keysym2ucs.c?at=default))
-- **Mac**: [uses `[NSEvent characters]` and handles dead keys specially](https://bitbucket.org/rsc/plan9port/src/18c38bf29b0b8eb3ffd0afb44d22f9bfcda8bc58/src/cmd/devdraw/cocoa-screen.m?at=default#cl-816), so even though programs support [the standard Plan 9 compose key system](http://plan9.bell-labs.com/magic/man2html/6/keyboard) they will interpret Mac OS X's conventional IME as well (albeit without the typical visual feedback, I think?)
-
-#### glfw (suggested by james4k in #go-nuts)
-GLFW has a callback system with two callback functions:
-```c
-void keyCallback(GLFWwindow *window, int key, int scancode,
-	int action, int modifier);
-void charCallback(GLFWwindow *window, unsigned int codepoint);
+Now, as with GTK+, I lie: there is a way to get a raw key code: `[e keyCode]`. Unfortunately, unlike with Windows and GTK+, this key code table is [not device-independent and not keymap-independent](http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes): they are keyboard layout-specific, and do not appear to have been updated since the pre-Cocoa days. Indeed, neither Carbon nor Cocoa provide a definite list in their documentation, and the Xcode 5.0 version of Carbon's `HIToolbox/Events.h` header (`/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/Headers/Events.h`) even says
 ```
-For `keyCallback`, `key` is the virtual key code, which are GLFW-specific [and listed here](http://www.glfw.org/docs/latest/group__keys.html), `action` is whether the key was pressed, held, or released, and `modifier` are the [modifier flags](http://www.glfw.org/docs/latest/group__mods.html). `charCallback`, on the other hand, should be obvious.
+ *    keyboard. Those constants with "ANSI" in the name are labeled
+ *    according to the key position on an ANSI-standard US keyboard.
+ *    For example, kVK_ANSI_A indicates the virtual keycode for the key
+ *    with the letter 'A' in the US keyboard layout. Other keyboard
+ *    layouts may have the 'A' key label on a different physical key;
+ *    in this case, pressing 'A' will generate a different virtual
+ *    keycode.
+```
+The only thing we can guarantee is that the Cocoa and Carbon codes are the same (as the documentation does guarantee this). (If you ever wondered why GLFW talks about US English keyboards in its virtual keycode docs... this is why. Yes, [GLFW interprets the raw key codes](https://github.com/glfw/glfw/blob/master/src/cocoa_window.m#L599).)
 
-Any key not recognized by GLFW returns the special code `GLFW_KEY_UNKNOWN`. The key code table is based on the standard 101-key US English keyboard layout.
+So. `NSEvent` provides two methods for getting character data:
+- `[e characters]`, which just returns a string with characters if not dead
+- `[e charactersIgnoringModifiers]` which bypasses Mac OS X's Option-key IME:
+	- let's say we press Option-E to dead-key a tilde
+	- `[e characters]` returns an empty `NSString`
+	- `[e charactersIgnoringModifiers]` returns `@"E"`
 
-There is also `glfwGetKey()`, which returns whether or not a given virtual key code is pressed or released.
+Thankfully there IS a way to get keys that aren't printable characters! ...Mac OS X steals the private use area block of the Unicode BMP and reserves it for [its own virtual key codes](https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW136); the first character of a one-character return from the `characters` methods will have a Unicode code point value equal to these. ([There's also these non-graphic characters constants.](https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSText_Class/Reference/Reference.html#//apple_ref/doc/uid/20000367-SW46))
 
-TODO get the implementation details
-## REWRITE
-Need to rewrite the keyboard section; here are the relevant links:
-http://msdn.microsoft.com/en-us/library/dd375731%28VS.85%29.aspx
-https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeysyms.h?h=gtk-3-4
-https://developer.apple.com/library/mac/documentation/cocoa/conceptual/eventoverview/HandlingKeyEvents/HandlingKeyEvents.html#//apple_ref/doc/uid/10000060i-CH7-SW12
-https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW136
-https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSText_Class/Reference/Reference.html#//apple_ref/doc/uid/20000367-SW46
-https://github.com/glfw/glfw/tree/master/src
-https://github.com/glfw/glfw/blob/master/src/win32_window.c
-https://github.com/glfw/glfw/blob/master/src/x11_window.c
-https://github.com/glfw/glfw/blob/master/src/cocoa_window.m
-http://www.quadibloc.com/comp/scan.htm
+(Technically you're supposed to send incoming key events to `[self interpretKeyEvents:]`, which will generate a bunch of text-related method calls to make things easier, but we don't have to. Technically you're also supposed to use key equivalents, but that doesn't apply here...)
+
+For modifier keys pressed by themselves, neither `keyDown:` nor `keyUp:` appears to be sent; we need to handle `flagsChanged:` (if I'm reading this right, anyway). Whatever the case, `[e modifierFlags]` will always be valid.
+
+There's also `[e isARepeat]`, which tells us whether a key was repeated; it does not say how many times. (*TODO* does this mean `keyDown:` is sent multiple times?)
+
+TODO
+* Is there a way to differentiate Return and Enter? There doesn't seem to be a way to differentiate other left/right keys...
+* Does `charactersIgnoringModifiers` always work, or only if `characters` would otherwise indicate a dead key?
+
+### General TODOs
+* What happens if I hold down a key, then switch programs with the mouse and release the key? If I decide to intercept modifiers and hand them out like with mouse events, this will be an issue. (Otherwise, I could just poll them each time, like with mouse events; on Windows and Cocoa this will work (GLFW seems to do this on Windows anyway) but I'm not sure about GTK+.)
+* How is Shift handled in Windows character events?
+* Figure out which keys we can provide and which we can't...
+
+### Consensus??
+```go
+type KeyEvent struct {
+	// TODO some key representation
+	// maybe
+	ApproximateKey	int
+		// maps to a definite key on Windows and GTK+
+		// on Mac OS X, charactersIgnoringModifiers is used instead
+		// this means we ignore IME completely, which isn't optimal, but.
+		// if this is 0, a Modifier was pressed by itself
+		// there is no way to differentiate left and right keys
+
+	Modifiers			Modifiers
+
+	Handled			chan<- bool
+		// must return on this channel due to Windows system keys
+}
+// also note: add Super to Modifiers
+```
