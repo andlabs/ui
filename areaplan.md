@@ -651,3 +651,15 @@ Any key not recognized by GLFW returns the special code `GLFW_KEY_UNKNOWN`. The 
 There is also `glfwGetKey()`, which returns whether or not a given virtual key code is pressed or released.
 
 TODO get the implementation details
+## REWRITE
+Need to rewrite the keyboard section; here are the relevant links:
+http://msdn.microsoft.com/en-us/library/dd375731%28VS.85%29.aspx
+https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeysyms.h?h=gtk-3-4
+https://developer.apple.com/library/mac/documentation/cocoa/conceptual/eventoverview/HandlingKeyEvents/HandlingKeyEvents.html#//apple_ref/doc/uid/10000060i-CH7-SW12
+https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSEvent_Class/Reference/Reference.html#//apple_ref/doc/uid/20000016-SW136
+https://developer.apple.com/library/mac/documentation/cocoa/Reference/ApplicationKit/Classes/NSText_Class/Reference/Reference.html#//apple_ref/doc/uid/20000367-SW46
+https://github.com/glfw/glfw/tree/master/src
+https://github.com/glfw/glfw/blob/master/src/win32_window.c
+https://github.com/glfw/glfw/blob/master/src/x11_window.c
+https://github.com/glfw/glfw/blob/master/src/cocoa_window.m
+http://www.quadibloc.com/comp/scan.htm
