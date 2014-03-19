@@ -1,9 +1,3 @@
-```
-git checkout ab4d286c78b4e240a82b2b191f0d9c8d43c7b44c -- area.go area_unix.go sysdata.go test/main.go
-```
-
---------------
-
 ```go
 type Area struct {		// implements Control
 	// Paint receives requests to redraw from the window system.
