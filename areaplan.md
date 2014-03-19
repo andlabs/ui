@@ -588,6 +588,9 @@ What we don't get:
 - TODO does it return events for modifier keys alone?
 - TODO is `keyDown:` sent multiple times on repeat?
 
+BUT WAIT
+[this](http://stackoverflow.com/questions/3202629/where-can-i-find-a-list-of-mac-virtual-key-codes) says `keyCode` is unreliable! and Apple doesn't have a published list of key codes... (other than the ancient Inside Macintosh ones)
+
 ### What we don't get in any case
 - Multiple keys at once
 	- related: a guarantee that keys arrive in a certain order
