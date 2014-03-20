@@ -578,7 +578,7 @@ Repeats are not documented; it appears that we just get sent multiple `key-press
 Character conversion is iffy. There doesn't really seem to be a way to handle character input properly...
 - Originally the `GdkEventKey` had fields that gave you that information, but this is now deprecated because of GTK+ input methods.
 - There's `gdk_keyval_to_unicode()`, but you can only handle one key at a time this way.
-- The only way to properly handle IME with GTK+ is to use GTK+ input methods via `GtkIMContext`, however there does not seem to be a way to get available contexts, only make new ones or pull the context from an existing `GtkEntry`/`GtkTextView`. *TODO*
+- The only way to properly handle IME with GTK+ is to use GTK+ input methods via `GtkIMContext`, however there does not seem to be a way to get available contexts, only make new ones or pull the context from an existing `GtkEntry`/`GtkTextView`. (You [can get a list of available context names](https://developer.gnome.org/gtk3/3.4/GtkSettings.html#GtkSettings--gtk-im-module), but that's as much as I could find, and even then this can be `NULL`.) *TODO*
 
 ### Cocoa
 **Windows**: either virtual key codes or character codes<br>
@@ -652,3 +652,14 @@ type KeyEvent struct {
 I forgot I wanted to make a tracker, whose input should in theory be layout independent; if we do the above we can't do this... we would need to use the key codes and hope key codes are keymap-dependent on both Windows and GTK+...
 
 yeah
+
+and guess what? they're keymap-independent on Windows and and likely so on GTK+ (thanks to tristan and LRN in irc.gimp.net/#gtk+ and exDM69 in irc.efnet.net/#winprog). Guess I'll need to write a quick test...<br>
+A on keyboard; US English QWERTY - keyval:0x61<br>
+A on keyboard; Georgian AZERTY Tskapo (A = ქ) - keyval:0x10010e5<br>
+so.
+
+So this leaves character-based input as the only real option. The only two questions that remain are:
+- on Windows is there a reliable way to tell if a `WM_CHAR` DOES come up for the next code? `WM_UNICHAR`?
+- related: will both a `WM_CHAR` and a `WM_UNCIHAR` ever come up for the same keystroke?
+- how DO you load an existing `GtkIMContext`?
+- related: will Cocoa's `charactersIgnoringModifiers` *always* ignore modifiers?
