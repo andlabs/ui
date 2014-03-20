@@ -677,3 +677,4 @@ Virtual key code range | Limited to physical keys on conventional keyboards; out
 Character translation at all | Provided by OS, but not sure about some behavioral details (*TODO*) | multiple; see the GTK+ section above; each problematic | Provided by OS; escape hatches available
 Single-keystroke character translation | *TODO* | Constants exist for whatever keyboard layout you can imagine | *TODO*
 Multi-keystroke character translation | `WM_DEADCHAR`/`WM_UNICHAR` | (see GTK+ s ectiona bove for issues) | Provided by OS; escape hatches avialable
+Character translation ignoring input language (so the programmer can know that the A key was pressed regardless of language) | *TODO* | *TODO* | *maybe* `charactersIgnoringModifiers`? *TODO*
