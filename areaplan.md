@@ -663,3 +663,15 @@ So this leaves character-based input as the only real option. The only two quest
 - related: will both a `WM_CHAR` and a `WM_UNCIHAR` ever come up for the same keystroke?
 - how DO you load an existing `GtkIMContext`?
 - related: will Cocoa's `charactersIgnoringModifiers` *always* ignore modifiers?
+
+---------------------
+
+Actually the real question is: is it possible to just get ONE domain of keyboard input on all platforms? GDK has constants for every possible language... so someone not using a Latin-based keyboard will wind up having their keystorkes rejected by the `GdkDrawingArea`...
+>Keyboard input **MUST** be well defined, and it must be well defined **NOW**. As the author of the GUI library, I **MUST** guarantee that someone typing a character on the same physical machine on different operating systems each with the same keyboard layout gets the exact same response (with no unwanted side effects), and by extension that the programmer sees the same thing. But things are just different enough to screw this up.
+Approach | Windows | GTK+ | Mac OS X
+----- | ----- | ----- | -----
+Virtual key code mapping | Adjusted by layout | Adjusted by layout | NOT adjusted by layout
+Virtual key code range | Limited to physical keys on conventional keyboards; outside drivers do IME | NOT limited thus; virtual keycodes exist for languages | Limited to physical keys on conventional keyboards; OS provides IME facilities
+Character translation at all | Provided by OS, but not sure about some behavioral details (*TODO*) | multiple; see the GTK+ section above; each problematic | Provided by OS; escape hatches available
+Single-keystroke character translation | *TODO* | Constants exist for whatever keyboard layout you can imagine | *TODO*
+Multi-keystroke character translation | `WM_DEADCHAR`/`WM_UNICHAR` | (see GTK+ s ectiona bove for issues) | Provided by OS; escape hatches avialable
