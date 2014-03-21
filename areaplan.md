@@ -678,3 +678,84 @@ Character translation at all | Provided by OS, but not sure about some behaviora
 Single-keystroke character translation | *TODO* | Constants exist for whatever keyboard layout you can imagine | *TODO*
 Multi-keystroke character translation | `WM_DEADCHAR`/`WM_UNICHAR` | (see GTK+ s ectiona bove for issues) | Provided by OS; escape hatches avialable
 Character translation ignoring input language (so the programmer can know that the A key was pressed regardless of language) | *TODO* | *TODO* | *maybe* `charactersIgnoringModifiers`? *TODO*
+
+### OK new consensus
+Windows: use virtual key codes<br>
+OS X: use `charactersIgnoringModifiers`
+
+```go
+(on the Area comment)
+// Do not use an Area if you intend to read text.
+// Due to platform differences regarding text input,
+// keyboard events have beem compromised in
+// such a way that attempting to read Unicode data
+// in platform-native ways is painful.
+// [Use TextArea instead, providing a TextAreaHandler.]
+(corollary: this means multi-line edits will need a different name; corollary 2: this means I will have to start providing font resource acquisition, something I didn't want to do (I wanted to relegate that to freetype-go or similar, assuming that was even capable of doing so))
+
+// A KeyEvent represents a keypress in an Area.
+// 
+// KeyEvent has been designed to be predictable.
+// As the different operating systems supported by package ui
+// expose wildly different APIs and rules for reading keystrokes,
+// this means that KeyEvent has certain rules and restrictions
+// that you must mind. This makes KeyEvent unsuitable
+// for reading text (as Area's comment will say).
+// As another consequence, no KeyEvent will be generated if
+// package ui cannot portably report a given key. Supported
+// keys are described in the comments for the Rune field and
+// the ExtKey and Modifiers types.
+type KeyArea struct {
+	// Rune contains a lowercase rune specifying the name
+	// of the key pressed that triggered the event.
+	// Ideally, this would generally correspond to
+	// the raw character pressed (so there would be two
+	// events 'k', 'a' instead of 'か', if Japanese characters are
+	// input that way on a given machine). This will hold true
+	// on systems where IME returns are separate from
+	// keypress codes. On other systems, an attempt has
+	// been made to map backwards based on information
+	// that can be provided in the most portable (if the
+	// system provides multiple of its own backends) way.
+	// See [TODO] for a list of Rune values that are guaranteed
+	// to be available. There is no way to differentiate between
+	// multiple differnet Keys with the same name (for instance,
+	// there is no way to differentiate between '1' on the typewriter
+	// section of a standard 101-key keyboard and '1' on the numeric
+	// keypad section).
+	// If this field is zero, see ExtKey.
+	Rune			rune
+
+	// If Rune is zero, ExtKey contains a predeclared identifier
+	// naming an extended key. See ExtKey for details.
+	// If both Rune and ExtKey are zero, a Modifier by itself
+	// was pressed. Rune and ExtKey will not both be nonzero.
+	ExtKey		ExtKey
+
+	Modifiers		Modifiers
+
+	// If Up is true, the key was released; if not, the key was pressed.
+	// There is no guarantee that all pressed keys shall have
+	// corresponding release events (for instance, if the user switches
+	// programs while holding the key down, then releases the key).
+	// Keys that have been held down are reported as multiple
+	// key press events.
+	Up			bool
+}
+
+// ExtKey represents keys that do not have a Rune representation.
+// There is no way to differentiate between left and right ExtKeys.
+type ExtKey uintptr
+const (
+	keyname1 ExtKey = iota
+	keyname2
+	keyname3
+)
+(notes: this will have to be produced based on what's available on each platform (Mac OS X might be the biggest filter here); also as a personal favor-the-user decision Print Screen shall not be supported)
+```
+
+If I ever intend on providing alternate text-based widgets, I will need to use `GtkTextArea` and `NSTextArea` to make things work the most fluidly, so this will require another type. Woo...
+
+Also this answers the what if a key has been held down and switches away from the program question: Windows does not send a key up.
+
+This just leaves the GTK+ geometry mapping: there is a way to do it if X11 is the only supported backend, but Wayland exists...
