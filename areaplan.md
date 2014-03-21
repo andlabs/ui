@@ -745,6 +745,18 @@ type KeyArea struct {
 	// Keys that have been held down are reported as multiple
 	// key press events.
 	Up			bool
+
+	// When you are finished processing the incoming event,
+	// send whether or not you did something in response
+	// to the given keystroke over Handled. If you send false,
+	// you indicate that you did not handle the keypress, and
+	// that the system should handle it instead. (Some systems
+	// will stop processing the keyboard event at all if you return
+	// true unconditionally, which may result in unwanted behavior
+	// like global task-switching keystrokes not being processed.)
+	// Only one value may be sent on Handled. Do not close Handled;
+	// the package will do it for you.
+	Handled		chan<- bool
 }
 
 // ExtKey represents keys that do not have a Rune representation.
