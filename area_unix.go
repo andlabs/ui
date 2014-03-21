@@ -161,6 +161,7 @@ var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_eve
 func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
 	fmt.Printf("PRESS %#v\n", e)
+	pk(e.keyval, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -170,7 +171,28 @@ var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callb
 func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
 	fmt.Printf("RELEASE %#v\n", e)
+	pk(e.keyval, e.window)
 	return C.FALSE			// TODO really false?
 }
 
 var area_key_release_event_callback = C.GCallback(C.our_area_key_release_event_callback)
+
+func pk(keyval C.guint, window *C.GdkWindow) {
+	var kk *C.GdkKeymapKey
+	var nk C.gint
+
+	km := C.gdk_keymap_get_for_display(C.gdk_window_get_display(window))
+	b := C.gdk_keymap_get_entries_for_keyval(km, keyval, &kk, &nk)
+	if b == C.FALSE {
+		fmt.Println("(no key equivalent)")
+		return
+	}
+	ok := kk
+	for i := C.gint(0); i < nk; i++ {
+		fmt.Println("equiv %d/%d: %#v\n", i + 1, nk, kk)
+		xkk := uintptr(unsafe.Pointer(kk))
+		xkk += unsafe.Sizeof(kk)
+		kk = (*C.GdkKeymapKey)(unsafe.Pointer(xkk))
+	}
+	C.g_free(C.gpointer(unsafe.Pointer(ok)))
+}
