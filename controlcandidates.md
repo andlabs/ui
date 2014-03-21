@@ -43,6 +43,7 @@ GTK+
 			- er no, the Mono thing is just the homepage... but it doesn't say if this targets GTK+ 2 or GTK+ 3, hm. (also it appears to not have been updated since Precise; in Ubuntu it's libgtkgl)
 			- and gtkglext doesn't support GTK+ 3 officially anyway
 			- and cairo doesn't seem to support OpenGL explicitly so it looks like I will need to communicate with glx directly: http://stackoverflow.com/questions/17628241/how-can-i-use-gtk3-and-opengl-together
+				- except replace glx with EGL/GLES2 because of Wayland: http://wayland.freedesktop.org/faq.html#heading_toc_j_0 (assuming EGL/GLES2 can work on X11)
 
 COCOA
 - NSDatePicker for date/time selection
