@@ -722,7 +722,11 @@ type KeyArea struct {
 	// multiple differnet Keys with the same name (for instance,
 	// there is no way to differentiate between '1' on the typewriter
 	// section of a standard 101-key keyboard and '1' on the numeric
-	// keypad section).
+	// keypad section). Furthermore, note that Rune's value does not
+	// [necessarily? TODO] indicate a physical position on the keyboard
+	// (for instance, 'a' is returned when pressing A on both QWERTY
+	// and AZERTY keyboards, not when pressing the key that would be
+	// A on QWERTY keyboards on all layouts).
 	// If this field is zero, see ExtKey.
 	Rune			rune
 
