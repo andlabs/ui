@@ -161,7 +161,14 @@ var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_eve
 func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
 	fmt.Printf("PRESS %#v\n", e)
+	fmt.Printf("this (%d/GDK_KEY_%s):\n", e.keyval,
+		C.GoString((*C.char)(unsafe.Pointer(
+			C.gdk_keyval_name(e.keyval)))))
 	pk(e.keyval, e.window)
+	fmt.Printf("%d/GDK_KEY_A:\n", C.GDK_KEY_A)
+	pk(C.GDK_KEY_A, e.window)
+	fmt.Printf("%d/GDK_KEY_a:\n", C.GDK_KEY_a)
+	pk(C.GDK_KEY_a, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -171,7 +178,14 @@ var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callb
 func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
 	fmt.Printf("RELEASE %#v\n", e)
+	fmt.Printf("this (%d/GDK_KEY_%s):\n", e.keyval,
+		C.GoString((*C.char)(unsafe.Pointer(
+			C.gdk_keyval_name(e.keyval)))))
 	pk(e.keyval, e.window)
+	fmt.Printf("%d/GDK_KEY_A:\n", C.GDK_KEY_A)
+	pk(C.GDK_KEY_A, e.window)
+	fmt.Printf("%d/GDK_KEY_a:\n", C.GDK_KEY_a)
+	pk(C.GDK_KEY_a, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -189,7 +203,7 @@ func pk(keyval C.guint, window *C.GdkWindow) {
 	}
 	ok := kk
 	for i := C.gint(0); i < nk; i++ {
-		fmt.Println("equiv %d/%d: %#v\n", i + 1, nk, kk)
+		fmt.Printf("equiv %d/%d: %#v\n", i + 1, nk, kk)
 		xkk := uintptr(unsafe.Pointer(kk))
 		xkk += unsafe.Sizeof(kk)
 		kk = (*C.GdkKeymapKey)(unsafe.Pointer(xkk))
