@@ -791,7 +791,7 @@ Windows | GDK bar [Cocoa if known]
 VK_BACK (0x08) - BACKSPACE key | GDK_KEY_BackSpace
 VK_TAB (0x09) - TAB key | GDK_KEY_Tab
 VK_CLEAR (0x0C) - CLEAR key (TODO what key is this) | GDK_KEY_Clear
-VK_RETURN (0x0D) - ENTER key | TODO either GDK_KEY_Linefeed or GDK_KEY_Return
+VK_RETURN (0x0D) - ENTER key (note: also for numeric keypad) | [TODO either GDK_KEY_Linefeed or GDK_KEY_Return] and GDK_KEY_KP_Enter
 VK_SHIFT (0x10)/VK_LSHIFT (0xA0) - Left SHIFT key/VK_RSHIFT (0xA1) - Right SHIFT key - SHIFT key | [modifier]
 VK_CONTROL (0x11)/VK_LCONTROL (0xA2) - Left CONTROL key/VK_RCONTROL (0xA3) - Right CONTROL key - CTRL key | [modifier]
 VK_MENU (0x12)/VK_LMENU (0xA4) - Left MENU key/VK_RMENU (0xA5) - Right MENU key - ALT key | [modifier]
@@ -867,7 +867,7 @@ VK_MULTIPLY (0x6A) - Multiply key | GDK_KEY_KP_Multiply (TODO really this one?)
 VK_ADD (0x6B) - Add key | GDK_KEY_KP_Add (TODO really this one?)
 VK_SEPARATOR (0x6C) - Separator key (TODO what key is this?) | TODO
 VK_SUBTRACT (0x6D) - Subtract key | GDK_KEY_KP_Subtract (TODO really this one?)
-VK_DECIMAL (0x6E) - Decimal key (TODO what key is this?) | TODO
+VK_DECIMAL (0x6E) - Decimal key (. on numeric keypad) | GDK_KEY_KP_Decimal
 VK_DIVIDE (0x6F) - Divide key | GDK_KEY_KP_Divide (TODO really this one?)
 VK_F1 (0x70) - F1 key | GDK_KEY_F1
 VK_F2 (0x71) - F2 key | ...
