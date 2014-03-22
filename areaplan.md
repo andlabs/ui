@@ -783,116 +783,135 @@ let's go!
 ### And finally... COMMON KEYS
 I meant Windows might be the biggest filter because it has a concrete list of virtual key codes but meh
 
-Windows | GDK | [Cocoa if known]
------ | ----- | -----
+Windows | GDK bar [Cocoa if known]
+----- | -----
+----- | ----- bar -----
+VK_BACK (0x08) - BACKSPACE key | GDK_KEY_BackSpace
+VK_TAB (0x09) - TAB key | GDK_KEY_Tab
+VK_CLEAR (0x0C) - CLEAR key (TODO what key is this) | GDK_KEY_Clear
+VK_RETURN (0x0D) - ENTER key | TODO either GDK_KEY_Linefeed or GDK_KEY_Return
+VK_SHIFT (0x10)/VK_LSHIFT (0xA0) - Left SHIFT key/VK_RSHIFT (0xA1) - Right SHIFT key - SHIFT key | [modifier]
+VK_CONTROL (0x11)/VK_LCONTROL (0xA2) - Left CONTROL key/VK_RCONTROL (0xA3) - Right CONTROL key - CTRL key | [modifier]
+VK_MENU (0x12)/VK_LMENU (0xA4) - Left MENU key/VK_RMENU (0xA5) - Right MENU key - ALT key | [modifier]
+VK_PAUSE (0x13) - PAUSE key | GDK_KEY_Pause
+VK_CAPITAL (0x14) - CAPS LOCK key | TODO either GDK_KEY_Caps_Lock or GDK_KEY_Shift_Lock
+VK_ESCAPE (0x1B) - ESC key | GDK_KEY_Escape
+VK_SPACE (0x20) - SPACEBAR | GDK_KEY_space
+VK_PRIOR (0x21) - PAGE UP key | GDK_KEY_Page_Up
+VK_NEXT (0x22) - PAGE DOWN key | GDK_KEY_Page_Down
+VK_END (0x23) - END key | GDK_KEY_End
+VK_HOME (0x24) - HOME key | GDK_KEY_Home
+VK_LEFT (0x25) - LEFT ARROW key | GDK_KEY_Left
+VK_UP (0x26) - UP ARROW key | GDK_KEY_Up
+VK_RIGHT (0x27) - RIGHT ARROW key | GDK_KEY_Right
+VK_DOWN (0x28) - DOWN ARROW key | GDK_KEY_Down
+VK_SELECT (0x29) - SELECT key (TODO what key is this?) | TODO
+VK_PRINT (0x2A) - PRINT key (TODO what key is this?) | TODO
+VK_EXECUTE (0x2B) - EXECUTE key (TODO what key is this?) | TODO
+VK_INSERT (0x2D) - INS key | GDK_KEY_Insert
+VK_DELETE (0x2E) - DEL key | GDK_KEY_Delete (TODO really this one?)
+VK_HELP (0x2F) - HELP key (TODO what key is this?) | TODO
+0x30 - 0 key | GDK_KEY_0 and GDK_KEY_parenright (TODO how will we handle Rune for shifted symbols?)
+0x31 - 1 key | GDK_KEY_1 and GDK_KEY_exclam
+0x32 - 2 key | GDK_KEY_2 and GDK_KEY_at
+0x33 - 3 key | GDK_KEY_3 and GDK_KEY_numbersign
+0x34 - 4 key | GDK_KEY_4 and GDK_KEY_dollar (TODO how will this Rune be done on non-American setups?)
+0x35 - 5 key | GDK_KEY_5 and GDK_KEY_percent
+0x36 - 6 key | GDK_KEY_6 and GDK_KEY_asciicircum (TODO really this one?)
+0x37 - 7 key | GDK_KEY_7 and GDK_KEY_ampersand
+0x38 - 8 key | GDK_KEY_8 and GDK_KEY_asterisk
+0x39 - 9 key | GDK_KEY_9 and GDK_KEY_parenleft
+0x41 - A key | GDK_KEY_A and GDK_KEY_a
+0x42 - B key | ...
+0x43 - C key | ...
+0x44 - D key | ...
+0x45 - E key | ...
+0x46 - F key | ...
+0x47 - G key | ...
+0x48 - H key | ...
+0x49 - I key | ...
+0x4A - J key | ...
+0x4B - K key | ...
+0x4C - L key | ...
+0x4D - M key | ...
+0x4E - N key | ...
+0x4F - O key | ...
+0x50 - P key | ...
+0x51 - Q key | ...
+0x52 - R key | ...
+0x53 - S key | ...
+0x54 - T key | ...
+0x55 - U key | ...
+0x56 - V key | ...
+0x57 - W key | ...
+0x58 - X key | ...
+0x59 - Y key | ...
+0x5A - Z key | ...
+VK_LWIN (0x5B) - Left Windows key (Natural keyboard) | [modifier]
+VK_RWIN (0x5C) - Right Windows key (Natural keyboard) | [modifier]
+VK_APPS (0x5D) - Applications key (Natural keyboard) (TODO which key is this? the right click shortcut key?) | TODO
+VK_SLEEP (0x5F) - Computer Sleep key (TODO which key is this?) | TODO
+VK_NUMPAD0 (0x60) - Numeric keypad 0 key | GDK_KEY_KP_0 (TODO really this?)
+VK_NUMPAD1 (0x61) - Numeric keypad 1 key | ...
+VK_NUMPAD2 (0x62) - Numeric keypad 2 key | ...
+VK_NUMPAD3 (0x63) - Numeric keypad 3 key | ...
+VK_NUMPAD4 (0x64) - Numeric keypad 4 key | ...
+VK_NUMPAD5 (0x65) - Numeric keypad 5 key | ...
+VK_NUMPAD6 (0x66) - Numeric keypad 6 key | ...
+VK_NUMPAD7 (0x67) - Numeric keypad 7 key | ...
+VK_NUMPAD8 (0x68) - Numeric keypad 8 key | ...
+VK_NUMPAD9 (0x69) - Numeric keypad 9 key | ...
+VK_MULTIPLY (0x6A) - Multiply key | GDK_KEY_KP_Multiply (TODO really this one?)
+VK_ADD (0x6B) - Add key | GDK_KEY_KP_Add (TODO really this one?)
+VK_SEPARATOR (0x6C) - Separator key (TODO what key is this?) | TODO
+VK_SUBTRACT (0x6D) - Subtract key | GDK_KEY_KP_Subtract (TODO really this one?)
+VK_DECIMAL (0x6E) - Decimal key (TODO what key is this?) | TODO
+VK_DIVIDE (0x6F) - Divide key | GDK_KEY_KP_Divide (TODO really this one?)
+VK_F1 (0x70) - F1 key | GDK_KEY_F1
+VK_F2 (0x71) - F2 key | ...
+VK_F3 (0x72) - F3 key | ...
+VK_F4 (0x73) - F4 key | ...
+VK_F5 (0x74) - F5 key | ...
+VK_F6 (0x75) - F6 key | ...
+VK_F7 (0x76) - F7 key | ...
+VK_F8 (0x77) - F8 key | ...
+VK_F9 (0x78) - F9 key | ...
+VK_F10 (0x79) - F10 key | ...
+VK_F11 (0x7A) - F11 key | ...
+VK_F12 (0x7B) - F12 key | ...
+VK_NUMLOCK (0x90) - NUM LOCK key | GDK_KEY_Num_Lock
+VK_SCROLL (0x91) - SCROLL LOCK key | GDK_KEY_Scroll_Lock
+VK_OEM_1 (0xBA) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key (**TODO** see if the varying will hurt us somehow) | GDK_KEY_semicolon and GDK_KEY_colon
+VK_OEM_PLUS (0xBB) - For any country/region, the '+' key | GDK_KEY_plus and GDK_KEY_equal
+VK_OEM_COMMA (0xBC) - For any country/region, the ',' key | GDK_KEY_comma and GDK_KEY_less
+VK_OEM_MINUS (0xBD) - For any country/region, the '-' key | GDK_KEY_minus and GDK_KEY_underscore
+VK_OEM_PERIOD (0xBE) - For any country/region, the '.' key | GDK_KEY_period and GDK_KEY_greater
+VK_OEM_2 (0xBF) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key | GDK_KEY_slash and GDK_KEY_question
+VK_OEM_3 (0xC0) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key | GDK_KEY_quoteleft (TODO really?) and GDK_KEY_asciitilde
+VK_OEM_4 (0xDB) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key | GDK_KEY_bracketleft and GDK_KEY_braceleft
+VK_OEM_5 (0xDC) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key | GDK_KEY_backslash and GDK_KEY_bar (TODO really _bar?)
+VK_OEM_6 (0xDD) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ']}' key | GDK_KEY_bracketright and GDK_KEY_braceright
+VK_OEM_7 (0xDE) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the 'single-quote/double-quote' key | GDK_KEY_apostrophe and GDK_KEY_apostrophe (TODO really this one?)
+
+Windows keys that will not be handled:
+```
 VK_LBUTTON (0x01) - Left mouse button
 VK_RBUTTON (0x02) - Right mouse button
 VK_CANCEL (0x03) - Control-break processing
+	TODO - is this generated on Control-C?
+	TODO if we handle Pause/Break, this will need to come back
 VK_MBUTTON (0x04) - Middle mouse button (three-button mouse)
 VK_XBUTTON1 (0x05) - X1 mouse button
 VK_XBUTTON2 (0x06) - X2 mouse button
-VK_BACK (0x08) - BACKSPACE key
-VK_TAB (0x09) - TAB key
-VK_CLEAR (0x0C) - CLEAR key
-VK_RETURN (0x0D) - ENTER key
-VK_SHIFT (0x10) - SHIFT key
-VK_CONTROL (0x11) - CTRL key
-VK_MENU (0x12) - ALT key
-VK_PAUSE (0x13) - PAUSE key
-VK_CAPITAL (0x14) - CAPS LOCK key
 VK_KANA/VK_HANGUEL/VK_HANGUL (0x15) - IME Kana mode/IME Hanguel mode (maintained for compatibility; use VK_HANGUL)/IME Hangul mode
 VK_JUNJA (0x17) - IME Junja mode
 VK_FINAL (0x18) - IME final mode
 VK_HANJA/VK_KANJI (0x19) - IME Hanja mode/IME Kanji mode
-VK_ESCAPE (0x1B) - ESC key
 VK_CONVERT (0x1C) - IME convert
 VK_NONCONVERT (0x1D) - IME nonconvert
 VK_ACCEPT (0x1E) - IME accept
 VK_MODECHANGE (0x1F) - IME mode change request
-VK_SPACE (0x20) - SPACEBAR
-VK_PRIOR (0x21) - PAGE UP key
-VK_NEXT (0x22) - PAGE DOWN key
-VK_END (0x23) - END key
-VK_HOME (0x24) - HOME key
-VK_LEFT (0x25) - LEFT ARROW key
-VK_UP (0x26) - UP ARROW key
-VK_RIGHT (0x27) - RIGHT ARROW key
-VK_DOWN (0x28) - DOWN ARROW key
-VK_SELECT (0x29) - SELECT key
-VK_PRINT (0x2A) - PRINT key
-VK_EXECUTE (0x2B) - EXECUTE key
 VK_SNAPSHOT (0x2C) - PRINT SCREEN key
-VK_INSERT (0x2D) - INS key
-VK_DELETE (0x2E) - DEL key
-VK_HELP (0x2F) - HELP key
-0x30 - 0 key
-0x31 - 1 key
-0x32 - 2 key
-0x33 - 3 key
-0x34 - 4 key
-0x35 - 5 key
-0x36 - 6 key
-0x37 - 7 key
-0x38 - 8 key
-0x39 - 9 key
-0x41 - A key
-0x42 - B key
-0x43 - C key
-0x44 - D key
-0x45 - E key
-0x46 - F key
-0x47 - G key
-0x48 - H key
-0x49 - I key
-0x4A - J key
-0x4B - K key
-0x4C - L key
-0x4D - M key
-0x4E - N key
-0x4F - O key
-0x50 - P key
-0x51 - Q key
-0x52 - R key
-0x53 - S key
-0x54 - T key
-0x55 - U key
-0x56 - V key
-0x57 - W key
-0x58 - X key
-0x59 - Y key
-0x5A - Z key
-VK_LWIN (0x5B) - Left Windows key (Natural keyboard)
-VK_RWIN (0x5C) - Right Windows key (Natural keyboard)
-VK_APPS (0x5D) - Applications key (Natural keyboard)
-VK_SLEEP (0x5F) - Computer Sleep key
-VK_NUMPAD0 (0x60) - Numeric keypad 0 key
-VK_NUMPAD1 (0x61) - Numeric keypad 1 key
-VK_NUMPAD2 (0x62) - Numeric keypad 2 key
-VK_NUMPAD3 (0x63) - Numeric keypad 3 key
-VK_NUMPAD4 (0x64) - Numeric keypad 4 key
-VK_NUMPAD5 (0x65) - Numeric keypad 5 key
-VK_NUMPAD6 (0x66) - Numeric keypad 6 key
-VK_NUMPAD7 (0x67) - Numeric keypad 7 key
-VK_NUMPAD8 (0x68) - Numeric keypad 8 key
-VK_NUMPAD9 (0x69) - Numeric keypad 9 key
-VK_MULTIPLY (0x6A) - Multiply key
-VK_ADD (0x6B) - Add key
-VK_SEPARATOR (0x6C) - Separator key
-VK_SUBTRACT (0x6D) - Subtract key
-VK_DECIMAL (0x6E) - Decimal key
-VK_DIVIDE (0x6F) - Divide key
-VK_F1 (0x70) - F1 key
-VK_F2 (0x71) - F2 key
-VK_F3 (0x72) - F3 key
-VK_F4 (0x73) - F4 key
-VK_F5 (0x74) - F5 key
-VK_F6 (0x75) - F6 key
-VK_F7 (0x76) - F7 key
-VK_F8 (0x77) - F8 key
-VK_F9 (0x78) - F9 key
-VK_F10 (0x79) - F10 key
-VK_F11 (0x7A) - F11 key
-VK_F12 (0x7B) - F12 key
 VK_F13 (0x7C) - F13 key
 VK_F14 (0x7D) - F14 key
 VK_F15 (0x7E) - F15 key
@@ -905,19 +924,11 @@ VK_F21 (0x84) - F21 key
 VK_F22 (0x85) - F22 key
 VK_F23 (0x86) - F23 key
 VK_F24 (0x87) - F24 key
-VK_NUMLOCK (0x90) - NUM LOCK key
-VK_SCROLL (0x91) - SCROLL LOCK key
 0x92 - OEM specific
 0x93 - OEM specific
 0x94 - OEM specific
 0x95 - OEM specific
 0x96 - OEM specific
-VK_LSHIFT (0xA0) - Left SHIFT key
-VK_RSHIFT (0xA1) - Right SHIFT key
-VK_LCONTROL (0xA2) - Left CONTROL key
-VK_RCONTROL (0xA3) - Right CONTROL key
-VK_LMENU (0xA4) - Left MENU key
-VK_RMENU (0xA5) - Right MENU key
 VK_BROWSER_BACK (0xA6) - Browser Back key
 VK_BROWSER_FORWARD (0xA7) - Browser Forward key
 VK_BROWSER_REFRESH (0xA8) - Browser Refresh key
@@ -936,20 +947,10 @@ VK_LAUNCH_MAIL (0xB4) - Start Mail key
 VK_LAUNCH_MEDIA_SELECT (0xB5) - Select Media key
 VK_LAUNCH_APP1 (0xB6) - Start Application 1 key
 VK_LAUNCH_APP2 (0xB7) - Start Application 2 key
-VK_OEM_1 (0xBA) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key
-VK_OEM_PLUS (0xBB) - For any country/region, the '+' key
-VK_OEM_COMMA (0xBC) - For any country/region, the ',' key
-VK_OEM_MINUS (0xBD) - For any country/region, the '-' key
-VK_OEM_PERIOD (0xBE) - For any country/region, the '.' key
-VK_OEM_2 (0xBF) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '/?' key
-VK_OEM_3 (0xC0) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '`~' key
-VK_OEM_4 (0xDB) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '[{' key
-VK_OEM_5 (0xDC) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the '\|' key
-VK_OEM_6 (0xDD) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ']}' key
-VK_OEM_7 (0xDE) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the 'single-quote/double-quote' key
 VK_OEM_8 (0xDF) - Used for miscellaneous characters; it can vary by keyboard.
 0xE1 - OEM specific
 VK_OEM_102 (0xE2) - Either the angle bracket key or the backslash key on the RT 102-key keyboard
+	TODO actually SHOULD we handle this one?
 0xE3 - OEM specific
 0xE4 - OEM specific
 VK_PROCESSKEY (0xE5) - IME PROCESS key
@@ -977,8 +978,4 @@ VK_ZOOM (0xFB) - Zoom key
 VK_NONAME (0xFC) - Reserved
 VK_PA1 (0xFD) - PA1 key
 VK_OEM_CLEAR (0xFE) - Clear key
-
-Windows keys that will not be handled:
-```
-(TODO)
 ```
