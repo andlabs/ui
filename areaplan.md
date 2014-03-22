@@ -704,7 +704,9 @@ OS X: use `charactersIgnoringModifiers`
 // As another consequence, no KeyEvent will be generated if
 // package ui cannot portably report a given key. Supported
 // keys are described in the comments for the Rune field and
-// the ExtKey and Modifiers types.
+// the ExtKey and Modifiers types. Package ui will act as if
+// false was sent on Handled, so these ignored keypresses are
+// sent back to the operating system for handling.
 type KeyArea struct {
 	// Rune contains a lowercase rune specifying the name
 	// of the key pressed that triggered the event.
