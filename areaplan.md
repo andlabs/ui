@@ -775,3 +775,6 @@ If I ever intend on providing alternate text-based widgets, I will need to use `
 Also this answers the what if a key has been held down and switches away from the program question: Windows does not send a key up.
 
 This just leaves the GTK+ geometry mapping: there is a way to do it if X11 is the only supported backend, but Wayland exists...
+    [12:29] <ebassi> yes, you can assume that they are the same
+(irc.gimp.net/#gtk+) ok; that works too I guess
+let's go!
