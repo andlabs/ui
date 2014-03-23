@@ -994,9 +994,13 @@ BONUS OS X NOTE (which means we're right in ignoring numpad differences)
 >`NSNumericPadKeyMask`
 >Set if any key in the numeric keypad is pressed. The numeric keypad is generally on the right side of the keyboard. This is also set if any of the arrow keys are pressed (NSUpArrowFunctionKey, NSDownArrowFunctionKey, NSLeftArrowFunctionKey, and NSRightArrowFunctionKey). 
 
-For the character keys on Windows, I suppose I could get away with checking the nonstandard OEM keys for a WM_CHAR... will need to check, but first, need to find a keyboard layout that has different rules
+For the character keys on Windows, I suppose I could get away with checking all character keys for a WM_CHAR... will need to check, but first, need to find a keyboard layout that has different rules for symbols
+* will also need to check what GTK+ and OS X do, in this case
 
 For the locks: I'll need a way to get their state anyway, so simply checking keypresses isn't really effective
 * **Caps Lock**: simply checking this and simulating Shift isn't good, because Windows and Unix have Caps Lock act like an inverse Shift, while Mac OS X has it act like a permanent Shift. I might have to add "The case of Rune is undefined; it does not necessarily correspond to the state of the Shift key. Correct code will need to check both uppercase and lowercase forms of letters."
 * **Num Lock**: already handled; we're not differentiating between numpad and non-numpad anyway so knowing the Num Lock state is meaningless
 * **Scroll Lock**: ...will need to figure out how to read lock state for this one.
+
+Also undetermined:
+* what happens on $ on other locales
