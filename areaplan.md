@@ -1004,3 +1004,72 @@ For the locks: I'll need a way to get their state anyway, so simply checking key
 
 Also undetermined:
 * what happens on $ on other locales
+
+### Consensus on characters
+Mac OS X always sends shifted characters, even with `charactersIgnoringModifiers`. GTK+ has separate keycodes that we can use. This just leaves Windows. It appears what we need to do is process `WM_CHAR` and `WM_SYSCHAR` events, filtering out the characters that we can support.
+
+I wonder if I should change Rune to ASCII because with the filtering we have applied these are guaranteed to be ASCII bytes...
+
+...
+
+```
+65/GDK_KEY_A:
+equiv 1/3: &ui._Ctype_GdkKeymapKey{keycode:0x26, group:0, level:1}
+equiv 2/3: &ui._Ctype_GdkKeymapKey{keycode:0x1, group:38, level:1}
+equiv 3/3: &ui._Ctype_GdkKeymapKey{keycode:0x1, group:1, level:38}
+97/GDK_KEY_a:
+equiv 1/3: &ui._Ctype_GdkKeymapKey{keycode:0x26, group:0, level:0}
+equiv 2/3: &ui._Ctype_GdkKeymapKey{keycode:0x0, group:38, level:1}
+equiv 3/3: &ui._Ctype_GdkKeymapKey{keycode:0x1, group:0, level:38}
+```
+oh you have got to be kidding me (Spanish keyboard layout)
+
+OK so it looks like the only thing I can really do is just pretend that the keyboard input routines are perfect and handle the character events on Windows and OS X (and use `charactersIgnoringModifiers` on OS X because otherwise we can't handle the Option key) and HOPE TO GOD ALMIGHTY that all GDK users see the non-IME forms. SCREW THIS.
+
+### Final Consensus, For Fuck's Sake.
+```go
+// A KeyEvent represents a keypress in an Area.
+// 
+// In a perfect world, KeyEvent would be 100% predictable.
+// Despite my best efforts to do this, however, the various
+// differences in input handling between each backend
+// environment makes this completely impossible (I can
+// work with two of the three identically, but not all three).
+// Keep this in mind, and remember that Areas are not ideal
+// for text.
+// 
+// If a key is pressed that is not supported by ASCII, ExtKey,
+// or Modifiers, no KeyEvent will be produced and package
+// ui will act as if false was sent on Handled.
+type KeyEvent struct {
+	// ASCII is a byte representing the character pressed.
+	// Despite my best efforts, this cannot be trivialized
+	// to produce predictable input rules on all OSs, even if
+	// I try to handle physical keys instead of equivalent
+	// characters. Therefore, what happens when the user
+	// inserts a non-ASCII character is undefined (some systems
+	// will give package ui the underlying ASCII key and we
+	// return it; other systems do not). This is especially important
+	// if the given input method uses Modifiers to enter characters.
+	// If the parenthesized rule cannot be followed and the user
+	// enters a non-ASCII character, it will be ignored (package ui
+	// will act as above regarding keys it cannot handle).
+	// In general, alphanumeric characters, ',', '.', '+', '-', and the
+	// (space) should be available on all keyboards. Other ASCII
+	// whitespace keys mentioned below may be available, but
+	// mind layout differences.
+	// Whether or not alphabetic characters are uppercase or
+	// lowercase is undefined, and cannot be determined solely
+	// by examining Modifiers for Shift. Correct code should handle
+	// both uppercase and lowercase identically.
+	// In addition, ASCII will contain
+	// - ' ' (space) if the spacebar was pressed
+	// - '\t' if Tab was pressed, regardless of Modifiers
+	// - '\n' if any Enter/Return key was pressed, regardless of which
+	// - '\b' if the typewriter Backspace key was pressed
+	// If this value is 0, see ExtKey.
+	ASCII	byte
+
+	// ...
+}
+```
