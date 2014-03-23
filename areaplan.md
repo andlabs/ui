@@ -785,34 +785,28 @@ let's go!
 ### And finally... COMMON KEYS
 I meant Windows might be the biggest filter because it has a concrete list of virtual key codes but meh
 
-Windows | GDK bar [Cocoa if known]
------ | -----
------ | ----- bar -----
-VK_BACK (0x08) - BACKSPACE key | GDK_KEY_BackSpace
-VK_TAB (0x09) - TAB key | GDK_KEY_Tab
-VK_CLEAR (0x0C) - CLEAR key (TODO what key is this) | GDK_KEY_Clear
-VK_RETURN (0x0D) - ENTER key (note: also for numeric keypad) | [TODO either GDK_KEY_Linefeed or GDK_KEY_Return] and GDK_KEY_KP_Enter
-VK_SHIFT (0x10)/VK_LSHIFT (0xA0) - Left SHIFT key/VK_RSHIFT (0xA1) - Right SHIFT key - SHIFT key | [modifier]
-VK_CONTROL (0x11)/VK_LCONTROL (0xA2) - Left CONTROL key/VK_RCONTROL (0xA3) - Right CONTROL key - CTRL key | [modifier]
-VK_MENU (0x12)/VK_LMENU (0xA4) - Left MENU key/VK_RMENU (0xA5) - Right MENU key - ALT key | [modifier]
-VK_PAUSE (0x13) - PAUSE key | GDK_KEY_Pause
-VK_CAPITAL (0x14) - CAPS LOCK key | TODO either GDK_KEY_Caps_Lock or GDK_KEY_Shift_Lock
+Windows | GDK | [Cocoa if known]
+----- | ----- | -----
+VK_BACK (0x08) - BACKSPACE key | GDK_KEY_BackSpace | either NSBackspaceCharacter or NSDeleteCharacter (TODO)
+VK_TAB (0x09) - TAB key | GDK_KEY_Tab | NSTabCharacter; TODO do we also need to handle NSBackTabCharacter (Shift+Tab)?
+VK_RETURN (0x0D) - ENTER key (note: also for numeric keypad) | [TODO either GDK_KEY_Linefeed or GDK_KEY_Return] and GDK_KEY_KP_Enter | either NSNewlineCharacter or NSCarriageReturnCharacter (TODO) (TODO also NSEnterCharacter?)
+VK_SHIFT (0x10)/VK_LSHIFT (0xA0) - Left SHIFT key/VK_RSHIFT (0xA1) - Right SHIFT key - SHIFT key | [modifier] | [modifier]
+VK_CONTROL (0x11)/VK_LCONTROL (0xA2) - Left CONTROL key/VK_RCONTROL (0xA3) - Right CONTROL key - CTRL key | [modifier] | [modifier]
+VK_MENU (0x12)/VK_LMENU (0xA4) - Left MENU key/VK_RMENU (0xA5) - Right MENU key - ALT key | [modifier] | [modifier]
+VK_PAUSE (0x13) - PAUSE key | GDK_KEY_Pause | NSPauseFunctionKey and NSBreakFunctionKey
+VK_CAPITAL (0x14) - CAPS LOCK key | TODO either GDK_KEY_Caps_Lock or GDK_KEY_Shift_Lock | [modifier NSAlphaShiftKeyMask]
 VK_ESCAPE (0x1B) - ESC key | GDK_KEY_Escape
 VK_SPACE (0x20) - SPACEBAR | GDK_KEY_space
-VK_PRIOR (0x21) - PAGE UP key | GDK_KEY_Page_Up
-VK_NEXT (0x22) - PAGE DOWN key | GDK_KEY_Page_Down
-VK_END (0x23) - END key | GDK_KEY_End
-VK_HOME (0x24) - HOME key | GDK_KEY_Home
-VK_LEFT (0x25) - LEFT ARROW key | GDK_KEY_Left
-VK_UP (0x26) - UP ARROW key | GDK_KEY_Up
-VK_RIGHT (0x27) - RIGHT ARROW key | GDK_KEY_Right
-VK_DOWN (0x28) - DOWN ARROW key | GDK_KEY_Down
-VK_SELECT (0x29) - SELECT key (TODO what key is this?) | TODO
-VK_PRINT (0x2A) - PRINT key (TODO what key is this?) | TODO
-VK_EXECUTE (0x2B) - EXECUTE key (TODO what key is this?) | TODO
-VK_INSERT (0x2D) - INS key | GDK_KEY_Insert
-VK_DELETE (0x2E) - DEL key | GDK_KEY_Delete (TODO really this one?)
-VK_HELP (0x2F) - HELP key (TODO what key is this?) | TODO
+VK_PRIOR (0x21) - PAGE UP key | GDK_KEY_Page_Up | NSPageUpFunctionKey
+VK_NEXT (0x22) - PAGE DOWN key | GDK_KEY_Page_Down | NSPageDownFunctionKey
+VK_END (0x23) - END key | GDK_KEY_End | NSEndFunctionKey
+VK_HOME (0x24) - HOME key | GDK_KEY_Home | NSHomeFunctionKey
+VK_LEFT (0x25) - LEFT ARROW key | GDK_KEY_Left | NSLeftArrowFunctionKey
+VK_UP (0x26) - UP ARROW key | GDK_KEY_Up | NSUpArrowFunctionKey
+VK_RIGHT (0x27) - RIGHT ARROW key | GDK_KEY_Right | NSRightArrowFunctionKey
+VK_DOWN (0x28) - DOWN ARROW key | GDK_KEY_Down | NSDownArrowFunctionKey
+VK_INSERT (0x2D) - INS key | GDK_KEY_Insert | NSInsertFunctionKey (TODO also intercept the key that replaced it on newer Mac keyboards?)
+VK_DELETE (0x2E) - DEL key | GDK_KEY_Delete (TODO really this one?) | either NSDeleteFunctionKey or NSDeleteCharacter (TODO)
 0x30 - 0 key | GDK_KEY_0 and GDK_KEY_parenright (TODO how will we handle Rune for shifted symbols?)
 0x31 - 1 key | GDK_KEY_1 and GDK_KEY_exclam
 0x32 - 2 key | GDK_KEY_2 and GDK_KEY_at
@@ -849,10 +843,9 @@ VK_HELP (0x2F) - HELP key (TODO what key is this?) | TODO
 0x58 - X key | ...
 0x59 - Y key | ...
 0x5A - Z key | ...
-VK_LWIN (0x5B) - Left Windows key (Natural keyboard) | [modifier]
-VK_RWIN (0x5C) - Right Windows key (Natural keyboard) | [modifier]
-VK_APPS (0x5D) - Applications key (Natural keyboard) (TODO which key is this? the right click shortcut key?) | TODO
-VK_SLEEP (0x5F) - Computer Sleep key (TODO which key is this?) | TODO
+VK_LWIN (0x5B) - Left Windows key (Natural keyboard) | [modifier] | [modifier]
+VK_RWIN (0x5C) - Right Windows key (Natural keyboard) | [modifier] | [modifier]
+VK_APPS (0x5D) - Applications key (Natural keyboard) (TODO which key is this? the right click shortcut key?) | TODO | TODO if this is the right click key, is it NSMenuFunctionKey?
 VK_NUMPAD0 (0x60) - Numeric keypad 0 key | GDK_KEY_KP_0 (TODO really this?)
 VK_NUMPAD1 (0x61) - Numeric keypad 1 key | ...
 VK_NUMPAD2 (0x62) - Numeric keypad 2 key | ...
@@ -865,24 +858,23 @@ VK_NUMPAD8 (0x68) - Numeric keypad 8 key | ...
 VK_NUMPAD9 (0x69) - Numeric keypad 9 key | ...
 VK_MULTIPLY (0x6A) - Multiply key | GDK_KEY_KP_Multiply (TODO really this one?)
 VK_ADD (0x6B) - Add key | GDK_KEY_KP_Add (TODO really this one?)
-VK_SEPARATOR (0x6C) - Separator key (TODO what key is this?) | TODO
 VK_SUBTRACT (0x6D) - Subtract key | GDK_KEY_KP_Subtract (TODO really this one?)
 VK_DECIMAL (0x6E) - Decimal key (. on numeric keypad) | GDK_KEY_KP_Decimal
 VK_DIVIDE (0x6F) - Divide key | GDK_KEY_KP_Divide (TODO really this one?)
-VK_F1 (0x70) - F1 key | GDK_KEY_F1
-VK_F2 (0x71) - F2 key | ...
-VK_F3 (0x72) - F3 key | ...
-VK_F4 (0x73) - F4 key | ...
-VK_F5 (0x74) - F5 key | ...
-VK_F6 (0x75) - F6 key | ...
-VK_F7 (0x76) - F7 key | ...
-VK_F8 (0x77) - F8 key | ...
-VK_F9 (0x78) - F9 key | ...
-VK_F10 (0x79) - F10 key | ...
-VK_F11 (0x7A) - F11 key | ...
-VK_F12 (0x7B) - F12 key | ...
-VK_NUMLOCK (0x90) - NUM LOCK key | GDK_KEY_Num_Lock
-VK_SCROLL (0x91) - SCROLL LOCK key | GDK_KEY_Scroll_Lock
+VK_F1 (0x70) - F1 key | GDK_KEY_F1 | NSF1FunctionKey
+VK_F2 (0x71) - F2 key | ... | ...
+VK_F3 (0x72) - F3 key | ... | ...
+VK_F4 (0x73) - F4 key | ... | ...
+VK_F5 (0x74) - F5 key | ... | ...
+VK_F6 (0x75) - F6 key | ... | ...
+VK_F7 (0x76) - F7 key | ... | ...
+VK_F8 (0x77) - F8 key | ... | ...
+VK_F9 (0x78) - F9 key | ... | ...
+VK_F10 (0x79) - F10 key | ... | ...
+VK_F11 (0x7A) - F11 key | ... | ...
+VK_F12 (0x7B) - F12 key | ... | ...
+VK_NUMLOCK (0x90) - NUM LOCK key | GDK_KEY_Num_Lock | NSClearLineFunctionKey (according to docs)
+VK_SCROLL (0x91) - SCROLL LOCK key | GDK_KEY_Scroll_Lock | NSScrollLockFunctionKey
 VK_OEM_1 (0xBA) - Used for miscellaneous characters; it can vary by keyboard. For the US standard keyboard, the ';:' key (**TODO** see if the varying will hurt us somehow) | GDK_KEY_semicolon and GDK_KEY_colon
 VK_OEM_PLUS (0xBB) - For any country/region, the '+' key | GDK_KEY_plus and GDK_KEY_equal
 VK_OEM_COMMA (0xBC) - For any country/region, the ',' key | GDK_KEY_comma and GDK_KEY_less
@@ -905,6 +897,8 @@ VK_CANCEL (0x03) - Control-break processing
 VK_MBUTTON (0x04) - Middle mouse button (three-button mouse)
 VK_XBUTTON1 (0x05) - X1 mouse button
 VK_XBUTTON2 (0x06) - X2 mouse button
+VK_CLEAR (0x0C) - CLEAR key (TODO what key is this) | GDK_KEY_Clear
+	I have no idea what key this is...
 VK_KANA/VK_HANGUEL/VK_HANGUL (0x15) - IME Kana mode/IME Hanguel mode (maintained for compatibility; use VK_HANGUL)/IME Hangul mode
 VK_JUNJA (0x17) - IME Junja mode
 VK_FINAL (0x18) - IME final mode
@@ -913,7 +907,13 @@ VK_CONVERT (0x1C) - IME convert
 VK_NONCONVERT (0x1D) - IME nonconvert
 VK_ACCEPT (0x1E) - IME accept
 VK_MODECHANGE (0x1F) - IME mode change request
+VK_SELECT (0x29) - SELECT key (TODO what key is this?) | TODO
+VK_PRINT (0x2A) - PRINT key (TODO what key is this?) | TODO
+VK_EXECUTE (0x2B) - EXECUTE key (TODO what key is this?) | TODO
 VK_SNAPSHOT (0x2C) - PRINT SCREEN key
+VK_HELP (0x2F) - HELP key (TODO what key is this?) | TODO
+VK_SLEEP (0x5F) - Computer Sleep key (TODO which key is this?) | TODO
+VK_SEPARATOR (0x6C) - Separator key (Shift+Decimal key on some foreign layouts; inserts local thousands separator) | TODO
 VK_F13 (0x7C) - F13 key
 VK_F14 (0x7D) - F14 key
 VK_F15 (0x7E) - F15 key
@@ -981,3 +981,7 @@ VK_NONAME (0xFC) - Reserved
 VK_PA1 (0xFD) - PA1 key
 VK_OEM_CLEAR (0xFE) - Clear key
 ```
+
+BONUS OS X NOTE (which means we're right in ignoring numpad differences)
+>`NSNumericPadKeyMask`
+>Set if any key in the numeric keypad is pressed. The numeric keypad is generally on the right side of the keyboard. This is also set if any of the arrow keys are pressed (NSUpArrowFunctionKey, NSDownArrowFunctionKey, NSLeftArrowFunctionKey, and NSRightArrowFunctionKey). 
