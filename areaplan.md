@@ -1073,3 +1073,17 @@ type KeyEvent struct {
 	// ...
 }
 ```
+
+## Tweets mentioned in area.go's relevant comment
+I tweeted a tl;dr of the whole debacle documented in detail above:
+- https://twitter.com/pgandlabs/status/447790340251344896
+- https://twitter.com/pgandlabs/status/447791528237596672
+- https://twitter.com/pgandlabs/status/447791774749454336
+- https://twitter.com/pgandlabs/status/447791890902286336
+- https://twitter.com/pgandlabs/status/447791982992433152
+- https://twitter.com/pgandlabs/status/447792201222066177
+- https://twitter.com/pgandlabs/status/447792444311371777
+- https://twitter.com/pgandlabs/status/447792609474654208
+- https://twitter.com/pgandlabs/status/447792724969000960
+- https://twitter.com/pgandlabs/status/447792787241832449
+- https://twitter.com/pgandlabs/status/447792889620598784
