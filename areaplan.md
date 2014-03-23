@@ -314,6 +314,14 @@ func our_isFlipped(self C.id, sel C.SEL) C.BOOL {
 
 For scrolling, we simply wrap our view in a `NSScrollView` just as we did with Listbox; Cocoa handles all the details for us.
 
+**IMPORTANT NOTE**: Before we move on to events, Cocoa requires that we override `acceptsFirstResponder` to return `YES` in order to accept events:
+```objective-c
+- (BOOL)acceptsFirstResponder
+{
+	return YES;
+}
+```
+
 TODO erase clip rect?
 
 ## Mouse Events
@@ -615,7 +623,7 @@ Thankfully there IS a way to get keys that aren't printable characters! ...Mac O
 
 (Technically you're supposed to send incoming key events to `[self interpretKeyEvents:]`, which will generate a bunch of text-related method calls to make things easier, but we don't have to. Technically you're also supposed to use key equivalents, but that doesn't apply here...)
 
-For modifier keys pressed by themselves, neither `keyDown:` nor `keyUp:` appears to be sent; we need to handle `flagsChanged:` (if I'm reading this right, anyway). Whatever the case, `[e modifierFlags]` will always be valid.
+For modifier keys pressed by themselves, neither `keyDown:` nor `keyUp:` appears to be sent; we need to handle `flagsChanged:` (if I'm reading this right, anyway). Whatever the case, `[e modifierFlags]` will always be valid. In `flagsChanged:`, `characters` will **NOT** be valid and **WILL** throw an exception.
 
 There's also `[e isARepeat]`, which tells us whether a key was repeated; it does not say how many times. (*TODO* does this mean `keyDown:` is sent multiple times?)
 
