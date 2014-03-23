@@ -84,7 +84,7 @@ func translateModifiers(state C.guint, window *C.GdkWindow) C.guint {
 	return state
 }
 
-func makeModifiers(state C.guint) (m Modifiers) {
+func makeModifiers(state C.guint, m Modifiers) Modifiers {
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		m |= Ctrl
 	}
@@ -101,7 +101,7 @@ func makeModifiers(state C.guint) (m Modifiers) {
 func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
 	s := (*sysData)(unsafe.Pointer(data))
 	state = translateModifiers(state, gdkwindow)
-	me.Modifiers = makeModifiers(state)
+	me.Modifiers = makeModifiers(state, 0)
 	// the mb != # checks exclude the Up/Down button from Held
 	if mb != 1 && (state & C.GDK_BUTTON1_MASK) != 0 {
 		me.Held = append(me.Held, 1)
@@ -178,7 +178,10 @@ func doKeyEvent(event *C.GdkEvent, data C.gpointer, up bool) bool {
 		ke.ExtKey = extkey
 	} else if predef, ok := predefkeys[keyval]; ok {
 		ke.ASCII = predef
-	} else if _, ok := modonlykeys[keyval]; !ok {		// use ok form here to save memory/avoid racy map write
+	} else if mod, ok := modonlykeys[keyval]; ok {
+		// modifier keys don't seem to be set on their initial keypress; set them here
+		ke.Modifiers |= mod
+	} else {
 		cp := C.gdk_keyval_to_unicode(keyval)
 		// GDK keycodes in GDK 3.4 the ASCII plane map to their ASCII values
 		// (proof: https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeysyms.h?h=gtk-3-4)
@@ -191,7 +194,7 @@ func doKeyEvent(event *C.GdkEvent, data C.gpointer, up bool) bool {
 		ke.ASCII = byte(cp)
 	}
 	state := translateModifiers(e.state, e.window)
-	ke.Modifiers = makeModifiers(state)
+	ke.Modifiers = makeModifiers(state, ke.Modifiers)
 	ke.Up = up
 	return s.handler.Key(ke)
 }
@@ -310,14 +313,14 @@ var predefkeys = map[C.guint]byte{
 	// no space; handled by the code above
 }
 
-var modonlykeys =  map[C.guint]bool{
-	C.GDK_KEY_Shift_L:		true,
-	C.GDK_KEY_Shift_R:		true,
-	C.GDK_KEY_Control_L:	true,
-	C.GDK_KEY_Control_R:	true,
-	C.GDK_KEY_Meta_L:		true,
-	C.GDK_KEY_Meta_R:	true,
+var modonlykeys =  map[C.guint]Modifiers{
+	C.GDK_KEY_Shift_L:		Shift,
+	C.GDK_KEY_Shift_R:		Shift,
+	C.GDK_KEY_Control_L:	Ctrl,
+	C.GDK_KEY_Control_R:	Ctrl,
+	C.GDK_KEY_Meta_L:		Alt,
+	C.GDK_KEY_Meta_R:	Alt,
 	// TODO GDK_KEY_Alt_L/R too?
-	C.GDK_KEY_Super_L:	true,
-	C.GDK_KEY_Super_R:	true,
+//	C.GDK_KEY_Super_L:	Super,
+//	C.GDK_KEY_Super_R:	Super,
 }
