@@ -320,7 +320,9 @@ var modonlykeys =  map[C.guint]Modifiers{
 	C.GDK_KEY_Control_R:	Ctrl,
 	C.GDK_KEY_Meta_L:		Alt,
 	C.GDK_KEY_Meta_R:	Alt,
-	// TODO GDK_KEY_Alt_L/R too?
+	// my system generats these two for the Alt keys instead of Meta
+	C.GDK_KEY_Alt_L:		Alt,
+	C.GDK_KEY_Alt_R:		Alt,
 //	C.GDK_KEY_Super_L:	Super,
 //	C.GDK_KEY_Super_R:	Super,
 }
