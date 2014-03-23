@@ -14,6 +14,13 @@ import (
 // To handle events to the Area, an Area must be paired with an AreaHandler.
 // See AreaHandler for details.
 // 
+// Do not use an Area if you intend to read text.
+// Due to platform differences regarding text input,
+// keyboard events have beem compromised in
+// such a way that attempting to read Unicode data
+// in platform-native ways is painful.
+// [Use TextArea instead, providing a TextAreaHandler.]
+// 
 // To facilitate development and debugging, for the time being, Areas have a fixed size of 320x240 and only work on GTK+.
 type Area struct {
 	lock		sync.Mutex
@@ -44,6 +51,12 @@ type AreaHandler interface {
 	// You are allowed to do nothing in this handler (to ignore mouse events).
 	// See MouseEvent for details.
 	Mouse(e MouseEvent)
+
+	// Key is called when the Area receives a keyboard event.
+	// You are allowed to do nothing except return false in this handler (to ignore mouse events).
+	// Do not do nothing but return true; this may have unintended consequences.
+	// See KeyEvent for details.
+	Key(e KeyEvent) bool
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
@@ -87,13 +100,114 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 	return h
 }
 
-// Modifiers indicates modifier keys being held during a mouse event.
+// A KeyEvent represents a keypress in an Area.
+// 
+// In a perfect world, KeyEvent would be 100% predictable.
+// Despite my best efforts to do this, however, the various
+// differences in input handling between each backend
+// environment makes this completely impossible (I can
+// work with two of the three identically, but not all three).
+// Keep this in mind, and remember that Areas are not ideal
+// for text. For more details, see areaplan.md and the linked
+// tweets at the end of that file. If you know a better solution
+// than the one I have chosen, please let me know.
+// 
+// When you are finished processing the incoming event,
+// return whether or not you did something in response
+// to the given keystroke from your Key() implementation.
+// If you send false, you indicate that you did not handle
+// the keypress, and that the system should handle it instead.
+// (Some systems will stop processing the keyboard event at all
+// if you return true unconditionally, which may result in unwanted
+// behavior like global task-switching keystrokes not being processed.)
+// 
+// If a key is pressed that is not supported by ASCII, ExtKey,
+// or Modifiers, no KeyEvent will be produced, and package
+// ui will act as if false was returned.
+type KeyEvent struct {
+	// ASCII is a byte representing the character pressed.
+	// Despite my best efforts, this cannot be trivialized
+	// to produce predictable input rules on all OSs, even if
+	// I try to handle physical keys instead of equivalent
+	// characters. Therefore, what happens when the user
+	// inserts a non-ASCII character is undefined (some systems
+	// will give package ui the underlying ASCII key and we
+	// return it; other systems do not). This is especially important
+	// if the given input method uses Modifiers to enter characters.
+	// If the parenthesized rule cannot be followed and the user
+	// enters a non-ASCII character, it will be ignored (package ui
+	// will act as above regarding keys it cannot handle).
+	// In general, alphanumeric characters, ',', '.', '+', '-', and the
+	// (space) should be available on all keyboards. Other ASCII
+	// whitespace keys mentioned below may be available, but
+	// mind layout differences.
+	// Whether or not alphabetic characters are uppercase or
+	// lowercase is undefined, and cannot be determined solely
+	// by examining Modifiers for Shift. Correct code should handle
+	// both uppercase and lowercase identically.
+	// In addition, ASCII will contain
+	// - ' ' (space) if the spacebar was pressed
+	// - '\t' if Tab was pressed, regardless of Modifiers
+	// - '\n' if any Enter/Return key was pressed, regardless of which
+	// - '\b' if the typewriter Backspace key was pressed
+	// If this value is zero, see ExtKey.
+	ASCII	byte
+
+	// If ASCII is zero, ExtKey contains a predeclared identifier
+	// naming an extended key. See ExtKey for details.
+	// If both ASCII and ExtKey are zero, a Modifier by itself
+	// was pressed. ASCII and ExtKey will not both be nonzero.
+	ExtKey		ExtKey
+
+	Modifiers		Modifiers
+
+	// If Up is true, the key was released; if not, the key was pressed.
+	// There is no guarantee that all pressed keys shall have
+	// corresponding release events (for instance, if the user switches
+	// programs while holding the key down, then releases the key).
+	// Keys that have been held down are reported as multiple
+	// key press events.
+	Up			bool
+}
+
+// ExtKey represents keys that do not have an ASCII representation.
+// There is no way to differentiate between left and right ExtKeys.
+type ExtKey uintptr
+const (
+	Escape ExtKey = iota + 1
+	Insert
+	Delete
+	Home
+	End
+	PageUp
+	PageDown
+	Up
+	Down
+	Left
+	Right
+	F1		// no guarantee is made that Fn == F1+n in the future
+	F2
+	F3
+	F4
+	F5
+	F6
+	F7
+	F8
+	F9
+	F10
+	F11
+	F12
+	_nextkeys		// for sanity check
+)
+
+// Modifiers indicates modifier keys being held during an event.
 // There is no way to differentiate between left and right modifier keys.
 type Modifiers uintptr
 const (
 	Ctrl Modifiers = 1 << iota		// the canonical Ctrl keys ([TODO] on Mac OS X, Control on others)
 	Alt						// the canonical Alt keys ([TODO] on Mac OS X, Meta on Unix systems, Alt on others)
 	Shift						// the Shift keys
+	// TODO add Super
 )
 
 // NewArea creates a new Area.
