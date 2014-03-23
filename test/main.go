@@ -133,6 +133,10 @@ func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
 func (a *areaHandler) Mouse(e MouseEvent) {
 //	fmt.Printf("%#v\n", e)
 }
+func (a *areaHandler) Key(e KeyEvent) bool {
+	fmt.Printf("%#v\n", e)
+	return false
+}
 
 var doArea = flag.Bool("area", false, "run area test instead")
 func areaTest() {
