@@ -8,7 +8,7 @@ go:
 
 before_install:
  - sudo apt-get update -qq
- - sudo apt-get install -qq libgtk-3-dev multiarch-support # libgtk-3-0:i386 gcc-multilib
+ - sudo apt-get install -y libgtk-3-dev multiarch-support # libgtk-3-0:i386 gcc-multilib
  - go tool dist install cmd/8a
  - go tool dist install cmd/8c
  - go tool dist install cmd/8g
