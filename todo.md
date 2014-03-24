@@ -24,6 +24,8 @@ so I don't forget:
 - Message boxes should not show secondary text if none is specified.
 - note that you can change event channels before opening the window; this allows unifying menus/toolbars/etc.
 	- will probably want to bring back Event() for this (but as NewEvent())
+- add bounds checking to Area's sizing methods
+- describe thread-safety of Area.SetSize()
 
 important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
