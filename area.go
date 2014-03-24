@@ -55,7 +55,7 @@ type AreaHandler interface {
 	Mouse(e MouseEvent)
 
 	// Key is called when the Area receives a keyboard event.
-	// You are allowed to do nothing except return false in this handler (to ignore mouse events).
+	// You are allowed to do nothing except return false in this handler (to ignore keyboard events).
 	// Do not do nothing but return true; this may have unintended consequences.
 	// See KeyEvent for details.
 	Key(e KeyEvent) bool
