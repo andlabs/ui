@@ -10,6 +10,7 @@ import (
 	_ "image/png"
 	"bytes"
 	"time"
+	"strconv"
 	. "github.com/andlabs/ui"
 )
 
@@ -158,13 +159,25 @@ func areaTest() {
 	img := image.NewNRGBA(ximg.Bounds())
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
 	w := NewWindow("Area Test", 100, 100)
-	a := NewArea(&areaHandler{
+	a := NewArea(320, 240, &areaHandler{
 		img:		img,
 	})
 	timedisp := NewLabel("")
 	timechan := time.Tick(time.Second)
+	widthbox := NewLineEdit("320")
+	heightbox := NewLineEdit("240")
+	resize := NewButton("Resize")
+	sizeStack := NewHorizontalStack(widthbox, heightbox, resize)
+	sizeStack.SetStretchy(0)
+	sizeStack.SetStretchy(1)
+	sizeStack.SetStretchy(2)
+	sizeStack = NewHorizontalStack(sizeStack, Space(), Space())
+	sizeStack.SetStretchy(0)
+	sizeStack.SetStretchy(1)
+	sizeStack.SetStretchy(2)
 	layout := NewVerticalStack(a,
-		NewHorizontalStack(timedisp))
+		NewHorizontalStack(timedisp),
+		sizeStack)
 	layout.SetStretchy(0)
 	err = w.Open(layout)
 	if err != nil {
@@ -176,6 +189,13 @@ func areaTest() {
 			return
 		case t := <-timechan:
 			timedisp.SetText(t.String())
+		case <-resize.Clicked:
+			width, err := strconv.Atoi(widthbox.Text())
+			if err != nil { println(err); continue }
+			height, err := strconv.Atoi(heightbox.Text())
+			if err != nil { println(err); continue }
+println(width, height)
+			a.SetSize(width, height)
 		}
 	}
 }

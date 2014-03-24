@@ -21,12 +21,14 @@ import (
 // in platform-native ways is painful.
 // [Use TextArea instead, providing a TextAreaHandler.]
 // 
-// To facilitate development and debugging, for the time being, Areas have a fixed size of 320x240 and only work on GTK+.
+// To facilitate development and debugging, for the time being, Areas only work on GTK+.
 type Area struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	handler	AreaHandler
+	lock			sync.Mutex
+	created		bool
+	sysData		*sysData
+	handler		AreaHandler
+	initwidth		int
+	initheight		int
 }
 
 // AreaHandler represents the events that an Area should respond to.
@@ -210,16 +212,32 @@ const (
 	// TODO add Super
 )
 
-// NewArea creates a new Area.
+// NewArea creates a new Area with the given size and handler.
 // It panics if handler is nil.
-func NewArea(handler AreaHandler) *Area {
+func NewArea(width int, height int, handler AreaHandler) *Area {
 	if handler == nil {
 		panic("handler passed to NewArea() must not be nil")
 	}
 	return &Area{
-		sysData:	mksysdata(c_area),
-		handler:	handler,
+		sysData:		mksysdata(c_area),
+		handler:		handler,
+		initwidth:		width,
+		initheight:		height,
 	}
+}
+
+// SetSize sets the Area's internal drawing size.
+// It has no effect on the actual control size.
+func (a *Area) SetSize(width int, height int) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	if a.created {
+		a.sysData.setAreaSize(width, height)
+		return
+	}
+	a.initwidth = width
+	a.initheight = height
 }
 
 func (a *Area) make(window *sysData) error {
@@ -231,6 +249,7 @@ func (a *Area) make(window *sysData) error {
 	if err != nil {
 		return err
 	}
+	a.sysData.setAreaSize(a.initwidth, a.initheight)
 	a.created = true
 	return nil
 }

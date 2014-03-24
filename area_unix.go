@@ -24,7 +24,7 @@ import "C"
 
 func gtkAreaNew() *gtkWidget {
 	drawingarea := C.gtk_drawing_area_new()
-	C.gtk_widget_set_size_request(drawingarea, 320, 240)
+	C.gtk_widget_set_size_request(drawingarea, 100, 100)		// default initial size (TODO do we need it?); use C. to avoid casting drawingarea
 	// we need to explicitly subscribe to mouse events with GtkDrawingArea
 	C.gtk_widget_add_events(drawingarea,
 		C.GDK_BUTTON_PRESS_MASK | C.GDK_BUTTON_RELEASE_MASK | C.GDK_POINTER_MOTION_MASK | C.GDK_BUTTON_MOTION_MASK)

@@ -350,3 +350,15 @@ func (s *sysData) len() int {
 	}
 	return <-ret
 }
+
+func (s *sysData) setAreaSize(width int, height int) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		c := gtkAreaGetControl(s.widget)
+		gtk_widget_set_size_request(c, width, height)
+		gtk_widget_queue_draw(c)		// force repaint (TODO doesn't have an effect when shrinking?)
+		ret <- struct{}{}
+	}
+	<-ret
+}
