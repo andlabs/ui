@@ -45,11 +45,18 @@ func gtkAreaGetControl(scrollarea *gtkWidget) *gtkWidget {
 //export our_area_draw_callback
 func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboolean {
 	var x, y, w, h C.double
+	var maxwid, maxht C.gint
 
 	s := (*sysData)(unsafe.Pointer(data))
 	// thanks to desrt in irc.gimp.net/#gtk+
 	C.cairo_clip_extents(cr, &x, &y, &w, &h)
 	cliprect := image.Rect(int(x), int(y), int(w), int(h))
+	// the cliprect can actually fall outside the size of the Area; clip it by intersecting the two rectangles
+	C.gtk_widget_get_size_request(widget, &maxwid, &maxht)
+	cliprect = image.Rect(0, 0, int(maxwid), int(maxht)).Intersect(cliprect)
+	if cliprect.Empty() {			// no intersection; nothing to paint
+		return C.FALSE			// signals handled without stopping the event chain (thanks to desrt again)
+	}
 	i := s.handler.Paint(cliprect)
 	// pixel order is [R G B A] (see Example 1 on https://developer.gnome.org/gdk-pixbuf/2.26/gdk-pixbuf-The-GdkPixbuf-Structure.html) so we don't have to convert anything
 	// gdk-pixbuf is not alpha-premultiplied (thanks to desrt in irc.gimp.net/#gtk+)

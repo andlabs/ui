@@ -194,7 +194,6 @@ func areaTest() {
 			if err != nil { println(err); continue }
 			height, err := strconv.Atoi(heightbox.Text())
 			if err != nil { println(err); continue }
-println(width, height)
 			a.SetSize(width, height)
 		}
 	}

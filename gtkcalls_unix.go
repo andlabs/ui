@@ -217,7 +217,3 @@ func gtk_progress_bar_set_fraction(w *gtkWidget, percent int) {
 func gtk_progress_bar_pulse(w *gtkWidget) {
 	C.gtk_progress_bar_pulse(togtkprogressbar(w))
 }
-
-func gtk_widget_queue_draw(widget *gtkWidget) {
-	C.gtk_widget_queue_draw(togtkwidget(widget))
-}
