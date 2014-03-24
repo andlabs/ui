@@ -54,7 +54,8 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 				}
 				// top-left corner is (0,0) so no need for winheight
 				s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
-				s.resize(0, 0, width, height, &s.resizes)
+				s.resize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom), &s.resizes)
+				// TODO use the Defer movement functions here?
 				for _, s := range s.resizes {
 					err = s.sysData.setRect(s.x, s.y, s.width, s.height, 0)
 					if err != nil {
