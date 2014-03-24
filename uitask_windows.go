@@ -84,6 +84,7 @@ func ui(main func()) error {
 		}
 	}
 
+	doWindowsQuitStuff()
 	return nil
 }
 
