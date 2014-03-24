@@ -21,6 +21,7 @@ type sysData struct {
 
 type classData struct {
 	name			string
+	register			func(s *sysData) (newClassName string, err error)
 	style				uint32
 	xstyle			uint32
 	mkid				bool
@@ -40,6 +41,7 @@ const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
+		register:			registerStdWndClass,
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
 	},
@@ -103,6 +105,11 @@ var classTypes = [nctypes]*classData{
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
+	c_area:			&classData{
+		register:			registerAreaWndClass,
+		style:			areastyle,
+		xstyle:			areaxstyle,
+	},
 }
 
 func (s *sysData) addChild(child *sysData) _HMENU {
@@ -132,10 +139,11 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 	if window != nil {		// this is a child control
 		cid = window.addChild(s)
 		pwin = uintptr(window.hwnd)
-	} else {				// need a new class
-		n, err := registerStdWndClass(s)
+	}
+	if classname == "" {		// need a new window class
+		n, err := ct.register(s)
 		if err != nil {
-			return fmt.Errorf("error creating window class for new window: %v", err)
+			return fmt.Errorf("error creating window class for new window/control (type %d): %v", s.ctype, err)
 		}
 		classname = n
 	}
@@ -612,4 +620,8 @@ func (s *sysData) len() int {
 		panic(fmt.Errorf("unexpected error return from sysData.len(); GetLastError() says %v", r.err))
 	}
 	return int(r.ret)
+}
+
+func (s *sysData) setAreaSize(width int, height int) {
+	// TODO
 }
