@@ -156,6 +156,74 @@ func getAreaControlSize(hwnd _HWND) (width int, height int) {
 		int(rect.Bottom - rect.Top)
 }
 
+func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
+	var si _SCROLLINFO
+
+	cwid, cht := getAreaControlSize(hwnd)
+	pagesize := int32(cwid)
+	maxsize := int32(320)
+	if which == uintptr(_SB_VERT) {
+		pagesize = int32(cht)
+		maxsize = int32(240)
+	}
+
+	si.cbSize = uint32(unsafe.Sizeof(si))
+	si.fMask = _SIF_POS | _SIF_TRACKPOS
+	r1, _, err := _getScrollInfo.Call(
+		uintptr(hwnd),
+		which,
+		uintptr(unsafe.Pointer(&si)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting current scroll position for scrolling: %v", err))
+	}
+
+	newpos := si.nPos
+	switch wparam & 0xFFFF {
+	case _SB_LEFT:			// also _SB_TOP but Go won't let me
+		newpos = 0
+	case _SB_RIGHT:		// also _SB_BOTTOM
+		// see comment in adjustAreaScrollbars() below
+		newpos = maxsize - pagesize
+	case _SB_LINELEFT:		// also _SB_LINEUP
+		newpos--
+	case _SB_LINERIGHT:	// also _SB_LINEDOWN
+		newpos++
+	case _SB_PAGELEFT:		// also _SB_PAGEUP
+		newpos -= pagesize
+	case _SB_PAGERIGHT:	// also _SB_PAGEDOWN
+		newpos += pagesize
+	case _SB_THUMBPOSITION:
+		// TODO is this the same as SB_THUMBTRACK instead? MSDN says use of thumb pos is only for that one
+		// do nothing; newpos already has the thumb's position
+	case _SB_THUMBTRACK:
+		newpos = si.nTrackPos
+	}		// otherwise just keep the current position (that's what MSDN example code says, anyway)
+
+	// make sure we're not out of range
+	if newpos < 0 {
+		newpos = 0
+	}
+	if newpos > (maxsize - pagesize) {
+		newpos = maxsize - pagesize
+	}
+
+	// TODO is this the right thing to do for SB_THUMBTRACK? or will it conflict?
+	if newpos == si.nPos {		// no change; no scrolling
+		return
+	}
+
+	// TODO scroll
+
+	// we actually have to commit the change back to the scrollbar; otherwise the scroll position will merely reset itself
+	si.cbSize = uint32(unsafe.Sizeof(si))
+	si.fMask = _SIF_POS
+	si.nPos = newpos
+	_setScrollInfo.Call(
+		uintptr(hwnd),
+		which,
+		uintptr(unsafe.Pointer(&si)))
+}
+
 func adjustAreaScrollbars(hwnd _HWND) {
 	var si _SCROLLINFO
 
@@ -164,6 +232,7 @@ func adjustAreaScrollbars(hwnd _HWND) {
 	// the trick is we want a page to be the width/height of the visible area
 	// so the scroll range would go from [0..image_dimension - control_dimension]
 	// but judging from the sample code on MSDN, we don't need to do this; the scrollbar will do it for us
+	// we DO need to handle it when scrolling, though, since the thumb can only go up to this upper limit
 
 	// have to do horizontal and vertical separately
 	si.cbSize = uint32(unsafe.Sizeof(si))
@@ -194,11 +263,13 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
-			return _LRESULT(0)
+			return 0
 		case _WM_HSCROLL:
-			fallthrough	// TODO
+			scrollArea(hwnd, wParam, _SB_HORZ)
+			return 0
 		case _WM_VSCROLL:
-			fallthrough	// TODO
+			scrollArea(hwnd, wParam, _SB_VERT)
+			return 0
 		case _WM_SIZE:
 			adjustAreaScrollbars(hwnd)		// don't use s.hwnd; this message can be sent before that's loaded
 			return 0
