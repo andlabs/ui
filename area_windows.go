@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	areastyle = 0 | controlstyle
+	areastyle = _WS_HSCROLL | _WS_VSCROLL | controlstyle
 	areaxstyle = 0 | controlxstyle
 )
 
@@ -139,12 +139,69 @@ func paintArea(s *sysData) {
 		uintptr(unsafe.Pointer(&ps)))
 }
 
+var (
+	_getWindowRect = user32.NewProc("GetWindowRect")
+)
+
+func getAreaControlSize(hwnd _HWND) (width int, height int) {
+	var rect _RECT
+
+	r1, _, err := _getWindowRect.Call(
+		uintptr(hwnd),
+		uintptr(unsafe.Pointer(&rect)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting size of actual Area control: %v", err))
+	}
+	return int(rect.Right - rect.Left),
+		int(rect.Bottom - rect.Top)
+}
+
+func adjustAreaScrollbars(hwnd _HWND) {
+	var si _SCROLLINFO
+
+	cwid, cht := getAreaControlSize(hwnd)
+
+	// the trick is we want a page to be the width/height of the visible area
+	// so the scroll range would go from [0..image_dimension - control_dimension]
+	// but judging from the sample code on MSDN, we don't need to do this; the scrollbar will do it for us
+
+	// have to do horizontal and vertical separately
+	si.cbSize = uint32(unsafe.Sizeof(si))
+	si.fMask = _SIF_RANGE | _SIF_PAGE
+	si.nMin = 0
+	si.nMax = int32(320)
+	si.nPage = uint32(cwid)
+	_setScrollInfo.Call(
+		uintptr(hwnd),
+		uintptr(_SB_HORZ),
+		uintptr(unsafe.Pointer(&si)),
+		uintptr(_TRUE))			// redraw the scroll bar
+
+	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN sample code does this a second time; let's do it too to be safe
+	si.fMask = _SIF_RANGE | _SIF_PAGE
+	si.nMin = 0
+	si.nMax = int32(240)
+	si.nPage = uint32(cht)
+	_setScrollInfo.Call(
+		uintptr(hwnd),
+		uintptr(_SB_VERT),
+		uintptr(unsafe.Pointer(&si)),
+		uintptr(_TRUE))			// redraw the scroll bar
+}
+
 func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
 			return _LRESULT(0)
+		case _WM_HSCROLL:
+			fallthrough	// TODO
+		case _WM_VSCROLL:
+			fallthrough	// TODO
+		case _WM_SIZE:
+			adjustAreaScrollbars(hwnd)		// don't use s.hwnd; this message can be sent before that's loaded
+			return 0
 		default:
 			r1, _, _ := defWindowProc.Call(
 				uintptr(hwnd),

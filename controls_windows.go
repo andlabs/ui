@@ -420,3 +420,88 @@ const (
 	_STN_ENABLE = 2
 	_STN_DISABLE = 3
 )
+
+// SetScrollPos/GetScrollPos scrollbar identifiers.
+const (
+	// from winuser.h
+	_SB_HORZ = 0
+	_SB_VERT = 1
+	_SB_CTL = 2
+	_SB_BOTH = 3
+)
+
+// Scrollbar event types.
+const (
+	// from winuser.h
+	_SB_LINEUP = 0
+	_SB_LINELEFT = 0
+	_SB_LINEDOWN = 1
+	_SB_LINERIGHT = 1
+	_SB_PAGEUP = 2
+	_SB_PAGELEFT = 2
+	_SB_PAGEDOWN = 3
+	_SB_PAGERIGHT = 3
+	_SB_THUMBPOSITION = 4
+	_SB_THUMBTRACK = 5
+	_SB_TOP = 6
+	_SB_LEFT = 6
+	_SB_BOTTOM = 7
+	_SB_RIGHT = 7
+	_SB_ENDSCROLL = 8
+)
+
+// ScrollWindowEx flags.
+const (
+	// from winuser.h
+	_SW_SCROLLCHILDREN = 0x0001
+	_SW_INVALIDATE = 0x0002
+	_SW_ERASE = 0x0004
+)
+
+// Scrollbar messages.
+const (
+	// from winuser.h
+	_SBM_SETPOS = 0x00E0
+	_SBM_GETPOS = 0x00E1
+	_SBM_SETRANGE = 0x00E2
+	_SBM_SETRANGEREDRAW = 0x00E6
+	_SBM_GETRANGE = 0x00E3
+	_SBM_ENABLE_ARROWS = 0x00E4
+	_SBM_SETSCROLLINFO = 0x00E9
+	_SBM_GETSCROLLINFO = 0x00EA
+	_SBM_GETSCROLLBARINFO = 0x00EB
+)
+
+// Scrollbar notifications. (These are actually sent to the parent window.)
+const (
+	// from winuser.h
+	_WM_HSCROLL = 0x0114
+	_WM_VSCROLL = 0x0115
+)
+
+// SCROLLINFO flags.
+const (
+	// from winuser.h
+	_SIF_RANGE = 0x0001
+	_SIF_PAGE = 0x0002
+	_SIF_POS = 0x0004
+	_SIF_DISABLENOSCROLL = 0x0008
+	_SIF_TRACKPOS = 0x0010
+	_SIF_ALL = (_SIF_RANGE | _SIF_PAGE | _SIF_POS | _SIF_TRACKPOS)
+)
+
+var (
+	_getScrollPos = user32.NewProc("GetScrollPos")
+	_setScrollInfo = user32.NewProc("SetScrollInfo")
+	_scrollWindowEx = user32.NewProc("ScrollWindowEx")
+)
+
+type _SCROLLINFO struct {
+	cbSize		uint32
+	fMask		uint32
+	nMin			int32		// originally int
+	nMax		int32		// originally int
+	nPage		uint32
+	nPos			int32		// originally int
+	nTrackPos	int32		// originally int
+}
