@@ -490,6 +490,15 @@ const (
 	_SIF_ALL = (_SIF_RANGE | _SIF_PAGE | _SIF_POS | _SIF_TRACKPOS)
 )
 
+// ScrollWindowEx return values.
+const (
+	// from wingdi.h
+	_ERROR = 0
+	_NULLREGION = 1
+	_SIMPLEREGION = 2
+	_COMPLEXREGION = 3
+)
+
 var (
 	_getScrollInfo = user32.NewProc("GetScrollInfo")
 	_getScrollPos = user32.NewProc("GetScrollPos")

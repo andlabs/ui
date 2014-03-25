@@ -208,7 +208,30 @@ func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
 		return
 	}
 
-	// TODO scroll
+	delta := -(newpos - si.nPos)	// negative because ScrollWindowEx() scrolls in the opposite direction
+	dx := delta
+	dy := int32(0)
+	if which == uintptr(_SB_VERT) {
+		dx = int32(0)
+		dy = delta
+	}
+	r1, _, err = _scrollWindowEx.Call(
+		uintptr(hwnd),
+		uintptr(dx),
+		uintptr(dy),
+		uintptr(0),			// these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
+		uintptr(0),
+		uintptr(0),
+		uintptr(0),
+		// TODO also SW_ERASE? or will the GetUpdateRect() call handle it?
+		uintptr(_SW_INVALIDATE))					// mark the remaining rect as needing redraw...
+	if r1 == _ERROR {		// failure
+		panic(fmt.Errorf("error scrolling Area: %v", err))
+	}
+	r1, _, err = _updateWindow.Call(uintptr(hwnd))		// ...and redraw it
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
+	}
 
 	// we actually have to commit the change back to the scrollbar; otherwise the scroll position will merely reset itself
 	si.cbSize = uint32(unsafe.Sizeof(si))
