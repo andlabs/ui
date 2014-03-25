@@ -50,6 +50,20 @@ func _MAKEINTRESOURCE(what uint16) uintptr {
 	return uintptr(what)
 }
 
+func (l _LPARAM) _X() int32 {
+	// according to windowsx.h
+	loword := uint16(l & 0xFFFF)
+	short := int16(loword)	// convert to signed...
+	return int32(short)		// ...and sign extend
+}
+
+func (l _LPARAM) _Y() int32 {
+	// according to windowsx.h
+	hiword := uint16((l & 0xFFFF0000) >> 16)
+	short := int16(hiword)	// convert to signed...
+	return int32(short)		// ...and sign extend
+}
+
 type _POINT struct {
 	X	int32
 	Y	int32

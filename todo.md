@@ -48,6 +48,7 @@ important things:
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 	- pin down this behavior; also note non-editability
 - the size of Listboxes on Windows does not fill the requested space completely (wait, wasn't there a style that governed this?)
+- make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 
 super ultra important things:
 - the windows build appears to be unstable:

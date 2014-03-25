@@ -132,7 +132,7 @@ func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
 	return a.img.SubImage(rect).(*image.NRGBA)
 }
 func (a *areaHandler) Mouse(e MouseEvent) {
-//	fmt.Printf("%#v\n", e)
+	fmt.Printf("%#v\n", e)
 }
 func (a *areaHandler) Key(e KeyEvent) bool {
 	fmt.Printf("%#v\n", e)

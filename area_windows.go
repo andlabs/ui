@@ -24,6 +24,32 @@ var (
 	areaWndClassNumLock sync.Mutex
 )
 
+func getScrollPos(hwnd _HWND) (xpos int32, ypos int32) {
+	var si _SCROLLINFO
+
+	si.cbSize = uint32(unsafe.Sizeof(si))
+	si.fMask = _SIF_POS | _SIF_TRACKPOS
+	r1, _, err := _getScrollInfo.Call(
+		uintptr(hwnd),
+		uintptr(_SB_HORZ),
+		uintptr(unsafe.Pointer(&si)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting horizontal scroll position for Area: %v", err))
+	}
+	xpos = si.nPos
+	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN example code reinitializes this each time, so we'll do it too just to be safe
+	si.fMask = _SIF_POS | _SIF_TRACKPOS
+	r1, _, err = _getScrollInfo.Call(
+		uintptr(hwnd),
+		uintptr(_SB_VERT),
+		uintptr(unsafe.Pointer(&si)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting vertical scroll position for Area: %v", err))
+	}
+	ypos = si.nPos
+	return xpos, ypos
+}
+
 var (
 	_getUpdateRect = user32.NewProc("GetUpdateRect")
 	_beginPaint = user32.NewProc("BeginPaint")
@@ -51,7 +77,6 @@ func paintArea(s *sysData) {
 
 	var xrect _RECT
 	var ps _PAINTSTRUCT
-	var si _SCROLLINFO
 
 	// TODO send _TRUE if we want to erase the clip area
 	r1, _, _ := _getUpdateRect.Call(
@@ -62,36 +87,17 @@ func paintArea(s *sysData) {
 		return
 	}
 
-	si.cbSize = uint32(unsafe.Sizeof(si))
-	si.fMask = _SIF_POS | _SIF_TRACKPOS
-	r1, _, err := _getScrollInfo.Call(
-		uintptr(s.hwnd),
-		uintptr(_SB_HORZ),
-		uintptr(unsafe.Pointer(&si)))
-	if r1 == 0 {		// failure
-		panic(fmt.Errorf("error getting horizontal scroll position for Area repaint: %v", err))
-	}
-	hscroll := int(si.nPos)
-	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN example code reinitializes this each time, so we'll do it too just to be safe
-	si.fMask = _SIF_POS | _SIF_TRACKPOS
-	r1, _, err = _getScrollInfo.Call(
-		uintptr(s.hwnd),
-		uintptr(_SB_VERT),
-		uintptr(unsafe.Pointer(&si)))
-	if r1 == 0 {		// failure
-		panic(fmt.Errorf("error getting vertical scroll position for Area repaint: %v", err))
-	}
-	vscroll := int(si.nPos)
+	hscroll, vscroll := getScrollPos(s.hwnd)
 
 	cliprect := image.Rect(int(xrect.Left), int(xrect.Top), int(xrect.Right), int(xrect.Bottom))
-	cliprect = cliprect.Add(image.Pt(hscroll, vscroll))		// adjust by scroll position
+	cliprect = cliprect.Add(image.Pt(int(hscroll), int(vscroll)))			// adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area
 	cliprect = cliprect.Intersect(image.Rect(0, 0, 320, 240))	// TODO change when adding resizing
 	if cliprect.Empty() {		// still no update rect
 		return
 	}
 
-	r1, _, err = _beginPaint.Call(
+	r1, _, err := _beginPaint.Call(
 		uintptr(s.hwnd),
 		uintptr(unsafe.Pointer(&ps)))
 	if r1 == 0 {		// failure
@@ -300,6 +306,57 @@ func adjustAreaScrollbars(hwnd _HWND) {
 		uintptr(_TRUE))			// redraw the scroll bar
 }
 
+var (
+	_getKeyState = user32.NewProc("GetKeyState")
+)
+
+func getModifiers() (m Modifiers) {
+	down := func(x uintptr) bool {
+		r1, _, _ := _getKeyState.Call(x)
+		return (r1 & 0x80) != 0
+	}
+
+	if down(_VK_CONTROL) {
+		m |= Ctrl
+	}
+	if down(_VK_MENU) {
+		m |= Alt
+	}
+	if down(_VK_SHIFT) {
+		m |= Shift
+	}
+	// TODO windows key (super)
+	return m
+}
+
+func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM, lparam _LPARAM) {
+	var me MouseEvent
+
+	xpos, ypos := getScrollPos(s.hwnd)		// mouse coordinates are relative to control; make them relative to Area
+	xpos += lparam._X()
+	ypos += lparam._Y()
+	me.Pos = image.Pt(int(xpos), int(ypos))
+	if up {
+		me.Up = button
+	} else {
+		me.Down = button
+		me.Count = count
+	}
+	// though wparam will contain control and shift state, let's use just one function to get modifiers for both keyboard and mouse events; it'll work the same anyway since we have to do this for alt and windows key (super)
+	me.Modifiers = getModifiers()
+	if button != 1 && (wparam & _MK_LBUTTON) != 0 {
+		me.Held = append(me.Held, 1)
+	}
+	if button != 2 && (wparam & _MK_MBUTTON) != 0 {
+		me.Held = append(me.Held, 2)
+	}
+	if button != 3 && (wparam & _MK_RBUTTON) != 0 {
+		me.Held = append(me.Held, 3)
+	}
+	// TODO XBUTTONs?
+	s.handler.Mouse(me)
+}
+
 func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 		switch uMsg {
@@ -315,6 +372,37 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_SIZE:
 			adjustAreaScrollbars(hwnd)		// don't use s.hwnd; this message can be sent before that's loaded
 			return 0
+		case _WM_MOUSEMOVE:
+			areaMouseEvent(s, 0, false, 0, wParam, lParam)
+			return 0
+		case _WM_LBUTTONDOWN:
+			areaMouseEvent(s, 1, false, 1, wParam, lParam)
+			return 0
+		case _WM_LBUTTONDBLCLK:
+			areaMouseEvent(s, 1, false, 2, wParam, lParam)
+			return 0
+		case _WM_LBUTTONUP:
+			areaMouseEvent(s, 1, true, 0, wParam, lParam)
+			return 0
+		case _WM_MBUTTONDOWN:
+			areaMouseEvent(s, 2, false, 1, wParam, lParam)
+			return 0
+		case _WM_MBUTTONDBLCLK:
+			areaMouseEvent(s, 2, false, 2, wParam, lParam)
+			return 0
+		case _WM_MBUTTONUP:
+			areaMouseEvent(s, 2, true, 0, wParam, lParam)
+			return 0
+		case _WM_RBUTTONDOWN:
+			areaMouseEvent(s, 3, false, 1, wParam, lParam)
+			return 0
+		case _WM_RBUTTONDBLCLK:
+			areaMouseEvent(s, 3, false, 2, wParam, lParam)
+			return 0
+		case _WM_RBUTTONUP:
+			areaMouseEvent(s, 3, true, 0, wParam, lParam)
+			return 0
+		// TODO XBUTTONs?
 		default:
 			r1, _, _ := defWindowProc.Call(
 				uintptr(hwnd),
