@@ -127,6 +127,7 @@ func paintArea(s *sysData) {
 	if r1 != 0 {			// failure
 		panic(fmt.Errorf("error freeing GDI+ graphics context to blit to (GDI+ error code %d; Windows last error %v)", r1, err))
 	}
+	// TODO this is the destructor of Image (Bitmap's base class); I don't see a specific destructor for Bitmap itself so
 	r1, _, err = _gdipDisposeImage.Call(bitmap)
 	if r1 != 0 {			// failure
 		panic(fmt.Errorf("error freeing GDI+ bitmap to blit (GDI+ error code %d; Windows last error %v)", r1, err))
