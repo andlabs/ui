@@ -501,7 +501,6 @@ const (
 
 var (
 	_getScrollInfo = user32.NewProc("GetScrollInfo")
-	_getScrollPos = user32.NewProc("GetScrollPos")
 	_setScrollInfo = user32.NewProc("SetScrollInfo")
 	_scrollWindowEx = user32.NewProc("ScrollWindowEx")
 )

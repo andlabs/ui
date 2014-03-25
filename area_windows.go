@@ -51,6 +51,7 @@ func paintArea(s *sysData) {
 
 	var xrect _RECT
 	var ps _PAINTSTRUCT
+	var si _SCROLLINFO
 
 	// TODO send _TRUE if we want to erase the clip area
 	r1, _, _ := _getUpdateRect.Call(
@@ -61,15 +62,36 @@ func paintArea(s *sysData) {
 		return
 	}
 
+	si.cbSize = uint32(unsafe.Sizeof(si))
+	si.fMask = _SIF_POS | _SIF_TRACKPOS
+	r1, _, err := _getScrollInfo.Call(
+		uintptr(s.hwnd),
+		uintptr(_SB_HORZ),
+		uintptr(unsafe.Pointer(&si)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting horizontal scroll position for Area repaint: %v", err))
+	}
+	hscroll := int(si.nPos)
+	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN example code reinitializes this each time, so we'll do it too just to be safe
+	si.fMask = _SIF_POS | _SIF_TRACKPOS
+	r1, _, err = _getScrollInfo.Call(
+		uintptr(s.hwnd),
+		uintptr(_SB_VERT),
+		uintptr(unsafe.Pointer(&si)))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error getting vertical scroll position for Area repaint: %v", err))
+	}
+	vscroll := int(si.nPos)
+
 	cliprect := image.Rect(int(xrect.Left), int(xrect.Top), int(xrect.Right), int(xrect.Bottom))
-	// TODO offset cliprect by scroll position
+	cliprect = cliprect.Add(image.Pt(hscroll, vscroll))		// adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area
 	cliprect = cliprect.Intersect(image.Rect(0, 0, 320, 240))	// TODO change when adding resizing
 	if cliprect.Empty() {		// still no update rect
 		return
 	}
 
-	r1, _, err := _beginPaint.Call(
+	r1, _, err = _beginPaint.Call(
 		uintptr(s.hwnd),
 		uintptr(unsafe.Pointer(&ps)))
 	if r1 == 0 {		// failure
