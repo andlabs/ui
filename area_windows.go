@@ -139,14 +139,10 @@ func paintArea(s *sysData) {
 		uintptr(unsafe.Pointer(&ps)))
 }
 
-var (
-	_getWindowRect = user32.NewProc("GetWindowRect")
-)
-
 func getAreaControlSize(hwnd _HWND) (width int, height int) {
 	var rect _RECT
 
-	r1, _, err := _getWindowRect.Call(
+	r1, _, err := _getClientRect.Call(
 		uintptr(hwnd),
 		uintptr(unsafe.Pointer(&rect)))
 	if r1 == 0 {		// failure
@@ -222,6 +218,7 @@ func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
 		uintptr(hwnd),
 		which,
 		uintptr(unsafe.Pointer(&si)))
+	// TODO in some cases wine will show a thumb one pixel away from the advance arrow button if going to the end; the values are correct though... weirdness in wine or something I never noticed about Windows?
 }
 
 func adjustAreaScrollbars(hwnd _HWND) {

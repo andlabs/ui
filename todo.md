@@ -74,11 +74,11 @@ super ultra important things:
 	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
-	- GTK+: requested clip rect seems to be larger than the size of the Area (also larger than the visible portion? TODO)
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
 - the window background of a GTK+ window seems to be... off - I think it has to do with the GtkLayout
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
+- scrolling Areas in wine by clicking in the page scroll area often causes the main thread to lock up; uitask does not
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
