@@ -5,9 +5,9 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 	"image"
-"fmt"
 )
 
 // #cgo pkg-config: gtk+-3.0
