@@ -81,6 +81,7 @@ super ultra important things:
 - resizing seems to be completely and totally broken in the Wayland backend
 - scrolling Areas in wine by clicking in the page scroll area often causes the main thread to lock up; uitask does not
 - make sure the first and last rows and columns of an Area are being drawn on Windows
+- clicking on Areas in GTK+ don't bring keyboard focus to them?
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)

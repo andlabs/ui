@@ -179,6 +179,7 @@ func doKeyEvent(event *C.GdkEvent, data C.gpointer, up bool) bool {
 	var ke KeyEvent
 
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
+fmt.Println("$$", up, e.hardware_keycode)
 	s := (*sysData)(unsafe.Pointer(data))
 	keyval := e.keyval
 	if extkey, ok := extkeys[keyval]; ok {
