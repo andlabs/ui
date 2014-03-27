@@ -5,15 +5,17 @@ import (
 //	"fmt"
 	"flag"
 	"image"
-//	"image/color"
+	"image/color"
 	"image/draw"
 	_ "image/png"
 	"bytes"
+	"sync"
 	. "github.com/andlabs/ui"
 )
 
 type keyboardArea struct {
 	kbd		*image.NRGBA
+	lock		sync.Mutex		// TODO needed?
 }
 
 func mkkbArea() (width int, height int, a *keyboardArea) {
@@ -26,14 +28,49 @@ func mkkbArea() (width int, height int, a *keyboardArea) {
 }
 
 func (a *keyboardArea) Paint(cliprect image.Rectangle) *image.NRGBA {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
 	return a.kbd.SubImage(cliprect).(*image.NRGBA)
 }
 
 func (a *keyboardArea) Mouse(MouseEvent) {}
 
+func markkey(dest *image.NRGBA, keypt image.Point, m Modifiers) {
+	xr := keyrect(m).Add(keypt)
+	xi := modcolor(m)
+	draw.Draw(dest, xr, xi, image.ZP, draw.Over)
+}
+
 func (a *keyboardArea) Key(e KeyEvent) bool {
-	// TODO
-	return false
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	switch {
+//	case e.Key != 0:
+//		markkey(a.kbd, keypoints[e.Key], e.Modifiers)
+	case e.ASCII != 0:
+		markkey(a.kbd, keypoints[e.ASCII], e.Modifiers)
+	case e.ExtKey != 0:
+		markkey(a.kbd, extkeypoints[e.ExtKey], e.Modifiers)
+	case e.Modifiers != 0:
+		m := e.Modifiers
+		if (m & Ctrl) != 0 {
+			markkey(a.kbd, modpoints[Ctrl], m &^ Ctrl)
+		}
+		if (m & Alt) != 0 {
+			markkey(a.kbd, modpoints[Alt], m &^ Alt)
+		}
+		if (m & Shift) != 0 {
+			markkey(a.kbd, modpoints[Shift], m &^ Shift)
+		}
+//		if (m & Super) != 0 {
+//			markkey(a.kbd, modpoints[Super], m &^ Super)
+//		}
+	default:
+		return false
+	}
+	return true
 }
 
 var doKeyboard = flag.Bool("kb", false, "run keyboard test")
@@ -44,6 +81,44 @@ func kbTest() {
 	err := w.Open(a)
 	if err != nil { panic(err) }
 	<-w.Closing
+}
+
+var (
+	keywid = 36
+	keyht = 24
+	// 8 rects per key, 4x2 grid
+	rectsperrow = 4
+	rectspercol = 2
+	keyrectwid = keywid / rectsperrow
+	keyrectht = keyht / rectspercol
+	_keyrect = image.Rect(0, 0, keyrectwid, keyrectht)
+)
+
+func keyrect(m Modifiers) (r image.Rectangle) {
+	return _keyrect.Add(image.Pt(keyrectwid * (int(m) % rectsperrow),
+		keyrectht * (int(m) / rectsperrow)))
+}
+
+func modcolor(m Modifiers) *image.Uniform {
+	r := (m & 1) * 255; m >>= 1
+	g := (m & 1) * 255; m >>= 1
+	b := (m & 1) * 255; m >>= 1
+	return image.NewUniform(color.NRGBA{byte(r), byte(g), byte(b), 255})
+}
+
+var keypoints = map[byte]image.Point{
+	// ...
+}
+
+var extkeypoints = map[ExtKey]image.Point{
+	// ...
+}
+
+var modpoints = map[Modifiers]image.Point{
+	Ctrl:		image.Pt(4, 199),
+	Alt:		image.Pt(113, 199),
+	Shift:		image.Pt(4, 159),
+//	Super:	image.Pt(61, 199),
 }
 
 // source: http://openclipart.org/image/800px/svg_to_png/154537/1312973798.png (medium image) via http://openclipart.org/detail/154537/us-english-keyboard-layout-v0.1-by-nitiraseem
