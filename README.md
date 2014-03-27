@@ -6,6 +6,8 @@
 
 ### UPDATE 18 March 2014: Resizes are now assumed to stop other UI event processing, and thus do not run with locks anymore. I changed real control resizing so that it doesn't need to lock (it just fills an array with data fed in), but real control `preferredSize()` and `Stack`/`Grid.setRect()` could potentially still be racy... if I am right it won't be an issue, but if anyone else knows, please let me know. (Everything else is thread-safe again.)
 
+### UPDATE 27 March 2014: Unix builds now require go tip due to a [cgo fix that affected this package](https://code.google.com/p/go/issues/detail?id=7548).
+
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 
 ui aims to run on all supported versions of supported platforms. To be more precise, the system requirements are:
@@ -14,6 +16,7 @@ ui aims to run on all supported versions of supported platforms. To be more prec
 * Mac OS X: Mac OS X 10.6 (Snow Leopard) or newer. Objective-C dispatch is done by interfacing with libobjc directly, and thus this uses cgo.
 	* Note: you will need Go 1.3 or newer (so until it is released, [go tip](http://tip.golang.org/doc/install/source#head)) for this verison, as it uses a single .m file due to technical restrictions (read the comments in `bleh_darwin.m` for details), and earlier versions of Go do not auto-build .m files.
 * Other Unixes: The Unix backend uses GTK+, and thus cgo. It requires GTK+ 3.4 or newer; for Ubuntu this means 12.04 LTS (Precise Pangolin) at minimum. Check your distribution.
+	* Note: you will need Go 1.3 or newer (as above) due to various cgo errors fixed in this version (such as [this one](https://code.google.com/p/go/issues/detail?id=7548)).
 
 ui itself has no outside Go package dependencies; it is entirely self-contained.
 

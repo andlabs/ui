@@ -18,8 +18,6 @@ import (
 // extern gboolean our_area_motion_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
-// /* HACK - see https://code.google.com/p/go/issues/detail?id=7548 */
-// struct _cairo {};
 import "C"
 
 func gtkAreaNew() *gtkWidget {
