@@ -35,7 +35,7 @@ windows | works on windows; works on wine* | works on windows; fails on wine | (
 linux | see table below | see table below | Raspian: works
 darwin (Mac OS X) | works* (cross-compiled from 64-bit) | works* | (invalid)
 dragonfly | untested | untested | (invalid)
-freebsd | untested (VM failure) | untested (VM failure) | untested
+freebsd | works | untested (VM failure) | untested
 netbsd | untested | untested | untested
 openbsd | untested | untested | (invalid)
 solaris | (invalid) | Oracle Solaris 11: **GTK+ 3 not available from official repos** | (invalid)
