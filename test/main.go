@@ -139,7 +139,7 @@ func (a *areaHandler) Key(e KeyEvent) bool {
 	return false
 }
 
-var doArea = flag.Bool("area", false, "run area test instead")
+var doArea = flag.Bool("area", false, "run area test instead (overrides -kb)")
 func areaTest() {
 /*
 	img := [2]*image.NRGBA{}
@@ -202,6 +202,10 @@ func areaTest() {
 func myMain() {
 	if *doArea {
 		areaTest()
+		return
+	}
+	if *doKeyboard {
+		kbTest()
 		return
 	}
 	w := NewWindow("Main Window", 320, 240)

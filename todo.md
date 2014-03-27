@@ -93,6 +93,7 @@ important things:
 	- do this for the names of GTK+ helper functions (gtkXXX or gXXX)
 - on windows 7, progress bars seem to animate from 0 -> pos when you turn off marquee mode and set pos; see if that's documented or if I'm doing something wrong
 - clean up windows struct field names (holdover from when the intent was to make a wrapper lib first and then use it rather than using the windows API directly)
+- make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
 
 far off:
 - localization
