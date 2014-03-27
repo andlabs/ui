@@ -20,7 +20,9 @@ ui aims to run on all supported versions of supported platforms. To be more prec
 
 ui itself has no outside Go package dependencies; it is entirely self-contained.
 
-To install, simply `go get` this package. On Mac OS X, make sure you have the Apple development headers. On other Unixes, make sure you have the GTK+ development files (for Ubuntu, `libgtk-3-dev` is sufficient).
+To install, simply `go get` this package. On Mac OS X, make sure you have the Apple development headers. On other Unixes, make sure you have the GTK+ development files:
+* for Ubuntu, `libgtk-3-dev` is sufficient
+* for FreeBSD with the pkgng system, `gtk3` is sufficient, however you will need to manually install `pkgconf` to please cgo (and you may need to specify `CC=gcc47`) (this should be put on the Go wiki)
 
 Package documentation is available at http://godoc.org/github.com/andlabs/ui.
 
