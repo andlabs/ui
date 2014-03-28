@@ -1087,3 +1087,53 @@ I tweeted a tl;dr of the whole debacle documented in detail above:
 - https://twitter.com/pgandlabs/status/447792724969000960
 - https://twitter.com/pgandlabs/status/447792787241832449
 - https://twitter.com/pgandlabs/status/447792889620598784
+
+# ...but wait!
+When writing the Windows version of the above I got stuck (durr) and looked at the GLFW sources again; then I noticed **it was using scancodes for the typewriter keys**. But isn't that going to hurt when we try foreign keyboards?
+
+[Nope.](http://www.quadibloc.com/comp/scan.htm)
+
+I had found the above during my research above but never went down far enough to notice that it explains that yes, international keyboards DO use the same scancodes as American keyboards. So, given the scancodes on Windows and OS X's own positional key codes, we CAN do positional input after all! ...but we need a solution for GTK+.
+
+We don't need to do the reverse lookup problem I had earlier with the Spanish keyboards as the `GdkEventKey` structure has a `hardware_keycode`. For that there's this (irc.gimp.net/#gtk+):
+```
+[Saturday, March 22, 2014] [12:22:04 PM] <andlabs> well I keep running into problems trying to just see how GdkKeymapKey works in GTK+/Wayland because I can't get Wayland working properly in VMs
+[Saturday, March 22, 2014] [12:22:07 PM] Quit nkoep (~nik@koln-4db46460.pool.mediaWays.net) has left this server (Remote closed the connection).
+[Saturday, March 22, 2014] [12:22:47 PM] <ebassi> andlabs: you should use a nested wayland inside x11, or run a wayland session
+[Saturday, March 22, 2014] [12:22:48 PM] <jjavaholic> flashplugin > firefox > nvidia > libc > xorg ?
+[Saturday, March 22, 2014] [12:23:11 PM] <andlabs> all right, thanks
+[Saturday, March 22, 2014] [12:23:30 PM] <ebassi> jjavaholic: no. more like: flashplugin > xorg > nvidia; firefox > xorg > nvidia; firefox/flashplugin/xorg > libc
+[Saturday, March 22, 2014] [12:23:43 PM] Join nkoep (~nik@koln-4db46460.pool.mediaWays.net) has joined this channel.
+[Saturday, March 22, 2014] [12:28:41 PM] <andlabs> ebassi: so am I to assume that the hardware_keycodes in wayland are the smae as the hardware_keycodes in X? t hat's my main thing
+[Saturday, March 22, 2014] [12:28:52 PM] <andlabs> if they are different I'd need to find out how
+[Saturday, March 22, 2014] [12:29:00 PM] <ebassi> yes, you can assume that they are the same
+[Saturday, March 22, 2014] [12:29:22 PM] <andlabs> ok, thanks
+[Saturday, March 22, 2014] [12:30:35 PM] Quit nkoep (~nik@koln-4db46460.pool.mediaWays.net) has left this server (Remote closed the connection).
+[Saturday, March 22, 2014] [12:31:51 PM] Quit gauteh (~gauteh@cD572BF51.dhcp.as2116.net) has left this server (Ping timeout: 600 seconds).
+[Saturday, March 22, 2014] [12:31:56 PM] <jjavaholic> system profiler libc contents: http://i.imgur.com/herHBMU.png 
+[Saturday, March 22, 2014] [12:32:36 PM] <jjavaholic> system profiler nvidia-304 contents: http://i.imgur.com/3NrkFNQ.png
+[Saturday, March 22, 2014] [12:32:39 PM] <ebassi> andlabs: both x11 and wayland on linux get the events from the kernel evdev interface, so you get the same hw key codes
+[Saturday, March 22, 2014] [12:32:59 PM] <ebassi> andlabs: also, both x11 and wayland use xkbcommon to handle key maps
+[Saturday, March 22, 2014] [12:33:29 PM] <andlabs> cool, thanks
+```
+So I know that the codes are standard between X11 and Wayland, and that on Linux the codes are provided by evdev (which, as we will see later, uses standard codes). The question now is: is there a portable way to get the physical keys?
+
+GLFW on Unix [uses the full XKB and its key names to do the job](https://github.com/glfw/glfw/blob/master/src/x11_init.c#L245). libxkbcommon doesn't seem to be able to do this, and we would need an X11 display to map back anyway, so that doesn't work. And when going through the GDK source to see how it fills in `hardware_keycode`, I notice it uses more XKB features that aren't part of libxkbcommon, like `struct xkb_desc` (even in [a Wayland patch](https://mail.gnome.org/archives/commits-list/2011-January/msg02064.html)). So these are useless.
+
+There is one important thing that [we do get from both libxkbcommon](http://xkbcommon.org/doc/current/xkbcommon_8h.html#ac29aee92124c08d1953910ab28ee1997) and assorted other X docs and source code, though: X11 keycodes start at 8, so for the evdev case, the `hardware_keycode` is the evdev code + 8. (This latter part is in the libxkbcommon link in this paragraph.)
+
+At this point I decided to figure out what `GdkEventKey.hardware_keycode` meant on each Unix variant, and ran a few tests to get some sample values of the `GdkEventKey.hardware_keycode`. Then I set up a FreeBSD 32-bit setup and tried the tests again... and got the same values. Huh?????
+
+I decided to dig into the X.org source to see what was making key codes. There are two keyboard drivers of interest here:
+<ul><li>xf86-input-keyboard, the generic keyboard driver: [relevant code](http://cgit.freedesktop.org/xorg/driver/xf86-input-keyboard/tree/src/kbd.c#n411)
+<li>xf86-input-evdev, the Linux evdev client driver: [relevant code](http://cgit.freedesktop.org/xorg/driver/xf86-input-evdev/tree/src/evdev.c#n330)</ul>
+The most that I could gather after going through this and jumping around the rest of the source tree a few times is that the xf86-input-keyboard driver simply passed scancodes up to the client program. (Indeed, pressing the 1 key on the keyboard produced 10, which is scancode 0x02 + 8, something I noticed during the FreeBSD tests.)
+
+So the question is: are the scancodes the same as evdev's keyboard values for the typewriter keys? Those are the only ones we need; the other keys can be determined from their Windows virtual key codes and GDK key codes. I wrote a program to take [evdev's well-defined key equivalents](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/input.h#n201) (this is also on your local Linux machine, inthe `<linux/input.h>` header file, under "Keys and buttons") and the same set of scancodes (from the Scancodes Demystified article linked above) and... **they do match**!
+
+<b><i><u>We're in the clear for positional keyboard input!</u></i></b> :D
+
+There are a few loose ends:
+* Can the OS X key codes be used to differentiate between numpad keys and non-numpad keys regardless of num lock state? If so, we can safely differentiate between the two, and can get rid of that arbitrary restriction.
+** TODO
+* The GLFW source does not use the scancode 0x2B for \, claiming that it only exists on US keyboards (instead it uses one of the OEM virtual key codes on Windows). This goes against the Scancodes Demystified page, which says that on international keyboards, that would be another key (with region-specific label) underneath and to the right of what would be the [ and ] keys on a US keyboard. This appears to be true in some cases; in others, the extra key is to the left of Backspace instead. Either way, this is close enough to the \ key's position on a US keyboard that we can just go ahead and use 0x2B anyway.
