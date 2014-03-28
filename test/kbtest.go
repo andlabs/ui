@@ -113,8 +113,30 @@ var keypoints = map[byte]image.Point{
 }
 
 var extkeypoints = map[ExtKey]image.Point{
-	// ...
-}
+	Escape:		image.Pt(4, 3),
+	Insert:		image.Pt(573, 78),
+	Delete:		image.Pt(573, 118),
+	Home:		image.Pt(573, 37),
+	End:			image.Pt(609, 37),
+	PageUp:		image.Pt(609, 78),
+	PageDown:	image.Pt(609, 118),
+	Up:			image.Pt(573, 174),
+	Down:		image.Pt(573, 211),
+	Left:			image.Pt(537, 211),
+	Right:		image.Pt(609, 211),
+/*	F1:			image.Pt(xx, xx),
+	F2:			image.Pt(xx, xx),
+	F3:			image.Pt(xx, xx),
+	F4:			image.Pt(xx, xx),
+	F5:			image.Pt(xx, xx),
+	F6:			image.Pt(xx, xx),
+	F7:			image.Pt(xx, xx),
+	F8:			image.Pt(xx, xx),
+	F9:			image.Pt(xx, xx),
+	F10:			image.Pt(xx, xx),
+	F11:			image.Pt(xx, xx),
+	F12:			image.Pt(xx, xx),
+*/}
 
 var modpoints = map[Modifiers]image.Point{
 	Ctrl:		image.Pt(4, 199),
