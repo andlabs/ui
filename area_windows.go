@@ -329,6 +329,7 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
+// TODO mark repaint
 func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM, lparam _LPARAM) {
 	var me MouseEvent
 
@@ -403,6 +404,7 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			areaMouseEvent(s, 3, true, 0, wParam, lParam)
 			return 0
 		// TODO XBUTTONs?
+		// TODO mark repaint in key events
 		default:
 			r1, _, _ := defWindowProc.Call(
 				uintptr(hwnd),

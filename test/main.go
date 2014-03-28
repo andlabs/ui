@@ -131,12 +131,13 @@ func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
 */
 	return a.img.SubImage(rect).(*image.NRGBA)
 }
-func (a *areaHandler) Mouse(e MouseEvent) {
-	fmt.Printf("%#v\n", e)
-}
-func (a *areaHandler) Key(e KeyEvent) bool {
+func (a *areaHandler) Mouse(e MouseEvent) bool {
 	fmt.Printf("%#v\n", e)
 	return false
+}
+func (a *areaHandler) Key(e KeyEvent) (bool, bool) {
+	fmt.Printf("%#v\n", e)
+	return false, false
 }
 
 var doArea = flag.Bool("area", false, "run area test instead (overrides -kb)")

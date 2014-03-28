@@ -52,13 +52,15 @@ type AreaHandler interface {
 	// Mouse is called when the Area receives a mouse event.
 	// You are allowed to do nothing in this handler (to ignore mouse events).
 	// See MouseEvent for details.
-	Mouse(e MouseEvent)
+	// If repaint is true, the Area is marked as needing to be redrawn.
+	Mouse(e MouseEvent) (repaint bool)
 
 	// Key is called when the Area receives a keyboard event.
-	// You are allowed to do nothing except return false in this handler (to ignore keyboard events).
-	// Do not do nothing but return true; this may have unintended consequences.
+	// You are allowed to do nothing except return false for handled in this handler (to ignore keyboard events).
+	// Do not do nothing but return true for handled; this may have unintended consequences.
 	// See KeyEvent for details.
-	Key(e KeyEvent) bool
+	// If repaint is true, the Area is marked as needing to be redrawn.
+	Key(e KeyEvent) (handled bool, repaint bool)
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
@@ -116,16 +118,17 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 // 
 // When you are finished processing the incoming event,
 // return whether or not you did something in response
-// to the given keystroke from your Key() implementation.
-// If you send false, you indicate that you did not handle
-// the keypress, and that the system should handle it instead.
-// (Some systems will stop processing the keyboard event at all
-// if you return true unconditionally, which may result in unwanted
-// behavior like global task-switching keystrokes not being processed.)
+// to the given keystroke as the handled return of your
+// AreaHandler's Key() implementation. If you send false,
+// you indicate that you did not handle the keypress, and that
+// the system should handle it instead. (Some systems will stop
+// processing the keyboard event at all if you return true
+// unconditionally, which may result in unwanted behavior like
+// global task-switching keystrokes not being processed.)
 // 
 // If a key is pressed that is not supported by ASCII, ExtKey,
 // or Modifiers, no KeyEvent will be produced, and package
-// ui will act as if false was returned.
+// ui will act as if false was returned for handled.
 type KeyEvent struct {
 	// ASCII is a byte representing the character pressed.
 	// Despite my best efforts, this cannot be trivialized

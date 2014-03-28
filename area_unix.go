@@ -103,7 +103,7 @@ func makeModifiers(state C.guint, m Modifiers) Modifiers {
 }
 
 // shared code for finishing up and sending a mouse event
-func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
+func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
 	s := (*sysData)(unsafe.Pointer(data))
 	state = translateModifiers(state, gdkwindow)
 	me.Modifiers = makeModifiers(state, 0)
@@ -125,7 +125,10 @@ func finishMouseEvent(data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.
 		me.Held = append(me.Held, 5)
 	}
 	me.Pos = image.Pt(int(x), int(y))
-	s.handler.Mouse(me)
+	repaint := s.handler.Mouse(me)
+	if repaint {
+		C.gtk_widget_queue_draw(widget)
+	}
 }
 
 //export our_area_button_press_event_callback
@@ -143,7 +146,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 	default:		// ignore triple-clicks and beyond; we don't handle those
 		return C.FALSE		// TODO really false?
 	}
-	finishMouseEvent(data, me, me.Down, e.x, e.y, e.state, e.window)
+	finishMouseEvent(widget, data, me, me.Down, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -156,7 +159,7 @@ func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEve
 		// GDK button ID == our button ID
 		Up:		uint(e.button),
 	}
-	finishMouseEvent(data, me, me.Up, e.x, e.y, e.state, e.window)
+	finishMouseEvent(widget, data, me, me.Up, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
@@ -166,14 +169,14 @@ var area_button_release_event_callback = C.GCallback(C.our_area_button_release_e
 func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventMotion)(unsafe.Pointer(event))
 	me := MouseEvent{}
-	finishMouseEvent(data, me, 0, e.x, e.y, e.state, e.window)
+	finishMouseEvent(widget, data, me, 0, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }
 
 var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)
 
 // shared code for doing a key event
-func doKeyEvent(event *C.GdkEvent, data C.gpointer, up bool) bool {
+func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) bool {
 	var ke KeyEvent
 
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
@@ -202,7 +205,11 @@ fmt.Println("$$", up, e.hardware_keycode)
 	state := translateModifiers(e.state, e.window)
 	ke.Modifiers = makeModifiers(state, ke.Modifiers)
 	ke.Up = up
-	return s.handler.Key(ke)
+	handled, repaint := s.handler.Key(ke)
+	if repaint {
+		C.gtk_widget_queue_draw(widget)
+	}
+	return handled
 }
 
 //export our_area_key_press_event_callback
@@ -218,7 +225,7 @@ func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, d
 	fmt.Printf("%d/GDK_KEY_a:\n", C.GDK_KEY_a)
 	pk(C.GDK_KEY_a, e.window)
 */
-	ret := doKeyEvent(event, data, false)
+	ret := doKeyEvent(widget, event, data, false)
 	_ = ret
 	return C.FALSE			// TODO really false? should probably return !ret (since true indicates stop processing)
 }
@@ -227,7 +234,7 @@ var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callb
 
 //export our_area_key_release_event_callback
 func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
-	ret := doKeyEvent(event, data, true)
+	ret := doKeyEvent(widget, event, data, true)
 	_ = ret
 	return C.FALSE			// TODO really false? should probably return !ret (since true indicates stop processing)
 }

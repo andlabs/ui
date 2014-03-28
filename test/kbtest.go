@@ -34,7 +34,9 @@ func (a *keyboardArea) Paint(cliprect image.Rectangle) *image.NRGBA {
 	return a.kbd.SubImage(cliprect).(*image.NRGBA)
 }
 
-func (a *keyboardArea) Mouse(MouseEvent) {}
+func (a *keyboardArea) Mouse(MouseEvent) (repaint bool) {
+	return false
+}
 
 func markkey(dest *image.NRGBA, keypt image.Point, m Modifiers) {
 	xr := keyrect(m).Add(keypt)
@@ -42,7 +44,7 @@ func markkey(dest *image.NRGBA, keypt image.Point, m Modifiers) {
 	draw.Draw(dest, xr, xi, image.ZP, draw.Over)
 }
 
-func (a *keyboardArea) Key(e KeyEvent) bool {
+func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
@@ -68,9 +70,9 @@ func (a *keyboardArea) Key(e KeyEvent) bool {
 //			markkey(a.kbd, modpoints[Super], m &^ Super)
 //		}
 	default:
-		return false
+		return false, false
 	}
-	return true
+	return true, true
 }
 
 var doKeyboard = flag.Bool("kb", false, "run keyboard test")
