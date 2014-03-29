@@ -181,6 +181,8 @@ const (
 
 // Window mouse event messages.
 const (
+	_WM_MOUSEACTIVATE = 0x0021
+
 	// from winuser.h
 	_WM_MOUSEFIRST = 0x0200
 	_WM_MOUSEMOVE = 0x0200

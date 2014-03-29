@@ -358,8 +358,93 @@ func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM
 	s.handler.Mouse(me)
 }
 
+// TODO mark repaint
+func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) bool {
+	var ke KeyEvent
+println(wparam, lparam)
+	scancode := byte((lparam >> 16) & 0xFF)
+	ke.Modifiers = getModifiers()
+	if wparam == _VK_RETURN && (lparam & 0x01000000) != 0 {
+		// the above is special handling for numpad enter
+		// bit 24 of LPARAM (0x01000000) indicates right-hand keys
+		ke.ExtKey = NEnter
+	} else if extkey, ok := extkeys[wparam]; ok {
+		ke.ExtKey = extkey
+	} else if xke, ok := fromScancode(uintptr(scancode)); ok {
+		// one of these will be nonzero
+		ke.Key = xke.Key
+		ke.ExtKey = xke.ExtKey
+	} else if ke.Modifiers == 0 {
+		// no key, extkey, or modifiers; do nothing but mark not handled
+		return false
+	}
+	ke.Up = up
+	handled, repaint := s.handler.Key(ke)
+	_ = repaint		// TODO
+	return handled
+}
+
+var extkeys = map[_WPARAM]ExtKey{
+	_VK_ESCAPE:		Escape,
+	_VK_INSERT:		Insert,
+	_VK_DELETE:		Delete,
+	_VK_HOME:		Home,
+	_VK_END:			End,
+	_VK_PRIOR:		PageUp,
+	_VK_NEXT:		PageDown,
+	_VK_UP:			Up,
+	_VK_DOWN:		Down,
+	_VK_LEFT:		Left,
+	_VK_RIGHT:		Right,
+	_VK_F1:			F1,
+	_VK_F2:			F2,
+	_VK_F3:			F3,
+	_VK_F4:			F4,
+	_VK_F5:			F5,
+	_VK_F6:			F6,
+	_VK_F7:			F7,
+	_VK_F8:			F8,
+	_VK_F9:			F9,
+	_VK_F10:			F10,
+	_VK_F11:			F11,
+	_VK_F12:			F12,
+	// numpad numeric keys and . are handled in events_notdarwin.go
+	// numpad enter is handled in code above
+	_VK_ADD:		NAdd,
+	_VK_SUBTRACT:	NSubtract,
+	_VK_MULTIPLY:	NMultiply,
+	_VK_DIVIDE:		NDivide,
+}
+
+// sanity check
+func init() {
+	included := make([]bool, _nextkeys)
+	for _, v := range extkeys {
+		included[v] = true
+	}
+	for i := 1; i < int(_nextkeys); i++ {
+		if i >= int(N0) && i <= int(N9) {		// skip numpad numbers, ., and enter
+			continue
+		}
+		if i == int(NDot) || i == int(NEnter) {
+			continue
+		}
+		if !included[i] {
+			panic(fmt.Errorf("error: not all ExtKeys defined on Windows (missing %d)", i))
+		}
+	}
+}
+
+var (
+	_setFocus = user32.NewProc("SetFocus")
+)
+
 func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+		const (
+			_MA_ACTIVATE = 1
+		)
+
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
@@ -373,6 +458,14 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_SIZE:
 			adjustAreaScrollbars(hwnd)		// don't use s.hwnd; this message can be sent before that's loaded
 			return 0
+		case _WM_MOUSEACTIVATE:
+			// register our window for keyboard input
+			// (see http://www.catch22.net/tuts/custom-controls)
+			r1, _, err := _setFocus.Call(uintptr(s.hwnd))
+			if r1 == 0 {		// failure
+				panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
+			}
+			return _MA_ACTIVATE		// TODO eat the click?
 		case _WM_MOUSEMOVE:
 			areaMouseEvent(s, 0, false, 0, wParam, lParam)
 			return 0
@@ -404,7 +497,12 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			areaMouseEvent(s, 3, true, 0, wParam, lParam)
 			return 0
 		// TODO XBUTTONs?
-		// TODO mark repaint in key events
+		case _WM_KEYDOWN:
+			areaKeyEvent(s, false, wParam, lParam)
+			return 0
+		case _WM_KEYUP:
+			areaKeyEvent(s, true, wParam, lParam)
+			return 0
 		default:
 			r1, _, _ := defWindowProc.Call(
 				uintptr(hwnd),
