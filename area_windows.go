@@ -465,6 +465,15 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			_MA_ACTIVATE = 1
 		)
 
+		defwndproc := func() _LRESULT {
+			r1, _, _ := defWindowProc.Call(
+				uintptr(hwnd),
+				uintptr(uMsg),
+				uintptr(wParam),
+				uintptr(lParam))
+			return _LRESULT(r1)
+		}
+
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
@@ -479,22 +488,25 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			// TODO make this unnecessary
 			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
 				scrollArea(s, wParam, _SB_VERT)
+				return 0
 			}
-			return 0
+			return defwndproc()
 		case _WM_SIZE:
 			// TODO make this unnecessary
 			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
 				adjustAreaScrollbars(s)
+				return 0
 			}
-			return 0
+			return defwndproc()
 		case _WM_MOUSEACTIVATE:
 			// register our window for keyboard input
 			// (see http://www.catch22.net/tuts/custom-controls)
 			r1, _, err := _setFocus.Call(uintptr(s.hwnd))
 			if r1 == 0 {		// failure
 				panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
+				return _MA_ACTIVATE		// TODO eat the click?
 			}
-			return _MA_ACTIVATE		// TODO eat the click?
+			return defwndproc()
 		case _WM_MOUSEMOVE:
 			areaMouseEvent(s, 0, false, 0, wParam, lParam)
 			return 0
@@ -532,6 +544,19 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_KEYUP:
 			areaKeyEvent(s, true, wParam, lParam)
 			return 0
+		// Alt+[anything] and F10 send these instead
+		case _WM_SYSKEYDOWN:
+			handled := areaKeyEvent(s, false, wParam, lParam)
+			if handled {
+				return 0
+			}
+			return defwndproc()
+		case _WM_SYSKEYUP:
+			handled := areaKeyEvent(s, true, wParam, lParam)
+			if handled {
+				return 0
+			}
+			return defwndproc()
 		case msgSetAreaSize:
 			s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
 			s.areaheight = int(lParam)
@@ -539,12 +564,7 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			repaintArea(s)					// this calls for an update
 			return 0
 		default:
-			r1, _, _ := defWindowProc.Call(
-				uintptr(hwnd),
-				uintptr(uMsg),
-				uintptr(wParam),
-				uintptr(lParam))
-			return _LRESULT(r1)
+			return defwndproc()
 		}
 		panic(fmt.Sprintf("areaWndProc message %d did not return: internal bug in ui library", uMsg))
 	}

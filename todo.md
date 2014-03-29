@@ -87,6 +87,7 @@ super ultra important things:
 	- references: https://github.com/glfw/glfw/blob/master/src/win32_window.c#L182, http://www.catch22.net/tuts/custom-controls
 - Area redraw on Windows is still a bit flaky, especially after changing the Area size to something larger than the window size and then resizing the window(???)
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
+- on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
