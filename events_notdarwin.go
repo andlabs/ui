@@ -73,8 +73,8 @@ var scancodeKeys = map[uintptr]byte{
 	0x39:	' ',
 }
 
-type scancodeExtKeys = map[uintptr]ExtKey{
-/*	0x47:	N7,
+var scancodeExtKeys = map[uintptr]ExtKey{
+	0x47:	N7,
 	0x48:	N8,
 	0x49:	N9,
 	0x4B:	N4,
@@ -85,7 +85,7 @@ type scancodeExtKeys = map[uintptr]ExtKey{
 	0x51:	N3,
 	0x52:	N0,
 	0x53:	NDot,
-*/}
+}
 
 func fromScancode(scancode uintptr) (ke KeyEvent, ok bool) {
 	if key, ok := scancodeKeys[scancode]; ok {

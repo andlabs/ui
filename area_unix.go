@@ -281,8 +281,12 @@ var extkeys = map[C.guint]ExtKey{
 	C.GDK_KEY_F10:			F10,
 	C.GDK_KEY_F11:			F11,
 	C.GDK_KEY_F12:			F12,
-	// numpad numeric keys are handled in events_notdarwin.go
+	// numpad numeric keys and . are handled in events_notdarwin.go
 	C.GDK_KEY_KP_Enter:		NEnter,
+	C.GDK_KEY_KP_Add:		NAdd,
+	C.GDK_KEY_KP_Subtract:		NSubtract,
+	C.GDK_KEY_KP_Multiply:		NMultiply,
+	C.GDK_KEY_KP_Divide:		NDivide,
 }
 
 // sanity check
@@ -292,7 +296,10 @@ func init() {
 		included[v] = true
 	}
 	for i := 1; i < int(_nextkeys); i++ {
-		if i >= int(_N0) && i <= int(_N9) {	// skip numpad numbers
+		if i >= int(N0) && i <= int(N9) {		// skip numpad numbers and .
+			continue
+		}
+		if i == int(NDot) {
 			continue
 		}
 		if !included[i] {
