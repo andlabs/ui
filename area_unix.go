@@ -48,6 +48,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	s := (*sysData)(unsafe.Pointer(data))
 	// thanks to desrt in irc.gimp.net/#gtk+
 	C.cairo_clip_extents(cr, &x, &y, &w, &h)
+	// we do not need to clear the cliprect; GtkDrawingArea did it for us beforehand
 	cliprect := image.Rect(int(x), int(y), int(w), int(h))
 	// the cliprect can actually fall outside the size of the Area; clip it by intersecting the two rectangles
 	C.gtk_widget_get_size_request(widget, &maxwid, &maxht)

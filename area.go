@@ -37,6 +37,8 @@ type Area struct {
 // (Having to use this interface does not strike me as being particularly Go-like, but the nature of Paint makes channel-based event handling a non-option; in practice, deadlocks occur.)
 type AreaHandler interface {
 	// Paint is called when the Area needs to be redrawn.
+	// The part of the Area that needs to be redrawn is stored in cliprect.
+	// Before Paint() is called, this region is cleared with a system-defined background color.
 	// You MUST handle this event, and you MUST return a valid image, otherwise deadlocks and panicking will occur.
 	// The image returned must have the same size as rect (but does not have to have the same origin points).
 	// Example:
@@ -48,7 +50,7 @@ type AreaHandler interface {
 	// 	func (h *myAreaHandler) Paint(rect image.Rectangle) *image.NRGBA {
 	// 		return img.SubImage(rect).(*image.NRGBA)
 	// 	}
-	Paint(rect image.Rectangle) *image.NRGBA
+	Paint(cliprect image.Rectangle) *image.NRGBA
 
 	// Mouse is called when the Area receives a mouse event.
 	// You are allowed to do nothing in this handler (to ignore mouse events).

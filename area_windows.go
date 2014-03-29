@@ -78,11 +78,10 @@ func paintArea(s *sysData) {
 	var xrect _RECT
 	var ps _PAINTSTRUCT
 
-	// TODO send _TRUE if we want to erase the clip area
 	r1, _, _ := _getUpdateRect.Call(
 		uintptr(s.hwnd),
 		uintptr(unsafe.Pointer(&xrect)),
-		uintptr(_FALSE))
+		uintptr(_TRUE))		// erase the update rect with the background color
 	if r1 == 0 {			// no update rect; do nothing
 		return
 	}
