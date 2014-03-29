@@ -83,6 +83,9 @@ super ultra important things:
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure GTK+ keyboard events on numpad off don't switch between controls
+- for our two custom window classes, we should allocate extra space in the window class's info structure and then use SetWindowLongPtrW() during WM_CREATE to store the sysData and not have to make a new window class each time; this might also fix the s != nil && s.hwnd != 0 special cases in the Area WndProc if done right
+	- references: https://github.com/glfw/glfw/blob/master/src/win32_window.c#L182, http://www.catch22.net/tuts/custom-controls
+- Area redraw on Windows is still a bit flaky, especially after changing the Area size to something larger than the window size and then resizing the window(???)
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
