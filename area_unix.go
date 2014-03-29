@@ -184,8 +184,6 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 	keyval := e.keyval
 	if extkey, ok := extkeys[keyval]; ok {
 		ke.ExtKey = extkey
-//	} else if predef, ok := predefkeys[keyval]; ok {
-//		ke.ASCII = predef
 	} else if mod, ok := modonlykeys[keyval]; ok {
 		// modifier keys don't seem to be set on their initial keypress; set them here
 		ke.Modifiers |= mod
@@ -283,6 +281,8 @@ var extkeys = map[C.guint]ExtKey{
 	C.GDK_KEY_F10:			F10,
 	C.GDK_KEY_F11:			F11,
 	C.GDK_KEY_F12:			F12,
+	// numpad numeric keys are handled in events_notdarwin.go
+	C.GDK_KEY_KP_Enter:		NEnter,
 }
 
 // sanity check
@@ -292,23 +292,13 @@ func init() {
 		included[v] = true
 	}
 	for i := 1; i < int(_nextkeys); i++ {
+		if i >= int(_N0) && i <= int(_N9) {	// skip numpad numbers
+			continue
+		}
 		if !included[i] {
 			panic(fmt.Errorf("error: not all ExtKeys defined on Unix (missing %d)", i))
 		}
 	}
-}
-
-var predefkeys = map[C.guint]byte{
-	C.GDK_KEY_Return:			'\n',
-	// TODO C.GDK_KEY_Linefeed too? What key is this?
-	C.GDK_KEY_Tab:			'\t',
-	C.GDK_KEY_BackSpace:		'\b',
-	// tests indicate that this is sent on Shift+Tab
-	C.GDK_KEY_ISO_Left_Tab:	'\t',
-	// numeric keypad equivalents:
-	C.GDK_KEY_KP_Enter:		'\n',
-	// all other numeric keypad equivalents are handled by gdk_keymap_to_unicode() as mentioned above
-	// no space; handled by the code above
 }
 
 var modonlykeys =  map[C.guint]Modifiers{
