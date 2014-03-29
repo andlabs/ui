@@ -1135,5 +1135,7 @@ So the question is: are the scancodes the same as evdev's keyboard values for th
 
 There are a few loose ends:
 * Can the OS X key codes be used to differentiate between numpad keys and non-numpad keys regardless of num lock state? If so, we can safely differentiate between the two, and can get rid of that arbitrary restriction.
-** TODO
+	* TODO
+* Can we also use scancodes for the numeric keypad, **including** the numeric keypad / key? GDK keysyms have Num Lock interpreted; we don't want that. This is just adding the scancodes for the numeric keypad to our test above...
+	 * TODO
 * The GLFW source does not use the scancode 0x2B for \, claiming that it only exists on US keyboards (instead it uses one of the OEM virtual key codes on Windows). This goes against the Scan Codes Demystified page, which says that on international keyboards, that would be another key (with region-specific label) underneath and to the right of what would be the [ and ] keys on a US keyboard. This appears to be true in some cases; in others, the extra key is to the left of Backspace instead. Either way, this is close enough to the \ key's position on a US keyboard that we can just go ahead and use 0x2B anyway.
