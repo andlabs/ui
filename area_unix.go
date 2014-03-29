@@ -189,9 +189,11 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 	} else if mod, ok := modonlykeys[keyval]; ok {
 		// modifier keys don't seem to be set on their initial keypress; set them here
 		ke.Modifiers |= mod
-	} else if key, ok := scancodeMap[uintptr(e.hardware_keycode) - 8]; ok {
+	} else if xke, ok := fromScancode(uintptr(e.hardware_keycode) - 8); ok {
 		// see events_notdarwin.go for details of the above map lookup
-		ke.Key = key
+		// one of these will be nonzero
+		ke.Key = xke.Key
+		ke.ExtKey = xke.ExtKey
 	} else {		// no match
 		// TODO really stop here? [or should we handle modifiers?]
 		return false		// pretend unhandled
@@ -281,17 +283,6 @@ var extkeys = map[C.guint]ExtKey{
 	C.GDK_KEY_F10:			F10,
 	C.GDK_KEY_F11:			F11,
 	C.GDK_KEY_F12:			F12,
-	// numeric keypad equivalents:
-	C.GDK_KEY_KP_Insert:		Insert,
-	C.GDK_KEY_KP_Delete:		Delete,
-	C.GDK_KEY_KP_Home:		Home,
-	C.GDK_KEY_KP_End:		End,
-	C.GDK_KEY_KP_Page_Up:		PageUp,
-	C.GDK_KEY_KP_Page_Down:	PageDown,
-	C.GDK_KEY_KP_Up:			Up,
-	C.GDK_KEY_KP_Down:		Down,
-	C.GDK_KEY_KP_Left:		Left,
-	C.GDK_KEY_KP_Right:		Right,
 }
 
 // sanity check

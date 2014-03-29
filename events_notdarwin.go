@@ -14,10 +14,12 @@ Wayland is guaranteed to give the same result (thanks ebassi in irc.gimp.net/#gt
 On Linux, where evdev is used instead of polling scancodes directly from the keyboard, evdev's typewriter section key code constants are the same as scancodes anyway, so the rules above apply.
 Typewriter section scancodes are the same across international keyboards with some exceptions that have been accounted for (see KeyEvent's documentation); see http://www.quadibloc.com/comp/scan.htm for details.
 Non-typewriter keys can be handled safely using constants provided by the respective backend API.
+
+Because GTK+ keysyms may or may not obey Num Lock, we also handle the 0-9 and . keys on the numeric keypad with scancodes (they match too).
 */
 
 // use uintptr to be safe; the size of the scancode/hardware key code field on each platform is different
-var scancodeMap = map[uintptr]byte{
+var scancodeKeys = map[uintptr]byte{
 	0x02:	'1',
 	0x03:	'2',
 	0x04:	'3',
@@ -69,4 +71,30 @@ var scancodeMap = map[uintptr]byte{
 	0x34:	'.',
 	0x35:	'/',
 	0x39:	' ',
+}
+
+type scancodeExtKeys = map[uintptr]ExtKey{
+/*	0x47:	N7,
+	0x48:	N8,
+	0x49:	N9,
+	0x4B:	N4,
+	0x4C:	N5,
+	0x4D:	N6,
+	0x4F:	N1,
+	0x50:	N2,
+	0x51:	N3,
+	0x52:	N0,
+	0x53:	NDot,
+*/}
+
+func fromScancode(scancode uintptr) (ke KeyEvent, ok bool) {
+	if key, ok := scancodeKeys[scancode]; ok {
+		ke.Key = key
+		return ke, true
+	}
+	if extkey, ok := scancodeExtKeys[scancode]; ok {
+		ke.ExtKey = extkey
+		return ke, true
+	}
+	return ke, false
 }
