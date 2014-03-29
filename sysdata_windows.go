@@ -17,6 +17,9 @@ type sysData struct {
 	nextChildID		_HMENU
 	childrenLock		sync.Mutex
 	isMarquee		bool			// for sysData.setProgress()
+	// unlike with GTK+ and Mac OS X, we're responsible for sizing Area properly ourselves
+	areawidth			int
+	areaheight		int
 }
 
 type classData struct {
@@ -623,5 +626,17 @@ func (s *sysData) len() int {
 }
 
 func (s *sysData) setAreaSize(width int, height int) {
-	// TODO
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(msgSetAreaSize),
+			uintptr(width),		// WPARAM is UINT_PTR on Windows XP and newer at least, so we're good with this
+			uintptr(height),
+		},
+		ret:		ret,
+	}
+	<-ret
 }

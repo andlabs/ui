@@ -31,6 +31,7 @@ const (
 	_WM_APP = 0x8000 + iota
 	msgRequested
 	msgQuit
+	msgSetAreaSize
 )
 
 var (

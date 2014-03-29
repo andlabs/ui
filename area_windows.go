@@ -92,7 +92,7 @@ func paintArea(s *sysData) {
 	cliprect := image.Rect(int(xrect.Left), int(xrect.Top), int(xrect.Right), int(xrect.Bottom))
 	cliprect = cliprect.Add(image.Pt(int(hscroll), int(vscroll)))			// adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area
-	cliprect = cliprect.Intersect(image.Rect(0, 0, 320, 240))	// TODO change when adding resizing
+	cliprect = cliprect.Intersect(image.Rect(0, 0, s.areawidth, s.areaheight))
 	if cliprect.Empty() {		// still no update rect
 		return
 	}
@@ -180,21 +180,21 @@ func getAreaControlSize(hwnd _HWND) (width int, height int) {
 		int(rect.Bottom - rect.Top)
 }
 
-func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
+func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 	var si _SCROLLINFO
 
-	cwid, cht := getAreaControlSize(hwnd)
+	cwid, cht := getAreaControlSize(s.hwnd)
 	pagesize := int32(cwid)
-	maxsize := int32(320)
+	maxsize := int32(s.areawidth)
 	if which == uintptr(_SB_VERT) {
 		pagesize = int32(cht)
-		maxsize = int32(240)
+		maxsize = int32(s.areaheight)
 	}
 
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_POS | _SIF_TRACKPOS
 	r1, _, err := _getScrollInfo.Call(
-		uintptr(hwnd),
+		uintptr(s.hwnd),
 		which,
 		uintptr(unsafe.Pointer(&si)))
 	if r1 == 0 {		// failure
@@ -244,7 +244,7 @@ func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
 		dy = delta
 	}
 	r1, _, err = _scrollWindowEx.Call(
-		uintptr(hwnd),
+		uintptr(s.hwnd),
 		uintptr(dx),
 		uintptr(dy),
 		uintptr(0),			// these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
@@ -256,7 +256,7 @@ func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
 	if r1 == _ERROR {		// failure
 		panic(fmt.Errorf("error scrolling Area: %v", err))
 	}
-	r1, _, err = _updateWindow.Call(uintptr(hwnd))		// ...and redraw it
+	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))		// ...and redraw it
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
 	}
@@ -266,16 +266,16 @@ func scrollArea(hwnd _HWND, wparam _WPARAM, which uintptr) {
 	si.fMask = _SIF_POS
 	si.nPos = newpos
 	_setScrollInfo.Call(
-		uintptr(hwnd),
+		uintptr(s.hwnd),
 		which,
 		uintptr(unsafe.Pointer(&si)))
 	// TODO in some cases wine will show a thumb one pixel away from the advance arrow button if going to the end; the values are correct though... weirdness in wine or something I never noticed about Windows?
 }
 
-func adjustAreaScrollbars(hwnd _HWND) {
+func adjustAreaScrollbars(s *sysData) {
 	var si _SCROLLINFO
 
-	cwid, cht := getAreaControlSize(hwnd)
+	cwid, cht := getAreaControlSize(s.hwnd)
 
 	// the trick is we want a page to be the width/height of the visible area
 	// so the scroll range would go from [0..image_dimension - control_dimension]
@@ -286,10 +286,10 @@ func adjustAreaScrollbars(hwnd _HWND) {
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_RANGE | _SIF_PAGE
 	si.nMin = 0
-	si.nMax = int32(320)
+	si.nMax = int32(s.areawidth)
 	si.nPage = uint32(cwid)
 	_setScrollInfo.Call(
-		uintptr(hwnd),
+		uintptr(s.hwnd),
 		uintptr(_SB_HORZ),
 		uintptr(unsafe.Pointer(&si)),
 		uintptr(_TRUE))			// redraw the scroll bar
@@ -297,10 +297,10 @@ func adjustAreaScrollbars(hwnd _HWND) {
 	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN sample code does this a second time; let's do it too to be safe
 	si.fMask = _SIF_RANGE | _SIF_PAGE
 	si.nMin = 0
-	si.nMax = int32(240)
+	si.nMax = int32(s.areaheight)
 	si.nPage = uint32(cht)
 	_setScrollInfo.Call(
-		uintptr(hwnd),
+		uintptr(s.hwnd),
 		uintptr(_SB_VERT),
 		uintptr(unsafe.Pointer(&si)),
 		uintptr(_TRUE))			// redraw the scroll bar
@@ -471,13 +471,22 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			paintArea(s)
 			return 0
 		case _WM_HSCROLL:
-			scrollArea(hwnd, wParam, _SB_HORZ)
+			// TODO make this unnecessary
+			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+				scrollArea(s, wParam, _SB_HORZ)
+			}
 			return 0
 		case _WM_VSCROLL:
-			scrollArea(hwnd, wParam, _SB_VERT)
+			// TODO make this unnecessary
+			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+				scrollArea(s, wParam, _SB_VERT)
+			}
 			return 0
 		case _WM_SIZE:
-			adjustAreaScrollbars(hwnd)		// don't use s.hwnd; this message can be sent before that's loaded
+			// TODO make this unnecessary
+			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+				adjustAreaScrollbars(s)
+			}
 			return 0
 		case _WM_MOUSEACTIVATE:
 			// register our window for keyboard input
@@ -523,6 +532,12 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			return 0
 		case _WM_KEYUP:
 			areaKeyEvent(s, true, wParam, lParam)
+			return 0
+		case msgSetAreaSize:
+			s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
+			s.areaheight = int(lParam)
+			adjustAreaScrollbars(s)
+			repaintArea(s)					// this calls for an update
 			return 0
 		default:
 			r1, _, _ := defWindowProc.Call(
