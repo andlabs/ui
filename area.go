@@ -194,7 +194,7 @@ const (
 	F10
 	F11
 	F12
-	N0			// numpad keys; independent of Num Lock state
+/*	N0			// numpad keys; independent of Num Lock state
 	N1			// N0..N9 are guaranteed to be consecutive
 	N2
 	N3
@@ -210,7 +210,7 @@ const (
 	NSubtract
 	NMultiply
 	NDivide
-	_nextkeys		// for sanity check
+*/	_nextkeys		// for sanity check
 )
 
 // EffectiveKey returns e.Key if it is set.
@@ -222,7 +222,7 @@ func (e KeyEvent) EffectiveKey() byte {
 	if e.Key != 0 {
 		return e.Key
 	}
-	k := e.ExtKey
+/*	k := e.ExtKey
 	switch {
 	case k >= N0 && k <= N9:
 		return byte(k - N0) + '0'
@@ -239,7 +239,7 @@ func (e KeyEvent) EffectiveKey() byte {
 	case k == NDivide:
 		return '/'
 	}
-	return 0
+*/	return 0
 }
 
 // Modifiers indicates modifier keys being held during an event.
