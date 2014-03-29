@@ -49,10 +49,8 @@ func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
 	defer a.lock.Unlock()
 
 	switch {
-//	case e.Key != 0:
-//		markkey(a.kbd, keypoints[e.Key], e.Modifiers)
-	case e.ASCII != 0:
-		markkey(a.kbd, keypoints[e.ASCII], e.Modifiers)
+	case e.Key != 0:
+		markkey(a.kbd, keypoints[e.Key], e.Modifiers)
 	case e.ExtKey != 0:
 		markkey(a.kbd, extkeypoints[e.ExtKey], e.Modifiers)
 	case e.Modifiers != 0:

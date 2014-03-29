@@ -136,7 +136,7 @@ func (a *areaHandler) Mouse(e MouseEvent) bool {
 	return false
 }
 func (a *areaHandler) Key(e KeyEvent) (bool, bool) {
-	fmt.Printf("%#v\n", e)
+	fmt.Printf("%#v %q\n", e, e.Key)
 	return false, false
 }
 

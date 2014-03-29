@@ -180,27 +180,21 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 	var ke KeyEvent
 
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
-fmt.Println("$$", up, e.hardware_keycode)
 	s := (*sysData)(unsafe.Pointer(data))
 	keyval := e.keyval
 	if extkey, ok := extkeys[keyval]; ok {
 		ke.ExtKey = extkey
-	} else if predef, ok := predefkeys[keyval]; ok {
-		ke.ASCII = predef
+//	} else if predef, ok := predefkeys[keyval]; ok {
+//		ke.ASCII = predef
 	} else if mod, ok := modonlykeys[keyval]; ok {
 		// modifier keys don't seem to be set on their initial keypress; set them here
 		ke.Modifiers |= mod
-	} else {
-		cp := C.gdk_keyval_to_unicode(keyval)
-		// GDK keycodes in GDK 3.4 the ASCII plane map to their ASCII values
-		// (proof: https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeysyms.h?h=gtk-3-4)
-		// this also handles the numeric keypad keys (proof: https://git.gnome.org/browse/gtk+/tree/gdk/gdkkeyuni.c?h=gtk-3-4#n846)
-		// the cp < 0x20 will also handle the case where the key is totally unknown to us (gdk_keyval_to_unicode() returns 0) and the space key
-		if cp < 0x20 || cp >= 0x7F {
-			// TODO really stop here? or should we handle modifiers?
-			return false		// pretend unhandled
-		}
-		ke.ASCII = byte(cp)
+	} else if key, ok := scancodeMap[uintptr(e.hardware_keycode) - 8]; ok {
+		// see events_notdarwin.go for details of the above map lookup
+		ke.Key = key
+	} else {		// no match
+		// TODO really stop here? [or should we handle modifiers?]
+		return false		// pretend unhandled
 	}
 	state := translateModifiers(e.state, e.window)
 	ke.Modifiers = makeModifiers(state, ke.Modifiers)
