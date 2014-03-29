@@ -307,6 +307,24 @@ func adjustAreaScrollbars(hwnd _HWND) {
 }
 
 var (
+	_invalidateRect = user32.NewProc("InvalidateRect")
+)
+
+func repaintArea(s *sysData) {
+	r1, _, err := _invalidateRect.Call(
+		uintptr(s.hwnd),
+		uintptr(0),			// the whole area
+		uintptr(_FALSE))	// TODO use _TRUE to mark that we should erase? or will the GetUpdateRect() call handle it?
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error flagging Area as needing repainting after event (last error: %v)", err))
+	}
+	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error repainting Area after event: %v", err))
+	}
+}
+
+var (
 	_getKeyState = user32.NewProc("GetKeyState")
 )
 
@@ -329,7 +347,6 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
-// TODO mark repaint
 func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM, lparam _LPARAM) {
 	var me MouseEvent
 
@@ -355,13 +372,15 @@ func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM
 		me.Held = append(me.Held, 3)
 	}
 	// TODO XBUTTONs?
-	s.handler.Mouse(me)
+	repaint := s.handler.Mouse(me)
+	if repaint {
+		repaintArea(s)
+	}
 }
 
-// TODO mark repaint
 func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) bool {
 	var ke KeyEvent
-println(wparam, lparam)
+
 	scancode := byte((lparam >> 16) & 0xFF)
 	ke.Modifiers = getModifiers()
 	if wparam == _VK_RETURN && (lparam & 0x01000000) != 0 {
@@ -380,7 +399,9 @@ println(wparam, lparam)
 	}
 	ke.Up = up
 	handled, repaint := s.handler.Key(ke)
-	_ = repaint		// TODO
+	if repaint {
+		repaintArea(s)
+	}
 	return handled
 }
 
