@@ -82,6 +82,7 @@ super ultra important things:
 - scrolling Areas in wine by clicking in the page scroll area often causes the main thread to lock up; uitask does not
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
+- make sure GTK+ keyboard events on numpad off don't switch between controls
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
