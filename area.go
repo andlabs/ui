@@ -15,10 +15,11 @@ import (
 // See AreaHandler for details.
 // 
 // Do not use an Area if you intend to read text.
-// Due to platform differences regarding text input,
-// keyboard events have beem compromised in
-// such a way that attempting to read Unicode data
-// in platform-native ways is painful.
+// Area reads keys based on their position on a standard
+// 101-key keyboard, and does no character processing.
+// Character processing methods differ across operating
+// systems; trying ot recreate these yourself is only going
+// to lead to trouble.
 // [Use TextArea instead, providing a TextAreaHandler.]
 // 
 // To facilitate development and debugging, for the time being, Areas only work on GTK+.
@@ -106,15 +107,10 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 
 // A KeyEvent represents a keypress in an Area.
 // 
-// In a perfect world, KeyEvent would be 100% predictable.
-// Despite my best efforts to do this, however, the various
-// differences in input handling between each backend
-// environment makes this completely impossible (I can
-// work with two of the three identically, but not all three).
-// Keep this in mind, and remember that Areas are not ideal
-// for text. For more details, see areaplan.md and the linked
-// tweets at the end of that file. If you know a better solution
-// than the one I have chosen, please let me know.
+// Key presses are based on their positions on a standard
+// 101-key keyboard found on most computers. The
+// names chosen for keys here are based on their names
+// on US English QWERTY keyboards; see Key for details.
 // 
 // When you are finished processing the incoming event,
 // return whether or not you did something in response
@@ -126,42 +122,39 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 // unconditionally, which may result in unwanted behavior like
 // global task-switching keystrokes not being processed.)
 // 
-// If a key is pressed that is not supported by ASCII, ExtKey,
+// If a key is pressed that is not supported by Key, ExtKey,
 // or Modifiers, no KeyEvent will be produced, and package
 // ui will act as if false was returned for handled.
 type KeyEvent struct {
-	// ASCII is a byte representing the character pressed.
-	// Despite my best efforts, this cannot be trivialized
-	// to produce predictable input rules on all OSs, even if
-	// I try to handle physical keys instead of equivalent
-	// characters. Therefore, what happens when the user
-	// inserts a non-ASCII character is undefined (some systems
-	// will give package ui the underlying ASCII key and we
-	// return it; other systems do not). This is especially important
-	// if the given input method uses Modifiers to enter characters.
-	// If the parenthesized rule cannot be followed and the user
-	// enters a non-ASCII character, it will be ignored (package ui
-	// will act as above regarding keys it cannot handle).
-	// In general, alphanumeric characters, ',', '.', '+', '-', and the
-	// (space) should be available on all keyboards. Other ASCII
-	// whitespace keys mentioned below may be available, but
-	// mind layout differences.
-	// Whether or not alphabetic characters are uppercase or
-	// lowercase is undefined, and cannot be determined solely
-	// by examining Modifiers for Shift. Correct code should handle
-	// both uppercase and lowercase identically.
-	// In addition, ASCII will contain
+	// Key is a byte representing a character pressed
+	// in the typewriter section of the keyboard.
+	// The value, which is independent of whether the
+	// Shift key is held, is a constant with one of the
+	// following (case-sensitive) values, drawn according
+	// to the key's position on the keyboard.
+	//    ` 1 2 3 4 5 6 7 8 9 0 - =
+	//     q w e r t y u i o p [ ] \
+	//      a s d f g h j k l ; '
+	//       z x c v b n m , . /
+	// The actual key entered will be the key at the respective
+	// position on the user's keyboard, regardless of the actual
+	// layout. (Some keyboards move \ to either the row above
+	// or the row below but in roughly the same spot; this is
+	// accounted for. Some keyboards have an additonal key
+	// to the left of 'z' or additional keys to the right of '='; these
+	// cannot be read.)
+	// In addition, Key will contain
 	// - ' ' (space) if the spacebar was pressed
 	// - '\t' if Tab was pressed, regardless of Modifiers
-	// - '\n' if any Enter/Return key was pressed, regardless of which
+	// - '\n' if the typewriter Enter key was pressed
 	// - '\b' if the typewriter Backspace key was pressed
 	// If this value is zero, see ExtKey.
-	ASCII	byte
+	Key			byte
 
-	// If ASCII is zero, ExtKey contains a predeclared identifier
+	// If Key is zero, ExtKey contains a predeclared identifier
 	// naming an extended key. See ExtKey for details.
-	// If both ASCII and ExtKey are zero, a Modifier by itself
-	// was pressed. ASCII and ExtKey will not both be nonzero.
+	// If both Key and ExtKey are zero, a Modifier by itself
+	// was pressed. Key and ExtKey will not both be nonzero.
 	ExtKey		ExtKey
 
 	Modifiers		Modifiers
@@ -175,8 +168,7 @@ type KeyEvent struct {
 	Up			bool
 }
 
-// ExtKey represents keys that do not have an ASCII representation.
-// There is no way to differentiate between left and right ExtKeys.
+// ExtKey represents keys that are not in the typewriter section of the keyboard.
 type ExtKey uintptr
 const (
 	Escape ExtKey = iota + 1
@@ -190,7 +182,7 @@ const (
 	Down
 	Left
 	Right
-	F1		// no guarantee is made that Fn == F1+n in the future
+	F1			// F1..F12 are guaranteed to be consecutive
 	F2
 	F3
 	F4
@@ -202,8 +194,53 @@ const (
 	F10
 	F11
 	F12
+	N0			// numpad keys; independent of Num Lock state
+	N1			// N0..N9 are guaranteed to be consecutive
+	N2
+	N3
+	N4
+	N5
+	N6
+	N7
+	N8
+	N9
+	NDot
+	NEnter
+	NAdd
+	NSubtract
+	NMultiply
+	NDivide
 	_nextkeys		// for sanity check
 )
+
+// EffectiveKey returns e.Key if it is set.
+// Otherwise, if e.ExtKey denotes a numpad key,
+// EffectiveKey returns the equivalent e.Key value
+// ('0'..'9', '.', '\n', '+', '-', '*', or '/').
+// Otherwise, EffectiveKey returns zero.
+func (e KeyEvent) EffectiveKey() byte {
+	if e.Key != 0 {
+		return e.Key
+	}
+	k := e.ExtKey
+	switch {
+	case k >= N0 && k <= N9:
+		return byte(k - N0) + '0'
+	case k == NDot:
+		return '.'
+	case k == NEnter:
+		return '\n'
+	case k == NAdd:
+		return '+'
+	case k == NSubtract:
+		return '-'
+	case k == NMultiply:
+		return '*'
+	case k == NDivide:
+		return '/'
+	}
+	return 0
+}
 
 // Modifiers indicates modifier keys being held during an event.
 // There is no way to differentiate between left and right modifier keys.
