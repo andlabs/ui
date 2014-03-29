@@ -88,6 +88,7 @@ super ultra important things:
 - Area redraw on Windows is still a bit flaky, especially after changing the Area size to something larger than the window size and then resizing the window(???)
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
+- pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
@@ -111,3 +112,5 @@ maybe:
 - rename Stack to Box?
 - make Combobox and Listbox satisfy sort.Interface?
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
+- provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain focus
+	- provide an event for leaving focus so a focus rectangle can be drawn
