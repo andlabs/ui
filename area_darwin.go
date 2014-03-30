@@ -15,15 +15,17 @@ import (
 import "C"
 
 const (
-	_goArea = "goArea"
+	__goArea = "goArea"
 )
 
 var (
+	_goArea C.id
+
 	_drawRect = sel_getUid("drawRect:")
 )
 
 func mkAreaClass() error {
-	areaclass, err := makeAreaClass(_goArea)
+	areaclass, err := makeAreaClass(__goArea)
 	if err != nil {
 		return fmt.Errorf("error creating Area backend class: %v", err)
 	}
@@ -33,12 +35,43 @@ func mkAreaClass() error {
 	if ok != C.BOOL(C.YES) {
 		return fmt.Errorf("error overriding Area drawRect: method; reason unknown")
 	}
+	_goArea = objc_getClass(__goArea)
 	return nil
 }
 
 //export areaView_drawRect
 func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	// TODO
+fmt.Println(rect)
+}
+
+// TODO combine these with the listbox functions?
+
+func newAreaScrollView(area C.id) C.id {
+	scrollview := objc_alloc(_NSScrollView)
+	scrollview = objc_msgSend_rect(scrollview, _initWithFrame,
+		0, 0, 100, 100)
+	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
+	C.objc_msgSend_id(scrollview, _setDocumentView, area)
+	return scrollview
+}
+
+func areaInScrollView(scrollview C.id) C.id {
+	return C.objc_msgSend_noargs(scrollview, _documentView)
+}
+
+func makeArea(parentWindow C.id, alternate bool) C.id {
+	area := objc_alloc(_goArea)
+println(area)
+	area = objc_msgSend_rect(area, _initWithFrame,
+		0, 0, 100, 100)
+println("out")
+	// TODO others?
+	area = newAreaScrollView(area)
+	addControl(parentWindow, area)
+	return area
 }
 
 // TODO combine the below with the delegate stuff

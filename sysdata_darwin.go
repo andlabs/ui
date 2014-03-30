@@ -20,6 +20,7 @@ type sysData struct {
 
 type classData struct {
 	make		func(parentWindow C.id, alternate bool) C.id
+	getinside		func(scrollview C.id) C.id
 	show		func(what C.id)
 	hide			func(what C.id)
 	settextsel		C.SEL
@@ -269,6 +270,12 @@ var classTypes = [nctypes]*classData{
 		show:		controlShow,
 		hide:			controlHide,
 	},
+	c_area:			&classData{
+		make:		makeArea,
+		getinside:		areaInScrollView,
+		show:		controlShow,
+		hide:			controlHide,
+	},
 }
 
 // I need to access sysData from appDelegate, but appDelegate doesn't store any data. So, this.
@@ -308,7 +315,14 @@ func (s *sysData) make(initText string, window *sysData) error {
 	}
 	s.id = <-ret
 	s.setText(initText)
-	addSysData(s.id, s)
+	if ct.getinside != nil {
+		uitask <- func() {
+			ret <- ct.getinside(s.id)
+		}
+		addSysData(<-ret, s)
+	} else {
+		addSysData(s.id, s)
+	}
 	return nil
 }
 
@@ -482,4 +496,18 @@ func (s *sysData) len() int {
 		ret <- classTypes[s.ctype].len(s.id)
 	}
 	return <-ret
+}
+
+func (s *sysData) setAreaSize(width int, height int) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		area := areaInScrollView(s.id)
+println(C.GoString(C.object_getClassName(area)))
+		objc_msgSend_rect_bool(area, _setFrameDisplay,
+			int(0), int(0), width, height,
+			C.BOOL(C.YES))		// redraw
+		ret <- struct{}{}
+	}
+	<-ret
 }

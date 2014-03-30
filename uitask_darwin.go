@@ -93,6 +93,10 @@ func initCocoa() (NSApp C.id, err error) {
 	}
 	C.objc_msgSend_bool(NSApp, _activateIgnoringOtherApps, C.BOOL(C.YES))		// TODO actually do C.NO here? Russ Cox does YES in his devdraw; the docs say the Finder does NO
 	err = mkAppDelegate()
+	if err != nil {
+		return
+	}
+	err = mkAreaClass()
 	return
 }
 
