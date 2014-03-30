@@ -246,6 +246,7 @@ func (e KeyEvent) EffectiveKey() byte {
 
 // Modifiers indicates modifier keys being held during an event.
 // There is no way to differentiate between left and right modifier keys.
+// As such, what KeyEvents get sent if the user does something unusual with both of a certain modifier key at once is (presently; TODO) undefined.
 type Modifiers uintptr
 const (
 	Ctrl Modifiers = 1 << iota		// the canonical Ctrl keys ([TODO] on Mac OS X, Control on others)
