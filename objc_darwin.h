@@ -104,4 +104,7 @@ extern uintptr_t *NSIndexSetEntries(id, uintptr_t);
 /* for uitask_darwin.go */
 extern id makeDummyEvent();
 
+/* for area_darwin.go */
+extern BOOL addAreaViewDrawMethod(Class);
+
 #endif

@@ -85,13 +85,13 @@ var (
 //export appDelegate_windowDidResize
 func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 	win := C.objc_msgSend_noargs(notification, _object)
-	sysData := getSysData(win)
+	s := getSysData(win)
 	wincv := C.objc_msgSend_noargs(win, _contentView)		// we want the content view's size, not the window's; selector defined in sysdata_darwin.go
 	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
-	if sysData.resize != nil {
+	if s.resize != nil {
 		// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
 		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
-		s.resize(0, 0, width, height, &s.resizes)
+		s.resize(0, 0, int(r.width), int(r.height), &s.resizes)
 		for _, s := range s.resizes {
 			err := s.sysData.setRect(s.x, s.y, s.width, s.height, int(r.height))
 			if err != nil {
@@ -120,7 +120,7 @@ func makeDelegateClass(name string) (C.Class, error) {
 
 	c := C.objc_allocateClassPair(_NSObject_Class, cname, 0)
 	if c == C.NilClass {
-		return C.NilClass, fmt.Errorf("unable to create Objective-C class %s; reason unknown", name)
+		return C.NilClass, fmt.Errorf("unable to create Objective-C class %s for NSApplication delegate; reason unknown", name)
 	}
 	C.objc_registerClassPair(c)
 	return c, nil
@@ -136,7 +136,7 @@ func addDelegateMethod(class C.Class, sel C.SEL, imp unsafe.Pointer, ty []C.char
 	ok := C.class_addMethod(class, sel, C.IMP(imp), &ty[0])
 	if ok == C.BOOL(C.NO) {
 		// TODO get function name
-		return fmt.Errorf("unable to add selector %v/imp %v (reason unknown)", sel, imp)
+		return fmt.Errorf("unable to add selector %v/imp %v to class %v (reason unknown)", sel, imp, class)
 	}
 	return nil
 }

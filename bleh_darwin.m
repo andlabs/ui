@@ -184,3 +184,36 @@ id makeDummyEvent()
 		(NSInteger) 0,							/* data1: */
 		(NSInteger) 0);							/* data2: */
 }
+
+/*
+[NSView drawRect:] needs to be overridden in our Area subclass. This takes a NSRect, which I'm not sure how to encode, so we're going to have to use @encode() and hope for the best for portability.
+*/
+
+extern void areaView_drawRect(id, struct xrect);
+
+static void _areaView_drawRect(id self, SEL sel, NSRect r)
+{
+	struct xrect t;
+
+	t.x = (int64_t) r.origin.x;
+	t.y = (int64_t) r.origin.y;
+	t.width = (int64_t) r.size.width;
+	t.height = (int64_t) r.size.height;
+	areaView_drawRect(self, t);
+}
+
+/* the only objective-c feature you'll see here */
+/* TODO correct? "v@:" @encode(NSRect) complained about missing ; */
+static char *avdrType = @encode(void(id, SEL, NSRect));
+
+static SEL drawRect;
+static BOOL drawRect_init = NO;
+
+BOOL addAreaViewDrawMethod(Class what)
+{
+	if (drawRect_init == NO) {
+		drawRect = sel_getUid("drawRect:");
+		drawRect_init = YES;
+	}
+	return class_addMethod(what, drawRect, (IMP) _areaView_drawRect, avdrType);
+}
