@@ -56,6 +56,8 @@ extern uintptr_t objc_msgSend_uintret_noargs(id objc, SEL sel);
 
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
 
+extern uintptr_t objc_msgSend_ushortret_noargs(id objc, SEL sel);
+
 #define m1(name, type1) \
 	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a) \
 	{ \

@@ -51,6 +51,12 @@ important things:
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 
 super ultra important things:
+- formalize what happens if Modifiers by themselves are held
+	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
+	- in general, figure out what to do on multiple events, period
+- OS X: handle Insert/Help key change in a sane and deterministic way
+	- will need old and new Mac keyboards...
+- should pressing modifier+key in the keyboard test mark the key alone as pressed as well? I'm leaning toward no, in which case make sure this behavior exists on all platforms
 - formalize dragging
 	- implement dragging on windows
 	- may need to drop Held depending on weirdness I see in OS X

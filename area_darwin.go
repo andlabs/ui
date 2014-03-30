@@ -17,6 +17,9 @@ import (
 // extern void areaView_mouseMoved(id, SEL, id);
 // extern void areaView_mouseDown_mouseDragged(id, SEL, id);
 // extern void areaView_mouseUp(id, SEL, id);
+// extern void areaView_keyDown(id, SEL, id);
+// extern void areaView_keyUp(id, SEL, id);
+// extern void areaView_flagsChanged(id, SEL, id);
 import "C"
 
 const (
@@ -47,6 +50,9 @@ var eventMethods = []eventMethod{
 	eventMethod{"otherMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
 	eventMethod{"otherMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
 	eventMethod{"otherMouseUp:", uintptr(C.areaView_mouseUp)},
+	eventMethod{"keyDown:", uintptr(C.areaView_keyDown)},
+	eventMethod{"keyUp:", uintptr(C.areaView_keyUp)},
+	eventMethod{"flagsChanged:", uintptr(C.areaView_flagsChanged)},
 }
 
 func mkAreaClass() error {
@@ -200,6 +206,68 @@ func areaView_mouseDown_mouseDragged(self C.id, sel C.SEL, e C.id) {
 //export areaView_mouseUp
 func areaView_mouseUp(self C.id, sel C.SEL, e C.id) {
 	areaMouseEvent(self, e, true, true)
+}
+
+var (
+	_keyCode = sel_getUid("keyCode")
+)
+
+func handleKeyEvent(self C.id) {
+	// TODO
+}
+
+func sendKeyEvent(self C.id, ke KeyEvent) {
+	s := getSysData(self)
+	handled, repaint := s.handler.Key(ke)
+	if repaint {
+		C.objc_msgSend_noargs(self, _display)
+	}
+	if !handled {
+		handleKeyEvent(self)
+	}
+}
+
+func areaKeyEvent(self C.id, e C.id, up bool) {
+	var ke KeyEvent
+
+	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
+	ke, ok := fromKeycode(keyCode)
+	if !ok {
+		// no such key; modifiers by themselves are handled by -[self flagsChanged:]
+		handleKeyEvent(self)
+		return
+	}
+	// either ke.Key or ke.ExtKey will be set at this point
+	ke.Modifiers = parseModifiers(e)
+	ke.Up = up
+	sendKeyEvent(self, ke)
+}
+
+//export areaView_keyDown
+func areaView_keyDown(self C.id, sel C.SEL, e C.id) {
+	areaKeyEvent(self, e, false)
+}
+
+//export areaView_keyUp
+func areaView_keyUp(self C.id, sel C.SEL, e C.id) {
+	areaKeyEvent(self, e, true)
+}
+
+//export areaView_flagsChanged
+func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
+	var ke KeyEvent
+
+	// Mac OS X sends this event on both key up and key down.
+	// Fortunately -[e keyCode] IS valid here, so we can simply map from key code to Modifiers, get the value of [e modifierFlags], the respective bit is set or not — that will give us the up/down state
+	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
+	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
+	if !ok {		// unknown modifier; ignore
+		handleKeyEvent(self)
+		return
+	}
+	ke.Modifiers = parseModifiers(e)
+	ke.Up = (ke.Modifiers & mod) == 0
+	sendKeyEvent(self, ke)
 }
 
 // TODO combine these with the listbox functions?
