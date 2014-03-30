@@ -19,6 +19,8 @@ Go wrapper functions (bleh_darwin.go) call these directly and take care of stdin
 #include <Foundation/NSGeometry.h>
 #include <AppKit/NSKeyValueBinding.h>
 #include <AppKit/NSEvent.h>
+#include <AppKit/NSGraphics.h>
+#include <AppKit/NSBitmapImageRep.h>
 
 /* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
 Class NilClass = Nil;
@@ -128,6 +130,15 @@ struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
 }
 
 /*
+and again for NSPoint
+*/
+
+id objc_msgSend_point(id obj, SEL sel, int64_t x, int64_t y)
+{
+	return objc_msgSend(obj, sel, NSMakePoint((CGFloat) x, (CGFloat) y));
+}
+
+/*
 This is a doozy: it deals with a NSUInteger array needed for this one selector, and converts them all into a uintptr_t array so we can use it from Go. The two arrays are created at runtime with malloc(); only the NSUInteger one is freed here, while Go frees the returned one. It's not optimal.
 */
 
@@ -216,4 +227,54 @@ BOOL addAreaViewDrawMethod(Class what)
 		drawRect_init = YES;
 	}
 	return class_addMethod(what, drawRect, (IMP) _areaView_drawRect, avdrType);
+}
+
+/*
+the NSBitmapImageRep constructor is complex; put it here
+the only way to draw a NSBitmapImageRep in a flipped NSView is to use the most complex drawing method; put it here too
+*/
+
+static id c_NSBitmapImageRep;
+static SEL s_alloc;
+static SEL s_initWithBitmapDataPlanes;
+static SEL s_drawInRect;
+static SEL s_release;
+static BOOL drawImage_init = NO;
+
+id drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int64_t xdest, int64_t ydest)
+{
+	unsigned char *planes[1];			/* NSBitmapImageRep wants an array of planes; we have one plane */
+	id bitmap;
+
+	if (drawImage_init == NO) {
+		c_NSBitmapImageRep = objc_getClass("NSBitmapImageRep");
+		s_alloc = sel_getUid("alloc");
+		s_initWithBitmapDataPlanes = sel_getUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bitmapFormat:bytesPerRow:bitsPerPixel:");
+		s_drawInRect = sel_getUid("drawInRect:fromRect:operation:fraction:respectFlipped:hints:");
+		s_release = sel_getUid("release");
+		drawImage_init = YES;
+	}
+	bitmap = objc_msgSend(c_NSBitmapImageRep, s_alloc);
+	planes[0] = (unsigned char *) pixels;
+	bitmap = objc_msgSend(bitmap, s_initWithBitmapDataPlanes,
+		planes,												/* initWithBitmapDataPlanes: */
+		(NSInteger) width,										/* pixelsWide: */
+		(NSInteger) height,										/* pixelsHigh: */
+		(NSInteger) 8,											/* bitsPerSample: */
+		(NSInteger) 4,											/* samplesPerPixel: */
+		(BOOL) YES,											/* hasAlpha: */
+		(BOOL) NO,											/* isPlanar: */
+		NSCalibratedRGBColorSpace,								/* colorSpaceName: | TODO NSDeviceRGBColorSpace? */
+		(NSBitmapFormat) NSAlphaNonpremultipliedBitmapFormat,		/* bitmapFormat: | this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color.") */
+		(NSInteger) stride,										/* bytesPerRow: */
+		(NSInteger) 32);										/* bitsPerPixel: */
+	objc_msgSend(bitmap, s_drawInRect,
+		NSMakeRect((CGFloat) xdest, (CGFloat) ydest,
+			(CGFloat) width, (CGFloat) height),					/* drawInRect: */
+		NSZeroRect,										/* fromRect: | draw whole image */
+		(NSCompositingOperation) NSCompositeSourceOver,		/* op: */
+		(CGFloat) 1.0,										/* fraction: */
+		(BOOL) YES,										/* respectFlipped: */
+		nil);												/* hints: */
+	objc_msgSend(bitmap, s_release);
 }

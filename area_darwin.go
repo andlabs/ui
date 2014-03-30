@@ -5,6 +5,7 @@ package ui
 import (
 	"fmt"
 	"unsafe"
+	"image"
 )
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -12,6 +13,7 @@ import (
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
 // extern void areaView_drawRect(id, struct xrect);
+// extern BOOL areaView_isFlipped(id, SEL);
 import "C"
 
 const (
@@ -22,6 +24,7 @@ var (
 	_goArea C.id
 
 	_drawRect = sel_getUid("drawRect:")
+	_isFlipped = sel_getUid("isFlipped")
 )
 
 func mkAreaClass() error {
@@ -29,20 +32,44 @@ func mkAreaClass() error {
 	if err != nil {
 		return fmt.Errorf("error creating Area backend class: %v", err)
 	}
-//	// TODO rename this function (it overrides anyway)
 	// addAreaViewDrawMethod() is in bleh_darwin.m
 	ok := C.addAreaViewDrawMethod(areaclass)
 	if ok != C.BOOL(C.YES) {
 		return fmt.Errorf("error overriding Area drawRect: method; reason unknown")
 	}
+	// TODO rename this function (it overrides anyway)
+	err = addDelegateMethod(areaclass, _isFlipped,
+		C.areaView_isFlipped, area_boolret)
+	if err != nil {
+		return fmt.Errorf("error overriding Area isFlipped method: %v", err)
+	}
 	_goArea = objc_getClass(__goArea)
 	return nil
 }
 
+var (
+	_drawAtPoint = sel_getUid("drawAtPoint:")
+)
+
 //export areaView_drawRect
 func areaView_drawRect(self C.id, rect C.struct_xrect) {
-	// TODO
-fmt.Println(rect)
+	s := getSysData(self)
+	// TODO clear clip rect
+	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.width), int(rect.height))
+	max := C.objc_msgSend_stret_rect_noargs(self, _frame)
+	cliprect = image.Rect(0, 0, int(max.width), int(max.height)).Intersect(cliprect)
+	if cliprect.Empty() {			// no intersection; nothing to paint
+		return
+	}
+	i := s.handler.Paint(cliprect)
+	C.drawImage(
+		unsafe.Pointer(&i.Pix[0]), C.int64_t(i.Rect.Dx()), C.int64_t(i.Rect.Dy()), C.int64_t(i.Stride),
+		C.int64_t(cliprect.Min.X), C.int64_t(cliprect.Min.Y))
+}
+
+//export areaView_isFlipped
+func areaView_isFlipped(self C.id, sel C.SEL) C.BOOL {
+	return C.BOOL(C.YES)
 }
 
 // TODO combine these with the listbox functions?
@@ -92,5 +119,5 @@ func makeAreaClass(name string) (C.Class, error) {
 }
 
 var (
-	// delegate_rect in bleh_darwin.m
+	area_boolret = []C.char{'c', '@', ':', 0}			// BOOL (*)(id, SEL)
 )
