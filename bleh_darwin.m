@@ -241,7 +241,7 @@ static SEL s_drawInRect;
 static SEL s_release;
 static BOOL drawImage_init = NO;
 
-id drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int64_t xdest, int64_t ydest)
+void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int64_t xdest, int64_t ydest)
 {
 	unsigned char *planes[1];			/* NSBitmapImageRep wants an array of planes; we have one plane */
 	id bitmap;
@@ -277,4 +277,34 @@ id drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int64_
 		(BOOL) YES,										/* respectFlipped: */
 		nil);												/* hints: */
 	objc_msgSend(bitmap, s_release);
+}
+
+/*
+more NSPoint fumbling
+*/
+
+static SEL s_locationInWindow;
+static SEL s_convertPointFromView;
+static BOOL getTranslatedEventPoint_init = NO;
+
+static NSPoint (*objc_msgSend_stret_point)(id, SEL, ...) =
+	(NSPoint (*)(id, SEL, ...)) objc_msgSend;
+
+struct xpoint getTranslatedEventPoint(id self, id event)
+{
+	NSPoint p;
+	struct xpoint ret;
+
+	if (getTranslatedEventPoint_init == NO) {
+		s_locationInWindow = sel_getUid("locationInWindow");
+		s_convertPointFromView = sel_getUid("convertPoint:fromView:");
+		getTranslatedEventPoint_init = YES;
+	}
+	p = objc_msgSend_stret_point(event, s_locationInWindow);
+	p = objc_msgSend_stret_point(self, s_convertPointFromView,
+		p,			/* convertPoint: */
+		nil);			/* fromView: */
+	ret.x = (int64_t) p.x;
+	ret.y = (int64_t) p.y;
+	return ret;
 }

@@ -47,6 +47,11 @@ struct xsize {
 
 extern struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel);
 
+struct xpoint {
+	int64_t x;
+	int64_t y;
+};
+
 extern uintptr_t objc_msgSend_uintret_noargs(id objc, SEL sel);
 
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
@@ -107,6 +112,7 @@ extern id makeDummyEvent();
 
 /* for area_darwin.go */
 extern BOOL addAreaViewDrawMethod(Class);
-extern id drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
+extern void drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
+extern struct xpoint getTranslatedEventPoint(id, id);
 
 #endif

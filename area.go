@@ -85,8 +85,8 @@ type MouseEvent struct {
 	Up			uint
 
 	// If Down is nonzero, Count indicates the number of clicks: 1 for single-click, 2 for double-click.
-	// If Count == 2, AT LEAST one event with Count == 1 will have been sent prior.
-	// (This is a platform-specific issue: some platforms send one, some send two.)
+	// If Count == 2, AT LEAST zero events with Count == 1 will have been sent prior.
+	// (This is a platform-specific issue: some platforms send none, some send one, and some send two.)
 	Count		uint
 
 	// Modifiers is a bit mask indicating the modifier keys being held during the event.

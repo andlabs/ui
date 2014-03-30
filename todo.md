@@ -51,6 +51,11 @@ important things:
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 
 super ultra important things:
+- formalize dragging
+	- implement dragging on windows
+	- may need to drop Held depending on weirdness I see in OS X
+- cap click count to 2 on all platforms
+	- cap mouse button count to 3? or should a function be used instead?
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...

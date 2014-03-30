@@ -13,7 +13,10 @@ import (
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
 // extern void areaView_drawRect(id, struct xrect);
-// extern BOOL areaView_isFlipped(id, SEL);
+// extern BOOL areaView_isFlipped_acceptsFirstResponder(id, SEL);
+// extern void areaView_mouseMoved(id, SEL, id);
+// extern void areaView_mouseDown_mouseDragged(id, SEL, id);
+// extern void areaView_mouseUp(id, SEL, id);
 import "C"
 
 const (
@@ -25,7 +28,26 @@ var (
 
 	_drawRect = sel_getUid("drawRect:")
 	_isFlipped = sel_getUid("isFlipped")
+	_acceptsFirstResponder = sel_getUid("acceptsFirstResponder")
 )
+
+// uintptr due to a bug; see https://code.google.com/p/go/issues/detail?id=7665
+type eventMethod struct {
+	sel	string
+	m	uintptr
+}
+var eventMethods = []eventMethod{
+	eventMethod{"mouseMoved:", uintptr(C.areaView_mouseMoved)},
+	eventMethod{"mouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"mouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"mouseUp:", uintptr(C.areaView_mouseUp)},
+	eventMethod{"rightMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"rightMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"rightMouseUp:", uintptr(C.areaView_mouseUp)},
+	eventMethod{"otherMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"otherMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
+	eventMethod{"otherMouseUp:", uintptr(C.areaView_mouseUp)},
+}
 
 func mkAreaClass() error {
 	areaclass, err := makeAreaClass(__goArea)
@@ -39,9 +61,21 @@ func mkAreaClass() error {
 	}
 	// TODO rename this function (it overrides anyway)
 	err = addDelegateMethod(areaclass, _isFlipped,
-		C.areaView_isFlipped, area_boolret)
+		C.areaView_isFlipped_acceptsFirstResponder, area_boolret)
 	if err != nil {
 		return fmt.Errorf("error overriding Area isFlipped method: %v", err)
+	}
+	err = addDelegateMethod(areaclass, _acceptsFirstResponder,
+		C.areaView_isFlipped_acceptsFirstResponder, area_boolret)
+	if err != nil {
+		return fmt.Errorf("error overriding Area acceptsFirstResponder method: %v", err)
+	}
+	for _, m := range eventMethods {
+		err = addDelegateMethod(areaclass, sel_getUid(m.sel),
+			unsafe.Pointer(m.m), delegate_void)
+		if err != nil {
+			return fmt.Errorf("error overriding Area %s method: %v", m.sel, err)
+		}
 	}
 	_goArea = objc_getClass(__goArea)
 	return nil
@@ -69,9 +103,103 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 		C.int64_t(cliprect.Min.X), C.int64_t(cliprect.Min.Y))
 }
 
-//export areaView_isFlipped
-func areaView_isFlipped(self C.id, sel C.SEL) C.BOOL {
+//export areaView_isFlipped_acceptsFirstResponder
+func areaView_isFlipped_acceptsFirstResponder(self C.id, sel C.SEL) C.BOOL {
+	// yes use the same function for both methods since they're just going to return YES anyway
+	// isFlipped gives us a coordinate system with (0,0) at the top-left
+	// acceptsFirstResponder lets us respond to events
 	return C.BOOL(C.YES)
+}
+
+var (
+	_modifierFlags = sel_getUid("modifierFlags")
+	_buttonNumber = sel_getUid("buttonNumber")
+	_clickCount = sel_getUid("clickCount")
+)
+
+func parseModifiers(e C.id) (m Modifiers) {
+	const (
+		_NSShiftKeyMask = 1 << 17
+		_NSControlKeyMask = 1 << 18
+		_NSAlternateKeyMask = 1 << 19
+		_NSCommandKeyMask = 1 << 20
+	)
+
+	mods := uintptr(C.objc_msgSend_uintret_noargs(e, _modifierFlags))
+	if (mods & _NSShiftKeyMask) != 0 {
+		m |= Shift
+	}
+	if (mods & _NSControlKeyMask) != 0 {
+		// TODO
+	}
+	if (mods & _NSAlternateKeyMask) != 0 {
+		m |= Alt
+	}
+	if (mods & _NSCommandKeyMask) != 0 {
+		m |= Ctrl
+	}
+	return m
+}
+
+func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
+	var me MouseEvent
+
+	s := getSysData(self)
+	xp := C.getTranslatedEventPoint(self, e)
+	me.Pos = image.Pt(int(xp.x), int(xp.y))
+	me.Modifiers = parseModifiers(e)
+	which := uint(C.objc_msgSend_intret_noargs(e, _buttonNumber)) + 1
+	if which == 3 {		// swap middle and right button numbers
+		which = 2
+	} else if which == 2 {
+		which = 3
+	}
+	if click && up {
+		me.Up = which
+	} else if click {
+		me.Down = which
+		me.Count = uint(C.objc_msgSend_intret_noargs(e, _clickCount))
+	} else {
+		which = 0			// reset for Held processing below
+	}
+	held := C.objc_msgSend_uintret_noargs(e, _clickCount)
+	if which != 1 && (held & 1) != 0 {		// button 1
+		me.Held = append(me.Held, 1)
+	}
+	if which != 2 && (held & 4) != 0 {		// button 2; mind the swap
+		me.Held = append(me.Held, 2)
+	}
+	if which != 3 && (held & 2) != 0 {		// button 3
+		me.Held = append(me.Held, 3)
+	}
+	// TODO remove this part?
+	held >>= 3
+	for i := uint(4); held != 0; i++ {
+		if which != i && (held & 1) != 0 {
+			me.Held = append(me.Held, i)
+		}
+		held >>= 1
+	}
+	repaint := s.handler.Mouse(me)
+	if repaint {
+		C.objc_msgSend_noargs(self, _display)
+	}
+}
+
+//export areaView_mouseMoved
+func areaView_mouseMoved(self C.id, sel C.SEL, e C.id) {
+	// TODO not triggered?
+	areaMouseEvent(self, e, false, false)
+}
+
+//export areaView_mouseDown_mouseDragged
+func areaView_mouseDown_mouseDragged(self C.id, sel C.SEL, e C.id) {
+	areaMouseEvent(self, e, true, false)
+}
+
+//export areaView_mouseUp
+func areaView_mouseUp(self C.id, sel C.SEL, e C.id) {
+	areaMouseEvent(self, e, true, true)
 }
 
 // TODO combine these with the listbox functions?
