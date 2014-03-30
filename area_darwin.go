@@ -64,10 +64,8 @@ func areaInScrollView(scrollview C.id) C.id {
 
 func makeArea(parentWindow C.id, alternate bool) C.id {
 	area := objc_alloc(_goArea)
-println(area)
 	area = objc_msgSend_rect(area, _initWithFrame,
 		0, 0, 100, 100)
-println("out")
 	// TODO others?
 	area = newAreaScrollView(area)
 	addControl(parentWindow, area)
@@ -78,7 +76,7 @@ println("out")
 
 var (
 	_NSView = objc_getClass("NSView")
-	_NSView_Class = C.object_getClass(_NSView)
+	_NSView_Class = C.Class(unsafe.Pointer(_NSView))
 )
 
 func makeAreaClass(name string) (C.Class, error) {

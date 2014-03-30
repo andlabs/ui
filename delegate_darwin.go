@@ -64,9 +64,7 @@ func mkAppDelegate() error {
 	if err != nil {
 		return fmt.Errorf("error adding NSApplication delegate buttonClicked: method (to handle button clicks): %v", err)
 	}
-	// TODO using objc_new() causes a segfault; find out why
-	// TODO make alloc followed by init (I thought NSObject provided its own init?)
-	appDelegate = objc_alloc(objc_getClass(_goAppDelegate))
+	appDelegate = objc_new(objc_getClass(_goAppDelegate))
 	return nil
 }
 
@@ -111,7 +109,10 @@ func appDelegate_buttonClicked(self C.id, sel C.SEL, button C.id) {
 // this actually constructs the delegate class
 
 var (
-	_NSObject_Class = C.object_getClass(_NSObject)
+	// objc_getClass() says it returns an id but it's actually a Class
+	// thanks to Psy| in irc.freenode.net/##objc
+	// don't call object_getClass() on this then, as I originally thought — that returns the /metaclass/ (which we don't want, and in fact I wasn't even aware we COULD subclass the metaclass directly like this)
+	_NSObject_Class = C.Class(unsafe.Pointer(_NSObject))
 )
 
 func makeDelegateClass(name string) (C.Class, error) {
