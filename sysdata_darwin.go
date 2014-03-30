@@ -503,10 +503,9 @@ func (s *sysData) setAreaSize(width int, height int) {
 	defer close(ret)
 	uitask <- func() {
 		area := areaInScrollView(s.id)
-println(C.GoString(C.object_getClassName(area)))
-		objc_msgSend_rect_bool(area, _setFrameDisplay,
-			int(0), int(0), width, height,
-			C.BOOL(C.YES))		// redraw
+		objc_msgSend_rect(area, _setFrame,
+			int(0), int(0), width, height)
+		C.objc_msgSend_noargs(area, _display)		// and redraw
 		ret <- struct{}{}
 	}
 	<-ret
