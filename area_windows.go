@@ -346,6 +346,7 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
+// TODO populate me.Held
 func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM, lparam _LPARAM) {
 	var me MouseEvent
 
