@@ -116,7 +116,7 @@ var keycodeModifiers = map[uintptr]Modifiers{
 //	0x3E:	kVK_RightControl,
 
 	// the following is not in Events.h for some reason
-	// thanks to Nicole from irc.badnik.net
+	// thanks to Nicole and jedivulcan from irc.badnik.net
 	0x36:	Ctrl,		// right command
 }
 
