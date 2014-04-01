@@ -20,7 +20,7 @@ import (
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
 import "C"
 
-func gtkAreaNew() *gtkWidget {
+func gtkAreaNew() *C.GtkWidget {
 	drawingarea := C.gtk_drawing_area_new()
 	C.gtk_widget_set_size_request(drawingarea, 100, 100)		// default initial size (TODO do we need it?); use C. to avoid casting drawingarea
 	// we need to explicitly subscribe to mouse events with GtkDrawingArea
@@ -31,13 +31,13 @@ func gtkAreaNew() *gtkWidget {
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	// need a viewport because GtkDrawingArea isn't natively scrollable
 	C.gtk_scrolled_window_add_with_viewport((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), drawingarea)
-	return fromgtkwidget(scrollarea)
+	return scrollarea
 }
 
-func gtkAreaGetControl(scrollarea *gtkWidget) *gtkWidget {
+func gtkAreaGetControl(scrollarea *C.GtkWidget) *C.GtkWidget {
 	viewport := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(scrollarea)))
 	control := C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(viewport)))
-	return fromgtkwidget(control)
+	return control
 }
 
 //export our_area_draw_callback

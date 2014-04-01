@@ -8,29 +8,33 @@ import (
 	"time"
 )
 
+// #cgo pkg-config: gtk+-3.0
+// #include "gtk_unix.h"
+import "C"
+
 type sysData struct {
 	cSysData
 
-	widget		*gtkWidget
-	container		*gtkWidget	// for moving
+	widget		*C.GtkWidget
+	container		*C.GtkWidget	// for moving
 	pulse		chan bool		// for sysData.progressPulse()
 }
 
 type classData struct {
-	make	func() *gtkWidget
-	makeAlt	func() *gtkWidget
-	setText	func(widget *gtkWidget, text string)
-	text		func(widget *gtkWidget) string
-	append	func(widget *gtkWidget, text string)
-	insert	func(widget *gtkWidget, index int, text string)
-	selected	func(widget *gtkWidget) int
-	selMulti	func(widget *gtkWidget) []int
-	smtexts	func(widget *gtkWidget) []string
-	delete	func(widget *gtkWidget, index int)
-	len		func(widget *gtkWidget) int
+	make	func() *C.GtkWidget
+	makeAlt	func() *C.GtkWidget
+	setText	func(widget *C.GtkWidget, text string)
+	text		func(widget *C.GtkWidget) string
+	append	func(widget *C.GtkWidget, text string)
+	insert	func(widget *C.GtkWidget, index int, text string)
+	selected	func(widget *C.GtkWidget) int
+	selMulti	func(widget *C.GtkWidget) []int
+	smtexts	func(widget *C.GtkWidget) []string
+	delete	func(widget *C.GtkWidget, index int)
+	len		func(widget *C.GtkWidget) int
 	// ...
 	signals	callbackMap
-	child		func(widget *gtkWidget) *gtkWidget
+	child		func(widget *C.GtkWidget) *C.GtkWidget
 	childsigs	callbackMap
 }
 
@@ -110,7 +114,7 @@ var classTypes = [nctypes]*classData{
 
 func (s *sysData) make(initText string, window *sysData) error {
 	ct := classTypes[s.ctype]
-	ret := make(chan *gtkWidget)
+	ret := make(chan *C.GtkWidget)
 	defer close(ret)
 	uitask <- func() {
 		if s.alternate {

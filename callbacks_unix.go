@@ -70,10 +70,10 @@ var button_clicked_callback = C.GCallback(C.our_button_clicked_callback)
 type callbackMap map[string]C.GCallback
 
 // this is what actually connects a signal
-func g_signal_connect(obj *gtkWidget, sig string, callback C.GCallback, sysData *sysData) {
+func g_signal_connect(obj *C.GtkWidget, sig string, callback C.GCallback, sysData *sysData) {
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
-	C.gSignalConnect(togtkwidget(obj), csig, callback, unsafe.Pointer(sysData))
+	C.gSignalConnect(obj, csig, callback, unsafe.Pointer(sysData))
 }
 
 // there are two issues we solve here:

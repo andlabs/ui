@@ -28,14 +28,6 @@ func togbool(b bool) C.gboolean {
 	return C.FALSE
 }
 
-func fromgtkwidget(x *C.GtkWidget) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
-}
-
-func togtkwidget(what *gtkWidget) *C.GtkWidget {
-	return (*C.GtkWidget)(unsafe.Pointer(what))
-}
-
 // TODO wrap in C.GoString()?
 func fromgchar(what *C.gchar) *C.char {
 	return (*C.char)(unsafe.Pointer(what))
@@ -45,74 +37,74 @@ func togchar(what *C.char) *C.gchar {
 	return (*C.gchar)(unsafe.Pointer(what))
 }
 
-func fromgtkwindow(x *C.GtkWindow) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkwindow(x *C.GtkWindow) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkwindow(what *gtkWidget) *C.GtkWindow {
+func togtkwindow(what *C.GtkWidget) *C.GtkWindow {
 	return (*C.GtkWindow)(unsafe.Pointer(what))
 }
 
-func fromgtkcontainer(x *C.GtkContainer) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkcontainer(x *C.GtkContainer) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkcontainer(what *gtkWidget) *C.GtkContainer {
+func togtkcontainer(what *C.GtkWidget) *C.GtkContainer {
 	return (*C.GtkContainer)(unsafe.Pointer(what))
 }
 
-func fromgtklayout(x *C.GtkLayout) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtklayout(x *C.GtkLayout) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtklayout(what *gtkWidget) *C.GtkLayout {
+func togtklayout(what *C.GtkWidget) *C.GtkLayout {
 	return (*C.GtkLayout)(unsafe.Pointer(what))
 }
 
-func fromgtkbutton(x *C.GtkButton) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkbutton(x *C.GtkButton) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkbutton(what *gtkWidget) *C.GtkButton {
+func togtkbutton(what *C.GtkWidget) *C.GtkButton {
 	return (*C.GtkButton)(unsafe.Pointer(what))
 }
 
-func fromgtktogglebutton(x *C.GtkToggleButton) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtktogglebutton(x *C.GtkToggleButton) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtktogglebutton(what *gtkWidget) *C.GtkToggleButton {
+func togtktogglebutton(what *C.GtkWidget) *C.GtkToggleButton {
 	return (*C.GtkToggleButton)(unsafe.Pointer(what))
 }
 
-func fromgtkcombobox(x *C.GtkComboBoxText) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkcombobox(x *C.GtkComboBoxText) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkcombobox(what *gtkWidget) *C.GtkComboBoxText {
+func togtkcombobox(what *C.GtkWidget) *C.GtkComboBoxText {
 	return (*C.GtkComboBoxText)(unsafe.Pointer(what))
 }
 
-func fromgtkentry(x *C.GtkEntry) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkentry(x *C.GtkEntry) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkentry(what *gtkWidget) *C.GtkEntry {
+func togtkentry(what *C.GtkWidget) *C.GtkEntry {
 	return (*C.GtkEntry)(unsafe.Pointer(what))
 }
 
-func fromgtklabel(x *C.GtkLabel) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtklabel(x *C.GtkLabel) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtklabel(what *gtkWidget) *C.GtkLabel {
+func togtklabel(what *C.GtkWidget) *C.GtkLabel {
 	return (*C.GtkLabel)(unsafe.Pointer(what))
 }
 
-func fromgtkprogressbar(x *C.GtkProgressBar) *gtkWidget {
-	return (*gtkWidget)(unsafe.Pointer(x))
+func fromgtkprogressbar(x *C.GtkProgressBar) *C.GtkWidget {
+	return (*C.GtkWidget)(unsafe.Pointer(x))
 }
 
-func togtkprogressbar(what *gtkWidget) *C.GtkProgressBar {
+func togtkprogressbar(what *C.GtkWidget) *C.GtkProgressBar {
 	return (*C.GtkProgressBar)(unsafe.Pointer(what))
 }
