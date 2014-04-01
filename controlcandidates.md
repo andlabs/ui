@@ -95,18 +95,35 @@ Preferred Size | TODO | TODO | TODO
 ## Open/Save Dialogs
   | Windows | GTK+ | Cocoa
 ----- | ----- | ----- | -----
-Directories | xxx | open and save | xxx
-Network vs. local only (URI vs. filename) | xxx | yes (default local only; if local only, changing to, say, smb://127.0.0.1/ will pop up an error box; if nonlocal allowed, filename can be null) | xxx
-Multiple selection | yes | yes | xxx
-Hidden files | xxx | hidden by default; can be switched on in code (but is a no-op?) and also by the user | xxx
-Overwrite confirmation | xxx | available; must be explicitly enabled | xxx
-New Folder button | xxx | optional (I think enabled by default? should do it explicitly to be safe, anyway) | xxx
-Preview widget | xxx | user-defined | xxx
-Extra widget | xxx | user-defined | xxx
-File filters | Specified by "patterns" (consisting of filename characters and * but not space; I assume the only safe ones are *.ext and *.*); multiple patterns separated by semicolons; can have custom labels | Specified by MIME type (handles subtypes; has wildcards) or pattern ("shell-style glob", so I assume over whole basename) or by custom function; can have multiple of the above; can have custom labels; also has a shortcut to add all gdk-pixbuf-supported formats | xxx
-File filter list format | `"Label\0Filter-list\0Label\0Filter-list\0...Label\0FIlter-list\0\0"`; filter for all files is canonically `"All Files\0*.*\0\0"` in the docs (specifically this due to handling of shortcut links); also provides a way for users to write in their own filters | Add or remove individual GtkFileFIlter objects; can select one specified in the list to show by default; default behavior is all files; if selected one when none has been specified, filter selection disabled; filter for all files specified in docs under gtk_file_filter_new() (except doesn't set a name) | xxx
-Default file name | settable | settable | xxx
-Initial directory | complex rules that have changed over time; we can pass an absolute filename (the previous filename or a default filename) and have its path used (if we specify just a path it will either be used as the filename or the program will crash); or we can give it a directory; or Windows will remember for us for some time, or... | pass previous filename or URI to show; overrides default file name; intended only for saving files (so I don't know if it's possible to remember current directory for opening??????); effect of passing containing directory undocumented(???? in my tests the given folder itself is selected) | xxx
-Confirmation and cancel buttons | xxx | GTK_STOCK_OPEN, GTK_STOCK_SAVE, GTK_STOCK_SAVE_AS / GTK_STOCK_CANCEL | xxx
+Directories | no (separate facility provided by the shell) | open and save | open only
+Network vs. local only (URI vs. filename) | Network button enabled by default; can be switched off (**TODO** how are network filenames returned?) | yes (default local only; if local only, changing to, say, smb://127.0.0.1/ will pop up an error box; if nonlocal allowed, filename can be null) | xxx
+Multiple selection | yes | yes | open only
+Hidden files | user-specified; can be switched on in code (but is a no-op?) | hidden by default; can be switched on in code (but is a no-op?) and also by the user | xxx
+Overwrite confirmation | available; must be explicitly enabled | available; must be explicitly enabled | xxx
+New Folder button | xxx | optional (I think enabled by default? should do it explicitly to be safe, anyway) | optional
+Preview widget | xxx | yes; optional, custom | xxx
+Extra custom widget | xxx | yes; optional | yes; optional
+File filters | Specified by "patterns" (consisting of filename characters and * but not space; I assume the only safe ones are *.ext and *.*); multiple patterns separated by semicolons; can have custom labels | Specified by MIME type (handles subtypes; has wildcards) or pattern ("shell-style glob", so I assume over whole basename) or by custom function; can have multiple of the above; can have custom labels; also has a shortcut to add all gdk-pixbuf-supported formats | Specified by "UTI"s or by individual filename extensions (format not documented but appears to be just the extension without embellishments); cannot have labels; 1:1 filter:extension mapping.
+File filter list format | `"Label\0Filter-list\0Label\0Filter-list\0...Label\0FIlter-list\0\0"`; filter for all files is canonically `"All Files\0*.*\0\0"` in the docs (specifically this due to handling of shortcut links); also provides a way for users to write in their own filters | Add or remove individual GtkFileFIlter objects; can select one specified in the list to show by default; default behavior is all files; if selected one when none has been specified, filter selection disabled; filter for all files specified in docs under gtk_file_filter_new() (except doesn't set a name) | NSArray of filter strings, or nil for All Files. There is no provision to have an "all files" option: you either specify a set of filters or you don't. (See filename extension auto-append below.). All filters are applied at once; there is no way to select. We might need to introduce an accessory panel (extra widget) to fake the filtering rules of other platforms...
+Default file name | settable | settable | settable (as the filename label)
+Initial directory | complex rules that have changed over time; we can pass an absolute filename (the previous filename or a default filename) and have its path used (if we specify just a path it will either be used as the filename or the program will crash); or we can give it a directory; or Windows will remember for us for some time, or... | pass previous filename or URI to show; overrides default file name; intended only for saving files (so I don't know if it's possible to remember current directory for opening??????); effect of passing containing directory undocumented(???? in my tests the given folder itself is selected) | has some rules; there is a way to specify a custom one; seems to have the undocumented effect that it selects the file if a file is named
+Confirmation and cancel buttons | xxx | GTK_STOCK_OPEN, GTK_STOCK_SAVE, GTK_STOCK_SAVE_AS / GTK_STOCK_CANCEL | cancel button predefined; confirmation button can be changed (setPrompt:) but **TODO** the docs imply prompt is actually a global property?
 Returned filename rules | xxxx | memory provided by GTK+ itself (so no need to worry about size limits); can return a single filename or URI or a GSList of filenames or URIs | xxx
-Window title | optional; defaults to either Open or Save As | required(?) | xxx
+Window title | optional; defaults to either Open or Save As | required(?) | optional for save (defaults to Save); unknown (**TODO**) for Open
+Prompt to create new files | available; must be explicitly enabled; seems to only apply to Open File dialogs (**TODO**) | xxx | xxx
+Adds file to a Recent Documents list | available; must be explicitly disabled | xxx | xxx
+Allows nonexistent files to be created in Open dialogs | yes; can be switched off | xxx | xxx
+"Open as read-only"/"Save as read-only" checkbox | provided; default; can be switched off | xxx | xxx
+Navigating changes the current working directory of the program | yes; can be switched off for Save dialogs only (????) | xxx | xxx
+Link following | For .lnk files, enabled by default iff a filter is specified; the All Files filter above is listed as being necessary to follow links; can be shut off with a flag in all cases | xxx | For Finder aliases, setResolvesAliases:
+Help button | Available; old-style dialog boxes need a parent window (Explorer-style ones don't; they just need a hook function) | xxx | xxx
+Extension auto-appending | Optional; three-character maximum; doesn't seem to be available on a per-filter basis | xxx | **NOT OPTIONAL.** The only way to avoid this is to not specify any filters. You can't even circumvent this with a delegate. If the user specifies another extension, they are asked to choose one if setAllowsOtherFileTypes: is set. (**TODO** could we use nameFieldStringValue to circumvent?)
+Other labels | xxx | xxx | field before filename entry can be changed; also can provide an additional optional message
+
+TODO
+* Windows: OFN_NOTESTFILECREATE might be necessary
+* Windows: OFN_NOVALIDATE - see what happens without a hook
+* Windows: OFN_SHAREAWARE - this is a weird one but it's network related
+* Windows: templates seem to be how to provide extra parameters, but their usage isn't documented on the OPENFILENAME struct help page; check the rest of MSDN
+* Mac OS X: turn on both setExtensionHidden: and setCanSelectHiddenExtension: to show the extnesion in the dialog
+* Mac OS X: turn on setTreatsFilePackagesAsDirectories: since file packages (bundles) are an OS X-specific concept
