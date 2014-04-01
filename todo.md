@@ -86,7 +86,7 @@ super ultra important things:
 - the window background of a GTK+ window seems to be... off - I think it has to do with the GtkLayout
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
-- scrolling Areas in wine by clicking in the page scroll area often causes the main thread to lock up; uitask does not
+- redrawing Areas on Windows seems to be flaky
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure GTK+ keyboard events on numpad off don't switch between controls
