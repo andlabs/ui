@@ -35,8 +35,6 @@ important things:
 	- find out if I can do the same with the ListBoxes
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
-- there's no GTK+ or Cocoa error handling whatsoever; we need to figure out how it works
-	- I know how Cocoa error handling works: it uses Cocoa exceptions; need to figure out how to catch and handle them somehow
 - make sure GTK+ documentation version point differences (x in 4.3.x) don't matter
 - button sizes and LineEdit sizes on Windows seem too big; Comboboxes have margins
 	- Cocoa has similar margining issues (like on Comboboxes)
