@@ -119,6 +119,7 @@ Link following | For .lnk files, enabled by default iff a filter is specified; t
 Help button | Available; old-style dialog boxes need a parent window (Explorer-style ones don't; they just need a hook function) | xxx | xxx
 Extension auto-appending | Optional; three-character maximum; doesn't seem to be available on a per-filter basis | xxx | **NOT OPTIONAL.** The only way to avoid this is to not specify any filters. You can't even circumvent this with a delegate. If the user specifies another extension, they are asked to choose one if setAllowsOtherFileTypes: is set. (**TODO** could we use nameFieldStringValue to circumvent?)
 Other labels | xxx | xxx | field before filename entry can be changed; also can provide an additional optional message
+Multiple selection allows empty selection | xxx | xxx | xxx
 
 TODO
 * Windows: OFN_NOTESTFILECREATE might be necessary
