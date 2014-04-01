@@ -122,3 +122,5 @@ maybe:
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
 - provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain focus
 	- provide an event for leaving focus so a focus rectangle can be drawn
+- change the Windows code to use extra class space (as in http://www.catch22.net/tuts/custom-controls)
+	- this is a bit flakier as SetWindowLongPtr() can fail, and it can also succeed in such a way that the last error is unreliable
