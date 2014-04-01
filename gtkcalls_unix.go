@@ -10,7 +10,6 @@ import (
 )
 
 // #cgo pkg-config: gtk+-3.0
-// #include <stdlib.h>
 // #include "gtk_unix.h"
 import "C"
 
