@@ -35,6 +35,7 @@ const (
 )
 
 var (
+	_getCurrentThreadID = kernel32.NewProc("GetCurrentThreadId")
 	_postThreadMessage = user32.NewProc("PostThreadMessageW")
 )
 
@@ -47,10 +48,20 @@ func ui(main func()) error {
 		return err
 	}
 
-	threadIDReq := make(chan uintptr)
-	msglooperrs := make(chan error)
-	go msgloop(threadIDReq, msglooperrs)
-	threadID := <-threadIDReq
+	threadID, _, _ := _getCurrentThreadID.Call()
+
+	go func() {
+		for m := range uitask {
+			r1, _, err := _postThreadMessage.Call(
+				threadID,
+				msgRequested,
+				uintptr(0),
+				uintptr(unsafe.Pointer(m)))
+			if r1 == 0 {		// failure
+				panic("error sending message to message loop to call function: " + err.Error())		// TODO
+			}
+		}
+	}()
 
 	go func() {
 		main()
@@ -60,30 +71,11 @@ func ui(main func()) error {
 			uintptr(0),
 			uintptr(0))
 		if r1 == 0 {		// failure
-			panic("error sending quit message to message loop: " + err.Error())		// TODO
+			panic("error sending quit message to message loop: " + err.Error())
 		}
 	}()
 
-	quit := false
-	for !quit {
-		select {
-		case m := <-uitask:
-			r1, _, err := _postThreadMessage.Call(
-				threadID,
-				msgRequested,
-				uintptr(0),
-				uintptr(unsafe.Pointer(m)))
-			if r1 == 0 {		// failure
-				panic("error sending message to message loop to call function: " + err.Error())		// TODO
-			}
-		case err := <-msglooperrs:
-			if err == nil {		// WM_QUIT; no error
-				quit = true
-			} else {
-				panic("unexpected return from message loop: " + err.Error())		// TODO
-			}
-		}
-	}
+	msgloop()
 
 	doWindowsQuitStuff()
 	return nil
@@ -92,7 +84,6 @@ func ui(main func()) error {
 var (
 	_dispatchMessage = user32.NewProc("DispatchMessageW")
 	_getMessage = user32.NewProc("GetMessageW")
-	_getCurrentThreadID = kernel32.NewProc("GetCurrentThreadId")
 	_postQuitMessage = user32.NewProc("PostQuitMessage")
 	_sendMessage = user32.NewProc("SendMessageW")
 	_translateMessage = user32.NewProc("TranslateMessage")
@@ -100,9 +91,7 @@ var (
 
 var getMessageFail = -1		// because Go doesn't let me
 
-func msgloop(threadID chan uintptr, errors chan error) {
-	runtime.LockOSThread()
-
+func msgloop() {
 	var msg struct {
 		Hwnd	_HWND
 		Message	uint32
@@ -112,8 +101,6 @@ func msgloop(threadID chan uintptr, errors chan error) {
 		Pt		_POINT
 	}
 
-	r1, _, _ := _getCurrentThreadID.Call()
-	threadID <- r1
 	for {
 		r1, _, err := _getMessage.Call(
 			uintptr(unsafe.Pointer(&msg)),
@@ -121,11 +108,9 @@ func msgloop(threadID chan uintptr, errors chan error) {
 			uintptr(0),
 			uintptr(0))
 		if r1 == uintptr(getMessageFail) {		// error
-			errors <- err
-			return
+			panic("error getting message in message loop: " + err.Error())
 		}
 		if r1 == 0 {		// WM_QUIT message
-			errors <- nil
 			return
 		}
 		if msg.Message == msgRequested {

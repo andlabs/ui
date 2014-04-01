@@ -2,8 +2,6 @@ so I don't forget:
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetOptimalSize())`) for sizing a window to the control's interest
 - Control.Show()/Control.Hide()
 - Groupbox
-- see if we really need to track errors on a lot of places that report errors
-	- it appears GTK+ and Cocoa both either don't provide a convenient way to grab errors or you're not supposed to; I assume you're supposed to just assume everything works... but on Windows we check errors for functions that return errors, and there's no guarantee that only certian errors will be returned...
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
@@ -65,7 +63,6 @@ super ultra important things:
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
-- handle in-library panics (internal errors) by reporting them to the user
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	TODO re-evaluate; I think I fixed them all ages ago now
 - occasionally I get
