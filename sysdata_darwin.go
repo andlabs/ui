@@ -178,7 +178,6 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		// TODO setText
 		textsel:		_titleOfSelectedItem,
 		alttextsel:		_stringValue,
 		append:		func(id C.id, what string, alternate bool) {
@@ -301,7 +300,7 @@ func getSysData(key C.id) *sysData {
 	return v
 }
 
-func (s *sysData) make(initText string, window *sysData) error {
+func (s *sysData) make(window *sysData) error {
 	var parentWindow C.id
 
 	ct := classTypes[s.ctype]
@@ -314,7 +313,6 @@ func (s *sysData) make(initText string, window *sysData) error {
 		ret <- ct.make(parentWindow, s.alternate)
 	}
 	s.id = <-ret
-	s.setText(initText)
 	if ct.getinside != nil {
 		uitask <- func() {
 			ret <- ct.getinside(s.id)
@@ -353,11 +351,6 @@ func (s *sysData) hide() {
 }
 
 func (s *sysData) setText(text string) {
-	var zeroSel C.SEL
-
-	if classTypes[s.ctype].settextsel == zeroSel {		// does not have concept of text
-		return
-	}
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {

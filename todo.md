@@ -18,7 +18,6 @@ so I don't forget:
 	- should message box text be selectable on all platforms or only on those that make it the default?
 - Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
-- change sysData.make() so it does not take the initial window text as an argument and instead have the respective Control/Window.make() call sysData.setText() expressly; this would allow me to remove the "no such concept of text" checks from the GTK+ and Mac OS X backends
 - Message boxes should not show secondary text if none is specified.
 - note that you can change event channels before opening the window; this allows unifying menus/toolbars/etc.
 	- will probably want to bring back Event() for this (but as NewEvent())
