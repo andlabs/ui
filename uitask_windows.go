@@ -58,7 +58,7 @@ func ui(main func()) error {
 				uintptr(0),
 				uintptr(unsafe.Pointer(m)))
 			if r1 == 0 {		// failure
-				panic("error sending message to message loop to call function: " + err.Error())		// TODO
+				panic("error sending message to message loop to call function: " + err.Error())
 			}
 		}
 	}()
