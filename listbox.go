@@ -139,7 +139,7 @@ func (l *Listbox) make(window *sysData) (err error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	err = l.sysData.make("", window)
+	err = l.sysData.make(window)
 	if err != nil {
 		return err
 	}

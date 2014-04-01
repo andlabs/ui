@@ -288,7 +288,7 @@ func (a *Area) make(window *sysData) error {
 	defer a.lock.Unlock()
 
 	a.sysData.handler = a.handler
-	err := a.sysData.make("", window)
+	err := a.sysData.make(window)
 	if err != nil {
 		return err
 	}

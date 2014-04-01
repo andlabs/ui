@@ -21,7 +21,7 @@ type cSysData struct {
 
 // this interface is used to make sure all sysDatas are synced
 var _xSysData interface {
-	make(initText string, window *sysData) error
+	make(window *sysData) error
 	firstShow() error
 	show()
 	hide()

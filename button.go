@@ -55,10 +55,11 @@ func (b *Button) make(window *sysData) error {
 	defer b.lock.Unlock()
 
 	b.sysData.event = b.Clicked
-	err := b.sysData.make(b.initText, window)
+	err := b.sysData.make(window)
 	if err != nil {
 		return err
 	}
+	b.sysData.setText(b.initText)
 	b.created = true
 	return nil
 }

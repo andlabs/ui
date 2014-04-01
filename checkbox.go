@@ -63,10 +63,11 @@ func (c *Checkbox) make(window *sysData) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	err := c.sysData.make(c.initText, window)
+	err := c.sysData.make(window)
 	if err != nil {
 		return err
 	}
+	c.sysData.setText(c.initText)
 	c.created = true
 	return nil
 }

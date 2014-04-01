@@ -49,10 +49,11 @@ func (l *Label) make(window *sysData) error {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	err := l.sysData.make(l.initText, window)
+	err := l.sysData.make(window)
 	if err != nil {
 		return err
 	}
+	l.sysData.setText(l.initText)
 	l.created = true
 	return nil
 }

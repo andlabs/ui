@@ -47,7 +47,7 @@ func (p *ProgressBar) make(window *sysData) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	err := p.sysData.make("", window)
+	err := p.sysData.make(window)
 	if err != nil {
 		return err
 	}

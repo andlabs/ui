@@ -64,7 +64,6 @@ var classTypes = [nctypes]*classData{
 	c_combobox:		&classData{
 		make:		gtk_combo_box_text_new,
 		makeAlt:		gtk_combo_box_text_new_with_entry,
-		// TODO setText
 		text:			gtk_combo_box_text_get_active_text,
 		append:		gtk_combo_box_text_append_text,
 		insert:		gtk_combo_box_text_insert_text,
@@ -86,7 +85,6 @@ var classTypes = [nctypes]*classData{
 	c_listbox:			&classData{
 		make:		gListboxNewSingle,
 		makeAlt:		gListboxNewMulti,
-		// TODO setText
 		text:			gListboxText,
 		append:		gListboxAppend,
 		insert:		gListboxInsert,
@@ -112,7 +110,7 @@ var classTypes = [nctypes]*classData{
 	},
 }
 
-func (s *sysData) make(initText string, window *sysData) error {
+func (s *sysData) make(window *sysData) error {
 	ct := classTypes[s.ctype]
 	ret := make(chan *C.GtkWidget)
 	defer close(ret)
@@ -152,7 +150,6 @@ func (s *sysData) make(initText string, window *sysData) error {
 		}
 		<-ret
 	}
-	s.setText(initText)
 	return nil
 }
 
@@ -183,9 +180,6 @@ func (s *sysData) hide() {
 }
 
 func (s *sysData) setText(text string) {
-	if classTypes[s.ctype].setText == nil {		// does not have concept of text
-		return
-	}
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {

@@ -72,7 +72,7 @@ func (w *Window) Open(control Control) (err error) {
 		panic("window already open")
 	}
 	w.sysData.event = w.Closing
-	err = w.sysData.make(w.initTitle, nil)
+	err = w.sysData.make(nil)
 	if err != nil {
 		return fmt.Errorf("error opening window: %v", err)
 	}
@@ -87,6 +87,7 @@ func (w *Window) Open(control Control) (err error) {
 	if err != nil {
 		return fmt.Errorf("error setting window size (in Window.Open()): %v", err)
 	}
+	w.sysData.setText(w.initTitle)
 	// TODO separate showing?
 	err = w.sysData.firstShow()
 	if err != nil {
