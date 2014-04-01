@@ -89,3 +89,24 @@ Mouse Step Snap | 1, fixed | configurable | configurable
 Keyboard Step Snap | 1, fixed | configurable (uses same value as mouse) | TODO (same as mouse?)
 Can Catch Events To Snap? | TODO | no need | TODO
 Preferred Size | TODO | TODO | TODO
+
+
+# Dialog box hijack
+## Open/Save Dialogs
+  | Windows | GTK+ | Cocoa
+----- | ----- | ----- | -----
+Directories | xxx | open and save | xxx
+Network vs. local only (URI vs. filename) | xxx | yes (default local only; if local only, changing to, say, smb://127.0.0.1/ will pop up an error box; if nonlocal allowed, filename can be null) | xxx
+Multiple selection | yes | yes | xxx
+Hidden files | xxx | hidden by default; can be switched on in code (but is a no-op?) and also by the user | xxx
+Overwrite confirmation | xxx | available; must be explicitly enabled | xxx
+New Folder button | xxx | optional (I think enabled by default? should do it explicitly to be safe, anyway) | xxx
+Preview widget | xxx | user-defined | xxx
+Extra widget | xxx | user-defined | xxx
+File filters | Specified by "patterns" (consisting of filename characters and * but not space; I assume the only safe ones are *.ext and *.*); multiple patterns separated by semicolons; can have custom labels | Specified by MIME type (handles subtypes; has wildcards) or pattern ("shell-style glob", so I assume over whole basename) or by custom function; can have multiple of the above; can have custom labels; also has a shortcut to add all gdk-pixbuf-supported formats | xxx
+File filter list format | `"Label\0Filter-list\0Label\0Filter-list\0...Label\0FIlter-list\0\0"`; filter for all files is canonically `"All Files\0*.*\0\0"` in the docs (specifically this due to handling of shortcut links); also provides a way for users to write in their own filters | Add or remove individual GtkFileFIlter objects; can select one specified in the list to show by default; default behavior is all files; if selected one when none has been specified, filter selection disabled; filter for all files specified in docs under gtk_file_filter_new() (except doesn't set a name) | xxx
+Default file name | settable | settable | xxx
+Initial directory | complex rules that have changed over time; we can pass an absolute filename (the previous filename or a default filename) and have its path used (if we specify just a path it will either be used as the filename or the program will crash); or we can give it a directory; or Windows will remember for us for some time, or... | pass previous filename or URI to show; overrides default file name; intended only for saving files (so I don't know if it's possible to remember current directory for opening??????); effect of passing containing directory undocumented(???? in my tests the given folder itself is selected) | xxx
+Confirmation and cancel buttons | xxx | GTK_STOCK_OPEN, GTK_STOCK_SAVE, GTK_STOCK_SAVE_AS / GTK_STOCK_CANCEL | xxx
+Returned filename rules | xxxx | memory provided by GTK+ itself (so no need to worry about size limits); can return a single filename or URI or a GSList of filenames or URIs | xxx
+Window title | optional; defaults to either Open or Save As | required(?) | xxx
