@@ -132,7 +132,7 @@ func (s *sysData) delChild(id _HMENU) {
 	delete(s.children, id)
 }
 
-func (s *sysData) make(initText string, window *sysData) (err error) {
+func (s *sysData) make(window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
@@ -159,7 +159,7 @@ func (s *sysData) make(initText string, window *sysData) (err error) {
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(initText))),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// TODO can this be NULL?
 			style,
 			uintptr(_CW_USEDEFAULT),
 			uintptr(_CW_USEDEFAULT),
