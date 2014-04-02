@@ -5,8 +5,8 @@ so I don't forget:
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
-- [Mac OS X] Listbox should have a border style
-	- [Windows] a different border on LineEdits and Listboxes?
+- [all platforms] Listbox should have a border style
+	- [Windows] a different border on LineEdits and Listboxes
 - padding and spacing in Stack
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string)
@@ -43,7 +43,7 @@ important things:
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 	- pin down this behavior; also note non-editability
-- the size of Listboxes on Windows does not fill the requested space completely (wait, wasn't there a style that governed this?)
+- listboxes spanning the vertical height of the window don't always align with the bottom border of the edit control attached to the bottom of the window...
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 
 super ultra important things:
