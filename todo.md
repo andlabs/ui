@@ -76,6 +76,7 @@ super ultra important things:
 	- I think it has to do with invalid list deletions; roll back the panics and check
 - the user can still [NSApp terminate:] from the Dock icon, bypassing Go itself
 	- ideally we need a QuitItem() function for this case if/when we add menus
+	- check this on all platforms
 - Cocoa: NSScrollView support is hacky at best
 	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
