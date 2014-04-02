@@ -82,7 +82,7 @@ func (s *sysData) preferredSize() (width int, height int) {
 	dc = _HANDLE(r1)
 	r1, _, err = _selectObject.Call(
 		uintptr(dc),
-		uintptr(unsafe.Pointer(*classTypes[s.ctype].font)))
+		uintptr(controlFont))
 	if r1 == 0  {		// failure
 		panic(fmt.Errorf("error loading control font into device context for preferred size calculation: %v", err))
 	}

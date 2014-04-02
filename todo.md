@@ -36,7 +36,7 @@ important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
 - make sure GTK+ documentation version point differences (x in 4.3.x) don't matter
-- LineEdit heights on Windows seem too big; either that or LineEdit and Button text is not vertically centered properly
+- LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
 	- are Checkboxes too small?
 	- Cocoa has similar margining issues (like Comboboxes having margins)
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows

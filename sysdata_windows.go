@@ -29,7 +29,7 @@ type classData struct {
 	xstyle			uint32
 	mkid				bool
 	altStyle			uint32
-	font				*_HANDLE
+	doNotLoadFont	bool
 	appendMsg		uintptr
 	insertBeforeMsg	uintptr
 	deleteMsg			uintptr
@@ -47,25 +47,23 @@ var classTypes = [nctypes]*classData{
 		register:			registerStdWndClass,
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
+		doNotLoadFont:	true,
 	},
 	c_button:			&classData{
 		name:			"BUTTON",
 		style:			_BS_PUSHBUTTON | controlstyle,
 		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
 	},
 	c_checkbox:		&classData{
 		name:			"BUTTON",
 		style:			_BS_AUTOCHECKBOX | controlstyle,
 		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
 	},
 	c_combobox:		&classData{
 		name:			"COMBOBOX",
 		style:			_CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
 		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | _WS_VSCROLL | controlstyle,
-		font:				&controlFont,
 		appendMsg:		_CB_ADDSTRING,
 		insertBeforeMsg:	_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
@@ -79,13 +77,11 @@ var classTypes = [nctypes]*classData{
 		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
 		xstyle:			0 | controlxstyle,
 		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
-		font:				&controlFont,
 	},
 	c_label:			&classData{
 		name:			"STATIC",
 		style:			_SS_NOPREFIX | controlstyle,
 		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
 	},
 	c_listbox:			&classData{
 		name:			"LISTBOX",
@@ -94,7 +90,6 @@ var classTypes = [nctypes]*classData{
 		style:			_LBS_NOTIFY | _WS_BORDER | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
 		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _WS_BORDER | _WS_VSCROLL | controlstyle,
-		font:				&controlFont,
 		appendMsg:		_LB_ADDSTRING,
 		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
@@ -107,13 +102,13 @@ var classTypes = [nctypes]*classData{
 		name:			_PROGRESS_CLASS,
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
-		font:				&controlFont,
+		doNotLoadFont:	true,
 	},
 	c_area:			&classData{
 		register:			registerAreaWndClass,
 		style:			areastyle,
 		xstyle:			areaxstyle,
-		font:				&controlFont,
+		doNotLoadFont:	true,
 	},
 }
 
@@ -182,20 +177,18 @@ func (s *sysData) make(window *sysData) (err error) {
 		return fmt.Errorf("error actually creating window/control: %v", r.err)
 	}
 	s.hwnd = _HWND(r.ret)
-	if ct.font != nil {
+	if !ct.doNotLoadFont {
 		uitask <- &uimsg{
 			call:		_sendMessage,
 			p:		[]uintptr{
 				uintptr(s.hwnd),
 				uintptr(_WM_SETFONT),
-				uintptr(_WPARAM(*ct.font)),
+				uintptr(_WPARAM(controlFont)),
 				uintptr(_LPARAM(_TRUE)),
 			},
 			ret:		ret,
 		}
 		<-ret
-	} else if s.ctype != c_window {
-		panic(fmt.Errorf("internal ui package error: control type %d does not have a font (needed for preferred size calculations)", s.ctype))
 	}
 	return nil
 }
