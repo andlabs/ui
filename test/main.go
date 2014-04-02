@@ -280,6 +280,7 @@ mainloop:
 //			l.SetText(curtime.String())
 _=curtime
 		case <-w.Closing:
+			println("window closed event received")
 			break mainloop
 		case <-b.Clicked:
 			w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
