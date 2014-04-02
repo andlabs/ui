@@ -62,6 +62,7 @@ var stdDlgSizes = [nctypes]dlgunits{
 }
 
 var (
+	_selectObject = gdi32.NewProc("SelectObject")
 	_getTextMetrics = gdi32.NewProc("GetTextMetricsW")
 	_getWindowDC = user32.NewProc("GetWindowDC")
 	_releaseDC = user32.NewProc("ReleaseDC")
@@ -79,6 +80,12 @@ func (s *sysData) preferredSize() (width int, height int) {
 		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
 	}
 	dc = _HANDLE(r1)
+	r1, _, err = _selectObject.Call(
+		uintptr(dc),
+		uintptr(unsafe.Pointer(*classTypes[s.ctype].font)))
+	if r1 == 0  {		// failure
+		panic(fmt.Errorf("error loading control font into device context for preferred size calculation: %v", err))
+	}
 	r1, _, err = _getTextMetrics.Call(
 		uintptr(dc),
 		uintptr(unsafe.Pointer(&tm)))

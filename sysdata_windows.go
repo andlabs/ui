@@ -107,11 +107,13 @@ var classTypes = [nctypes]*classData{
 		name:			_PROGRESS_CLASS,
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
+		font:				&controlFont,
 	},
 	c_area:			&classData{
 		register:			registerAreaWndClass,
 		style:			areastyle,
 		xstyle:			areaxstyle,
+		font:				&controlFont,
 	},
 }
 
@@ -192,6 +194,8 @@ func (s *sysData) make(window *sysData) (err error) {
 			ret:		ret,
 		}
 		<-ret
+	} else if s.ctype != c_window {
+		panic(fmt.Errorf("internal ui package error: control type %d does not have a font (needed for preferred size calculations)", s.ctype))
 	}
 	return nil
 }
