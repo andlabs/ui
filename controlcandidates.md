@@ -19,6 +19,10 @@ WINDOWS
 		- actually not a control, but localization support: http://msdn.microsoft.com/en-us/library/windows/desktop/bb775454%28v=vs.85%29.aspx
 - notes to self:
 	- OpenGL: http://msdn.microsoft.com/en-us/library/windows/desktop/dd374379%28v=vs.85%29.aspx
+	- don't use ES_NUMBER for number-only text boxes, as "it is still possible to paste non-digits into the edit control." (though a commenter on MSDN says that's wrong?)
+		- might want to just have spinners and not numeric text boxes???
+- TODO
+	- add LBS_NOINTEGRALHEIGHT to our regular listboxes?
 
 GTK+
 - GtkCalendar for date selection (TODO doesn't handle times)
