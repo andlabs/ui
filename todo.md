@@ -84,7 +84,7 @@ super ultra important things:
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
 - redrawing Areas on Windows seems to be flaky
-	- redrawing everything after a resize on Windows seems to be flaky
+	- redrawing controls after a window resize on Windows seems to be flaky
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure GTK+ keyboard events on numpad off don't switch between controls
@@ -123,3 +123,5 @@ maybe:
 	- provide an event for leaving focus so a focus rectangle can be drawn
 - change the Windows code to use extra class space (as in http://www.catch22.net/tuts/custom-controls)
 	- this is a bit flakier as SetWindowLongPtr() can fail, and it can also succeed in such a way that the last error is unreliable
+- switch to using BCM_GETIDEALSIZE for Buttons on Winodws?
+	- need a way to get ideal size for all controls, not just push buttons (Microsoft...)
