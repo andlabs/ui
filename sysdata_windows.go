@@ -74,9 +74,11 @@ var classTypes = [nctypes]*classData{
 	},
 	c_lineedit:		&classData{
 		name:			"EDIT",
-		style:			_ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
-		xstyle:			0 | controlxstyle,
-		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | _WS_BORDER | controlstyle,
+		// WS_EX_CLIENTEDGE without WS_BORDER will apply visual styles
+		// thanks to MindChild in irc.efnet.net/#winprog
+		style:			_ES_AUTOHSCROLL | controlstyle,
+		xstyle:			_WS_EX_CLIENTEDGE | controlxstyle,
+		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | controlstyle,
 	},
 	c_label:			&classData{
 		name:			"STATIC",
@@ -86,11 +88,11 @@ var classTypes = [nctypes]*classData{
 	c_listbox:			&classData{
 		name:			"LISTBOX",
 		// TODO also _WS_HSCROLL?
-		// we don't use _LBS_STANDARD because it sorts
+		// we don't use _LBS_STANDARD because it sorts (and has WS_BORDER; see above)
 		// _LBS_NOINTEGRALHEIGHT gives us exactly the size we want
-		style:			_LBS_NOTIFY | _WS_BORDER | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
-		xstyle:			0 | controlxstyle,
-		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_BORDER | _WS_VSCROLL | controlstyle,
+		style:			_LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
+		xstyle:			_WS_EX_CLIENTEDGE | controlxstyle,
+		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
 		appendMsg:		_LB_ADDSTRING,
 		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,

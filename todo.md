@@ -5,8 +5,7 @@ so I don't forget:
 - character-limited entry fields, numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
-- [all platforms] Listbox should have a border style
-	- [Windows] a different border on LineEdits and Listboxes
+- [all platforms except Windows] Listbox should have a border style
 - padding and spacing in Stack
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string)
@@ -40,6 +39,7 @@ important things:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
 	- are Checkboxes too small?
 	- Cocoa has similar margining issues (like Comboboxes having margins)
+	- on Windows 7 controls seem to use a slightly larger font than what the UI guidelines want? there really should have been a system call for this, Microsoft...
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
@@ -84,6 +84,7 @@ super ultra important things:
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
 - redrawing Areas on Windows seems to be flaky
+	- redrawing everything after a resize on Windows seems to be flaky
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure GTK+ keyboard events on numpad off don't switch between controls
@@ -93,6 +94,8 @@ super ultra important things:
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
+- GTK+ indefinite progress bar animation is too fast; HIG doesn't list a preferred speed?
+- Message boxes are not application-modal on some platforms
 
 important things:
 - make specific wording in documentation consistent (make/create, etc.)
