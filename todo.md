@@ -63,10 +63,6 @@ super ultra important things:
 	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	TODO re-evaluate; I think I fixed them all ages ago now
-- occasionally I get
-		panic: error sending message to message loop to call function: Invalid thread ID.
-	when starting up the windows/386 build; race in ui()/msgloop()?
-	- happens the first time I run a new build in wine; also if my computer is running too slowly when running in wine
 - GTK+: stderr is flooded with
 ```
 (test:17575): Gdk-CRITICAL **: gdk_device_ungrab: assertion 'GDK_IS_DEVICE (device)' failed
