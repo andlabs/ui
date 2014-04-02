@@ -112,13 +112,18 @@ func (s *sysData) preferredSize() (width int, height int) {
 	return width, height
 }
 
-// attempts to mimic the behavior of kernel32.MulDiv()
-// caling it directly would be better (TODO)
-// alternatively TODO make sure the rounding is correct
+var (
+	_mulDiv = kernel32.NewProc("MulDiv")
+)
+
 func muldiv(ma int, mb int, div int) int {
-	xa := int64(ma) * int64(mb)
-	xa /= int64(div)
-	return int(xa)
+	// div will not be 0 in the usages above
+	// we also ignore overflow; that isn't likely to happen for our use case anytime soon
+	r1, _, _ := _mulDiv.Call(
+		uintptr(int32(ma)),
+		uintptr(int32(mb)),
+		uintptr(int32(div)))
+	return int(int32(r1))
 }
 
 type _TEXTMETRICS struct {
