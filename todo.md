@@ -84,7 +84,7 @@ super ultra important things:
 - the window background of a GTK+ window seems to be... off - I think it has to do with the GtkLayout
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
-- redrawing Areas on Windows seems to be flaky
+- redrawing Areas on Windows seems to be flaky: make the window small, scroll, then make it large again and watch the vertical corruption
 	- redrawing controls after a window resize on Windows seems to be flaky
 - make sure the first and last rows and columns of an Area are being drawn on Windows
 - clicking on Areas in GTK+ don't bring keyboard focus to them?

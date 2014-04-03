@@ -255,10 +255,7 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 	if r1 == _ERROR {		// failure
 		panic(fmt.Errorf("error scrolling Area: %v", err))
 	}
-	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))		// ...and redraw it
-	if r1 == 0 {		// failure
-		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
-	}
+	// ...but don't redraw the window yet; we need to apply our scroll changes
 
 	// we actually have to commit the change back to the scrollbar; otherwise the scroll position will merely reset itself
 	si.cbSize = uint32(unsafe.Sizeof(si))
@@ -268,6 +265,13 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 		uintptr(s.hwnd),
 		which,
 		uintptr(unsafe.Pointer(&si)))
+
+	// NOW redraw it
+	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
+	}
+
 	// TODO in some cases wine will show a thumb one pixel away from the advance arrow button if going to the end; the values are correct though... weirdness in wine or something I never noticed about Windows?
 }
 
