@@ -46,6 +46,7 @@ var (
 
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
 	_initWithFrame = sel_getUid("initWithFrame:")
+	_setAcceptsMouseMovedEvents = sel_getUid("setAcceptsMouseMovedEvents:")
 	_makeKeyAndOrderFront = sel_getUid("makeKeyAndOrderFront:")
 	_orderOut = sel_getUid("orderOut:")
 	_setHidden = sel_getUid("setHidden:")
@@ -116,6 +117,8 @@ var classTypes = [nctypes]*classData{
 				2,					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			objc_setDelegate(win, appDelegate)
+			// this is needed for Areas in the window to receive mouse move events
+			C.objc_msgSend_bool(win, _setAcceptsMouseMovedEvents, C.BOOL(C.YES))
 			return win
 		},
 		show:		func(what C.id) {
