@@ -55,9 +55,8 @@ super ultra important things:
 - OS X: handle Insert/Help key change in a sane and deterministic way
 	- will need old and new Mac keyboards...
 - should pressing modifier+key in the keyboard test mark the key alone as pressed as well? I'm leaning toward no, in which case make sure this behavior exists on all platforms
-- formalize dragging
-	- implement dragging on windows
-	- may need to drop Held depending on weirdness I see in OS X
+- make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
+	- fix OS X so that it follows these rules
 - cap click count to 2 on all platforms
 	- cap mouse button count to 3? or should a function be used instead?
 - the windows build appears to be unstable:
