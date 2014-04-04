@@ -118,9 +118,12 @@ func areaView_isFlipped_acceptsFirstResponder(self C.id, sel C.SEL) C.BOOL {
 }
 
 var (
+	_NSEvent = objc_getClass("NSEvent")
+
 	_modifierFlags = sel_getUid("modifierFlags")
 	_buttonNumber = sel_getUid("buttonNumber")
 	_clickCount = sel_getUid("clickCount")
+	_pressedMouseButtons = sel_getUid("pressedMouseButtons")
 )
 
 func parseModifiers(e C.id) (m Modifiers) {
@@ -168,7 +171,8 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	} else {
 		which = 0			// reset for Held processing below
 	}
-	held := C.objc_msgSend_uintret_noargs(e, _clickCount)
+	// pressedMouseButtons is a class method; calling objc_msgSend() directly with e as an argument on these will panic (in real Objective-C the compiler can detect [e pressedMouseButtons])
+	held := C.objc_msgSend_uintret_noargs(_NSEvent, _pressedMouseButtons)
 	if which != 1 && (held & 1) != 0 {		// button 1
 		me.Held = append(me.Held, 1)
 	}
