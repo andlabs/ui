@@ -278,8 +278,7 @@ func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
 
 func newAreaScrollView(area C.id) C.id {
 	scrollview := objc_alloc(_NSScrollView)
-	scrollview = objc_msgSend_rect(scrollview, _initWithFrame,
-		0, 0, 100, 100)
+	scrollview = initWithDummyFrame(scrollview)
 	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
@@ -293,8 +292,7 @@ func areaInScrollView(scrollview C.id) C.id {
 
 func makeArea(parentWindow C.id, alternate bool) C.id {
 	area := objc_alloc(_goArea)
-	area = objc_msgSend_rect(area, _initWithFrame,
-		0, 0, 100, 100)
+	area = initWithDummyFrame(area)
 	// TODO others?
 	area = newAreaScrollView(area)
 	addControl(parentWindow, area)

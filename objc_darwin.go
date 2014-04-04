@@ -56,12 +56,3 @@ func fromNSString(str C.id) string {
 	cstr := C.objc_msgSend_noargs(str, _UTF8String)
 	return C.GoString((*C.char)(unsafe.Pointer(cstr)))
 }
-
-/*
-These are wrapper functions for the functions in bleh_darwin.m to wrap around stdint.h type casting.
-*/
-
-func objc_msgSend_rect(obj C.id, sel C.SEL, x int, y int, w int, h int) C.id {
-	return C._objc_msgSend_rect(obj, sel,
-		C.int64_t(x), C.int64_t(y), C.int64_t(w), C.int64_t(h))
-}

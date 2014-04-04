@@ -193,8 +193,7 @@ var (
 
 func newListboxScrollView(listbox C.id) C.id {
 	scrollview := objc_alloc(_NSScrollView)
-	scrollview = objc_msgSend_rect(scrollview, _initWithFrame,
-		0, 0, 100, 100)
+	scrollview = initWithDummyFrame(scrollview)
 	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
@@ -234,8 +233,7 @@ var (
 
 func makeListbox(parentWindow C.id, alternate bool) C.id {
 	listbox := objc_alloc(_NSTableView)
-	listbox = objc_msgSend_rect(listbox, _initWithFrame,
-		0, 0, 100, 100)
+	listbox = initWithDummyFrame(listbox)
 	C.objc_msgSend_id(listbox, _addTableColumn, newListboxTableColumn())
 	multi := C.BOOL(C.NO)
 	if alternate {

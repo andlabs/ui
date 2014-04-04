@@ -84,6 +84,12 @@ var (
 	_numberOfItems = sel_getUid("numberOfItems")
 )
 
+// because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
+func initWithDummyFrame(self C.id) C.id {
+	return C.objc_msgSend_rect(self, _initWithFrame,
+		C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100))
+}
+
 func addControl(parentWindow C.id, control C.id) {
 	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
 	C.objc_msgSend_id(windowView, _addSubview, control)
@@ -134,9 +140,7 @@ var classTypes = [nctypes]*classData{
 	c_button:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
 			button := objc_alloc(_NSButton)
-			// NSControl requires that we specify a frame; dummy frame for now
-			button = objc_msgSend_rect(button, _initWithFrame,
-				0, 0, 100, 100)
+			button = initWithDummyFrame(button)
 			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(1))		// NSRoundedBezelStyle
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
@@ -154,8 +158,7 @@ var classTypes = [nctypes]*classData{
 	c_checkbox:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
 			checkbox := objc_alloc(_NSButton)
-			checkbox = objc_msgSend_rect(checkbox, _initWithFrame,
-				0, 0, 100, 100)
+			checkbox = initWithDummyFrame(checkbox)
 			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(3))		// NSSwitchButton
 			addControl(parentWindow, checkbox)
 			return checkbox
@@ -171,8 +174,7 @@ var classTypes = [nctypes]*classData{
 
 			if alternate {
 				combobox = objc_alloc(_NSComboBox)
-				combobox = objc_msgSend_rect(combobox, _initWithFrame,
-					0, 0, 100, 100)
+				combobox = initWithDummyFrame(combobox)
 				C.objc_msgSend_bool(combobox, _setUsesDataSource, C.BOOL(C.NO))
 			} else {
 				combobox = objc_alloc(_NSPopUpButton)
@@ -222,8 +224,7 @@ var classTypes = [nctypes]*classData{
 			} else {
 				lineedit = objc_alloc(_NSTextField)
 			}
-			lineedit = objc_msgSend_rect(lineedit, _initWithFrame,
-				0, 0, 100, 100)
+			lineedit = initWithDummyFrame(lineedit)
 			addControl(parentWindow, lineedit)
 			return lineedit
 		},
@@ -236,8 +237,7 @@ var classTypes = [nctypes]*classData{
 	c_label:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
 			label := objc_alloc(_NSTextField)
-			label = objc_msgSend_rect(label, _initWithFrame,
-				0, 0, 100, 100)
+			label = initWithDummyFrame(label)
 			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
@@ -264,8 +264,7 @@ var classTypes = [nctypes]*classData{
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
 			pbar := objc_alloc(_NSProgressIndicator)
-			pbar = objc_msgSend_rect(pbar, _initWithFrame,
-				0, 0, 100, 100)
+			pbar = initWithDummyFrame(pbar)
 			// TODO really int?
 			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle
 			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(0))		// NSRegularControlSize
@@ -370,7 +369,8 @@ func (s *sysData) setText(text string) {
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
 	// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 	// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
-	objc_msgSend_rect(s.id, _setFrame, x, (winheight - y) - height, width, height)
+	C.objc_msgSend_rect(s.id, _setFrame,
+		C.int64_t(x), C.int64_t((winheight - y) - height), C.int64_t(width), C.int64_t(height))
 	return nil
 }
 
@@ -506,8 +506,8 @@ func (s *sysData) setAreaSize(width int, height int) {
 	defer close(ret)
 	uitask <- func() {
 		area := areaInScrollView(s.id)
-		objc_msgSend_rect(area, _setFrame,
-			int(0), int(0), width, height)
+		C.objc_msgSend_rect(area, _setFrame,
+			C.int64_t(0), C.int64_t(0), C.int64_t(width), C.int64_t(height))
 		C.objc_msgSend_noargs(area, _display)		// and redraw
 		ret <- struct{}{}
 	}

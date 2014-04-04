@@ -103,7 +103,7 @@ struct xrect objc_msgSend_stret_rect_noargs(id obj, SEL sel)
 
 #define OurRect() (NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) w, (CGFloat) h))
 
-id _objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h)
+id objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h)
 {
 	return objc_msgSend(obj, sel, OurRect());
 }
