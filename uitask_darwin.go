@@ -50,7 +50,7 @@ func ui(main func()) error {
 				_uitask,
 				fp,
 				C.BOOL(C.YES))			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
-			objc_release(pool)
+			C.objc_msgSend_noargs(pool, _release)
 		}
 	}()
 
