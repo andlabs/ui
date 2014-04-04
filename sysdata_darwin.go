@@ -111,11 +111,11 @@ var classTypes = [nctypes]*classData{
 
 			// we have to specify a content rect to start; it will be overridden soon though
 			win := objc_alloc(_NSWindow)
-			win = objc_msgSend_rect_uint_uint_bool(win,
+			win = C.objc_msgSend_rect_uint_uint_bool(win,
 				_initWithContentRect,
-				0, 0, 100, 100,
-				NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask,
-				2,					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
+				C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
+				C.uintptr_t(NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask),
+				C.uintptr_t(2),					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			C.objc_msgSend_id(win, _setDelegate, appDelegate)
 			// this is needed for Areas in the window to receive mouse move events
