@@ -137,7 +137,7 @@ var classTypes = [nctypes]*classData{
 			// NSControl requires that we specify a frame; dummy frame for now
 			button = objc_msgSend_rect(button, _initWithFrame,
 				0, 0, 100, 100)
-			objc_msgSend_uint(button, _setBezelStyle, 1)		// NSRoundedBezelStyle
+			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(1))		// NSRoundedBezelStyle
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
 			// by default the button uses the wrong text size
@@ -156,7 +156,7 @@ var classTypes = [nctypes]*classData{
 			checkbox := objc_alloc(_NSButton)
 			checkbox = objc_msgSend_rect(checkbox, _initWithFrame,
 				0, 0, 100, 100)
-			objc_msgSend_uint(checkbox, _setButtonType, 3)		// NSSwitchButton
+			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(3))		// NSSwitchButton
 			addControl(parentWindow, checkbox)
 			return checkbox
 		},
@@ -268,7 +268,7 @@ var classTypes = [nctypes]*classData{
 				0, 0, 100, 100)
 			// TODO really int?
 			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle
-			objc_msgSend_uint(pbar, _setControlSize, 0)		// NSRegularControlSize
+			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(0))		// NSRegularControlSize
 			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
 			addControl(parentWindow, pbar)
 			return pbar

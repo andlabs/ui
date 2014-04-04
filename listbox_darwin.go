@@ -100,12 +100,13 @@ func insertListboxArrayBefore(array C.id, what string, before int) {
 }
 
 func deleteListboxArray(array C.id, index int) {
-	objc_msgSend_uint(array, _removeObjectAtArrangedObjectIndex, uintptr(index))
+	C.objc_msgSend_uint(array, _removeObjectAtArrangedObjectIndex,
+		C.uintptr_t(index))
 }
 
 func indexListboxArray(array C.id, index int) string {
 	array = C.objc_msgSend_noargs(array, _arrangedObjects)
-	dict := objc_msgSend_uint(array, _objectAtIndex, uintptr(index))
+	dict := C.objc_msgSend_uint(array, _objectAtIndex, C.uintptr_t(index))
 	return fromListboxItem(dict)
 }
 

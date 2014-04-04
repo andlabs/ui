@@ -38,7 +38,7 @@ uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel)
 	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel));
 }
 
-id _objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
+id objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
 {
 	return objc_msgSend(obj, sel, (NSUInteger) a);
 }
