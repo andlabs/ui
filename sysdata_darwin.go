@@ -176,8 +176,8 @@ var classTypes = [nctypes]*classData{
 				C.objc_msgSend_bool(combobox, _setUsesDataSource, C.BOOL(C.NO))
 			} else {
 				combobox = objc_alloc(_NSPopUpButton)
-				combobox = objc_msgSend_rect_bool(combobox, _initWithFramePullsDown,
-					0, 0, 100, 100,
+				combobox = C.objc_msgSend_rect_bool(combobox, _initWithFramePullsDown,
+					C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
 					C.BOOL(C.NO))
 			}
 			addControl(parentWindow, combobox)
@@ -455,8 +455,8 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	uitask <- func() {
 		// we need to get the top left point
 		r := C.objc_msgSend_stret_rect_noargs(s.id, _frame)
-		objc_msgSend_rect_bool(s.id, _setFrameDisplay,
-			int(r.x), int(r.y), width, height,
+		C.objc_msgSend_rect_bool(s.id, _setFrameDisplay,
+			C.int64_t(r.x), C.int64_t(r.y), C.int64_t(width), C.int64_t(height),
 			C.BOOL(C.YES))		// TODO set to NO to prevent subviews from being redrawn before they are resized?
 		ret <- struct{}{}
 	}

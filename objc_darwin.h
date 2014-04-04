@@ -93,7 +93,7 @@ extern id objc_msgSend_int(id obj, SEL sel, intptr_t a);
 m1(double, double)
 
 m2(id_id, id, id)
-extern id _objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b);
+extern id objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b);
 extern id objc_msgSend_id_int(id obj, SEL sel, id a, intptr_t b);
 extern id objc_msgSend_id_uint(id obj, SEL sel, id a, uintptr_t b);
 m2(id_bool, id, BOOL)

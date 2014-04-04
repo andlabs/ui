@@ -108,7 +108,7 @@ id _objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t 
 	return objc_msgSend(obj, sel, OurRect());
 }
 
-id _objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b)
+id objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b)
 {
 	return objc_msgSend(obj, sel, OurRect(), b);
 }
