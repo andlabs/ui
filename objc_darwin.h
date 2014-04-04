@@ -117,4 +117,7 @@ extern BOOL addAreaViewDrawMethod(Class);
 extern void drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
 extern struct xpoint getTranslatedEventPoint(id, id);
 
+/* for sysdata_darwin.go */
+extern void objc_setFont(id, unsigned int);
+
 #endif

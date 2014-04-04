@@ -118,7 +118,7 @@ var classTypes = [nctypes]*classData{
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			objc_setDelegate(win, appDelegate)
 			// this is needed for Areas in the window to receive mouse move events
-			C.objc_msgSend_bool(win, _setAcceptsMouseMovedEvents, C.BOOL(C.YES))
+//			C.objc_msgSend_bool(win, _setAcceptsMouseMovedEvents, C.BOOL(C.YES))
 			return win
 		},
 		show:		func(what C.id) {
@@ -139,6 +139,9 @@ var classTypes = [nctypes]*classData{
 			objc_msgSend_uint(button, _setBezelStyle, 1)		// NSRoundedBezelStyle
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
+			// by default the button uses the wrong text size
+			// TODO do this for all controls
+			C.objc_setFont(button, 0)				// NSRegularControlSize
 			addControl(parentWindow, button)
 			return button
 		},

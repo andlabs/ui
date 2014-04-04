@@ -21,6 +21,7 @@ Go wrapper functions (bleh_darwin.go) call these directly and take care of stdin
 #include <AppKit/NSEvent.h>
 #include <AppKit/NSGraphics.h>
 #include <AppKit/NSBitmapImageRep.h>
+#include <AppKit/NSCell.h>
 
 /* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
 Class NilClass = Nil;
@@ -316,4 +317,34 @@ struct xpoint getTranslatedEventPoint(id self, id event)
 	ret.x = (int64_t) p.x;
 	ret.y = (int64_t) p.y;
 	return ret;
+}
+
+/*
+we don't need this here technically — it can be done in Go just fine — but it's easier here
+*/
+
+static id c_NSFont;
+static SEL s_setFont;
+static SEL s_systemFontOfSize;
+static SEL s_systemFontSizeForControlSize;
+static BOOL setFont_init = NO;
+
+static CGFloat (*objc_msgSend_cgfloatret)(id, SEL, ...) =
+	(CGFloat (*)(id, SEL, ...)) objc_msgSend_fpret;
+
+void objc_setFont(id what, unsigned int csize)
+{
+	CGFloat size;
+
+	if (setFont_init == NO) {
+		c_NSFont = objc_getClass("NSFont");
+		s_setFont = sel_getUid("setFont:");
+		s_systemFontOfSize = sel_getUid("systemFontOfSize:");
+		s_systemFontSizeForControlSize = sel_getUid("systemFontSizeForControlSize:");
+		setFont_init = YES;
+	}
+
+	size = objc_msgSend_cgfloatret(c_NSFont, s_systemFontSizeForControlSize, (NSControlSize) csize);
+	objc_msgSend(what, s_setFont,
+		objc_msgSend(c_NSFont, s_systemFontOfSize, size));
 }

@@ -28,18 +28,16 @@ important things:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windows; Cocoa provides one for us but
-- I think Cocoa NSButton text is not vertically aligned properly...?
-	- and listbox item text is too low?
+- I think Cocoa listbox item text is too low?
 - NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it
 	- need to use it /after/ adding initial items, otherwise it won't work
 	- find out if I can do the same with the ListBoxes
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
+- some Cocoa controls don't seem to resize correctly: Buttons have space around the edges
 - make sure GTK+ documentation version point differences (x in 4.3.x) don't matter
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
 	- are Checkboxes and Comboboxes too small?
 	- Cocoa has similar margining issues (like Comboboxes having margins)
-		- oh, because message boxes use a different font on Windows 7 now, apparently?... Microsoft... TODO find out for sure
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
