@@ -479,6 +479,8 @@ func (s *sysData) setProgress(percent int) {
 	defer close(ret)
 	uitask <- func() {
 		if percent == -1 {
+			// At least on Mac OS X 10.8, if the progressbar was already on 0 or 100% when turning on indeterminate mode, the indeterminate animation won't play, leaving just a still progress bar. This is a workaround. Note the selector call order.
+			C.objc_msgSend_double(s.id, _setDoubleValue, C.double(50))
 			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.YES))
 		} else {
 			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.NO))
