@@ -40,6 +40,7 @@ const (
 	_BS_NOTIFY = 0x00004000
 	_BS_FLAT = 0x00008000
 	_BS_RIGHTBUTTON = _BS_LEFTTEXT
+
 	// from commctrl.h
 //	_BS_SPLITBUTTON = 0x0000000C			// Windows Vista and newer and(/or?) comctl6 only
 //	_BS_DEFSPLITBUTTON = 0x0000000D		// Windows Vista and newer and(/or?) comctl6 only
@@ -59,6 +60,10 @@ const (
 	_BM_GETIMAGE = 0x00F6
 	_BM_SETIMAGE = 0x00F7
 	_BM_SETDONTCLICK = 0x00F8
+
+	// from commctrl.h
+	_BCM_FIRST = 0x1600
+	_BCM_GETIDEALSIZE = (_BCM_FIRST + 0x0001)
 )
 
 // Button WM_COMMAND notifications.

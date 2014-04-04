@@ -37,9 +37,8 @@ important things:
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges and don't satisfy stretchiness
 - make sure GTK+ documentation version point differences (x in 4.3.x) don't matter
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
-	- are Checkboxes too small?
+	- are Checkboxes and Comboboxes too small?
 	- Cocoa has similar margining issues (like Comboboxes having margins)
-	- on Windows 7 controls seem to use a slightly larger font than what the UI guidelines want? there really should have been a system call for this, Microsoft...
 		- oh, because message boxes use a different font on Windows 7 now, apparently?... Microsoft... TODO find out for sure
 - sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror

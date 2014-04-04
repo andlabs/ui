@@ -16,6 +16,7 @@ import (
 // - http://msdn.microsoft.com/en-us/library/ms645502%28VS.85%29.aspx - the calculation needed
 // - http://support.microsoft.com/kb/125681 - to get the base X and Y
 // (thanks to http://stackoverflow.com/questions/58620/default-button-size)
+// For push buttons, date/time pickers, links (which we don't use), toolbars, and rebars (another type of toolbar), Common Controls version 6 provides convenient methods to use instead, falling back to the old way if it fails.
 
 // As we are left with incomplete data, an arbitrary size will be chosen
 const (
@@ -26,12 +27,14 @@ type dlgunits struct {
 	width	int
 	height	int
 	longest	bool		// TODO actually use this
+	getsize	uintptr
 }
 
 var stdDlgSizes = [nctypes]dlgunits{
 	c_button:		dlgunits{
 		width:	50,
 		height:	14,
+		getsize:	_BCM_GETIDEALSIZE,
 	},
 	c_checkbox:	dlgunits{
 		// widtdh is not defined here so assume longest
@@ -40,7 +43,7 @@ var stdDlgSizes = [nctypes]dlgunits{
 	},
 	c_combobox:	dlgunits{
 		longest:	true,
-		height:	14,
+		height:	12,		// from the Visual Studio 2012 offline docs's Win32 layout page; the online page above says 14
 	},
 	c_lineedit:	dlgunits{
 		longest:	true,
@@ -59,6 +62,7 @@ var stdDlgSizes = [nctypes]dlgunits{
 		width:	237,		// the first reference says 107 also works; TODO decide which to use
 		height:	8,
 	},
+	// TODO area
 }
 
 var (
@@ -70,6 +74,21 @@ var (
 
 // This function runs on uitask; call the functions directly.
 func (s *sysData) preferredSize() (width int, height int) {
+	if msg := stdDlgSizes[s.ctype].getsize; msg != 0 {
+		var size _SIZE
+
+		r1, _, _ := _sendMessage.Call(
+			uintptr(s.hwnd),
+			msg,
+			uintptr(0),
+			uintptr(unsafe.Pointer(&size)))
+		if r1 != uintptr(_FALSE) {		// success
+			return int(size.cx), int(size.cy)
+		}
+		// otherwise the message approach failed, so fall back to the regular approach
+		println("message failed; falling back")
+	}
+
 	var dc _HANDLE
 	var tm _TEXTMETRICS
 	var baseX, baseY int
@@ -124,6 +143,11 @@ func muldiv(ma int, mb int, div int) int {
 		uintptr(int32(mb)),
 		uintptr(int32(div)))
 	return int(int32(r1))
+}
+
+type _SIZE struct {
+	cx	int32		// originally LONG
+	cy	int32
 }
 
 type _TEXTMETRICS struct {
