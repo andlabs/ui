@@ -35,7 +35,6 @@ var (
 	_release = sel_getUid("release")
 	_stringWithUTF8String = sel_getUid("stringWithUTF8String:")
 	_UTF8String = sel_getUid("UTF8String")
-	_setDelegate = sel_getUid("setDelegate:")
 )
 
 // some helper functions
@@ -64,10 +63,6 @@ func toNSString(str string) C.id {
 func fromNSString(str C.id) string {
 	cstr := C.objc_msgSend_noargs(str, _UTF8String)
 	return C.GoString((*C.char)(unsafe.Pointer(cstr)))
-}
-
-func objc_setDelegate(obj C.id, delegate C.id) {
-	C.objc_msgSend_id(obj, _setDelegate, delegate)
 }
 
 /*
