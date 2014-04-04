@@ -41,7 +41,7 @@ func ui(main func()) error {
 	go func() {
 		for f := range uitask {
 			// we need to make an NSAutoreleasePool, otherwise we get leak warnings on stderr
-			pool := objc_new(_NSAutoreleasePool)
+			pool := C.objc_msgSend_noargs(_NSAutoreleasePool, _new)
 			fp := C.objc_msgSend_ptr(_NSValue, _valueWithPointer,
 				unsafe.Pointer(&f))
 			C.objc_msgSend_sel_id_bool(

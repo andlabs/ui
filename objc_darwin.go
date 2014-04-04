@@ -43,10 +43,6 @@ func objc_alloc(class C.id) C.id {
 	return C.objc_msgSend_noargs(class, _alloc)
 }
 
-func objc_new(class C.id) C.id {
-	return C.objc_msgSend_noargs(class, _new)
-}
-
 func objc_release(obj C.id) {
 	C.objc_msgSend_noargs(obj, _release)
 }

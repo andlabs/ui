@@ -85,7 +85,7 @@ var (
 )
 
 func newListboxArray() C.id {
-	array := objc_new(_NSArrayController)
+	array := C.objc_msgSend_noargs(_NSArrayController, _new)
 	C.objc_msgSend_bool(array, _setAutomaticallyRearrangesObjects, C.BOOL(C.NO))
 	return array
 }

@@ -64,7 +64,7 @@ func mkAppDelegate() error {
 	if err != nil {
 		return fmt.Errorf("error adding NSApplication delegate buttonClicked: method (to handle button clicks): %v", err)
 	}
-	appDelegate = objc_new(objc_getClass(_goAppDelegate))
+	appDelegate = C.objc_msgSend_noargs(objc_getClass(_goAppDelegate), _new)
 	return nil
 }
 

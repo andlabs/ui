@@ -31,7 +31,7 @@ func _msgBox(primarytext string, secondarytext string, style uintptr, button0 st
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		box := objc_new(_NSAlert)
+		box := C.objc_msgSend_noargs(_NSAlert, _new)
 		C.objc_msgSend_id(box, _setMessageText, toNSString(primarytext))
 		C.objc_msgSend_id(box, _setInformativeText, toNSString(secondarytext))
 		objc_msgSend_uint(box, _setAlertStyle, style)
