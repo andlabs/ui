@@ -44,6 +44,9 @@ important things:
 	- pin down this behavior; also note non-editability
 - listboxes spanning the vertical height of the window don't always align with the bottom border of the edit control attached to the bottom of the window...
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
+- area test time label weirdness
+	- does not show anything past the date on windows
+	- does not show initially on OS X; it shows up once you resize, and even shows up after you resize back to the original size
 
 super ultra important things:
 - formalize what happens if Modifiers by themselves are held
