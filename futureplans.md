@@ -1,3 +1,57 @@
+general list:
+- Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetOptimalSize())`) for sizing a window to the control's interest
+	- with the current code, will be a bit of a kludge, because preferredSize() assumes it's running on the main thread without locks
+- Control.Show()/Control.Hide()
+- Groupbox
+- character-limited entry fields (not for passwords), numeric entry fields, multiline entry fields
+	- possible rename of LineEdit?
+		- especially for password fields - NewPasswordEntry()?
+- padding and spacing in Stack
+- allow Combobox to have initial settings
+- Combobox and Listbox insertions and deletions should allow bulk (...string/...int)
+- Combobox/Listbox.DeleteAll
+- Combobox/Listbox.Select (with Listbox.Select allowing bulk)
+	- Checkbox.Check or Checkbox.SetChecked
+- Listbox.SelectAll
+- Listbox/Combobox.Index(n)
+	- Index(n) is the name used by reflect.Value; use a different one?
+- figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
+	- also provide a method to center windows; Cocoa provides one for us but
+- make Combobox and Listbox satisfy sort.Interface?
+- should a noneditable Combobox be allowed to return to unselected mode by the user?
+- provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain/lose focus
+	- provide an event for leaving focus so a focus rectangle can be drawn
+
+problem points:
+- because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
+- make sure GTK+ documentation version point differences (x in 4.3.x) don't matter
+	- I found a GTK+ version number meaning page somewhere; have to find it again (TODO)
+
+twists of fate:
+- listboxes spanning the vertical height of the window don't always align with the bottom border of the edit control attached to the bottom of the window...
+	- this specifically only happens when the window has an odd height; I don't think this can be fixed unless we explicitly ignore the extra pixel everywhere
+- need a way to get ideal size for all controls on Windows, not just push buttons (Microsoft...)
+
+style changes:
+- make specific wording in documentation consistent (make/create, etc.)
+	- document minor details like wha thappens on specific events so that they are guaranteed to work the same on all platforms (are there any left?)
+		- what happens when the user clicks and drags on a listbox
+			- I think this is a platform behavior...
+	- should field descriptions in method comments include the receiver name? (for instance e.Held vs. Held) - see what Go's own documentation does
+- make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
+	- do this for type signatures in exported functions: (err error) or just error?
+	- do this for the names of GTK+ helper functions (gtkXXX or gXXX)
+	- areaView -> goArea (or change the class name to be like the delegate name?) in area_darwin.go?
+
+far off:
+- localization
+- strip unused constants from the Windows files
+- combine more Windows files; rename some?
+- tab stops
+- rename Stack to Box?
+
+specifics:
+
 WINDOWS
 - DateTime Picker
 - ListView for Tables
@@ -18,6 +72,7 @@ WINDOWS
 	- commcntl.h has stuff on a font control that isn't documented?
 		- actually not a control, but localization support: http://msdn.microsoft.com/en-us/library/windows/desktop/bb775454%28v=vs.85%29.aspx
 - notes to self:
+	- groupbox is a mode of the BUTTON class (????)
 	- OpenGL: http://msdn.microsoft.com/en-us/library/windows/desktop/dd374379%28v=vs.85%29.aspx
 	- don't use ES_NUMBER for number-only text boxes, as "it is still possible to paste non-digits into the edit control." (though a commenter on MSDN says that's wrong?)
 		- might want to just have spinners and not numeric text boxes???
