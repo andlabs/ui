@@ -48,7 +48,7 @@ var appDelegateSels = []selector{
 }
 
 func mkAppDelegate() error {
-	id, _, err := makeClass(_goAppDelegate, _NSObject, appDelegateSels,
+	id, err := makeClass(_goAppDelegate, _NSObject, appDelegateSels,
 		"application delegate (handles events)")
 	if err != nil {
 		return err

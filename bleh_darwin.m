@@ -210,7 +210,7 @@ id makeDummyEvent()
 
 extern void areaView_drawRect(id, struct xrect);
 
-static void _areaView_drawRect(id self, SEL sel, NSRect r)
+static void __areaView_drawRect(id self, SEL sel, NSRect r)
 {
 	struct xrect t;
 
@@ -221,21 +221,15 @@ static void _areaView_drawRect(id self, SEL sel, NSRect r)
 	areaView_drawRect(self, t);
 }
 
-/* the only objective-c feature you'll see here */
-/* TODO correct? "v@:" @encode(NSRect) complained about missing ; */
-static char *avdrType = @encode(void(id, SEL, NSRect));
+void *_areaView_drawRect = (void *) __areaView_drawRect;
 
-static SEL drawRect;
-static BOOL drawRect_init = NO;
+/* the only objective-c feature you'll see here
 
-BOOL addAreaViewDrawMethod(Class what)
-{
-	if (drawRect_init == NO) {
-		drawRect = sel_getUid("drawRect:");
-		drawRect_init = YES;
-	}
-	return class_addMethod(what, drawRect, (IMP) _areaView_drawRect, avdrType);
-}
+unfortunately NSRect both varies across architectures and is passed as just a structure, so its encoding has to be computed at compile time
+because @encode() is NOT A LITERAL, we're going to just stick it all the way back in objc_darwin.go
+see also: http://stackoverflow.com/questions/6812035/adding-methods-dynamically
+*/
+char *encodedNSRect = @encode(NSRect);
 
 /*
 the NSBitmapImageRep constructor is complex; put it here

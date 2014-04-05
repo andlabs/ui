@@ -113,9 +113,12 @@ extern uintptr_t *NSIndexSetEntries(id, uintptr_t);
 extern id makeDummyEvent();
 
 /* for area_darwin.go */
-extern BOOL addAreaViewDrawMethod(Class);
+extern void *_areaView_drawRect;
 extern void drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
 extern struct xpoint getTranslatedEventPoint(id, id);
+
+/* for objc_darwin.go */
+extern char *encodedNSRect;
 
 /* for sysdata_darwin.go */
 extern void objc_setFont(id, unsigned int);

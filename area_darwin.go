@@ -3,7 +3,6 @@
 package ui
 
 import (
-	"fmt"
 	"unsafe"
 	"image"
 )
@@ -12,7 +11,6 @@ import (
 // #include <stdlib.h>
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
-// extern void areaView_drawRect(id, struct xrect);
 // extern BOOL areaView_isFlipped_acceptsFirstResponder(id, SEL);
 // extern void areaView_mouseMoved(id, SEL, id);
 // extern void areaView_mouseDown_mouseDragged(id, SEL, id);
@@ -29,11 +27,11 @@ const (
 var (
 	_goArea C.id
 	_NSView = objc_getClass("NSView")
-
-	_drawRect = sel_getUid("drawRect:")
 )
 
 var goAreaSels = []selector{
+	selector{"drawRect:", uintptr(C._areaView_drawRect), sel_void_rect,
+		"actually drawing Areas"},
 	selector{"isFlipped", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
 		"ensuring that an Area's coordinate system has (0,0) at the top-left corner"},
 	selector{"acceptsFirstResponder", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
@@ -67,15 +65,10 @@ var goAreaSels = []selector{
 }
 
 func mkAreaClass() error {
-	id, class, err := makeClass(__goArea, _NSView, goAreaSels,
+	id, err := makeClass(__goArea, _NSView, goAreaSels,
 		"the implementation of Area on Mac OS X")
 	if err != nil {
 		return err
-	}
-	// addAreaViewDrawMethod() is in bleh_darwin.m
-	ok := C.addAreaViewDrawMethod(class)
-	if ok != C.BOOL(C.YES) {
-		return fmt.Errorf("unable to add selector drawRect: to class %s (needed for actually drawing Areas; reason unknown)", __goArea)
 	}
 	_goArea = id
 	return nil

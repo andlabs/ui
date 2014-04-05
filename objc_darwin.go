@@ -68,6 +68,7 @@ const (
 	sel_void_id itype = iota
 	sel_bool_id
 	sel_bool
+	sel_void_rect
 	nitypes
 )
 
@@ -75,9 +76,22 @@ var itypes = [nitypes][]C.char{
 	sel_void_id:	[]C.char{'v', '@', ':', '@', 0},
 	sel_bool_id:	[]C.char{'c', '@', ':', '@', 0},
 	sel_bool:		[]C.char{'c', '@', ':', 0},
+	sel_void_rect:	nil,			// see init() below
 }
 
-func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, class C.Class, err error) {
+func init() {
+	// see encodedNSRect in bleh_darwin.m
+	x := make([]C.char, 0, 256)	// more than enough
+	x = append(x, 'v', '@', ':')
+	y := C.GoString(C.encodedNSRect)
+	for _, b := range y {
+		x = append(x, C.char(b))
+	}
+	x = append(x, 0)
+	itypes[sel_void_rect] = x
+}
+
+func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -97,5 +111,5 @@ func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, 
 			return
 		}
 	}
-	return objc_getClass(name), c, nil
+	return objc_getClass(name), nil
 }
