@@ -8,8 +8,6 @@ The main culprits are:
 - 32-bit/64-bit type differences that are more than just a different typedef
 - wrong documentation
 though this is not always the case.
-
-Go wrapper functions (bleh_darwin.go) call these directly and take care of stdint.h -> Go type conversions.
 */
 
 #include "objc_darwin.h"
