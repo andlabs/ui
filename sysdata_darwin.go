@@ -103,16 +103,22 @@ func controlHide(what C.id) {
 	C.objc_msgSend_bool(what, _setHidden, C.BOOL(C.YES))
 }
 
+const (
+	_NSRegularControlSize = 0
+)
+
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
 			const (
-				NSBorderlessWindowMask = 0
-				NSTitledWindowMask = 1 << 0
-				NSClosableWindowMask = 1 << 1
-				NSMiniaturizableWindowMask = 1 << 2
-				NSResizableWindowMask = 1 << 3
-				NSTexturedBackgroundWindowMask = 1 << 8
+				_NSBorderlessWindowMask = 0
+				_NSTitledWindowMask = 1 << 0
+				_NSClosableWindowMask = 1 << 1
+				_NSMiniaturizableWindowMask = 1 << 2
+				_NSResizableWindowMask = 1 << 3
+				_NSTexturedBackgroundWindowMask = 1 << 8
+
+				_NSBackingStoreBuffered = 2		// the only backing store method that Apple says we should use (the others are legacy)
 			)
 
 			// we have to specify a content rect to start; it will be overridden soon though
@@ -120,8 +126,8 @@ var classTypes = [nctypes]*classData{
 			win = C.objc_msgSend_rect_uint_uint_bool(win,
 				_initWithContentRect,
 				C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
-				C.uintptr_t(NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask),
-				C.uintptr_t(2),					// NSBackingStoreBuffered - the only backing store method that Apple says we should use (the others are legacy)
+				C.uintptr_t(_NSTitledWindowMask | _NSClosableWindowMask | _NSMiniaturizableWindowMask | _NSResizableWindowMask),
+				C.uintptr_t(_NSBackingStoreBuffered),
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			C.objc_msgSend_id(win, _setDelegate, appDelegate)
 			// this is needed for Areas in the window to receive mouse move events
@@ -139,14 +145,18 @@ var classTypes = [nctypes]*classData{
 	},
 	c_button:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
+			const (
+				_NSRoundedBezelStyle = 1
+			)
+
 			button := C.objc_msgSend_noargs(_NSButton, _alloc)
 			button = initWithDummyFrame(button)
-			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(1))		// NSRoundedBezelStyle
+			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(_NSRoundedBezelStyle))
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
 			// by default the button uses the wrong text size
 			// TODO do this for all controls
-			C.objc_setFont(button, 0)				// NSRegularControlSize
+			C.objc_setFont(button, _NSRegularControlSize)
 			addControl(parentWindow, button)
 			return button
 		},
@@ -157,9 +167,13 @@ var classTypes = [nctypes]*classData{
 	},
 	c_checkbox:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
+			const (
+				_NSSwitchButton = 3
+			)
+
 			checkbox := C.objc_msgSend_noargs(_NSButton, _alloc)
 			checkbox = initWithDummyFrame(checkbox)
-			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(3))		// NSSwitchButton
+			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(_NSSwitchButton))
 			addControl(parentWindow, checkbox)
 			return checkbox
 		},
@@ -263,11 +277,15 @@ var classTypes = [nctypes]*classData{
 	},
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
+			const (
+				_NSProgressIndicatorBarStyle = 0
+			)
+
 			pbar := C.objc_msgSend_noargs(_NSProgressIndicator, _alloc)
 			pbar = initWithDummyFrame(pbar)
-			// TODO really int?
-			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle
-			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(0))		// NSRegularControlSize
+			// NSProgressIndicatorStyle doesn't have an explicit typedef; just use int for now
+			C.objc_msgSend_int(pbar, _setStyle, _NSProgressIndicatorBarStyle)
+			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(_NSRegularControlSize))
 			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
 			addControl(parentWindow, pbar)
 			return pbar
