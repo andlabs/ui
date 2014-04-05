@@ -37,12 +37,6 @@ var (
 	_UTF8String = sel_getUid("UTF8String")
 )
 
-// some helper functions
-
-func objc_alloc(class C.id) C.id {
-	return C.objc_msgSend_noargs(class, _alloc)
-}
-
 func toNSString(str string) C.id {
 	cstr := C.CString(str)
 	defer C.free(unsafe.Pointer(cstr))

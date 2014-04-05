@@ -165,7 +165,7 @@ var (
 )
 
 func newListboxTableColumn() C.id {
-	column := objc_alloc(_NSTableColumn)
+	column := C.objc_msgSend_noargs(_NSTableColumn, _alloc)
 	column = C.objc_msgSend_id(column, _initWithIdentifier, listboxItemKey)
 	C.objc_msgSend_bool(column, _setEditable, C.BOOL(C.NO))
 	// TODO other properties?
@@ -192,7 +192,7 @@ var (
 )
 
 func newListboxScrollView(listbox C.id) C.id {
-	scrollview := objc_alloc(_NSScrollView)
+	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
 	scrollview = initWithDummyFrame(scrollview)
 	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
@@ -232,7 +232,7 @@ var (
 )
 
 func makeListbox(parentWindow C.id, alternate bool) C.id {
-	listbox := objc_alloc(_NSTableView)
+	listbox := C.objc_msgSend_noargs(_NSTableView, _alloc)
 	listbox = initWithDummyFrame(listbox)
 	C.objc_msgSend_id(listbox, _addTableColumn, newListboxTableColumn())
 	multi := C.BOOL(C.NO)

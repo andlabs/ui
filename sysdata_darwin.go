@@ -116,7 +116,7 @@ var classTypes = [nctypes]*classData{
 			)
 
 			// we have to specify a content rect to start; it will be overridden soon though
-			win := objc_alloc(_NSWindow)
+			win := C.objc_msgSend_noargs(_NSWindow, _alloc)
 			win = C.objc_msgSend_rect_uint_uint_bool(win,
 				_initWithContentRect,
 				C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
@@ -139,7 +139,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_button:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
-			button := objc_alloc(_NSButton)
+			button := C.objc_msgSend_noargs(_NSButton, _alloc)
 			button = initWithDummyFrame(button)
 			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(1))		// NSRoundedBezelStyle
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
@@ -157,7 +157,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_checkbox:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
-			checkbox := objc_alloc(_NSButton)
+			checkbox := C.objc_msgSend_noargs(_NSButton, _alloc)
 			checkbox = initWithDummyFrame(checkbox)
 			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(3))		// NSSwitchButton
 			addControl(parentWindow, checkbox)
@@ -173,11 +173,11 @@ var classTypes = [nctypes]*classData{
 			var combobox C.id
 
 			if alternate {
-				combobox = objc_alloc(_NSComboBox)
+				combobox = C.objc_msgSend_noargs(_NSComboBox, _alloc)
 				combobox = initWithDummyFrame(combobox)
 				C.objc_msgSend_bool(combobox, _setUsesDataSource, C.BOOL(C.NO))
 			} else {
-				combobox = objc_alloc(_NSPopUpButton)
+				combobox = C.objc_msgSend_noargs(_NSPopUpButton, _alloc)
 				combobox = C.objc_msgSend_rect_bool(combobox, _initWithFramePullsDown,
 					C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
 					C.BOOL(C.NO))
@@ -220,9 +220,9 @@ var classTypes = [nctypes]*classData{
 			var lineedit C.id
 
 			if alternate {
-				lineedit = objc_alloc(_NSSecureTextField)
+				lineedit = C.objc_msgSend_noargs(_NSSecureTextField, _alloc)
 			} else {
-				lineedit = objc_alloc(_NSTextField)
+				lineedit = C.objc_msgSend_noargs(_NSTextField, _alloc)
 			}
 			lineedit = initWithDummyFrame(lineedit)
 			addControl(parentWindow, lineedit)
@@ -236,7 +236,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
-			label := objc_alloc(_NSTextField)
+			label := C.objc_msgSend_noargs(_NSTextField, _alloc)
 			label = initWithDummyFrame(label)
 			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
@@ -263,7 +263,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
-			pbar := objc_alloc(_NSProgressIndicator)
+			pbar := C.objc_msgSend_noargs(_NSProgressIndicator, _alloc)
 			pbar = initWithDummyFrame(pbar)
 			// TODO really int?
 			C.objc_msgSend_int(pbar, _setStyle, 0)			// NSProgressIndicatorBarStyle

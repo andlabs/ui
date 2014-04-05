@@ -277,7 +277,7 @@ func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
 // TODO combine these with the listbox functions?
 
 func newAreaScrollView(area C.id) C.id {
-	scrollview := objc_alloc(_NSScrollView)
+	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
 	scrollview = initWithDummyFrame(scrollview)
 	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
@@ -291,7 +291,7 @@ func areaInScrollView(scrollview C.id) C.id {
 }
 
 func makeArea(parentWindow C.id, alternate bool) C.id {
-	area := objc_alloc(_goArea)
+	area := C.objc_msgSend_noargs(_goArea, _alloc)
 	area = initWithDummyFrame(area)
 	// TODO others?
 	area = newAreaScrollView(area)
