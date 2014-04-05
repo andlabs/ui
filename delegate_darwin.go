@@ -33,36 +33,26 @@ const (
 )
 
 var (
-	_uitask = sel_getUid("uitask:")
-	_windowShouldClose = sel_getUid("windowShouldClose:")
-	_windowDidResize = sel_getUid("windowDidResize:")
-	_buttonClicked = sel_getUid("buttonClicked:")
+	_uitask = sel_getUid("uitask:")					// used by uitask_darwin.go
+	_buttonClicked = sel_getUid("buttonClicked:")		// used by sysdata_darwin.go
 )
 
+var appDelegateSels = []selector{
+	selector{"uitask:", uintptr(C.appDelegate_uitask), sel_void_id,
+		"performing/dispatching UI events"},
+	selector{"windowShouldClose:", uintptr(C.appDelegate_windowShouldClose), sel_bool_id,
+		"handling window close button events"},
+	selector{"windowDidResize:", uintptr(C.appDelegate_windowDidResize), sel_void_id,
+		"handling window resize events"},
+	selector{"buttonClicked:", uintptr(C.appDelegate_buttonClicked), sel_bool_id,
+		"handling button clicks"},
+}
+
 func mkAppDelegate() error {
-	appdelegateclass, err := makeDelegateClass(_goAppDelegate)
+	err := makeClass(_goAppDelegate, _NSObject, appDelegateSels,
+		"application delegate (handles events)")
 	if err != nil {
-		return fmt.Errorf("error creating NSApplication delegate: %v", err)
-	}
-	err = addDelegateMethod(appdelegateclass, _uitask,
-		C.appDelegate_uitask, delegate_void)
-	if err != nil {
-		return fmt.Errorf("error adding NSApplication delegate uitask: method (to do UI tasks): %v", err)
-	}
-	err = addDelegateMethod(appdelegateclass, _windowShouldClose,
-		C.appDelegate_windowShouldClose, delegate_bool)
-	if err != nil {
-		return fmt.Errorf("error adding NSApplication delegate windowShouldClose: method (to handle window close button events): %v", err)
-	}
-	err = addDelegateMethod(appdelegateclass, _windowDidResize,
-		C.appDelegate_windowDidResize, delegate_void)
-	if err != nil {
-		return fmt.Errorf("error adding NSApplication delegate windowDidResize: method (to handle window resize events): %v", err)
-	}
-	err = addDelegateMethod(appdelegateclass, _buttonClicked,
-		C.appDelegate_buttonClicked, delegate_void)
-	if err != nil {
-		return fmt.Errorf("error adding NSApplication delegate buttonClicked: method (to handle button clicks): %v", err)
+		return err
 	}
 	appDelegate = C.objc_msgSend_noargs(objc_getClass(_goAppDelegate), _new)
 	return nil
@@ -107,25 +97,6 @@ func appDelegate_buttonClicked(self C.id, sel C.SEL, button C.id) {
 }
 
 // this actually constructs the delegate class
-
-var (
-	// objc_getClass() says it returns an id but it's actually a Class
-	// thanks to Psy| in irc.freenode.net/##objc
-	// don't call object_getClass() on this then, as I originally thought — that returns the /metaclass/ (which we don't want, and in fact I wasn't even aware we COULD subclass the metaclass directly like this)
-	_NSObject_Class = C.Class(unsafe.Pointer(_NSObject))
-)
-
-func makeDelegateClass(name string) (C.Class, error) {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-
-	c := C.objc_allocateClassPair(_NSObject_Class, cname, 0)
-	if c == C.NilClass {
-		return C.NilClass, fmt.Errorf("unable to create Objective-C class %s for NSApplication delegate; reason unknown", name)
-	}
-	C.objc_registerClassPair(c)
-	return c, nil
-}
 
 var (
 	delegate_void = []C.char{'v', '@', ':', '@', 0}		// void (*)(id, SEL, id)

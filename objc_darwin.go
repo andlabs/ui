@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -49,4 +50,47 @@ func toNSString(str string) C.id {
 func fromNSString(str C.id) string {
 	cstr := C.objc_msgSend_noargs(str, _UTF8String)
 	return C.GoString((*C.char)(unsafe.Pointer(cstr)))
+}
+
+// These create new classes.
+
+// selector contains the information for a new selector.
+type selector struct {
+	name	string
+	imp		uintptr	// not unsafe.Pointer because https://code.google.com/p/go/issues/detail?id=7665
+	itype		itype
+	desc		string	// for error reporting
+}
+
+type itype uint
+const (
+	sel_void_id itype = iota
+	sel_bool_id
+	nitypes
+)
+
+var itypes = [nitypes][]C.char{
+	sel_void_id:	[]C.char{'v', '@', ':', '@', 0},
+	sel_bool_id:	[]C.char{'c', '@', ':', '@', 0},
+}
+
+func makeClass(name string, super C.id, sels []selector, desc string) (err error) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	// an id that describes a class is itself a Class
+	// thanks to Psy| in irc.freenode.net/##objc
+	c := C.objc_allocateClassPair(C.Class(unsafe.Pointer(super)), cname, 0)
+	if c == C.NilClass {
+		return fmt.Errorf("unable to create Objective-C class %s for %s; reason unknown", name, desc)
+	}
+	C.objc_registerClassPair(c)
+	for _, v := range sels {
+		ok := C.class_addMethod(c, sel_getUid(v.name),
+			C.IMP(unsafe.Pointer(v.imp)), &itypes[v.itype][0])
+		if ok == C.BOOL(C.NO) {
+			return fmt.Errorf("unable to add selector %s to class %s (needed for %s; reason unknown)", v.name, name, v.desc)
+		}
+	}
+	return nil
 }
