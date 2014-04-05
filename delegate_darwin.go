@@ -3,8 +3,7 @@
 package ui
 
 import (
-	"fmt"
-	"unsafe"
+	// ...
 )
 
 /*
@@ -49,12 +48,12 @@ var appDelegateSels = []selector{
 }
 
 func mkAppDelegate() error {
-	err := makeClass(_goAppDelegate, _NSObject, appDelegateSels,
+	id, _, err := makeClass(_goAppDelegate, _NSObject, appDelegateSels,
 		"application delegate (handles events)")
 	if err != nil {
 		return err
 	}
-	appDelegate = C.objc_msgSend_noargs(objc_getClass(_goAppDelegate), _new)
+	appDelegate = C.objc_msgSend_noargs(id, _new)
 	return nil
 }
 
@@ -94,21 +93,4 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 func appDelegate_buttonClicked(self C.id, sel C.SEL, button C.id) {
 	sysData := getSysData(button)
 	sysData.signal()
-}
-
-// this actually constructs the delegate class
-
-var (
-	delegate_void = []C.char{'v', '@', ':', '@', 0}		// void (*)(id, SEL, id)
-	delegate_bool = []C.char{'c', '@', ':', '@', 0}		// BOOL (*)(id, SEL, id)
-)
-
-// according to errors spit out by cgo, C function pointers are unsafe.Pointer
-func addDelegateMethod(class C.Class, sel C.SEL, imp unsafe.Pointer, ty []C.char) error {
-	ok := C.class_addMethod(class, sel, C.IMP(imp), &ty[0])
-	if ok == C.BOOL(C.NO) {
-		// TODO get function name
-		return fmt.Errorf("unable to add selector %v/imp %v to class %v (reason unknown)", sel, imp, class)
-	}
-	return nil
 }

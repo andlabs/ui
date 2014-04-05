@@ -28,62 +28,56 @@ const (
 
 var (
 	_goArea C.id
+	_NSView = objc_getClass("NSView")
 
 	_drawRect = sel_getUid("drawRect:")
-	_isFlipped = sel_getUid("isFlipped")
-	_acceptsFirstResponder = sel_getUid("acceptsFirstResponder")
 )
 
-// uintptr due to a bug; see https://code.google.com/p/go/issues/detail?id=7665
-type eventMethod struct {
-	sel	string
-	m	uintptr
-}
-var eventMethods = []eventMethod{
-	eventMethod{"mouseMoved:", uintptr(C.areaView_mouseMoved)},
-	eventMethod{"mouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"mouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"mouseUp:", uintptr(C.areaView_mouseUp)},
-	eventMethod{"rightMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"rightMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"rightMouseUp:", uintptr(C.areaView_mouseUp)},
-	eventMethod{"otherMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"otherMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged)},
-	eventMethod{"otherMouseUp:", uintptr(C.areaView_mouseUp)},
-	eventMethod{"keyDown:", uintptr(C.areaView_keyDown)},
-	eventMethod{"keyUp:", uintptr(C.areaView_keyUp)},
-	eventMethod{"flagsChanged:", uintptr(C.areaView_flagsChanged)},
+var goAreaSels = []selector{
+	selector{"isFlipped", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
+		"ensuring that an Area's coordinate system has (0,0) at the top-left corner"},
+	selector{"acceptsFirstResponder", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
+		"registering that Areas are to receive events"},
+	selector{"mouseMoved:", uintptr(C.areaView_mouseMoved), sel_void_id,
+		"handling mouse movements in Area"},
+	selector{"mouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 1 presses in Area"},
+	selector{"mouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 1 dragging in Area"},
+	selector{"mouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
+		"handling mouse button 1 releases in Area"},
+	selector{"rightMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 3 presses in Area"},
+	selector{"rightMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 3 dragging in Area"},
+	selector{"rightMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
+		"handling mouse button 3 releases in Area"},
+	selector{"otherMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 2 (and 4 and higher) presses in Area"},
+	selector{"otherMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+		"handling mouse button 2 (and 4 and higher) dragging in Area"},
+	selector{"otherMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
+		"handling mouse button 2 (and 4 and higher) releases in Area"},
+	selector{"keyDown:", uintptr(C.areaView_keyDown), sel_void_id,
+		"handling key presses in Area"},
+	selector{"keyUp:", uintptr(C.areaView_keyUp), sel_void_id,
+		"handling key releases in Area"},
+	selector{"flagsChanged:", uintptr(C.areaView_flagsChanged), sel_void_id,
+		"handling Modifiers presses and releases in Area"},
 }
 
 func mkAreaClass() error {
-	areaclass, err := makeAreaClass(__goArea)
+	id, class, err := makeClass(__goArea, _NSView, goAreaSels,
+		"the implementation of Area on Mac OS X")
 	if err != nil {
-		return fmt.Errorf("error creating Area backend class: %v", err)
+		return err
 	}
 	// addAreaViewDrawMethod() is in bleh_darwin.m
-	ok := C.addAreaViewDrawMethod(areaclass)
+	ok := C.addAreaViewDrawMethod(class)
 	if ok != C.BOOL(C.YES) {
 		return fmt.Errorf("error overriding Area drawRect: method; reason unknown")
 	}
-	// TODO rename this function (it overrides anyway)
-	err = addDelegateMethod(areaclass, _isFlipped,
-		C.areaView_isFlipped_acceptsFirstResponder, area_boolret)
-	if err != nil {
-		return fmt.Errorf("error overriding Area isFlipped method: %v", err)
-	}
-	err = addDelegateMethod(areaclass, _acceptsFirstResponder,
-		C.areaView_isFlipped_acceptsFirstResponder, area_boolret)
-	if err != nil {
-		return fmt.Errorf("error overriding Area acceptsFirstResponder method: %v", err)
-	}
-	for _, m := range eventMethods {
-		err = addDelegateMethod(areaclass, sel_getUid(m.sel),
-			unsafe.Pointer(m.m), delegate_void)
-		if err != nil {
-			return fmt.Errorf("error overriding Area %s method: %v", m.sel, err)
-		}
-	}
-	_goArea = objc_getClass(__goArea)
+	_goArea = id
 	return nil
 }
 
@@ -298,26 +292,3 @@ func makeArea(parentWindow C.id, alternate bool) C.id {
 	addControl(parentWindow, area)
 	return area
 }
-
-// TODO combine the below with the delegate stuff
-
-var (
-	_NSView = objc_getClass("NSView")
-	_NSView_Class = C.Class(unsafe.Pointer(_NSView))
-)
-
-func makeAreaClass(name string) (C.Class, error) {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-
-	c := C.objc_allocateClassPair(_NSView_Class, cname, 0)
-	if c == C.NilClass {
-		return C.NilClass, fmt.Errorf("unable to create Objective-C class %s for Area; reason unknown", name)
-	}
-	C.objc_registerClassPair(c)
-	return c, nil
-}
-
-var (
-	area_boolret = []C.char{'c', '@', ':', 0}			// BOOL (*)(id, SEL)
-)

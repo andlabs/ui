@@ -62,19 +62,22 @@ type selector struct {
 	desc		string	// for error reporting
 }
 
+// sel_[returntype] or sel_[returntype]_[arguments] (after the required self/sel arguments)
 type itype uint
 const (
 	sel_void_id itype = iota
 	sel_bool_id
+	sel_bool
 	nitypes
 )
 
 var itypes = [nitypes][]C.char{
 	sel_void_id:	[]C.char{'v', '@', ':', '@', 0},
 	sel_bool_id:	[]C.char{'c', '@', ':', '@', 0},
+	sel_bool:		[]C.char{'c', '@', ':', 0},
 }
 
-func makeClass(name string, super C.id, sels []selector, desc string) (err error) {
+func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, class C.Class, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
@@ -82,15 +85,17 @@ func makeClass(name string, super C.id, sels []selector, desc string) (err error
 	// thanks to Psy| in irc.freenode.net/##objc
 	c := C.objc_allocateClassPair(C.Class(unsafe.Pointer(super)), cname, 0)
 	if c == C.NilClass {
-		return fmt.Errorf("unable to create Objective-C class %s for %s; reason unknown", name, desc)
+		err = fmt.Errorf("unable to create Objective-C class %s for %s; reason unknown", name, desc)
+		return
 	}
 	C.objc_registerClassPair(c)
 	for _, v := range sels {
 		ok := C.class_addMethod(c, sel_getUid(v.name),
 			C.IMP(unsafe.Pointer(v.imp)), &itypes[v.itype][0])
 		if ok == C.BOOL(C.NO) {
-			return fmt.Errorf("unable to add selector %s to class %s (needed for %s; reason unknown)", v.name, name, v.desc)
+			err = fmt.Errorf("unable to add selector %s to class %s (needed for %s; reason unknown)", v.name, name, v.desc)
+			return
 		}
 	}
-	return nil
+	return objc_getClass(name), c, nil
 }
