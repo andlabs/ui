@@ -107,6 +107,16 @@ const (
 	_NSRegularControlSize = 0
 )
 
+// By default some controls do not use the correct font.
+// These functions set the appropriate control font.
+// Which one is used on each control was determined by comparing https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AppleHIGuidelines/Characteristics/Characteristics.html#//apple_ref/doc/uid/TP40002721-SW10 to what Interface Builder says for each control.
+// (not applicable to ProgressBar, Area)
+
+// Button, Checkbox, Combobox, LineEdit, Label, Listbox
+func applyStandardControlFont(id C.id) {
+	C.objc_setFont(id, _NSRegularControlSize)
+}
+
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
@@ -154,9 +164,7 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(_NSRoundedBezelStyle))
 			C.objc_msgSend_id(button, _setTarget, appDelegate)
 			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
-			// by default the button uses the wrong text size
-			// TODO do this for all controls
-			C.objc_setFont(button, _NSRegularControlSize)
+			applyStandardControlFont(button)
 			addControl(parentWindow, button)
 			return button
 		},
@@ -174,6 +182,7 @@ var classTypes = [nctypes]*classData{
 			checkbox := C.objc_msgSend_noargs(_NSButton, _alloc)
 			checkbox = initWithDummyFrame(checkbox)
 			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(_NSSwitchButton))
+			applyStandardControlFont(checkbox)
 			addControl(parentWindow, checkbox)
 			return checkbox
 		},
@@ -196,6 +205,7 @@ var classTypes = [nctypes]*classData{
 					C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
 					C.BOOL(C.NO))
 			}
+			applyStandardControlFont(combobox)
 			addControl(parentWindow, combobox)
 			return combobox
 		},
@@ -239,6 +249,7 @@ var classTypes = [nctypes]*classData{
 				lineedit = C.objc_msgSend_noargs(_NSTextField, _alloc)
 			}
 			lineedit = initWithDummyFrame(lineedit)
+			applyStandardControlFont(lineedit)
 			addControl(parentWindow, lineedit)
 			return lineedit
 		},
@@ -256,6 +267,7 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
 			// TODO others?
+			applyStandardControlFont(label)
 			addControl(parentWindow, label)
 			return label
 		},

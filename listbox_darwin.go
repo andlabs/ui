@@ -161,6 +161,8 @@ var (
 
 	_initWithIdentifier = sel_getUid("initWithIdentifier:")
 	_tableColumnWithIdentifier = sel_getUid("tableColumnWithIdentifier:")
+	_dataCell = sel_getUid("dataCell")
+	_setDataCell = sel_getUid("setDataCell:")
 	// _setEditable in sysdata_darwin.go
 )
 
@@ -168,6 +170,10 @@ func newListboxTableColumn() C.id {
 	column := C.objc_msgSend_noargs(_NSTableColumn, _alloc)
 	column = C.objc_msgSend_id(column, _initWithIdentifier, listboxItemKey)
 	C.objc_msgSend_bool(column, _setEditable, C.BOOL(C.NO))
+	// to set the font for each item, we set the font of the "data cell", which is more aptly called the "cell template"
+	dataCell := C.objc_msgSend_noargs(column, _dataCell)
+	applyStandardControlFont(dataCell)
+	C.objc_msgSend_id(column, _setDataCell, dataCell)
 	// TODO other properties?
 	bindListboxArray(column, newListboxArray())
 	return column
