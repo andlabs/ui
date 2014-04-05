@@ -266,7 +266,6 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
-			// TODO others?
 			applyStandardControlFont(label)
 			addControl(parentWindow, label)
 			return label
