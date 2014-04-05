@@ -123,5 +123,5 @@ maybe:
 	- provide an event for leaving focus so a focus rectangle can be drawn
 - change the Windows code to use extra class space (as in http://www.catch22.net/tuts/custom-controls)
 	- this is a bit flakier as SetWindowLongPtr() can fail, and it can also succeed in such a way that the last error is unreliable
-- switch to using BCM_GETIDEALSIZE for Buttons on Winodws?
-	- need a way to get ideal size for all controls, not just push buttons (Microsoft...)
+- need a way to get ideal size for all controls on Windows, not just push buttons (Microsoft...)
+- cast all objc_msgSend() direct invocations to the approrpiate types; this is how you're supposed to do things (TODO get Apple mailing list excerpt saying this)
