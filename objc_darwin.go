@@ -10,6 +10,8 @@ import (
 // #cgo LDFLAGS: -lobjc -framework Foundation
 // #include <stdlib.h>
 // #include "objc_darwin.h"
+// /* cgo doesn't like Nil */
+// Class NilClass = Nil;
 import "C"
 
 func objc_getClass(class string) C.id {

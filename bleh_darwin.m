@@ -21,9 +21,6 @@ though this is not always the case.
 #include <AppKit/NSBitmapImageRep.h>
 #include <AppKit/NSCell.h>
 
-/* exception to the above: cgo doesn't like Nil and delegate_darwin.go has //export so I can't have this there */
-Class NilClass = Nil;
-
 /* used by listbox_darwin.go; requires NSString */
 id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
 

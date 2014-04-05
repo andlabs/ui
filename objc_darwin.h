@@ -20,9 +20,6 @@ The format should be self-explanatory.
 
 #include <stdint.h>
 
-/* for delegate_darwin.go */
-extern Class NilClass;
-
 /* for listbox_darwin.go */
 extern id *_NSObservedObjectKey;
 
