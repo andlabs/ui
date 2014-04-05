@@ -243,6 +243,12 @@ static SEL s_drawInRect;
 static SEL s_release;
 static BOOL drawImage_init = NO;
 
+/*
+hey guys you know what's fun? 32-bit ABI changes!
+*/
+static BOOL (*objc_msgSend_drawInRect)(id, SEL, NSRect, NSRect, NSCompositingOperation, CGFloat, BOOL, id) =
+	(BOOL (*)(id, SEL, NSRect, NSRect, NSCompositingOperation, CGFloat, BOOL, id)) objc_msgSend;
+
 void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int64_t xdest, int64_t ydest)
 {
 	unsigned char *planes[1];			/* NSBitmapImageRep wants an array of planes; we have one plane */
@@ -270,7 +276,8 @@ void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int6
 		(NSBitmapFormat) NSAlphaNonpremultipliedBitmapFormat,		/* bitmapFormat: | this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color.") */
 		(NSInteger) stride,										/* bytesPerRow: */
 		(NSInteger) 32);										/* bitsPerPixel: */
-	objc_msgSend(bitmap, s_drawInRect,
+	/* TODO this CAN fail; check error */
+	objc_msgSend_drawInRect(bitmap, s_drawInRect,
 		NSMakeRect((CGFloat) xdest, (CGFloat) ydest,
 			(CGFloat) width, (CGFloat) height),					/* drawInRect: */
 		NSZeroRect,										/* fromRect: | draw whole image */
