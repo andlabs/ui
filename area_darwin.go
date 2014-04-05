@@ -75,7 +75,7 @@ func mkAreaClass() error {
 	// addAreaViewDrawMethod() is in bleh_darwin.m
 	ok := C.addAreaViewDrawMethod(class)
 	if ok != C.BOOL(C.YES) {
-		return fmt.Errorf("error overriding Area drawRect: method; reason unknown")
+		return fmt.Errorf("unable to add selector drawRect: to class %s (needed for actually drawing Areas; reason unknown)", __goArea)
 	}
 	_goArea = id
 	return nil
