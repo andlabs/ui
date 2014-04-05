@@ -107,6 +107,7 @@ m4(id_id_id_id, id, id, id, id)
 extern uintptr_t *NSIndexSetEntries(id, uintptr_t);
 
 /* for uitask_darwin.go */
+extern void initBleh();
 extern id makeDummyEvent();
 
 /* for area_darwin.go */

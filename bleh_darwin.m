@@ -25,6 +25,43 @@ though this is not always the case.
 id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
 
 /*
+These are all the selectors and class IDs used by the functions below.
+*/
+
+static SEL s_getIndexes;			/* NSIndexSetEntries() */
+static id c_NSEvent;				/* makeDummyEvent() */
+static SEL s_newEvent;
+static id c_NSBitmapImageRep;	/* drawImage() */
+static SEL s_alloc;
+static SEL s_initWithBitmapDataPlanes;
+static SEL s_drawInRect;
+static SEL s_release;
+static SEL s_locationInWindow;		/* getTranslatedEventPoint() */
+static SEL s_convertPointFromView;
+static id c_NSFont;
+static SEL s_setFont;				/* objc_setFont() */
+static SEL s_systemFontOfSize;
+static SEL s_systemFontSizeForControlSize;
+
+void initBleh()
+{
+	s_getIndexes = sel_getUid("getIndexes:maxCount:inIndexRange:");
+	c_NSEvent = objc_getClass("NSEvent");
+	s_newEvent = sel_getUid("otherEventWithType:location:modifierFlags:timestamp:windowNumber:context:subtype:data1:data2:");
+	c_NSBitmapImageRep = objc_getClass("NSBitmapImageRep");
+	s_alloc = sel_getUid("alloc");
+	s_initWithBitmapDataPlanes = sel_getUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bitmapFormat:bytesPerRow:bitsPerPixel:");
+	s_drawInRect = sel_getUid("drawInRect:fromRect:operation:fraction:respectFlipped:hints:");
+	s_release = sel_getUid("release");
+	s_locationInWindow = sel_getUid("locationInWindow");
+	s_convertPointFromView = sel_getUid("convertPoint:fromView:");
+	c_NSFont = objc_getClass("NSFont");
+	s_setFont = sel_getUid("setFont:");
+	s_systemFontOfSize = sel_getUid("systemFontOfSize:");
+	s_systemFontSizeForControlSize = sel_getUid("systemFontSizeForControlSize:");
+}
+
+/*
 NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, I'll just place things here for maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
 */
 
@@ -147,9 +184,6 @@ id objc_msgSend_point(id obj, SEL sel, int64_t x, int64_t y)
 This is a doozy: it deals with a NSUInteger array needed for this one selector, and converts them all into a uintptr_t array so we can use it from Go. The two arrays are created at runtime with malloc(); only the NSUInteger one is freed here, while Go frees the returned one. It's not optimal.
 */
 
-static SEL getIndexes;
-static BOOL getIndexes_init = NO;		/* because we can't initialize it out here */
-
 uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 {
 	NSUInteger *nsuints;
@@ -157,14 +191,10 @@ uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 	uintptr_t i;
 	size_t countsize;
 
-	if (getIndexes_init == NO) {
-		getIndexes = sel_getUid("getIndexes:maxCount:inIndexRange:");
-		getIndexes_init = YES;
-	}
 	countsize = (size_t) count;
 	nsuints = (NSUInteger *) malloc(countsize * sizeof (NSUInteger));
 	/* TODO check return value */
-	objc_msgSend(indexset, getIndexes,
+	objc_msgSend(indexset, s_getIndexes,
 		nsuints, (NSUInteger) count, nil);
 	ret = (uintptr_t *) malloc(countsize * sizeof (uintptr_t));
 	for (i = 0; i < count; i++) {
@@ -178,17 +208,8 @@ uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
 See uitask_darwin.go: we need to synthesize a NSEvent so -[NSApplication stop:] will work. We cannot simply init the default NSEvent though (it throws an exception) so we must do it "the right way". This involves a very convoluted initializer; we'll just do it here to keep things clean on the Go side (this will only be run once anyway, on program exit).
 */
 
-static id c_NSEvent;
-static SEL s_newEvent;
-static BOOL newEvent_init = NO;
-
 id makeDummyEvent()
 {
-	if (newEvent_init == NO) {
-		c_NSEvent = objc_getClass("NSEvent");
-		s_newEvent = sel_getUid("otherEventWithType:location:modifierFlags:timestamp:windowNumber:context:subtype:data1:data2:");
-		newEvent_init = YES;
-	}
 	return objc_msgSend(c_NSEvent, s_newEvent,
 		(NSUInteger) NSApplicationDefined,			/* otherEventWithType: */
 		NSMakePoint(0, 0),						/* location: */
@@ -233,13 +254,6 @@ the NSBitmapImageRep constructor is complex; put it here
 the only way to draw a NSBitmapImageRep in a flipped NSView is to use the most complex drawing method; put it here too
 */
 
-static id c_NSBitmapImageRep;
-static SEL s_alloc;
-static SEL s_initWithBitmapDataPlanes;
-static SEL s_drawInRect;
-static SEL s_release;
-static BOOL drawImage_init = NO;
-
 /*
 hey guys you know what's fun? 32-bit ABI changes!
 */
@@ -251,14 +265,6 @@ void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int6
 	unsigned char *planes[1];			/* NSBitmapImageRep wants an array of planes; we have one plane */
 	id bitmap;
 
-	if (drawImage_init == NO) {
-		c_NSBitmapImageRep = objc_getClass("NSBitmapImageRep");
-		s_alloc = sel_getUid("alloc");
-		s_initWithBitmapDataPlanes = sel_getUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bitmapFormat:bytesPerRow:bitsPerPixel:");
-		s_drawInRect = sel_getUid("drawInRect:fromRect:operation:fraction:respectFlipped:hints:");
-		s_release = sel_getUid("release");
-		drawImage_init = YES;
-	}
 	bitmap = objc_msgSend(c_NSBitmapImageRep, s_alloc);
 	planes[0] = (unsigned char *) pixels;
 	bitmap = objc_msgSend(bitmap, s_initWithBitmapDataPlanes,
@@ -289,10 +295,6 @@ void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int6
 more NSPoint fumbling
 */
 
-static SEL s_locationInWindow;
-static SEL s_convertPointFromView;
-static BOOL getTranslatedEventPoint_init = NO;
-
 static NSPoint (*objc_msgSend_stret_point)(id, SEL, ...) =
 	(NSPoint (*)(id, SEL, ...)) objc_msgSend;
 
@@ -301,11 +303,6 @@ struct xpoint getTranslatedEventPoint(id self, id event)
 	NSPoint p;
 	struct xpoint ret;
 
-	if (getTranslatedEventPoint_init == NO) {
-		s_locationInWindow = sel_getUid("locationInWindow");
-		s_convertPointFromView = sel_getUid("convertPoint:fromView:");
-		getTranslatedEventPoint_init = YES;
-	}
 	p = objc_msgSend_stret_point(event, s_locationInWindow);
 	p = objc_msgSend_stret_point(self, s_convertPointFromView,
 		p,			/* convertPoint: */
@@ -319,26 +316,12 @@ struct xpoint getTranslatedEventPoint(id self, id event)
 we don't need this here technically — it can be done in Go just fine — but it's easier here
 */
 
-static id c_NSFont;
-static SEL s_setFont;
-static SEL s_systemFontOfSize;
-static SEL s_systemFontSizeForControlSize;
-static BOOL setFont_init = NO;
-
 static CGFloat (*objc_msgSend_cgfloatret)(id, SEL, ...) =
 	(CGFloat (*)(id, SEL, ...)) objc_msgSend_fpret;
 
 void objc_setFont(id what, unsigned int csize)
 {
 	CGFloat size;
-
-	if (setFont_init == NO) {
-		c_NSFont = objc_getClass("NSFont");
-		s_setFont = sel_getUid("setFont:");
-		s_systemFontOfSize = sel_getUid("systemFontOfSize:");
-		s_systemFontSizeForControlSize = sel_getUid("systemFontSizeForControlSize:");
-		setFont_init = YES;
-	}
 
 	size = objc_msgSend_cgfloatret(c_NSFont, s_systemFontSizeForControlSize, (NSControlSize) csize);
 	objc_msgSend(what, s_setFont,
