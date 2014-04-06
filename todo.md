@@ -79,6 +79,7 @@ super ultra important things:
 - GTK+ indefinite progress bar animation is too fast; HIG doesn't list a preferred speed?
 - Message boxes are not application-modal on some platforms
 - cast all objc_msgSend() direct invocations to the approrpiate types; this is how you're supposed to do things: https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html http://lists.apple.com/archives/objc-language/2014/Jan/msg00011.html http://lists.apple.com/archives/cocoa-dev/2006/Feb/msg00753.html and many others
+- Area drawing assumes that i.Pix[0] is the first pixel; this might not be the case (and the current documentation for AreaHandler.Paint() allows it). Fix it.
 
 other things:
 - on windows 7, progress bars seem to animate from 0 -> pos when you turn off marquee mode and set pos; see if that's documented or if I'm doing something wrong
