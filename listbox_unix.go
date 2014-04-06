@@ -83,6 +83,7 @@ func gListboxNew(multisel bool) *C.GtkWidget {
 	}
 	C.gtk_tree_selection_set_mode(C.gtk_tree_view_get_selection(tv), C.GtkSelectionMode(sel))
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
+	// thanks to jlindgren in irc.gimp.net/#gtk+
 	C.gtk_scrolled_window_set_shadow_type((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), C.GTK_SHADOW_IN)
 	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(scrollarea)), widget)
 	return scrollarea
