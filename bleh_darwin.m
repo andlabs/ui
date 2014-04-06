@@ -62,7 +62,7 @@ void initBleh()
 }
 
 /*
-NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, I'll just place things here for maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
+NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, Even better: it appears to actually be <Foundation/NSObjCRuntime.h>, and requires Objective-C (it declares NSString), so we don't have a choice but to just place things here. For maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
 */
 
 uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel)
