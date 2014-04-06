@@ -49,6 +49,10 @@ far off:
 - combine more Windows files; rename some?
 - tab stops
 - rename Stack to Box?
+- maybe change multiple selection lists to checkbox lists?
+	- windows HIG refernece: ???
+	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
+	- mac HIG reference: ???
 
 specifics:
 
