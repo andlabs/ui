@@ -184,7 +184,7 @@ func listboxTableColumn(listbox C.id) C.id {
 }
 
 /*
-The NSTableViews don't draw their own scrollbars; we have to drop our NSTableViews in NSScrollViews for this.
+The NSTableViews don't draw their own scrollbars; we have to drop our NSTableViews in NSScrollViews for this. The NSScrollView is also what provides the Listbox's border.
 */
 
 var (
