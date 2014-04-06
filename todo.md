@@ -1,5 +1,5 @@
 so I don't forget:
-- [all platforms except Windows] Listbox should have a border style
+- [GTK+] Listbox should have a border style
 - should Labels be selectable?
 	- should message box text be selectable on all platforms or only on those that make it the default?
 - Message boxes should not show secondary text if none is specified. [TODO figure out what I meant by this]

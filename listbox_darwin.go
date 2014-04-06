@@ -193,16 +193,22 @@ var (
 	_setHasHorizontalScroller = sel_getUid("setHasHorizontalScroller:")
 	_setHasVerticalScroller = sel_getUid("setHasVerticalScroller:")
 	_setAutohidesScrollers = sel_getUid("setAutohidesScrollers:")
+	_setBorderType = sel_getUid("setBorderType:")
 	_setDocumentView = sel_getUid("setDocumentView:")
 	_documentView = sel_getUid("documentView")
 )
 
 func newListboxScrollView(listbox C.id) C.id {
+	const (
+		_NSBezelBorder = 2
+	)
+
 	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
 	scrollview = initWithDummyFrame(scrollview)
 	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
 	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
+	C.objc_msgSend_uint(scrollview, _setBorderType, _NSBezelBorder)		// this is what Interface Builder gives the scroll view
 	C.objc_msgSend_id(scrollview, _setDocumentView, listbox)
 	return scrollview
 }
