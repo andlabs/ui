@@ -1,5 +1,4 @@
 so I don't forget:
-- [GTK+] Listbox should have a border style
 - should Labels be selectable?
 - Message boxes should not show secondary text if none is specified. [TODO figure out what I meant by this]
 - note that you can change event channels before opening the window; this allows unifying menus/toolbars/etc.
