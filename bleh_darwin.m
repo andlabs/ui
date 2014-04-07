@@ -20,6 +20,7 @@ though this is not always the case.
 #include <AppKit/NSGraphics.h>
 #include <AppKit/NSBitmapImageRep.h>
 #include <AppKit/NSCell.h>
+#include <AppKit/NSApplication.h>
 
 /* used by listbox_darwin.go; requires NSString */
 id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
@@ -241,7 +242,8 @@ static void __areaView_drawRect(id self, SEL sel, NSRect r)
 
 void *_areaView_drawRect = (void *) __areaView_drawRect;
 
-/* the only objective-c feature you'll see here
+/*
+this and one below it are the only objective-c feature you'll see here
 
 unfortunately NSRect both varies across architectures and is passed as just a structure, so its encoding has to be computed at compile time
 because @encode() is NOT A LITERAL, we're going to just stick it all the way back in objc_darwin.go
@@ -327,3 +329,19 @@ void objc_setFont(id what, unsigned int csize)
 	objc_msgSend(what, s_setFont,
 		objc_msgSend(c_NSFont, s_systemFontOfSize, size));
 }
+
+/*
+-[NSApplicationDelegate applicationShouldTerminate] used to return a BOOL, but now returns a NSApplicationTerminateReply, which is a NSUInteger; hence, here.
+*/
+
+extern void appDelegate_applicationShouldTerminate();
+
+static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id self, SEL sel)
+{
+	appDelegate_applicationShouldTerminate();
+	return NSTerminateCancel;		// don't quit
+}
+
+void *_appDelegate_applicationShouldTerminate = (void *) __appDelegate_applicationShouldTerminate;
+
+char *encodedTerminateReply = @encode(NSApplicationTerminateReply);

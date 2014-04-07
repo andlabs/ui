@@ -71,14 +71,16 @@ const (
 	sel_bool_id
 	sel_bool
 	sel_void_rect
+	sel_terminatereply
 	nitypes
 )
 
 var itypes = [nitypes][]C.char{
-	sel_void_id:	[]C.char{'v', '@', ':', '@', 0},
-	sel_bool_id:	[]C.char{'c', '@', ':', '@', 0},
-	sel_bool:		[]C.char{'c', '@', ':', 0},
-	sel_void_rect:	nil,			// see init() below
+	sel_void_id:		[]C.char{'v', '@', ':', '@', 0},
+	sel_bool_id:		[]C.char{'c', '@', ':', '@', 0},
+	sel_bool:			[]C.char{'c', '@', ':', 0},
+	sel_void_rect:		nil,			// see init() below
+	sel_terminatereply:	nil,
 }
 
 func init() {
@@ -91,6 +93,14 @@ func init() {
 	}
 	x = append(x, 0)
 	itypes[sel_void_rect] = x
+
+	x = make([]C.char, 0, 256)	// more than enough
+	y = C.GoString(C.encodedTerminateReply)
+	for _, b := range y {
+		x = append(x, C.char(b))
+	}
+	x = append(x, '@', ':', 0)
+	itypes[sel_terminatereply] = x
 }
 
 func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, err error) {

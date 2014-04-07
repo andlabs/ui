@@ -12,6 +12,7 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 	- handles window close events (windowShouldClose:)
 	- handles window resize events (windowDidResize:)
 	- handles button click events (buttonClicked:)
+	- handles the application-global Quit event (such as from the Dock) (applicationShouldTerminate)
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -45,6 +46,8 @@ var appDelegateSels = []selector{
 		"handling window resize events"},
 	selector{"buttonClicked:", uintptr(C.appDelegate_buttonClicked), sel_bool_id,
 		"handling button clicks"},
+	selector{"applicationShouldTerminate", uintptr(C._appDelegate_applicationShouldTerminate), sel_terminatereply,
+		"handling Quit menu items (such as from the Dock)/the AppQuit channel"},
 }
 
 func mkAppDelegate() error {
@@ -93,4 +96,13 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 func appDelegate_buttonClicked(self C.id, sel C.SEL, button C.id) {
 	sysData := getSysData(button)
 	sysData.signal()
+}
+
+//export appDelegate_applicationShouldTerminate
+func appDelegate_applicationShouldTerminate() {
+	// asynchronous so as to return control to the event loop
+	go func() {
+		AppQuit <- struct{}{}
+	}()
+	// xxx in bleh_darwin.m tells Cocoa not to quit
 }

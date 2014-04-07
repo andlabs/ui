@@ -14,3 +14,14 @@ package ui
 func Go(main func()) error {
 	return ui(main)
 }
+
+// AppQuit is pulsed when the user decides to quit the program if their operating system provides a facility for quitting an entire application, rather than merely close all windows (for instance, Mac OS X via the Dock icon).
+// You should assign one of your Windows's Closing to this variable so the user choosing to quit the application is treated the same as closing that window.
+// If you do not respond to this signal, nothing will happen.
+// Do not merely check this channel alone; it is not guaranteed to be pulsed on all systems or in all conditions.
+var AppQuit chan struct{}
+
+func init() {
+	// don't expose this in the documentation
+	AppQuit = newEvent()
+}

@@ -20,6 +20,7 @@ Here is a simple, complete program that asks the user for their name and greets 
 
 	func myMain() {
 		w := ui.NewWindow("Hello", 400, 100)
+		ui.AppQuit = w.Closing		// treat quitting the application like closing the main window
 		nameField := ui.NewLineEdit("Enter Your Name Here")
 		button := ui.NewButton("Click Here For a Greeting")
 		err := w.Open(ui.NewVerticalStack(nameField, button))
@@ -29,7 +30,7 @@ Here is a simple, complete program that asks the user for their name and greets 
 
 		for {
 			select {
-			case <-w.Closing:		// user tries to close the window
+			case <-w.Closing:		// user tries to close the window or quit the program
 				return
 			case <-button.Clicked:	// user clicked the button
 				ui.MsgBox("Hello, " + nameField.Text() + "!", "")
