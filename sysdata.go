@@ -87,3 +87,16 @@ type resizerequest struct {
 	width	int
 	height	int
 }
+
+func (s *sysData) doResize(x int, y int, width int, height int, winheight int) {
+	if s.resize != nil {
+		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
+		s.resize(x, y, width, height, &s.resizes)
+		for _, s := range s.resizes {
+			err := s.sysData.setRect(s.x, s.y, s.width, s.height, winheight)
+			if err != nil {
+				panic("child resize failed: " + err.Error())
+			}
+		}
+	}
+}

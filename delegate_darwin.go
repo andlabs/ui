@@ -78,17 +78,8 @@ func appDelegate_windowDidResize(self C.id, sel C.SEL, notification C.id) {
 	s := getSysData(win)
 	wincv := C.objc_msgSend_noargs(win, _contentView)		// we want the content view's size, not the window's; selector defined in sysdata_darwin.go
 	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
-	if s.resize != nil {
-		// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
-		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
-		s.resize(0, 0, int(r.width), int(r.height), &s.resizes)
-		for _, s := range s.resizes {
-			err := s.sysData.setRect(s.x, s.y, s.width, s.height, int(r.height))
-			if err != nil {
-				panic("child resize failed: " + err.Error())
-			}
-		}
-	}
+	// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
+	s.doResize(0, 0, int(r.width), int(r.height), int(r.height))
 	C.objc_msgSend_noargs(win, _display)		// redraw everything; TODO only if resize() was called?
 }
 

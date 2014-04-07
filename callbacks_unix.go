@@ -41,14 +41,7 @@ func our_window_configure_event_callback(widget *C.GtkWidget, event *C.GdkEvent,
 	if s.container != nil && s.resize != nil {		// wait for init
 		width, height := gtk_window_get_size(s.widget)
 		// top-left is (0,0) so no need for winheight
-		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
-		s.resize(0, 0, width, height, &s.resizes)
-		for _, s := range s.resizes {
-			err := s.sysData.setRect(s.x, s.y, s.width, s.height, 0)
-			if err != nil {
-				panic("child resize failed: " + err.Error())
-			}
-		}
+		s.doResize(0, 0, width, height, 0)
 	}
 	// returning false indicates that we continue processing events related to configure-event; if we choose not to, then after some controls have been added, the layout fails completely and everything stays in the starting position/size
 	// TODO make sure this is the case
