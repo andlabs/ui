@@ -80,7 +80,7 @@ func kbTest() {
 	w := NewWindow("Hi", wid, ht)
 	err := w.Open(a)
 	if err != nil { panic(err) }
-	<-w.Closing
+	select {}		// some X11-based systems intercept Alt-F4 and various other keys; this is to find out if we get the key event anyway after ignoring the other requests (it has the effect of requiring us to abort the keyboard test though)
 }
 
 var (

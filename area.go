@@ -124,6 +124,11 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 // unconditionally, which may result in unwanted behavior like
 // global task-switching keystrokes not being processed.)
 // 
+// Note that even given the above, some systems might intercept
+// some keystrokes (like Alt-F4 on various Unix systems) before
+// Area will ever see them (and the Area might get an incorrect
+// KeyEvent in this case, but this is not guaranteed); be wary.
+// 
 // If a key is pressed that is not supported by Key, ExtKey,
 // or Modifiers, no KeyEvent will be produced, and package
 // ui will act as if false was returned for handled.
