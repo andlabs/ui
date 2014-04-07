@@ -21,6 +21,9 @@ general list:
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
 - provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain/lose focus
 	- provide an event for leaving focus so a focus rectangle can be drawn
+- when adding menus:
+	- provide automated About, Preferneces, and Quit that place these in the correct location
+		- Quit should pulse AppQuit
 
 problem points:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
@@ -38,6 +41,7 @@ style changes:
 		- what happens when the user clicks and drags on a listbox
 			- I think this is a platform behavior...
 	- should field descriptions in method comments include the receiver name? (for instance e.Held vs. Held) - see what Go's own documentation does
+	- need to figure out exactly how to indicate that a struct{}{} is sent on an event channel (I use about six or so different wordings so far...)
 - make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
 	- do this for type signatures in exported functions: (err error) or just error?
 	- do this for the names of GTK+ helper functions (gtkXXX or gXXX)

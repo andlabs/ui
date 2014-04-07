@@ -52,21 +52,6 @@ super ultra important things:
 ```
 	figure out why
 	- I think it has to do with invalid list deletions; roll back the panics and check
-- the user can still [NSApp terminate:] from the Dock icon, bypassing Go itself
-	- ideally we need a QuitItem() function for this case if/when we add menus
-	- check this on all platforms
-		- Mac OS X (64-bit): window:good dock:BYPASSED appmenu:(none default?) expose:TODO altF4:(unassigned) ctlQ:(unassigned by default; likely because of the appmenu lack of assignment)(kb:good otherwise)
-		- Mac OS X (32-bit): window:TODO dock:TODO appmenu:TODO expose:TODO altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
-		- Windows XP: window:good taskbar:good taskmgr:good altF4:good(kb:good) ctlQ:(unassigned)
-		- Windows 7: window:good taskbar:good taskmgr:good altF4:good(kb:good) ctlQ:(unassigned)
-		- wine (KDE): window:good taskbar:good altF4:good(kb:TODO) ctlQ:(unassigned)
-		- KDE: window:good taskbar:good altF4:good(kb:TODO) ctlQ:(unassigned)
-		- Weston: window:TODO taskbar:TODO altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
-		- GNOME Shell: window:good taskbar:good expose:good altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
-		- MATE (for GNOME 2): window:TODO taskbar:TODO altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
-		- xfce: window:good taskbar:good altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
-		- Unity: window:good taskbar:good appmenu:(no default) altF4:good(kb:BYPASSED) ctlQ:(unassigned)
-		- LXDE: window:good taskbar:good altF4:TODO(kb:TODO) ctlQ:TODO(kb:TODO)
 - Cocoa: NSScrollView support is hacky at best
 	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
