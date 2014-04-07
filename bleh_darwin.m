@@ -336,7 +336,7 @@ void objc_setFont(id what, unsigned int csize)
 
 extern void appDelegate_applicationShouldTerminate();
 
-static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id self, SEL sel)
+static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id self, SEL sel, id app)
 {
 	appDelegate_applicationShouldTerminate();
 	return NSTerminateCancel;		// don't quit

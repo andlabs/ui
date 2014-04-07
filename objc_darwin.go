@@ -71,16 +71,16 @@ const (
 	sel_bool_id
 	sel_bool
 	sel_void_rect
-	sel_terminatereply
+	sel_terminatereply_id
 	nitypes
 )
 
 var itypes = [nitypes][]C.char{
-	sel_void_id:		[]C.char{'v', '@', ':', '@', 0},
-	sel_bool_id:		[]C.char{'c', '@', ':', '@', 0},
-	sel_bool:			[]C.char{'c', '@', ':', 0},
-	sel_void_rect:		nil,			// see init() below
-	sel_terminatereply:	nil,
+	sel_void_id:			[]C.char{'v', '@', ':', '@', 0},
+	sel_bool_id:			[]C.char{'c', '@', ':', '@', 0},
+	sel_bool:				[]C.char{'c', '@', ':', 0},
+	sel_void_rect:			nil,			// see init() below
+	sel_terminatereply_id:	nil,
 }
 
 func init() {
@@ -99,8 +99,8 @@ func init() {
 	for _, b := range y {
 		x = append(x, C.char(b))
 	}
-	x = append(x, '@', ':', 0)
-	itypes[sel_terminatereply] = x
+	x = append(x, '@', ':', '@', 0)
+	itypes[sel_terminatereply_id] = x
 }
 
 func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, err error) {

@@ -46,7 +46,7 @@ var appDelegateSels = []selector{
 		"handling window resize events"},
 	selector{"buttonClicked:", uintptr(C.appDelegate_buttonClicked), sel_bool_id,
 		"handling button clicks"},
-	selector{"applicationShouldTerminate", uintptr(C._appDelegate_applicationShouldTerminate), sel_terminatereply,
+	selector{"applicationShouldTerminate:", uintptr(C._appDelegate_applicationShouldTerminate), sel_terminatereply_id,
 		"handling Quit menu items (such as from the Dock)/the AppQuit channel"},
 }
 

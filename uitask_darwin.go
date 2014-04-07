@@ -81,6 +81,7 @@ var (
 	_sharedApplication = sel_getUid("sharedApplication")
 	_setActivationPolicy = sel_getUid("setActivationPolicy:")
 	_activateIgnoringOtherApps = sel_getUid("activateIgnoringOtherApps:")
+	// _setDelegate in sysdata_darwin.go
 )
 
 func initCocoa() (NSApp C.id, err error) {
@@ -97,6 +98,7 @@ func initCocoa() (NSApp C.id, err error) {
 	if err != nil {
 		return
 	}
+	C.objc_msgSend_id(NSApp, _setDelegate, appDelegate)
 	err = mkAreaClass()
 	return
 }
