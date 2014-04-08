@@ -57,6 +57,7 @@ far off:
 	- windows HIG refernece: ???
 	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
 	- mac HIG reference: ???
+- go over the old new thing's scrollbar series to make sure I'm doing everything right with scrollbars in Windows Areas
 
 specifics:
 
