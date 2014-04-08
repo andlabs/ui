@@ -72,7 +72,7 @@ super ultra important things:
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
-- GTK+ indefinite progress bar animation is too fast; HIG doesn't list a preferred speed?
+- GTK+ indefinite progress bar animation is choppy: make sure the speed we have now is the conventional speed for GTK+ programs (HIG doesn't list any) and that the choppiness is correct
 - Message boxes are not application-modal on some platforms
 - cast all objc_msgSend() direct invocations to the approrpiate types; this is how you're supposed to do things: https://developer.apple.com/library/ios/documentation/General/Conceptual/CocoaTouch64BitGuide/ConvertingYourAppto64-Bit/ConvertingYourAppto64-Bit.html http://lists.apple.com/archives/objc-language/2014/Jan/msg00011.html http://lists.apple.com/archives/cocoa-dev/2006/Feb/msg00753.html and many others
 - Area drawing assumes that i.Pix[0] is the first pixel; this might not be the case (and the current documentation for AreaHandler.Paint() allows it). Fix it.

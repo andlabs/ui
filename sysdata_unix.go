@@ -296,8 +296,8 @@ func (s *sysData) progressPulse() {
 	var ticker *time.Ticker
 	var tickchan <-chan time.Time
 
-	// the default on Windows
-	const pulseRate = 30 * time.Millisecond
+	// the pulse rate used by Zenity (https://git.gnome.org/browse/zenity/tree/src/progress.c#n69 for blob cbffe08e8337ba1375a0ac7210eff5a2e4313bb8)
+	const pulseRate = 100 * time.Millisecond
 
 	for {
 		select {
@@ -305,7 +305,7 @@ func (s *sysData) progressPulse() {
 			if start {
 				ticker = time.NewTicker(pulseRate)
 				tickchan = ticker.C
-				pulse()			// start the pulse animation now, not 30ms later
+				pulse()			// start the pulse animation now, not 100ms later
 			} else {
 				if ticker != nil {
 					ticker.Stop()
