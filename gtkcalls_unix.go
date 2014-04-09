@@ -6,6 +6,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -60,10 +61,35 @@ func gtk_window_get_size(window *C.GtkWidget) (int, int) {
 	return int(width), int(height)
 }
 
+// on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
+// this CSS fixes it
+// thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
+// TODO report to oxygen-gtk devs
+var gtkLayoutCSS = []byte(`GtkLayout {
+	background-color: transparent;
+}
+`)
+
+func makeTransparent(layout *C.GtkWidget) {
+	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+
+	provider := C.gtk_css_provider_new()
+	added := C.gtk_css_provider_load_from_data(provider,
+		(*C.gchar)(unsafe.Pointer(&gtkLayoutCSS[0])), C.gssize(len(gtkLayoutCSS)), &err)
+	if added == C.FALSE {
+		message := C.GoString(fromgchar(err.message))
+		panic(fmt.Errorf("error loading transparent background CSS for GtkLayout: %s", message))
+	}
+	C.gtk_style_context_add_provider(C.gtk_widget_get_style_context(layout),
+		(*C.GtkStyleProvider)(unsafe.Pointer(provider)),
+		C.GTK_STYLE_PROVIDER_PRIORITY_USER)
+}
+
 // this should allow us to resize the window arbitrarily
 // thanks to Company in irc.gimp.net/#gtk+
 func gtkNewWindowLayout() *C.GtkWidget {
 	layout := C.gtk_layout_new(nil, nil)
+	makeTransparent(layout)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
 	C.gtk_container_add((*C.GtkContainer)(unsafe.Pointer(scrollarea)), layout)
 	// never show scrollbars; we're just doing this to allow arbitrary resizes

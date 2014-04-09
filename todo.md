@@ -57,7 +57,6 @@ super ultra important things:
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
-- the window background of a GTK+ window seems to be... off - I think it has to do with the GtkLayout
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
