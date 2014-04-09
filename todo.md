@@ -65,9 +65,6 @@ super ultra important things:
 - make sure the first and last rows and columns of an Area are being drawn on all platforms
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure keyboard events on numpad off on all platforms don't switch between controls
-- for our two custom window classes on Windows, we should allocate extra space in the window class's info structure and then use SetWindowLongPtrW() during WM_CREATE to store the sysData and not have to make a new window class each time; this might also fix the s != nil && s.hwnd != 0 special cases in the Area WndProc if done right
-	- references: https://github.com/glfw/glfw/blob/master/src/win32_window.c#L182, http://www.catch22.net/tuts/custom-controls
-	- this is a bit flakier as SetWindowLongPtr() can fail, and it can also succeed in such a way that the last error is unreliable
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
