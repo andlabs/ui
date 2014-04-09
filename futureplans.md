@@ -17,6 +17,7 @@ general list:
 	- Index(n) is the name used by reflect.Value; use a different one?
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
 	- also provide a method to center windows; Cocoa provides one for us but
+		- GTK+ too: gtk_window_set_position(window, GTK_WIN_POS_CENTER) (via http://stackoverflow.com/questions/16832581/how-to-make-a-gtkwindow-background-transparent-on-linux)
 - make Combobox and Listbox satisfy sort.Interface?
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
 - provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain/lose focus
@@ -58,6 +59,22 @@ far off:
 	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
 	- mac HIG reference: ???
 - go over the old new thing's scrollbar series to make sure I'm doing everything right with scrollbars in Windows Areas
+
+big things:
+- make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182
+	- windows: this requires major restructuring
+	- gtk, mac: this just requires checking
+- steamroll ALL errors, especially on windows
+	- gtk: no way to catch errors
+	- cocoa: discouraged
+- make fully lock free
+	- prerequisite is the above two
+	- locks are used because of initial state; we can override by creating controls at construct time
+		- cocoa, gtk: no real issues
+		- windows: now required to specify no parent window at create time and set both the parent window AND the child window ID later
+			- http://msdn.microsoft.com/en-us/library/windows/desktop/ms633541%28v=vs.85%29.aspx
+				- don't worry about UI state messages yet; this is before opening the UI anyway (these might be needed when we add tab stops)
+			- http://msdn.microsoft.com/en-us/library/windows/desktop/ms644898%28v=vs.85%29.aspx GWLP_ID
 
 specifics:
 
