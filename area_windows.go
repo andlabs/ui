@@ -109,7 +109,7 @@ func paintArea(s *sysData) {
 	// we don't have a choice but to convert it ourselves
 	// TODO make realbits a part of sysData to conserve memory
 	realbits := make([]byte, 4 * i.Rect.Dx() * i.Rect.Dy())
-	p := 0
+	p := pixelDataPos(i)
 	q := 0
 	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
 		nextp := p + i.Stride

@@ -60,7 +60,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	// pixel order is [R G B A] (see Example 1 on https://developer.gnome.org/gdk-pixbuf/2.26/gdk-pixbuf-The-GdkPixbuf-Structure.html) so we don't have to convert anything
 	// gdk-pixbuf is not alpha-premultiplied (thanks to desrt in irc.gimp.net/#gtk+)
 	pixbuf := C.gdk_pixbuf_new_from_data(
-		(*C.guchar)(unsafe.Pointer(&i.Pix[0])),
+		(*C.guchar)(unsafe.Pointer(pixelData(i))),
 		C.GDK_COLORSPACE_RGB,
 		C.TRUE,			// has alpha channel
 		8,				// bits per sample

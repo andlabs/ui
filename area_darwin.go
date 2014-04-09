@@ -92,7 +92,7 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	}
 	i := s.handler.Paint(cliprect)
 	C.drawImage(
-		unsafe.Pointer(&i.Pix[0]), C.int64_t(i.Rect.Dx()), C.int64_t(i.Rect.Dy()), C.int64_t(i.Stride),
+		unsafe.Pointer(pixelData(i)), C.int64_t(i.Rect.Dx()), C.int64_t(i.Rect.Dy()), C.int64_t(i.Stride),
 		C.int64_t(cliprect.Min.X), C.int64_t(cliprect.Min.Y))
 }
 

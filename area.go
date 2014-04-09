@@ -315,3 +315,12 @@ func (a *Area) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 func (a *Area) preferredSize() (width int, height int) {
 	return a.sysData.preferredSize()
 }
+
+// internal function, but shared by all system implementations: &img.Pix[0] is not necessarily the first pixel in the image
+func pixelDataPos(img *image.NRGBA) int {
+	return img.PixOffset(img.Rect.Min.X, img.Rect.Min.Y)
+}
+
+func pixelData(img *image.NRGBA) *uint8 {
+	return &img.Pix[pixelDataPos(img)]
+}
