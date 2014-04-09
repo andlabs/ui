@@ -135,6 +135,11 @@ const (
 	msghandlerclass = "gomsghandler"
 )
 
+var (
+	// fron winuser.h; var because Go won't let me
+	_HWND_MESSAGE = -3
+)
+
 func makeMessageHandler() (hwnd _HWND, err error) {
 	wc := &_WNDCLASS{
 		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(msghandlerclass))),
@@ -159,7 +164,7 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 		uintptr(_CW_USEDEFAULT),
 		uintptr(_CW_USEDEFAULT),
 		uintptr(_CW_USEDEFAULT),
-		uintptr(_NULL),
+		uintptr(_HWND_MESSAGE),
 		uintptr(_NULL),
 		uintptr(hInstance),
 		uintptr(_NULL))
