@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"flag"
 	"image"
-//	"image/color"
+	"image/color"
 	"image/draw"
 	_ "image/png"
 	"bytes"
@@ -140,7 +140,7 @@ func (a *areaHandler) Key(e KeyEvent) (bool, bool) {
 	return false, false
 }
 
-var doArea = flag.Bool("area", false, "run area test instead (overrides -kb)")
+var doArea = flag.Bool("area", false, "run area test instead (overrides -kb and -areabounds)")
 func areaTest() {
 /*
 	img := [2]*image.NRGBA{}
@@ -200,6 +200,38 @@ func areaTest() {
 	}
 }
 
+var areabounds = flag.Bool("areabounds", false, "run area bounds test instead")
+func areaboundsTest() {
+	img := image.NewNRGBA(image.Rect(0, 0, 320, 240))
+	a := NewArea(320, 240, &areaHandler{
+		img:		img,
+	})
+	u := func(r, g, b uint8) *image.Uniform {
+		return image.NewUniform(color.NRGBA{r, g, b, 255})
+	}
+	// left border red
+	r := img.Rect
+	draw.Draw(img, r, u(255, 0, 0), image.ZP, draw.Over)
+	// bottom border green
+	r.Min.X++
+	draw.Draw(img, r, u(0, 255, 0), image.ZP, draw.Over)
+	// right border blue
+	r.Max.Y--
+	draw.Draw(img, r, u(0, 0, 255), image.ZP, draw.Over)
+	// top border fuscia
+	r.Max.X--
+	draw.Draw(img, r, u(255, 0, 255), image.ZP, draw.Over)
+	// middle purple
+	r.Min.Y++
+	draw.Draw(img, r, u(128, 0, 128), image.ZP, draw.Over)
+	w := NewWindow("Area Bounds Test", 320, 240)
+	err := w.Open(a)
+	if err != nil {
+		panic(err)
+	}
+	<-w.Closing
+}
+
 func myMain() {
 	if *doArea {
 		areaTest()
@@ -207,6 +239,10 @@ func myMain() {
 	}
 	if *doKeyboard {
 		kbTest()
+		return
+	}
+	if *areabounds {
+		areaboundsTest()
 		return
 	}
 	w := NewWindow("Main Window", 320, 240)

@@ -73,7 +73,7 @@ func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
 	return true, true
 }
 
-var doKeyboard = flag.Bool("kb", false, "run keyboard test")
+var doKeyboard = flag.Bool("kb", false, "run keyboard test (overrides -areabounds)")
 func kbTest() {
 	wid, ht, ah := mkkbArea()
 	a := NewArea(wid, ht, ah)

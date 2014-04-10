@@ -29,6 +29,7 @@ important things:
 	- does not show initially on OS X; it shows up once you resize, and even shows up after you resize back to the original size
 
 super ultra important things:
+- window sizes are inconsistent and wrong: we need to see on which platforms the titlebars/borders/etc. count...
 - formalize what happens if Modifiers by themselves are held
 	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
 	- in general, figure out what to do on multiple events, period
@@ -62,7 +63,7 @@ super ultra important things:
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - redrawing Areas on Windows seems to be flaky: make the window small, scroll, then make it large again and watch the vertical corruption (alternatively "especially after changing the Area size to something larger than the window size and then resizing the window(???)")
 	- redrawing controls after a window resize on Windows seems to be flaky
-- make sure the first and last rows and columns of an Area are being drawn on all platforms
+	- for Area again, the area bounds test's borders don't redraw correctly after certain series of resize operations
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
