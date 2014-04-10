@@ -53,6 +53,7 @@ far off:
 - strip unused constants from the Windows files
 - combine more Windows files; rename some?
 - tab stops
+	- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx
 - rename Stack to Box?
 - maybe change multiple selection lists to checkbox lists?
 	- windows HIG refernece: ???
@@ -84,6 +85,9 @@ big dumb things:
 		- also CreateWindow() and CreateWindowEx() docs differ in indicating which messages are sent but ultimately send the same set; WM_GETMINMAXINFO is sent first so that throws a wrench in the whole point, AND we'll need a way to properly differentiate between custom classes and controls...
 			- tl;dr what started as a somewhat quick change was really way too much effort for only potential/theoretical gain; approach if someone actually DOES hit Go's syscall.NewCallback() limit
 			- theoretically I could just have a s != nil check in WM_GETMINMAXINFO only, but not too hot on the idea :/
+				- raymond chen does it here: http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx (check the implementation of Window::s_WndProc())
+				- ...and suggests we do it here http://blogs.msdn.com/b/oldnewthing/archive/2014/02/03/10496248.aspx (**NOTE THE DATE**) - the comments on this one provide some potential ideas, including IIntrospect's comment about HCBT_CREATEWND; later Raymond says we should not worry about SetWindowLongPtr() failing
+				- and raymond suggests GWL_USERDATA here: http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
 
 specifics:
 
