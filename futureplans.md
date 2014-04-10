@@ -83,6 +83,7 @@ big dumb things:
 		- and doesn't exist on 32-bit windows; we will need special code for detecting 32-bit/64-bit (see http://bugs.winehq.org/show_bug.cgi?id=30556 and GerbilSoft in irc.badnik.net/#retro)
 		- also CreateWindow() and CreateWindowEx() docs differ in indicating which messages are sent but ultimately send the same set; WM_GETMINMAXINFO is sent first so that throws a wrench in the whole point, AND we'll need a way to properly differentiate between custom classes and controls...
 			- tl;dr what started as a somewhat quick change was really way too much effort for only potential/theoretical gain; approach if someone actually DOES hit Go's syscall.NewCallback() limit
+			- theoretically I could just have a s != nil check in WM_GETMINMAXINFO only, but not too hot on the idea :/
 
 specifics:
 
