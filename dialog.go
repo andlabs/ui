@@ -8,7 +8,8 @@ import (
 
 // MsgBox displays an informational message box to the user with just an OK button.
 // primaryText should be a short string describing the message, and will be displayed with additional emphasis on platforms that support it.
-// secondaryText can be used to provide more information.
+// Optionally, secondaryText can be used to show additional information.
+// If you pass an empty string for secondaryText, neither additional information nor space for additional information will be shown.
 // On platforms that allow for the message box window to have a title, os.Args[0] is used.
 func MsgBox(primaryText string, secondaryText string) {
 	msgBox(primaryText, secondaryText)

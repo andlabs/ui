@@ -61,6 +61,7 @@ far off:
 	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
 	- mac HIG reference: ???
 - go over the old new thing's scrollbar series to make sure I'm doing everything right with scrollbars in Windows Areas
+- change the MsgBox() calls to encourage good alert dialog design??????? maybe? TODO
 
 big things:
 - make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182

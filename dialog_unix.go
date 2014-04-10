@@ -12,7 +12,15 @@ import (
 // #include "gtk_unix.h"
 // /* because cgo seems to choke on ... */
 // /* TODO does NULL parent make the box application-global? docs are unclear */
-// GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text) { GtkWidget *k = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title); gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text); return k; }
+// GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text)
+// {
+// 	GtkWidget *k;
+// 
+// 	k = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title);
+// 	if (text != NULL)
+// 		gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text);
+// 	return k;
+// }
 import "C"
 
 func _msgBox(primarytext string, secondarytext string, msgtype C.GtkMessageType, buttons C.GtkButtonsType) (result C.gint) {
@@ -21,8 +29,11 @@ func _msgBox(primarytext string, secondarytext string, msgtype C.GtkMessageType,
 	uitask <- func() {
 		cprimarytext := C.CString(primarytext)
 		defer C.free(unsafe.Pointer(cprimarytext))
-		csecondarytext := C.CString(secondarytext)
-		defer C.free(unsafe.Pointer(csecondarytext))
+		csecondarytext := (*C.char)(nil)
+		if secondarytext != "" {
+			csecondarytext = C.CString(secondarytext)
+			defer C.free(unsafe.Pointer(csecondarytext))
+		}
 		box := C.gtkNewMsgBox(msgtype, buttons, cprimarytext, csecondarytext)
 		response := C.gtk_dialog_run((*C.GtkDialog)(unsafe.Pointer(box)))
 		C.gtk_widget_destroy(box)

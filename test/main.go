@@ -248,7 +248,9 @@ func myMain() {
 	w := NewWindow("Main Window", 320, 240)
 	b := NewButton("Click Me")
 	b2 := NewButton("Or Me")
-	s2 := NewHorizontalStack(b, b2)
+	bmsg := NewButton("Or Even Me!")
+	s2 := NewHorizontalStack(b, b2, bmsg)
+	s2.SetStretchy(2)
 	c := NewCheckbox("Check Me")
 	cb1 := NewEditableCombobox("You can edit me!", "Yes you can!", "Yes you will!")
 	cb2 := NewCombobox("You can't edit me!", "No you can't!", "No you won't!")
@@ -371,6 +373,9 @@ _=curtime
 			pbar.SetProgress(-1)
 		case <-invalidButton.Clicked:
 			invalidTest(cb1, lb1, nil, nil)
+		case <-bmsg.Clicked:
+			MsgBox("Title Only", "")
+			MsgBox("Title and Text", "Text and Title")
 		}
 	}
 	w.Hide()

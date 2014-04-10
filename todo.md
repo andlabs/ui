@@ -1,6 +1,5 @@
 so I don't forget:
 - should Labels be selectable?
-- Message boxes should not show secondary text if none is specified. [TODO figure out what I meant by this]
 - add bounds checking to Area's sizing methods
 - describe thread-safety of Area.SetSize()
 - should all instances of -1 as error returns from Windows functions be changed to ^0 or does the uintptr() conversion handle sign extension?
