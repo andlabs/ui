@@ -42,6 +42,10 @@ var stdDlgSizes = [nctypes]dlgunits{
 		height:	10,
 	},
 	c_combobox:	dlgunits{
+		// technically the height of a combobox has to include the drop-down list (this is a historical accident: originally comboboxes weren't drop-down)
+		// but since we're forcing Common Controls version 6, we can take advantage of one of its mechanisms to automatically fix this mistake (bad practice but whatever)
+		// see also: http://blogs.msdn.com/b/oldnewthing/archive/2006/03/10/548537.aspx
+		// note that the Microsoft guidelines pages don't take the list size into account
 		longest:	true,
 		height:	12,		// from the Visual Studio 2012 offline docs's Win32 layout page; the online page above says 14
 	},

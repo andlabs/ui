@@ -14,8 +14,6 @@ important things:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
 	- are Checkboxes and Comboboxes too small?
 	- Cocoa has similar margining issues (like Comboboxes having margins)
-- sometimes the size of the drop-down part of a Combobox becomes 0 or 1 or some other impossibly small value on Windows
-	- http://blogs.msdn.com/b/oldnewthing/archive/2006/03/10/548537.aspx
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
