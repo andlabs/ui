@@ -17,9 +17,7 @@ important things:
 	- Cocoa has similar margining issues (like Comboboxes having margins)
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
-- make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
-	- pin down this behavior; also note non-editability
-		- I think the behavior is, for the most part, a platform detail; perhaps a better option is to simply dictate the autohiding of scrollbars and the appearance of horizontal scrollbars for both Listbox and Area (this will also let us consolidate scroll view code in GTK+ and Mac OS X)
+- consolidate scroll view code in GTK+ and Mac OS X
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 - area test time label weirdness
 	- does not show anything past the date on windows

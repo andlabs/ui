@@ -9,6 +9,8 @@ import (
 
 // A Listbox is a vertical list of items, of which either at most one or any number of items can be selected at any given time.
 // On creation, no item is selected.
+// Listboxes have vertical scrollbars that are hidden when not needed.
+// [TODO decide horizontal scrollbar behavior; only the Windows HIG explicitly says to do anything about them (in their case, avoid them unless the control has lots of info and is wide enough, such as a multi-column list) (the Mac OS X one says to just make lists wide enough and ellipsize if needed)]
 type Listbox struct {
 	// TODO Select event
 
