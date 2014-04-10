@@ -10,6 +10,7 @@ import (
 type Button struct {
 	// Clicked gets a message when the button is clicked.
 	// You cannot change it once the Window containing the Button has been opened.
+	// If you do not respond to this signal, nothing will happen.
 	Clicked	chan struct{}
 
 	lock		sync.Mutex

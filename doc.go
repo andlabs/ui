@@ -7,9 +7,9 @@ To use the library, place your main program code in another function and call Go
 
 Building GUIs is as simple as creating a Window, populating it with Controls, and then calling Open() on the Window. A Window only has one Control: you pack multiple Controls into a Window by arranging them in layouts (Layouts are also Controls). There are presently two Layouts, Stack and Grid, each with different semantics on sizing and placement. See their documentation.
 
-Once a Window is open, you cannot make layout changes.
+Once a Window is open, you cannot make layout or event channel changes.
 
-Once your Window is open, you can begin to handle events. Handling events is simple: because all events are channels exposed as exported members of the Window and Control types, simply select on them.
+Once your Window is open, you can begin to handle events. Handling events is simple: because all events are channels exposed as exported members of the Window and Control types, simply select on them. Event channels are initialized by default. However, before you Open a Window, you can freely reassign event channels, such that multiple events trigger the same channel, making event logic more compact. You may also choose not to handle events; events are sent asynchronously so the GUI loop is not initerrupted.
 
 Here is a simple, complete program that asks the user for their name and greets them after clicking a button.
 	package main

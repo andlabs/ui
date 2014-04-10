@@ -25,6 +25,7 @@ general list:
 - when adding menus:
 	- provide automated About, Preferneces, and Quit that place these in the correct location
 		- Quit should pulse AppQuit
+- will probably want to bring back Event() as NewEvent() should that facility be necesary for menus, etc.
 
 problem points:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
