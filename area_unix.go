@@ -105,6 +105,8 @@ func makeModifiers(state C.guint, m Modifiers) Modifiers {
 
 // shared code for finishing up and sending a mouse event
 func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
+	var areawidth, areaheight C.gint
+
 	s := (*sysData)(unsafe.Pointer(data))
 	state = translateModifiers(state, gdkwindow)
 	me.Modifiers = makeModifiers(state, 0)
@@ -126,6 +128,10 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 		me.Held = append(me.Held, 5)
 	}
 	me.Pos = image.Pt(int(x), int(y))
+	C.gtk_widget_get_size_request(widget, &areawidth, &areaheight)
+	if !me.Pos.In(image.Rect(0, 0, int(areawidth), int(areaheight))) {		// outside the actual Area; no event
+		return
+	}
 	repaint := s.handler.Mouse(me)
 	if repaint {
 		C.gtk_widget_queue_draw(widget)

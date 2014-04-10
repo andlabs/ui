@@ -358,6 +358,9 @@ func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM
 	xpos += lparam._X()
 	ypos += lparam._Y()
 	me.Pos = image.Pt(int(xpos), int(ypos))
+	if !me.Pos.In(image.Rect(0, 0, s.areawidth, s.areaheight)) {		// outside the actual Area; no event
+		return
+	}
 	if up {
 		me.Up = button
 	} else {

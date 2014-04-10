@@ -16,7 +16,7 @@ important things:
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - consolidate scroll view code in GTK+ and Mac OS X
-- make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
+- make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
 - area test time label weirdness
 	- does not show anything past the date on windows
 	- does not show initially on OS X; it shows up once you resize, and even shows up after you resize back to the original size

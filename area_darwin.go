@@ -143,6 +143,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	s := getSysData(self)
 	xp := C.getTranslatedEventPoint(self, e)
 	me.Pos = image.Pt(int(xp.x), int(xp.y))
+	// no need to check me.Pos; Cocoa won't send an event outside the Area
 	me.Modifiers = parseModifiers(e)
 	which := uint(C.objc_msgSend_intret_noargs(e, _buttonNumber)) + 1
 	if which == 3 {		// swap middle and right button numbers
