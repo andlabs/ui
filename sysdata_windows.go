@@ -90,6 +90,7 @@ var classTypes = [nctypes]*classData{
 		// TODO also _WS_HSCROLL?
 		// we don't use _LBS_STANDARD because it sorts (and has WS_BORDER; see above)
 		// _LBS_NOINTEGRALHEIGHT gives us exactly the size we want
+		// TODO say why we don't use LBS_MULTISEL (listbox docs and http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx)
 		style:			_LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
 		xstyle:			_WS_EX_CLIENTEDGE | controlxstyle,
 		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
