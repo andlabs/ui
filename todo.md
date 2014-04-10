@@ -1,5 +1,6 @@
 so I don't forget:
 - should Labels be selectable?
+	- possibly an platform detail
 - add bounds checking to Area's sizing methods
 - describe thread-safety of Area.SetSize()
 - should all instances of -1 as error returns from Windows functions be changed to ^0 or does the uintptr() conversion handle sign extension?
@@ -18,7 +19,7 @@ important things:
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - make sure scrollbars in Listbox work identically on all platforms (specifically the existence and autohiding of both horizontal and vertical scrollbars)
 	- pin down this behavior; also note non-editability
-		- I think the behavior is, for the most part, a platform detail; perhaps a better option is to simply dictate the autohiding of scrollbars for both Listbox and Area (this will also let us consolidate scroll view code in GTK+ and Mac OS X)
+		- I think the behavior is, for the most part, a platform detail; perhaps a better option is to simply dictate the autohiding of scrollbars and the appearance of horizontal scrollbars for both Listbox and Area (this will also let us consolidate scroll view code in GTK+ and Mac OS X)
 - make sure mouse events don't trigger if the control size is larger than the Area size and the mouse event happens outside the Area range on all platforms
 - area test time label weirdness
 	- does not show anything past the date on windows
