@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"sync"
 	"image"
 )
@@ -10,6 +11,7 @@ import (
 // Area represents a blank canvas upon which programs may draw anything and receive arbitrary events from the user.
 // An Area has an explicit size, represented in pixels, that may be different from the size shown in its Window; Areas have horizontal and vertical scrollbars that are hidden when not needed.
 // The coordinate system of an Area always has an origin of (0,0) which maps to the top-left corner; all image.Points and image.Rectangles sent across Area's channels conform to this.
+// The size of an Area must be at least 1x1 (that is, neither its width nor its height may be zero or negative).
 // 
 // To handle events to the Area, an Area must be paired with an AreaHandler.
 // See AreaHandler for details.
@@ -260,9 +262,16 @@ const (
 	// TODO add Super
 )
 
+func checkAreaSize(width int, height int, which string) {
+	if width <= 0 || height <= 0 {
+		panic(fmt.Errorf("invalid size %dx%d in %s", width, height, which))
+	}
+}
+
 // NewArea creates a new Area with the given size and handler.
-// It panics if handler is nil.
+// It panics if handler is nil or if width or height is zero or negative.
 func NewArea(width int, height int, handler AreaHandler) *Area {
+	checkAreaSize(width, height, "NewArea()")
 	if handler == nil {
 		panic("handler passed to NewArea() must not be nil")
 	}
@@ -276,10 +285,12 @@ func NewArea(width int, height int, handler AreaHandler) *Area {
 
 // SetSize sets the Area's internal drawing size.
 // It has no effect on the actual control size.
+// It panics if width or height is zero or negative.
 func (a *Area) SetSize(width int, height int) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
+	checkAreaSize(width, height, "Area.SetSize()")
 	if a.created {
 		a.sysData.setAreaSize(width, height)
 		return

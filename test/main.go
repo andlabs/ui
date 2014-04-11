@@ -78,6 +78,7 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 	func() {
 		defer x("Listbox.Delete > len"); l.Delete(c.Len() + 5); panic(nil)
 	}()
+	// TODO get rid of arg != nil by creating dummy arg
 	if s != nil {
 		func() {
 			defer x("Stack.SetStretchy < 0"); s.SetStretchy(-5); panic(nil)
@@ -86,6 +87,7 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 			defer x("Stack.SetStretchy > len"); s.SetStretchy(5555); panic(nil)
 		}()
 	}
+	// TODO grid creation checks
 	if g != nil {
 		func() {
 			defer x("Grid.SetFilling x < 0"); g.SetFilling(-5, 0); panic(nil)
@@ -110,6 +112,33 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 		}()
 		func() {
 			defer x("Grid.SetStretchy y > len"); g.SetStretchy(0, 5555); panic(nil)
+		}()
+	}
+	ah := &areaHandler{nil}
+	type at struct {
+		msg		string
+		x, y		int
+	}
+	var ats = []at{
+		at{"width < 0", -5, 5},
+		at{"width == 0", 0, 5},
+		at{"height < 0", 5, -5},
+		at{"height == 0", 5, 0},
+		at{"width/heght < 0", -5, -5},
+		at{"width < 0/height == 0", -5, 0},
+		at{"width == 0/height < 0", 0, -5},
+		at{"width/height == 0", 0, 0},
+	}
+	for _, q := range ats {
+		func() {
+			defer x("NewArea() " + q.msg); NewArea(q.x, q.y, ah); panic(nil)
+		}()
+	}
+	// no need to pass this in as an argument since it's handled by the portable code, not by sysData
+	a := NewArea(50, 50, ah)
+	for _, q := range ats {
+		func() {
+			defer x("Area.SetSize() " + q.msg); a.SetSize(q.x, q.y); panic(nil)
 		}()
 	}
 	MsgBox("test", "all working as intended")
