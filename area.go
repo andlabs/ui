@@ -46,13 +46,13 @@ type AreaHandler interface {
 	// Example:
 	// 	imgFromFile, _, err := image.Decode(file)
 	// 	if err != nil { panic(err) }
-	// 	img := image.NewNRGBA(imgFromFile.Rect)
+	// 	img := image.NewRGBA(imgFromFile.Rect)
 	// 	draw.Draw(img, img.Rect, imgFromFile, image.ZP, draw.Over)
 	// 	// ...
-	// 	func (h *myAreaHandler) Paint(rect image.Rectangle) *image.NRGBA {
-	// 		return img.SubImage(rect).(*image.NRGBA)
+	// 	func (h *myAreaHandler) Paint(rect image.Rectangle) *image.RGBA {
+	// 		return img.SubImage(rect).(*image.RGBA)
 	// 	}
-	Paint(cliprect image.Rectangle) *image.NRGBA
+	Paint(cliprect image.Rectangle) *image.RGBA
 
 	// Mouse is called when the Area receives a mouse event.
 	// You are allowed to do nothing in this handler (to ignore mouse events).
@@ -328,10 +328,10 @@ func (a *Area) preferredSize() (width int, height int) {
 }
 
 // internal function, but shared by all system implementations: &img.Pix[0] is not necessarily the first pixel in the image
-func pixelDataPos(img *image.NRGBA) int {
+func pixelDataPos(img *image.RGBA) int {
 	return img.PixOffset(img.Rect.Min.X, img.Rect.Min.Y)
 }
 
-func pixelData(img *image.NRGBA) *uint8 {
+func pixelData(img *image.RGBA) *uint8 {
 	return &img.Pix[pixelDataPos(img)]
 }

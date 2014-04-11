@@ -147,18 +147,18 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
 
 type areaHandler struct {
-	img		*image.NRGBA
+	img		*image.RGBA
 }
-func (a *areaHandler) Paint(rect image.Rectangle) *image.NRGBA {
+func (a *areaHandler) Paint(rect image.Rectangle) *image.RGBA {
 //fmt.Println(rect)
 /*
-	req.Out <- img[i].SubImage(req.Rect).(*image.NRGBA)
+	req.Out <- img[i].SubImage(req.Rect).(*image.RGBA)
 	if lastrect != req.Rect {
 		lastrect = req.Rect
 		i = 1 - i
 	}
 */
-	return a.img.SubImage(rect).(*image.NRGBA)
+	return a.img.SubImage(rect).(*image.RGBA)
 }
 func (a *areaHandler) Mouse(e MouseEvent) bool {
 	fmt.Printf("%#v\n", e)
@@ -186,7 +186,7 @@ func areaTest() {
 	if err != nil {
 		panic(err)
 	}
-	img := image.NewNRGBA(ximg.Bounds())
+	img := image.NewRGBA(ximg.Bounds())
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
 	w := NewWindow("Area Test", 100, 100)
 	a := NewArea(320, 240, &areaHandler{
@@ -231,7 +231,7 @@ func areaTest() {
 
 var areabounds = flag.Bool("areabounds", false, "run area bounds test instead")
 func areaboundsTest() {
-	img := image.NewNRGBA(image.Rect(0, 0, 320, 240))
+	img := image.NewRGBA(image.Rect(0, 0, 320, 240))
 	a := NewArea(320, 240, &areaHandler{
 		img:		img,
 	})

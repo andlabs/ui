@@ -14,7 +14,7 @@ import (
 )
 
 type keyboardArea struct {
-	kbd		*image.NRGBA
+	kbd		*image.RGBA
 	lock		sync.Mutex		// TODO needed?
 }
 
@@ -22,23 +22,23 @@ func mkkbArea() (width int, height int, a *keyboardArea) {
 	a = new(keyboardArea)
 	i, _, err := image.Decode(bytes.NewReader(kbpic))
 	if err != nil { panic(err) }
-	a.kbd = image.NewNRGBA(i.Bounds())
+	a.kbd = image.NewRGBA(i.Bounds())
 	draw.Draw(a.kbd, a.kbd.Rect, i, image.ZP, draw.Over)
 	return a.kbd.Rect.Dx(), a.kbd.Rect.Dy(), a
 }
 
-func (a *keyboardArea) Paint(cliprect image.Rectangle) *image.NRGBA {
+func (a *keyboardArea) Paint(cliprect image.Rectangle) *image.RGBA {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	return a.kbd.SubImage(cliprect).(*image.NRGBA)
+	return a.kbd.SubImage(cliprect).(*image.RGBA)
 }
 
 func (a *keyboardArea) Mouse(MouseEvent) (repaint bool) {
 	return false
 }
 
-func markkey(dest *image.NRGBA, keypt image.Point, m Modifiers) {
+func markkey(dest *image.RGBA, keypt image.Point, m Modifiers) {
 	xr := keyrect(m).Add(keypt)
 	xi := modcolor(m)
 	draw.Draw(dest, xr, xi, image.ZP, draw.Over)
