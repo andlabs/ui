@@ -270,17 +270,17 @@ void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int6
 	bitmap = objc_msgSend(c_NSBitmapImageRep, s_alloc);
 	planes[0] = (unsigned char *) pixels;
 	bitmap = objc_msgSend(bitmap, s_initWithBitmapDataPlanes,
-		planes,												/* initWithBitmapDataPlanes: */
-		(NSInteger) width,										/* pixelsWide: */
-		(NSInteger) height,										/* pixelsHigh: */
-		(NSInteger) 8,											/* bitsPerSample: */
-		(NSInteger) 4,											/* samplesPerPixel: */
-		(BOOL) YES,											/* hasAlpha: */
-		(BOOL) NO,											/* isPlanar: */
-		NSCalibratedRGBColorSpace,								/* colorSpaceName: | TODO NSDeviceRGBColorSpace? */
-		(NSBitmapFormat) NSAlphaNonpremultipliedBitmapFormat,		/* bitmapFormat: | this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color.") */
-		(NSInteger) stride,										/* bytesPerRow: */
-		(NSInteger) 32);										/* bitsPerPixel: */
+		planes,								/* initWithBitmapDataPlanes: */
+		(NSInteger) width,						/* pixelsWide: */
+		(NSInteger) height,						/* pixelsHigh: */
+		(NSInteger) 8,							/* bitsPerSample: */
+		(NSInteger) 4,							/* samplesPerPixel: */
+		(BOOL) YES,							/* hasAlpha: */
+		(BOOL) NO,							/* isPlanar: */
+		NSCalibratedRGBColorSpace,				/* colorSpaceName: | TODO NSDeviceRGBColorSpace? */
+		(NSBitmapFormat) 0,					/* bitmapFormat: | this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color."); this is also where the flag for non-premultiplied colors would go if we used it (the default is alpha-premultiplied) */
+		(NSInteger) stride,						/* bytesPerRow: */
+		(NSInteger) 32);						/* bitsPerPixel: */
 	/* TODO this CAN fail; check error */
 	objc_msgSend_drawInRect(bitmap, s_drawInRect,
 		NSMakeRect((CGFloat) xdest, (CGFloat) ydest,
