@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 	"image"
+	"unsafe"
 )
 
 // Area represents a blank canvas upon which programs may draw anything and receive arbitrary events from the user.
@@ -334,4 +335,33 @@ func pixelDataPos(img *image.RGBA) int {
 
 func pixelData(img *image.RGBA) *uint8 {
 	return &img.Pix[pixelDataPos(img)]
+}
+
+// some platforms require pixels in ARGB order in their native endianness (because they treat the pixel array as an array of uint32s)
+// this does the conversion
+// s stores the slice used to avoid frequent memory allocations
+func toARGB(i *image.RGBA, s *sysData) *byte {
+	// TODO actually store realBits in s
+	realbits := make([]byte, 4 * i.Rect.Dx() * i.Rect.Dy())
+	p := pixelDataPos(i)
+	q := 0
+	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
+		nextp := p + i.Stride
+		for x := i.Rect.Min.X; x < i.Rect.Max.X; x++ {
+			argb := uint32(i.Pix[p + 3]) << 24		// A
+			argb |= uint32(i.Pix[p + 0]) << 16		// R
+			argb |= uint32(i.Pix[p + 1]) << 8		// G
+			argb |= uint32(i.Pix[p + 2])			// B
+			// the magic of conversion
+			native := (*[4]byte)(unsafe.Pointer(&argb))
+			realbits[q + 0] = native[0]
+			realbits[q + 1] = native[1]
+			realbits[q + 2] = native[2]
+			realbits[q + 3] = native[3]
+			p += 4
+			q += 4
+		}
+		p = nextp
+	}
+	return &realbits[0]
 }
