@@ -1,6 +1,5 @@
 so I don't forget:
 - describe thread-safety of Area.SetSize()
-- should all instances of -1 as error returns from Windows functions be changed to ^0 or does the uintptr() conversion handle sign extension?
 
 important things:
 - I think Cocoa listbox item text is too low?
