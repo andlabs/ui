@@ -54,6 +54,7 @@ var (
 	_getUpdateRect = user32.NewProc("GetUpdateRect")
 	_beginPaint = user32.NewProc("BeginPaint")
 	_endPaint = user32.NewProc("EndPaint")
+	_fillRect = user32.NewProc("FillRect")
 	_gdipCreateBitmapFromScan0 = gdiplus.NewProc("GdipCreateBitmapFromScan0")
 	_gdipCreateFromHDC = gdiplus.NewProc("GdipCreateFromHDC")
 	_gdipDrawImageI = gdiplus.NewProc("GdipDrawImageI")
@@ -62,6 +63,8 @@ var (
 )
 
 const (
+	areaBackgroundBrush = _HBRUSH(_COLOR_BTNFACE + 1)
+
 	// from winuser.h
 	_WM_PAINT = 0x000F
 )
@@ -103,6 +106,19 @@ func paintArea(s *sysData) {
 		panic(fmt.Errorf("error beginning Area repaint: %v", err))
 	}
 	hdc := _HANDLE(r1)
+
+	// Windows won't necessarily erase the update rect for us; we need to do so ourselves
+	// thanks to the people at http://stackoverflow.com/questions/23001890/winapi-getupdaterect-with-brepaint-true-inside-wm-paint-doesnt-clear-the-pai
+	// TODO this whole thing is inefficient, as explained in the page; we probably don't need _getUpdateRect
+	if ps.fErase != 0 {		// if Windows didn't
+		r1, _, err := _fillRect.Call(
+			uintptr(hdc),
+			uintptr(unsafe.Pointer(&xrect)),
+			uintptr(areaBackgroundBrush))
+		if r1 == 0 {		// failure
+			panic(fmt.Errorf("error manually clearing Area background: %v", err))
+		}
+	}
 
 	i := s.handler.Paint(cliprect)
 	// the pixels are arranged in RGBA order, but GDI+ requires BGRA
@@ -250,8 +266,7 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 		uintptr(0),
 		uintptr(0),
 		uintptr(0),
-		// TODO also SW_ERASE? or will the GetUpdateRect() call handle it?
-		uintptr(_SW_INVALIDATE))					// mark the remaining rect as needing redraw...
+		uintptr(_SW_INVALIDATE | _SW_ERASE))					// mark the remaining rect as needing redraw and erase...
 	if r1 == _ERROR {		// failure
 		panic(fmt.Errorf("error scrolling Area: %v", err))
 	}
@@ -317,7 +332,7 @@ func repaintArea(s *sysData) {
 	r1, _, err := _invalidateRect.Call(
 		uintptr(s.hwnd),
 		uintptr(0),			// the whole area
-		uintptr(_FALSE))	// TODO use _TRUE to mark that we should erase? or will the GetUpdateRect() call handle it?
+		uintptr(_TRUE))		// have Windows erase if possible
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error flagging Area as needing repainting after event (last error: %v)", err))
 	}
@@ -596,7 +611,7 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 		hInstance:		hInstance,
 		hIcon:			icon,
 		hCursor:			cursor,
-		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+		hbrBackground:	areaBackgroundBrush,
 	}
 
 	ret := make(chan uiret)
