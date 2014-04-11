@@ -595,8 +595,11 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 
 func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 	const (
+		_CS_HREDRAW = 0x0002
+		_CS_VREDRAW = 0x0001
+
 		// from winuser.h
-		_CS_DBLCLKS = 0x0008
+		_CS_DBLCLKS = 0x0008		// needed to be able to register double-clicks
 	)
 
 	areaWndClassNumLock.Lock()
@@ -605,7 +608,7 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 	areaWndClassNumLock.Unlock()
 
 	wc := &_WNDCLASS{
-		style:			_CS_DBLCLKS,		// needed to be able to register double-clicks
+		style:			_CS_DBLCLKS | _CS_HREDRAW | _CS_VREDRAW,
 		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
 		lpfnWndProc:		syscall.NewCallback(areaWndProc(s)),
 		hInstance:		hInstance,
