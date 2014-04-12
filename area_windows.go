@@ -103,6 +103,8 @@ func paintArea(s *sysData) {
 		return
 	}
 
+	// TODO don't do the above, but always draw the background color?
+
 	r1, _, err := _beginPaint.Call(
 		uintptr(s.hwnd),
 		uintptr(unsafe.Pointer(&ps)))
@@ -595,6 +597,10 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_PAINT:
 			paintArea(s)
 			return 0
+		case _WM_ERASEBKGND:
+			// don't draw a background; we'll do so when painting
+			// this is to make things flicker-free; see http://msdn.microsoft.com/en-us/library/ms969905.aspx
+			return 1
 		case _WM_HSCROLL:
 			// TODO make this unnecessary
 			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
@@ -708,7 +714,7 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 		hInstance:		hInstance,
 		hIcon:			icon,
 		hCursor:			cursor,
-		hbrBackground:	areaBackgroundBrush,
+		hbrBackground:	_HBRUSH(_NULL),		// no brush; we handle WM_ERASEBKGND
 	}
 
 	ret := make(chan uiret)
