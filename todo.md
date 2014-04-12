@@ -1,6 +1,3 @@
-so I don't forget:
-- describe thread-safety of Area.SetSize()
-
 important things:
 - I think Cocoa listbox item text is too low?
 - NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it

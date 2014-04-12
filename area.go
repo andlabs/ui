@@ -37,7 +37,7 @@ type Area struct {
 }
 
 // AreaHandler represents the events that an Area should respond to.
-// You are responsible for the thread safety of any members of the actual type that implements ths interface.
+// These methods are all executed on the main goroutine, not necessarily the same one that you created the AreaHandler in; you are responsible for the thread safety of any members of the actual type that implements ths interface.
 // (Having to use this interface does not strike me as being particularly Go-like, but the nature of Paint makes channel-based event handling a non-option; in practice, deadlocks occur.)
 type AreaHandler interface {
 	// Paint is called when the Area needs to be redrawn.
@@ -287,6 +287,7 @@ func NewArea(width int, height int, handler AreaHandler) *Area {
 
 // SetSize sets the Area's internal drawing size.
 // It has no effect on the actual control size.
+// SetSize is safe for concurrent use; if the Area is being repainted or is handling an event, SetSize will wait for that to complete before changing the Area's size.
 // It panics if width or height is zero or negative.
 func (a *Area) SetSize(width int, height int) {
 	a.lock.Lock()
