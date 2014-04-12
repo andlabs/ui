@@ -8,6 +8,8 @@
 
 ### UPDATE 27 March 2014: Unix builds now require go tip due to a [cgo fix that affected this package](https://code.google.com/p/go/issues/detail?id=7548).
 
+### UPDATE 12 April 2014: Areas now require their images to be `image.RGBA`, not `image.NRGBA`. Update your code appropriately.
+
 This is a simple library for building cross-platform GUI programs in Go. It targets Windows, Mac OS X, Linux, and other Unixes, and provides a thread-safe, channel-based API. The API itself is minimal; it aims to provide only what is necessary for GUI program design. That being said, suggestions are welcome. Layout is done using various layout managers, and some effort is taken to conform to the target platform's UI guidelines. Otherwise, the library uses native toolkits.
 
 ui aims to run on all supported versions of supported platforms. To be more precise, the system requirements are:
