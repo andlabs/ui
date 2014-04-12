@@ -120,8 +120,11 @@ func paintArea(s *sysData) {
 		panic(fmt.Errorf("error creating off-screen rendering DC: %v", err))
 	}
 	rdc := _HANDLE(r1)
+	// the bitmap has to be compatible with the window
+	// if we create a bitmap compatible with the DC we just created, it'll be monochrome
+	// thanks to David Heffernan in http://stackoverflow.com/questions/23033636/winapi-gdi-fillrectcolor-btnface-fills-with-strange-grid-like-brush-on-window
 	r1, _, err = _createCompatibleBitmap.Call(
-		uintptr(rdc),
+		uintptr(hdc),
 		uintptr(xrect.Right - xrect.Left),
 		uintptr(xrect.Bottom - xrect.Top))
 	if r1 == 0 {		// failure
@@ -181,7 +184,8 @@ func paintArea(s *sysData) {
 	// first, we need to load the bitmap memory, because Windows makes it for us
 	// the pixels are arranged in RGBA order, but GDI+ requires BGRA
 	// this turns out to be just ARGB in little endian; let's convert into this memory
-	toARGB(i, ppvBits)
+	// the bitmap Windows gives us has a stride == width
+	toARGB(i, ppvBits, i.Rect.Dx() * 4)
 
 	// the second thing is... make a device context for the bitmap :|
 	// Ninjifox just makes another compatible DC; we'll do the same
@@ -199,7 +203,7 @@ func paintArea(s *sysData) {
 	previbitmap := _HANDLE(r1)
 
 	// AND FINALLY WE CAN DO THE ALPHA BLENDING!!!!!!111
-/*	blendfunc := _BLENDFUNCTION{
+	blendfunc := _BLENDFUNCTION{
 		BlendOp:				_AC_SRC_OVER,
 		BlendFlags:			0,
 		SourceConstantAlpha:	255,					// only use per-pixel alphas
@@ -220,7 +224,7 @@ func paintArea(s *sysData) {
 	if r1 == _FALSE {		// failure
 		panic(fmt.Errorf("error alpha-blending image returned by AreaHandler.Paint() onto background: %v", err))
 	}
-*/
+
 	// and finally we can just blit that into the window
 	r1, _, err = _bitBlt.Call(
 		uintptr(hdc),
