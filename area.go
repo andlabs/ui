@@ -7,6 +7,7 @@ import (
 	"sync"
 	"image"
 	"unsafe"
+	"reflect"
 )
 
 // Area represents a blank canvas upon which programs may draw anything and receive arbitrary events from the user.
@@ -339,10 +340,14 @@ func pixelData(img *image.RGBA) *uint8 {
 
 // some platforms require pixels in ARGB order in their native endianness (because they treat the pixel array as an array of uint32s)
 // this does the conversion
-// s stores the slice used to avoid frequent memory allocations
-func toARGB(i *image.RGBA, s *sysData) *byte {
-	// TODO actually store realBits in s
-	realbits := make([]byte, 4 * i.Rect.Dx() * i.Rect.Dy())
+// you need to convert somewhere; this memory is assumed to have a stride equal to the pixels per scanline (Windows gives us memory to use; other platforms we'll see)
+func toARGB(i *image.RGBA, memory uintptr) {
+	var realbits []byte
+
+	rbs := (*reflect.SliceHeader)(unsafe.Pointer(&realbits))
+	rbs.Data = memory
+	rbs.Len = 4 * i.Rect.Dx() * i.Rect.Dy()
+	rbs.Cap = rbs.Len
 	p := pixelDataPos(i)
 	q := 0
 	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
@@ -363,5 +368,4 @@ func toARGB(i *image.RGBA, s *sysData) *byte {
 		}
 		p = nextp
 	}
-	return &realbits[0]
 }

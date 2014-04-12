@@ -51,15 +51,18 @@ func getScrollPos(hwnd _HWND) (xpos int32, ypos int32) {
 }
 
 var (
-	_getUpdateRect = user32.NewProc("GetUpdateRect")
+	_alphaBlend = msimg32.NewProc("AlphaBlend")
 	_beginPaint = user32.NewProc("BeginPaint")
+	_bitBlt = gdi32.NewProc("BitBlt")
+	_createCompatibleBitmap = gdi32.NewProc("CreateCompatibleBitmap")
+	_createCompatibleDC = gdi32.NewProc("CreateCompatibleDC")
+	_createDIBSection = gdi32.NewProc("CreateDIBSection")
+	_deleteDC = gdi32.NewProc("DeleteDC")
+	_deleteObject = gdi32.NewProc("DeleteObject")
 	_endPaint = user32.NewProc("EndPaint")
 	_fillRect = user32.NewProc("FillRect")
-	_gdipCreateBitmapFromScan0 = gdiplus.NewProc("GdipCreateBitmapFromScan0")
-	_gdipCreateFromHDC = gdiplus.NewProc("GdipCreateFromHDC")
-	_gdipDrawImageI = gdiplus.NewProc("GdipDrawImageI")
-	_gdipDeleteGraphics = gdiplus.NewProc("GdipDeleteGraphics")
-	_gdipDisposeImage = gdiplus.NewProc("GdipDisposeImage")
+	_getUpdateRect = user32.NewProc("GetUpdateRect")
+	// _selectObject in prefsize_windows.go
 )
 
 const (
@@ -71,11 +74,12 @@ const (
 
 func paintArea(s *sysData) {
 	const (
-		// from gdipluspixelformats.h
-		_PixelFormatGDI = 0x00020000
-		_PixelFormatAlpha = 0x00040000
-		_PixelFormatCanonical = 0x00200000
-		_PixelFormat32bppARGB = (10 | (32 << 8) | _PixelFormatAlpha | _PixelFormatGDI | _PixelFormatCanonical)
+		// from wingdi.h
+		_BI_RGB = 0
+		_DIB_RGB_COLORS = 0
+		_SRCCOPY = 0x00CC0020
+		_AC_SRC_OVER = 0x00
+		_AC_SRC_ALPHA = 0x01
 	)
 
 	var xrect _RECT
@@ -107,73 +111,159 @@ func paintArea(s *sysData) {
 	}
 	hdc := _HANDLE(r1)
 
-	// Windows won't necessarily erase the update rect for us; we need to do so ourselves
-	// thanks to the people at http://stackoverflow.com/questions/23001890/winapi-getupdaterect-with-brepaint-true-inside-wm-paint-doesnt-clear-the-pai
-	// TODO this whole thing is inefficient, as explained in the page; we probably don't need _getUpdateRect
-	if ps.fErase != 0 {		// if Windows didn't
-		r1, _, err := _fillRect.Call(
-			uintptr(hdc),
-			uintptr(unsafe.Pointer(&xrect)),
-			uintptr(areaBackgroundBrush))
-		if r1 == 0 {		// failure
-			panic(fmt.Errorf("error manually clearing Area background: %v", err))
-		}
+	// very big thanks to Ninjifox for suggesting this technique and helping me go through it
+
+	// first let's create the destination image, which we fill with the windows background color
+	// this is how we fake drawing the background; see also http://msdn.microsoft.com/en-us/library/ms969905.aspx
+	r1, _, err = _createCompatibleDC.Call(uintptr(hdc))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error creating off-screen rendering DC: %v", err))
+	}
+	rdc := _HANDLE(r1)
+	r1, _, err = _createCompatibleBitmap.Call(
+		uintptr(rdc),
+		uintptr(xrect.Right - xrect.Left),
+		uintptr(xrect.Bottom - xrect.Top))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error creating off-screen rendering bitmap: %v", err))
+	}
+	rbitmap := _HANDLE(r1)
+	r1, _, err = _selectObject.Call(
+		uintptr(rdc),
+		uintptr(rbitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error connecting off-screen rendering bitmap to off-screen rendering DC: %v", err))
+	}
+	prevrbitmap := _HANDLE(r1)
+	rrect := _RECT{
+		Left:		0,
+		Right:	xrect.Right - xrect.Left,
+		Top:		0,
+		Bottom:	xrect.Bottom - xrect.Top,
+	}
+	r1, _, err = _fillRect.Call(
+		uintptr(rdc),
+		uintptr(unsafe.Pointer(&rrect)),
+		uintptr(areaBackgroundBrush))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error filling off-screen rendering bitmap with the system background color: %v", err))
 	}
 
 	i := s.handler.Paint(cliprect)
-	// the pixels are arranged in RGBA order, but GDI+ requires BGRA
-	// we don't have a choice but to convert it ourselves
-	// TODO make realbits a part of sysData to conserve memory
-	realbits := make([]byte, 4 * i.Rect.Dx() * i.Rect.Dy())
-	p := pixelDataPos(i)
-	q := 0
-	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
-		nextp := p + i.Stride
-		for x := i.Rect.Min.X; x < i.Rect.Max.X; x++ {
-			realbits[q + 0] = byte(i.Pix[p + 2])		// B
-			realbits[q + 1] = byte(i.Pix[p + 1])		// G
-			realbits[q + 2] = byte(i.Pix[p + 0])		// R
-			realbits[q + 3] = byte(i.Pix[p + 3])		// A
-			p += 4
-			q += 4
-		}
-		p = nextp
+	// don't convert to BRGA just yet; see below
+
+	// now we need to shove realbits into a bitmap
+	// technically bitmaps don't know about alpha; they just ignore the alpha byte
+	// AlphaBlend(), however, sees it - see http://msdn.microsoft.com/en-us/library/windows/desktop/dd183352%28v=vs.85%29.aspx
+	bi := _BITMAPINFO{}
+	bi.bmiHeader.biSize = uint32(unsafe.Sizeof(bi.bmiHeader))
+	bi.bmiHeader.biWidth = int32(i.Rect.Dx())
+	bi.bmiHeader.biHeight = -int32(i.Rect.Dy())		// negative height to force top-down drawing
+	bi.bmiHeader.biPlanes = 1
+	bi.bmiHeader.biBitCount = 32
+	bi.bmiHeader.biCompression = _BI_RGB
+	bi.bmiHeader.biSizeImage = uint32(i.Rect.Dx() * i.Rect.Dy() * 4)
+	// this is all we need, but because this confused me at first, I will say the two pixels-per-meter fields are unused (see http://blogs.msdn.com/b/oldnewthing/archive/2013/05/15/10418646.aspx and page 581 of Charles Petzold's Programming Windows, Fifth Edition)
+	ppvBits := uintptr(0)		// now for the trouble: CreateDIBSection() allocates the memory for us...
+	r1, _, err = _createDIBSection.Call(
+		uintptr(0),		// TODO is this safe? Ninjifox does it
+		uintptr(unsafe.Pointer(&bi)),
+		uintptr(_DIB_RGB_COLORS),
+		uintptr(unsafe.Pointer(&ppvBits)),
+		uintptr(0),		// we're not dealing with hSection or dwOffset
+		uintptr(0))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error creating HBITMAP for image returned by AreaHandler.Paint(): %v", err))
 	}
+	ibitmap := _HANDLE(r1)
 
-	var bitmap, graphics uintptr
+	// now we have to do TWO MORE things before we can finally do alpha blending
+	// first, we need to load the bitmap memory, because Windows makes it for us
+	// the pixels are arranged in RGBA order, but GDI+ requires BGRA
+	// this turns out to be just ARGB in little endian; let's convert into this memory
+	toARGB(i, ppvBits)
 
-	r1, _, err = _gdipCreateBitmapFromScan0.Call(
+	// the second thing is... make a device context for the bitmap :|
+	// Ninjifox just makes another compatible DC; we'll do the same
+	r1, _, err = _createCompatibleDC.Call(uintptr(hdc))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error creating HDC for image returned by AreaHandler.Paint(): %v", err))
+	}
+	idc := _HANDLE(r1)
+	r1, _, err = _selectObject.Call(
+		uintptr(idc),
+		uintptr(ibitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error connecting HBITMAP for image returned by AreaHandler.Paint() to its HDC: %v", err))
+	}
+	previbitmap := _HANDLE(r1)
+
+	// AND FINALLY WE CAN DO THE ALPHA BLENDING!!!!!!111
+/*	blendfunc := _BLENDFUNCTION{
+		BlendOp:				_AC_SRC_OVER,
+		BlendFlags:			0,
+		SourceConstantAlpha:	255,					// only use per-pixel alphas
+		AlphaFormat:			_AC_SRC_ALPHA,		// premultiplied
+	}
+	r1, _, err = _alphaBlend.Call(
+		uintptr(rdc),	// destination
+		uintptr(0),		// origin and size
+		uintptr(0),
 		uintptr(i.Rect.Dx()),
 		uintptr(i.Rect.Dy()),
-		uintptr(i.Rect.Dx() * 4),			// got rid of extra stride
-		uintptr(_PixelFormat32bppARGB),
-		uintptr(unsafe.Pointer(&realbits[0])),
-		uintptr(unsafe.Pointer(&bitmap)))
-	if r1 != 0 {			// failure
-		panic(fmt.Errorf("error creating GDI+ bitmap to blit (GDI+ error code %d; Windows last error %v)", r1, err))
+		uintptr(idc),	// source image
+		uintptr(0),
+		uintptr(0),
+		uintptr(i.Rect.Dx()),
+		uintptr(i.Rect.Dy()),
+		blendfunc.arg())
+	if r1 == _FALSE {		// failure
+		panic(fmt.Errorf("error alpha-blending image returned by AreaHandler.Paint() onto background: %v", err))
 	}
-	r1, _, err = _gdipCreateFromHDC.Call(
+*/
+	// and finally we can just blit that into the window
+	r1, _, err = _bitBlt.Call(
 		uintptr(hdc),
-		uintptr(unsafe.Pointer(&graphics)))
-	if r1 != 0 {			// failure
-		panic(fmt.Errorf("error creating GDI+ graphics context to blit to (GDI+ error code %d; Windows last error %v)", r1, err))
+		uintptr(xrect.Left),
+		uintptr(xrect.Top),
+		uintptr(xrect.Right - xrect.Left),
+		uintptr(xrect.Bottom - xrect.Top),
+		uintptr(rdc),
+		uintptr(0),			// from the rdc's origin
+		uintptr(0),
+		uintptr(_SRCCOPY))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error blitting Area image to Area: %v", err))
 	}
-	r1, _, err = _gdipDrawImageI.Call(
-		graphics,
-		bitmap,
-		uintptr(xrect.Left),			// cliprect is adjusted; use original
-		uintptr(xrect.Top))
-	if r1 != 0 {			// failure
-		panic(fmt.Errorf("error blitting GDI+ bitmap (GDI+ error code %d; Windows last error %v)", r1, err))
+
+	// now to clean up
+	r1, _, err = _selectObject.Call(
+		uintptr(idc),
+		uintptr(previbitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error reverting HDC for image returned by AreaHandler.Paint() to original HBITMAP: %v", err))
 	}
-	r1, _, err = _gdipDeleteGraphics.Call(graphics)
-	if r1 != 0 {			// failure
-		panic(fmt.Errorf("error freeing GDI+ graphics context to blit to (GDI+ error code %d; Windows last error %v)", r1, err))
+	r1, _, err = _selectObject.Call(
+		uintptr(rdc),
+		uintptr(prevrbitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error reverting HDC for off-screen rendering to original HBITMAP: %v", err))
 	}
-	// TODO this is the destructor of Image (Bitmap's base class); I don't see a specific destructor for Bitmap itself so
-	r1, _, err = _gdipDisposeImage.Call(bitmap)
-	if r1 != 0 {			// failure
-		panic(fmt.Errorf("error freeing GDI+ bitmap to blit (GDI+ error code %d; Windows last error %v)", r1, err))
+	r1, _, err = _deleteObject.Call(uintptr(ibitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error deleting HBITMAP for image returned by AreaHandler.Paint(): %v", err))
+	}
+	r1, _, err = _deleteObject.Call(uintptr(rbitmap))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error deleting HBITMAP for off-screen rendering: %v", err))
+	}
+	r1, _, err = _deleteDC.Call(uintptr(idc))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error deleting HDC for image returned by AreaHandler.Paint(): %v", err))
+	}
+	r1, _, err = _deleteDC.Call(uintptr(rdc))
+	if r1 == 0 {		// failure
+		panic(fmt.Errorf("error deleting HDC for off-screen rendering: %v", err))
 	}
 
 	// return value always nonzero according to MSDN
@@ -629,6 +719,42 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 		return "", r.err
 	}
 	return newClassName, nil
+}
+
+type _BITMAPINFO struct {
+	bmiHeader	_BITMAPINFOHEADER
+	bmiColors	[32]uintptr	// we don't use it; make it an arbitrary number that wouldn't cause issues
+}
+
+type _BITMAPINFOHEADER struct {
+	biSize			uint32
+	biWidth			int32
+	biHeight			int32
+	biPlanes			uint16
+	biBitCount		uint16
+	biCompression		uint32
+	biSizeImage		uint32
+	biXPelsPerMeter	int32
+	biYPelsPerMeter	int32
+	biClrUsed			uint32
+	biClrImportant		uint32
+}
+
+type _BLENDFUNCTION struct {
+	BlendOp				byte
+	BlendFlags			byte
+	SourceConstantAlpha	byte
+	AlphaFormat			byte
+}
+
+// AlphaBlend() takes a BLENDFUNCTION value
+func (b _BLENDFUNCTION) arg() (x uintptr) {
+	// little endian
+	x = uintptr(b.AlphaFormat) << 24
+	x |= uintptr(b.SourceConstantAlpha) << 16
+	x |= uintptr(b.BlendFlags) << 8
+	x |= uintptr(b.BlendOp)
+	return x
 }
 
 type _PAINTSTRUCT struct {
