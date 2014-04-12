@@ -11,7 +11,6 @@ import (
 var (
 	hInstance		_HANDLE
 	nCmdShow	int
-	gdiplusToken	uintptr
 )
 
 // TODO is this trick documented in MSDN?
@@ -57,26 +56,6 @@ func getWinMainnCmdShow() {
 	}
 }
 
-func initGDIPlus() (err error) {
-	var gdiplusInit struct {
-		GdiplusVersion				uint32
-		DebugEventCallback			uintptr
-		SuppressBackgroundThread	int32		// originally BOOL
-		SuppressExternalCodecs		int32		// originally BOOL
-	}
-
-	gdiplusInit.GdiplusVersion = 1		// required
-	// TODO suppress external codecs?
-	r1, _, err := gdiplus.NewProc("GdiplusStartup").Call(
-		uintptr(unsafe.Pointer(&gdiplusToken)),
-		uintptr(unsafe.Pointer(&gdiplusInit)),
-		uintptr(0))		// we use the GDI+ thread so no need for output info
-	if r1 != 0 {			// failure
-		return fmt.Errorf("error initializing GDI+ (GDI+ error code %d; windows last error %v)", r1, err)
-	}
-	return nil
-}
-
 func doWindowsInit() (err error) {
 	err = getWinMainhInstance()
 	if err != nil {
@@ -95,14 +74,6 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error initializing Common Controls (comctl32.dll): %v", err)
 	}
-	err = initGDIPlus()
-	if err != nil {
-		return fmt.Errorf("error initializing GDI+ (gdiplus.dll): %v", err)
-	}
 	// TODO others
 	return nil		// all ready to go
-}
-
-func doWindowsQuitStuff() {
-	gdiplus.NewProc("GdiplusShutdown").Call(gdiplusToken)		// returns void according to MSDN
 }

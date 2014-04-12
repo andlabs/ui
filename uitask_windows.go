@@ -87,8 +87,6 @@ func ui(main func()) error {
 	}()
 
 	msgloop()
-
-	doWindowsQuitStuff()
 	return nil
 }
 

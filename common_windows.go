@@ -12,7 +12,6 @@ var (
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
 	gdi32 = syscall.NewLazyDLL("gdi32.dll")
 	comctl32 *syscall.LazyDLL		// comctl32 not defined here; see comctl_windows.go
-	gdiplus = syscall.NewLazyDLL("gdiplus.dll")
 	msimg32 = syscall.NewLazyDLL("msimg32.dll")
 )
 

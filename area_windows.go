@@ -184,7 +184,7 @@ func paintArea(s *sysData) {
 
 	// now we have to do TWO MORE things before we can finally do alpha blending
 	// first, we need to load the bitmap memory, because Windows makes it for us
-	// the pixels are arranged in RGBA order, but GDI+ requires BGRA
+	// the pixels are arranged in RGBA order, but GDI requires BGRA
 	// this turns out to be just ARGB in little endian; let's convert into this memory
 	// the bitmap Windows gives us has a stride == width
 	toARGB(i, ppvBits, i.Rect.Dx() * 4)
