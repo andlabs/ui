@@ -57,26 +57,27 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 		return C.FALSE			// signals handled without stopping the event chain (thanks to desrt again)
 	}
 	i := s.handler.Paint(cliprect)
-	// pixel order is [R G B A] (see Example 1 on https://developer.gnome.org/gdk-pixbuf/2.26/gdk-pixbuf-The-GdkPixbuf-Structure.html) so we don't have to convert anything
-	// gdk-pixbuf is not alpha-premultiplied (thanks to desrt in irc.gimp.net/#gtk+)
-	pixbuf := C.gdk_pixbuf_new_from_data(
-		(*C.guchar)(unsafe.Pointer(pixelData(i))),
-		C.GDK_COLORSPACE_RGB,
-		C.TRUE,			// has alpha channel
-		8,				// bits per sample
+	surface := C.cairo_image_surface_create(
+		C.CAIRO_FORMAT_ARGB32,			// alpha-premultiplied; native byte order
 		C.int(i.Rect.Dx()),
-		C.int(i.Rect.Dy()),
-		C.int(i.Stride),
-		nil, nil)			// do not free data
-	C.gdk_cairo_set_source_pixbuf(cr,
-		pixbuf,
-		C.gdouble(cliprect.Min.X),
-		C.gdouble(cliprect.Min.Y))
+		C.int(i.Rect.Dy()))
+	if status := C.cairo_surface_status(surface); status != C.CAIRO_STATUS_SUCCESS {
+		panic(fmt.Errorf("cairo_create_image_surface() failed: %s\n",
+			C.GoString(C.cairo_status_to_string(status))))
+	}
+	// the flush and mark_dirty calls are required; see the cairo docs and https://git.gnome.org/browse/gtk+/tree/gdk/gdkcairo.c#n232 (thanks desrt in irc.gimp.net/#gtk+)
+	C.cairo_surface_flush(surface)
+	toARGB(i, uintptr(unsafe.Pointer(C.cairo_image_surface_get_data(surface))),
+		int(C.cairo_image_surface_get_stride(surface)))
+	C.cairo_surface_mark_dirty(surface)
+	C.cairo_set_source_surface(cr,
+		surface,
+		0, 0)			// origin of the surface
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
 	C.cairo_rectangle(cr, x, y, w, h)		// breaking the nrom here since we have the double data already
 	C.cairo_fill(cr)
-	C.g_object_unref((C.gpointer)(unsafe.Pointer(pixbuf)))		// free pixbuf
+	C.cairo_surface_destroy(surface)		// free surface
 	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
 }
 

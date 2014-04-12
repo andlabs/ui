@@ -340,8 +340,8 @@ func pixelData(img *image.RGBA) *uint8 {
 
 // some platforms require pixels in ARGB order in their native endianness (because they treat the pixel array as an array of uint32s)
 // this does the conversion
-// you need to convert somewhere; this memory is assumed to have a stride equal to the pixels per scanline (Windows gives us memory to use; other platforms we'll see)
-func toARGB(i *image.RGBA, memory uintptr) {
+// you need to convert somewhere (Windows and cairo give us memory to use; Windows has stride==width but cairo might not)
+func toARGB(i *image.RGBA, memory uintptr, memstride int) {
 	var realbits []byte
 
 	rbs := (*reflect.SliceHeader)(unsafe.Pointer(&realbits))
@@ -352,6 +352,7 @@ func toARGB(i *image.RGBA, memory uintptr) {
 	q := 0
 	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
 		nextp := p + i.Stride
+		nextq := q + memstride
 		for x := i.Rect.Min.X; x < i.Rect.Max.X; x++ {
 			argb := uint32(i.Pix[p + 3]) << 24		// A
 			argb |= uint32(i.Pix[p + 0]) << 16		// R
@@ -367,5 +368,6 @@ func toARGB(i *image.RGBA, memory uintptr) {
 			q += 4
 		}
 		p = nextp
+		q = nextq
 	}
 }
