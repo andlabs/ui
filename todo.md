@@ -1,9 +1,10 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
-- area test time label weirdness
-	- does not show anything past the date on windows
+- area test time label weirdness - this indicates bugs in Stack
+	- does not show full time initally on Windows; it does after you resize the window
 	- does not show initially on OS X; it shows up once you resize, and even shows up after you resize back to the original size
+		- I think both bugs and the GTK+ Wayland bug below are related...
 
 super ultra important things:
 - window sizes are inconsistent and wrong: we need to see on which platforms the titlebars/borders/etc. count...

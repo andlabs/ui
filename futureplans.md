@@ -88,6 +88,7 @@ big things:
 			- http://msdn.microsoft.com/en-us/library/windows/desktop/ms633541%28v=vs.85%29.aspx
 				- don't worry about UI state messages yet; this is before opening the UI anyway (these might be needed when we add tab stops)
 			- http://msdn.microsoft.com/en-us/library/windows/desktop/ms644898%28v=vs.85%29.aspx GWLP_ID
+- preferred sizes in general are awkward: on Windows, no text-based size calculation is performed, so we have weird things like Labels always having the same width (so if you place a Label in a Stack by itself and forget to make it stretchy, it'll be truncated on Windows (but not on GTK+ or OS X?!))
 
 big dumb things:
 - for our two custom window classes on Windows, we should allocate extra space in the window class's info structure and then use SetWindowLongPtrW() during WM_CREATE to store the sysData and not have to make a new window class each time; this might also fix the s != nil && s.hwnd != 0 special cases in the Area WndProc if done right

@@ -206,7 +206,7 @@ func areaTest() {
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
 	layout := NewVerticalStack(a,
-		NewHorizontalStack(timedisp),
+		timedisp,
 		sizeStack)
 	layout.SetStretchy(0)
 	err = w.Open(layout)
