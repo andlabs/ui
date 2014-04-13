@@ -11,7 +11,7 @@ import (
 )
 
 // Area represents a blank canvas upon which programs may draw anything and receive arbitrary events from the user.
-// An Area has an explicit size, represented in pixels, that may be different from the size shown in its Window; Areas have horizontal and vertical scrollbars that are hidden when not needed.
+// An Area has an explicit size, represented in pixels, that may be different from the size shown in its Window; Areas have both horizontal and vertical scrollbars that are hidden when not needed.
 // The coordinate system of an Area always has an origin of (0,0) which maps to the top-left corner; all image.Points and image.Rectangles sent across Area's channels conform to this.
 // The size of an Area must be at least 1x1 (that is, neither its width nor its height may be zero or negative).
 // 
