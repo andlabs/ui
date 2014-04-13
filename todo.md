@@ -1,7 +1,5 @@
 important things:
-- NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it
-	- need to use it /after/ adding initial items, otherwise it won't work
-	- find out if I can do the same with the ListBoxes
+- NSTableViews start out with an initial selection (which is against our docs)
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 - some Cocoa controls don't seem to resize correctly: Buttons have space around the edges
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly

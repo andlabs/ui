@@ -33,6 +33,7 @@ type classData struct {
 	selTexts		func(id C.id) []string
 	delete		func(id C.id, index int)
 	len			func(id C.id) int
+	selectIndex	func(id C.id, index int, alternate bool)
 }
 
 var (
@@ -82,6 +83,8 @@ var (
 	_setIndeterminate = sel_getUid("setIndeterminate:")
 	_setDoubleValue = sel_getUid("setDoubleValue:")
 	_numberOfItems = sel_getUid("numberOfItems")
+	_selectItemAtIndex = sel_getUid("selectItemAtIndex:")
+	_deselectItemAtIndex = sel_getUid("deselectItemAtIndex:")
 )
 
 // because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
@@ -237,6 +240,22 @@ var classTypes = [nctypes]*classData{
 		},
 		len:			func(id C.id) int {
 			return int(C.objc_msgSend_intret_noargs(id, _numberOfItems))
+		},
+		selectIndex:	func(id C.id, index int, alternate bool) {
+			// NSPopUpButton makes this easy
+			if !alternate {
+				C.objc_msgSend_int(id, _selectItemAtIndex, C.intptr_t(index))
+				return
+			}
+			// NSComboBox doesn't document that we can do [cb selectItemAtIndex:-1], so we have to do this to be safe
+			if index == -1 {
+				idx := C.objc_msgSend_intret_noargs(id, _indexOfSelectedItem)
+				if idx != -1 {
+					C.objc_msgSend_int(id, _deselectItemAtIndex, idx)
+				}
+				return
+			}
+			C.objc_msgSend_int(id, _selectItemAtIndex, C.intptr_t(index))
 		},
 	},
 	c_lineedit:		&classData{
@@ -538,6 +557,16 @@ func (s *sysData) setAreaSize(width int, height int) {
 		C.objc_msgSend_rect(area, _setFrame,
 			C.int64_t(0), C.int64_t(0), C.int64_t(width), C.int64_t(height))
 		C.objc_msgSend_noargs(area, _display)		// and redraw
+		ret <- struct{}{}
+	}
+	<-ret
+}
+
+func (s *sysData) selectIndex(index int) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].selectIndex(s.id, index, s.alternate)
 		ret <- struct{}{}
 	}
 	<-ret

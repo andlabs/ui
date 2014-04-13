@@ -359,3 +359,7 @@ func (s *sysData) setAreaSize(width int, height int) {
 	}
 	<-ret
 }
+
+func (s *sysData) selectIndex(index int) {
+	// TODO not yet implemented on Unix (added for Mac only right now)
+}
