@@ -82,7 +82,8 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label:			&classData{
 		name:			"STATIC",
-		style:			_SS_NOPREFIX | controlstyle,
+		// TODO add no-ellipsizing flags if I didn't do so already
+		style:			_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_listbox:			&classData{

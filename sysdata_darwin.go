@@ -79,6 +79,8 @@ var (
 	_setEditable = sel_getUid("setEditable:")
 	_setBordered = sel_getUid("setBordered:")
 	_setDrawsBackground = sel_getUid("setDrawsBackground:")
+	_cell = sel_getUid("cell")
+	_setLineBreakMode = sel_getUid("setLineBreakMode:")
 	_setStyle = sel_getUid("setStyle:")
 	_setControlSize = sel_getUid("setControlSize:")
 	_setIndeterminate = sel_getUid("setIndeterminate:")
@@ -281,11 +283,25 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label:			&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
+			const (
+				_NSLineBreakByWordWrapping = iota
+				_NSLineBreakByCharWrapping
+				_NSLineBreakByClipping
+				_NSLineBreakByTruncatingHead
+				_NSLineBreakByTruncatingTail
+				_NSLineBreakByTruncatingMiddle
+			)
+
 			label := C.objc_msgSend_noargs(_NSTextField, _alloc)
 			label = initWithDummyFrame(label)
 			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
 			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
+			// this disables both word wrap AND ellipsizing in one fell swoop
+			// we have to send to the control's cell for this
+			C.objc_msgSend_uint(C.objc_msgSend_noargs(label, _cell),
+				_setLineBreakMode, _NSLineBreakByClipping)
+			// for a multiline label, we either use WordWrapping and send setTruncatesLastVisibleLine: to disable ellipsizing OR use one of those ellipsizing styles
 			applyStandardControlFont(label)
 			addControl(parentWindow, label)
 			return label

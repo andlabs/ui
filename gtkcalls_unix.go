@@ -203,7 +203,11 @@ var _emptystring = [1]C.gchar{0}
 var emptystring = &_emptystring[0]
 
 func gtk_label_new() *C.GtkWidget {
-	return C.gtk_label_new(emptystring)
+	label := C.gtk_label_new(emptystring)
+	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE)
+	// TODO explicitly set line wrap mode as well?
+	// TODO explicitly disable ellipsizing
+	return label
 	// TODO left-justify?
 }
 
