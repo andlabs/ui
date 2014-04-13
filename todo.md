@@ -1,7 +1,5 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
-	- are Checkboxes and Comboboxes too small?
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - consolidate scroll view code in GTK+ and Mac OS X
@@ -34,7 +32,6 @@ super ultra important things:
 (test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
 ```
 	figure out why
-	- I think it has to do with invalid list deletions; roll back the panics and check
 - Cocoa: NSScrollView support is hacky at best
 	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
 	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
@@ -48,7 +45,6 @@ super ultra important things:
 	- for Area again, the area bounds test's borders don't redraw correctly after certain series of resize operations
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure keyboard events on numpad off on all platforms don't switch between controls
-- despite us explicitly clearing the clip area on Windows, Area still doesn't seem to draw alpha bits correctly... it appears as if we are drawing over the existing image each time
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
 - GTK+ indefinite progress bar animation is choppy: make sure the speed we have now is the conventional speed for GTK+ programs (HIG doesn't list any) and that the choppiness is correct
