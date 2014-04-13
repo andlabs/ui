@@ -102,6 +102,7 @@ big dumb things:
 				- and raymond suggests GWL_USERDATA here: http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
 - listboxes should have horizontal scrollbars on all platforms; this is way too hard on OS X and doesn't work; my code is in experiments/
 	- also moved the Windows code there for the sake of efficiency
+	- GTK+ works just fine though
 
 specifics:
 

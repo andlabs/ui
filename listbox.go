@@ -9,7 +9,8 @@ import (
 
 // A Listbox is a vertical list of items, of which either at most one or any number of items can be selected at any given time.
 // On creation, no item is selected.
-// Listboxes have both horizontal and vertical scrollbars that are hidden when not needed.
+// Listboxes have vertical scrollbars that are hidden when not needed.
+// The presence of horizontal scrollbars is currently undefined.
 type Listbox struct {
 	// TODO Select event
 
