@@ -1,5 +1,4 @@
 important things:
-- I think Cocoa listbox item text is too low?
 - NSPopUpButton does allow no initial selection ([b setSelectedIndex:-1]); use it
 	- need to use it /after/ adding initial items, otherwise it won't work
 	- find out if I can do the same with the ListBoxes
