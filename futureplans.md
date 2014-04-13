@@ -36,6 +36,7 @@ twists of fate:
 - listboxes spanning the vertical height of the window don't always align with the bottom border of the edit control attached to the bottom of the window...
 	- this specifically only happens when the window has an odd height; I don't think this can be fixed unless we explicitly ignore the extra pixel everywhere
 - need a way to get ideal size for all controls on Windows, not just push buttons (Microsoft...)
+- Cocoa controls have padding around them; this padding is **opaque** so we can't just use the control's cell rect and some shuffling around
 
 style changes:
 - make specific wording in documentation consistent (make/create, etc.)
