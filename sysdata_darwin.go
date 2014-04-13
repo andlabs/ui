@@ -34,6 +34,7 @@ type classData struct {
 	delete		func(id C.id, index int)
 	len			func(id C.id) int
 	selectIndex	func(id C.id, index int, alternate bool)
+	selectIndices	func(id C.id, indices []int)
 }
 
 var (
@@ -304,6 +305,7 @@ var classTypes = [nctypes]*classData{
 		selTexts:		selectedListboxTexts,
 		delete:		deleteListbox,
 		len:			listboxLen,
+		selectIndices:	selectListboxIndices,
 	},
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool) C.id {
@@ -567,6 +569,16 @@ func (s *sysData) selectIndex(index int) {
 	defer close(ret)
 	uitask <- func() {
 		classTypes[s.ctype].selectIndex(s.id, index, s.alternate)
+		ret <- struct{}{}
+	}
+	<-ret
+}
+
+func (s *sysData) selectIndices(indices []int) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		classTypes[s.ctype].selectIndices(s.id, indices)
 		ret <- struct{}{}
 	}
 	<-ret

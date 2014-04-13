@@ -363,3 +363,7 @@ func (s *sysData) setAreaSize(width int, height int) {
 func (s *sysData) selectIndex(index int) {
 	// TODO not yet implemented on Unix (added for Mac only right now)
 }
+
+func (s *sysData) selectIndices(indices []int) {
+	// TODO not yet implemented on Windows (added for Mac only right now)
+}

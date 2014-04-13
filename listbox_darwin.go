@@ -241,6 +241,7 @@ var (
 	_selectedRowIndexes = sel_getUid("selectedRowIndexes")
 	_count = sel_getUid("count")
 	_numberOfRows = sel_getUid("numberOfRows")
+	_deselectAll = sel_getUid("deselectAll:")
 )
 
 func makeListbox(parentWindow C.id, alternate bool) C.id {
@@ -314,4 +315,13 @@ func deleteListbox(listbox C.id, index int) {
 
 func listboxLen(listbox C.id) int {
 	return int(C.objc_msgSend_intret_noargs(listboxInScrollView(listbox), _numberOfRows))
+}
+
+func selectListboxIndices(id C.id, indices []int) {
+	listbox := listboxInScrollView(id)
+	if len(indices) == 0 {
+		C.objc_msgSend_id(listbox, _deselectAll, listbox)
+		return
+	}
+	panic("selectListboxIndices() > 0 not yet implemented (TODO)")
 }
