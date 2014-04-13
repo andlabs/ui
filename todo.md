@@ -1,6 +1,6 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- consolidate scroll view code in GTK+ and Mac OS X
+- consolidate scroll view code in Mac OS X
 - make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
 - area test time label weirdness
 	- does not show anything past the date on windows

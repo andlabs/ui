@@ -30,6 +30,7 @@ general list:
 issues of policy:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
 	- are Checkboxes and Comboboxes too small?
+- consolidate scroll view code in GTK+? it's not a lot, but it's rather divergent...
 
 problem points:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
