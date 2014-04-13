@@ -91,9 +91,9 @@ var classTypes = [nctypes]*classData{
 		// we don't use _LBS_STANDARD because it sorts (and has WS_BORDER; see above)
 		// _LBS_NOINTEGRALHEIGHT gives us exactly the size we want
 		// TODO say why we don't use LBS_MULTISEL (listbox docs and http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx)
-		style:			_LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
+		style:			_LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_HSCROLL | _WS_VSCROLL | controlstyle,
 		xstyle:			_WS_EX_CLIENTEDGE | controlxstyle,
-		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
+		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_HSCROLL | _WS_VSCROLL | controlstyle,
 		appendMsg:		_LB_ADDSTRING,
 		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
@@ -355,6 +355,7 @@ func (s *sysData) append(what string) {
 	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
 		panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err))
 	}
+	recalcListboxWidth(s.hwnd)
 }
 
 func (s *sysData) insertBefore(what string, index int) {
@@ -376,6 +377,7 @@ func (s *sysData) insertBefore(what string, index int) {
 	} else if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
 		panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", r.err))
 	}
+	recalcListboxWidth(s.hwnd)
 }
 
 func (s *sysData) selectedIndex() int {
@@ -462,7 +464,7 @@ func (s *sysData) selectedTexts() []string {
 		}
 		r := <-ret
 		if r.ret == uintptr(_LB_ERR) {
-			panic("UI library internal error: LB_ERR from LB_GETTEXTLEN in what we know is a valid listbox index (came from LB_GETSELITEMS")
+			panic("UI library internal error: LB_ERR from LB_GETTEXTLEN in what we know is a valid listbox index (came from LB_GETSELITEMS)")
 		}
 		str := make([]uint16, r.ret)
 		uitask <- &uimsg{
@@ -475,9 +477,9 @@ func (s *sysData) selectedTexts() []string {
 			},
 			ret:		ret,
 		}
-		<-ret
+		r = <-ret
 		if r.ret == uintptr(_LB_ERR) {
-			panic("UI library internal error: LB_ERR from LB_GETTEXT in what we know is a valid listbox index (came from LB_GETSELITEMS")
+			panic("UI library internal error: LB_ERR from LB_GETTEXT in what we know is a valid listbox index (came from LB_GETSELITEMS)")
 		}
 		strings[i] = syscall.UTF16ToString(str)
 	}
@@ -526,6 +528,7 @@ func (s *sysData) delete(index int) {
 	if r.ret == uintptr(classTypes[s.ctype].selectedIndexErr) {
 		panic(fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", r.err))
 	}
+	recalcListboxWidth(s.hwnd)
 }
 
 func (s *sysData) setIndeterminate() {
