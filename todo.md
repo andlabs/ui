@@ -1,7 +1,5 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
-	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - consolidate scroll view code in GTK+ and Mac OS X
 - make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
 - area test time label weirdness
