@@ -185,17 +185,12 @@ func listboxTableColumn(listbox C.id) C.id {
 
 /*
 The NSTableViews don't draw their own scrollbars; we have to drop our NSTableViews in NSScrollViews for this. The NSScrollView is also what provides the Listbox's border.
+
+The actual creation code was moved to objc_darwin.go.
 */
 
 var (
-	_NSScrollView = objc_getClass("NSScrollView")
-
-	_setHasHorizontalScroller = sel_getUid("setHasHorizontalScroller:")
-	_setHasVerticalScroller = sel_getUid("setHasVerticalScroller:")
-	_setAutohidesScrollers = sel_getUid("setAutohidesScrollers:")
 	_setBorderType = sel_getUid("setBorderType:")
-	_setDocumentView = sel_getUid("setDocumentView:")
-	_documentView = sel_getUid("documentView")
 )
 
 func newListboxScrollView(listbox C.id) C.id {
@@ -203,18 +198,13 @@ func newListboxScrollView(listbox C.id) C.id {
 		_NSBezelBorder = 2
 	)
 
-	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
-	scrollview = initWithDummyFrame(scrollview)
-	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
+	scrollview := newScrollView(listbox)
 	C.objc_msgSend_uint(scrollview, _setBorderType, _NSBezelBorder)		// this is what Interface Builder gives the scroll view
-	C.objc_msgSend_id(scrollview, _setDocumentView, listbox)
 	return scrollview
 }
 
 func listboxInScrollView(scrollview C.id) C.id {
-	return C.objc_msgSend_noargs(scrollview, _documentView)
+	return getScrollViewContent(scrollview)
 }
 
 /*

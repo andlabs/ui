@@ -74,6 +74,19 @@ func mkAreaClass() error {
 	return nil
 }
 
+func makeArea(parentWindow C.id, alternate bool) C.id {
+	area := C.objc_msgSend_noargs(_goArea, _alloc)
+	area = initWithDummyFrame(area)
+	// TODO others?
+	area = newScrollView(area)
+	addControl(parentWindow, area)
+	return area
+}
+
+func areaInScrollView(scrollview C.id) C.id {
+	return getScrollViewContent(scrollview)
+}
+
 var (
 	_drawAtPoint = sel_getUid("drawAtPoint:")
 )
@@ -260,29 +273,4 @@ func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
 	sendKeyEvent(self, ke)
-}
-
-// TODO combine these with the listbox functions?
-
-func newAreaScrollView(area C.id) C.id {
-	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
-	scrollview = initWithDummyFrame(scrollview)
-	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
-	C.objc_msgSend_id(scrollview, _setDocumentView, area)
-	return scrollview
-}
-
-func areaInScrollView(scrollview C.id) C.id {
-	return C.objc_msgSend_noargs(scrollview, _documentView)
-}
-
-func makeArea(parentWindow C.id, alternate bool) C.id {
-	area := C.objc_msgSend_noargs(_goArea, _alloc)
-	area = initWithDummyFrame(area)
-	// TODO others?
-	area = newAreaScrollView(area)
-	addControl(parentWindow, area)
-	return area
 }

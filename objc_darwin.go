@@ -54,6 +54,32 @@ func fromNSString(str C.id) string {
 	return C.GoString((*C.char)(unsafe.Pointer(cstr)))
 }
 
+// These consolidate the NSScrollView code (used by listbox_darwin.go and area_darwin.go) into a single place.
+
+var (
+	_NSScrollView = objc_getClass("NSScrollView")
+
+	_setHasHorizontalScroller = sel_getUid("setHasHorizontalScroller:")
+	_setHasVerticalScroller = sel_getUid("setHasVerticalScroller:")
+	_setAutohidesScrollers = sel_getUid("setAutohidesScrollers:")
+	_setDocumentView = sel_getUid("setDocumentView:")
+	_documentView = sel_getUid("documentView")
+)
+
+func newScrollView(content C.id) C.id {
+	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
+	scrollview = initWithDummyFrame(scrollview)
+	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
+	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
+	C.objc_msgSend_id(scrollview, _setDocumentView, content)
+	return scrollview
+}
+
+func getScrollViewContent(scrollview C.id) C.id {
+	return C.objc_msgSend_noargs(scrollview, _documentView)
+}
+
 // These create new classes.
 
 // selector contains the information for a new selector.

@@ -100,6 +100,8 @@ big dumb things:
 				- raymond chen does it here: http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx (check the implementation of Window::s_WndProc())
 				- ...and suggests we do it here http://blogs.msdn.com/b/oldnewthing/archive/2014/02/03/10496248.aspx (**NOTE THE DATE**) - the comments on this one provide some potential ideas, including IIntrospect's comment about HCBT_CREATEWND; later Raymond says we should not worry about SetWindowLongPtr() failing
 				- and raymond suggests GWL_USERDATA here: http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
+- listboxes should have horizontal scrollbars on all platforms; this is way too hard on OS X and doesn't work; my code is in experiments/
+	- also moved the Windows code there for the sake of efficiency
 
 specifics:
 
