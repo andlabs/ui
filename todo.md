@@ -9,6 +9,7 @@ super ultra important things:
 	- in general, figure out what to do on multiple events, period
 - OS X: handle Insert/Help key change in a sane and deterministic way
 	- will need old and new Mac keyboards...
+- OS X: the behavior of Modifiers and other keys is broken: keyDown:/keyUp: events stop being sent when the state of Modifiers changes, which is NOT what we want
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 	- fix OS X so that it follows these rules
 - cap click count to 2 on all platforms
