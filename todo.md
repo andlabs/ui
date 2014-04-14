@@ -37,9 +37,7 @@ super ultra important things:
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
-- redrawing Areas on Windows seems to be flaky: make the window small, scroll, then make it large again and watch the vertical corruption (alternatively "especially after changing the Area size to something larger than the window size and then resizing the window(???)")
-	- redrawing controls after a window resize on Windows seems to be flaky
-	- for Area again, the area bounds test's borders don't redraw correctly after certain series of resize operations
+- redrawing controls after a window resize on Windows does not work properly
 - clicking on Areas in GTK+ don't bring keyboard focus to them?
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
