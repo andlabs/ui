@@ -60,7 +60,7 @@ var (
 	_title = sel_getUid("title")
 	_stringValue = sel_getUid("stringValue")
 	_frame = sel_getUid("frame")
-	_setFrameDisplay = sel_getUid("setFrame:display:")
+	_setContentSize = sel_getUid("setContentSize:")
 	_setBezelStyle = sel_getUid("setBezelStyle:")
 	_setTarget = sel_getUid("setTarget:")
 	_setAction = sel_getUid("setAction:")
@@ -519,11 +519,9 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		// we need to get the top left point
-		r := C.objc_msgSend_stret_rect_noargs(s.id, _frame)
-		C.objc_msgSend_rect_bool(s.id, _setFrameDisplay,
-			C.int64_t(r.x), C.int64_t(r.y), C.int64_t(width), C.int64_t(height),
-			C.BOOL(C.YES))		// TODO set to NO to prevent subviews from being redrawn before they are resized?
+		C.objc_msgSend_size(s.id, _setContentSize,
+			C.int64_t(width), C.int64_t(height))
+		C.objc_msgSend_noargs(s.id, _display)		// TODO needed?
 		ret <- struct{}{}
 	}
 	<-ret

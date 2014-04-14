@@ -172,6 +172,11 @@ struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
 	return t;
 }
 
+id objc_msgSend_size(id obj, SEL sel, int64_t width, int64_t height)
+{
+	return objc_msgSend(obj, sel, NSMakeSize((CGFloat) width, (CGFloat) height));
+}
+
 /*
 and again for NSPoint
 */
