@@ -169,7 +169,12 @@ type KeyEvent struct {
 	ExtKey		ExtKey
 
 	// (TODO Modifiers alone needs to be figured out)
-	// If a Key or ExtKey is pressed with modifiers held down, then a KeyEvent with only Key/ExtKey and no Modifiers WILL NOT be sent, but a KeyEvent with only Modifiers and no Key/ExtKey WILL.
+	// If a Key or ExtKey is pressed with Modifiers, then the following events WILL be sent:
+	// 	[Modifiers != 0, Key/ExtKey == 0] (as the Modifiers keypress(es) will register separately)
+	// 	[Modifiers != 0, Key/ExtKey != 0]
+	// and the following WILL NOT be:
+	// 	[Modifiers == 0, Key/ExtKey != 0]
+	// unless the Modifiers were pressed after/released before the Key/ExtKey was.
 	Modifiers		Modifiers
 
 	// If Up is true, the key was released; if not, the key was pressed.
