@@ -168,6 +168,8 @@ type KeyEvent struct {
 	// was pressed. Key and ExtKey will not both be nonzero.
 	ExtKey		ExtKey
 
+	// (TODO Modifiers alone needs to be figured out)
+	// If a Key or ExtKey is pressed with modifiers held down, then a KeyEvent with only Key/ExtKey and no Modifiers WILL NOT be sent, but a KeyEvent with only Modifiers and no Key/ExtKey WILL.
 	Modifiers		Modifiers
 
 	// If Up is true, the key was released; if not, the key was pressed.
