@@ -166,6 +166,7 @@ const (
 )
 
 var (
+	_adjustWindowRectEx = user32.NewProc("AdjustWindowRectEx")
 	_createWindowEx = user32.NewProc("CreateWindowExW")
 	_getClientRect = user32.NewProc("GetClientRect")
 	_moveWindow = user32.NewProc("MoveWindow")
