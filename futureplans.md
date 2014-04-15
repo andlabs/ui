@@ -104,6 +104,8 @@ big dumb things:
 - listboxes should have horizontal scrollbars on all platforms; this is way too hard on OS X and doesn't work; my code is in experiments/
 	- also moved the Windows code there for the sake of efficiency
 	- GTK+ works just fine though
+- window sizes need to not include the window decoration; while Mac OS X and GTK+ both obey this, I've only had issues with Windows; check the experiments/ folder
+	- also will need to be documented in window.go
 
 specifics:
 

@@ -264,6 +264,8 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
+		// does not take window geometry into account (and cannot, since the window manager won't give that info away)
+		// thanks to TingPing in irc.gimp.net/#gtk+
 		gtk_window_resize(s.widget, width, height)
 		ret <- struct{}{}
 	}

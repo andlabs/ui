@@ -3,7 +3,6 @@ important things:
 - make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
 
 super ultra important things:
-- window sizes are inconsistent and wrong: we need to see on which platforms the titlebars/borders/etc. count...
 - formalize what happens if Modifiers by themselves are held
 	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
 	- in general, figure out what to do on multiple events, period
