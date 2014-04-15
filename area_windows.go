@@ -622,7 +622,7 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			}
 			return defwndproc()
 		case _WM_MOUSEACTIVATE:
-			// register our window for keyboard input
+			// transfer keyboard focus to our Area on an activating click
 			// (see http://www.catch22.net/tuts/custom-controls)
 			r1, _, err := _setFocus.Call(uintptr(s.hwnd))
 			if r1 == 0 {		// failure

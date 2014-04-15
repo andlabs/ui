@@ -141,6 +141,8 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 
 //export our_area_button_press_event_callback
 func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	// clicking doesn't automatically transfer keyboard focus; we must do so manually (thanks tristan in irc.gimp.net/#gtk+)
+	C.gtk_widget_grab_focus(widget)
 	e := (*C.GdkEventButton)(unsafe.Pointer(event))
 	me := MouseEvent{
 		// GDK button ID == our button ID
