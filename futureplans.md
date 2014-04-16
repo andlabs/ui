@@ -285,6 +285,27 @@ This actually turns out to be one of the very first things that Raymond ever blo
 [00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx
 [00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54945.aspx
 [00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54946.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/16/55344.aspx
+
+
 
 TODO SORT
-[23:44] <andlabs> hit testing and tab stops and tabs/lists/z order http://blogs.msdn.com/b/oldnewthing/archive/2003/08/26/54708.aspx
+(TODO the original time formats article)
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/26/54708.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/05/54805.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/01/55108.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/13/55279.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/14/55286.aspx
+	- TODO get article on spurious mouse moves
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/24/55413.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/27/55461.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/29/55479.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/11/07/55619.aspx
+
+interesting things
+- low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
+- JIT http://blogs.msdn.com/b/oldnewthing/archive/2003/11/04/55560.aspx
+
+up to
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=406
