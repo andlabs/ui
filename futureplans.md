@@ -110,6 +110,7 @@ big dumb things:
 specifics:
 
 WINDOWS
+<br>TODO re-evaluate this list for Common Controls 6-only stuff (controls and features) I passed up on the first itme
 - DateTime Picker
 - ListView for Tables
 - either Property Sheets or Tabs for Tabs
@@ -119,6 +120,7 @@ WINDOWS
 - Trackbar for Sliders
 	- cannot automatically snap to custom step; need to do it manually
 - Tree View
+	- http://blogs.msdn.com/b/oldnewthing/archive/2011/11/25/10241394.aspx
 - Up-Down Control for Spinners
 - maybe:
 	- swap ComboBox for ComboBoxEx (probably only if requested enough)
@@ -181,6 +183,23 @@ COCOA
 - TODO:
 	- what does NSPathControl look like?
 
+ALL THREE; LIST BY FEATURE (TODO merge the above into this)
+- LineEdit prompts
+	- Windows: http://msdn.microsoft.com/en-us/library/windows/desktop/bb761639%28v=vs.85%29.aspx
+		being able to use comctl32.dll version 6 now that win2k support is gone is a good thing, isn't it?
+	- GTK+: TODO
+	- Cocoa: TODO
+
+OTHER NOTES
+- on webpage controls: http://blogs.msdn.com/b/oldnewthing/archive/2005/02/11/371042.aspx
+
+THOUGHTS
+- privilege escalation requests
+	- windows vista and up use a button with a shield icon and osme other API that I don't know before performing the privileged action
+	- typically graphical unix programs nowadays use a graphical sudo prompt provided by the desktop environment (gksu or kdesudo or what not) either before the program even runs or after clicking a button to start the process with elevated privileges
+		- however, GTK+ also provides https://developer.gnome.org/gtk3/3.4/GtkLockButton.html, which is similar to the Cocoa one below:
+	- Cocoa uses a button with a lock on it that will disable the entire form when unlocked, then ask for permission when clicked
+
 # Slider Capabilities
 Capability | Windows | GTK+ | Cocoa
 ----- | ----- | ----- | -----
@@ -242,3 +261,30 @@ TODO
 * Windows: templates seem to be how to provide extra parameters, but their usage isn't documented on the OPENFILENAME struct help page; check the rest of MSDN
 * Mac OS X: turn on both setExtensionHidden: and setCanSelectHiddenExtension: to show the extnesion in the dialog
 * Mac OS X: turn on setTreatsFilePackagesAsDirectories: since file packages (bundles) are an OS X-specific concept
+
+## The Scrollbar Series
+This actually turns out to be one of the very first things that Raymond ever blogged about, so if you just go to the last page of posts on The Old New Thing, it'll be there. But for my own convenience:
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/23/54576.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/25/54582.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54602.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54610.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54615.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54617.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54624.aspx
+[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54629.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/13/54639.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/15/54647.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/18/54668.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/15/54925.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54945.aspx
+[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54946.aspx
+
+TODO SORT
+[23:44] <andlabs> hit testing and tab stops and tabs/lists/z order http://blogs.msdn.com/b/oldnewthing/archive/2003/08/26/54708.aspx
