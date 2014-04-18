@@ -302,6 +302,10 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/10/27/55461.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/10/29/55479.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/11/07/55619.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/12/29/46371.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/12/30/46594.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/01/21/61101.aspx (on maximum pathname length)
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -311,7 +315,29 @@ interesting things
 - more on dialog codes http://blogs.msdn.com/b/oldnewthing/archive/2003/11/26/55872.aspx
 - custom window class styles http://blogs.msdn.com/b/oldnewthing/archive/2003/12/03/55927.aspx
 - plug and play device changes http://blogs.msdn.com/b/oldnewthing/archive/2003/12/05/55936.aspx
+- more JIT-related http://blogs.msdn.com/b/oldnewthing/archive/2003/12/08/55954.aspx
+- suspending threads http://blogs.msdn.com/b/oldnewthing/archive/2003/12/09/55988.aspx
+- UI design http://blogs.msdn.com/b/oldnewthing/archive/2003/12/09/55995.aspx
+- passing data to child processes (is this useful for detecting multiple instances?) http://blogs.msdn.com/b/oldnewthing/archive/2003/12/11/56043.aspx
+- on the need for cbSize fields http://blogs.msdn.com/b/oldnewthing/archive/2003/12/12/56061.aspx
+- notes on critical sections http://blogs.msdn.com/b/oldnewthing/archive/2003/12/18/44425.aspx http://blogs.msdn.com/b/oldnewthing/archive/2003/12/22/45152.aspx
+- on COM interfaces and control panels (also uses activation contexts for SxS manifests) http://blogs.msdn.com/b/oldnewthing/archive/2003/12/26/45979.aspx
+- return address attacks http://blogs.msdn.com/b/oldnewthing/archive/2004/01/01/47042.aspx
+- on GetProcAddress() http://blogs.msdn.com/b/oldnewthing/archive/2004/01/12/57833.aspx
+- DllMain() http://blogs.msdn.com/b/oldnewthing/archive/2004/01/27/63401.aspx http://blogs.msdn.com/b/oldnewthing/archive/2004/01/28/63880.aspx
+- string resources http://blogs.msdn.com/b/oldnewthing/archive/2004/01/30/65013.aspx
+- text/unicode macros http://blogs.msdn.com/b/oldnewthing/archive/2004/02/12/71851.aspx
+- version numbers http://blogs.msdn.com/b/oldnewthing/archive/2004/02/13/72476.aspx
+- RECT endpoint-exclusivity (everything does this, not just Windows, so it's useful to point people to) http://blogs.msdn.com/b/oldnewthing/archive/2004/02/18/75652.aspx
+- on fixing a problem everywhere (see RECT above) http://blogs.msdn.com/b/oldnewthing/archive/2004/02/19/76368.aspx
+- proper use of COM http://blogs.msdn.com/b/oldnewthing/archive/2004/02/20/77120.aspx
+- invalid thread and process IDs http://blogs.msdn.com/b/oldnewthing/archive/2004/02/23/78395.aspx
+- on GetDesktopWindow() http://blogs.msdn.com/b/oldnewthing/archive/2004/02/24/79212.aspx
+- links in notification bubbles http://blogs.msdn.com/b/oldnewthing/archive/2004/02/25/79842.aspx
+
+articles on time
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=404
-last one: At least she represents the United States faithfully
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=393
+last one: The correct order for disabling and enabling windows
