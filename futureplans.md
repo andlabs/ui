@@ -306,6 +306,12 @@ TODO SORT
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
 - JIT http://blogs.msdn.com/b/oldnewthing/archive/2003/11/04/55560.aspx
+- comments on frameworks (!) http://blogs.msdn.com/b/oldnewthing/archive/2003/11/10/55635.aspx
+- dialog box entry autoselection http://blogs.msdn.com/b/oldnewthing/archive/2003/11/14/55678.aspx
+- more on dialog codes http://blogs.msdn.com/b/oldnewthing/archive/2003/11/26/55872.aspx
+- custom window class styles http://blogs.msdn.com/b/oldnewthing/archive/2003/12/03/55927.aspx
+- plug and play device changes http://blogs.msdn.com/b/oldnewthing/archive/2003/12/05/55936.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=406
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=404
+last one: At least she represents the United States faithfully
