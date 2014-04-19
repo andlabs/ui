@@ -306,6 +306,7 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/12/30/46594.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/01/21/61101.aspx (on maximum pathname length)
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/03/29/101121.aspx
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -334,10 +335,13 @@ interesting things
 - invalid thread and process IDs http://blogs.msdn.com/b/oldnewthing/archive/2004/02/23/78395.aspx
 - on GetDesktopWindow() http://blogs.msdn.com/b/oldnewthing/archive/2004/02/24/79212.aspx
 - links in notification bubbles http://blogs.msdn.com/b/oldnewthing/archive/2004/02/25/79842.aspx
+- dialog boxes are initially hidden http://blogs.msdn.com/b/oldnewthing/archive/2004/03/11/87941.aspx
+- Win16 resource format changes (probably irrelevant since NE vs. PE) http://blogs.msdn.com/b/oldnewthing/archive/2004/03/19/92648.aspx
+- COM is fickle because people are fickle http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=393
-last one: The correct order for disabling and enabling windows
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=388
+last one: The look of Luna
