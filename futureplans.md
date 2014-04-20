@@ -286,7 +286,7 @@ This actually turns out to be one of the very first things that Raymond ever blo
 [00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54945.aspx
 [00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54946.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/10/16/55344.aspx
-
+- not really part of, so to speak, but still http://blogs.msdn.com/b/oldnewthing/archive/2004/05/10/129068.aspx
 
 
 TODO SORT
@@ -307,6 +307,8 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/01/21/61101.aspx (on maximum pathname length)
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/03/29/101121.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/04/19/115912.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/07/01/170856.aspx
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -338,10 +340,39 @@ interesting things
 - dialog boxes are initially hidden http://blogs.msdn.com/b/oldnewthing/archive/2004/03/11/87941.aspx
 - Win16 resource format changes (probably irrelevant since NE vs. PE) http://blogs.msdn.com/b/oldnewthing/archive/2004/03/19/92648.aspx
 - COM is fickle because people are fickle http://blogs.msdn.com/b/oldnewthing/archive/2004/03/26/96777.aspx
+- on reference counting http://blogs.msdn.com/b/oldnewthing/archive/2004/04/06/108395.aspx
+- taskbar program names http://blogs.msdn.com/b/oldnewthing/archive/2004/04/08/109775.aspx
+- random number generator seeds http://blogs.msdn.com/b/oldnewthing/archive/2004/04/12/111596.aspx
+- Unicode collation http://blogs.msdn.com/b/oldnewthing/archive/2004/04/13/112234.aspx
+- on Unicode digits http://blogs.msdn.com/b/oldnewthing/archive/2004/04/16/114651.aspx
+- accessibility http://blogs.msdn.com/b/oldnewthing/archive/2004/04/23/118893.aspx
+- HWND_BROADCAST is not for multiple instances http://blogs.msdn.com/b/oldnewthing/archive/2004/05/05/126427.aspx
+- COM threading http://blogs.msdn.com/b/oldnewthing/archive/2004/05/11/129760.aspx
+- disabling vs hiding http://blogs.msdn.com/b/oldnewthing/archive/2004/05/14/131881.aspx
+- when to put ... after a command name http://blogs.msdn.com/b/oldnewthing/archive/2004/05/17/133181.aspx
+- COM destructors http://blogs.msdn.com/b/oldnewthing/archive/2004/05/20/135841.aspx http://blogs.msdn.com/b/oldnewthing/archive/2004/05/21/136701.aspx
+- high performance multithreading http://blogs.msdn.com/b/oldnewthing/archive/2004/05/28/143769.aspx
+- getting icons for known file types http://blogs.msdn.com/b/oldnewthing/archive/2004/06/01/145428.aspx
+- COM threading models http://blogs.msdn.com/b/oldnewthing/archive/2004/06/02/146671.aspx
+	- why am I posting so much on COM? in case I need to use shell functions in the future that aren't flat functions...
+- thread messages and message reentrancy (and some DDE for good measure) http://blogs.msdn.com/b/oldnewthing/archive/2004/06/08/150929.aspx
+- windows language IDs http://blogs.msdn.com/b/oldnewthing/archive/2004/06/09/151689.aspx
+- combobox/listbox speed improvements http://blogs.msdn.com/b/oldnewthing/archive/2004/06/10/152612.aspx
+- dialog templates
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/17/158175.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/18/159248.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/21/161375.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/22/162360.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/23/163596.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/06/24/164737.aspx
+- COM and DLL unloading http://blogs.msdn.com/b/oldnewthing/archive/2004/06/28/167800.aspx
+- thread safety vs reentrancy http://blogs.msdn.com/b/oldnewthing/archive/2004/06/29/168719.aspx
+- shell and COM allocation http://blogs.msdn.com/b/oldnewthing/archive/2004/07/05/173226.aspx
+- minimized window coordinates (should I move this one to the higher list?) http://blogs.msdn.com/b/oldnewthing/archive/2004/07/07/175285.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=388
-last one: The look of Luna
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=374
+last one: Why does icon text get a solid background if drop shadows are disabled?
