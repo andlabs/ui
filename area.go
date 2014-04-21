@@ -355,6 +355,7 @@ func toARGB(i *image.RGBA, memory uintptr, memstride int) {
 
 	rbs := (*reflect.SliceHeader)(unsafe.Pointer(&realbits))
 	rbs.Data = memory
+	// TODO BUG (we're lucky this didn't break on GTK+) - use stride here
 	rbs.Len = 4 * i.Rect.Dx() * i.Rect.Dy()
 	rbs.Cap = rbs.Len
 	p := pixelDataPos(i)
