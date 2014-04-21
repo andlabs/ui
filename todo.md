@@ -41,6 +41,7 @@ super ultra important things:
 - make sure Areas get keyboard focus when clicking outside the actual Area space on all platforms
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
 - GTK+ indefinite progress bar animation is choppy: make sure the speed we have now is the conventional speed for GTK+ programs (HIG doesn't list any) and that the choppiness is correct
 - Message boxes are not application-modal on some platforms

@@ -309,6 +309,11 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/03/29/101121.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/04/19/115912.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/07/01/170856.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/07/12/180642.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/07/29/200653.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/08/02/205624.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/08/04/208005.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/08/26/220873.aspx (on arrays of size 1 in various data structures; will need to double-check alignments)
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -369,10 +374,25 @@ interesting things
 - thread safety vs reentrancy http://blogs.msdn.com/b/oldnewthing/archive/2004/06/29/168719.aspx
 - shell and COM allocation http://blogs.msdn.com/b/oldnewthing/archive/2004/07/05/173226.aspx
 - minimized window coordinates (should I move this one to the higher list?) http://blogs.msdn.com/b/oldnewthing/archive/2004/07/07/175285.aspx
+- DPI (may or may not be related to future developments in the library) http://blogs.msdn.com/b/oldnewthing/archive/2004/07/14/182971.aspx
+- more on UNICODE http://blogs.msdn.com/b/oldnewthing/archive/2004/07/15/184076.aspx
+- PROPER UNICODE RENDERING IN WINDOWS (MIGHT BE MOVED UP???) http://blogs.msdn.com/b/oldnewthing/archive/2004/07/16/185261.aspx
+- callback templates http://blogs.msdn.com/b/oldnewthing/archive/2004/07/19/187415.aspx
+- more info on shell interop http://blogs.msdn.com/b/oldnewthing/archive/2004/07/20/188696.aspx
+- proof about WM_CLOSE for GUI windows from the task manager (see also our AppQuit channel) http://blogs.msdn.com/b/oldnewthing/archive/2004/07/22/191123.aspx
+- nested dialogs http://blogs.msdn.com/b/oldnewthing/archive/2004/07/30/201988.aspx
+- `.shared` memory for IPC is a security hole (related to multiple instances) http://blogs.msdn.com/b/oldnewthing/archive/2004/08/04/208003.aspx
+- fake menus http://blogs.msdn.com/b/oldnewthing/archive/2004/08/20/217684.aspx
+- STRRET (more shell stuff) http://blogs.msdn.com/b/oldnewthing/archive/2004/08/23/218837.aspx
+- reading from the registry may not yield valid C strings http://blogs.msdn.com/b/oldnewthing/archive/2004/08/24/219444.aspx
+- using COM to fake add/remove programs http://blogs.msdn.com/b/oldnewthing/archive/2004/08/31/223271.aspx
+- thread safety of function calls http://blogs.msdn.com/b/oldnewthing/archive/2004/09/03/225238.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/08/25/220195.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=374
-last one: Why does icon text get a solid background if drop shadows are disabled?
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=368
+last one: Storsjöodjur hunting season will opening soon
