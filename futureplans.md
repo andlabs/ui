@@ -314,6 +314,8 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/08/02/205624.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/08/04/208005.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/08/26/220873.aspx (on arrays of size 1 in various data structures; will need to double-check alignments)
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/10/15/242761.aspx (on distinguishing clicks and double-clicks)
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/10/18/243925.aspx (triple-clicks and higher)
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -387,6 +389,14 @@ interesting things
 - reading from the registry may not yield valid C strings http://blogs.msdn.com/b/oldnewthing/archive/2004/08/24/219444.aspx
 - using COM to fake add/remove programs http://blogs.msdn.com/b/oldnewthing/archive/2004/08/31/223271.aspx
 - thread safety of function calls http://blogs.msdn.com/b/oldnewthing/archive/2004/09/03/225238.aspx
+- interlocking pitfalls http://blogs.msdn.com/b/oldnewthing/archive/2004/09/15/229915.aspx
+- WM_CONTEXTMENU pitfalls http://blogs.msdn.com/b/oldnewthing/archive/2004/09/21/232369.aspx
+- right-click menu defaults http://blogs.msdn.com/b/oldnewthing/archive/2004/09/29/235737.aspx
+- creating COM interfaces without IDL files http://blogs.msdn.com/b/oldnewthing/archive/2004/10/05/238050.aspx
+- RegisterClass() atoms http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx
+- SHCreateThreadRef() (I have no idea what this is) http://blogs.msdn.com/b/oldnewthing/archive/2004/10/14/242241.aspx
+- file associations and long filenames http://blogs.msdn.com/b/oldnewthing/archive/2004/10/20/245072.aspx
+- WMI for system information http://blogs.msdn.com/b/oldnewthing/archive/2004/10/21/245652.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -394,5 +404,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=368
-last one: Storsjöodjur hunting season will opening soon
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=364
+last one: If the Euro 2004 tournament were a video game
