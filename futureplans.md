@@ -397,6 +397,12 @@ interesting things
 - SHCreateThreadRef() (I have no idea what this is) http://blogs.msdn.com/b/oldnewthing/archive/2004/10/14/242241.aspx
 - file associations and long filenames http://blogs.msdn.com/b/oldnewthing/archive/2004/10/20/245072.aspx
 - WMI for system information http://blogs.msdn.com/b/oldnewthing/archive/2004/10/21/245652.aspx
+- accessibility notes (may need to move to the upper list) http://blogs.msdn.com/b/oldnewthing/archive/2004/10/27/248464.aspx
+- note on screen coordinates http://blogs.msdn.com/b/oldnewthing/archive/2004/10/29/249567.aspx
+- keyboard security http://blogs.msdn.com/b/oldnewthing/archive/2004/11/15/257565.aspx
+- forms of SendMessage() http://blogs.msdn.com/b/oldnewthing/archive/2004/11/19/266664.aspx
+- ShellExecuteEx() http://blogs.msdn.com/b/oldnewthing/archive/2004/11/26/270710.aspx
+- on command line password security (useful for showing anyone who asks a similar question) http://blogs.msdn.com/b/oldnewthing/archive/2004/11/29/271551.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -404,5 +410,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=364
-last one: If the Euro 2004 tournament were a video game
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=361
+last one: Why doesn't the RunAs program accept a password on the command line?
