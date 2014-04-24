@@ -316,6 +316,18 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/08/26/220873.aspx (on arrays of size 1 in various data structures; will need to double-check alignments)
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/15/242761.aspx (on distinguishing clicks and double-clicks)
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/18/243925.aspx (triple-clicks and higher)
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/11/30/272262.aspx
+- shell drag and drop (TODO might need to get the older drag and drop articles???)
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/06/275659.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/07/277581.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/08/278295.aspx
+		- starting to get the feeling this isn't actually the kind of drag and drop I was thinking of...
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/09/278914.aspx
+		- this one might be though
+	- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/10/279530.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2004/12/14/300204.aspx **VALID DIALOG IDS** holy shit why didn't this come up when I was searching for it
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/01/10/349894.aspx some info on notification bubbles
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/01/31/363790.aspx 64-bit type equivalency
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -403,6 +415,13 @@ interesting things
 - forms of SendMessage() http://blogs.msdn.com/b/oldnewthing/archive/2004/11/19/266664.aspx
 - ShellExecuteEx() http://blogs.msdn.com/b/oldnewthing/archive/2004/11/26/270710.aspx
 - on command line password security (useful for showing anyone who asks a similar question) http://blogs.msdn.com/b/oldnewthing/archive/2004/11/29/271551.aspx
+- on planar graphics (useful for linking people) http://blogs.msdn.com/b/oldnewthing/archive/2004/12/01/273018.aspx
+- shell printing (might need to move to the above list) http://blogs.msdn.com/b/oldnewthing/archive/2004/12/03/274312.aspx
+- E_NOINTERFACE from CoCreateInstance() http://blogs.msdn.com/b/oldnewthing/archive/2004/12/13/281910.aspx
+- on misleading optimizations http://blogs.msdn.com/b/oldnewthing/archive/2004/12/16/317157.aspx
+- caching vs recalculating http://blogs.msdn.com/b/oldnewthing/archive/2004/12/20/327369.aspx
+- BOOL and BOOLEAN http://blogs.msdn.com/b/oldnewthing/archive/2004/12/22/329884.aspx
+- strcpy() must be used with care http://blogs.msdn.com/b/oldnewthing/archive/2005/01/07/348437.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -410,5 +429,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=361
-last one: Why doesn't the RunAs program accept a password on the command line?
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=354
+last one: Why is breadth-first searching better for file system tree walking?
