@@ -453,5 +453,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=351
-last one: The great Alaskan ice sculpture
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=349
+last one: The dialog manager, part 1: Warm-ups
