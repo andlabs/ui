@@ -103,7 +103,6 @@ func _msgBox(primarytext string, secondarytext string, uType uint32) (result int
 }
 
 func msgBox(primarytext string, secondarytext string) {
-	// TODO add an icon?
 	_msgBox(primarytext, secondarytext, _MB_OK)
 }
 

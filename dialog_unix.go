@@ -43,7 +43,6 @@ func _msgBox(primarytext string, secondarytext string, msgtype C.GtkMessageType,
 }
 
 func msgBox(primarytext string, secondarytext string) {
-	// TODO add an icon?
 	_msgBox(primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_OTHER), C.GtkButtonsType(C.GTK_BUTTONS_OK))
 }
 
