@@ -37,6 +37,8 @@ super ultra important things:
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - redrawing controls after a window resize on Windows does not work properly
+- point out that Areas get keyboard focus automatically on click on Mac OS X
+- make sure Areas get mouse click events on window activate on all platforms
 - make sure Areas get keyboard focus when clicking outside the actual Area space on all platforms
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
