@@ -45,8 +45,7 @@ func _msgBox(primarytext string, secondarytext string, style uintptr, button0 st
 }
 
 func msgBox(primarytext string, secondarytext string) {
-	// TODO _NSInformationalAlertStyle?
-	_msgBox(primarytext, secondarytext, _NSWarningAlertStyle, "OK")
+	_msgBox(primarytext, secondarytext, _NSInformationalAlertStyle, "OK")
 }
 
 func msgBoxError(primarytext string, secondarytext string) {
