@@ -328,6 +328,19 @@ TODO SORT
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/12/14/300204.aspx **VALID DIALOG IDS** holy shit why didn't this come up when I was searching for it
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/01/10/349894.aspx some info on notification bubbles
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/01/31/363790.aspx 64-bit type equivalency
+- modality
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/18/376080.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/21/377337.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/22/378018.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/23/378866.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/24/379635.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/28/381591.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/01/382380.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/02/383562.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/04/385100.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/07/387044.aspx (aside: timed context menu)
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/09/390706.aspx on SystemParametersInfo(); includes icon label font (not part of the non-client metrics)
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -422,6 +435,17 @@ interesting things
 - caching vs recalculating http://blogs.msdn.com/b/oldnewthing/archive/2004/12/20/327369.aspx
 - BOOL and BOOLEAN http://blogs.msdn.com/b/oldnewthing/archive/2004/12/22/329884.aspx
 - strcpy() must be used with care http://blogs.msdn.com/b/oldnewthing/archive/2005/01/07/348437.aspx
+- DS_SHELLFONT posts (no longer relevant to the above, at least I don't think)
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/04/366987.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/07/368423.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/08/369090.aspx
+- dangers of filtering messages http://blogs.msdn.com/b/oldnewthing/archive/2005/02/09/369804.aspx
+- the shell Animation control (is this the same as the one in common controls version 6?) is limited (might be needed for the above) http://blogs.msdn.com/b/oldnewthing/archive/2005/02/16/374397.aspx
+- MsgWaitForMultipleObjects() requires care http://blogs.msdn.com/b/oldnewthing/archive/2005/02/17/375307.aspx
+- danger of setting parameter info http://blogs.msdn.com/b/oldnewthing/archive/2005/03/10/392118.aspx
+- danger of startup helpers and other misleading "performance boosts" http://blogs.msdn.com/b/oldnewthing/archive/2005/03/11/394249.aspx
+- danger of saving/restoring window coordinates http://blogs.msdn.com/b/oldnewthing/archive/2005/03/14/395271.aspx
+- on the cost of creating and maintaining windows http://blogs.msdn.com/b/oldnewthing/archive/2005/03/15/395866.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -429,5 +453,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=354
-last one: Why is breadth-first searching better for file system tree walking?
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=351
+last one: The great Alaskan ice sculpture
