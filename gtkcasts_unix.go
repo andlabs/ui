@@ -28,12 +28,12 @@ func togbool(b bool) C.gboolean {
 	return C.FALSE
 }
 
-func fromgchar(what *C.gchar) string {
+func fromgstr(what *C.gchar) string {
 	cstr := (*C.char)(unsafe.Pointer(what))
 	return C.GoString(cstr)
 }
 
-func togchar(what *C.char) *C.gchar {
+func togstr(what *C.char) *C.gchar {
 	return (*C.gchar)(unsafe.Pointer(what))
 }
 

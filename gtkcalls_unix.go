@@ -43,11 +43,11 @@ func gtk_widget_hide(widget *C.GtkWidget) {
 func gtk_window_set_title(window *C.GtkWidget, title string) {
 	ctitle := C.CString(title)
 	defer C.free(unsafe.Pointer(ctitle))
-	C.gtk_window_set_title(togtkwindow(window), togchar(ctitle))
+	C.gtk_window_set_title(togtkwindow(window), togstr(ctitle))
 }
 
 func gtk_window_get_title(window *C.GtkWidget) string {
-	return fromgchar(C.gtk_window_get_title(togtkwindow(window)))
+	return fromgstr(C.gtk_window_get_title(togtkwindow(window)))
 }
 
 func gtk_window_resize(window *C.GtkWidget, width int, height int) {
@@ -77,7 +77,7 @@ func makeTransparent(layout *C.GtkWidget) {
 	added := C.gtk_css_provider_load_from_data(provider,
 		(*C.gchar)(unsafe.Pointer(&gtkLayoutCSS[0])), C.gssize(len(gtkLayoutCSS)), &err)
 	if added == C.FALSE {
-		message := fromgchar(err.message)
+		message := fromgstr(err.message)
 		panic(fmt.Errorf("error loading transparent background CSS for GtkLayout: %s", message))
 	}
 	C.gtk_style_context_add_provider(C.gtk_widget_get_style_context(layout),
@@ -124,11 +124,11 @@ func gtk_button_new() *C.GtkWidget {
 func gtk_button_set_label(button *C.GtkWidget, label string) {
 	clabel := C.CString(label)
 	defer C.free(unsafe.Pointer(clabel))
-	C.gtk_button_set_label(togtkbutton(button), togchar(clabel))
+	C.gtk_button_set_label(togtkbutton(button), togstr(clabel))
 }
 
 func gtk_button_get_label(button *C.GtkWidget) string {
-	return fromgchar(C.gtk_button_get_label(togtkbutton(button)))
+	return fromgstr(C.gtk_button_get_label(togtkbutton(button)))
 }
 
 func gtk_check_button_new() *C.GtkWidget {
@@ -148,19 +148,19 @@ func gtk_combo_box_text_new_with_entry() *C.GtkWidget {
 }
 
 func gtk_combo_box_text_get_active_text(widget *C.GtkWidget) string {
-	return fromgchar(C.gtk_combo_box_text_get_active_text(togtkcombobox(widget)))
+	return fromgstr(C.gtk_combo_box_text_get_active_text(togtkcombobox(widget)))
 }
 
 func gtk_combo_box_text_append_text(widget *C.GtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_combo_box_text_append_text(togtkcombobox(widget), togchar(ctext))
+	C.gtk_combo_box_text_append_text(togtkcombobox(widget), togstr(ctext))
 }
 
 func gtk_combo_box_text_insert_text(widget *C.GtkWidget, index int, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_combo_box_text_insert_text(togtkcombobox(widget), C.gint(index), togchar(ctext))
+	C.gtk_combo_box_text_insert_text(togtkcombobox(widget), C.gint(index), togstr(ctext))
 }
 
 func gtk_combo_box_get_active(widget *C.GtkWidget) int {
@@ -192,11 +192,11 @@ func gtkPasswordEntryNew() *C.GtkWidget {
 func gtk_entry_set_text(widget *C.GtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_entry_set_text(togtkentry(widget), togchar(ctext))
+	C.gtk_entry_set_text(togtkentry(widget), togstr(ctext))
 }
 
 func gtk_entry_get_text(widget *C.GtkWidget) string {
-	return fromgchar(C.gtk_entry_get_text(togtkentry(widget)))
+	return fromgstr(C.gtk_entry_get_text(togtkentry(widget)))
 }
 
 var _emptystring = [1]C.gchar{0}
@@ -214,11 +214,11 @@ func gtk_label_new() *C.GtkWidget {
 func gtk_label_set_text(widget *C.GtkWidget, text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.gtk_label_set_text(togtklabel(widget), togchar(ctext))
+	C.gtk_label_set_text(togtklabel(widget), togstr(ctext))
 }
 
 func gtk_label_get_text(widget *C.GtkWidget) string {
-	return fromgchar(C.gtk_label_get_text(togtklabel(widget)))
+	return fromgstr(C.gtk_label_get_text(togtklabel(widget)))
 }
 
 func gtk_widget_get_preferred_size(widget *C.GtkWidget) (minWidth int, minHeight int, natWidth int, natHeight int) {

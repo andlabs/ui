@@ -113,7 +113,7 @@ func gListboxText(widget *C.GtkWidget) string {
 		return ""
 	}
 	C.gtkTreeModelGet(model, &iter, &gs)
-	return fromgchar(gs)
+	return fromgstr(gs)
 }
 
 func gListboxAppend(widget *C.GtkWidget, what string) {
@@ -181,7 +181,7 @@ func gListboxSelMultiTexts(widget *C.GtkWidget) (texts []string) {
 			return
 		}
 		C.gtkTreeModelGet(model, &iter, &gs)
-		texts[i] = fromgchar(gs)
+		texts[i] = fromgstr(gs)
 		rows = rows.next
 	}
 	return texts
