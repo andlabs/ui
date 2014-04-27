@@ -38,7 +38,6 @@ func gtk_window_new() *C.GtkWidget {
 	return C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 }
 
-// TODO ensure this works if called on an individual control
 func gtk_widget_show(widget *C.GtkWidget) {
 	C.gtk_widget_show_all(widget)
 }
