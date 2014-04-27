@@ -47,7 +47,7 @@ func gtk_window_set_title(window *C.GtkWidget, title string) {
 }
 
 func gtk_window_get_title(window *C.GtkWidget) string {
-	return C.GoString(fromgchar(C.gtk_window_get_title(togtkwindow(window))))
+	return fromgchar(C.gtk_window_get_title(togtkwindow(window)))
 }
 
 func gtk_window_resize(window *C.GtkWidget, width int, height int) {
@@ -77,7 +77,7 @@ func makeTransparent(layout *C.GtkWidget) {
 	added := C.gtk_css_provider_load_from_data(provider,
 		(*C.gchar)(unsafe.Pointer(&gtkLayoutCSS[0])), C.gssize(len(gtkLayoutCSS)), &err)
 	if added == C.FALSE {
-		message := C.GoString(fromgchar(err.message))
+		message := fromgchar(err.message)
 		panic(fmt.Errorf("error loading transparent background CSS for GtkLayout: %s", message))
 	}
 	C.gtk_style_context_add_provider(C.gtk_widget_get_style_context(layout),
@@ -128,7 +128,7 @@ func gtk_button_set_label(button *C.GtkWidget, label string) {
 }
 
 func gtk_button_get_label(button *C.GtkWidget) string {
-	return C.GoString(fromgchar(C.gtk_button_get_label(togtkbutton(button))))
+	return fromgchar(C.gtk_button_get_label(togtkbutton(button)))
 }
 
 func gtk_check_button_new() *C.GtkWidget {
@@ -148,7 +148,7 @@ func gtk_combo_box_text_new_with_entry() *C.GtkWidget {
 }
 
 func gtk_combo_box_text_get_active_text(widget *C.GtkWidget) string {
-	return C.GoString(fromgchar(C.gtk_combo_box_text_get_active_text(togtkcombobox(widget))))
+	return fromgchar(C.gtk_combo_box_text_get_active_text(togtkcombobox(widget)))
 }
 
 func gtk_combo_box_text_append_text(widget *C.GtkWidget, text string) {
@@ -196,7 +196,7 @@ func gtk_entry_set_text(widget *C.GtkWidget, text string) {
 }
 
 func gtk_entry_get_text(widget *C.GtkWidget) string {
-	return C.GoString(fromgchar(C.gtk_entry_get_text(togtkentry(widget))))
+	return fromgchar(C.gtk_entry_get_text(togtkentry(widget)))
 }
 
 var _emptystring = [1]C.gchar{0}
@@ -218,7 +218,7 @@ func gtk_label_set_text(widget *C.GtkWidget, text string) {
 }
 
 func gtk_label_get_text(widget *C.GtkWidget) string {
-	return C.GoString(fromgchar(C.gtk_label_get_text(togtklabel(widget))))
+	return fromgchar(C.gtk_label_get_text(togtklabel(widget)))
 }
 
 func gtk_widget_get_preferred_size(widget *C.GtkWidget) (minWidth int, minHeight int, natWidth int, natHeight int) {

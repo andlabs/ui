@@ -28,9 +28,9 @@ func togbool(b bool) C.gboolean {
 	return C.FALSE
 }
 
-// TODO wrap in C.GoString()?
-func fromgchar(what *C.gchar) *C.char {
-	return (*C.char)(unsafe.Pointer(what))
+func fromgchar(what *C.gchar) string {
+	cstr := (*C.char)(unsafe.Pointer(what))
+	return C.GoString(cstr)
 }
 
 func togchar(what *C.char) *C.gchar {
