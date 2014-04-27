@@ -14,9 +14,16 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
-func gtk_init() bool {
+func gtk_init() error {
+	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+
+	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
 	// TODO allow GTK+ standard command-line argument processing
-	return fromgbool(C.gtk_init_check((*C.int)(nil), (***C.char)(nil)))
+	result := C.gtk_init_with_args(nil, nil, nil, nil, nil, &err)
+	if result == C.FALSE {
+		return fmt.Errorf("%s", fromgstr(err.message))
+	}
+	return nil
 }
 
 func gtk_main() {
@@ -71,7 +78,7 @@ var gtkLayoutCSS = []byte(`GtkLayout {
 `)
 
 func makeTransparent(layout *C.GtkWidget) {
-	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+	var err *C.GError = nil
 
 	provider := C.gtk_css_provider_new()
 	added := C.gtk_css_provider_load_from_data(provider,

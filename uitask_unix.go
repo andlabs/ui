@@ -15,8 +15,9 @@ func ui(main func()) error {
 	runtime.LockOSThread()
 
 	uitask = make(chan func())
-	if gtk_init() != true {
-		return fmt.Errorf("gtk_init failed (reason unknown; TODO)")
+	err := gtk_init()
+	if err != nil {
+		return fmt.Errorf("gtk_init() failed: %v", err)
 	}
 
 	// thanks to tristan and Daniel_S in irc.gimp.net/#gtk
