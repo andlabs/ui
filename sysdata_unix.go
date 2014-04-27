@@ -126,7 +126,6 @@ func (s *sysData) make(window *sysData) error {
 		uitask <- func() {
 			fixed := gtkNewWindowLayout()
 			gtk_container_add(s.widget, fixed)
-			// TODO return the container before assigning the signals?
 			for signame, sigfunc := range ct.signals {
 				g_signal_connect(s.widget, signame, sigfunc, s)
 			}
