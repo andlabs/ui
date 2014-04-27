@@ -28,9 +28,9 @@ super ultra important things:
 (test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
 ```
 	figure out why
-- Cocoa: NSScrollView support is hacky at best
-	- https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 the warning about pixel alignment may or may not be heeded, not sure
-	- frame sizes are a bit of a hack: the preferred size of a NSScrollView is the preferred size of its document view; the frameSize method described on the above link might be better but a real solution is optimal
+- Cocoa: https://developer.apple.com/library/mac/documentation/cocoa/Conceptual/NSScrollViewGuide/Articles/Creating.html#//apple_ref/doc/uid/TP40003226-SW4 check that we're obeying pixel alignment rules in Listbox and Area (and in the future too, possibly in the shared scrollview code)
+- make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
+	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
 - see update 18 March 2014 in README
