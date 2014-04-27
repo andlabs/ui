@@ -5,6 +5,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -146,7 +147,7 @@ func gListboxSelectedMulti(widget *C.GtkWidget) (indices []int) {
 	sel := C.gtk_tree_view_get_selection(tv)
 	rows := C.gtk_tree_selection_get_selected_rows(sel, &model)
 	defer C.g_list_free_full(rows, C.GDestroyNotify(unsafe.Pointer(C.gtk_tree_path_free)))
-	// TODO needed?
+	// g_list_length() is O(N), but we need the length below, alas
 	len := C.g_list_length(rows)
 	if len == 0 {
 		return nil
@@ -177,9 +178,8 @@ func gListboxSelMultiTexts(widget *C.GtkWidget) (texts []string) {
 	texts = make([]string, len)
 	for i := C.guint(0); i < len; i++ {
 		path := (*C.GtkTreePath)(unsafe.Pointer(rows.data))
-		if !fromgbool(C.gtk_tree_model_get_iter(model, &iter, path)) {
-			// TODO
-			return
+		if C.gtk_tree_model_get_iter(model, &iter, path) == C.FALSE {
+			panic("gtk_tree_model_get_iter() failed getting Listbox selected texts; reason unknown")
 		}
 		C.gtkTreeModelGet(model, &iter, &gs)
 		texts[i] = fromgstr(gs)
@@ -193,9 +193,8 @@ func gListboxDelete(widget *C.GtkWidget, index int) {
 
 	tv := getTreeViewFrom(widget)
 	ls := (*C.GtkListStore)(unsafe.Pointer(C.gtk_tree_view_get_model(tv)))
-	if !fromgbool(C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index))) {		// no such index
-		// TODO
-		return
+	if C.gtk_tree_model_iter_nth_child((*C.GtkTreeModel)(unsafe.Pointer(ls)), &iter, (*C.GtkTreeIter)(nil), C.gint(index)) == C.FALSE {
+		panic(fmt.Errorf("error deleting row %d from GTK+ Listbox: no such index or some other error", index))
 	}
 	C.gtk_list_store_remove(ls, &iter)
 }
