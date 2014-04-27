@@ -341,6 +341,16 @@ TODO SORT
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/04/385100.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/07/387044.aspx (aside: timed context menu)
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/03/09/390706.aspx on SystemParametersInfo(); includes icon label font (not part of the non-client metrics)
+- the dialog manager
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/29/403298.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/30/403711.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/03/31/404108.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/01/404531.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/04/405207.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/05/405518.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/06/405827.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/07/406012.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/08/406509.aspx
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -446,12 +456,16 @@ interesting things
 - danger of startup helpers and other misleading "performance boosts" http://blogs.msdn.com/b/oldnewthing/archive/2005/03/11/394249.aspx
 - danger of saving/restoring window coordinates http://blogs.msdn.com/b/oldnewthing/archive/2005/03/14/395271.aspx
 - on the cost of creating and maintaining windows http://blogs.msdn.com/b/oldnewthing/archive/2005/03/15/395866.aspx
+- more on version checks http://blogs.msdn.com/b/oldnewthing/archive/2005/04/13/407835.aspx
+- on hInstance in CreateWindow()/RegisterClass() http://blogs.msdn.com/b/oldnewthing/archive/2005/04/18/409205.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/08/25/220195.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/14/408106.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/15/408507.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=349
-last one: The dialog manager, part 1: Warm-ups
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=348
+last one: When people ask for security holes as features: Hiding files from Explorer
