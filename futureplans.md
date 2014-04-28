@@ -458,6 +458,8 @@ interesting things
 - on the cost of creating and maintaining windows http://blogs.msdn.com/b/oldnewthing/archive/2005/03/15/395866.aspx
 - more on version checks http://blogs.msdn.com/b/oldnewthing/archive/2005/04/13/407835.aspx
 - on hInstance in CreateWindow()/RegisterClass() http://blogs.msdn.com/b/oldnewthing/archive/2005/04/18/409205.aspx
+- on the DC brush (useful for drawing controls) http://blogs.msdn.com/b/oldnewthing/archive/2005/04/20/410031.aspx
+- the new scratch program (probably want to move to the top list if it proves useful enough) http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -467,5 +469,5 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/04/15/408507.aspx
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=348
-last one: When people ask for security holes as features: Hiding files from Explorer
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=347
+last one: Thread messages are eaten by modal loops
