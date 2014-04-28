@@ -18,7 +18,7 @@ func gtk_init() error {
 	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
 
 	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
-	// TODO allow GTK+ standard command-line argument processing
+	// TODO allow GTK+ standard command-line argument processing?
 	result := C.gtk_init_with_args(nil, nil, nil, nil, nil, &err)
 	if result == C.FALSE {
 		return fmt.Errorf("%s", fromgstr(err.message))
@@ -70,7 +70,7 @@ func gtk_window_get_size(window *C.GtkWidget) (int, int) {
 // on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
 // this CSS fixes it
 // thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
-// TODO report to oxygen-gtk devs
+// this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
 var gtkLayoutCSS = []byte(`GtkLayout {
 	background-color: transparent;
 }
@@ -210,9 +210,9 @@ var emptystring = &_emptystring[0]
 
 func gtk_label_new() *C.GtkWidget {
 	label := C.gtk_label_new(emptystring)
-	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE)
-	// TODO explicitly set line wrap mode as well?
-	// TODO explicitly disable ellipsizing
+	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE)			// turn off line wrap
+	// don't call gtk_label_set_line_wrap_mode(); there's no "wrap none" value there anyway
+	C.gtk_label_set_ellipsize(togtklabel(label), C.PANGO_ELLIPSIZE_NONE)		// turn off ellipsizing; this + line wrapping above will guarantee cutoff as documented
 	return label
 	// TODO left-justify?
 }
