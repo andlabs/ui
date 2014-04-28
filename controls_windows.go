@@ -7,8 +7,6 @@ import (
 //	"unsafe"
 )
 
-// TODO for all: filter any not provided in Windows XP
-
 // Button styles.
 const (
 	// from winuser.h

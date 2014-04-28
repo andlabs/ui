@@ -9,8 +9,7 @@ import (
 	"io/ioutil"
 )
 
-// pretty much every constant here except _WM_USER is from commctrl.h
-// TODO for all: filter out constants not available in Windows XP
+// pretty much every constant here except _WM_USER is from commctrl.h, except where noted
 
 var (
 	// TODO deinitialize at program end?

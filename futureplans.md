@@ -72,6 +72,7 @@ far off:
 - change the MsgBox() calls to encourage good alert dialog design??????? maybe? TODO
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
+- strip non-Windows XP constants from the Windows constants files? or at least just comment them all out...
 
 big things:
 - make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182
