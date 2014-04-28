@@ -13,7 +13,7 @@ var (
 	nCmdShow	int
 )
 
-// TODO is this trick documented in MSDN?
+// TODO is this documented?
 func getWinMainhInstance() (err error) {
 	r1, _, err := kernel32.NewProc("GetModuleHandleW").Call(uintptr(_NULL))
 	if r1 == 0 {		// failure
@@ -23,7 +23,7 @@ func getWinMainhInstance() (err error) {
 	return nil
 }
 
-// TODO this is what MinGW-w64's crt (svn revision TODO) does; is it best? is any of this documented anywhere on MSDN?
+// this is what MinGW-w64 does (for instance, http://sourceforge.net/p/mingw-w64/code/6604/tree/trunk/mingw-w64-crt/crt/crtexe.c#l320); Burgundy in irc.freenode.net/#winapi said that the Visual C++ runtime does this too
 func getWinMainnCmdShow() {
 	var info struct {
 		cb				uint32
@@ -74,6 +74,6 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error initializing Common Controls (comctl32.dll): %v", err)
 	}
-	// TODO others
+	// others go here
 	return nil		// all ready to go
 }
