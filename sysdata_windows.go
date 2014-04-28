@@ -82,15 +82,16 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label:			&classData{
 		name:			"STATIC",
-		// TODO add no-ellipsizing flags if I didn't do so already
+		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
+		// TODO find out if the default behavior is not to ellipsize
 		style:			_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_listbox:			&classData{
 		name:			"LISTBOX",
-		// we don't use _LBS_STANDARD because it sorts (and has WS_BORDER; see above)
-		// _LBS_NOINTEGRALHEIGHT gives us exactly the size we want
-		// TODO say why we don't use LBS_MULTISEL (listbox docs and http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx)
+		// we don't use LBS_STANDARD because it sorts (and has WS_BORDER; see above)
+		// LBS_NOINTEGRALHEIGHT gives us exactly the size we want
+		// LBS_MULTISEL sounds like it does what we want but it actually doesn't; instead, it toggles item selection regardless of modifier state, which doesn't work like anything else (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775149%28v=vs.85%29.aspx and http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx)
 		style:			_LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
 		xstyle:			_WS_EX_CLIENTEDGE | controlxstyle,
 		altStyle:			_LBS_EXTENDEDSEL | _LBS_NOTIFY | _LBS_NOINTEGRALHEIGHT | _WS_VSCROLL | controlstyle,
@@ -160,7 +161,7 @@ func (s *sysData) make(window *sysData) (err error) {
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// TODO can this be NULL?
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// we set the window text later
 			style,
 			uintptr(_CW_USEDEFAULT),
 			uintptr(_CW_USEDEFAULT),

@@ -50,7 +50,7 @@ style changes:
 			- I think this is a platform behavior...
 	- should field descriptions in method comments include the receiver name? (for instance e.Held vs. Held) - see what Go's own documentation does
 	- need to figure out exactly how to indicate that a struct{}{} is sent on an event channel (I use about six or so different wordings so far...)
-	- "package ui", "the package"
+	- "package ui", "the package", "ui package" (in code and comments)
 		- also "library" both in docs and comments and code, etc.
 - make passing of parameters and type conversions of parameters to uitask on Windows consistent: explicit _WPARAM(xxx)/_LPARAM(xxx)/uintptr(xxx), for example
 	- do this for type signatures in exported functions: (err error) or just error?

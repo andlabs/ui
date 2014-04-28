@@ -156,7 +156,7 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 	r1, _, err = _createWindowEx.Call(
 		uintptr(0),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(msghandlerclass))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// TODO can this be NULL?
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("ui package message window"))),
 		uintptr(0),
 		uintptr(_CW_USEDEFAULT),
 		uintptr(_CW_USEDEFAULT),
