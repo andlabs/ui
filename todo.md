@@ -15,7 +15,6 @@ super ultra important things:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 	- fix OS X so that it follows these rules
 - cap click count to 2 on all platforms
-	- cap mouse button count to 3? or should a function be used instead?
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
