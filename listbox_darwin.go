@@ -261,9 +261,7 @@ func insertListboxBefore(listbox C.id, what string, before int, alternate bool) 
 	insertListboxArrayBefore(array, what, before)
 }
 
-// TODO this is inefficient!
-// C.NSIndexSetEntries() makes two arrays of size count: one NSUInteger array and one C.uintptr_t array for returning; this makes a third of type []int for using
-// if only NSUInteger was usable (see bleh_darwin.m)
+// TODO change to use [indices firstIndex] and [indices indexGreaterThanIndex:], as suggested http://stackoverflow.com/questions/3773180/how-to-get-indexes-from-nsindexset-into-an-nsarray-in-cocoa
 func selectedListboxIndices(listbox C.id) (list []int) {
 	var cindices []C.uintptr_t
 
