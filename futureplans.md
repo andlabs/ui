@@ -276,27 +276,27 @@ TODO
 
 ## The Scrollbar Series
 This actually turns out to be one of the very first things that Raymond ever blogged about, so if you just go to the last page of posts on The Old New Thing, it'll be there. But for my own convenience:
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/23/54576.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/25/54582.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54602.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54610.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54615.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54617.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54624.aspx
-[23:59] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54629.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/13/54639.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/15/54647.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/08/18/54668.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/15/54925.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54945.aspx
-[00:00] <andlabs> http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54946.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/07/23/54576.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/07/25/54582.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54602.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54610.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54615.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54617.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54624.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54629.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/13/54639.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/15/54647.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/08/18/54668.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/15/54925.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54945.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54946.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/10/16/55344.aspx
 - not really part of, so to speak, but still http://blogs.msdn.com/b/oldnewthing/archive/2004/05/10/129068.aspx
 
