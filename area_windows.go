@@ -382,8 +382,6 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
 	}
-
-	// TODO in some cases wine will show a thumb one pixel away from the advance arrow button if going to the end; the values are correct though... weirdness in wine or something I never noticed about Windows?
 }
 
 func adjustAreaScrollbars(s *sysData) {
@@ -400,7 +398,7 @@ func adjustAreaScrollbars(s *sysData) {
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_RANGE | _SIF_PAGE
 	si.nMin = 0
-	si.nMax = int32(s.areawidth)
+	si.nMax = int32(s.areawidth - 1)		// the max point is inclusive, so we have to pass in the last valid value, not the first invalid one (see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx); if we don't, we get weird things like the scrollbar sometimes showing one extra scroll position at the end that you can never scroll to
 	si.nPage = uint32(cwid)
 	_setScrollInfo.Call(
 		uintptr(s.hwnd),
@@ -411,7 +409,7 @@ func adjustAreaScrollbars(s *sysData) {
 	si.cbSize = uint32(unsafe.Sizeof(si))			// MSDN sample code does this a second time; let's do it too to be safe
 	si.fMask = _SIF_RANGE | _SIF_PAGE
 	si.nMin = 0
-	si.nMax = int32(s.areaheight)
+	si.nMax = int32(s.areaheight - 1)
 	si.nPage = uint32(cht)
 	_setScrollInfo.Call(
 		uintptr(s.hwnd),
