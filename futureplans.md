@@ -78,7 +78,6 @@ far off:
 	- windows HIG refernece: http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx - conflicting, confusing info
 	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
 	- mac HIG reference: ???
-- go over the old new thing's scrollbar series to make sure I'm doing everything right with scrollbars in Windows Areas
 - change the MsgBox() calls to encourage good alert dialog design??????? maybe? TODO
 - make gcc (Unix)/clang (Mac OS X) pedantic about warnings/errors; also -Werror
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
