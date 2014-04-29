@@ -115,7 +115,7 @@ func initCommonControls() (err error) {
 	comctl32 = syscall.NewLazyDLL("comctl32.dll")
 	r1, _, err := comctl32.NewProc("InitCommonControlsEx").Call(uintptr(unsafe.Pointer(&icc)))
 	if r1 == _FALSE {		// failure
-		return fmt.Errorf("error initializing Common Controls (comctl32.dll); windows last error: %v", err)
+		return fmt.Errorf("error initializing Common Controls (comctl32.dll); Windows last error: %v", err)
 	}
 	return nil
 }

@@ -76,10 +76,9 @@ func getStandardWindowFonts() (err error) {
 	}
 
 	getfont := func(which *_LOGFONT, what string) (_HANDLE, error) {
-		// TODO does this specify an error?
 		r1, _, err = _createFontIndirect.Call(uintptr(unsafe.Pointer(which)))
 		if r1 == 0 {		// failure
-			return _NULL, fmt.Errorf("error getting %s font", what, err)
+			return _NULL, fmt.Errorf("error getting %s font; Windows last error: %v", what, err)
 		}
 		return _HANDLE(r1), nil
 	}
