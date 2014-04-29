@@ -8,8 +8,6 @@ import (
 
 // A Checkbox is a clickable square with a label. The square can be either checked or unchecked. Checkboxes start out unchecked.
 type Checkbox struct {
-	// TODO provide a channel for broadcasting check changes
-
 	lock			sync.Mutex
 	created		bool
 	sysData		*sysData

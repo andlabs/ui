@@ -8,8 +8,6 @@ import (
 
 // A LineEdit is a control which allows you to enter a single line of text.
 type LineEdit struct {
-	// TODO Typing event
-
 	lock			sync.Mutex
 	created		bool
 	sysData		*sysData

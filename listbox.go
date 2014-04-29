@@ -12,8 +12,6 @@ import (
 // Listboxes have vertical scrollbars that are hidden when not needed.
 // The presence of horizontal scrollbars is currently undefined.
 type Listbox struct {
-	// TODO Select event
-
 	lock		sync.Mutex
 	created	bool
 	sysData	*sysData

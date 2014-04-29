@@ -9,8 +9,6 @@ import (
 
 // A Combobox is a drop-down list of items, of which at most one can be selected at any given time. You may optionally make the combobox editable to allow custom items. Initially, no item will be selected (and no text entered in an editable Combobox's entry field).
 type Combobox struct {
-	// TODO Select event
-
 	lock		sync.Mutex
 	created	bool
 	sysData	*sysData

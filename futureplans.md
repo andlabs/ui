@@ -1,4 +1,10 @@
 general list:
+- events:
+	- Checkbox.Toggled (.Clicked? or some other name?)
+	- Combobox.Selected
+	- LineEdit.Typing
+		- LineEdit.Finished? or will that be a property of dialog boxes?
+	- Listbox.Selected
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetOptimalSize())`) for sizing a window to the control's interest
 	- with the current code, will be a bit of a kludge, because preferredSize() assumes it's running on the main thread without locks
 - Control.Show()/Control.Hide()
