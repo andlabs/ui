@@ -84,6 +84,9 @@ far off:
 	- problem: cgo-generated files trip -Werror up; I can't seem to turn off unused argument warnings with the -Wall/-Wextra/-pedantic options
 - strip non-Windows XP constants from the Windows constants files? or at least just comment them all out...
 - add a check to ensure Common Controls 6 is loaded; that is, to ensure the activation context was actually activated and that some other package didn't unwittingly give us the wrong one
+- keyboard and mouse wheel scrolling in Areas
+	- probably as a toggle (Area.SetKeyboardScrollable()) that inhibits those KeyEvents
+		- then the numpad becomes an issue
 
 big things:
 - make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182
@@ -291,7 +294,7 @@ This actually turns out to be one of the very first things that Raymond ever blo
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/08/15/54647.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/08/18/54668.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx
-- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2003/09/11/54885.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/13/54917.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/15/54925.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx

@@ -328,8 +328,8 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 	case _SB_PAGERIGHT:	// also _SB_PAGEDOWN
 		newpos += pagesize
 	case _SB_THUMBPOSITION:
-		// TODO is this the same as SB_THUMBTRACK instead? MSDN says use of thumb pos is only for that one
-		// do nothing; newpos already has the thumb's position
+		// raymond chen says to just set the newpos to the SCROLLINFO nPos for this message; see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/08/05/54602.aspx
+		// do nothing here; newpos already has nPos
 	case _SB_THUMBTRACK:
 		newpos = si.nTrackPos
 	}		// otherwise just keep the current position (that's what MSDN example code says, anyway)
