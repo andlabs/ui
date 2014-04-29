@@ -75,6 +75,7 @@ type AreaHandler interface {
 // If additional buttons are supported, they will be returned with 4 being the first additional button.
 // The association between button numbers and physical buttons are system-defined.
 // For example, on Windows, buttons 4 and 5 are mapped to what are internally referred to as "XBUTTON1" and "XBUTTON2", which often correspond to the dedicated back/forward navigation buttons on the sides of many mice.
+// The examples here are NOT a guarantee as to how many buttons maximum will be available on a given system.
 // (TODO find out if there's a way to query available button count)
 type MouseEvent struct {
 	// Pos is the position of the mouse in the Area at the time of the event.
