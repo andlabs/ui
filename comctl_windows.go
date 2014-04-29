@@ -12,7 +12,6 @@ import (
 // pretty much every constant here except _WM_USER is from commctrl.h, except where noted
 
 var (
-	// TODO deinitialize at program end?
 	comctlManifestCookie uintptr
 )
 
