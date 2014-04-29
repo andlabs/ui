@@ -159,8 +159,10 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 		}
 		g.colwidths[g.stretchycol] = width
 		g.rowheights[g.stretchyrow] = height
+	} else if (g.stretchyrow == -1 && g.stretchycol != -1) ||		// sanity check
+		(g.stretchyrow != -1 && g.stretchycol == -1) {
+		panic(fmt.Errorf("internal inconsistency in Grid: stretchy (%d,%d) impossible (one component, not both, is -1/no stretchy control)", g.stretchyrow, g.stretchycol))
 	}
-	// TODO add a sanity check for g.stretchyrow xor g.stretchycol == -1?
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
