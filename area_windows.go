@@ -342,10 +342,7 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 		newpos = maxsize - pagesize
 	}
 
-	// TODO is this the right thing to do for SB_THUMBTRACK? or will it conflict?
-	if newpos == si.nPos {		// no change; no scrolling
-		return
-	}
+	// this would be where we would put a check to not scroll if the scroll position changed, but see the note about SB_THUMBPOSITION above: Raymond Chen's code always does the scrolling anyway in this case
 
 	delta := -(newpos - si.nPos)	// negative because ScrollWindowEx() scrolls in the opposite direction
 	dx := delta
