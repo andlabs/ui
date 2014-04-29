@@ -483,7 +483,12 @@ func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM
 	if button != 3 && (wparam & _MK_RBUTTON) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	// TODO XBUTTONs?
+	if button != 4 && (wparam & _MK_XBUTTON1) != 0 {
+		me.Held = append(me.Held, 4)
+	}
+	if button != 5 && (wparam & _MK_XBUTTON2) != 0 {
+		me.Held = append(me.Held, 5)
+	}
 	repaint := s.handler.Mouse(me)
 	if repaint {
 		repaintArea(s)
@@ -654,7 +659,18 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_RBUTTONUP:
 			areaMouseEvent(s, 3, true, 0, wParam, lParam)
 			return 0
-		// TODO XBUTTONs?
+		case _WM_XBUTTONDOWN:
+			which := uint((wParam >> 16) & 0xFFFF) + 3		// values start at 1; we want them to start at 4
+			areaMouseEvent(s, which, false, 1, wParam, lParam)
+			return _LRESULT(_TRUE)		// XBUTTON messages are different!
+		case _WM_XBUTTONDBLCLK:
+			which := uint((wParam >> 16) & 0xFFFF) + 3
+			areaMouseEvent(s, which, false, 2, wParam, lParam)
+			return _LRESULT(_TRUE)
+		case _WM_XBUTTONUP:
+			which := uint((wParam >> 16) & 0xFFFF) + 3
+			areaMouseEvent(s, which, true, 0, wParam, lParam)
+			return _LRESULT(_TRUE)
 		case _WM_KEYDOWN:
 			areaKeyEvent(s, false, wParam, lParam)
 			return 0

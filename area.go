@@ -72,7 +72,9 @@ type AreaHandler interface {
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
 // Mouse button IDs start at 1, with 1 being the left mouse button, 2 being the middle mouse button, and 3 being the right mouse button.
-// If additional buttons are supported, they will be returned with 4 being the first additional button. The association between button numbers and physical buttons are system-defined.
+// If additional buttons are supported, they will be returned with 4 being the first additional button.
+// The association between button numbers and physical buttons are system-defined.
+// For example, on Windows, buttons 4 and 5 are mapped to what are internally referred to as "XBUTTON1" and "XBUTTON2", which often correspond to the dedicated back/forward navigation buttons on the sides of many mice.
 // (TODO find out if there's a way to query available button count)
 type MouseEvent struct {
 	// Pos is the position of the mouse in the Area at the time of the event.
