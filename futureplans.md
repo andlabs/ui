@@ -5,6 +5,9 @@ general list:
 	- LineEdit.Typing
 		- LineEdit.Finished? or will that be a property of dialog boxes?
 	- Listbox.Selected
+- Grid niceness
+	- ability to have controls span rows and columns
+	- ability to horizontally or vertically align controls within their cells
 - Window.SizeToFit() or WIndow.OptimalSize() (use: `Window.SetOptimalSize())`) for sizing a window to the control's interest
 	- with the current code, will be a bit of a kludge, because preferredSize() assumes it's running on the main thread without locks
 - Control.Show()/Control.Hide()

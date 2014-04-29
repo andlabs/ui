@@ -15,8 +15,6 @@ import (
 // One Control can be marked as "stretchy": when the Window containing the Grid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a Grid are given in (row,column) form with (0,0) being the top-left cell.
-// Unlike other UI toolkit Grids, this Grid does not (yet? TODO) allow Controls to span multiple rows or columns.
-// TODO differnet row/column control alignment
 type Grid struct {
 	lock					sync.Mutex
 	created				bool
@@ -100,14 +98,20 @@ func (g *Grid) SetStretchy(row int, column int) {
 	}
 	g.stretchyrow = row
 	g.stretchycol = column
-	// TODO if a stretchy row/column already exists, its filling value will not be reverted if necessary
-	g.filling[row][column] = true
+	// don't set filling here in case we call SetStretchy() multiple times; the filling is committed in make() below
 }
 
 func (g *Grid) make(window *sysData) error {
 	g.lock.Lock()
 	defer g.lock.Unlock()
 
+	// commit filling for the stretchy control now (see SetStretchy() above)
+	if g.stretchyrow != -1 && g.stretchycol != -1 {
+		g.filling[g.stretchyrow][g.stretchycol] = true
+	} else if (g.stretchyrow == -1 && g.stretchycol != -1) ||		// sanity check
+		(g.stretchyrow != -1 && g.stretchycol == -1) {
+		panic(fmt.Errorf("internal inconsistency in Grid: stretchy (%d,%d) impossible (one component, not both, is -1/no stretchy control) in Grid.make()", g.stretchyrow, g.stretchycol))
+	}
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
 			err := c.make(window)
@@ -159,9 +163,6 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 		}
 		g.colwidths[g.stretchycol] = width
 		g.rowheights[g.stretchyrow] = height
-	} else if (g.stretchyrow == -1 && g.stretchycol != -1) ||		// sanity check
-		(g.stretchyrow != -1 && g.stretchycol == -1) {
-		panic(fmt.Errorf("internal inconsistency in Grid: stretchy (%d,%d) impossible (one component, not both, is -1/no stretchy control)", g.stretchyrow, g.stretchycol))
 	}
 	// 4) draw
 	startx := x
