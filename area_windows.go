@@ -171,7 +171,7 @@ func paintArea(s *sysData) {
 	// this is all we need, but because this confused me at first, I will say the two pixels-per-meter fields are unused (see http://blogs.msdn.com/b/oldnewthing/archive/2013/05/15/10418646.aspx and page 581 of Charles Petzold's Programming Windows, Fifth Edition)
 	ppvBits := uintptr(0)		// now for the trouble: CreateDIBSection() allocates the memory for us...
 	r1, _, err = _createDIBSection.Call(
-		uintptr(0),		// TODO is this safe? Ninjifox does it
+		uintptr(_NULL),		// Ninjifox does this, so do some wine tests (http://source.winehq.org/source/dlls/gdi32/tests/bitmap.c#L725, thanks vpovirk in irc.freenode.net/#winehackers) and even Raymond Chen (http://blogs.msdn.com/b/oldnewthing/archive/2006/11/16/1086835.aspx), so.
 		uintptr(unsafe.Pointer(&bi)),
 		uintptr(_DIB_RGB_COLORS),
 		uintptr(unsafe.Pointer(&ppvBits)),
