@@ -15,7 +15,7 @@ possible: solution: use PostThreadMessage() to send uimsgs out to the message lo
 (I had come up with this first but wanted to try other things before doing it (and wasn't really sure if user-defined messages were safe, not quite understanding the system); nsf came up with it independently and explained that this was really the only right way to do it, so thanks to him)
 
 problem: if the thread isn't in its main message pump, the thread message is simply lost (see, for example, http://blogs.msdn.com/b/oldnewthing/archive/2005/04/26/412116.aspx)
-this happened when scrolling Areas
+this happened when scrolling Areas (as scrolling is modal; see http://blogs.msdn.com/b/oldnewthing/archive/2005/04/27/412565.aspx)
 
 the only recourse, and the one both Microsoft (http://support.microsoft.com/kb/183116) and Raymond Chen (http://blogs.msdn.com/b/oldnewthing/archive/2008/12/23/9248851.aspx) suggest (and Treeki/Ninjifox confirmed), is to create an invisible window to dispatch messages instead.
 
