@@ -365,6 +365,8 @@ TODO SORT
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/06/405827.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/07/406012.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/08/406509.aspx
+- dialog templates, especially dynamic generation of them
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/29/412577.aspx
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -474,6 +476,10 @@ interesting things
 - on hInstance in CreateWindow()/RegisterClass() http://blogs.msdn.com/b/oldnewthing/archive/2005/04/18/409205.aspx
 - on the DC brush (useful for drawing controls) http://blogs.msdn.com/b/oldnewthing/archive/2005/04/20/410031.aspx
 - the new scratch program (probably want to move to the top list if it proves useful enough) http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx
+- thread messages:
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/26/412116.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/27/412565.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/28/412574.aspx (doubles as one on message filters)
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -484,4 +490,4 @@ articles on time
 
 up to
 http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=347
-last one: Thread messages are eaten by modal loops
+last one: Building a dialog template at run-time
