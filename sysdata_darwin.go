@@ -519,6 +519,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
+		// use -[NSWindow setContentSize:], which will resize the window without taking the titlebar as part of the given size and without needing us to consider the window's position (the function takes care of both for us)
 		C.objc_msgSend_size(s.id, _setContentSize,
 			C.int64_t(width), C.int64_t(height))
 		C.objc_msgSend_noargs(s.id, _display)		// TODO needed?
