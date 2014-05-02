@@ -87,6 +87,9 @@ far off:
 	- probably as a toggle (Area.SetKeyboardScrollable()) that inhibits those KeyEvents
 		- then the numpad becomes an issue
 
+far off/notes to self:
+- "Version #.##" in MSDN refers to the Windows version, not the version of Common Controls; clear this up wherever (thanks to lh_mouse in irc.oftc.net/#mingw-w64)
+
 big things:
 - make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182
 	- windows: this requires major restructuring
