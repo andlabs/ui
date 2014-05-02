@@ -494,3 +494,7 @@ articles on time
 up to
 http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=347
 last one: Building a dialog template at run-time
+
+windows stock icons
+- the standard IDI_** values, plus a few others I forget now
+- http://msdn.microsoft.com/en-us/library/windows/desktop/bb762542%28v=vs.85%29.aspx (TODO really vista only?)
