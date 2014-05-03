@@ -89,6 +89,8 @@ far off:
 
 far off/notes to self:
 - "Version #.##" in MSDN refers to the Windows version, not the version of Common Controls; clear this up wherever (thanks to lh_mouse in irc.oftc.net/#mingw-w64)
+	- or maybe not? it's some oddity with LVGS_COLLAPSIBLE...
+- see if eXene solved my Area drawing concurrency problems
 
 big things:
 - make sure every sysData function only performs a single invocation to uitask; see http://blogs.msdn.com/b/oldnewthing/archive/2005/10/10/479124.aspx#479182
