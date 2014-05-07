@@ -12,8 +12,8 @@ import (
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
 // extern BOOL areaView_isFlipped_acceptsFirstResponder(id, SEL);
-// extern void areaView_mouseMoved(id, SEL, id);
-// extern void areaView_mouseDown_mouseDragged(id, SEL, id);
+// extern void areaView_mouseMoved_mouseDragged(id, SEL, id);
+// extern void areaView_mouseDown(id, SEL, id);
 // extern void areaView_mouseUp(id, SEL, id);
 // extern void areaView_keyDown(id, SEL, id);
 // extern void areaView_keyUp(id, SEL, id);
@@ -36,23 +36,23 @@ var goAreaSels = []selector{
 		"ensuring that an Area's coordinate system has (0,0) at the top-left corner"},
 	selector{"acceptsFirstResponder", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
 		"registering that Areas are to receive events"},
-	selector{"mouseMoved:", uintptr(C.areaView_mouseMoved), sel_void_id,
+	selector{"mouseMoved:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
 		"handling mouse movements in Area"},
-	selector{"mouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"mouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
 		"handling mouse button 1 presses in Area"},
-	selector{"mouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"mouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
 		"handling mouse button 1 dragging in Area"},
 	selector{"mouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
 		"handling mouse button 1 releases in Area"},
-	selector{"rightMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"rightMouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
 		"handling mouse button 3 presses in Area"},
-	selector{"rightMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"rightMouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
 		"handling mouse button 3 dragging in Area"},
 	selector{"rightMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
 		"handling mouse button 3 releases in Area"},
-	selector{"otherMouseDown:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"otherMouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
 		"handling mouse button 2 (and 4 and higher) presses in Area"},
-	selector{"otherMouseDragged:", uintptr(C.areaView_mouseDown_mouseDragged), sel_void_id,
+	selector{"otherMouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
 		"handling mouse button 2 (and 4 and higher) dragging in Area"},
 	selector{"otherMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
 		"handling mouse button 2 (and 4 and higher) releases in Area"},
@@ -150,6 +150,7 @@ func parseModifiers(e C.id) (m Modifiers) {
 	return m
 }
 
+// TODO pressing both buttons 1 and 3 simultaneously gets turned into button 2; see if we can turn that off for our NSView only
 func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	var me MouseEvent
 
@@ -157,6 +158,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	xp := C.getTranslatedEventPoint(self, e)
 	me.Pos = image.Pt(int(xp.x), int(xp.y))
 	// no need to check me.Pos; Cocoa won't send an event outside the Area
+	// TODO actually wrong; Cocoa will if we drag out of the window
 	me.Modifiers = parseModifiers(e)
 	which := uint(C.objc_msgSend_intret_noargs(e, _buttonNumber)) + 1
 	if which == 3 {		// swap middle and right button numbers
@@ -196,14 +198,14 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	}
 }
 
-//export areaView_mouseMoved
-func areaView_mouseMoved(self C.id, sel C.SEL, e C.id) {
-	// TODO not triggered?
+//export areaView_mouseMoved_mouseDragged
+func areaView_mouseMoved_mouseDragged(self C.id, sel C.SEL, e C.id) {
+	// TODO implement tracking for dragging
 	areaMouseEvent(self, e, false, false)
 }
 
-//export areaView_mouseDown_mouseDragged
-func areaView_mouseDown_mouseDragged(self C.id, sel C.SEL, e C.id) {
+//export areaView_mouseDown
+func areaView_mouseDown(self C.id, sel C.SEL, e C.id) {
 	areaMouseEvent(self, e, true, false)
 }
 
