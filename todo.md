@@ -15,6 +15,10 @@ super ultra important things:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 	- fix OS X so that it follows these rules
 	- native Windows (not wine) and OS X don't respond to mouse button 4 and 5 drags?!
+ [16:45] <JeffLaptop> no, just tried, and the navigation buttons don't.
+ [16:45] <andlabs> ok, thanks a lot
+ [16:45] <JeffLaptop> only the l, m, and r ones do.
+		- oh...
 - cap click count to 2 on all platforms
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
