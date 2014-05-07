@@ -108,6 +108,10 @@ func makeModifiers(state C.guint, m Modifiers) Modifiers {
 func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
 	var areawidth, areaheight C.gint
 
+	// on GTK+, mouse buttons 4-7 are for scrolling; if we got here, that's a mistake (and see the TODOs on return values below)
+	if mb >= 4 && mb <= 7 {
+		return
+	}
 	s := (*sysData)(unsafe.Pointer(data))
 	state = translateModifiers(state, gdkwindow)
 	me.Modifiers = makeModifiers(state, 0)
@@ -121,17 +125,18 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	if mb != 3 && (state & C.GDK_BUTTON3_MASK) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	// TODO keep?
-	if mb != 4 && (state & C.GDK_BUTTON4_MASK) != 0 {
-		me.Held = append(me.Held, 4)
-	}
-	if mb != 5 && (state & C.GDK_BUTTON5_MASK) != 0 {
-		me.Held = append(me.Held, 5)
-	}
+	// don't check GDK_BUTTON4_MASK or GDK_BUTTON5_MASK because those are for the scrolling buttons mentioned above; there doesn't seem to be a way to detect higher buttons... (TODO)
 	me.Pos = image.Pt(int(x), int(y))
 	C.gtk_widget_get_size_request(widget, &areawidth, &areaheight)
 	if !me.Pos.In(image.Rect(0, 0, int(areawidth), int(areaheight))) {		// outside the actual Area; no event
 		return
+	}
+	// and finally, if the button ID >= 8, continue counting from 4, as above and as in the MouseEvent spec
+	if me.Down >= 8 {
+		me.Down -= 4
+	}
+	if me.Up >= 8 {
+		me.Up -= 4
 	}
 	repaint := s.handler.Mouse(me)
 	if repaint {
@@ -145,7 +150,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 	C.gtk_widget_grab_focus(widget)
 	e := (*C.GdkEventButton)(unsafe.Pointer(event))
 	me := MouseEvent{
-		// GDK button ID == our button ID
+		// GDK button ID == our button ID with some exceptions taken care of by finishMouseEvent()
 		Down:	uint(e.button),
 	}
 	switch e._type {
@@ -166,7 +171,7 @@ var area_button_press_event_callback = C.GCallback(C.our_area_button_press_event
 func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	e := (*C.GdkEventButton)(unsafe.Pointer(event))
 	me := MouseEvent{
-		// GDK button ID == our button ID
+		// GDK button ID == our button ID with some exceptions taken care of by finishMouseEvent()
 		Up:		uint(e.button),
 	}
 	finishMouseEvent(widget, data, me, me.Up, e.x, e.y, e.state, e.window)

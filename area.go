@@ -73,6 +73,7 @@ type AreaHandler interface {
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
 // Mouse button IDs start at 1, with 1 being the left mouse button, 2 being the middle mouse button, and 3 being the right mouse button.
 // If additional buttons are supported, they will be returned with 4 being the first additional button.
+// For example, on Unix systems where mouse buttons 4 through 7 are pseudobuttons for the scroll wheel directions, the next button, button 8, will be returned as 4, 9 as 5, etc.
 // The association between button numbers and physical buttons are system-defined.
 // For example, on Windows, buttons 4 and 5 are mapped to what are internally referred to as "XBUTTON1" and "XBUTTON2", which often correspond to the dedicated back/forward navigation buttons on the sides of many mice.
 // The examples here are NOT a guarantee as to how many buttons maximum will be available on a given system.
@@ -103,7 +104,8 @@ type MouseEvent struct {
 
 	// Held is a slice of button IDs that indicate which mouse buttons are being held during the event.
 	// Held will not include Down and Up.
-	// (TODO "There is no guarantee that Held is sorted."?)
+	// Held will be sorted.
+	// Only buttons 1, 2, and 3 are guaranteed to be detected by Held properly; whether or not any others are is implementation-defined.
 	Held			[]uint
 }
 
