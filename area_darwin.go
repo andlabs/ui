@@ -183,7 +183,6 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	if which != 3 && (held & 2) != 0 {		// button 3
 		me.Held = append(me.Held, 3)
 	}
-	// TODO remove this part?
 	held >>= 3
 	for i := uint(4); held != 0; i++ {
 		if which != i && (held & 1) != 0 {
