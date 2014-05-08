@@ -1,5 +1,5 @@
 # andlabs/ui table view/tree view proposal
-<tt>(text that looks like this is optional)</tt>
+<tt><ins>(text that looks like this is optional)</ins></tt>
 
 ```go
 type TableView struct {
@@ -20,7 +20,7 @@ type Person struct {
 ```
 Data is displayed using the fmt package's %v rule. The structure must satisfy sync.Locker.
 
-<tt>If one of the members is of type slice of the structure type, then any element of the main slice with a Children whose length is nonzero represents child nodes. For example:</tt>
+<tt><ins>If one of the members is of type slice of the structure type, then any element of the main slice with a Children whose length is nonzero represents child nodes. For example:</ins></tt>
 ```go
 type File struct {
     Filename string
@@ -29,12 +29,12 @@ type File struct {
     Contents []File
 }
 ```
-<tt>In this case, File.Contents specifies children of the parent File.</tt>
+<tt><ins>In this case, File.Contents specifies children of the parent File.</ins></tt>
 
 ```go
 func NewTableView(initData interface{}) *TableView
 ```
-Creates a new TableView with the specified initial data. This also determines the data type of the TableView; after this, all accesses to the data are made through the Data field of TableView. NewTableView() panics if initData is nil or not a slice of structures. The slice may be empty. (TODO slice of pointers to structures?) <tt>NewTableView() also panics if the structure has more than one possible children field.</tt>
+Creates a new TableView with the specified initial data. This also determines the data type of the TableView; after this, all accesses to the data are made through the Data field of TableView. NewTableView() panics if initData is nil or not a slice of structures. The slice may be empty. (TODO slice of pointers to structures?) <tt><ins>NewTableView() also panics if the structure has more than one possible children field.</ins></tt>
 
 ```go
 // if trees are not supported
@@ -47,7 +47,7 @@ func (t *TableView) Append(path []int, items ...interface{})
 func (t *TableView) InsertBefore(path []int, items ...interface{})
 func (t *TableView) Delete(path []int, indices ...int)
 ```
-Standard methods to manipulate data in the TableView. These methods hold the write lock upon entry and release it upon exit. They panic if any index is invalid. <tt>path specifies which node of the tree to append to. If path has length zero, the operation is performed on the top level; if path has length one, the operation is performed on the children of the first entry in the list; and so on and so forth. Each element of path is the index relative to the first item at the level (so []int{4, 2, 1} specifies the fifth entry's third child's second child's children).</tt>
+Standard methods to manipulate data in the TableView. These methods hold the write lock upon entry and release it upon exit. They panic if any index is invalid. <tt><ins>path specifies which node of the tree to append to. If path has length zero, the operation is performed on the top level; if path has length one, the operation is performed on the children of the first entry in the list; and so on and so forth. Each element of path is the index relative to the first item at the level (so []int{4, 2, 1} specifies the fifth entry's third child's second child's children).</ins></tt>
 
 ```go
 func (t *TableView) Lock()
@@ -68,5 +68,5 @@ func (t *TableView) Select(indices ...[]int)
 
 // or should these be SelectedIndices() and SelectIndices() for consistency?
 ```
-Methods that act on TableView row selection. These methods hold the read lock on entry and release it on exit. <tt>Each entry in the returned slice consists of a path followed by the selected index of the child. A slice of length 1 indicates that a top-level entry has been selected. The slices shall not be of length zero; passing one in will panic. (TODO this means that multiple children node will have a copy of path each; that should be fixed...)</tt>
+Methods that act on TableView row selection. These methods hold the read lock on entry and release it on exit. <tt><ins>Each entry in the returned slice consists of a path followed by the selected index of the child. A slice of length 1 indicates that a top-level entry has been selected. The slices shall not be of length zero; passing one in will panic. (TODO this means that multiple children node will have a copy of path each; that should be fixed...)</ins></tt>
 
