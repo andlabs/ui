@@ -20,7 +20,7 @@ type Person struct {
 ```
 Data is displayed using the fmt package's %v rule. The structure must satisfy sync.Locker.
 
-<tt>If one of the members is of type slice of the structure type, then any element of the main slice with a Children whose length is nonzero represents child nodes. For example:
+<tt>If one of the members is of type slice of the structure type, then any element of the main slice with a Children whose length is nonzero represents child nodes. For example:</tt>
 ```go
 type File struct {
     Filename string
@@ -29,7 +29,7 @@ type File struct {
     Contents []File
 }
 ```
-In this case, File.Contents specifies children of the parent File.</tt>
+<tt>In this case, File.Contents specifies children of the parent File.</tt>
 
 ```go
 func NewTableView(initData interface{}) *TableView
