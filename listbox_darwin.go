@@ -234,7 +234,7 @@ var (
 	_deselectAll = sel_getUid("deselectAll:")
 )
 
-func makeListbox(parentWindow C.id, alternate bool) C.id {
+func makeListbox(parentWindow C.id, alternate bool, s *sysData) C.id {
 	listbox := C.objc_msgSend_noargs(_NSTableView, _alloc)
 	listbox = initWithDummyFrame(listbox)
 	C.objc_msgSend_id(listbox, _addTableColumn, newListboxTableColumn())

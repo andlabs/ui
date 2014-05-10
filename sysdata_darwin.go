@@ -15,11 +15,12 @@ import "C"
 type sysData struct {
 	cSysData
 
-	id	C.id
+	id			C.id
+	trackingArea	C.id		// for Area
 }
 
 type classData struct {
-	make		func(parentWindow C.id, alternate bool) C.id
+	make		func(parentWindow C.id, alternate bool, s *sysData) C.id
 	getinside		func(scrollview C.id) C.id
 	show		func(what C.id)
 	hide			func(what C.id)
@@ -125,7 +126,7 @@ func applyStandardControlFont(id C.id) {
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			const (
 				_NSBorderlessWindowMask = 0
 				_NSTitledWindowMask = 1 << 0
@@ -160,7 +161,7 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_button:			&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			const (
 				_NSRoundedBezelStyle = 1
 			)
@@ -180,7 +181,7 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_checkbox:		&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			const (
 				_NSSwitchButton = 3
 			)
@@ -198,7 +199,7 @@ var classTypes = [nctypes]*classData{
 		textsel:		_title,
 	},
 	c_combobox:		&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			var combobox C.id
 
 			if alternate {
@@ -262,7 +263,7 @@ var classTypes = [nctypes]*classData{
 		},
 	},
 	c_lineedit:		&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			var lineedit C.id
 
 			if alternate {
@@ -282,7 +283,7 @@ var classTypes = [nctypes]*classData{
 		alttextsel:		_stringValue,
 	},
 	c_label:			&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			const (
 				_NSLineBreakByWordWrapping = iota
 				_NSLineBreakByCharWrapping
@@ -324,7 +325,7 @@ var classTypes = [nctypes]*classData{
 		selectIndices:	selectListboxIndices,
 	},
 	c_progressbar:		&classData{
-		make:		func(parentWindow C.id, alternate bool) C.id {
+		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			const (
 				_NSProgressIndicatorBarStyle = 0
 			)
@@ -382,7 +383,7 @@ func (s *sysData) make(window *sysData) error {
 	ret := make(chan C.id)
 	defer close(ret)
 	uitask <- func() {
-		ret <- ct.make(parentWindow, s.alternate)
+		ret <- ct.make(parentWindow, s.alternate, s)
 	}
 	s.id = <-ret
 	if ct.getinside != nil {

@@ -74,7 +74,7 @@ func mkAreaClass() error {
 	return nil
 }
 
-func makeArea(parentWindow C.id, alternate bool) C.id {
+func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 	area := C.objc_msgSend_noargs(_goArea, _alloc)
 	area = initWithDummyFrame(area)
 	// TODO others?
