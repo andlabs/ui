@@ -200,6 +200,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 
 //export areaView_mouseMoved_mouseDragged
 func areaView_mouseMoved_mouseDragged(self C.id, sel C.SEL, e C.id) {
+	// for dragging, if multiple buttons are held, only one of their xxxMouseDragged: messages will be sent, so this is OK to do
 	// TODO implement tracking for dragging
 	areaMouseEvent(self, e, false, false)
 }
