@@ -373,7 +373,7 @@ id makeTrackingArea(id area)
 	trackingArea = objc_msgSend(c_NSTrackingArea, s_alloc);
 	trackingArea = (*objc_msgSend_initTrackingArea)(trackingArea, s_initTrackingArea,
 		(*objc_msgSend_stret_rect)(area, s_bounds),			/* initWithRect: */
-		/* this bit mask (except for NSTrackingInVisibleRect, which was added later) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily */
+		/* this bit mask (except for NSTrackingInVisibleRect, which was added later to prevent events from being triggered outside the visible area of the Area) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily */
 		(NSTrackingAreaOptions) (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag | NSTrackingInVisibleRect),			/* options: */
 		area,											/* owner: */
 		nil);											/* userData: */
