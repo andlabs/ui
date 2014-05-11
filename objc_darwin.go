@@ -98,6 +98,7 @@ const (
 	sel_bool
 	sel_void_rect
 	sel_terminatereply_id
+	sel_void
 	nitypes
 )
 
@@ -107,6 +108,7 @@ var itypes = [nitypes][]C.char{
 	sel_bool:				[]C.char{'c', '@', ':', 0},
 	sel_void_rect:			nil,			// see init() below
 	sel_terminatereply_id:	nil,
+	sel_void:				[]C.char{'v', '@', ':', 0},
 }
 
 func init() {

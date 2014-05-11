@@ -112,8 +112,10 @@ extern void initBleh();
 extern id makeDummyEvent();
 
 /* for area_darwin.go */
+/* TODO apparently ISO C forbids casting a function pointer to a non-function pointer; this will need to change???? */
 extern void *_areaView_drawRect;
 extern void drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
+extern id makeTrackingArea(id);
 extern struct xpoint getTranslatedEventPoint(id, id);
 
 /* for objc_darwin.go */

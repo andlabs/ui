@@ -12,6 +12,7 @@ import (
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
 // extern BOOL areaView_isFlipped_acceptsFirstResponder(id, SEL);
+// extern void areaView_updateTrackingAreas(id, SEL);
 // extern void areaView_mouseMoved_mouseDragged(id, SEL, id);
 // extern void areaView_mouseDown(id, SEL, id);
 // extern void areaView_mouseUp(id, SEL, id);
@@ -36,6 +37,8 @@ var goAreaSels = []selector{
 		"ensuring that an Area's coordinate system has (0,0) at the top-left corner"},
 	selector{"acceptsFirstResponder", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
 		"registering that Areas are to receive events"},
+	selector{"updateTrackingAreas", uintptr(C.areaView_updateTrackingAreas), sel_void,
+		"updating tracking areas for handling mouse movements in Area"},
 	selector{"mouseMoved:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
 		"handling mouse movements in Area"},
 	selector{"mouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
@@ -78,6 +81,7 @@ func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 	area := C.objc_msgSend_noargs(_goArea, _alloc)
 	area = initWithDummyFrame(area)
 	// TODO others?
+	retrack(area, s)
 	area = newScrollView(area)
 	addControl(parentWindow, area)
 	return area
@@ -115,6 +119,24 @@ func areaView_isFlipped_acceptsFirstResponder(self C.id, sel C.SEL) C.BOOL {
 	// isFlipped gives us a coordinate system with (0,0) at the top-left
 	// acceptsFirstResponder lets us respond to events
 	return C.BOOL(C.YES)
+}
+
+var (
+	_addTrackingArea = sel_getUid("addTrackingArea:")
+	_removeTrackingArea = sel_getUid("removeTrackingArea:")
+)
+
+func retrack(area C.id, s *sysData) {
+	s.trackingArea = C.makeTrackingArea(area)
+	C.objc_msgSend_id(area, _addTrackingArea, s.trackingArea)
+}
+
+//export areaView_updateTrackingAreas
+func areaView_updateTrackingAreas(self C.id, sel C.SEL) {
+	s := getSysData(self)
+	C.objc_msgSend_id(self, _removeTrackingArea, s.trackingArea)
+	C.objc_msgSend_noargs(s.trackingArea, _release)
+	retrack(self, s)
 }
 
 var (
@@ -175,6 +197,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 		which = 0			// reset for Held processing below
 	}
 	// pressedMouseButtons is a class method; calling objc_msgSend() directly with e as an argument on these will panic (in real Objective-C the compiler can detect [e pressedMouseButtons])
+	// the docs do say don't use this for tracking since it returns the state now, and mouse move events work by tracking, but as far as I can tell dragging the mouse over the inactive window does n ot generate an event on Mac OS X, so :/ (TODO see what happens when the program is the current one; in my own separate tests no harm was done so eh; also no need for this if tracking doesn't touch dragging)
 	held := C.objc_msgSend_uintret_noargs(_NSEvent, _pressedMouseButtons)
 	if which != 1 && (held & 1) != 0 {		// button 1
 		me.Held = append(me.Held, 1)
@@ -200,8 +223,8 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 
 //export areaView_mouseMoved_mouseDragged
 func areaView_mouseMoved_mouseDragged(self C.id, sel C.SEL, e C.id) {
+	// for moving, this is handled by the tracking rect stuff above
 	// for dragging, if multiple buttons are held, only one of their xxxMouseDragged: messages will be sent, so this is OK to do
-	// TODO implement tracking for dragging
 	areaMouseEvent(self, e, false, false)
 }
 

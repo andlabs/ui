@@ -50,7 +50,6 @@ var (
 	_initWithContentRect = sel_getUid("initWithContentRect:styleMask:backing:defer:")
 	_initWithFrame = sel_getUid("initWithFrame:")
 	_setDelegate = sel_getUid("setDelegate:")
-	_setAcceptsMouseMovedEvents = sel_getUid("setAcceptsMouseMovedEvents:")
 	_makeKeyAndOrderFront = sel_getUid("makeKeyAndOrderFront:")
 	_orderOut = sel_getUid("orderOut:")
 	_setHidden = sel_getUid("setHidden:")
@@ -147,8 +146,7 @@ var classTypes = [nctypes]*classData{
 				C.uintptr_t(_NSBackingStoreBuffered),
 				C.BOOL(C.YES))			// defer creation of device until we show the window
 			C.objc_msgSend_id(win, _setDelegate, appDelegate)
-			// this is needed for Areas in the window to receive mouse move events
-//			C.objc_msgSend_bool(win, _setAcceptsMouseMovedEvents, C.BOOL(C.YES))
+			// we do not need setAcceptsMouseMovedEvents: here since we are using a tracking rect in Areas for that
 			return win
 		},
 		show:		func(what C.id) {

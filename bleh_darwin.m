@@ -21,6 +21,7 @@ though this is not always the case.
 #include <AppKit/NSBitmapImageRep.h>
 #include <AppKit/NSCell.h>
 #include <AppKit/NSApplication.h>
+#include <AppKit/NSTrackingArea.h>
 
 /* used by listbox_darwin.go; requires NSString */
 id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
@@ -43,6 +44,9 @@ static id c_NSFont;
 static SEL s_setFont;				/* objc_setFont() */
 static SEL s_systemFontOfSize;
 static SEL s_systemFontSizeForControlSize;
+static id c_NSTrackingArea;
+static SEL s_bounds;
+static SEL s_initTrackingArea;
 
 void initBleh()
 {
@@ -60,6 +64,9 @@ void initBleh()
 	s_setFont = sel_getUid("setFont:");
 	s_systemFontOfSize = sel_getUid("systemFontOfSize:");
 	s_systemFontSizeForControlSize = sel_getUid("systemFontSizeForControlSize:");
+	c_NSTrackingArea = objc_getClass("NSTrackingArea");
+	s_bounds = sel_getUid("bounds");
+	s_initTrackingArea = sel_getUid("initWithRect:options:owner:userInfo:");
 }
 
 /*
@@ -350,3 +357,25 @@ static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id s
 void *_appDelegate_applicationShouldTerminate = (void *) __appDelegate_applicationShouldTerminate;
 
 char *encodedTerminateReply = @encode(NSApplicationTerminateReply);
+
+/*
+tracking areas; also here for convenience only
+*/
+
+/* IDK if this is needed; just to be safe */
+static id (*objc_msgSend_initTrackingArea)(id, SEL, NSRect, NSTrackingAreaOptions, id, id) =
+	(id (*)(id, SEL, NSRect, NSTrackingAreaOptions, id, id)) objc_msgSend;
+
+id makeTrackingArea(id area)
+{
+	id trackingArea;
+
+	trackingArea = objc_msgSend(c_NSTrackingArea, s_alloc);
+	trackingArea = (*objc_msgSend_initTrackingArea)(trackingArea, s_initTrackingArea,
+		(*objc_msgSend_stret_rect)(area, s_bounds),			/* initWithRect: */
+		/* this bit mask (except for NSTrackingInVisibleRect, which was added later) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily */
+		(NSTrackingAreaOptions) (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag | NSTrackingInVisibleRect),			/* options: */
+		area,											/* owner: */
+		nil);											/* userData: */
+	return trackingArea;
+}
