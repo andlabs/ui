@@ -53,7 +53,7 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 					panic("GetClientRect failed: " + err.Error())
 				}
 				// top-left corner is (0,0) so no need for winheight
-				s.doResize(int(r.Left), int(r.Top), int(r.Right), int(r.Bottom), 0)
+				s.doResize(int(r.left), int(r.top), int(r.right), int(r.bottom), 0)
 				// TODO use the Defer movement functions here?
 			}
 			return 0

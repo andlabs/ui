@@ -65,15 +65,15 @@ func (l _LPARAM) _Y() int32 {
 }
 
 type _POINT struct {
-	X	int32
-	Y	int32
+	x	int32
+	y	int32
 }
 
 type _RECT struct {
-	Left		int32
-	Top		int32
-	Right	int32
-	Bottom	int32
+	left		int32
+	top		int32
+	right		int32
+	bottom	int32
 }
 
 // Predefined cursor resource IDs.

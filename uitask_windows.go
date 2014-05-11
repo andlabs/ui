@@ -102,12 +102,12 @@ var getMessageFail = -1		// because Go doesn't let me
 
 func msgloop() {
 	var msg struct {
-		Hwnd	_HWND
-		Message	uint32
-		WParam	_WPARAM
-		LParam	_LPARAM
-		Time		uint32
-		Pt		_POINT
+		hwnd	_HWND
+		message	uint32
+		wParam	_WPARAM
+		lParam	_LPARAM
+		time		uint32
+		pt		_POINT
 	}
 
 	for {

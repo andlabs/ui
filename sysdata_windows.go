@@ -503,7 +503,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 		return fmt.Errorf("error getting upper-left of window for resize: %v", r.err)
 	}
 	// 0 because (0,0) is top-left so no winheight
-	err := s.setRect(int(rect.Left), int(rect.Top), width, height, 0)
+	err := s.setRect(int(rect.left), int(rect.top), width, height, 0)
 	if err != nil {
 		return fmt.Errorf("error actually resizing window: %v", err)
 	}

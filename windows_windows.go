@@ -288,11 +288,11 @@ const (
 )
 
 type _MINMAXINFO struct {
-	PtReserved		_POINT
-	PtMaxSize			_POINT
-	PtMaxPosition		_POINT
-	PtMinTrackSize		_POINT
-	PtMaxTrackSize	_POINT
+	ptReserved		_POINT
+	ptMaxSize		_POINT
+	ptMaxPosition		_POINT
+	ptMinTrackSize		_POINT
+	ptMaxTrackSize	_POINT
 }
 
 func (l _LPARAM) MINMAXINFO() *_MINMAXINFO {

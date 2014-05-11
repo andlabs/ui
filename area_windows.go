@@ -95,7 +95,7 @@ func paintArea(s *sysData) {
 
 	hscroll, vscroll := getScrollPos(s.hwnd)
 
-	cliprect := image.Rect(int(xrect.Left), int(xrect.Top), int(xrect.Right), int(xrect.Bottom))
+	cliprect := image.Rect(int(xrect.left), int(xrect.top), int(xrect.right), int(xrect.bottom))
 	cliprect = cliprect.Add(image.Pt(int(hscroll), int(vscroll)))			// adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area
 	cliprect = cliprect.Intersect(image.Rect(0, 0, s.areawidth, s.areaheight))
@@ -127,8 +127,8 @@ func paintArea(s *sysData) {
 	// thanks to David Heffernan in http://stackoverflow.com/questions/23033636/winapi-gdi-fillrectcolor-btnface-fills-with-strange-grid-like-brush-on-window
 	r1, _, err = _createCompatibleBitmap.Call(
 		uintptr(hdc),
-		uintptr(xrect.Right - xrect.Left),
-		uintptr(xrect.Bottom - xrect.Top))
+		uintptr(xrect.right - xrect.left),
+		uintptr(xrect.bottom - xrect.top))
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error creating off-screen rendering bitmap: %v", err))
 	}
@@ -141,10 +141,10 @@ func paintArea(s *sysData) {
 	}
 	prevrbitmap := _HANDLE(r1)
 	rrect := _RECT{
-		Left:		0,
-		Right:	xrect.Right - xrect.Left,
-		Top:		0,
-		Bottom:	xrect.Bottom - xrect.Top,
+		left:		0,
+		right:	xrect.right - xrect.left,
+		top:		0,
+		bottom:	xrect.bottom - xrect.top,
 	}
 	r1, _, err = _fillRect.Call(
 		uintptr(rdc),
@@ -230,10 +230,10 @@ func paintArea(s *sysData) {
 	// and finally we can just blit that into the window
 	r1, _, err = _bitBlt.Call(
 		uintptr(hdc),
-		uintptr(xrect.Left),
-		uintptr(xrect.Top),
-		uintptr(xrect.Right - xrect.Left),
-		uintptr(xrect.Bottom - xrect.Top),
+		uintptr(xrect.left),
+		uintptr(xrect.top),
+		uintptr(xrect.right - xrect.left),
+		uintptr(xrect.bottom - xrect.top),
 		uintptr(rdc),
 		uintptr(0),			// from the rdc's origin
 		uintptr(0),
@@ -287,8 +287,8 @@ func getAreaControlSize(hwnd _HWND) (width int, height int) {
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error getting size of actual Area control: %v", err))
 	}
-	return int(rect.Right - rect.Left),
-		int(rect.Bottom - rect.Top)
+	return int(rect.right - rect.left),
+		int(rect.bottom - rect.top)
 }
 
 func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
