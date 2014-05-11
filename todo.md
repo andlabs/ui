@@ -36,6 +36,7 @@ super ultra important things:
 	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
+	- check my logs; someone in irc.gimp.net/#gtk+ answered this (or provided an answer)
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
@@ -47,6 +48,7 @@ super ultra important things:
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 	- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
+	- this also happens in real windows (press the windows key to open the start menu); there's something I'm not handling and I'm not sure what it is
 - GTK+ indefinite progress bar animation is choppy: make sure the speed we have now is the conventional speed for GTK+ programs (HIG doesn't list any) and that the choppiness is correct
 - Message boxes are not application-modal on some platforms
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/23/378866.aspx http://blogs.msdn.com/b/oldnewthing/archive/2005/02/24/379635.aspx

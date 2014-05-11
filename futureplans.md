@@ -73,6 +73,7 @@ far off:
 - combine more Windows files; rename some?
 - tab stops
 	- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx
+	- related: if an Area is the only control, it may or may not ge tkeyboard focus; it doesn't on Windows XP, for instance
 - rename Stack to Box?
 - maybe change multiple selection lists to checkbox lists?
 	- windows HIG refernece: http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx - conflicting, confusing info
