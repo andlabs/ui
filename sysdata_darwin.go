@@ -10,6 +10,7 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
+// #include "sysdata_darwin.h"
 import "C"
 
 type sysData struct {
@@ -99,16 +100,15 @@ func initWithDummyFrame(self C.id) C.id {
 }
 
 func addControl(parentWindow C.id, control C.id) {
-	windowView := C.objc_msgSend_noargs(parentWindow, _contentView)
-	C.objc_msgSend_id(windowView, _addSubview, control)
+	C.addControl(parentWindow, control)
 }
 
 func controlShow(what C.id) {
-	C.objc_msgSend_bool(what, _setHidden, C.BOOL(C.NO))
+	C.controlShow(what)
 }
 
 func controlHide(what C.id) {
-	C.objc_msgSend_bool(what, _setHidden, C.BOOL(C.YES))
+	C.controlHide(what)
 }
 
 const (
@@ -122,40 +122,22 @@ const (
 
 // Button, Checkbox, Combobox, LineEdit, Label, Listbox
 func applyStandardControlFont(id C.id) {
-	C.objc_setFont(id, _NSRegularControlSize)
+	C.applyStandardControlFont(id)
 }
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			const (
-				_NSBorderlessWindowMask = 0
-				_NSTitledWindowMask = 1 << 0
-				_NSClosableWindowMask = 1 << 1
-				_NSMiniaturizableWindowMask = 1 << 2
-				_NSResizableWindowMask = 1 << 3
-				_NSTexturedBackgroundWindowMask = 1 << 8
-
-				_NSBackingStoreBuffered = 2		// the only backing store method that Apple says we should use (the others are legacy)
-			)
-
-			// we have to specify a content rect to start; it will be overridden soon though
-			win := C.objc_msgSend_noargs(_NSWindow, _alloc)
-			win = C.objc_msgSend_rect_uint_uint_bool(win,
-				_initWithContentRect,
-				C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
-				C.uintptr_t(_NSTitledWindowMask | _NSClosableWindowMask | _NSMiniaturizableWindowMask | _NSResizableWindowMask),
-				C.uintptr_t(_NSBackingStoreBuffered),
-				C.BOOL(C.YES))			// defer creation of device until we show the window
+			win := C.makeWindow()
 			C.objc_msgSend_id(win, _setDelegate, appDelegate)
 			// we do not need setAcceptsMouseMovedEvents: here since we are using a tracking rect in Areas for that
 			return win
 		},
 		show:		func(what C.id) {
-			C.objc_msgSend_id(what, _makeKeyAndOrderFront, what)
+			C.windowShow(what)
 		},
 		hide:			func(what C.id) {
-			C.objc_msgSend_id(what, _orderOut, what)
+			C.windowHide(what)
 		},
 		settextsel:		_setTitle,
 		textsel:		_title,
