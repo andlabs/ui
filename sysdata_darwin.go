@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"unsafe"
 	"sync"
 )
 
@@ -144,15 +143,8 @@ var classTypes = [nctypes]*classData{
 	},
 	c_button:			&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			const (
-				_NSRoundedBezelStyle = 1
-			)
-
-			button := C.objc_msgSend_noargs(_NSButton, _alloc)
-			button = initWithDummyFrame(button)
-			C.objc_msgSend_uint(button, _setBezelStyle, C.uintptr_t(_NSRoundedBezelStyle))
-			C.objc_msgSend_id(button, _setTarget, appDelegate)
-			C.objc_msgSend_sel(button, _setAction, _buttonClicked)
+			button := C.makeButton()
+			C.buttonSetTargetAction(button, appDelegate)
 			applyStandardControlFont(button)
 			addControl(parentWindow, button)
 			return button
@@ -164,13 +156,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_checkbox:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			const (
-				_NSSwitchButton = 3
-			)
-
-			checkbox := C.objc_msgSend_noargs(_NSButton, _alloc)
-			checkbox = initWithDummyFrame(checkbox)
-			C.objc_msgSend_uint(checkbox, _setButtonType, C.uintptr_t(_NSSwitchButton))
+			checkbox := C.makeCheckbox()
 			applyStandardControlFont(checkbox)
 			addControl(parentWindow, checkbox)
 			return checkbox
@@ -185,14 +171,9 @@ var classTypes = [nctypes]*classData{
 			var combobox C.id
 
 			if alternate {
-				combobox = C.objc_msgSend_noargs(_NSComboBox, _alloc)
-				combobox = initWithDummyFrame(combobox)
-				C.objc_msgSend_bool(combobox, _setUsesDataSource, C.BOOL(C.NO))
+				combobox = C.makeCombobox(C.YES)
 			} else {
-				combobox = C.objc_msgSend_noargs(_NSPopUpButton, _alloc)
-				combobox = C.objc_msgSend_rect_bool(combobox, _initWithFramePullsDown,
-					C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100),
-					C.BOOL(C.NO))
+				combobox = C.makeCombobox(C.NO)
 			}
 			applyStandardControlFont(combobox)
 			addControl(parentWindow, combobox)
@@ -205,43 +186,35 @@ var classTypes = [nctypes]*classData{
 		append:		func(id C.id, what string, alternate bool) {
 			str := toNSString(what)
 			if alternate {
-				C.objc_msgSend_id(id, _addItemWithObjectValue, str)
+				C.comboboxAppend(id, C.YES, str)
 			} else {
-				C.objc_msgSend_id(id, _addItemWithTitle, str)
+				C.comboboxAppend(id, C.NO, str)
 			}
 		},
 		insertBefore:	func(id C.id, what string, before int, alternate bool) {
 			str := toNSString(what)
 			if alternate {
-				C.objc_msgSend_id_int(id, _insertItemWithObjectValueAtIndex, str, C.intptr_t(before))
+				C.comboboxInsertBefore(id, C.YES, str, C.intptr_t(before))
 			} else {
-				C.objc_msgSend_id_int(id, _insertItemWithTitleAtIndex, str, C.intptr_t(before))
+				C.comboboxInsertBefore(id, C.NO, str, C.intptr_t(before))
 			}
 		},
 		selIndex:		func(id C.id) int {
-			return int(C.objc_msgSend_intret_noargs(id, _indexOfSelectedItem))
+			return int(C.comboboxSelectedIndex(id))
 		},
 		delete:		func(id C.id, index int) {
-			C.objc_msgSend_int(id, _removeItemAtIndex, C.intptr_t(index))
+			C.comboboxDelete(id, C.intptr_t(index))
 		},
 		len:			func(id C.id) int {
-			return int(C.objc_msgSend_intret_noargs(id, _numberOfItems))
+			return int(C.comboboxLen(id))
 		},
 		selectIndex:	func(id C.id, index int, alternate bool) {
 			// NSPopUpButton makes this easy
-			if !alternate {
-				C.objc_msgSend_int(id, _selectItemAtIndex, C.intptr_t(index))
-				return
+			if alternate {
+				C.comboboxSelectIndex(id, C.YES, C.intptr_t(index))
+			} else {
+				C.comboboxSelectIndex(id, C.NO, C.intptr_t(index))
 			}
-			// NSComboBox doesn't document that we can do [cb selectItemAtIndex:-1], so we have to do this to be safe
-			if index == -1 {
-				idx := C.objc_msgSend_intret_noargs(id, _indexOfSelectedItem)
-				if idx != -1 {
-					C.objc_msgSend_int(id, _deselectItemAtIndex, idx)
-				}
-				return
-			}
-			C.objc_msgSend_int(id, _selectItemAtIndex, C.intptr_t(index))
 		},
 	},
 	c_lineedit:		&classData{
@@ -249,11 +222,10 @@ var classTypes = [nctypes]*classData{
 			var lineedit C.id
 
 			if alternate {
-				lineedit = C.objc_msgSend_noargs(_NSSecureTextField, _alloc)
+				lineedit = C.makeLineEdit(C.YES)
 			} else {
-				lineedit = C.objc_msgSend_noargs(_NSTextField, _alloc)
+				lineedit = C.makeLineEdit(C.NO)
 			}
-			lineedit = initWithDummyFrame(lineedit)
 			applyStandardControlFont(lineedit)
 			addControl(parentWindow, lineedit)
 			return lineedit
@@ -266,25 +238,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label:			&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			const (
-				_NSLineBreakByWordWrapping = iota
-				_NSLineBreakByCharWrapping
-				_NSLineBreakByClipping
-				_NSLineBreakByTruncatingHead
-				_NSLineBreakByTruncatingTail
-				_NSLineBreakByTruncatingMiddle
-			)
-
-			label := C.objc_msgSend_noargs(_NSTextField, _alloc)
-			label = initWithDummyFrame(label)
-			C.objc_msgSend_bool(label, _setEditable, C.BOOL(C.NO))
-			C.objc_msgSend_bool(label, _setBordered, C.BOOL(C.NO))
-			C.objc_msgSend_bool(label, _setDrawsBackground, C.BOOL(C.NO))
-			// this disables both word wrap AND ellipsizing in one fell swoop
-			// we have to send to the control's cell for this
-			C.objc_msgSend_uint(C.objc_msgSend_noargs(label, _cell),
-				_setLineBreakMode, _NSLineBreakByClipping)
-			// for a multiline label, we either use WordWrapping and send setTruncatesLastVisibleLine: to disable ellipsizing OR use one of those ellipsizing styles
+			label := C.makeLabel()
 			applyStandardControlFont(label)
 			addControl(parentWindow, label)
 			return label
@@ -308,17 +262,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_progressbar:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			const (
-				_NSProgressIndicatorBarStyle = 0
-			)
-
-			pbar := C.objc_msgSend_noargs(_NSProgressIndicator, _alloc)
-			pbar = initWithDummyFrame(pbar)
-			// NSProgressIndicatorStyle doesn't have an explicit typedef; just use int for now
-			C.objc_msgSend_int(pbar, _setStyle, _NSProgressIndicatorBarStyle)
-			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(_NSRegularControlSize))
-			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
-			C.objc_msgSend_id(pbar, _stopAnimation, pbar)
+			pbar := C.makeProgressBar()
 			addControl(parentWindow, pbar)
 			return pbar
 		},
@@ -419,21 +363,17 @@ func (s *sysData) setText(text string) {
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
 	// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 	// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
-	C.objc_msgSend_rect(s.id, _setFrame,
-		C.int64_t(x), C.int64_t((winheight - y) - height), C.int64_t(width), C.int64_t(height))
+	C.setRect(s.id,
+		C.intptr_t(x), C.intptr_t((winheight - y) - height),
+		C.intptr_t(width), C.intptr_t(height))
 	return nil
 }
 
 func (s *sysData) isChecked() bool {
-	const (
-		NSOnState = 1
-	)
-
 	ret := make(chan bool)
 	defer close(ret)
 	uitask <- func() {
-		k := C.objc_msgSend_noargs(s.id, _state)
-		ret <- uintptr(unsafe.Pointer(k)) == NSOnState
+		ret <- C.isCheckboxChecked(s.id) != C.NO
 	}
 	return <-ret
 }
@@ -503,10 +443,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		// use -[NSWindow setContentSize:], which will resize the window without taking the titlebar as part of the given size and without needing us to consider the window's position (the function takes care of both for us)
-		C.objc_msgSend_size(s.id, _setContentSize,
-			C.int64_t(width), C.int64_t(height))
-		C.objc_msgSend_noargs(s.id, _display)		// TODO needed?
+		C.windowSetContentSize(s.id, C.intptr_t(width), C.intptr_t(height))
 		ret <- struct{}{}
 	}
 	<-ret
@@ -527,15 +464,7 @@ func (s *sysData) setProgress(percent int) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		if percent == -1 {
-			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.YES))
-			C.objc_msgSend_id(s.id, _startAnimation, s.id)
-		} else {
-			// will have no effect if we were already determinate
-			C.objc_msgSend_id(s.id, _stopAnimation, s.id)
-			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.NO))
-			C.objc_msgSend_double(s.id, _setDoubleValue, C.double(percent))
-		}
+		C.setProgress(s.id, C.intptr_t(percent))
 		ret <- struct{}{}
 	}
 	<-ret
@@ -554,10 +483,7 @@ func (s *sysData) setAreaSize(width int, height int) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		area := areaInScrollView(s.id)
-		C.objc_msgSend_rect(area, _setFrame,
-			C.int64_t(0), C.int64_t(0), C.int64_t(width), C.int64_t(height))
-		C.objc_msgSend_noargs(area, _display)		// and redraw
+		C.setAreaSize(s.id, C.intptr_t(width), C.intptr_t(height))
 		ret <- struct{}{}
 	}
 	<-ret
