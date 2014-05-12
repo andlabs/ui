@@ -501,3 +501,6 @@ last one: Building a dialog template at run-time
 windows stock icons
 - the standard IDI_** values, plus a few others I forget now
 - http://msdn.microsoft.com/en-us/library/windows/desktop/bb762542%28v=vs.85%29.aspx (TODO really vista only?)
+
+a few more oldnewthing things
+- comment on WM_SIZE - http://blogs.msdn.com/b/oldnewthing/archive/2005/07/06/436043.aspx#436090
