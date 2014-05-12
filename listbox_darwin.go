@@ -3,8 +3,7 @@
 package ui
 
 import (
-	"reflect"
-	"unsafe"
+	// ...
 )
 
 /*
@@ -230,6 +229,8 @@ var (
 	_setHeaderView = sel_getUid("setHeaderView:")
 	_selectedRowIndexes = sel_getUid("selectedRowIndexes")
 	_count = sel_getUid("count")
+	_firstIndex = sel_getUid("firstIndex")
+	_indexGreaterThanIndex = sel_getUid("indexGreaterThanIndex:")
 	_numberOfRows = sel_getUid("numberOfRows")
 	_deselectAll = sel_getUid("deselectAll:")
 )
@@ -261,24 +262,19 @@ func insertListboxBefore(listbox C.id, what string, before int, alternate bool) 
 	insertListboxArrayBefore(array, what, before)
 }
 
-// TODO change to use [indices firstIndex] and [indices indexGreaterThanIndex:], as suggested http://stackoverflow.com/questions/3773180/how-to-get-indexes-from-nsindexset-into-an-nsarray-in-cocoa
+// technique from http://stackoverflow.com/questions/3773180/how-to-get-indexes-from-nsindexset-into-an-nsarray-in-cocoa
+// we don't care that the indices were originally NSUInteger since by this point we have a problem anyway; Go programs generally use int indices anyway
+// we also don't care about NSNotFound because we check the count first AND because NSIndexSet is always sorted (and NSNotFound can be a valid index if the list is large enough... since it's NSIntegerMax, not NSUIntegerMax)
 func selectedListboxIndices(listbox C.id) (list []int) {
-	var cindices []C.uintptr_t
-
 	indices := C.objc_msgSend_noargs(listboxInScrollView(listbox), _selectedRowIndexes)
 	count := int(C.objc_msgSend_uintret_noargs(indices, _count))
 	if count == 0 {
 		return nil
 	}
 	list = make([]int, count)
-	cidx := C.NSIndexSetEntries(indices, C.uintptr_t(count))
-	defer C.free(unsafe.Pointer(cidx))
-	pcindices := (*reflect.SliceHeader)(unsafe.Pointer(&cindices))
-	pcindices.Cap = count
-	pcindices.Len = count
-	pcindices.Data = uintptr(unsafe.Pointer(cidx))
-	for i := 0; i < count; i++ {
-		list[i] = int(cindices[i])
+	list[0] = int(C.objc_msgSend_uintret_noargs(indices, _firstIndex))
+	for i := 1; i < count; i++ {
+		list[i] = int(C.objc_msgSend_uintret_uint(indices, _indexGreaterThanIndex, C.uintptr_t(list[i - 1])))
 	}
 	return list
 }

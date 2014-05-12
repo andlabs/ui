@@ -49,7 +49,8 @@ struct xpoint {
 	int64_t y;
 };
 
-extern uintptr_t objc_msgSend_uintret_noargs(id objc, SEL sel);
+extern uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel);
+extern uintptr_t objc_msgSend_uintret_uint(id obj, SEL sel, uintptr_t a);
 
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
 

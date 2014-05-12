@@ -30,7 +30,6 @@ id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
 These are all the selectors and class IDs used by the functions below.
 */
 
-static SEL s_getIndexes;			/* NSIndexSetEntries() */
 static id c_NSEvent;				/* makeDummyEvent() */
 static SEL s_newEvent;
 static id c_NSBitmapImageRep;	/* drawImage() */
@@ -50,7 +49,6 @@ static SEL s_initTrackingArea;
 
 void initBleh()
 {
-	s_getIndexes = sel_getUid("getIndexes:maxCount:inIndexRange:");
 	c_NSEvent = objc_getClass("NSEvent");
 	s_newEvent = sel_getUid("otherEventWithType:location:modifierFlags:timestamp:windowNumber:context:subtype:data1:data2:");
 	c_NSBitmapImageRep = objc_getClass("NSBitmapImageRep");
@@ -76,6 +74,11 @@ NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. 
 uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel)
 {
 	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel));
+}
+
+uintptr_t objc_msgSend_uintret_uint(id obj, SEL sel, uintptr_t a)
+{
+	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel, (NSUInteger) a));
 }
 
 id objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
@@ -191,30 +194,6 @@ and again for NSPoint
 id objc_msgSend_point(id obj, SEL sel, int64_t x, int64_t y)
 {
 	return objc_msgSend(obj, sel, NSMakePoint((CGFloat) x, (CGFloat) y));
-}
-
-/*
-This is a doozy: it deals with a NSUInteger array needed for this one selector, and converts them all into a uintptr_t array so we can use it from Go. The two arrays are created at runtime with malloc(); only the NSUInteger one is freed here, while Go frees the returned one. It's not optimal.
-*/
-
-uintptr_t *NSIndexSetEntries(id indexset, uintptr_t count)
-{
-	NSUInteger *nsuints;
-	uintptr_t *ret;
-	uintptr_t i;
-	size_t countsize;
-
-	countsize = (size_t) count;
-	nsuints = (NSUInteger *) malloc(countsize * sizeof (NSUInteger));
-	/* TODO check return value */
-	objc_msgSend(indexset, s_getIndexes,
-		nsuints, (NSUInteger) count, nil);
-	ret = (uintptr_t *) malloc(countsize * sizeof (uintptr_t));
-	for (i = 0; i < count; i++) {
-		ret[i] = (uintptr_t) nsuints[i];
-	}
-	free(nsuints);
-	return ret;
 }
 
 /*
