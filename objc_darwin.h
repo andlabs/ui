@@ -54,7 +54,7 @@ extern uintptr_t objc_msgSend_uintret_uint(id obj, SEL sel, uintptr_t a);
 
 extern intptr_t objc_msgSend_intret_noargs(id obj, SEL sel);
 
-extern uintptr_t objc_msgSend_ushortret_noargs(id objc, SEL sel);
+extern uintptr_t objc_msgSend_ushortret_noargs(id obj, SEL sel);
 
 #define m1(name, type1) \
 	static inline id objc_msgSend_ ## name (id obj, SEL sel, type1 a) \
@@ -90,7 +90,9 @@ m1(bool, BOOL)
 extern id objc_msgSend_int(id obj, SEL sel, intptr_t a);
 m1(double, double)
 extern id objc_msgSend_point(id obj, SEL sel, int64_t x, int64_t y);
-extern id objc_msgSend_size(id objc, SEL sel, int64_t width, int64_t height);
+extern id objc_msgSend_size(id obj, SEL sel, int64_t width, int64_t height);
+
+extern id objc_msgSendSuper_id(id obj, id class, SEL sel, id a);
 
 m2(id_id, id, id)
 extern id objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b);

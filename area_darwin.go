@@ -245,45 +245,45 @@ var (
 	_keyCode = sel_getUid("keyCode")
 )
 
-func handleKeyEvent(self C.id) {
-	// TODO
+func handleKeyEvent(self C.id, SEL C.SEL, e C.id) {
+	C.objc_msgSendSuper_id(self, _NSView, SEL, e)
 }
 
-func sendKeyEvent(self C.id, ke KeyEvent) {
+func sendKeyEvent(self C.id, sel C.SEL, e C.id, ke KeyEvent) {
 	s := getSysData(self)
 	handled, repaint := s.handler.Key(ke)
 	if repaint {
 		C.objc_msgSend_noargs(self, _display)
 	}
 	if !handled {
-		handleKeyEvent(self)
+		handleKeyEvent(self, sel, e)
 	}
 }
 
-func areaKeyEvent(self C.id, e C.id, up bool) {
+func areaKeyEvent(self C.id, sel C.SEL, e C.id, up bool) {
 	var ke KeyEvent
 
 	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
 	ke, ok := fromKeycode(keyCode)
 	if !ok {
 		// no such key; modifiers by themselves are handled by -[self flagsChanged:]
-		handleKeyEvent(self)
+		handleKeyEvent(self, sel, e)
 		return
 	}
 	// either ke.Key or ke.ExtKey will be set at this point
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = up
-	sendKeyEvent(self, ke)
+	sendKeyEvent(self, sel, e, ke)
 }
 
 //export areaView_keyDown
 func areaView_keyDown(self C.id, sel C.SEL, e C.id) {
-	areaKeyEvent(self, e, false)
+	areaKeyEvent(self, sel, e, false)
 }
 
 //export areaView_keyUp
 func areaView_keyUp(self C.id, sel C.SEL, e C.id) {
-	areaKeyEvent(self, e, true)
+	areaKeyEvent(self, sel, e, true)
 }
 
 //export areaView_flagsChanged
@@ -295,10 +295,10 @@ func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
 	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
 	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
 	if !ok {		// unknown modifier; ignore
-		handleKeyEvent(self)
+		handleKeyEvent(self, sel, e)
 		return
 	}
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
-	sendKeyEvent(self, ke)
+	sendKeyEvent(self, sel, e, ke)
 }
