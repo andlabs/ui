@@ -179,8 +179,11 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	s := getSysData(self)
 	xp := C.getTranslatedEventPoint(self, e)
 	me.Pos = image.Pt(int(xp.x), int(xp.y))
-	// no need to check me.Pos; Cocoa won't send an event outside the Area
-	// TODO actually wrong; Cocoa will if we drag out of the window
+	// for the most part, Cocoa won't geenerate an event outside the Area... except when dragging outside the Area, so check for this
+	max := C.objc_msgSend_stret_rect_noargs(self, _frame)
+	if !me.Pos.In(image.Rect(0, 0, int(max.width), int(max.height))) {
+		return
+	}
 	me.Modifiers = parseModifiers(e)
 	which := uint(C.objc_msgSend_intret_noargs(e, _buttonNumber)) + 1
 	if which == 3 {		// swap middle and right button numbers
