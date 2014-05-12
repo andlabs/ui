@@ -19,7 +19,7 @@ extern intptr_t comboboxSelectedIndex(id);
 extern void comboboxDelete(id, intptr_t);
 extern intptr_t comboboxLen(id);
 extern void comboboxSelectIndex(id, BOOL, intptr_t);
-extern id makeLineEdit(BOOL);
+extern id makeLineEdit(BOOL);		// TODO I accidentally left this as taking no arguments and clang didn't complain when compiling sysdata_darwin.m?!
 extern id makeLabel(void);
 extern id makeProgressBar(void);
 extern void setRect(id, intptr_t, intptr_t, intptr_t, intptr_t);
