@@ -84,6 +84,8 @@ var (
 	_setStyle = sel_getUid("setStyle:")
 	_setControlSize = sel_getUid("setControlSize:")
 	_setIndeterminate = sel_getUid("setIndeterminate:")
+	_startAnimation = sel_getUid("startAnimation:")
+	_stopAnimation = sel_getUid("stopAnimation:")
 	_setDoubleValue = sel_getUid("setDoubleValue:")
 	_numberOfItems = sel_getUid("numberOfItems")
 	_selectItemAtIndex = sel_getUid("selectItemAtIndex:")
@@ -334,6 +336,7 @@ var classTypes = [nctypes]*classData{
 			C.objc_msgSend_int(pbar, _setStyle, _NSProgressIndicatorBarStyle)
 			C.objc_msgSend_uint(pbar, _setControlSize, C.uintptr_t(_NSRegularControlSize))
 			C.objc_msgSend_bool(pbar, _setIndeterminate, C.BOOL(C.NO))
+			C.objc_msgSend_id(pbar, _stopAnimation, pbar)
 			addControl(parentWindow, pbar)
 			return pbar
 		},
@@ -543,11 +546,11 @@ func (s *sysData) setProgress(percent int) {
 	defer close(ret)
 	uitask <- func() {
 		if percent == -1 {
-			// At least on Mac OS X 10.8, if the progressbar was already on 0 or 100% when turning on indeterminate mode, the indeterminate animation won't play, leaving just a still progress bar. This is a workaround. Note the selector call order.
-			// TODO will the value chosen affect the animation speed?
-			C.objc_msgSend_double(s.id, _setDoubleValue, C.double(50))
 			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.YES))
+			C.objc_msgSend_id(s.id, _startAnimation, s.id)
 		} else {
+			// will have no effect if we were already determinate
+			C.objc_msgSend_id(s.id, _stopAnimation, s.id)
 			C.objc_msgSend_bool(s.id, _setIndeterminate, C.BOOL(C.NO))
 			C.objc_msgSend_double(s.id, _setDoubleValue, C.double(percent))
 		}
