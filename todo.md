@@ -1,6 +1,6 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- make sure mouse events trigger when we move the mouse over an Area with a button held on OS X
+- Mac OS X forces items selected when changing the Combobox/Listbox lists; figure out how to inhibit this
 
 super ultra important things:
 - add cgo build flags on OS X so binaries get built supporting 10.6 at least; the default is to build supporting the host platform at least, so 10.8 binaries crash on 10.6 with an illegal instruction during initial load (which crashes gdb too)
