@@ -18,10 +18,6 @@ var (
 	_NSView = objc_getClass("NSView")
 )
 
-func mkAreaClass() error {
-	return nil
-}
-
 func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 	area := C.makeArea()
 	area = newScrollView(area)

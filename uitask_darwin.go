@@ -69,16 +69,11 @@ var (
 
 func initCocoa() (err error) {
 	C.initBleh()		// initialize bleh_darwin.m functions
-	err = mkAppDelegate()
-	if err != nil {
-		return
-	}
+	makeAppDelegate()
 	if C.initCocoa(appDelegate) != C.YES {
-		err = fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
-		return
+		return fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
 	}
-	err = mkAreaClass()
-	return
+	return nil
 }
 
 //export appDelegate_uitask

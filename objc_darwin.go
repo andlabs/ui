@@ -3,7 +3,6 @@
 package ui
 
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -78,78 +77,4 @@ func newScrollView(content C.id) C.id {
 
 func getScrollViewContent(scrollview C.id) C.id {
 	return C.objc_msgSend_noargs(scrollview, _documentView)
-}
-
-// These create new classes.
-
-// selector contains the information for a new selector.
-type selector struct {
-	name	string
-	imp		uintptr	// not unsafe.Pointer because https://code.google.com/p/go/issues/detail?id=7665
-	itype		itype
-	desc		string	// for error reporting
-}
-
-// sel_[returntype] or sel_[returntype]_[arguments] (after the required self/sel arguments)
-type itype uint
-const (
-	sel_void_id itype = iota
-	sel_bool_id
-	sel_bool
-	sel_void_rect
-	sel_terminatereply_id
-	sel_void
-	nitypes
-)
-
-var itypes = [nitypes][]C.char{
-	sel_void_id:			[]C.char{'v', '@', ':', '@', 0},
-	sel_bool_id:			[]C.char{'c', '@', ':', '@', 0},
-	sel_bool:				[]C.char{'c', '@', ':', 0},
-	sel_void_rect:			nil,			// see init() below
-	sel_terminatereply_id:	nil,
-	sel_void:				[]C.char{'v', '@', ':', 0},
-}
-
-func init() {
-	// see encodedNSRect in bleh_darwin.m
-	x := make([]C.char, 0, 256)	// more than enough
-	x = append(x, 'v', '@', ':')
-	y := C.GoString(C.encodedNSRect)
-	for _, b := range y {
-		x = append(x, C.char(b))
-	}
-	x = append(x, 0)
-	itypes[sel_void_rect] = x
-
-	x = make([]C.char, 0, 256)	// more than enough
-	y = C.GoString(C.encodedTerminateReply)
-	for _, b := range y {
-		x = append(x, C.char(b))
-	}
-	x = append(x, '@', ':', '@', 0)
-	itypes[sel_terminatereply_id] = x
-}
-
-func makeClass(name string, super C.id, sels []selector, desc string) (id C.id, err error) {
-	cname := C.CString(name)
-	defer C.free(unsafe.Pointer(cname))
-
-	// an id that describes a class is itself a Class
-	// thanks to Psy| in irc.freenode.net/##objc
-	c := C.objc_allocateClassPair(C.Class(unsafe.Pointer(super)), cname, 0)
-	if c == C.NilClass {
-		err = fmt.Errorf("unable to create Objective-C class %s for %s; reason unknown", name, desc)
-		return
-	}
-	C.objc_registerClassPair(c)
-	for _, v := range sels {
-		ok := C.class_addMethod(c, sel_getUid(v.name),
-			C.IMP(unsafe.Pointer(v.imp)), &itypes[v.itype][0])
-		if ok == C.BOOL(C.NO) {
-			err = fmt.Errorf("unable to add selector %s to class %s (needed for %s; reason unknown)", v.name, name, v.desc)
-			return
-		}
-	}
-	return objc_getClass(name), nil
 }

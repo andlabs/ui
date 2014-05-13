@@ -25,18 +25,13 @@ var (
 	appDelegate C.id
 )
 
-const (
-	_goAppDelegate = "goAppDelegate"
-)
-
 var (
 	_uitask = sel_getUid("uitask:")					// used by uitask_darwin.go
 	_buttonClicked = sel_getUid("buttonClicked:")		// used by sysdata_darwin.go
 )
 
-func mkAppDelegate() error {
+func makeAppDelegate() {
 	appDelegate = C.makeAppDelegate()
-	return nil
 }
 
 //export appDelegate_windowShouldClose
