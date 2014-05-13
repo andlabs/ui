@@ -18,9 +18,7 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
-// /* TODO this goes in objc_darwin.h once I take care of everything else */
-// extern id makeAppDelegate(void);
-// extern id windowGetContentView(id);
+// #include "delegateuitask_darwin.h"
 import "C"
 
 var (
