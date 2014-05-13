@@ -24,12 +24,8 @@ type classData struct {
 	getinside		func(scrollview C.id) C.id
 	show		func(what C.id)
 	hide			func(what C.id)
-//	settext		func(what C.id, text string)
-	settextsel		C.SEL
-//	text			func(what C.id) string
-	textsel		C.SEL
-//	alttextsel		func(what C.id) string
-	alttextsel		C.SEL
+	settext		func(what C.id, text C.id)
+	text			func(what C.id, alternate bool) C.id
 	append		func(id C.id, what string, alternate bool)
 	insertBefore	func(id C.id, what string, before int, alternate bool)
 	selIndex		func(id C.id) int
@@ -142,8 +138,12 @@ var classTypes = [nctypes]*classData{
 		hide:			func(what C.id) {
 			C.windowHide(what)
 		},
-		settextsel:		_setTitle,
-		textsel:		_title,
+		settext:		func(what C.id, text C.id) {
+			C.windowSetTitle(what, text)
+		},
+		text:			func(what C.id, alternate bool) C.id {
+			return C.windowTitle(what)
+		},
 	},
 	c_button:			&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
@@ -155,8 +155,12 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		settextsel:		_setTitle,
-		textsel:		_title,
+		settext:		func(what C.id, text C.id) {
+			C.buttonSetText(what, text)
+		},
+		text:			func(what C.id, alternate bool) C.id {
+			return C.buttonText(what)
+		},
 	},
 	c_checkbox:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
@@ -167,8 +171,12 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		settextsel:		_setTitle,
-		textsel:		_title,
+		settext:		func(what C.id, text C.id) {
+			C.buttonSetText(what, text)
+		},
+		text:			func(what C.id, alternate bool) C.id {
+			return C.buttonText(what)
+		},
 	},
 	c_combobox:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
@@ -179,8 +187,9 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		textsel:		_titleOfSelectedItem,
-		alttextsel:		_stringValue,
+		text:			func(what C.id, alternate bool) C.id {
+			return C.comboboxText(what, toBOOL(alternate))
+		},
 		append:		func(id C.id, what string, alternate bool) {
 			C.comboboxAppend(id, toBOOL(alternate), toNSString(what))
 		},
@@ -210,9 +219,12 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		settextsel:		_setStringValue,
-		textsel:		_stringValue,
-		alttextsel:		_stringValue,
+		settext:		func(what C.id, text C.id) {
+			C.lineeditSetText(what, text)
+		},
+		text:			func(what C.id, alternate bool) C.id {
+			return C.lineeditText(what)
+		},
 	},
 	c_label:			&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
@@ -223,8 +235,12 @@ var classTypes = [nctypes]*classData{
 		},
 		show:		controlShow,
 		hide:			controlHide,
-		settextsel:		_setStringValue,
-		textsel:		_stringValue,
+		settext:		func(what C.id, text C.id) {
+			C.lineeditSetText(what, text)
+		},
+		text:			func(what C.id, alternate bool) C.id {
+			return C.lineeditText(what)
+		},
 	},
 	c_listbox:			&classData{
 		make:		makeListbox,
@@ -332,7 +348,7 @@ func (s *sysData) setText(text string) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		C.objc_msgSend_id(s.id, classTypes[s.ctype].settextsel, toNSString(text))
+		classTypes[s.ctype].settext(s.id, toNSString(text))
 		ret <- struct{}{}
 	}
 	<-ret
@@ -357,14 +373,10 @@ func (s *sysData) isChecked() bool {
 }
 
 func (s *sysData) text() string {
-	sel := classTypes[s.ctype].textsel
-	if s.alternate {
-		sel = classTypes[s.ctype].alttextsel
-	}
 	ret := make(chan string)
 	defer close(ret)
 	uitask <- func() {
-		str := C.objc_msgSend_noargs(s.id, sel)
+		str := classTypes[s.ctype].text(s.id, s.alternate)
 		ret <- fromNSString(str)
 	}
 	return <-ret

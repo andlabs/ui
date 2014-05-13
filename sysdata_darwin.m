@@ -80,6 +80,16 @@ void windowHide(id window)
 	[toNSWindow(window) orderOut:window];
 }
 
+void windowSetTitle(id window, id title)
+{
+	[toNSWindow(window) setTitle:title];
+}
+
+id windowTitle(id window)
+{
+	return [toNSWindow(window) title];
+}
+
 id makeButton(void)
 {
 	NSButton *button;
@@ -94,6 +104,16 @@ void buttonSetTargetAction(id button, id delegate)
 {
 	[toNSButton(button) setTarget:delegate];
 	[toNSButton(button) setAction:@selector(buttonClicked:)];
+}
+
+void buttonSetText(id button, id text)
+{
+	[toNSButton(button) setTitle:text];
+}
+
+id buttonText(id button)
+{
+	return [toNSButton(button) title];
 }
 
 id makeCheckbox(void)
@@ -123,6 +143,13 @@ id makeCombobox(BOOL editable)
 		initWithFrame:dummyRect];
 	[combobox setUsesDataSource:NO];
 	return combobox;
+}
+
+id comboboxText(id combobox, BOOL editable)
+{
+	if (!editable)
+		return [toNSPopUpButton(combobox) titleOfSelectedItem];
+	return [toNSComboBox(combobox) stringValue];
 }
 
 void comboboxAppend(id combobox, BOOL editable, id str)
@@ -191,6 +218,16 @@ id makeLineEdit(BOOL password)
 			initWithFrame:dummyRect];
 	return [[NSTextField alloc]
 		initWithFrame:dummyRect];
+}
+
+void lineeditSetText(id lineedit, id text)
+{
+	[toNSTextField(lineedit) setStringValue:text];
+}
+
+id lineeditText(id lineedit)
+{
+	return [toNSTextField(lineedit) stringValue];
 }
 
 id makeLabel(void)
