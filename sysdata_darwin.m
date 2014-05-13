@@ -5,7 +5,7 @@
 #include <Foundation/NSGeometry.h>
 #include <AppKit/NSWindow.h>
 #include <AppKit/NSView.h>
-#include <AppKit/NSCell.h>
+#include <AppKit/NSControl.h>
 #include <AppKit/NSButton.h>
 #include <AppKit/NSPopUpButton.h>
 #include <AppKit/NSComboBox.h>
@@ -19,6 +19,7 @@ static NSRect dummyRect;// = NSMakeRect(0, 0, 100, 100);
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
 #define toNSView(x) to(NSView, (x))
+#define toNSControl(x) to(NSControl, (x))
 #define toNSButton(x) to(NSButton, (x))
 #define toNSPopUpButton(x) to(NSPopUpButton, (x))
 #define toNSComboBox(x) to(NSComboBox, (x))
@@ -53,15 +54,20 @@ void applyStandardControlFont(id what)
 	objc_setFont(what, NSRegularControlSize);
 }
 
-id makeWindow(void)
+id makeWindow(id delegate)
 {
+	NSWindow *w;
+
 	// TODO separate to initilaizer
 	dummyRect = NSMakeRect(0, 0, 100, 100);
-	return [[NSWindow alloc]
+	w = [[NSWindow alloc]
 		initWithContentRect:dummyRect
 		styleMask:(NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)
 		backing:NSBackingStoreBuffered
 		defer:YES];	// defer creation of device until we show the window
+	[w setDelegate:delegate];
+	// we do not need setAcceptsMouseMovedEvents: here since we are using a tracking rect in Areas for that
+	return w;
 }
 
 void windowShow(id window)

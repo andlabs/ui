@@ -6,7 +6,7 @@ extern void addControl(id, id);
 extern void controlShow(id);
 extern void controlHide(id);
 extern void applyStandardControlFont(id);
-extern id makeWindow(void);
+extern id makeWindow(id);
 extern void windowShow(id);
 extern void windowHide(id);
 extern id makeButton(void);

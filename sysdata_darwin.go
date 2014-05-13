@@ -24,8 +24,11 @@ type classData struct {
 	getinside		func(scrollview C.id) C.id
 	show		func(what C.id)
 	hide			func(what C.id)
+//	settext		func(what C.id, text string)
 	settextsel		C.SEL
+//	text			func(what C.id) string
 	textsel		C.SEL
+//	alttextsel		func(what C.id) string
 	alttextsel		C.SEL
 	append		func(id C.id, what string, alternate bool)
 	insertBefore	func(id C.id, what string, before int, alternate bool)
@@ -110,9 +113,13 @@ func controlHide(what C.id) {
 	C.controlHide(what)
 }
 
-const (
-	_NSRegularControlSize = 0
-)
+// TODO move to objc_darwin.go unless the only thing that uses it is alternate
+func toBOOL(what bool) C.BOOL {
+	if what {
+		return C.YES
+	}
+	return C.NO
+}
 
 // By default some controls do not use the correct font.
 // These functions set the appropriate control font.
@@ -127,10 +134,7 @@ func applyStandardControlFont(id C.id) {
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			win := C.makeWindow()
-			C.objc_msgSend_id(win, _setDelegate, appDelegate)
-			// we do not need setAcceptsMouseMovedEvents: here since we are using a tracking rect in Areas for that
-			return win
+			return C.makeWindow(appDelegate)
 		},
 		show:		func(what C.id) {
 			C.windowShow(what)
@@ -168,13 +172,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_combobox:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			var combobox C.id
-
-			if alternate {
-				combobox = C.makeCombobox(C.YES)
-			} else {
-				combobox = C.makeCombobox(C.NO)
-			}
+			combobox := C.makeCombobox(toBOOL(alternate))
 			applyStandardControlFont(combobox)
 			addControl(parentWindow, combobox)
 			return combobox
@@ -184,20 +182,11 @@ var classTypes = [nctypes]*classData{
 		textsel:		_titleOfSelectedItem,
 		alttextsel:		_stringValue,
 		append:		func(id C.id, what string, alternate bool) {
-			str := toNSString(what)
-			if alternate {
-				C.comboboxAppend(id, C.YES, str)
-			} else {
-				C.comboboxAppend(id, C.NO, str)
-			}
+			C.comboboxAppend(id, toBOOL(alternate), toNSString(what))
 		},
 		insertBefore:	func(id C.id, what string, before int, alternate bool) {
-			str := toNSString(what)
-			if alternate {
-				C.comboboxInsertBefore(id, C.YES, str, C.intptr_t(before))
-			} else {
-				C.comboboxInsertBefore(id, C.NO, str, C.intptr_t(before))
-			}
+			C.comboboxInsertBefore(id, toBOOL(alternate),
+				toNSString(what), C.intptr_t(before))
 		},
 		selIndex:		func(id C.id) int {
 			return int(C.comboboxSelectedIndex(id))
@@ -209,23 +198,12 @@ var classTypes = [nctypes]*classData{
 			return int(C.comboboxLen(id))
 		},
 		selectIndex:	func(id C.id, index int, alternate bool) {
-			// NSPopUpButton makes this easy
-			if alternate {
-				C.comboboxSelectIndex(id, C.YES, C.intptr_t(index))
-			} else {
-				C.comboboxSelectIndex(id, C.NO, C.intptr_t(index))
-			}
+			C.comboboxSelectIndex(id, toBOOL(alternate), C.intptr_t(index))
 		},
 	},
 	c_lineedit:		&classData{
 		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
-			var lineedit C.id
-
-			if alternate {
-				lineedit = C.makeLineEdit(C.YES)
-			} else {
-				lineedit = C.makeLineEdit(C.NO)
-			}
+			lineedit := C.makeLineEdit(toBOOL(alternate))
 			applyStandardControlFont(lineedit)
 			addControl(parentWindow, lineedit)
 			return lineedit
