@@ -104,8 +104,7 @@ func initCocoa() (NSApp C.id, err error) {
 }
 
 //export appDelegate_uitask
-func appDelegate_uitask(self C.id, sel C.SEL, arg C.id) {
-	p := C.objc_msgSend_noargs(arg, _pointerValue)
+func appDelegate_uitask(p unsafe.Pointer) {
 	f := (*func ())(unsafe.Pointer(p))
 	(*f)()
 }
