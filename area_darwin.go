@@ -11,77 +11,19 @@ import (
 // #include <stdlib.h>
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
-// extern BOOL areaView_isFlipped_acceptsFirstResponder(id, SEL);
-// extern void areaView_updateTrackingAreas(id, SEL);
-// extern void areaView_mouseMoved_mouseDragged(id, SEL, id);
-// extern void areaView_mouseDown(id, SEL, id);
-// extern void areaView_mouseUp(id, SEL, id);
-// extern void areaView_keyDown(id, SEL, id);
-// extern void areaView_keyUp(id, SEL, id);
-// extern void areaView_flagsChanged(id, SEL, id);
+// #include "area_darwin.h"
 import "C"
 
-const (
-	__goArea = "goArea"
-)
-
 var (
-	_goArea C.id
 	_NSView = objc_getClass("NSView")
 )
 
-var goAreaSels = []selector{
-	selector{"drawRect:", uintptr(C._areaView_drawRect), sel_void_rect,
-		"actually drawing Areas"},
-	selector{"isFlipped", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
-		"ensuring that an Area's coordinate system has (0,0) at the top-left corner"},
-	selector{"acceptsFirstResponder", uintptr(C.areaView_isFlipped_acceptsFirstResponder), sel_bool,
-		"registering that Areas are to receive events"},
-	selector{"updateTrackingAreas", uintptr(C.areaView_updateTrackingAreas), sel_void,
-		"updating tracking areas for handling mouse movements in Area"},
-	selector{"mouseMoved:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
-		"handling mouse movements in Area"},
-	selector{"mouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
-		"handling mouse button 1 presses in Area"},
-	selector{"mouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
-		"handling mouse button 1 dragging in Area"},
-	selector{"mouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
-		"handling mouse button 1 releases in Area"},
-	selector{"rightMouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
-		"handling mouse button 3 presses in Area"},
-	selector{"rightMouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
-		"handling mouse button 3 dragging in Area"},
-	selector{"rightMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
-		"handling mouse button 3 releases in Area"},
-	selector{"otherMouseDown:", uintptr(C.areaView_mouseDown), sel_void_id,
-		"handling mouse button 2 (and 4 and higher) presses in Area"},
-	selector{"otherMouseDragged:", uintptr(C.areaView_mouseMoved_mouseDragged), sel_void_id,
-		"handling mouse button 2 (and 4 and higher) dragging in Area"},
-	selector{"otherMouseUp:", uintptr(C.areaView_mouseUp), sel_void_id,
-		"handling mouse button 2 (and 4 and higher) releases in Area"},
-	selector{"keyDown:", uintptr(C.areaView_keyDown), sel_void_id,
-		"handling key presses in Area"},
-	selector{"keyUp:", uintptr(C.areaView_keyUp), sel_void_id,
-		"handling key releases in Area"},
-	selector{"flagsChanged:", uintptr(C.areaView_flagsChanged), sel_void_id,
-		"handling Modifiers presses and releases in Area"},
-}
-
 func mkAreaClass() error {
-	id, err := makeClass(__goArea, _NSView, goAreaSels,
-		"the implementation of Area on Mac OS X")
-	if err != nil {
-		return err
-	}
-	_goArea = id
 	return nil
 }
 
 func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
-	area := C.objc_msgSend_noargs(_goArea, _alloc)
-	area = initWithDummyFrame(area)
-	// TODO others?
-	retrack(area, s)
+	area := C.makeArea()
 	area = newScrollView(area)
 	addControl(parentWindow, area)
 	return area
@@ -113,31 +55,10 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 		C.int64_t(cliprect.Min.X), C.int64_t(cliprect.Min.Y))
 }
 
-//export areaView_isFlipped_acceptsFirstResponder
-func areaView_isFlipped_acceptsFirstResponder(self C.id, sel C.SEL) C.BOOL {
-	// yes use the same function for both methods since they're just going to return YES anyway
-	// isFlipped gives us a coordinate system with (0,0) at the top-left
-	// acceptsFirstResponder lets us respond to events
-	return C.BOOL(C.YES)
-}
-
 var (
 	_addTrackingArea = sel_getUid("addTrackingArea:")
 	_removeTrackingArea = sel_getUid("removeTrackingArea:")
 )
-
-func retrack(area C.id, s *sysData) {
-	s.trackingArea = C.makeTrackingArea(area)
-	C.objc_msgSend_id(area, _addTrackingArea, s.trackingArea)
-}
-
-//export areaView_updateTrackingAreas
-func areaView_updateTrackingAreas(self C.id, sel C.SEL) {
-	s := getSysData(self)
-	C.objc_msgSend_id(self, _removeTrackingArea, s.trackingArea)
-	C.objc_msgSend_noargs(s.trackingArea, _release)
-	retrack(self, s)
-}
 
 var (
 	_NSEvent = objc_getClass("NSEvent")
@@ -156,7 +77,7 @@ func parseModifiers(e C.id) (m Modifiers) {
 		_NSCommandKeyMask = 1 << 20
 	)
 
-	mods := uintptr(C.objc_msgSend_uintret_noargs(e, _modifierFlags))
+	mods := uintptr(C.modifierFlags(e))
 	if (mods & _NSShiftKeyMask) != 0 {
 		m |= Shift
 	}
@@ -185,7 +106,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 		return
 	}
 	me.Modifiers = parseModifiers(e)
-	which := uint(C.objc_msgSend_intret_noargs(e, _buttonNumber)) + 1
+	which := uint(C.buttonNumber(e)) + 1
 	if which == 3 {		// swap middle and right button numbers
 		which = 2
 	} else if which == 2 {
@@ -199,9 +120,8 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	} else {
 		which = 0			// reset for Held processing below
 	}
-	// pressedMouseButtons is a class method; calling objc_msgSend() directly with e as an argument on these will panic (in real Objective-C the compiler can detect [e pressedMouseButtons])
 	// the docs do say don't use this for tracking since it returns the state now, and mouse move events work by tracking, but as far as I can tell dragging the mouse over the inactive window does n ot generate an event on Mac OS X, so :/ (TODO see what happens when the program is the current one; in my own separate tests no harm was done so eh; also no need for this if tracking doesn't touch dragging)
-	held := C.objc_msgSend_uintret_noargs(_NSEvent, _pressedMouseButtons)
+	held := C.pressedMouseButtons()
 	if which != 1 && (held & 1) != 0 {		// button 1
 		me.Held = append(me.Held, 1)
 	}
@@ -225,19 +145,19 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 }
 
 //export areaView_mouseMoved_mouseDragged
-func areaView_mouseMoved_mouseDragged(self C.id, sel C.SEL, e C.id) {
+func areaView_mouseMoved_mouseDragged(self C.id, e C.id) {
 	// for moving, this is handled by the tracking rect stuff above
 	// for dragging, if multiple buttons are held, only one of their xxxMouseDragged: messages will be sent, so this is OK to do
 	areaMouseEvent(self, e, false, false)
 }
 
 //export areaView_mouseDown
-func areaView_mouseDown(self C.id, sel C.SEL, e C.id) {
+func areaView_mouseDown(self C.id, e C.id) {
 	areaMouseEvent(self, e, true, false)
 }
 
 //export areaView_mouseUp
-func areaView_mouseUp(self C.id, sel C.SEL, e C.id) {
+func areaView_mouseUp(self C.id, e C.id) {
 	areaMouseEvent(self, e, true, true)
 }
 
@@ -245,60 +165,52 @@ var (
 	_keyCode = sel_getUid("keyCode")
 )
 
-func handleKeyEvent(self C.id, SEL C.SEL, e C.id) {
-	C.objc_msgSendSuper_id(self, _NSView, SEL, e)
-}
-
-func sendKeyEvent(self C.id, sel C.SEL, e C.id, ke KeyEvent) {
+func sendKeyEvent(self C.id, e C.id, ke KeyEvent) bool {
 	s := getSysData(self)
 	handled, repaint := s.handler.Key(ke)
 	if repaint {
 		C.objc_msgSend_noargs(self, _display)
 	}
-	if !handled {
-		handleKeyEvent(self, sel, e)
-	}
+	return handled
 }
 
-func areaKeyEvent(self C.id, sel C.SEL, e C.id, up bool) {
+func areaKeyEvent(self C.id, e C.id, up bool) bool {
 	var ke KeyEvent
 
-	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
+	keyCode := uintptr(C.keyCode(e))
 	ke, ok := fromKeycode(keyCode)
 	if !ok {
 		// no such key; modifiers by themselves are handled by -[self flagsChanged:]
-		handleKeyEvent(self, sel, e)
-		return
+		return false
 	}
 	// either ke.Key or ke.ExtKey will be set at this point
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = up
-	sendKeyEvent(self, sel, e, ke)
+	return sendKeyEvent(self, e, ke)
 }
 
 //export areaView_keyDown
-func areaView_keyDown(self C.id, sel C.SEL, e C.id) {
-	areaKeyEvent(self, sel, e, false)
+func areaView_keyDown(self C.id, e C.id) C.BOOL {
+	return toBOOL(areaKeyEvent(self, e, false))
 }
 
 //export areaView_keyUp
-func areaView_keyUp(self C.id, sel C.SEL, e C.id) {
-	areaKeyEvent(self, sel, e, true)
+func areaView_keyUp(self C.id, e C.id) C.BOOL {
+	return toBOOL(areaKeyEvent(self, e, true))
 }
 
 //export areaView_flagsChanged
-func areaView_flagsChanged(self C.id, sel C.SEL, e C.id) {
+func areaView_flagsChanged(self C.id, e C.id) C.BOOL {
 	var ke KeyEvent
 
 	// Mac OS X sends this event on both key up and key down.
 	// Fortunately -[e keyCode] IS valid here, so we can simply map from key code to Modifiers, get the value of [e modifierFlags], the respective bit is set or not — that will give us the up/down state
-	keyCode := uintptr(C.objc_msgSend_ushortret_noargs(e, _keyCode))
+	keyCode := uintptr(C.keyCode(e))
 	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
 	if !ok {		// unknown modifier; ignore
-		handleKeyEvent(self, sel, e)
-		return
+		return C.NO
 	}
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
-	sendKeyEvent(self, sel, e, ke)
+	return toBOOL(sendKeyEvent(self, e, ke))
 }
