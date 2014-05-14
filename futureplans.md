@@ -374,6 +374,19 @@ TODO SORT
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/08/406509.aspx
 - dialog templates, especially dynamic generation of them
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/29/412577.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/03/414317.aspx accelerators
+- a complex program: covers character set conversion with Microsoft C++ and then the Windows API, mmap() on Windows, xxxxxx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/09/415714.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/10/415991.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/11/416430.aspx
+	- (2005/05/12 is unrelated)
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/13/417183.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/16/417865.aspx
+	- (2005/05/17 is unrelated)
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/18/419130.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/19/420038.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/25/421707.aspx SetCursor() can be problematic
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/30/423202.aspx faking keyboard input (if I ever want to do automated tests) is unreliable
 
 interesting things
 - low-tech models http://blogs.msdn.com/b/oldnewthing/archive/2003/10/07/55202.aspx
@@ -487,6 +500,11 @@ interesting things
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/26/412116.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/27/412565.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/28/412574.aspx (doubles as one on message filters)
+- full-screen windows http://blogs.msdn.com/b/oldnewthing/archive/2005/05/05/414910.aspx
+- window visibility http://blogs.msdn.com/b/oldnewthing/archive/2005/05/20/420425.aspx
+- DLLs loading other DLLs http://blogs.msdn.com/b/oldnewthing/archive/2005/05/23/421024.aspx
+- ternary raster operations (GDI) http://blogs.msdn.com/b/oldnewthing/archive/2005/05/24/421440.aspx
+- x << 1 and x >> 1 are dangerous microoptimizations http://blogs.msdn.com/b/oldnewthing/archive/2005/05/27/422551.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -494,10 +512,11 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/09/02/224672.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/04/14/408106.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/04/15/408507.aspx
+- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/31/423407.aspx (about timers, but the last paragraph is also relevant)
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=347
-last one: Building a dialog template at run-time
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=345
+last one: The 2005 Seattle Chicken Tour
 
 windows stock icons
 - the standard IDI_** values, plus a few others I forget now
