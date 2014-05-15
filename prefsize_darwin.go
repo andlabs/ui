@@ -4,6 +4,7 @@ package ui
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
+// #include "prefsize_darwin.h"
 import "C"
 
 /*
@@ -17,14 +18,20 @@ var (
 
 // standard case: control immediately passed in
 func controlPrefSize(control C.id) (width int, height int) {
-	C.objc_msgSend_noargs(control, _sizeToFit)
-	r := C.objc_msgSend_stret_rect_noargs(control, _frame)
+	r := C.controlPrefSize(control)
 	return int(r.width), int(r.height)
 }
 
 // NSTableView is actually in a NSScrollView so we have to get it out first
 func listboxPrefSize(control C.id) (width int, height int) {
-	return controlPrefSize(listboxInScrollView(control))
+	r := C.listboxPrefSize(control)
+	return int(r.width), int(r.height)
+}
+
+// and for type checking reasons, progress bars are separate despite responding to -[sizeToFit]
+func pbarPrefSize(control C.id) (width int, height int) {
+	r := C.pbarPrefSize(control)
+	return int(r.width), int(r.height)
 }
 
 var prefsizefuncs = [nctypes]func(C.id) (int, int){
@@ -34,7 +41,7 @@ var prefsizefuncs = [nctypes]func(C.id) (int, int){
 	c_lineedit:		controlPrefSize,
 	c_label:			controlPrefSize,
 	c_listbox:			listboxPrefSize,
-	c_progressbar:		controlPrefSize,
+	c_progressbar:		pbarPrefSize,
 }
 
 func (s *sysData) preferredSize() (width int, height int) {
