@@ -20,9 +20,6 @@ The format should be self-explanatory.
 
 #include <stdint.h>
 
-/* for listbox_darwin.go */
-extern id *_NSObservedObjectKey;
-
 static inline id objc_msgSend_noargs(id obj, SEL sel)
 {
 	return objc_msgSend(obj, sel);

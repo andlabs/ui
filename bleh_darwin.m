@@ -23,9 +23,6 @@ though this is not always the case.
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSTrackingArea.h>
 
-/* used by listbox_darwin.go; requires NSString */
-id *_NSObservedObjectKey = (id *) (&NSObservedObjectKey);
-
 /*
 These are all the selectors and class IDs used by the functions below.
 */
@@ -369,9 +366,10 @@ also this made me realize all my problems with working w ith the Objective-C run
 
 id objc_msgSendSuper_id(id obj, id class, SEL sel, id a)
 {
-	struct objc_super s;
+//	struct objc_super s;
 
-	s.receiver = obj;
-	s.super_class = (Class) class;
-	return objc_msgSendSuper(&s, sel, a);
+//	s.receiver = obj;
+//	s.super_class = (Class) class;
+//	return objc_msgSendSuper(&s, sel, a);
+return nil;
 }

@@ -11,6 +11,8 @@ The Cocoa API was not designed to be used directly in code; you were intended to
 
 Under normal circumstances we would have to build our own data source class, as Cocoa doesn't provide premade data sources. Thankfully, Mac OS X 10.3 introduced the bindings system, which avoids all that. It's just not documented too well (again, because you're supposed to use Interface Builder). Bear with me here.
 
+After switching from using the Objective-C runtime to using Objective-C directly, you will now need to look both here and in listbox_darwin.m to get what's going on.
+
 PERSONAL TODO - make a post somewhere that does all this in Objective-C itself, for the benefit of the programming community.
 
 TODO - change the name of some of these functions? specifically the functions that get data about the NSTableView?
@@ -19,8 +21,7 @@ TODO - change the name of some of these functions? specifically the functions th
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
-// /* cgo doesn't like nil */
-// id nilid = nil;
+// #include "listbox_darwin.h"
 import "C"
 
 /*
@@ -45,13 +46,11 @@ var (
 )
 
 func toListboxItem(what string) C.id {
-	return C.objc_msgSend_id_id(_NSMutableDictionary,
-		_dictionaryWithObjectForKey,
-		toNSString(what), listboxItemKey)
+	return C.toListboxItem(listboxItemKey, toNSString(what))
 }
 
 func fromListboxItem(dict C.id) string {
-	return fromNSString(C.objc_msgSend_id(dict, _objectForKey, listboxItemKey))
+	return fromNSString(C.fromListboxItem(dict, listboxItemKey))
 }
 
 /*
@@ -84,28 +83,23 @@ var (
 )
 
 func newListboxArray() C.id {
-	array := C.objc_msgSend_noargs(_NSArrayController, _new)
-	C.objc_msgSend_bool(array, _setAutomaticallyRearrangesObjects, C.BOOL(C.NO))
-	return array
+	return C.newListboxArray()
 }
 
 func appendListboxArray(array C.id, what string) {
-	C.objc_msgSend_id(array, _addObject, toListboxItem(what))
+	C.listboxArrayAppend(array, toListboxItem(what))
 }
 
 func insertListboxArrayBefore(array C.id, what string, before int) {
-	C.objc_msgSend_id_uint(array, _insertObjectAtArrangedObjectIndex,
-		toListboxItem(what), C.uintptr_t(before))
+	C.listboxArrayInsertBefore(array, toListboxItem(what), C.uintptr_t(before))
 }
 
 func deleteListboxArray(array C.id, index int) {
-	C.objc_msgSend_uint(array, _removeObjectAtArrangedObjectIndex,
-		C.uintptr_t(index))
+	C.listboxArrayDelete(array, C.uintptr_t(index))
 }
 
 func indexListboxArray(array C.id, index int) string {
-	array = C.objc_msgSend_noargs(array, _arrangedObjects)
-	dict := C.objc_msgSend_uint(array, _objectAtIndex, C.uintptr_t(index))
+	dict := C.listboxArrayItemAt(array, C.uintptr_t(index))
 	return fromListboxItem(dict)
 }
 
@@ -136,15 +130,12 @@ var (
 )
 
 func bindListboxArray(tableColumn C.id, array C.id) {
-	C.objc_msgSend_id_id_id_id(tableColumn, _bindToObjectWithKeyPathOptions,
-		tableColumnBinding,
-		array, listboxItemKeyPath,
-		C.nilid)				// no options
+	C.bindListboxArray(tableColumn, tableColumnBinding,
+		array, listboxItemKeyPath)
 }
 
 func listboxArrayController(tableColumn C.id) C.id {
-	dict := C.objc_msgSend_id(tableColumn, _infoForBinding, tableColumnBinding)
-	return C.objc_msgSend_id(dict, _objectForKey, *C._NSObservedObjectKey)
+	return C.boundListboxArray(tableColumn, tableColumnBinding)
 }
 
 /*
@@ -166,20 +157,13 @@ var (
 )
 
 func newListboxTableColumn() C.id {
-	column := C.objc_msgSend_noargs(_NSTableColumn, _alloc)
-	column = C.objc_msgSend_id(column, _initWithIdentifier, listboxItemKey)
-	C.objc_msgSend_bool(column, _setEditable, C.BOOL(C.NO))
-	// to set the font for each item, we set the font of the "data cell", which is more aptly called the "cell template"
-	dataCell := C.objc_msgSend_noargs(column, _dataCell)
-	applyStandardControlFont(dataCell)
-	C.objc_msgSend_id(column, _setDataCell, dataCell)
-	// TODO other properties?
+	column := C.makeListboxTableColumn(listboxItemKey)
 	bindListboxArray(column, newListboxArray())
 	return column
 }
 
 func listboxTableColumn(listbox C.id) C.id {
-	return C.objc_msgSend_id(listbox, _tableColumnWithIdentifier, listboxItemKey)
+	return C.listboxTableColumn(listbox, listboxItemKey)
 }
 
 /*
@@ -236,17 +220,7 @@ var (
 )
 
 func makeListbox(parentWindow C.id, alternate bool, s *sysData) C.id {
-	listbox := C.objc_msgSend_noargs(_NSTableView, _alloc)
-	listbox = initWithDummyFrame(listbox)
-	C.objc_msgSend_id(listbox, _addTableColumn, newListboxTableColumn())
-	multi := C.BOOL(C.NO)
-	if alternate {
-		multi = C.BOOL(C.YES)
-	}
-	C.objc_msgSend_bool(listbox, _setAllowsMultipleSelection, multi)
-	C.objc_msgSend_bool(listbox, _setAllowsEmptySelection, C.BOOL(C.YES))
-	C.objc_msgSend_id(listbox, _setHeaderView, C.nilid)
-	// TODO others?
+	listbox := C.makeListbox(newListboxTableColumn(), toBOOL(alternate))
 	listbox = newListboxScrollView(listbox)
 	addControl(parentWindow, listbox)
 	return listbox
@@ -266,15 +240,15 @@ func insertListboxBefore(listbox C.id, what string, before int, alternate bool) 
 // we don't care that the indices were originally NSUInteger since by this point we have a problem anyway; Go programs generally use int indices anyway
 // we also don't care about NSNotFound because we check the count first AND because NSIndexSet is always sorted (and NSNotFound can be a valid index if the list is large enough... since it's NSIntegerMax, not NSUIntegerMax)
 func selectedListboxIndices(listbox C.id) (list []int) {
-	indices := C.objc_msgSend_noargs(listboxInScrollView(listbox), _selectedRowIndexes)
-	count := int(C.objc_msgSend_uintret_noargs(indices, _count))
+	indices := C.listboxSelectedRowIndexes(listboxInScrollView(listbox))
+	count := int(C.listboxIndexesCount(indices))
 	if count == 0 {
 		return nil
 	}
 	list = make([]int, count)
-	list[0] = int(C.objc_msgSend_uintret_noargs(indices, _firstIndex))
+	list[0] = int(C.listboxIndexesFirst(indices))
 	for i := 1; i < count; i++ {
-		list[i] = int(C.objc_msgSend_uintret_uint(indices, _indexGreaterThanIndex, C.uintptr_t(list[i - 1])))
+		list[i] = int(C.listboxIndexesNext(indices, C.uintptr_t(list[i - 1])))
 	}
 	return list
 }
@@ -298,13 +272,13 @@ func deleteListbox(listbox C.id, index int) {
 }
 
 func listboxLen(listbox C.id) int {
-	return int(C.objc_msgSend_intret_noargs(listboxInScrollView(listbox), _numberOfRows))
+	return int(C.listboxLen(listboxInScrollView(listbox)))
 }
 
 func selectListboxIndices(id C.id, indices []int) {
 	listbox := listboxInScrollView(id)
 	if len(indices) == 0 {
-		C.objc_msgSend_id(listbox, _deselectAll, listbox)
+		C.listboxDeselectAll(listbox)
 		return
 	}
 	panic("selectListboxIndices() > 0 not yet implemented (TODO)")
