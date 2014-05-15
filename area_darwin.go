@@ -40,7 +40,7 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	// rectangles in Cocoa are origin/size, not point0/point1; if we don't watch for this, weird things will happen when scrolling
 	// TODO change names EVERYWHERE ELSE to match
 	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x + rect.width), int(rect.y + rect.height))
-	max := C.objc_msgSend_stret_rect_noargs(self, _frame)
+	max := C.frame(self)
 	cliprect = image.Rect(0, 0, int(max.width), int(max.height)).Intersect(cliprect)
 	if cliprect.Empty() {			// no intersection; nothing to paint
 		return
@@ -97,7 +97,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	xp := C.getTranslatedEventPoint(self, e)
 	me.Pos = image.Pt(int(xp.x), int(xp.y))
 	// for the most part, Cocoa won't geenerate an event outside the Area... except when dragging outside the Area, so check for this
-	max := C.objc_msgSend_stret_rect_noargs(self, _frame)
+	max := C.frame(self)
 	if !me.Pos.In(image.Rect(0, 0, int(max.width), int(max.height))) {
 		return
 	}
@@ -112,7 +112,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 		me.Up = which
 	} else if click {
 		me.Down = which
-		me.Count = uint(C.objc_msgSend_intret_noargs(e, _clickCount))
+		me.Count = uint(C.clickCount(e))
 	} else {
 		which = 0			// reset for Held processing below
 	}
@@ -136,7 +136,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	}
 	repaint := s.handler.Mouse(me)
 	if repaint {
-		C.objc_msgSend_noargs(self, _display)
+		C.display(self)
 	}
 }
 
@@ -165,7 +165,7 @@ func sendKeyEvent(self C.id, e C.id, ke KeyEvent) bool {
 	s := getSysData(self)
 	handled, repaint := s.handler.Key(ke)
 	if repaint {
-		C.objc_msgSend_noargs(self, _display)
+		C.display(self)
 	}
 	return handled
 }

@@ -49,10 +49,10 @@ var (
 func appDelegate_windowDidResize(win C.id) {
 	s := getSysData(win)
 	wincv := C.windowGetContentView(win)		// we want the content view's size, not the window's
-	r := C.objc_msgSend_stret_rect_noargs(wincv, _frame)
+	r := C.frame(wincv)
 	// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
 	s.doResize(0, 0, int(r.width), int(r.height), int(r.height))
-	C.objc_msgSend_noargs(win, _display)		// redraw everything; TODO only if resize() was called?
+	C.display(win)			// redraw everything; TODO only if resize() was called?
 }
 
 //export appDelegate_buttonClicked

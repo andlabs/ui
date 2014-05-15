@@ -112,6 +112,11 @@ intptr_t buttonNumber(id e)
 	return fromNSInteger([toNSEvent(e) buttonNumber]);
 }
 
+intptr_t clickCount(id e)
+{
+	return fromNSInteger([toNSEvent(e) clickCount]);
+}
+
 uintptr_t pressedMouseButtons(void)
 {
 	return fromNSUInteger([NSEvent pressedMouseButtons]);

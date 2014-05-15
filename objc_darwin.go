@@ -43,14 +43,11 @@ func toNSString(str string) C.id {
 	cstr := C.CString(str)
 	defer C.free(unsafe.Pointer(cstr))
 
-	return C.objc_msgSend_str(_NSString,
-		_stringWithUTF8String,
-		cstr)
+	return C.toNSString(cstr)
 }
 
 func fromNSString(str C.id) string {
-	cstr := C.objc_msgSend_noargs(str, _UTF8String)
-	return C.GoString((*C.char)(unsafe.Pointer(cstr)))
+	return C.GoString(C.fromNSString(str))
 }
 
 // These consolidate the NSScrollView code (used by listbox_darwin.go and area_darwin.go) into a single place.
@@ -66,15 +63,9 @@ var (
 )
 
 func newScrollView(content C.id) C.id {
-	scrollview := C.objc_msgSend_noargs(_NSScrollView, _alloc)
-	scrollview = initWithDummyFrame(scrollview)
-	C.objc_msgSend_bool(scrollview, _setHasHorizontalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setHasVerticalScroller, C.BOOL(C.YES))
-	C.objc_msgSend_bool(scrollview, _setAutohidesScrollers, C.BOOL(C.YES))
-	C.objc_msgSend_id(scrollview, _setDocumentView, content)
-	return scrollview
+	return C.makeScrollView(content)
 }
 
 func getScrollViewContent(scrollview C.id) C.id {
-	return C.objc_msgSend_noargs(scrollview, _documentView)
+	return C.scrollViewContent(scrollview)
 }

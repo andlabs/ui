@@ -91,7 +91,6 @@ var (
 	_deselectItemAtIndex = sel_getUid("deselectItemAtIndex:")
 )
 
-// because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
 func initWithDummyFrame(self C.id) C.id {
 	return C.objc_msgSend_rect(self, _initWithFrame,
 		C.int64_t(0), C.int64_t(0), C.int64_t(100), C.int64_t(100))

@@ -20,6 +20,18 @@ The format should be self-explanatory.
 
 #include <stdint.h>
 
+struct xrect;		// TODO move that up here when finally getting rid of bleh_darwin.m
+
+extern id toNSString(char *);
+extern char *fromNSString(id);
+extern void display(id);
+extern struct xrect frame(id);
+extern id makeScrollView(id);
+extern void giveScrollViewBezelBorder(id);
+extern id scrollViewContent(id);
+
+// BEGIN OLD CODE
+
 static inline id objc_msgSend_noargs(id obj, SEL sel)
 {
 	return objc_msgSend(obj, sel);

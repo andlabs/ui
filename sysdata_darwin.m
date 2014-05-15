@@ -14,6 +14,7 @@
 #include <AppKit/NSProgressIndicator.h>
 #include <AppKit/NSScrollView.h>
 
+// because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
 static NSRect dummyRect;// = NSMakeRect(0, 0, 100, 100);
 
 #define to(T, x) ((T *) (x))

@@ -182,7 +182,7 @@ func newListboxScrollView(listbox C.id) C.id {
 	)
 
 	scrollview := newScrollView(listbox)
-	C.objc_msgSend_uint(scrollview, _setBorderType, _NSBezelBorder)		// this is what Interface Builder gives the scroll view
+	C.giveScrollViewBezelBorder(scrollview)		// this is what Interface Builder gives the scroll view
 	return scrollview
 }
 
