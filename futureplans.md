@@ -375,7 +375,7 @@ TODO SORT
 - dialog templates, especially dynamic generation of them
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/04/29/412577.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/05/03/414317.aspx accelerators
-- a complex program: covers character set conversion with Microsoft C++ and then the Windows API, mmap() on Windows, xxxxxx
+- a complex program: covers character set conversion with Microsoft C++ and then the Windows API, mmap() on Windows, list views, list view columns, list view text callbacks, owner-data/virtual list views, xxxxxx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/09/415714.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/10/415991.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/11/416430.aspx
@@ -385,6 +385,11 @@ TODO SORT
 	- (2005/05/17 is unrelated)
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/18/419130.aspx
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/05/19/420038.aspx
+	- (period between is unrelated)
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/06/13/428534.aspx
+		- this also sets the iItem of the LVITEM to the result of inserting the item... huh?! TODO
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/06/14/428892.aspx
+	- http://blogs.msdn.com/b/oldnewthing/archive/2005/06/15/429338.aspx
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/05/25/421707.aspx SetCursor() can be problematic
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/05/30/423202.aspx faking keyboard input (if I ever want to do automated tests) is unreliable
 
@@ -505,6 +510,7 @@ interesting things
 - DLLs loading other DLLs http://blogs.msdn.com/b/oldnewthing/archive/2005/05/23/421024.aspx
 - ternary raster operations (GDI) http://blogs.msdn.com/b/oldnewthing/archive/2005/05/24/421440.aspx
 - x << 1 and x >> 1 are dangerous microoptimizations http://blogs.msdn.com/b/oldnewthing/archive/2005/05/27/422551.aspx
+- windows has named events, apparently (also synchronization) http://blogs.msdn.com/b/oldnewthing/archive/2005/06/06/425611.aspx http://blogs.msdn.com/b/oldnewthing/archive/2005/06/07/426296.aspx
 
 articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2004/02/26/80492.aspx
@@ -515,8 +521,8 @@ articles on time
 - http://blogs.msdn.com/b/oldnewthing/archive/2005/05/31/423407.aspx (about timers, but the last paragraph is also relevant)
 
 up to
-http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=345
-last one: The 2005 Seattle Chicken Tour
+http://blogs.msdn.com/b/oldnewthing/default.aspx?PageIndex=344
+last one: What is the difference between "Unpin from Start menu" and "Remove from this list"?
 
 windows stock icons
 - the standard IDI_** values, plus a few others I forget now
