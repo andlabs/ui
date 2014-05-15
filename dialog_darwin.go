@@ -8,6 +8,7 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
+// #include "dialog_darwin.h"
 import "C"
 
 // NSAlert styles.
@@ -27,27 +28,30 @@ var (
 	_runModal = sel_getUid("runModal")
 )
 
-func _msgBox(primarytext string, secondarytext string, style uintptr, button0 string) {
+func _msgBox(primarytext string, secondarytext string, style uintptr) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
-		box := C.objc_msgSend_noargs(_NSAlert, _new)
-		C.objc_msgSend_id(box, _setMessageText, toNSString(primarytext))
+		primary := toNSString(primarytext)
+		secondary := C.id(nil)
 		if secondarytext != "" {
-			C.objc_msgSend_id(box, _setInformativeText, toNSString(secondarytext))
+			secondary = toNSString(secondarytext)
 		}
-		C.objc_msgSend_uint(box, _setAlertStyle, C.uintptr_t(style))
-		C.objc_msgSend_id(box, _addButtonWithTitle, toNSString(button0))
-		C.objc_msgSend_noargs(box, _runModal)
+		switch style {
+		case 0:		// normal
+			C.msgBox(primary, secondary)
+		case 1:		// error
+			C.msgBoxError(primary, secondary)
+		}
 		ret <- struct{}{}
 	}
 	<-ret
 }
 
 func msgBox(primarytext string, secondarytext string) {
-	_msgBox(primarytext, secondarytext, _NSInformationalAlertStyle, "OK")
+	_msgBox(primarytext, secondarytext, 0)
 }
 
 func msgBoxError(primarytext string, secondarytext string) {
-	_msgBox(primarytext, secondarytext, _NSCriticalAlertStyle, "OK")
+	_msgBox(primarytext, secondarytext, 1)
 }
