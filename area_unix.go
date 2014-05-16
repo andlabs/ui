@@ -95,11 +95,14 @@ func makeModifiers(state C.guint, m Modifiers) Modifiers {
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		m |= Ctrl
 	}
-	if (state & C.GDK_META_MASK) != 0 {
+	if (state & C.GDK_META_MASK) != 0 {		// TODO get equivalent for Alt
 		m |= Alt
 	}
 	if (state & C.GDK_SHIFT_MASK) != 0 {
 		m |= Shift
+	}
+	if (state & C.GDK_SUPER_MASK) != 0 {
+		m |= Super
 	}
 	return m
 }
@@ -324,15 +327,14 @@ func init() {
 }
 
 var modonlykeys =  map[C.guint]Modifiers{
-	C.GDK_KEY_Shift_L:		Shift,
-	C.GDK_KEY_Shift_R:		Shift,
 	C.GDK_KEY_Control_L:	Ctrl,
 	C.GDK_KEY_Control_R:	Ctrl,
-	C.GDK_KEY_Meta_L:		Alt,
-	C.GDK_KEY_Meta_R:	Alt,
-	// my system generats these two for the Alt keys instead of Meta
 	C.GDK_KEY_Alt_L:		Alt,
 	C.GDK_KEY_Alt_R:		Alt,
-//	C.GDK_KEY_Super_L:	Super,
-//	C.GDK_KEY_Super_R:	Super,
+	C.GDK_KEY_Meta_L:		Alt,
+	C.GDK_KEY_Meta_R:	Alt,
+	C.GDK_KEY_Shift_L:		Shift,
+	C.GDK_KEY_Shift_R:		Shift,
+	C.GDK_KEY_Super_L:	Super,
+	C.GDK_KEY_Super_R:	Super,
 }
