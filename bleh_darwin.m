@@ -206,30 +206,6 @@ void *_appDelegate_applicationShouldTerminate = (void *) __appDelegate_applicati
 char *encodedTerminateReply = @encode(NSApplicationTerminateReply);
 
 /*
-tracking areas; also here for convenience only
-*/
-
-/* IDK if this is needed; just to be safe */
-static id (*objc_msgSend_initTrackingArea)(id, SEL, NSRect, NSTrackingAreaOptions, id, id) =
-	(id (*)(id, SEL, NSRect, NSTrackingAreaOptions, id, id)) objc_msgSend;
-#include <AppKit/NSView.h>
-id makeTrackingArea(id area)
-{
-	id trackingArea;
-
-	trackingArea = objc_msgSend(c_NSTrackingArea, s_alloc);
-NSView *v;
-v = (NSView *) area;
-	trackingArea = (*objc_msgSend_initTrackingArea)(trackingArea, s_initTrackingArea,
-		[v bounds],			/* initWithRect: */
-		/* this bit mask (except for NSTrackingInVisibleRect, which was added later to prevent events from being triggered outside the visible area of the Area) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily */
-		(NSTrackingAreaOptions) (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag | NSTrackingInVisibleRect),			/* options: */
-		area,											/* owner: */
-		nil);											/* userData: */
-	return trackingArea;
-}
-
-/*
 Objective-C 1.0 has the class field of struct objc_super field as class
 Objective-C 2.0 has it as super_class
 and objc_darwin.h is compiled by both C and Objective-C code

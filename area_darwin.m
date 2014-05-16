@@ -55,7 +55,12 @@
 
 - (void)retrack
 {
-	trackingArea = makeTrackingArea(self);		// TODO make inline
+	trackingArea = [[NSTrackingArea alloc]
+		initWithRect:[self bounds]
+		// this bit mask (except for NSTrackingInVisibleRect, which was added later to prevent events from being triggered outside the visible area of the Area) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily
+		options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag | NSTrackingInVisibleRect)
+		owner:self
+		userInfo:nil];
 	[self addTrackingArea:trackingArea];
 }
 
