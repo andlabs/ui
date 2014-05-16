@@ -7,6 +7,7 @@
 #include <AppKit/NSTrackingArea.h>
 #include <Foundation/NSGeometry.h>
 #include <AppKit/NSEvent.h>
+#include <AppKit/NSBitmapImageRep.h>
 
 #define to(T, x) ((T *) (x))
 #define toNSEvent(x) to(NSEvent, (x))
@@ -104,6 +105,34 @@ id makeArea(void)
 {
 	return [[areaView alloc]
 		initWithFrame:NSMakeRect(0, 0, 100, 100)];
+}
+
+void drawImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride, intptr_t xdest, intptr_t ydest)
+{
+	unsigned char *planes[1];			// NSBitmapImageRep wants an array of planes; we have one plane
+	NSBitmapImageRep *bitmap;
+
+	planes[0] = (unsigned char *) pixels;
+	bitmap = [[NSBitmapImageRep alloc]
+		initWithBitmapDataPlanes:planes
+		pixelsWide:toNSInteger(width)
+		pixelsHigh:toNSInteger(height)
+		bitsPerSample:8
+		samplesPerPixel:4
+		hasAlpha:YES
+		isPlanar:NO
+		colorSpaceName:NSCalibratedRGBColorSpace		// TODO NSDeviceRGBColorSpace?
+		bitmapFormat:0		// this is where the flag for placing alpha first would go if alpha came first; the default is alpha last, which is how we're doing things (otherwise the docs say "Color planes are arranged in the standard order—for example, red before green before blue for RGB color."); this is also where the flag for non-premultiplied colors would go if we used it (the default is alpha-premultiplied)
+		bytesPerRow:toNSInteger(stride)
+		bitsPerPixel:32];
+	// TODO this CAN fali; check error
+	[bitmap drawInRect:NSMakeRect((CGFloat) xdest, (CGFloat) ydest, (CGFloat) width, (CGFloat) height)
+		fromRect:NSZeroRect		// draw whole image
+		operation:NSCompositeSourceOver
+		fraction:1.0
+		respectFlipped:YES
+		hints:nil];
+	[bitmap release];
 }
 
 uintptr_t modifierFlags(id e)
