@@ -61,12 +61,8 @@ extern struct xpoint getTranslatedEventPoint(id, id);
 
 /* for objc_darwin.go */
 extern char *encodedNSRect;
-extern char *encodedTerminateReply;
 
 /* for sysdata_darwin.go */
 extern void objc_setFont(id, unsigned int);
-
-/* for delegate_darwin.go */
-extern void *_appDelegate_applicationShouldTerminate;
 
 #endif

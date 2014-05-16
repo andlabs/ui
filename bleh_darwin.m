@@ -188,19 +188,3 @@ void objc_setFont(id what, unsigned int csize)
 	objc_msgSend(what, s_setFont,
 		objc_msgSend(c_NSFont, s_systemFontOfSize, size));
 }
-
-/*
--[NSApplicationDelegate applicationShouldTerminate] used to return a BOOL, but now returns a NSApplicationTerminateReply, which is a NSUInteger; hence, here.
-*/
-
-extern void appDelegate_applicationShouldTerminate();
-
-static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id self, SEL sel, id app)
-{
-	appDelegate_applicationShouldTerminate();
-	return NSTerminateCancel;		// don't quit
-}
-
-void *_appDelegate_applicationShouldTerminate = (void *) __appDelegate_applicationShouldTerminate;
-
-char *encodedTerminateReply = @encode(NSApplicationTerminateReply);
