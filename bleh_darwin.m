@@ -204,21 +204,3 @@ static NSApplicationTerminateReply __appDelegate_applicationShouldTerminate(id s
 void *_appDelegate_applicationShouldTerminate = (void *) __appDelegate_applicationShouldTerminate;
 
 char *encodedTerminateReply = @encode(NSApplicationTerminateReply);
-
-/*
-Objective-C 1.0 has the class field of struct objc_super field as class
-Objective-C 2.0 has it as super_class
-and objc_darwin.h is compiled by both C and Objective-C code
-man isn't t his fun?!
-also this made me realize all my problems with working w ith the Objective-C runtime is because Apple's docs haven't been updated to the Objective-C 2.0 stuff so I'm assuming I'll have to read the header files for documentation instead of that
-*/
-
-id objc_msgSendSuper_id(id obj, id class, SEL sel, id a)
-{
-//	struct objc_super s;
-
-//	s.receiver = obj;
-//	s.super_class = (Class) class;
-//	return objc_msgSendSuper(&s, sel, a);
-return nil;
-}
