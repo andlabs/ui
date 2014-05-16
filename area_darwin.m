@@ -10,6 +10,7 @@
 
 #define to(T, x) ((T *) (x))
 #define toNSEvent(x) to(NSEvent, (x))
+#define toAreaView(x) to(areaView, (x))
 
 #define toNSInteger(x) ((NSInteger) (x))
 #define fromNSInteger(x) ((intptr_t) (x))
@@ -110,7 +111,16 @@ uintptr_t modifierFlags(id e)
 	return fromNSUInteger([toNSEvent(e) modifierFlags]);
 }
 
-// TODO move getTranslatedEventPoint() here
+struct xpoint getTranslatedEventPoint(id area, id e)
+{
+	NSPoint p;
+	struct xpoint q;
+
+	p = [toAreaView(area) convertPoint:[toNSEvent(e) locationInWindow] fromView:nil];
+	q.x = (intptr_t) p.x;
+	q.y = (intptr_t) p.y;
+	return q;
+}
 
 intptr_t buttonNumber(id e)
 {

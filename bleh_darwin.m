@@ -151,24 +151,3 @@ void drawImage(void *pixels, int64_t width, int64_t height, int64_t stride, int6
 		nil);												/* hints: */
 	objc_msgSend(bitmap, s_release);
 }
-
-/*
-more NSPoint fumbling
-*/
-
-static NSPoint (*objc_msgSend_stret_point)(id, SEL, ...) =
-	(NSPoint (*)(id, SEL, ...)) objc_msgSend;
-
-struct xpoint getTranslatedEventPoint(id self, id event)
-{
-	NSPoint p;
-	struct xpoint ret;
-
-	p = objc_msgSend_stret_point(event, s_locationInWindow);
-	p = objc_msgSend_stret_point(self, s_convertPointFromView,
-		p,			/* convertPoint: */
-		nil);			/* fromView: */
-	ret.x = (int64_t) p.x;
-	ret.y = (int64_t) p.y;
-	return ret;
-}

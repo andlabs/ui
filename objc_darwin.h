@@ -57,7 +57,6 @@ extern id makeDummyEvent();
 /* TODO apparently ISO C forbids casting a function pointer to a non-function pointer; this will need to change???? */
 extern void *_areaView_drawRect;
 extern void drawImage(void *, int64_t, int64_t, int64_t, int64_t, int64_t);
-extern struct xpoint getTranslatedEventPoint(id, id);
 
 /* for objc_darwin.go */
 extern char *encodedNSRect;
