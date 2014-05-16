@@ -143,7 +143,7 @@ var (
 )
 
 func listboxPrefSize(control C.id) (width int, height int) {
-	var maxwidth C.int64_t
+	var maxwidth C.intptr_t
 
 	listbox := listboxInScrollView(control)
 	_, height = controlPrefSize(listbox)
@@ -166,13 +166,13 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 	// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 	// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
 	C.objc_msgSend_rect(s.id, _setFrame,
-		C.int64_t(x), C.int64_t((winheight - y) - height), C.int64_t(width), C.int64_t(height))
+		C.intptr_t(x), C.intptr_t((winheight - y) - height), C.intptr_t(width), C.intptr_t(height))
 	// TODO having this here is a hack; split it into a separate function in listbox_darwin.go
 	// the NSTableView:NSTableColumn ratio is what determines horizontal scrolling; see http://stackoverflow.com/questions/7050497/enable-scrolling-for-nstableview
 	if s.ctype == c_listbox {
 		listbox := listboxInScrollView(s.id)
 		C.objc_msgSend_rect(listbox, _setFrame,
-			0, 0, C.int64_t(width), C.int64_t(height))
+			0, 0, C.intptr_t(width), C.intptr_t(height))
 	}
 	return nil
 }
