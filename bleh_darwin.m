@@ -65,135 +65,6 @@ void initBleh()
 }
 
 /*
-NSUInteger is listed as being in <objc/NSObjCRuntime.h>... which doesn't exist. Rather than relying on undocumented header file locations or explicitly typedef-ing NSUInteger to the (documented) unsigned long, Even better: it appears to actually be <Foundation/NSObjCRuntime.h>, and requires Objective-C (it declares NSString), so we don't have a choice but to just place things here. For maximum safety. I use uintptr_t as that should encompass every possible unsigned long.
-*/
-
-uintptr_t objc_msgSend_uintret_noargs(id obj, SEL sel)
-{
-	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel));
-}
-
-uintptr_t objc_msgSend_uintret_uint(id obj, SEL sel, uintptr_t a)
-{
-	return (uintptr_t) ((NSUInteger) objc_msgSend(obj, sel, (NSUInteger) a));
-}
-
-id objc_msgSend_uint(id obj, SEL sel, uintptr_t a)
-{
-	return objc_msgSend(obj, sel, (NSUInteger) a);
-}
-
-id objc_msgSend_id_uint(id obj, SEL sel, id a, uintptr_t b)
-{
-	return objc_msgSend(obj, sel, a, (NSUInteger) b);
-}
-
-/*
-same as above, but for NSInteger
-*/
-
-intptr_t objc_msgSend_intret_noargs(id obj, SEL sel)
-{
-	return (intptr_t) ((NSInteger) objc_msgSend(obj, sel));
-}
-
-id objc_msgSend_int(id obj, SEL sel, intptr_t a)
-{
-	return objc_msgSend(obj, sel, (NSInteger) a);
-}
-
-id objc_msgSend_id_int(id obj, SEL sel, id a, intptr_t b)
-{
-	return objc_msgSend(obj, sel, a, (NSInteger) b);
-}
-
-/*
-same as above, but for unsigned short
-*/
-
-uintptr_t objc_msgSend_ushortret_noargs(id obj, SEL sel)
-{
-	return (uintptr_t) ((unsigned short) objc_msgSend(obj, sel));
-}
-
-/*
-These are the objc_msgSend() wrappers around NSRect. The problem is that while on 32-bit systems, NSRect is a concrete structure, on 64-bit systems it's just a typedef to CGRect. While in practice just using CGRect everywhere seems to work, better to be safe than sorry.
-
-I use int64_t for maximum safety, as my coordinates are stored as Go ints and Go int -> C int (which is what is documented as happening) isn't reliable.
-*/
-
-/*
-This is not documented in the docs, but is in various places on apple.com. In fact, the docs are actually WRONG: they say you pass a pointer to the structure as the first argument to objc_msgSend_stret()! And there might be some cases where we can't use stret because the struct is small enough...
-*/
-static NSRect (*objc_msgSend_stret_rect)(id, SEL, ...) =
-	(NSRect (*)(id, SEL, ...)) objc_msgSend_stret;
-
-struct xrect objc_msgSend_stret_rect_noargs(id obj, SEL sel)
-{
-	NSRect s;
-	struct xrect t;
-
-	s = objc_msgSend_stret_rect(obj, sel);
-	t.x = (int64_t) s.origin.x;
-	t.y = (int64_t) s.origin.y;
-	t.width = (int64_t) s.size.width;
-	t.height = (int64_t) s.size.height;
-	return t;
-}
-
-#define OurRect() (NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) w, (CGFloat) h))
-
-id objc_msgSend_rect(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h)
-{
-	return objc_msgSend(obj, sel, OurRect());
-}
-
-id objc_msgSend_rect_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, BOOL b)
-{
-	return objc_msgSend(obj, sel, OurRect(), b);
-}
-
-id objc_msgSend_rect_uint_uint_bool(id obj, SEL sel, int64_t x, int64_t y, int64_t w, int64_t h, uintptr_t b, uintptr_t c, BOOL d)
-{
-	return objc_msgSend(obj, sel, OurRect(), (NSUInteger) b, (NSUInteger) c, d);
-}
-
-/*
-Same as NSRect above, but for NSSize now.
-*/
-
-/*
-...like this one. (Note which function is being cast below.) This is an Intel-specific optimization; though this code won't run on PowerPC Macs (Go, and thus package ui, requires 10.6), if desktop ARM becomes a thing all bets are off. (tl;dr TODO)
-*/
-static NSSize (*objc_msgSend_stret_size)(id, SEL, ...) =
-	(NSSize (*)(id, SEL, ...)) objc_msgSend;
-
-struct xsize objc_msgSend_stret_size_noargs(id obj, SEL sel)
-{
-	NSSize s;
-	struct xsize t;
-
-	s = objc_msgSend_stret_size(obj, sel);
-	t.width = (int64_t) s.width;
-	t.height = (int64_t) s.height;
-	return t;
-}
-
-id objc_msgSend_size(id obj, SEL sel, int64_t width, int64_t height)
-{
-	return objc_msgSend(obj, sel, NSMakeSize((CGFloat) width, (CGFloat) height));
-}
-
-/*
-and again for NSPoint
-*/
-
-id objc_msgSend_point(id obj, SEL sel, int64_t x, int64_t y)
-{
-	return objc_msgSend(obj, sel, NSMakePoint((CGFloat) x, (CGFloat) y));
-}
-
-/*
 See uitask_darwin.go: we need to synthesize a NSEvent so -[NSApplication stop:] will work. We cannot simply init the default NSEvent though (it throws an exception) so we must do it "the right way". This involves a very convoluted initializer; we'll just do it here to keep things clean on the Go side (this will only be run once anyway, on program exit).
 */
 
@@ -341,14 +212,16 @@ tracking areas; also here for convenience only
 /* IDK if this is needed; just to be safe */
 static id (*objc_msgSend_initTrackingArea)(id, SEL, NSRect, NSTrackingAreaOptions, id, id) =
 	(id (*)(id, SEL, NSRect, NSTrackingAreaOptions, id, id)) objc_msgSend;
-
+#include <AppKit/NSView.h>
 id makeTrackingArea(id area)
 {
 	id trackingArea;
 
 	trackingArea = objc_msgSend(c_NSTrackingArea, s_alloc);
+NSView *v;
+v = (NSView *) area;
 	trackingArea = (*objc_msgSend_initTrackingArea)(trackingArea, s_initTrackingArea,
-		(*objc_msgSend_stret_rect)(area, s_bounds),			/* initWithRect: */
+		[v bounds],			/* initWithRect: */
 		/* this bit mask (except for NSTrackingInVisibleRect, which was added later to prevent events from being triggered outside the visible area of the Area) comes from https://github.com/andlabs/misctestprogs/blob/master/cocoaviewmousetest.m (and I wrote this bit mask on 25 april 2014) and yes I know it includes enter/exit even though we don't watch those events; it probably won't really matter anyway but if it does I can change it easily */
 		(NSTrackingAreaOptions) (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag | NSTrackingInVisibleRect),			/* options: */
 		area,											/* owner: */
