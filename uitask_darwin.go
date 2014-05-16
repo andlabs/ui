@@ -46,7 +46,6 @@ func ui(main func()) error {
 // TODO move to init_darwin.go?
 
 func initCocoa() (err error) {
-	C.initBleh()		// initialize bleh_darwin.m functions
 	makeAppDelegate()
 	if C.initCocoa(appDelegate) != C.YES {
 		return fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")

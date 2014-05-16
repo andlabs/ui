@@ -49,7 +49,4 @@ struct xpoint {
 	int64_t y;
 };
 
-/* for uitask_darwin.go */
-extern void initBleh();
-
 #endif
