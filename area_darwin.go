@@ -51,17 +51,17 @@ func parseModifiers(e C.id) (m Modifiers) {
 	)
 
 	mods := uintptr(C.modifierFlags(e))
-	if (mods & _NSShiftKeyMask) != 0 {
-		m |= Shift
-	}
 	if (mods & _NSControlKeyMask) != 0 {
-		// TODO
+		m |= Ctrl
 	}
 	if (mods & _NSAlternateKeyMask) != 0 {
 		m |= Alt
 	}
+	if (mods & _NSShiftKeyMask) != 0 {
+		m |= Shift
+	}
 	if (mods & _NSCommandKeyMask) != 0 {
-		m |= Ctrl
+		m |= Super
 	}
 	return m
 }

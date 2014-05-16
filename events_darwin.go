@@ -107,17 +107,17 @@ var keycodeExtKeys = map[uintptr]ExtKey{
 }
 
 var keycodeModifiers = map[uintptr]Modifiers{
-	0x37:	Ctrl,		// left command
+	0x37:	Super,	// left command
 	0x38:	Shift,		// left shift
 	0x3A:	Alt,		// left option
-//	0x3B:	kVK_Control,
+	0x3B:	Ctrl,		// left control
 	0x3C:	Shift,		// right shift
 	0x3D:	Alt,		// right alt
-//	0x3E:	kVK_RightControl,
+	0x3E:	Ctrl,		// right control
 
 	// the following is not in Events.h for some reason
 	// thanks to Nicole and jedivulcan from irc.badnik.net
-	0x36:	Ctrl,		// right command
+	0x36:	Super,	// right command
 }
 
 func fromKeycode(keycode uintptr) (ke KeyEvent, ok bool) {
