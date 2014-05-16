@@ -62,7 +62,4 @@ extern struct xpoint getTranslatedEventPoint(id, id);
 /* for objc_darwin.go */
 extern char *encodedNSRect;
 
-/* for sysdata_darwin.go */
-extern void objc_setFont(id, unsigned int);
-
 #endif

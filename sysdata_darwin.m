@@ -5,6 +5,7 @@
 #include <Foundation/NSGeometry.h>
 #include <AppKit/NSWindow.h>
 #include <AppKit/NSView.h>
+#include <AppKit/NSFont.h>
 #include <AppKit/NSControl.h>
 #include <AppKit/NSButton.h>
 #include <AppKit/NSPopUpButton.h>
@@ -49,10 +50,11 @@ void controlHide(id what)
 	[toNSView(what) setHidden:YES];
 }
 
+#define systemFontOfSize(s) ([NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:(s)]])
+
 void applyStandardControlFont(id what)
 {
-	// TODO inline this
-	objc_setFont(what, NSRegularControlSize);
+	[toNSControl(what) setFont:systemFontOfSize(NSRegularControlSize)];
 }
 
 id makeWindow(id delegate)

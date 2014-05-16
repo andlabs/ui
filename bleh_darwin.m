@@ -172,19 +172,3 @@ struct xpoint getTranslatedEventPoint(id self, id event)
 	ret.y = (int64_t) p.y;
 	return ret;
 }
-
-/*
-we don't need this here technically — it can be done in Go just fine — but it's easier here
-*/
-
-static CGFloat (*objc_msgSend_cgfloatret)(id, SEL, ...) =
-	(CGFloat (*)(id, SEL, ...)) objc_msgSend_fpret;
-
-void objc_setFont(id what, unsigned int csize)
-{
-	CGFloat size;
-
-	size = objc_msgSend_cgfloatret(c_NSFont, s_systemFontSizeForControlSize, (NSControlSize) csize);
-	objc_msgSend(what, s_setFont,
-		objc_msgSend(c_NSFont, s_systemFontOfSize, size));
-}

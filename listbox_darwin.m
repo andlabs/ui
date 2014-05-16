@@ -85,8 +85,8 @@ id makeListboxTableColumn(id identifier)
 	[column setEditable:NO];
 	// to set the font for each item, we set the font of the "data cell", which is more aptly called the "cell template"
 	dataCell = [column dataCell];
-	// TODO pull the one from sysdata_darwin.m
-	objc_setFont(dataCell, NSRegularControlSize);
+	// technically not a NSControl, but still accepts the selector, so we can call it anyway
+	applyStandardControlFont(dataCell);
 	[column setDataCell:dataCell];
 	// TODO other properties?
 	return column;
