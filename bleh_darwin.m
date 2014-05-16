@@ -81,31 +81,3 @@ id makeDummyEvent()
 		(NSInteger) 0,							/* data1: */
 		(NSInteger) 0);							/* data2: */
 }
-
-/*
-[NSView drawRect:] needs to be overridden in our Area subclass. This takes a NSRect, which I'm not sure how to encode, so we're going to have to use @encode() and hope for the best for portability.
-*/
-
-extern void areaView_drawRect(id, struct xrect);
-
-static void __areaView_drawRect(id self, SEL sel, NSRect r)
-{
-	struct xrect t;
-
-	t.x = (int64_t) r.origin.x;
-	t.y = (int64_t) r.origin.y;
-	t.width = (int64_t) r.size.width;
-	t.height = (int64_t) r.size.height;
-	areaView_drawRect(self, t);
-}
-
-void *_areaView_drawRect = (void *) __areaView_drawRect;
-
-/*
-this and one below it are the only objective-c feature you'll see here
-
-unfortunately NSRect both varies across architectures and is passed as just a structure, so its encoding has to be computed at compile time
-because @encode() is NOT A LITERAL, we're going to just stick it all the way back in objc_darwin.go
-see also: http://stackoverflow.com/questions/6812035/adding-methods-dynamically
-*/
-char *encodedNSRect = @encode(NSRect);
