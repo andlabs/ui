@@ -51,6 +51,5 @@ struct xpoint {
 
 /* for uitask_darwin.go */
 extern void initBleh();
-extern id makeDummyEvent();
 
 #endif

@@ -9,6 +9,7 @@
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSWindow.h>
 #include <Foundation/NSAutoreleasePool.h>
+#include <AppKit/NSEvent.h>
 
 @interface appDelegate : NSObject
 @end
@@ -80,13 +81,23 @@ void douitask(id appDelegate, void *p)
 
 void breakMainLoop(void)
 {
+	NSEvent *e;
+
 	// -[NSApplication stop:] stops the event loop; it won't do a clean termination, but we're not too concerned with that (at least not on the other platforms either so)
 	// we can't call -[NSApplication terminate:] because that will just quit the program, ensuring we never leave ui.Go()
 	[NSApp stop:NSApp];
 	// simply calling -[NSApplication stop:] is not good enough, as the stop flag is only checked when an event comes in
 	// we have to create a "proper" event; a blank event will just throw an exception
-	[NSApp postEvent:makeDummyEvent()		// TODO inline this
-		atStart:NO];			// not at start, just in case there are other events pending (TODO is this correct?)
+	e = [NSEvent otherEventWithType:NSApplicationDefined
+		location:NSZeroPoint
+		modifierFlags:0
+		timestamp:0
+		windowNumber:0
+		context:nil
+		subtype:0
+		data1:0
+		data2:0];
+	[NSApp postEvent:e atStart:NO];			// not at start, just in case there are other events pending (TODO is this correct?)
 }
 
 void cocoaMainLoop(void)

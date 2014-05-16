@@ -64,20 +64,3 @@ void initBleh()
 	s_initTrackingArea = sel_getUid("initWithRect:options:owner:userInfo:");
 }
 
-/*
-See uitask_darwin.go: we need to synthesize a NSEvent so -[NSApplication stop:] will work. We cannot simply init the default NSEvent though (it throws an exception) so we must do it "the right way". This involves a very convoluted initializer; we'll just do it here to keep things clean on the Go side (this will only be run once anyway, on program exit).
-*/
-
-id makeDummyEvent()
-{
-	return objc_msgSend(c_NSEvent, s_newEvent,
-		(NSUInteger) NSApplicationDefined,			/* otherEventWithType: */
-		NSMakePoint(0, 0),						/* location: */
-		(NSUInteger) 0,							/* modifierFlags: */
-		(double) 0,							/* timestamp: */
-		(NSInteger) 0,							/* windowNumber: */
-		nil,									/* context: */
-		(short) 0,								/* subtype: */
-		(NSInteger) 0,							/* data1: */
-		(NSInteger) 0);							/* data2: */
-}
