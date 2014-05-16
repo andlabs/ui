@@ -277,10 +277,10 @@ func (e KeyEvent) EffectiveKey() byte {
 // As such, what KeyEvents get sent if the user does something unusual with both of a certain modifier key at once is (presently; TODO) undefined.
 type Modifiers uintptr
 const (
-	Ctrl Modifiers = 1 << iota		// the canonical Ctrl keys ([TODO] on Mac OS X, Control on others)
-	Alt						// the canonical Alt keys ([TODO] on Mac OS X, Meta on Unix systems, Alt on others)
+	Ctrl Modifiers = 1 << iota		// the keys labelled Ctrl or Control on all platforms
+	Alt						// the keys labelled Alt or Option or Meta on all platforms
 	Shift						// the Shift keys
-	// TODO add Super
+	Super					// the Super keys on platforms that have one, or the Windows keys on Windows, or the Command keys on Mac OS X
 )
 
 func checkAreaSize(width int, height int, which string) {

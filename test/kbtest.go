@@ -64,9 +64,9 @@ func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
 		if (m & Shift) != 0 {
 			markkey(a.kbd, modpoints[Shift], m &^ Shift)
 		}
-//		if (m & Super) != 0 {
-//			markkey(a.kbd, modpoints[Super], m &^ Super)
-//		}
+		if (m & Super) != 0 {
+			markkey(a.kbd, modpoints[Super], m &^ Super)
+		}
 	default:
 		return false, false
 	}
@@ -86,9 +86,9 @@ func kbTest() {
 var (
 	keywid = 36
 	keyht = 24
-	// 8 rects per key, 4x2 grid
+	// 16 rects per key, 4x4 grid
 	rectsperrow = 4
-	rectspercol = 2
+	rectspercol = 4
 	keyrectwid = keywid / rectsperrow
 	keyrectht = keyht / rectspercol
 	_keyrect = image.Rect(0, 0, keyrectwid, keyrectht)
@@ -103,6 +103,11 @@ func modcolor(m Modifiers) *image.Uniform {
 	r := (m & 1) * 255; m >>= 1
 	g := (m & 1) * 255; m >>= 1
 	b := (m & 1) * 255; m >>= 1
+	if (m & 1) == 1 {		// Super
+		r /= 2
+		g /= 2
+		b /= 2
+	}
 	return image.NewUniform(color.NRGBA{byte(r), byte(g), byte(b), 255})
 }
 
@@ -206,7 +211,7 @@ var modpoints = map[Modifiers]image.Point{
 	Ctrl:		image.Pt(4, 199),
 	Alt:		image.Pt(113, 199),
 	Shift:		image.Pt(4, 159),
-//	Super:	image.Pt(61, 199),
+	Super:	image.Pt(61, 199),
 }
 
 // source: http://openclipart.org/image/800px/svg_to_png/154537/1312973798.png (medium image) via http://openclipart.org/detail/154537/us-english-keyboard-layout-v0.1-by-nitiraseem
