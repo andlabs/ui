@@ -10,6 +10,9 @@
 #define toNSView(x) to(NSView, (x))
 #define toNSScrollView(x) to(NSScrollView, (x))
 
+// because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
+NSRect dummyRect;
+
 id toNSString(char *str)
 {
 	return [NSString stringWithUTF8String:str];
@@ -43,7 +46,7 @@ id makeScrollView(id content)
 	NSScrollView *scrollview;
 
 	scrollview = [[NSScrollView alloc]
-		initWithFrame:NSMakeRect(0, 0, 100, 100)];
+		initWithFrame:dummyRect];
 	[scrollview setHasHorizontalScroller:YES];
 	[scrollview setHasVerticalScroller:YES];
 	[scrollview setAutohidesScrollers:YES];

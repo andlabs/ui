@@ -17,6 +17,8 @@
 #define toNSUInteger(x) ((NSUInteger) (x))
 #define fromNSUInteger(x) ((uintptr_t) (x))
 
+extern NSRect dummyRect;
+
 @interface areaView : NSView {
 	NSTrackingArea *trackingArea;
 }
@@ -103,7 +105,7 @@ keyEvent(flagsChanged, areaView_flagsChanged)
 id makeArea(void)
 {
 	return [[areaView alloc]
-		initWithFrame:NSMakeRect(0, 0, 100, 100)];
+		initWithFrame:dummyRect];
 }
 
 void drawImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride, intptr_t xdest, intptr_t ydest)

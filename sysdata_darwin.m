@@ -14,8 +14,7 @@
 #include <AppKit/NSProgressIndicator.h>
 #include <AppKit/NSScrollView.h>
 
-// because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
-static NSRect dummyRect;// = NSMakeRect(0, 0, 100, 100);
+extern NSRect dummyRect;
 
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
@@ -60,8 +59,6 @@ id makeWindow(id delegate)
 {
 	NSWindow *w;
 
-	// TODO separate to initilaizer
-	dummyRect = NSMakeRect(0, 0, 100, 100);
 	w = [[NSWindow alloc]
 		initWithContentRect:dummyRect
 		styleMask:(NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask)

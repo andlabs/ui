@@ -19,6 +19,8 @@
 #define toNSUInteger(x) ((NSUInteger) (x))
 #define fromNSUInteger(x) ((uintptr_t) (x))
 
+extern NSRect dummyRect;
+
 id toListboxItem(id key, id value)
 {
 	return [NSMutableDictionary dictionaryWithObject:value forKey:key];
@@ -101,7 +103,7 @@ id makeListbox(id tableColumn, BOOL multisel)
 	NSTableView *listbox;
 
 	listbox = [[NSTableView alloc]
-		initWithFrame:NSMakeRect(0, 0, 100, 100)];
+		initWithFrame:dummyRect];
 	[listbox addTableColumn:tableColumn];
 	[listbox setAllowsMultipleSelection:multisel];
 	[listbox setAllowsEmptySelection:YES];

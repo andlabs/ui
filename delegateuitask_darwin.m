@@ -10,6 +10,8 @@
 #include <Foundation/NSAutoreleasePool.h>
 #include <AppKit/NSEvent.h>
 
+extern NSRect dummyRect;
+
 @interface appDelegate : NSObject
 @end
 
@@ -56,6 +58,7 @@ id windowGetContentView(id window)
 
 BOOL initCocoa(id appDelegate)
 {
+	dummyRect = NSMakeRect(0, 0, 100, 100);
 	[NSApplication sharedApplication];
 	if ([NSApp setActivationPolicy:NSApplicationActivationPolicyRegular] != YES)
 		return NO;
