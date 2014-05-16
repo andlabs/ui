@@ -10,7 +10,6 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
-// #include "delegateuitask_darwin.h"
 import "C"
 
 var uitask chan func()

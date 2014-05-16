@@ -11,7 +11,6 @@ import (
 // #include <stdlib.h>
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"
-// #include "area_darwin.h"
 import "C"
 
 func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {

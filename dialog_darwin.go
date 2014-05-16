@@ -8,7 +8,6 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
-// #include "dialog_darwin.h"
 import "C"
 
 func _msgBox(primarytext string, secondarytext string, style uintptr) {

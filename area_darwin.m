@@ -1,7 +1,6 @@
 // 13 may 2014
 
 #include "objc_darwin.h"
-#include "area_darwin.h"
 #include "_cgo_export.h"
 #include <AppKit/NSView.h>
 #include <AppKit/NSTrackingArea.h>

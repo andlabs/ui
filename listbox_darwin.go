@@ -21,7 +21,6 @@ TODO - change the name of some of these functions? specifically the functions th
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
-// #include "listbox_darwin.h"
 import "C"
 
 /*

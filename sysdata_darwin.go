@@ -9,7 +9,6 @@ import (
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
-// #include "sysdata_darwin.h"
 import "C"
 
 type sysData struct {
