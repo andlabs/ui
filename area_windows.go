@@ -439,6 +439,7 @@ var (
 
 func getModifiers() (m Modifiers) {
 	down := func(x uintptr) bool {
+		// TODO this might not be related to the actual message; GLFW does it
 		r1, _, _ := _getKeyState.Call(x)
 		return (r1 & 0x80) != 0
 	}
@@ -452,7 +453,9 @@ func getModifiers() (m Modifiers) {
 	if down(_VK_SHIFT) {
 		m |= Shift
 	}
-	// TODO windows key (super)
+	if down(_VK_LWIN) || down(_VK_RWIN) {
+		m |= Super
+	}
 	return m
 }
 
