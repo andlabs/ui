@@ -15,19 +15,6 @@ import "C"
 
 var uitask chan func()
 
-var (
-	_NSAutoreleasePool = objc_getClass("NSAutoreleasePool")
-	_NSValue = objc_getClass("NSValue")
-
-	_valueWithPointer = sel_getUid("valueWithPointer:")
-	_performSelectorOnMainThread =
-		sel_getUid("performSelectorOnMainThread:withObject:waitUntilDone:")
-	_stop = sel_getUid("stop:")
-	_postEventAtStart = sel_getUid("postEvent:atStart:")
-	_pointerValue = sel_getUid("pointerValue")
-	_run = sel_getUid("run")
-)
-
 func ui(main func()) error {
 	runtime.LockOSThread()
 
@@ -57,15 +44,6 @@ func ui(main func()) error {
 }
 
 // TODO move to init_darwin.go?
-
-var (
-	_NSApplication = objc_getClass("NSApplication")
-
-	_sharedApplication = sel_getUid("sharedApplication")
-	_setActivationPolicy = sel_getUid("setActivationPolicy:")
-	_activateIgnoringOtherApps = sel_getUid("activateIgnoringOtherApps:")
-	// _setDelegate in sysdata_darwin.go
-)
 
 func initCocoa() (err error) {
 	C.initBleh()		// initialize bleh_darwin.m functions

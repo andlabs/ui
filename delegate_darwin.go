@@ -25,11 +25,6 @@ var (
 	appDelegate C.id
 )
 
-var (
-	_uitask = sel_getUid("uitask:")					// used by uitask_darwin.go
-	_buttonClicked = sel_getUid("buttonClicked:")		// used by sysdata_darwin.go
-)
-
 func makeAppDelegate() {
 	appDelegate = C.makeAppDelegate()
 }
@@ -39,11 +34,6 @@ func appDelegate_windowShouldClose(win C.id) {
 	sysData := getSysData(win)
 	sysData.signal()
 }
-
-var (
-	_object = sel_getUid("object")
-	_display = sel_getUid("display")
-)
 
 //export appDelegate_windowDidResize
 func appDelegate_windowDidResize(win C.id) {

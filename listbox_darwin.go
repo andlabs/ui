@@ -37,11 +37,6 @@ const (
 )
 
 var (
-	_NSMutableDictionary = objc_getClass("NSMutableDictionary")
-
-	_dictionaryWithObjectForKey = sel_getUid("dictionaryWithObject:forKey:")
-	_objectForKey = sel_getUid("objectForKey:")
-
 	listboxItemKey = toNSString(_listboxItemKey)
 )
 
@@ -70,17 +65,6 @@ But what is arrangedObjects? Why care about arranging objects? We don't have to 
 
 Of course, Mac OS X 10.5 adds the ability to automatically arrange objects. So let's just turn that off to be safe.
 */
-
-var (
-	_NSArrayController = objc_getClass("NSArrayController")
-
-	_setAutomaticallyRearrangesObjects = sel_getUid("setAutomaticallyRearrangesObjects:")
-	_addObject = sel_getUid("addObject:")
-	_insertObjectAtArrangedObjectIndex = sel_getUid("insertObject:atArrangedObjectIndex:")
-	_removeObjectAtArrangedObjectIndex = sel_getUid("removeObjectAtArrangedObjectIndex:")
-	_arrangedObjects = sel_getUid("arrangedObjects")
-	_objectAtIndex = sel_getUid("objectAtIndex:")
-)
 
 func newListboxArray() C.id {
 	return C.newListboxArray()
@@ -122,9 +106,6 @@ const (
 )
 
 var (
-	_bindToObjectWithKeyPathOptions = sel_getUid("bind:toObject:withKeyPath:options:")
-	_infoForBinding = sel_getUid("infoForBinding:")
-
 	tableColumnBinding = toNSString("value")
 	listboxItemKeyPath = toNSString(_listboxItemKeyPath)
 )
@@ -146,16 +127,6 @@ Columns need string identifiers; we'll just reuse the item key.
 Editability is also handled here, as opposed to in NSTableView itself.
 */
 
-var (
-	_NSTableColumn = objc_getClass("NSTableColumn")
-
-	_initWithIdentifier = sel_getUid("initWithIdentifier:")
-	_tableColumnWithIdentifier = sel_getUid("tableColumnWithIdentifier:")
-	_dataCell = sel_getUid("dataCell")
-	_setDataCell = sel_getUid("setDataCell:")
-	// _setEditable in sysdata_darwin.go
-)
-
 func newListboxTableColumn() C.id {
 	column := C.makeListboxTableColumn(listboxItemKey)
 	bindListboxArray(column, newListboxArray())
@@ -172,15 +143,7 @@ The NSTableViews don't draw their own scrollbars; we have to drop our NSTableVie
 The actual creation code was moved to objc_darwin.go.
 */
 
-var (
-	_setBorderType = sel_getUid("setBorderType:")
-)
-
 func newListboxScrollView(listbox C.id) C.id {
-	const (
-		_NSBezelBorder = 2
-	)
-
 	scrollview := newScrollView(listbox)
 	C.giveScrollViewBezelBorder(scrollview)		// this is what Interface Builder gives the scroll view
 	return scrollview
@@ -203,21 +166,6 @@ func listboxArray(listbox C.id) C.id {
 
 We'll handle selections from the NSTableView too. The only trickery is dealing with the return value of -[NSTableView selectedRowIndexes]: NSIndexSet. The only way to get indices out of a NSIndexSet is to get them all out wholesale, and working with C arrays in Go is Not Fun.
 */
-
-var (
-	_NSTableView = objc_getClass("NSTableView")
-
-	_addTableColumn = sel_getUid("addTableColumn:")
-	_setAllowsMultipleSelection = sel_getUid("setAllowsMultipleSelection:")
-	_setAllowsEmptySelection = sel_getUid("setAllowsEmptySelection:")
-	_setHeaderView = sel_getUid("setHeaderView:")
-	_selectedRowIndexes = sel_getUid("selectedRowIndexes")
-	_count = sel_getUid("count")
-	_firstIndex = sel_getUid("firstIndex")
-	_indexGreaterThanIndex = sel_getUid("indexGreaterThanIndex:")
-	_numberOfRows = sel_getUid("numberOfRows")
-	_deselectAll = sel_getUid("deselectAll:")
-)
 
 func makeListbox(parentWindow C.id, alternate bool, s *sysData) C.id {
 	listbox := C.makeListbox(newListboxTableColumn(), toBOOL(alternate))

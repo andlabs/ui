@@ -14,10 +14,6 @@ import (
 // #include "area_darwin.h"
 import "C"
 
-var (
-	_NSView = objc_getClass("NSView")
-)
-
 func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 	area := C.makeArea()
 	area = newScrollView(area)
@@ -28,10 +24,6 @@ func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 func areaInScrollView(scrollview C.id) C.id {
 	return getScrollViewContent(scrollview)
 }
-
-var (
-	_drawAtPoint = sel_getUid("drawAtPoint:")
-)
 
 //export areaView_drawRect
 func areaView_drawRect(self C.id, rect C.struct_xrect) {
@@ -50,20 +42,6 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 		unsafe.Pointer(pixelData(i)), C.int64_t(i.Rect.Dx()), C.int64_t(i.Rect.Dy()), C.int64_t(i.Stride),
 		C.int64_t(cliprect.Min.X), C.int64_t(cliprect.Min.Y))
 }
-
-var (
-	_addTrackingArea = sel_getUid("addTrackingArea:")
-	_removeTrackingArea = sel_getUid("removeTrackingArea:")
-)
-
-var (
-	_NSEvent = objc_getClass("NSEvent")
-
-	_modifierFlags = sel_getUid("modifierFlags")
-	_buttonNumber = sel_getUid("buttonNumber")
-	_clickCount = sel_getUid("clickCount")
-	_pressedMouseButtons = sel_getUid("pressedMouseButtons")
-)
 
 func parseModifiers(e C.id) (m Modifiers) {
 	const (
@@ -156,10 +134,6 @@ func areaView_mouseDown(self C.id, e C.id) {
 func areaView_mouseUp(self C.id, e C.id) {
 	areaMouseEvent(self, e, true, true)
 }
-
-var (
-	_keyCode = sel_getUid("keyCode")
-)
 
 func sendKeyEvent(self C.id, e C.id, ke KeyEvent) bool {
 	s := getSysData(self)
