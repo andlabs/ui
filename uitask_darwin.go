@@ -42,8 +42,6 @@ func ui(main func()) error {
 	return nil
 }
 
-// TODO move to init_darwin.go?
-
 func initCocoa() (err error) {
 	makeAppDelegate()
 	if C.initCocoa(appDelegate) != C.YES {
