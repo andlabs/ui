@@ -14,8 +14,6 @@ Under normal circumstances we would have to build our own data source class, as 
 After switching from using the Objective-C runtime to using Objective-C directly, you will now need to look both here and in listbox_darwin.m to get what's going on.
 
 PERSONAL TODO - make a post somewhere that does all this in Objective-C itself, for the benefit of the programming community.
-
-TODO - change the name of some of these functions? specifically the functions that get data about the NSTableView?
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
@@ -65,23 +63,23 @@ But what is arrangedObjects? Why care about arranging objects? We don't have to 
 Of course, Mac OS X 10.5 adds the ability to automatically arrange objects. So let's just turn that off to be safe.
 */
 
-func newListboxArray() C.id {
-	return C.newListboxArray()
+func makeListboxArray() C.id {
+	return C.makeListboxArray()
 }
 
-func appendListboxArray(array C.id, what string) {
+func listboxArrayAppend(array C.id, what string) {
 	C.listboxArrayAppend(array, toListboxItem(what))
 }
 
-func insertListboxArrayBefore(array C.id, what string, before int) {
+func listboxArrayInsertBefore(array C.id, what string, before int) {
 	C.listboxArrayInsertBefore(array, toListboxItem(what), C.uintptr_t(before))
 }
 
-func deleteListboxArray(array C.id, index int) {
+func listboxArrayDelete(array C.id, index int) {
 	C.listboxArrayDelete(array, C.uintptr_t(index))
 }
 
-func indexListboxArray(array C.id, index int) string {
+func listboxArrayItemAt(array C.id, index int) string {
 	dict := C.listboxArrayItemAt(array, C.uintptr_t(index))
 	return fromListboxItem(dict)
 }
@@ -114,7 +112,7 @@ func bindListboxArray(tableColumn C.id, array C.id) {
 		array, listboxItemKeyPath)
 }
 
-func listboxArrayController(tableColumn C.id) C.id {
+func boundListboxArray(tableColumn C.id) C.id {
 	return C.boundListboxArray(tableColumn, tableColumnBinding)
 }
 
@@ -126,9 +124,9 @@ Columns need string identifiers; we'll just reuse the item key.
 Editability is also handled here, as opposed to in NSTableView itself.
 */
 
-func newListboxTableColumn() C.id {
+func makeListboxTableColumn() C.id {
 	column := C.makeListboxTableColumn(listboxItemKey)
-	bindListboxArray(column, newListboxArray())
+	bindListboxArray(column, makeListboxArray())
 	return column
 }
 
@@ -142,8 +140,8 @@ The NSTableViews don't draw their own scrollbars; we have to drop our NSTableVie
 The actual creation code was moved to objc_darwin.go.
 */
 
-func newListboxScrollView(listbox C.id) C.id {
-	scrollview := newScrollView(listbox)
+func makeListboxScrollView(listbox C.id) C.id {
+	scrollview := makeScrollView(listbox)
 	C.giveScrollViewBezelBorder(scrollview)		// this is what Interface Builder gives the scroll view
 	return scrollview
 }
@@ -157,7 +155,7 @@ And now, a helper function that takes a scroll view and gets out the array.
 */
 
 func listboxArray(listbox C.id) C.id {
-	return listboxArrayController(listboxTableColumn(listboxInScrollView(listbox)))
+	return boundListboxArray(listboxTableColumn(listboxInScrollView(listbox)))
 }
 
 /*
@@ -167,26 +165,26 @@ We'll handle selections from the NSTableView too. The only trickery is dealing w
 */
 
 func makeListbox(parentWindow C.id, alternate bool, s *sysData) C.id {
-	listbox := C.makeListbox(newListboxTableColumn(), toBOOL(alternate))
-	listbox = newListboxScrollView(listbox)
+	listbox := C.makeListbox(makeListboxTableColumn(), toBOOL(alternate))
+	listbox = makeListboxScrollView(listbox)
 	addControl(parentWindow, listbox)
 	return listbox
 }
 
-func appendListbox(listbox C.id, what string, alternate bool) {
+func listboxAppend(listbox C.id, what string, alternate bool) {
 	array := listboxArray(listbox)
-	appendListboxArray(array, what)
+	listboxArrayAppend(array, what)
 }
 
-func insertListboxBefore(listbox C.id, what string, before int, alternate bool) {
+func listboxInsertBefore(listbox C.id, what string, before int, alternate bool) {
 	array := listboxArray(listbox)
-	insertListboxArrayBefore(array, what, before)
+	listboxArrayInsertBefore(array, what, before)
 }
 
 // technique from http://stackoverflow.com/questions/3773180/how-to-get-indexes-from-nsindexset-into-an-nsarray-in-cocoa
 // we don't care that the indices were originally NSUInteger since by this point we have a problem anyway; Go programs generally use int indices anyway
 // we also don't care about NSNotFound because we check the count first AND because NSIndexSet is always sorted (and NSNotFound can be a valid index if the list is large enough... since it's NSIntegerMax, not NSUIntegerMax)
-func selectedListboxIndices(listbox C.id) (list []int) {
+func listboxSelectedIndices(listbox C.id) (list []int) {
 	indices := C.listboxSelectedRowIndexes(listboxInScrollView(listbox))
 	count := int(C.listboxIndexesCount(indices))
 	if count == 0 {
@@ -200,29 +198,29 @@ func selectedListboxIndices(listbox C.id) (list []int) {
 	return list
 }
 
-func selectedListboxTexts(listbox C.id) (texts []string) {
-	indices := selectedListboxIndices(listbox)
+func listboxSelectedTexts(listbox C.id) (texts []string) {
+	indices := listboxSelectedIndices(listbox)
 	if len(indices) == 0 {
 		return nil
 	}
 	array := listboxArray(listbox)
 	texts = make([]string, len(indices))
 	for i := 0; i < len(texts); i++ {
-		texts[i] = indexListboxArray(array, indices[i])
+		texts[i] = listboxArrayItemAt(array, indices[i])
 	}
 	return texts
 }
 
-func deleteListbox(listbox C.id, index int) {
+func listboxDelete(listbox C.id, index int) {
 	array := listboxArray(listbox)
-	deleteListboxArray(array, index)
+	listboxArrayDelete(array, index)
 }
 
 func listboxLen(listbox C.id) int {
 	return int(C.listboxLen(listboxInScrollView(listbox)))
 }
 
-func selectListboxIndices(id C.id, indices []int) {
+func listboxSelectIndices(id C.id, indices []int) {
 	listbox := listboxInScrollView(id)
 	if len(indices) == 0 {
 		C.listboxDeselectAll(listbox)

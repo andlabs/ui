@@ -31,7 +31,7 @@ func toBOOL(what bool) C.BOOL {
 
 // These consolidate the NSScrollView code (used by listbox_darwin.go and area_darwin.go) into a single place.
 
-func newScrollView(content C.id) C.id {
+func makeScrollView(content C.id) C.id {
 	return C.makeScrollView(content)
 }
 

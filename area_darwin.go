@@ -15,7 +15,7 @@ import "C"
 
 func makeArea(parentWindow C.id, alternate bool, s *sysData) C.id {
 	area := C.makeArea()
-	area = newScrollView(area)
+	area = makeScrollView(area)
 	addControl(parentWindow, area)
 	return area
 }

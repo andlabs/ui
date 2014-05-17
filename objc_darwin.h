@@ -64,7 +64,7 @@ extern void msgBoxError(id, id);
 /* listbox_darwin.m */
 extern id toListboxItem(id, id);
 extern id fromListboxItem(id, id);
-extern id newListboxArray(void);
+extern id makeListboxArray(void);
 extern void listboxArrayAppend(id, id);
 extern void listboxArrayInsertBefore(id, id, uintptr_t);
 extern void listboxArrayDelete(id, uintptr_t);

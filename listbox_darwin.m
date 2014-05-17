@@ -31,7 +31,7 @@ id fromListboxItem(id item, id key)
 	return [toNSMutableDictionary(item) objectForKey:key];
 }
 
-id newListboxArray(void)
+id makeListboxArray(void)
 {
 	NSArrayController *ac;
 
