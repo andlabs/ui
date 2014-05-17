@@ -37,6 +37,10 @@ id makeListboxArray(void)
 
 	ac = [NSArrayController new];
 	[ac setAutomaticallyRearrangesObjects:NO];
+	// we don't want Cocoa to change the selection when items are inserted
+	// found via TODO_get_Stack_Overflow_link; not sure how I missed it the first time
+	[ac setSelectsInsertedObjects:NO];
+	// TODO figure out how to inhibit this behavior on delete
 	return ac;
 }
 
@@ -135,9 +139,4 @@ uintptr_t listboxIndexesNext(id indexes, uintptr_t prev)
 intptr_t listboxLen(id listbox)
 {
 	return fromNSInteger([toNSTableView(listbox) numberOfRows]);
-}
-
-void listboxDeselectAll(id listbox)
-{
-	[toNSTableView(listbox) deselectAll:listbox];
 }

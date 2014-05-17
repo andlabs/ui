@@ -79,7 +79,6 @@ extern uintptr_t listboxIndexesCount(id);
 extern uintptr_t listboxIndexesFirst(id);
 extern uintptr_t listboxIndexesNext(id, uintptr_t);
 extern intptr_t listboxLen(id);
-extern void listboxDeselectAll(id);
 
 /* prefsize_darwin.m */
 extern struct xsize controlPrefSize(id);

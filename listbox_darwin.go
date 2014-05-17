@@ -217,12 +217,3 @@ func listboxDelete(listbox C.id, index int) {
 func listboxLen(listbox C.id) int {
 	return int(C.listboxLen(listboxInScrollView(listbox)))
 }
-
-func listboxSelectIndices(id C.id, indices []int) {
-	listbox := listboxInScrollView(id)
-	if len(indices) == 0 {
-		C.listboxDeselectAll(listbox)
-		return
-	}
-	panic("selectListboxIndices() > 0 not yet implemented (TODO)")
-}

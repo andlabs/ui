@@ -146,8 +146,6 @@ func (l *Listbox) make(window *sysData) (err error) {
 	for _, s := range l.initItems {
 		l.sysData.append(s)
 	}
-	// some platforms automatically select an item; undo that
-	l.sysData.selectIndices(nil)
 	l.created = true
 	return nil
 }
