@@ -29,7 +29,6 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	s := getSysData(self)
 	// TODO clear clip rect
 	// rectangles in Cocoa are origin/size, not point0/point1; if we don't watch for this, weird things will happen when scrolling
-	// TODO change names EVERYWHERE ELSE to match
 	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x + rect.width), int(rect.y + rect.height))
 	max := C.frame(self)
 	cliprect = image.Rect(0, 0, int(max.width), int(max.height)).Intersect(cliprect)

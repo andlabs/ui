@@ -42,14 +42,15 @@ func gtkAreaGetControl(scrollarea *C.GtkWidget) *C.GtkWidget {
 
 //export our_area_draw_callback
 func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer) C.gboolean {
-	var x, y, w, h C.double
+	var x0, y0, x1, y1 C.double
 	var maxwid, maxht C.gint
 
 	s := (*sysData)(unsafe.Pointer(data))
 	// thanks to desrt in irc.gimp.net/#gtk+
-	C.cairo_clip_extents(cr, &x, &y, &w, &h)
+	// TODO these are in "user coordinates"; is that what we want?
+	C.cairo_clip_extents(cr, &x0, &y0, &x1, &y1)
 	// we do not need to clear the cliprect; GtkDrawingArea did it for us beforehand
-	cliprect := image.Rect(int(x), int(y), int(w), int(h))
+	cliprect := image.Rect(int(x0), int(y0), int(x1), int(y1))
 	// the cliprect can actually fall outside the size of the Area; clip it by intersecting the two rectangles
 	C.gtk_widget_get_size_request(widget, &maxwid, &maxht)
 	cliprect = image.Rect(0, 0, int(maxwid), int(maxht)).Intersect(cliprect)
@@ -75,7 +76,8 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 		0, 0)			// origin of the surface
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
-	C.cairo_rectangle(cr, x, y, w, h)		// breaking the nrom here since we have the double data already
+	// TODO see above about user coordinates; if we do change to device coordinates the following line will need to change or be added to
+	C.cairo_rectangle(cr, x0, y0, x1, y1)		// breaking the nrom here since we have the coordinates as a C double already
 	C.cairo_fill(cr)
 	C.cairo_surface_destroy(surface)		// free surface
 	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
