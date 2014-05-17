@@ -55,6 +55,7 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 				// top-left corner is (0,0) so no need for winheight
 				s.doResize(int(r.left), int(r.top), int(r.right), int(r.bottom), 0)
 				// TODO use the Defer movement functions here?
+				// TODO redraw window and all children here?
 			}
 			return 0
 		case _WM_CLOSE:
