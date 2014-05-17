@@ -48,14 +48,6 @@ func controlHide(what C.id) {
 	C.controlHide(what)
 }
 
-// TODO move to objc_darwin.go unless the only thing that uses it is alternate
-func toBOOL(what bool) C.BOOL {
-	if what {
-		return C.YES
-	}
-	return C.NO
-}
-
 // By default some controls do not use the correct font.
 // These functions set the appropriate control font.
 // Which one is used on each control was determined by comparing https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AppleHIGuidelines/Characteristics/Characteristics.html#//apple_ref/doc/uid/TP40002721-SW10 to what Interface Builder says for each control.

@@ -22,6 +22,13 @@ func fromNSString(str C.id) string {
 	return C.GoString(C.fromNSString(str))
 }
 
+func toBOOL(what bool) C.BOOL {
+	if what {
+		return C.YES
+	}
+	return C.NO
+}
+
 // These consolidate the NSScrollView code (used by listbox_darwin.go and area_darwin.go) into a single place.
 
 func newScrollView(content C.id) C.id {
