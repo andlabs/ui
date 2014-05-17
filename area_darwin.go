@@ -93,7 +93,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	} else {
 		which = 0			// reset for Held processing below
 	}
-	// the docs do say don't use this for tracking (mouseMoved:) since it returns the state now, and mouse move events work by tracking, but as far as I can tell dragging the mouse over the inactive window does not generate an event on Mac OS X, so :/ (tracking doesn't touch dragging anyway so)
+	// the docs do say don't use this for tracking (mouseMoved:) since it returns the state now, and mouse move events work by tracking, but as far as I can tell dragging the mouse over the inactive window does not generate an event on Mac OS X, so :/ (tracking doesn't touch dragging anyway except during mouseEntered: and mouseExited:, which we don't handle, and the only other tracking message, cursorChanged:, we also don't handle (yet...? need to figure out if this is how to set custom cursors or not), so)
 	held := C.pressedMouseButtons()
 	if which != 1 && (held & 1) != 0 {		// button 1
 		me.Held = append(me.Held, 1)
