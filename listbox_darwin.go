@@ -12,8 +12,6 @@ The Cocoa API was not designed to be used directly in code; you were intended to
 Under normal circumstances we would have to build our own data source class, as Cocoa doesn't provide premade data sources. Thankfully, Mac OS X 10.3 introduced the bindings system, which avoids all that. It's just not documented too well (again, because you're supposed to use Interface Builder). Bear with me here.
 
 After switching from using the Objective-C runtime to using Objective-C directly, you will now need to look both here and in listbox_darwin.m to get what's going on.
-
-PERSONAL TODO - make a post somewhere that does all this in Objective-C itself, for the benefit of the programming community.
 */
 
 // #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
