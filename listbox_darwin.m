@@ -38,9 +38,9 @@ id makeListboxArray(void)
 	ac = [NSArrayController new];
 	[ac setAutomaticallyRearrangesObjects:NO];
 	// we don't want Cocoa to change the selection when items are inserted
-	// found via TODO_get_Stack_Overflow_link; not sure how I missed it the first time
-	[ac setSelectsInsertedObjects:NO];
-	// TODO figure out how to inhibit this behavior on delete
+	// found via http://stackoverflow.com/a/5765318/3408572; not sure how I missed it the first time
+	[ac setSelectsInsertedObjects:NO];		// for insertions
+	[ac setAvoidsEmptySelection:NO];		// for deletions
 	return ac;
 }
 
