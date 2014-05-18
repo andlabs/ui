@@ -65,7 +65,6 @@ func parseModifiers(e C.id) (m Modifiers) {
 	return m
 }
 
-// TODO pressing both buttons 1 and 3 simultaneously gets turned into button 2; see if we can turn that off for our NSView only
 func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	var me MouseEvent
 
