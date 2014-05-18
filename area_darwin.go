@@ -27,7 +27,7 @@ func areaInScrollView(scrollview C.id) C.id {
 //export areaView_drawRect
 func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	s := getSysData(self)
-	// TODO clear clip rect
+	// no need to clear the clip rect; the NSScrollView does that for us (see the setDrawsBackground: call in objc_darwin.m)
 	// rectangles in Cocoa are origin/size, not point0/point1; if we don't watch for this, weird things will happen when scrolling
 	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x + rect.width), int(rect.y + rect.height))
 	max := C.frame(self)

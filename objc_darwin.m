@@ -50,6 +50,8 @@ id makeScrollView(id content)
 	[scrollview setHasHorizontalScroller:YES];
 	[scrollview setHasVerticalScroller:YES];
 	[scrollview setAutohidesScrollers:YES];
+	// Interface Builder sets this for NSTableViews; we also want this on Areas
+	[scrollview setDrawsBackground:YES];
 	[scrollview setDocumentView:toNSView(content)];
 	return scrollview;
 }
