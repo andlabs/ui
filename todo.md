@@ -1,11 +1,12 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
-- Mac OS X forces items selected when changing the Combobox/Listbox lists; figure out how to inhibit this
+	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
+- Mac OS X forces items selected when changing the NSPopUpButton (noneditable Combobox) lists; figure out how to inhibit this
+	- asked: http://stackoverflow.com/questions/23715275/cocoa-how-do-i-suppress-nspopupbutton-automatic-selection-synchronization-nsar
 
 super ultra important things:
 - add cgo build flags on OS X so binaries get built supporting 10.6 at least; the default is to build supporting the host platform at least, so 10.8 binaries crash on 10.6 with an illegal instruction during initial load (which crashes gdb too)
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
-- see if the Objective-C compiler ABI options can fix this whole ABI mess outlined in bleh_darwin.m
 - formalize what happens if Modifiers by themselves are held
 	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
 	- in general, figure out what to do on multiple events, period
@@ -42,7 +43,6 @@ super ultra important things:
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - redrawing controls after a window resize on Windows does not work properly
 - point out that Areas get keyboard focus automatically on click on Mac OS X
-- make sure Areas get mouse click events on window activate on all platforms
 - make sure Areas get keyboard focus when clicking outside the actual Area space on all platforms
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
