@@ -15,11 +15,13 @@
 // As only one other person on the entire internet has had this problem (TODO get link) and no one ever replied to his report, we're on our own here. This is dumb and will break compile-time availability and deprecation checks, but we don't have many other options.
 // I could use SDKs here, but on 10.6 itself Xcode 4.3, which changed the location of SDKs, is only available to people with a paid Apple developer account, and Beelsebob on irc.freenode.net/#macdev told me that any other configuration is likely to have a differnet directory entirely, so...
 // Of course, if Go were ever to drop 10.6 support, this problem would go away (hopefully).
+// Oh, and Xcode 4.2 for Snow Leopard comes with headers that don't include MAC_OS_X_VERSION_10_7 and thus won't have this problem, so we need to watch for that too...
+#ifdef MAC_OS_X_VERSION_10_7
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
 #define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
-//# MAC_OS_X_VERSION_10_7 MAC_OS_X_VERSION_10_6 MAC_OS_X_VERSION_10_3
+#endif
 #import <AppKit/NSApplication.h>
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
