@@ -14,7 +14,6 @@ Under normal circumstances we would have to build our own data source class, as 
 After switching from using the Objective-C runtime to using Objective-C directly, you will now need to look both here and in listbox_darwin.m to get what's going on.
 */
 
-// #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
 import "C"

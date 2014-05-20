@@ -7,7 +7,6 @@ import (
 	"image"
 )
 
-// #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 //// #include <HIToolbox/Events.h>
 // #include "objc_darwin.h"

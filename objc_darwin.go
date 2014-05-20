@@ -6,7 +6,6 @@ import (
 	"unsafe"
 )
 
-// #cgo LDFLAGS: -lobjc -framework Foundation
 // #include <stdlib.h>
 // #include "objc_darwin.h"
 import "C"

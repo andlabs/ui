@@ -15,7 +15,6 @@ This creates a class goAppDelegate that will be used as the delegate for /everyt
 	- handles the application-global Quit event (such as from the Dock) (applicationShouldTerminate)
 */
 
-// #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include <stdlib.h>
 // #include "objc_darwin.h"
 import "C"

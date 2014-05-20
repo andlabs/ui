@@ -6,7 +6,6 @@ import (
 	// ...
 )
 
-// #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
 import "C"
 
