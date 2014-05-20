@@ -2,13 +2,13 @@
 
 #include "objc_darwin.h"
 #include "_cgo_export.h"
-#include <Foundation/NSObject.h>
-#include <Foundation/NSValue.h>
-#include <Foundation/NSNotification.h>
+#import <Foundation/NSObject.h>
+#import <Foundation/NSValue.h>
+#import <Foundation/NSNotification.h>
 
 // see the hack below; we'll include everything first just in case some other headers get included below; if the hack ever gets resolved, we can use the ones below instead
-#include <Foundation/NSAutoreleasePool.h>
-#include <AppKit/NSEvent.h>
+#import <Foundation/NSAutoreleasePool.h>
+#import <AppKit/NSEvent.h>
 
 // HACK.
 // Apple's header files are bugged: there's an enum that was introduced in 10.7 with new values added in 10.8, but instead of wrapping the whole enum in a version check, they wrap just the fields. This means that on 10.6 that enum will be empty, which is illegal.
@@ -19,8 +19,8 @@
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
 #define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
-# MAC_OS_X_VERSION_10_7 MAC_OS_X_VERSION_10_6 MAC_OS_X_VERSION_10_3
-#include <AppKit/NSApplication.h>
+//# MAC_OS_X_VERSION_10_7 MAC_OS_X_VERSION_10_6 MAC_OS_X_VERSION_10_3
+#import <AppKit/NSApplication.h>
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
@@ -28,9 +28,9 @@
 
 // NSWindow.h is below because it includes NSApplication.h
 // we'll use the other headers's include guards so if the above is resolved and I forget to uncomment anything below it won't matter
-#include <AppKit/NSWindow.h>
-#include <Foundation/NSAutoreleasePool.h>
-#include <AppKit/NSEvent.h>
+#import <AppKit/NSWindow.h>
+#import <Foundation/NSAutoreleasePool.h>
+#import <AppKit/NSEvent.h>
 
 extern NSRect dummyRect;
 

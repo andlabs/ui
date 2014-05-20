@@ -1,35 +1,34 @@
 // 12 may 2014
 
 #include "objc_darwin.h"
-#include <Foundation/NSGeometry.h>
+#import <Foundation/NSGeometry.h>
 
 // see delegateuitask_darwin.m
 // in this case, lots of headers include NSApplication.h
-// NOTE uncomment the ones below when resolved because yay inconsistent include guard madness
-#include <AppKit/NSView.h>
-#include <AppKit/NSControl.h>
+#import <AppKit/NSView.h>
+#import <AppKit/NSControl.h>
 
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
 #define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
-#include <AppKit/NSApplication.h>
+#import <AppKit/NSApplication.h>
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
 #undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
 #define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
 
-#include <AppKit/NSWindow.h>
-#include <AppKit/NSView.h>
-#include <AppKit/NSFont.h>
-//#include <AppKit/NSControl.h>
-#include <AppKit/NSButton.h>
-#include <AppKit/NSPopUpButton.h>
-#include <AppKit/NSComboBox.h>
-#include <AppKit/NSTextField.h>
-#include <AppKit/NSSecureTextField.h>
-#include <AppKit/NSProgressIndicator.h>
-#include <AppKit/NSScrollView.h>
+#import <AppKit/NSWindow.h>
+#import <AppKit/NSView.h>
+#import <AppKit/NSFont.h>
+#import <AppKit/NSControl.h>
+#import <AppKit/NSButton.h>
+#import <AppKit/NSPopUpButton.h>
+#import <AppKit/NSComboBox.h>
+#import <AppKit/NSTextField.h>
+#import <AppKit/NSSecureTextField.h>
+#import <AppKit/NSProgressIndicator.h>
+#import <AppKit/NSScrollView.h>
 
 extern NSRect dummyRect;
 

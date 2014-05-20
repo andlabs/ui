@@ -2,11 +2,11 @@
 
 #include "objc_darwin.h"
 #include "_cgo_export.h"
-#include <AppKit/NSView.h>
-#include <AppKit/NSTrackingArea.h>
-#include <Foundation/NSGeometry.h>
-#include <AppKit/NSEvent.h>
-#include <AppKit/NSBitmapImageRep.h>
+#import <AppKit/NSView.h>
+#import <AppKit/NSTrackingArea.h>
+#import <Foundation/NSGeometry.h>
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSBitmapImageRep.h>
 
 #define to(T, x) ((T *) (x))
 #define toNSEvent(x) to(NSEvent, (x))

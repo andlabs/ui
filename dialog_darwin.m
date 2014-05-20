@@ -1,7 +1,7 @@
 // 15 may 2014
 
 #include "objc_darwin.h"
-#include <AppKit/NSAlert.h>
+#import <AppKit/NSAlert.h>
 
 static void alert(NSString *primary, NSString *secondary, NSAlertStyle style)
 {
