@@ -5,7 +5,6 @@ important things:
 	- asked: http://stackoverflow.com/questions/23715275/cocoa-how-do-i-suppress-nspopupbutton-automatic-selection-synchronization-nsar
 
 super ultra important things:
-- add cgo build flags on OS X so binaries get built supporting 10.6 at least; the default is to build supporting the host platform at least, so 10.8 binaries crash on 10.6 with an illegal instruction during initial load (which crashes gdb too)
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
 - formalize what happens if Modifiers by themselves are held
 	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
