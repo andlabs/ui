@@ -17,7 +17,7 @@ super ultra important things:
 	- will need old and new Mac keyboards...
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - pin down whether or not a click event gets sent if this click changes from a different window to the one with the Area
-- double-check to make sure MouseEvent.Held[] is sorted on all platforms
+- double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
 - cap click count to 2 on all platforms
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
