@@ -26,10 +26,6 @@ func gtk_init() error {
 	return nil
 }
 
-func gtk_main() {
-	C.gtk_main()
-}
-
 func gtk_main_quit() {
 	C.gtk_main_quit()
 }

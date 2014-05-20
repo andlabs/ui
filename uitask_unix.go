@@ -9,6 +9,10 @@ import (
 	"runtime"
 )
 
+// #cgo pkg-config: gtk+-3.0
+// #include "gtk_unix.h"
+import "C"
+
 var uitask chan func()
 
 func ui(main func()) error {
@@ -39,6 +43,6 @@ func ui(main func()) error {
 		uitask <- gtk_main_quit
 	}()
 
-	gtk_main()
+	C.gtk_main()
 	return nil
 }
