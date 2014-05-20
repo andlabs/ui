@@ -5,6 +5,9 @@
 #ifndef __GO_UI_OBJC_DARWIN_H__
 #define __GO_UI_OBJC_DARWIN_H__
 
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
+
 /* the Objective-C runtime headers, for id */
 #include <objc/message.h>
 #include <objc/objc.h>
