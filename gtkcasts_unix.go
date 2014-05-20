@@ -13,7 +13,6 @@ import (
 // toxxxx() converts from Go type to GTK+ type
 // Listbox casts are stored in listbox_unix.go
 
-// #cgo pkg-config: gtk+-3.0
 // #include "gtk_unix.h"
 import "C"
 

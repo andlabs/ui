@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// #cgo pkg-config: gtk+-3.0
 // #include "gtk_unix.h"
 import "C"
 

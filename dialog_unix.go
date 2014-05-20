@@ -8,7 +8,6 @@ import (
 	"unsafe"
 )
 
-// #cgo pkg-config: gtk+-3.0
 // #include "gtk_unix.h"
 // /* because cgo seems to choke on ... */
 // /* TODO does NULL parent make the box application-global? docs are unclear */

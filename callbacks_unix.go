@@ -14,7 +14,6 @@ cgo doesn't support calling Go functions by default; we have to mark them for ex
 while we're at it the callback for our idle function will be handled here too
 */
 
-// #cgo pkg-config: gtk+-3.0
 // #include "gtk_unix.h"
 // extern gboolean our_window_delete_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_window_configure_event_callback(GtkWidget *, GdkEvent *, gpointer);

@@ -10,7 +10,6 @@ import (
 	"image"
 )
 
-// #cgo pkg-config: gtk+-3.0
 // #include "gtk_unix.h"
 // extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
