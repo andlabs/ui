@@ -5,7 +5,29 @@
 #include <Foundation/NSObject.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSNotification.h>
+
+// see the hack below; we'll include everything first just in case some other headers get included below; if the hack ever gets resolved, we can use the ones below instead
+#include <Foundation/NSAutoreleasePool.h>
+#include <AppKit/NSEvent.h>
+
+// HACK.
+// Apple's header files are bugged: there's an enum that was introduced in 10.7 with new values added in 10.8, but instead of wrapping the whole enum in a version check, they wrap just the fields. This means that on 10.6 that enum will be empty, which is illegal.
+// As only one other person on the entire internet has had this problem (TODO get link) and no one ever replied to his report, we're on our own here. This is dumb and will break compile-time availability and deprecation checks, but we don't have many other options.
+// I could use SDKs here, but on 10.6 itself Xcode 4.3, which changed the location of SDKs, is only available to people with a paid Apple developer account, and Beelsebob on irc.freenode.net/#macdev told me that any other configuration is likely to have a differnet directory entirely, so...
+// Of course, if Go were ever to drop 10.6 support, this problem would go away (hopefully).
+#undef MAC_OS_X_VERSION_MIN_REQUIRED
+#undef MAC_OS_X_VERSION_MAX_ALLOWED
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
+# MAC_OS_X_VERSION_10_7 MAC_OS_X_VERSION_10_6 MAC_OS_X_VERSION_10_3
 #include <AppKit/NSApplication.h>
+#undef MAC_OS_X_VERSION_MIN_REQUIRED
+#undef MAC_OS_X_VERSION_MAX_ALLOWED
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
+
+// NSWindow.h is below because it includes NSApplication.h
+// we'll use the other headers's include guards so if the above is resolved and I forget to uncomment anything below it won't matter
 #include <AppKit/NSWindow.h>
 #include <Foundation/NSAutoreleasePool.h>
 #include <AppKit/NSEvent.h>

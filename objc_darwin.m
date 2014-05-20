@@ -2,7 +2,23 @@
 
 #include "objc_darwin.h"
 #include <Foundation/NSString.h>
+
+// see delegateuitask_darwin.m
+// in this case, NSScrollView.h includes NSApplication.h
+// NOTE NSView.h apparently lacks include guards; we'll need to uncomment the one below
 #include <AppKit/NSView.h>
+
+#undef MAC_OS_X_VERSION_MIN_REQUIRED
+#undef MAC_OS_X_VERSION_MAX_ALLOWED
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
+#include <AppKit/NSApplication.h>
+#undef MAC_OS_X_VERSION_MIN_REQUIRED
+#undef MAC_OS_X_VERSION_MAX_ALLOWED
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
+
+//#include <AppKit/NSView.h>
 #include <AppKit/NSScrollView.h>
 
 #define to(T, x) ((T *) (x))
