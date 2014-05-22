@@ -16,6 +16,7 @@ super ultra important things:
 		- Mac OS X: all modifiers send press AND release events; left+right sends TODO; release mask == pressed keys &^ released button
 		- ideally we would want modifiers to behave like Up and Down: if a modifier was pressed or released, have a field Modifier that indicates which modifier was pressed, then use the Modifiers field to indicate which modifiers are currently held
 			- but then we would need to figure out how to deal with the fact that there's left and right and we choose not to differentiate (and because Windows doesn't report two Shift keys being released at once, according to GLFW)
+			- also this makes Modifiers different from everything else... maybe I should drop the Modifiers as a bitmask thing???? Or have Modifiers be the flags if Up and Down are nonzero and an individual bit otherwise? This sounds the most reasonable...
 	- OS X: the behavior of Modifiers and other keys is broken: keyDown:/keyUp: events stop being sent when the state of Modifiers changes, which is NOT what we want
 		- [13:44] <Psy> pietro10: nope, the system decides
 
