@@ -8,7 +8,12 @@ super ultra important things:
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
 - formalize what happens if Modifiers by themselves are held
 	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
+		- yes it does
 	- in general, figure out what to do on multiple events, period
+	- current behavior:
+		- Windows: no modifier release unless one modifier is released while another is still held; I think this can be overcome
+		- Unix: all modifiers send press AND release events; left+right sends two events; release mask == pressed keys | released button
+		- Mac OS X: all modifiers send press AND release events; left+right sends TODO; release mask == pressed keys &^ released button
 	- OS X: the behavior of Modifiers and other keys is broken: keyDown:/keyUp: events stop being sent when the state of Modifiers changes, which is NOT what we want
 		- [13:44] <Psy> pietro10: nope, the system decides
 
