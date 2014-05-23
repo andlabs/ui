@@ -17,6 +17,14 @@ import (
 // extern gboolean our_area_motion_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// /* because cgo doesn't like ... */
+// static inline void gtkGetDoubleClickSettings(GtkSettings *settings, gint *maxTime, gint *maxDistance)
+// {
+// 	g_object_get(settings,
+// 		"gtk-double-click-time", maxTime,
+// 		"gtk-double-click-distance", maxDistance,
+// 		NULL);
+// }
 import "C"
 
 func gtkAreaNew() *C.GtkWidget {
@@ -157,14 +165,24 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 		// GDK button ID == our button ID with some exceptions taken care of by finishMouseEvent()
 		Down:	uint(e.button),
 	}
-	switch e._type {
-	case C.GDK_BUTTON_PRESS:
-		me.Count = 1
-	case C.GDK_2BUTTON_PRESS:
-		me.Count = 2
-	default:		// ignore triple-clicks and beyond; we don't handle those
+
+	var maxTime C.gint
+	var maxDistance C.gint
+
+	if e._type != C.GDK_BUTTON_PRESS {
+		// ignore GDK's generated double-clicks and beyond; we handled those ourselves below
 		return C.FALSE		// TODO really false?
 	}
+	s := (*sysData)(unsafe.Pointer(data))
+	// e.time is unsigned and in milliseconds
+	// maxTime is also milliseconds; despite being gint, it is only allowed to be positive
+	// maxDistance is also only allowed to be positive
+	settings := C.gtk_widget_get_settings(widget)
+	C.gtkGetDoubleClickSettings(settings, &maxTime, &maxDistance)
+	me.Count = s.clickCounter.click(me.Down, int(e.x), int(e.y),
+		uintptr(e.time), uintptr(maxTime),
+		int(maxDistance), int(maxDistance))
+
 	finishMouseEvent(widget, data, me, me.Down, e.x, e.y, e.state, e.window)
 	return C.FALSE			// TODO really false?
 }

@@ -17,6 +17,7 @@ type sysData struct {
 	widget		*C.GtkWidget
 	container		*C.GtkWidget	// for moving
 	pulse		chan bool		// for sysData.progressPulse()
+	clickCounter	clickCounter	// for Areas
 }
 
 type classData struct {
