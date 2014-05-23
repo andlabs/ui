@@ -459,7 +459,18 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
-func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM, lparam _LPARAM) {
+const (
+	_SM_CXDOUBLECLK = 36
+	_SM_CYDOUBLECLK = 37
+)
+
+var (
+	_getMessageTime = user32.NewProc("GetMessageTime")
+	_getDoubleClickTime = user32.NewProc("GetDoubleClickTime")
+	_getSystemMetrics = user32.NewProc("GetSystemMetrics")
+)
+
+func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LPARAM) {
 	var me MouseEvent
 
 	xpos, ypos := getScrollPos(s.hwnd)		// mouse coordinates are relative to control; make them relative to Area
@@ -471,9 +482,19 @@ func areaMouseEvent(s *sysData, button uint, up bool, count uint, wparam _WPARAM
 	}
 	if up {
 		me.Up = button
-	} else {
+	} else if button != 0 {			// don't run the click counter if the mouse was only moved
 		me.Down = button
-		me.Count = count
+		// this returns a LONG, which is int32, but we don't need to worry about the signedness because for the same bit widths and two's complement arithmetic, s1-s2 == u1-u2 if bits(s1)==bits(s2) and bits(u1)==bits(u2) (and Windows requires two's complement: http://blogs.msdn.com/b/oldnewthing/archive/2005/05/27/422551.aspx)
+		// TODO actually will this break with negative numbers on systems where uintptr is 64 bits wide? only if the ABI doesn't sign-extend...
+		time, _, _ := _getMessageTime.Call()
+		// this returns a UINT, which is uint32; don't worry about the smaller size as sign extension won't matter here (see the above)
+		maxTime, _, _ := _getDoubleClickTime.Call()
+		// ignore zero returns and errors; MSDN says zero will be returned on error but that GetLastError() is meaningless
+		// these should be unsigned... TODO MSDN doesn't say and GetSystemMetrics() returns an int (int32)
+		xdist, _, _ := _getSystemMetrics.Call(_SM_CXDOUBLECLK)
+		ydist, _, _ := _getSystemMetrics.Call(_SM_CYDOUBLECLK)
+		me.Count = s.clickCounter.click(button, me.Pos.X, me.Pos.Y,
+			time, maxTime, int(xdist / 2), int(ydist / 2))
 	}
 	// though wparam will contain control and shift state, let's use just one function to get modifiers for both keyboard and mouse events; it'll work the same anyway since we have to do this for alt and windows key (super)
 	me.Modifiers = getModifiers()
@@ -633,46 +654,33 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			}
 			return defwndproc()
 		case _WM_MOUSEMOVE:
-			areaMouseEvent(s, 0, false, 0, wParam, lParam)
+			areaMouseEvent(s, 0, false, wParam, lParam)
 			return 0
 		case _WM_LBUTTONDOWN:
-			areaMouseEvent(s, 1, false, 1, wParam, lParam)
-			return 0
-		case _WM_LBUTTONDBLCLK:
-			areaMouseEvent(s, 1, false, 2, wParam, lParam)
+			areaMouseEvent(s, 1, false, wParam, lParam)
 			return 0
 		case _WM_LBUTTONUP:
-			areaMouseEvent(s, 1, true, 0, wParam, lParam)
+			areaMouseEvent(s, 1, true, wParam, lParam)
 			return 0
 		case _WM_MBUTTONDOWN:
-			areaMouseEvent(s, 2, false, 1, wParam, lParam)
-			return 0
-		case _WM_MBUTTONDBLCLK:
-			areaMouseEvent(s, 2, false, 2, wParam, lParam)
+			areaMouseEvent(s, 2, false, wParam, lParam)
 			return 0
 		case _WM_MBUTTONUP:
-			areaMouseEvent(s, 2, true, 0, wParam, lParam)
+			areaMouseEvent(s, 2, true, wParam, lParam)
 			return 0
 		case _WM_RBUTTONDOWN:
-			areaMouseEvent(s, 3, false, 1, wParam, lParam)
-			return 0
-		case _WM_RBUTTONDBLCLK:
-			areaMouseEvent(s, 3, false, 2, wParam, lParam)
+			areaMouseEvent(s, 3, false, wParam, lParam)
 			return 0
 		case _WM_RBUTTONUP:
-			areaMouseEvent(s, 3, true, 0, wParam, lParam)
+			areaMouseEvent(s, 3, true, wParam, lParam)
 			return 0
 		case _WM_XBUTTONDOWN:
 			which := uint((wParam >> 16) & 0xFFFF) + 3		// values start at 1; we want them to start at 4
-			areaMouseEvent(s, which, false, 1, wParam, lParam)
+			areaMouseEvent(s, which, false, wParam, lParam)
 			return _LRESULT(_TRUE)		// XBUTTON messages are different!
-		case _WM_XBUTTONDBLCLK:
-			which := uint((wParam >> 16) & 0xFFFF) + 3
-			areaMouseEvent(s, which, false, 2, wParam, lParam)
-			return _LRESULT(_TRUE)
 		case _WM_XBUTTONUP:
 			which := uint((wParam >> 16) & 0xFFFF) + 3
-			areaMouseEvent(s, which, true, 0, wParam, lParam)
+			areaMouseEvent(s, which, true, wParam, lParam)
 			return _LRESULT(_TRUE)
 		case _WM_KEYDOWN:
 			areaKeyEvent(s, false, wParam, lParam)
@@ -710,9 +718,6 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 	const (
 		_CS_HREDRAW = 0x0002
 		_CS_VREDRAW = 0x0001
-
-		// from winuser.h
-		_CS_DBLCLKS = 0x0008		// needed to be able to register double-clicks
 	)
 
 	areaWndClassNumLock.Lock()
@@ -721,7 +726,7 @@ func registerAreaWndClass(s *sysData) (newClassName string, err error) {
 	areaWndClassNumLock.Unlock()
 
 	wc := &_WNDCLASS{
-		style:			_CS_DBLCLKS | _CS_HREDRAW | _CS_VREDRAW,
+		style:			_CS_HREDRAW | _CS_VREDRAW,		// no CS_DBLCLKS because do that manually
 		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
 		lpfnWndProc:		syscall.NewCallback(areaWndProc(s)),
 		hInstance:		hInstance,

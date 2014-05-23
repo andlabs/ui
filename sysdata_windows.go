@@ -20,6 +20,7 @@ type sysData struct {
 	// unlike with GTK+ and Mac OS X, we're responsible for sizing Area properly ourselves
 	areawidth			int
 	areaheight		int
+	clickCounter		clickCounter
 }
 
 type classData struct {

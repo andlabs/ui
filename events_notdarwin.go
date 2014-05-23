@@ -55,7 +55,7 @@ func (c *clickCounter) click(button uint, x int, y int, time uintptr, maxTime ui
 }
 
 // call this when losing focus, etc.
-func (c *clickCounter reset() {
+func (c *clickCounter) reset() {
 	c.count = 0
 }
 
