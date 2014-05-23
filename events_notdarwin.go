@@ -5,6 +5,60 @@
 
 package ui
 
+import (
+	"image"
+)
+
+/*
+Windows and GTK+ have a limit of 2 and 3 clicks, respectively, natively supported. Fortunately, we can simulate the double/triple-click behavior to build higher-order clicks. We can use the same algorithm Windows uses on both:
+	http://blogs.msdn.com/b/oldnewthing/archive/2004/10/18/243925.aspx
+For GTK+, we pull the double-click time and double-click distance, which work the same as the equivalents on Windows (so the distance is in all directions), from the GtkSettings system.
+
+On GTK+ this will also allow us to discard the GDK_BUTTON_2PRESS and GDK_BUTTON_3PRESS events, so the button press stream will be just like on other platforms.
+
+Thanks to mclasen, garnacho_, and halfline in irc.gimp.net/#gtk+.
+
+TODO - technically a GDK_BUTTON_3PRESS is detected in half the time as a GDK_BUTTON_2PRESS... handle?
+*/
+
+// the zero value is a reset clickCounter ready for use
+// it doesn't matter that all the non-count fields are zero: the first click will fail the curButton test straightaway, so it'll return 1 and set the rest of the structure accordingly
+type clickCounter struct {
+	curButton		uint
+	rect			image.Rectangle
+	prevTime		uintptr
+	count		uint
+}
+
+// x, y, xdist, ydist, and c.rect must have the same units
+// so must time, maxTime, and c.prevTime
+func (c *clickCounter) click(button uint, x int, y int, time uintptr, maxTime uintptr, xdist int, ydist int) uint {
+	if button != c.curButton {				// different button; start over
+		c.count = 0
+	}
+	if !image.Pt(x, y).In(c.rect) {			// not in the allowed region for a double-click; don't count
+		c.count = 0
+	}
+	if (time - c.prevTime) > maxTime {		// too slow; don't count
+		// note the above expression; time > (c.prevTime + maxTime) can overflow!
+		c.count = 0
+	}
+	c.count++			// if either of the above ifs happened, this will make the click count 1; otherwise it will make the click count 2, 3, 4, 5, ...
+
+	// now we need to update the internal structures for the next test
+	c.curButton = button
+	c.prevTime = time
+	c.rect = image.Rect(x - xdist, y - ydist,
+		x + xdist, y + ydist)
+
+	return c.count
+}
+
+// call this when losing focus, etc.
+func (c *clickCounter reset() {
+	c.count = 0
+}
+
 /*
 For position independence across international keyboard layouts, typewriter keys are read using scancodes (which are always set 1).
 Windows provides the scancodes directly in the LPARAM.
