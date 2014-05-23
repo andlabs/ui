@@ -56,6 +56,7 @@ super ultra important things:
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
 	- this also happens in real windows (press the windows key to open the start menu); there's something I'm not handling and I'm not sure what it is
 	- oh hey would you look at that http://blogs.msdn.com/b/oldnewthing/archive/2014/05/21/10527168.aspx how timely
+		- part 2 http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx
 - GTK+ indefinite progress bar animation is choppy: make sure the speed we have now is the conventional speed for GTK+ programs (HIG doesn't list any) and that the choppiness is correct
 - Message boxes are not application-modal on some platforms
 	- http://blogs.msdn.com/b/oldnewthing/archive/2005/02/23/378866.aspx http://blogs.msdn.com/b/oldnewthing/archive/2005/02/24/379635.aspx
