@@ -203,6 +203,9 @@ const (
 
 // Window keyboard event messages and related constants.
 const (
+	// filed under keyboard events by MSDN
+	_WM_ACTIVATE = 0x0006
+
 	// from winuser.h
 	_WM_KEYDOWN = 0x0100
 	_WM_KEYUP = 0x0101
