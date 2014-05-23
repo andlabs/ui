@@ -11,7 +11,7 @@ super ultra important things:
 		- yes it does
 	- in general, figure out what to do on multiple events, period
 	- current behavior:
-		- Windows: no modifier release unless one modifier is released while another is still held; I think this can be overcome
+		- Windows (TODO verify): no modifier release unless one modifier is released while another is still held; I think this can be overcome
 		- Unix: all modifiers send press AND release events; left+right sends two events; release mask == pressed keys | released button
 		- Mac OS X: all modifiers send press AND release events; left+right sends TODO; release mask == pressed keys &^ released button
 		- ideally we would want modifiers to behave like Up and Down: if a modifier was pressed or released, have a field Modifier that indicates which modifier was pressed, then use the Modifiers field to indicate which modifiers are currently held
@@ -26,7 +26,12 @@ super ultra important things:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - pin down whether or not a click event gets sent if this click changes from a different window to the one with the Area
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
-- cap click count to 2 on all platforms
+- cap click count to 2 on all platforms? or normalize higher order clicks...
+	- Windows: down up doubledown up
+		- triple-clicks and higher: http://blogs.msdn.com/b/oldnewthing/archive/2004/10/18/243925.aspx have to do it ourselves, but Microsoft provides everything we need to
+	- Unix: down up down doubledown up [down doubeldown tripledown up]
+		- TODO higher than triple-click?
+	- Mac OS X: down up doubledown up tripledown up 4down up...
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
