@@ -15,6 +15,7 @@ import (
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_button_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_motion_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_focus_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // /* because cgo doesn't like ... */
@@ -36,6 +37,12 @@ func gtkAreaNew() *C.GtkWidget {
 	// and we need to allow focusing on a GtkDrawingArea to enable keyboard events
 	C.gtk_widget_set_can_focus(drawingarea, C.TRUE)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
+	// see below about focus events
+	// TODO can this be part of the gtk_widget_add_events() somehow?
+	// TODO this doesn't work properly; it complains that this isn't actually a window (????)
+	gdkwindow := C.gtk_widget_get_window(drawingarea)
+	C.gdk_window_set_events(gdkwindow,
+		C.gdk_window_get_events(gdkwindow) | C.GDK_FOCUS_CHANGE_MASK)
 	// need a viewport because GtkDrawingArea isn't natively scrollable
 	C.gtk_scrolled_window_add_with_viewport((*C.GtkScrolledWindow)(unsafe.Pointer(scrollarea)), drawingarea)
 	return scrollarea
@@ -211,6 +218,19 @@ func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEven
 }
 
 var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)
+
+// we want switching away from the control to reset the double-click counter, like with WM_ACTIVATE on Windows; from what I can gather about the Windows version of GDK this is correct
+// differentiating between focus-in-event and focus-out-event is unimportant
+// TODO make sure this actually works
+
+//export our_area_focus_event_callback
+func our_area_focus_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	s := (*sysData)(unsafe.Pointer(data))
+	s.clickCounter.reset()
+	return C.FALSE		// TODO really false?
+}
+
+var area_focus_event_callback = C.GCallback(C.our_area_focus_event_callback)
 
 // shared code for doing a key event
 func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) bool {
