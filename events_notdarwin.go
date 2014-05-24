@@ -16,7 +16,7 @@ For GTK+, we pull the double-click time and double-click distance, which work th
 
 On GTK+ this will also allow us to discard the GDK_BUTTON_2PRESS and GDK_BUTTON_3PRESS events, so the button press stream will be just like on other platforms.
 
-Thanks to mclasen, garnacho_, and halfline in irc.gimp.net/#gtk+.
+Thanks to mclasen, garnacho_, halfline, and tristan in irc.gimp.net/#gtk+.
 
 TODO - technically a GDK_BUTTON_3PRESS is detected in half the time as a GDK_BUTTON_2PRESS... handle?
 */

@@ -86,6 +86,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 		me.Up = which
 	} else if click {
 		me.Down = which
+		// this already works the way we want it to so nothing special needed like with Windows and GTK+
 		me.Count = uint(C.clickCount(e))
 	} else {
 		which = 0			// reset for Held processing below
