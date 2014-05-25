@@ -32,52 +32,37 @@ func main() {
 		pkg = pkgs[k]
 	}
 
-	var run func(...ast.Decl)
-	var runstmt func(ast.Stmt)
-	var runblock func(*ast.BlockStmt)
+	do(pkg)
+}
 
-	desired := func(name string) bool {
-		return strings.HasPrefix(name, "_")
-	}
-	run = func(decls ...ast.Decl) {
-		for _, d := range decls {
-			switch dd := d.(type) {
-			case *ast.FuncDecl:
-				runblock(dd.Body)
-			case *ast.GenDecl:
-				if desired(d.Name.String()) {
-					fmt.Println(d.Name.String())
-				}
-			default:
-				panic(fmt.Errorf("unknown decl type %T: %v", dd, dd))
+type walker struct {
+	desired	func(string) bool
+}
+
+func (w *walker) Visit(node ast.Node) ast.Visitor {
+	if n, ok := node.(*ast.Ident); ok {
+		if w.desired(n.Name) {
+			known := "<unknown>"
+			if n.Obj != nil {
+				known = n.Obj.Kind.String()
 			}
+			fmt.Println(n.Name + "\t\t" + known)
 		}
 	}
-	runstmt = func(s ast.Stmt) {
-		switch ss := s.(type) {
-		case *ast.DeclStmt:
-			run(ss.Decl)
-		case *ast.LabeledStmt:
-			runstmt(ss.Stmt)
-		case *ast.AssignStmt:
-			// TODO go through Lhs if ss.Tok type == DEFINE
-		case *ast.GoStmt:
-		// these don't have decls
-		case *ast.EmptyStmt:
-		case *ast.ExprStmt:
-		case *ast.SendStmt:
-		case *ast.IncDecStmt:
-			// all do nothing
-		default:
-			panic(fmt.Errorf("unknown stmt type %T: %v", dd, dd))
+	return w
+}
+
+func do(pkg *ast.Package) {
+	desired := func(name string) bool {
+		if strings.HasPrefix(name, "_") && len(name) > 1 {
+			return !strings.ContainsAny(name,
+				"abcdefghijklmnopqrstuvwxyz")
 		}
-	}
-	runblock = func(block *ast.BlockStmt) {
-		for _, s := range block.Stmt {
-			runstmt(s)
-		}
+		return false
 	}
 	for _, f := range pkg.Files {
-		run(f.Decls...)
+		for _, d := range f.Decls {
+			ast.Walk(&walker{desired}, d)
+		}
 	}
 }
