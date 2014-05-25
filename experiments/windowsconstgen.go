@@ -2,7 +2,7 @@
 package main
 
 import (
-	"fmt"
+//	"fmt"
 	"os"
 	"strings"
 	"go/token"
@@ -33,20 +33,35 @@ func main() {
 	}
 
 	do(pkg)
+	if len(unknown) > 0 {
+		s := "error: the following are still unknown!"
+		for k, _ := range unknown {
+			s += "\n" + k
+		}
+		panic(s)
+	}
 }
 
 type walker struct {
 	desired	func(string) bool
 }
 
+var known = map[string]string{}
+var unknown = map[string]struct{}{}
+
 func (w *walker) Visit(node ast.Node) ast.Visitor {
 	if n, ok := node.(*ast.Ident); ok {
 		if w.desired(n.Name) {
-			known := "<unknown>"
 			if n.Obj != nil {
-				known = n.Obj.Kind.String()
+				delete(unknown, n.Name)
+				kind := n.Obj.Kind.String()
+				if known[n.Name] != "" && known[n.Name] != kind {
+					panic(n.Name + "(" + kind + ") already known to be a " + known[n.Name])
+				}
+				known[n.Name] = kind
+			} else if _, ok := known[n.Name]; !ok {		// only if not known
+				unknown[n.Name] = struct{}{}
 			}
-			fmt.Println(n.Name + "\t\t" + known)
 		}
 	}
 	return w
