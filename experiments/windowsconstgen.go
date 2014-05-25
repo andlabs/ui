@@ -9,6 +9,9 @@ import (
 	"go/ast"
 	"go/parser"
 	"sort"
+	"io/ioutil"
+	"path/filepath"
+	"os/exec"
 )
 
 func getPackage(path string) (pkg *ast.Package) {
@@ -75,11 +78,13 @@ func preamble(pkg string) string {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		panic("usage: " + os.Args[0] + " path")
+	if len(os.Args) != 3 {
+		panic("usage: " + os.Args[0] + " path goarch")
 	}
+	pkgpath := os.Args[1]
+	targetarch := os.Args[2]
 
-	pkg := getPackage(os.Args[1])
+	pkg := getPackage(pkgpath)
 	gatherNames(pkg)
 
 	if len(unknown) > 0 {
@@ -92,7 +97,6 @@ func main() {
 
 	// keep sorted for git
 	consts := make([]string, 0, len(known))
-
 	for ident, kind := range known {
 		if kind == "const" || kind == "var" {
 			consts = append(consts, ident)
@@ -100,15 +104,47 @@ func main() {
 	}
 	sort.Strings(consts)
 
-	fmt.Printf("%s" +
+	tmpdir, err := ioutil.TempDir("", "windowsconstgen")
+	if err != nil {
+		panic(err)
+	}
+	genoutname := filepath.Join(tmpdir, "gen.go")
+	f, err := os.Create(genoutname)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(f, "%s" +
 		"import \"fmt\"\n" +
 		"// #include <windows.h>\n" +
+		"// #include <commctrl.h>\n" +
 		"import \"C\"\n" +
 		"func main() {\n" +
 		"	fmt.Println(%q)\n",
 		preamble("main"), preamble("ui"))
 	for _, ident := range consts {
-		fmt.Printf("	fmt.Println(\"const %s =\", C.%s)\n", ident, ident[1:])
+		fmt.Fprintf(f, "	fmt.Println(\"const %s =\", C.%s)\n", ident, ident[1:])
 	}
-	fmt.Printf("}\n")
+	fmt.Fprintf(f, "}\n")
+	f.Close()
+
+	cmd := exec.Command("go", "run", genoutname)
+	f, err = os.Create(filepath.Join(pkgpath, "zconstants_windows_" + targetarch + ".go"))
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	cmd.Stdout = f
+	cmd.Stderr = os.Stderr
+	cmd.Env = append(cmd.Env, os.Environ()...)		// otherwise $PATH doesn't get carried over and things mysteriously fail
+	cmd.Env = append(cmd.Env,
+		"GOOS=windows",
+		"GOARCH=" + targetarch,
+		"CGO_ENABLED=1")		// needed as it's not set by default in cross-compiles
+	err = cmd.Run()
+	if err != nil {
+		// TODO find a way to get the exit code
+		os.Exit(1)
+	}
+
+	// TODO remove the temporary directory
 }
