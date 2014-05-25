@@ -73,9 +73,13 @@ func gatherNames(pkg *ast.Package) {
 }
 
 // some constants confuse cgo into thinking they're external symbols for some reason
+// fortunately all these constants are pointers
 // TODO debug cgo
 var hacknames = map[string]string{
 	"_INVALID_HANDLE_VALUE":		"x_INVALID_HANDLE_VALUE",
+	"_NULL":						"x_NULL",
+	"_IDI_APPLICATION":			"x_IDI_APPLICATION",
+	"_IDC_ARROW":				"x_IDC_ARROW",
 }
 
 func hacknamesPreamble() string {

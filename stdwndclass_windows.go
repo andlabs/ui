@@ -123,10 +123,11 @@ func registerStdWndClass(s *sysData) (newClassName string, err error) {
 	return newClassName, nil
 }
 
+// no need to use/recreate MAKEINTRESOURCE() here as the Windows constant generator already took care of that because Microsoft's headers do already
 func initWndClassInfo() (err error) {
 	r1, _, err := user32.NewProc("LoadIconW").Call(
 		uintptr(_NULL),
-		_MAKEINTRESOURCE(_IDI_APPLICATION))
+		uintptr(_IDI_APPLICATION))
 	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
@@ -134,7 +135,7 @@ func initWndClassInfo() (err error) {
 
 	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
-		_MAKEINTRESOURCE(_IDC_ARROW))
+		uintptr(_IDC_ARROW))
 	if r1 == 0 {		// failure
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
