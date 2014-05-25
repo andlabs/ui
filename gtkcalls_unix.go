@@ -11,6 +11,26 @@ import (
 )
 
 // #include "gtk_unix.h"
+// /* because cgo doesn't like ... */
+// static inline char *gtkProgressBarAllowArbitraryResize(GtkWidget *pbar)
+// {
+// 	/* min-horizontal-bar-width is a style property; we do it through CSS */
+// 	/* thanks tristan in irc.gimp.net/#gtk+ */
+// 	/* TODO find out how to make it an application default */
+// 	static gchar style[] =
+// 		"* {\n"
+// 		"	-GtkProgressBar-min-horizontal-bar-width: 1;\n"
+// 		"}\n";
+// 	GtkCssProvider *provider;
+// 	GError *err = NULL;
+// 
+// 	provider = gtk_css_provider_new();
+// 	if (gtk_css_provider_load_from_data(provider, style, -1, &err) == FALSE)
+// 		return (char *) g_strdup(err->message);
+// 	gtk_style_context_add_provider(gtk_widget_get_style_context(pbar),
+// 		(GtkStyleProvider *) provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+// 	return NULL;
+// }
 import "C"
 
 func gtk_init() error {
@@ -181,7 +201,11 @@ func gtkComboBoxLen(widget *C.GtkWidget) int {
 }
 
 func gtk_entry_new() *C.GtkWidget {
-	return C.gtk_entry_new()
+	e := C.gtk_entry_new()
+	// allows the GtkEntry to be resized with the window smaller than what it thinks the size should be
+	// thanks to Company in irc.gimp.net/#gtk+
+	C.gtk_entry_set_width_chars(togtkentry(e), 0)
+	return e
 }
 
 func gtkPasswordEntryNew() *C.GtkWidget {
@@ -231,7 +255,14 @@ func gtk_widget_get_preferred_size(widget *C.GtkWidget) (minWidth int, minHeight
 }
 
 func gtk_progress_bar_new() *C.GtkWidget {
-	return C.gtk_progress_bar_new()
+	p := C.gtk_progress_bar_new()
+	// otherwise the progress bar can't be resized smaller than some predetermined size
+	err := C.gtkProgressBarAllowArbitraryResize(p)
+	if err != nil {
+		defer C.g_free(C.gpointer(unsafe.Pointer(err)))
+		panic(fmt.Errorf("error allowing ProgressBar to be arbitrarily resized: %s", C.GoString(err)))
+	}
+	return p
 }
 
 func gtk_progress_bar_set_fraction(w *C.GtkWidget, percent int) {

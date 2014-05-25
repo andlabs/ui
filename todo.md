@@ -41,7 +41,7 @@ super ultra important things:
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
 	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
-- when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (progress bars/entry lines will just cut off; editable comboboxes will stretch slightly longer than noneditable ones; the horizontal scrollbar in Area will disappear smoothly; etc.)
+- when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (comboboxes will just cut off; the horizontal scrollbar in Area will disappear smoothly; etc.)
 	- check my logs; someone in irc.gimp.net/#gtk+ answered this (or provided an answer)
 - see update 18 March 2014 in README
 - resizing seems to be completely and totally broken in the Wayland backend
