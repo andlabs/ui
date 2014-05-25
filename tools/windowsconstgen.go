@@ -182,7 +182,16 @@ func main() {
 	defer f.Close()
 	cmd.Stdout = f
 	cmd.Stderr = os.Stderr
-	cmd.Env = append(cmd.Env, os.Environ()...)		// otherwise $PATH doesn't get carried over and things mysteriously fail
+	// we need to preserve the environment EXCEPT FOR the variables we're overriding
+	// thanks to raggi and smw in irc.freenode.net/#go-nuts
+	for _, ev := range os.Environ() {
+		if strings.HasPrefix(ev, "GOOS=") ||
+			strings.HasPrefix(ev, "GOARCH=") ||
+			strings.HasPrefix(ev, "CGO_ENABLED=") {
+			continue
+		}
+		cmd.Env = append(cmd.Env, ev)
+	}
 	cmd.Env = append(cmd.Env,
 		"GOOS=windows",
 		"GOARCH=" + targetarch,

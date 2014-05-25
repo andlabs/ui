@@ -4,13 +4,9 @@ if [ ! -f tools/windowsconstgen.go ]; then
 fi
 set -e
 if [ x$GOOS = xwindows ]; then
-	# have to build windowsconstgen as the host, otherwise weird things happen
-	wcg=`mktemp /tmp/windowsconstgenXXXXXXXXXXXX`
-	GOOS= GOARCH= go build -o $wcg tools/windowsconstgen.go
-	# but we can run it regardless of $GOOS/$GOARCH
-	$wcg . 386 "$@"
-	$wcg . amd64 "$@"
-	rm $wcg
+	# have to invoke go run with the host $GOOS/$GOARCH
+	GOOS= GOARCH= go run tools/windowsconstgen.go . 386 "$@"
+	GOOS= GOARCH= go run tools/windowsconstgen.go . amd64 "$@"
 fi
 cd test
 go build "$@"
