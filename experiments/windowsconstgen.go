@@ -78,11 +78,12 @@ func preamble(pkg string) string {
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		panic("usage: " + os.Args[0] + " path goarch")
+	if len(os.Args) < 3 {
+		panic("usage: " + os.Args[0] + " path goarch [go-command-options...]")
 	}
 	pkgpath := os.Args[1]
 	targetarch := os.Args[2]
+	goopts := os.Args[3:]		// valid if len(os.Args) == 3; in that case this will just be a slice of length zero
 
 	pkg := getPackage(pkgpath)
 	gatherNames(pkg)
@@ -131,7 +132,9 @@ func main() {
 	fmt.Fprintf(f, "}\n")
 	f.Close()
 
-	cmd := exec.Command("go", "run", genoutname)
+	cmd := exec.Command("go", "run")
+	cmd.Args = append(cmd.Args, goopts...)
+	cmd.Args = append(cmd.Args, genoutname)
 	f, err = os.Create(filepath.Join(pkgpath, "zconstants_windows_" + targetarch + ".go"))
 	if err != nil {
 		panic(err)
