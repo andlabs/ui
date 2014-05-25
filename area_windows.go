@@ -474,8 +474,8 @@ func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LP
 	var me MouseEvent
 
 	xpos, ypos := getScrollPos(s.hwnd)		// mouse coordinates are relative to control; make them relative to Area
-	xpos += lparam._X()
-	ypos += lparam._Y()
+	xpos += lparam.X()
+	ypos += lparam.Y()
 	me.Pos = image.Pt(int(xpos), int(ypos))
 	if !me.Pos.In(image.Rect(0, 0, s.areawidth, s.areaheight)) {		// outside the actual Area; no event
 		return
