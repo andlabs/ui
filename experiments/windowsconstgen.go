@@ -97,10 +97,17 @@ func main() {
 
 	// keep sorted for git
 	consts := make([]string, 0, len(known))
+	vars := ""
 	for ident, kind := range known {
-		if kind == "const" || kind == "var" {
+		if kind == "var" {
+			vars += "\n" + ident
+		}
+		if kind == "const" {
 			consts = append(consts, ident)
 		}
+	}
+	if vars != "" {
+		panic("error: the following are still unknown!" + vars)		// has a newline already
 	}
 	sort.Strings(consts)
 
