@@ -15,27 +15,6 @@ var (
 	comctlManifestCookie uintptr
 )
 
-// InitCommonControlsEx constants.
-const (
-	_ICC_LISTVIEW_CLASSES = 0x00000001
-	_ICC_TREEVIEW_CLASSES = 0x00000002
-	_ICC_BAR_CLASSES = 0x00000004
-	_ICC_TAB_CLASSES = 0x00000008
-	_ICC_UPDOWN_CLASS = 0x00000010
-	_ICC_PROGRESS_CLASS = 0x00000020
-	_ICC_HOTKEY_CLASS = 0x00000040
-	_ICC_ANIMATE_CLASS = 0x00000080
-	_ICC_WIN95_CLASSES = 0x000000FF
-	_ICC_DATE_CLASSES = 0x00000100
-	_ICC_USEREX_CLASSES = 0x00000200
-	_ICC_COOL_CLASSES = 0x00000400
-	_ICC_INTERNET_CLASSES = 0x00000800
-	_ICC_PAGESCROLLER_CLASS = 0x00001000
-	_ICC_NATIVEFNTCTL_CLASS = 0x00002000
-	_ICC_STANDARD_CLASSES = 0x00004000
-	_ICC_LINK_CLASS = 0x00008000
-)
-
 var (
 	_activateActCtx = kernel32.NewProc("ActivateActCtx")
 	_createActCtx = kernel32.NewProc("CreateActCtxW")
@@ -50,11 +29,6 @@ References:
 - http://support.microsoft.com/kb/830033
 */
 func forceCommonControls6() (err error) {
-	const (
-		// from winbase.h
-		_INVALID_HANDLE_VALUE = -1
-	)
-
 	manifestfile, err := ioutil.TempFile("", "gouicomctl32v6manifest")
 	if err != nil {
 		return fmt.Errorf("error creating synthesized manifest file: %v", err)
@@ -121,36 +95,8 @@ func initCommonControls() (err error) {
 
 // Common Controls class names.
 const (
-	_PROGRESS_CLASS = "msctls_progress32"
-)
-
-// Shared Common Controls styles.
-const (
-	_WM_USER = 0x0400
-	_CCM_FIRST = 0x2000
-	_CCM_SETBKCOLOR = (_CCM_FIRST + 1)
-)
-
-// Progress Bar styles.
-const (
-	_PBS_SMOOTH = 0x01
-	_PBS_VERTICAL = 0x04
-	_PBS_MARQUEE = 0x08
-)
-
-// Progress Bar messages.
-const (
-	_PBM_SETRANGE = (_WM_USER + 1)
-	_PBM_SETPOS = (_WM_USER + 2)
-	_PBM_DELTAPOS = (_WM_USER + 3)
-	_PBM_SETSTEP = (_WM_USER + 4)
-	_PBM_STEPIT = (_WM_USER + 5)
-	_PBM_SETRANGE32 = (_WM_USER + 6)
-	_PBM_GETRANGE = (_WM_USER + 7)
-	_PBM_GETPOS = (_WM_USER + 8)
-	_PBM_SETBARCOLOR = (_WM_USER + 9)
-	_PBM_SETBKCOLOR = _CCM_SETBKCOLOR
-	_PBM_SETMARQUEE = (_WM_USER + 10)
+	// x (lowercase) prefix to avoid being caught by the constants generator
+	x_PROGRESS_CLASS = "msctls_progress32"
 )
 
 var manifest = []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

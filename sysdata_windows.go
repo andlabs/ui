@@ -105,7 +105,7 @@ var classTypes = [nctypes]*classData{
 		lenMsg:			_LB_GETCOUNT,
 	},
 	c_progressbar:		&classData{
-		name:			_PROGRESS_CLASS,
+		name:			x_PROGRESS_CLASS,
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
 		doNotLoadFont:	true,
