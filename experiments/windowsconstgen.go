@@ -87,27 +87,23 @@ func main() {
 	pkg := getPackage(pkgpath)
 	gatherNames(pkg)
 
-	if len(unknown) > 0 {
-		s := "error: the following are still unknown!"
-		for k, _ := range unknown {
-			s += "\n" + k
+	// if we still have some known, I didn't clean things up completely
+	knowns := ""
+	for ident, kind := range known {
+		if kind != "var" && kind != "const" {
+			continue
 		}
-		panic(s)
+		knowns += "\n" + ident + " (" + kind + ")"
+	}
+	if knowns != "" {
+//ignore for now while I still migrate everything
+//		panic("error: the following are still known!" + knowns)		// has a newline already
 	}
 
 	// keep sorted for git
-	consts := make([]string, 0, len(known))
-	vars := ""
-	for ident, kind := range known {
-		if kind == "var" {
-			vars += "\n" + ident
-		}
-		if kind == "const" {
-			consts = append(consts, ident)
-		}
-	}
-	if vars != "" {
-		panic("error: the following are still unknown!" + vars)		// has a newline already
+	consts := make([]string, 0, len(unknown))
+	for ident, _ := range unknown {
+		consts = append(consts, ident)
 	}
 	sort.Strings(consts)
 
