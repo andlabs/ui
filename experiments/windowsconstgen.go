@@ -154,7 +154,7 @@ func main() {
 		"%s" +
 		"import \"C\"\n" +
 		"func main() {\n" +
-		"	fmt.Println(%q)\n",
+		"	fmt.Print(%q)\n",
 		preamble("main"), hacknamesPreamble(), preamble("ui"))
 	for _, ident := range consts {
 		if ident[0] == 'x' {
