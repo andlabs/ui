@@ -69,10 +69,8 @@ const (
 )
 
 // bizarrely, this value is given on the page for CreateMDIWindow, but not CreateWindow or CreateWindowEx
-// I do it this way because Go won't let me shove the exact value into an int
-var (
-	__CW_USEDEFAULT uint = 0x80000000
-	_CW_USEDEFAULT = int(__CW_USEDEFAULT)
+const (
+	_CW_USEDEFAULT = 0x80000000
 )
 
 // GetSysColor values. These can be cast to HBRUSH (after adding 1) for WNDCLASS as well.
