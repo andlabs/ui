@@ -626,11 +626,9 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 		case _WM_ACTIVATE:
 			// don't keep the double-click timer running if the user switched programs in between clicks
 			s.clickCounter.reset()
-			// MSDN says this message will be sent alongside WM_MOUSEACTIVATE, but we'll reset there too, just in case
 			return 0
 		case _WM_MOUSEACTIVATE:
-			// don't keep the double-click timer running if the user switched programs in between clicks
-			s.clickCounter.reset()
+			// this happens on every mouse click (apparently), so DON'T reset the click counter, otherwise it will always be reset (not an issue, as MSDN says WM_ACTIVATE is sent alongside WM_MOUSEACTIVATE when necessary)
 			// transfer keyboard focus to our Area on an activating click
 			// (see http://www.catch22.net/tuts/custom-controls)
 			r1, _, err := _setFocus.Call(uintptr(s.hwnd))
