@@ -59,7 +59,8 @@ func forceCommonControls6() (err error) {
 	actctx.lpSource = syscall.StringToUTF16Ptr(filename)
 
 	r1, _, err := _createActCtx.Call(uintptr(unsafe.Pointer(&actctx)))
-	if r1 == negConst(_INVALID_HANDLE_VALUE) {		// failure
+	// don't negConst() INVALID_HANDLE_VALUE; windowsconstgen was given a pointer by windows.h, and pointers are unsigned, so converting it back to signed doesn't work
+	if r1 == _INVALID_HANDLE_VALUE {		// failure
 		return fmt.Errorf("error creating activation context for synthesized manifest file: %v", err)
 	}
 	r1, _, err = _activateActCtx.Call(
