@@ -133,7 +133,7 @@ func main() {
 	f.Close()
 
 	cmd := exec.Command("go", "run")
-	cmd.Args = append(cmd.Args, goopts...)
+	cmd.Args = append(cmd.Args, goopts...)		// valid if len(goopts) == 0; in that case this will just be a no-op
 	cmd.Args = append(cmd.Args, genoutname)
 	f, err = os.Create(filepath.Join(pkgpath, "zconstants_windows_" + targetarch + ".go"))
 	if err != nil {
