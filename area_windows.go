@@ -67,21 +67,9 @@ var (
 
 const (
 	areaBackgroundBrush = _HBRUSH(_COLOR_BTNFACE + 1)
-
-	// from winuser.h
-	_WM_PAINT = 0x000F
 )
 
 func paintArea(s *sysData) {
-	const (
-		// from wingdi.h
-		_BI_RGB = 0
-		_DIB_RGB_COLORS = 0
-		_SRCCOPY = 0x00CC0020
-		_AC_SRC_OVER = 0x00
-		_AC_SRC_ALPHA = 0x01
-	)
-
 	var xrect _RECT
 	var ps _PAINTSTRUCT
 
@@ -459,11 +447,6 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
-const (
-	_SM_CXDOUBLECLK = 36
-	_SM_CYDOUBLECLK = 37
-)
-
 var (
 	_getMessageTime = user32.NewProc("GetMessageTime")
 	_getDoubleClickTime = user32.NewProc("GetDoubleClickTime")
@@ -603,10 +586,6 @@ var (
 
 func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-		const (
-			_MA_ACTIVATE = 1
-		)
-
 		defwndproc := func() _LRESULT {
 			r1, _, _ := defWindowProc.Call(
 				uintptr(hwnd),
@@ -722,11 +701,6 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 }
 
 func registerAreaWndClass(s *sysData) (newClassName string, err error) {
-	const (
-		_CS_HREDRAW = 0x0002
-		_CS_VREDRAW = 0x0001
-	)
-
 	areaWndClassNumLock.Lock()
 	newClassName = fmt.Sprintf(areaWndClassFormat, areaWndClassNum)
 	areaWndClassNum++
