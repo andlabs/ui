@@ -11,7 +11,7 @@ import (
 )
 
 // #include "gtk_unix.h"
-// /* because cgo doesn't like ... */
+// /* TODO this doesn't need to be in C; it is because an earlier version did it wrong and depended on a function (g_object_set()) that took ..., which cgo doesn't like... but is it safe to embed \0 in a Go string? */
 // static inline char *gtkProgressBarAllowArbitraryResize(GtkWidget *pbar)
 // {
 // 	/* min-horizontal-bar-width is a style property; we do it through CSS */
