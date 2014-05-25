@@ -179,7 +179,7 @@ const (
 )
 
 // Combobox errors.
-var (		// var so they can be cast to uintptr
+const (
 	// from winuser.h
 	_CB_ERR = (-1)
 	_CB_ERRSPACE = (-2)
@@ -356,7 +356,7 @@ const (
 )
 
 // Listbox errors.
-var (		// var so they can be cast to uintptr
+const (
 	// from winuser.h
 	_LB_OKAY = 0
 	_LB_ERR = (-1)

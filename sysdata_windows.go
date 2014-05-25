@@ -35,8 +35,8 @@ type classData struct {
 	insertBeforeMsg	uintptr
 	deleteMsg			uintptr
 	selectedIndexMsg	uintptr
-	selectedIndexErr	int
-	addSpaceErr		int
+	selectedIndexErr	uintptr
+	addSpaceErr		uintptr
 	lenMsg			uintptr
 }
 
@@ -69,8 +69,8 @@ var classTypes = [nctypes]*classData{
 		insertBeforeMsg:	_CB_INSERTSTRING,
 		deleteMsg:		_CB_DELETESTRING,
 		selectedIndexMsg:	_CB_GETCURSEL,
-		selectedIndexErr:	_CB_ERR,
-		addSpaceErr:		_CB_ERRSPACE,
+		selectedIndexErr:	negConst(_CB_ERR),
+		addSpaceErr:		negConst(_CB_ERRSPACE),
 		lenMsg:			_CB_GETCOUNT,
 	},
 	c_lineedit:		&classData{
@@ -100,8 +100,8 @@ var classTypes = [nctypes]*classData{
 		insertBeforeMsg:	_LB_INSERTSTRING,
 		deleteMsg:		_LB_DELETESTRING,
 		selectedIndexMsg:	_LB_GETCURSEL,
-		selectedIndexErr:	_LB_ERR,
-		addSpaceErr:		_LB_ERRSPACE,
+		selectedIndexErr:	negConst(_LB_ERR),
+		addSpaceErr:		negConst(_LB_ERRSPACE),
 		lenMsg:			_LB_GETCOUNT,
 	},
 	c_progressbar:		&classData{
@@ -422,7 +422,7 @@ func (s *sysData) selectedIndices() []int {
 		ret:		ret,
 	}
 	r := <-ret
-	if r.ret == uintptr(_LB_ERR) {
+	if r.ret == negConst(_LB_ERR) {
 		panic("UI library internal error: LB_ERR from LB_GETSELCOUNT in what we know is a multi-selection listbox")
 	}
 	if r.ret == 0 {		// nothing selected
@@ -440,7 +440,7 @@ func (s *sysData) selectedIndices() []int {
 		ret:		ret,
 	}
 	r = <-ret
-	if r.ret == uintptr(_LB_ERR) {
+	if r.ret == negConst(_LB_ERR) {
 		panic("UI library internal error: LB_ERR from LB_GETSELITEMS in what we know is a multi-selection listbox")
 	}
 	return indices
@@ -463,7 +463,7 @@ func (s *sysData) selectedTexts() []string {
 			ret:		ret,
 		}
 		r := <-ret
-		if r.ret == uintptr(_LB_ERR) {
+		if r.ret == negConst(_LB_ERR) {
 			panic("UI library internal error: LB_ERR from LB_GETTEXTLEN in what we know is a valid listbox index (came from LB_GETSELITEMS)")
 		}
 		str := make([]uint16, r.ret)
@@ -478,7 +478,7 @@ func (s *sysData) selectedTexts() []string {
 			ret:		ret,
 		}
 		r = <-ret
-		if r.ret == uintptr(_LB_ERR) {
+		if r.ret == negConst(_LB_ERR) {
 			panic("UI library internal error: LB_ERR from LB_GETTEXT in what we know is a valid listbox index (came from LB_GETSELITEMS)")
 		}
 		strings[i] = syscall.UTF16ToString(str)
@@ -537,7 +537,7 @@ func (s *sysData) setIndeterminate() {
 		call:		_setWindowLong,
 		p:		[]uintptr{
 			uintptr(s.hwnd),
-			uintptr(_GWL_STYLE),
+			negConst(_GWL_STYLE),
 			uintptr(classTypes[s.ctype].style | _PBS_MARQUEE),
 		},
 		ret:		ret,
@@ -584,7 +584,7 @@ func (s *sysData) setProgress(percent int) {
 			call:		_setWindowLong,
 			p:		[]uintptr{
 				uintptr(s.hwnd),
-				uintptr(_GWL_STYLE),
+				negConst(_GWL_STYLE),
 				uintptr(classTypes[s.ctype].style),
 			},
 			ret:		ret,

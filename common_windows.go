@@ -76,6 +76,12 @@ type _RECT struct {
 	bottom	int32
 }
 
+// Go doesn't allow negative constants to be forced into unsigned types at compile-time; this will do it at runtime.
+// TODO make sure sign extension works fine here (check Go's rules and ABI sign extension rules)
+func negConst(c int) uintptr {
+	return uintptr(c)
+}
+
 // Predefined cursor resource IDs.
 const (
 	_IDC_APPSTARTING = 32650

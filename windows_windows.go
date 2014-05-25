@@ -121,14 +121,6 @@ const (
 	_HWND_TOP = _HWND(0)
 )
 
-// SetWindowPos hWndInsertAfter values that Go won't allow as constants.
-var (
-	__HWND_NOTOPMOST = -2
-	_HWND_NOTOPMOST = _HWND(__HWND_NOTOPMOST)
-	__HWND_TOPMOST = -1
-	_HWND_TOPMOST = _HWND(__HWND_TOPMOST)
-)
-
 // SetWindowPos uFlags values.
 const (
 	_SWP_DRAWFRAME = 0x0020
@@ -244,7 +236,7 @@ const (
 )
 
 // WM_STYLECHANGED and WM_STYLECHANGING values (wParam).
-var (		// var because Go won't let me cast a negative const to a uintptr
+const (
 	_GWL_EXSTYLE = -20
 	_GWL_STYLE = -16
 )

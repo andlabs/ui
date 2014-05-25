@@ -133,8 +133,8 @@ const (
 	msghandlerclass = "gomsghandler"
 )
 
-var (
-	// fron winuser.h; var because Go won't let me
+const (
+	// fron winuser.h
 	_HWND_MESSAGE = -3
 )
 
@@ -162,7 +162,7 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 		uintptr(_CW_USEDEFAULT),
 		uintptr(_CW_USEDEFAULT),
 		uintptr(_CW_USEDEFAULT),
-		uintptr(_HWND_MESSAGE),
+		negConst(_HWND_MESSAGE),
 		uintptr(_NULL),
 		uintptr(hInstance),
 		uintptr(_NULL))

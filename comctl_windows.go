@@ -50,8 +50,8 @@ References:
 - http://support.microsoft.com/kb/830033
 */
 func forceCommonControls6() (err error) {
-	var (
-		// from winbase.h; var because Go won't let me convert this constant
+	const (
+		// from winbase.h
 		_INVALID_HANDLE_VALUE = -1
 	)
 
@@ -85,7 +85,7 @@ func forceCommonControls6() (err error) {
 	actctx.lpSource = syscall.StringToUTF16Ptr(filename)
 
 	r1, _, err := _createActCtx.Call(uintptr(unsafe.Pointer(&actctx)))
-	if r1 == uintptr(_INVALID_HANDLE_VALUE) {		// failure
+	if r1 == negConst(_INVALID_HANDLE_VALUE) {		// failure
 		return fmt.Errorf("error creating activation context for synthesized manifest file: %v", err)
 	}
 	r1, _, err = _activateActCtx.Call(
