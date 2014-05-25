@@ -104,6 +104,7 @@ func main() {
 	}
 	sort.Strings(consts)
 
+	// thanks to james4k in irc.freenode.net/#go-nuts
 	tmpdir, err := ioutil.TempDir("", "windowsconstgen")
 	if err != nil {
 		panic(err)
