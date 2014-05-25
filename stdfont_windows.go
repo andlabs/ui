@@ -16,11 +16,6 @@ var (
 	statusbarFont		_HANDLE
 )
 
-const (
-	_SPI_GETNONCLIENTMETRICS = 0x0029
-	_LF_FACESIZE = 32		// from wingdi.h
-)
-
 type _LOGFONT struct {
 	lfHeight			int32
 	lfWidth			int32

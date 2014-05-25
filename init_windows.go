@@ -45,7 +45,6 @@ func getWinMainnCmdShow() {
 		hStdOutput		_HANDLE
 		hStdError			_HANDLE
 	}
-	const _STARTF_USESHOWWINDOW = 0x00000001
 
 	// does not fail according to MSDN
 	kernel32.NewProc("GetStartupInfoW").Call(uintptr(unsafe.Pointer(&info)))

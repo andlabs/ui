@@ -36,8 +36,7 @@ type uiret struct {
 }
 
 const (
-	_WM_APP = 0x8000 + iota
-	msgRequested
+	msgRequested = _WM_APP + iota + 1		// + 1 just to be safe
 	msgQuit
 	msgSetAreaSize
 )
@@ -98,8 +97,6 @@ var (
 	_translateMessage = user32.NewProc("TranslateMessage")
 )
 
-var getMessageFail = -1		// because Go doesn't let me
-
 func msgloop() {
 	var msg struct {
 		hwnd	_HWND
@@ -116,7 +113,7 @@ func msgloop() {
 			uintptr(_NULL),
 			uintptr(0),
 			uintptr(0))
-		if r1 == uintptr(getMessageFail) {		// error
+		if r1 == negConst(-1) {		// error
 			panic("error getting message in message loop: " + err.Error())
 		}
 		if r1 == 0 {		// WM_QUIT message
@@ -131,11 +128,6 @@ func msgloop() {
 
 const (
 	msghandlerclass = "gomsghandler"
-)
-
-const (
-	// fron winuser.h
-	_HWND_MESSAGE = -3
 )
 
 func makeMessageHandler() (hwnd _HWND, err error) {
@@ -162,7 +154,8 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 		negConst(_CW_USEDEFAULT),
 		negConst(_CW_USEDEFAULT),
 		negConst(_CW_USEDEFAULT),
-		negConst(_HWND_MESSAGE),
+		// don't negConst() HWND_MESSAGE; windowsconstgen was given a pointer by windows.h, and pointers are unsigned, so converting it back to signed doesn't work
+		uintptr(_HWND_MESSAGE),
 		uintptr(_NULL),
 		uintptr(hInstance),
 		uintptr(_NULL))

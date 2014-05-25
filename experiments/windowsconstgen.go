@@ -80,6 +80,7 @@ var hacknames = map[string]string{
 	"_NULL":						"x_NULL",
 	"_IDI_APPLICATION":			"x_IDI_APPLICATION",
 	"_IDC_ARROW":				"x_IDC_ARROW",
+	"_HWND_MESSAGE":			"x_HWND_MESSAGE",
 }
 
 func hacknamesPreamble() string {
@@ -126,8 +127,7 @@ func main() {
 		knowns += "\n" + ident + " (" + kind + ")"
 	}
 	if knowns != "" {
-//ignore for now while I still migrate everything
-//		panic("error: the following are still known!" + knowns)		// has a newline already
+		panic("error: the following are still known!" + knowns)		// has a newline already
 	}
 
 	// keep sorted for git
