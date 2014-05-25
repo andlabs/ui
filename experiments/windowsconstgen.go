@@ -2,7 +2,7 @@
 package main
 
 import (
-//	"fmt"
+	"fmt"
 	"os"
 	"strings"
 	"go/token"
@@ -10,18 +10,12 @@ import (
 	"go/parser"
 )
 
-func main() {
-	var pkg *ast.Package
-
-	importpath := os.Args[1]
-
-	fileset := token.NewFileSet()
-
+func getPackage(path string) (pkg *ast.Package) {
+	fileset := token.NewFileSet()		// parser.ParseDir() actually writes to this; not sure why it doesn't return one instead
 	filter := func(i os.FileInfo) bool {
 		return strings.HasSuffix(i.Name(), "_windows.go")
 	}
-	pkgs, err := parser.ParseDir(fileset, importpath,
-		filter, parser.AllErrors)
+	pkgs, err := parser.ParseDir(fileset, path, filter, parser.AllErrors)
 	if err != nil {
 		panic(err)
 	}
@@ -31,15 +25,7 @@ func main() {
 	for k, _ := range pkgs {		// get the sole key
 		pkg = pkgs[k]
 	}
-
-	do(pkg)
-	if len(unknown) > 0 {
-		s := "error: the following are still unknown!"
-		for k, _ := range unknown {
-			s += "\n" + k
-		}
-		panic(s)
-	}
+	return pkg
 }
 
 type walker struct {
@@ -67,7 +53,7 @@ func (w *walker) Visit(node ast.Node) ast.Visitor {
 	return w
 }
 
-func do(pkg *ast.Package) {
+func gatherNames(pkg *ast.Package) {
 	desired := func(name string) bool {
 		if strings.HasPrefix(name, "_") && len(name) > 1 {
 			return !strings.ContainsAny(name,
@@ -79,5 +65,26 @@ func do(pkg *ast.Package) {
 		for _, d := range f.Decls {
 			ast.Walk(&walker{desired}, d)
 		}
+	}
+}
+
+func main() {
+	if len(os.Args) != 2 {
+		panic("usage: " + os.Args[0] + " path")
+	}
+
+	pkg := getPackage(os.Args[1])
+	gatherNames(pkg)
+
+	if len(unknown) > 0 {
+		s := "error: the following are still unknown!"
+		for k, _ := range unknown {
+			s += "\n" + k
+		}
+		panic(s)
+	}
+
+	for ident, kind := range known {
+		fmt.Printf("%-30s %s\n", ident, kind)
 	}
 }
