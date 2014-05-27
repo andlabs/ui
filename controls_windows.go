@@ -9,24 +9,11 @@ import (
 
 /*
 var (
-	checkDlgButton = user32.NewProc("CheckDlgButton")
-	checkRadioButton = user32.NewProc("CheckRadioButton")
-	isDlgButtonChecked = user32.NewProc("IsDlgButtonChecked")
+	_checkRadioButton = user32.NewProc("CheckRadioButton")
 )
 
-func CheckDlgButton(hDlg HWND, nIDButton int, uCheck uint32) (err error) {
-	r1, _, err := checkDlgButton.Call(
-		uintptr(hDlg),
-		uintptr(nIDButton),
-		uintptr(uCheck))
-	if r1 == 0 {		// failure
-		return err
-	}
-	return nil
-}
-
 func CheckRadioButton(hDlg HWND, nIDFirstButton int, nIDLastButton int, nIDCheckButton int) (err error) {
-	r1, _, err := checkRadioButton.Call(
+	r1, _, err := _checkRadioButton.Call(
 		uintptr(hDlg),
 		uintptr(nIDFirstButton),
 		uintptr(nIDLastButton),
