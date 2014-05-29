@@ -179,13 +179,15 @@ type KeyEvent struct {
 	// was pressed. Key and ExtKey will not both be nonzero.
 	ExtKey		ExtKey
 
-	// (TODO Modifiers alone needs to be figured out)
-	// If a Key or ExtKey is pressed with Modifiers, then the following events WILL be sent:
-	// 	[Modifiers != 0, Key/ExtKey == 0] (as the Modifiers keypress(es) will register separately)
-	// 	[Modifiers != 0, Key/ExtKey != 0]
-	// and the following WILL NOT be:
-	// 	[Modifiers == 0, Key/ExtKey != 0]
-	// unless the Modifiers were pressed after/released before the Key/ExtKey was.
+	// If both Key and ExtKey are zero, Modifier will contain exactly one of its bits set, indicating which Modifier was pressed or released.
+	// As with Modifiers itself, there is no way to differentiate between left and right modifier keys.
+	// As such, the result of pressing and/or releasing both left and right of the same Modifier is system-defined.
+	// Furthermore, the result of holding down a Key or ExtKey, then pressing a Modifier, and then releasing the original key is system-defined.
+	// Under no condition shall Key, ExtKey, AND Modifier all be zero.
+	Modifier		Modifiers
+
+	// Modifiers contains all the modifier keys currently being held at the time of the KeyEvent.
+	// If Modifier is nonzero, Modifiers will not contain Modifier itself.
 	Modifiers		Modifiers
 
 	// If Up is true, the key was released; if not, the key was pressed.
