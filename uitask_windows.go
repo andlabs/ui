@@ -61,7 +61,6 @@ func ui(main func()) error {
 
 	go func() {
 		for m := range uitask {
-			// TODO use _sendMessage instead?
 			r1, _, err := _postMessage.Call(
 				uintptr(hwnd),
 				msgRequested,
@@ -123,8 +122,6 @@ func msgloop() {
 		_dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
 	}
 }
-
-// TODO move to init?
 
 const (
 	msghandlerclass = "gomsghandler"
