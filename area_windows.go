@@ -513,6 +513,10 @@ func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) bool {
 		ke.ExtKey = NEnter
 	} else if extkey, ok := extkeys[wparam]; ok {
 		ke.ExtKey = extkey
+	} else if mod, ok := modonlykeys[wparam]; ok {
+		ke.Modifier = mod
+		// don't include the modifier in ke.Modifiers
+		ke.Modifiers &^= mod
 	} else if xke, ok := fromScancode(uintptr(scancode)); ok {
 		// one of these will be nonzero
 		ke.Key = xke.Key
@@ -578,6 +582,22 @@ func init() {
 			panic(fmt.Errorf("error: not all ExtKeys defined on Windows (missing %d)", i))
 		}
 	}
+}
+
+var modonlykeys = map[_WPARAM]Modifiers{
+	// TODO except for Super, are the separate left/right necessary?
+	_VK_CONTROL:	Ctrl,
+	_VK_LCONTROL:	Ctrl,
+	_VK_RCONTROL:	Ctrl,
+	_VK_MENU:		Alt,
+	_VK_LMENU:		Alt,
+	_VK_RMENU:		Alt,
+	_VK_SHIFT:		Shift,
+	_VK_LSHIFT:		Shift,
+	_VK_RSHIFT:		Shift,
+	// there's no combined Windows key virtual-key code as there is with the others
+	_VK_LWIN:		Super,
+	_VK_RWIN:		Super,
 }
 
 var (
