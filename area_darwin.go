@@ -171,7 +171,7 @@ func areaView_flagsChanged(self C.id, e C.id) C.BOOL {
 	var ke KeyEvent
 
 	// Mac OS X sends this event on both key up and key down.
-	// Fortunately -[e keyCode] IS valid here, so we can simply map from key code to Modifiers, get the value of [e modifierFlags], the respective bit is set or not — that will give us the up/down state
+	// Fortunately -[e keyCode] IS valid here, so we can simply map from key code to Modifiers, get the value of [e modifierFlags], and check if the respective bit is set or not — that will give us the up/down state
 	keyCode := uintptr(C.keyCode(e))
 	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
 	if !ok {		// unknown modifier; ignore
@@ -179,5 +179,8 @@ func areaView_flagsChanged(self C.id, e C.id) C.BOOL {
 	}
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
+	ke.Modifier = mod
+	// don't include the modifier in ke.Modifiers
+	ke.Modifiers &^= mod
 	return toBOOL(sendKeyEvent(self, e, ke))
 }

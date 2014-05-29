@@ -5,6 +5,7 @@ important things:
 super ultra important things:
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
+- OS X: key up with a modifier held and our new modifiers code doesn't seem to happen?
 - OS X: handle Insert/Help key change in a sane and deterministic way
 	- will need old and new Mac keyboards...
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
