@@ -107,7 +107,7 @@ func translateModifiers(state C.guint, window *C.GdkWindow) C.guint {
 	return state
 }
 
-func makeModifiers(state C.guint, m Modifiers) Modifiers {
+func makeModifiers(state C.guint) (m Modifiers) {
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		m |= Ctrl
 	}
@@ -133,7 +133,7 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	}
 	s := (*sysData)(unsafe.Pointer(data))
 	state = translateModifiers(state, gdkwindow)
-	me.Modifiers = makeModifiers(state, 0)
+	me.Modifiers = makeModifiers(state)
 	// the mb != # checks exclude the Up/Down button from Held
 	if mb != 1 && (state & C.GDK_BUTTON1_MASK) != 0 {
 		me.Held = append(me.Held, 1)
@@ -221,7 +221,7 @@ var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_eve
 
 // we want switching away from the control to reset the double-click counter, like with WM_ACTIVATE on Windows; from what I can gather about the Windows version of GDK this is correct
 // differentiating between focus-in-event and focus-out-event is unimportant
-// TODO make sure this actually works
+// TODO check logs; there's a comment left by either tristan or Company suggesting I use a different event here
 
 //export our_area_focus_event_callback
 func our_area_focus_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
@@ -239,11 +239,15 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
 	s := (*sysData)(unsafe.Pointer(data))
 	keyval := e.keyval
+	// get modifiers now in case a modifier was pressed
+	state := translateModifiers(e.state, e.window)
+	ke.Modifiers = makeModifiers(state)
 	if extkey, ok := extkeys[keyval]; ok {
 		ke.ExtKey = extkey
 	} else if mod, ok := modonlykeys[keyval]; ok {
-		// modifier keys don't seem to be set on their initial keypress; set them here
-		ke.Modifiers |= mod
+		ke.Modifier = mod
+		// don't include the modifier in ke.Modifiers
+		ke.Modifiers &^= mod
 	} else if xke, ok := fromScancode(uintptr(e.hardware_keycode) - 8); ok {
 		// see events_notdarwin.go for details of the above map lookup
 		// one of these will be nonzero
@@ -253,8 +257,6 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 		// TODO really stop here? [or should we handle modifiers?]
 		return false		// pretend unhandled
 	}
-	state := translateModifiers(e.state, e.window)
-	ke.Modifiers = makeModifiers(state, ke.Modifiers)
 	ke.Up = up
 	handled, repaint := s.handler.Key(ke)
 	if repaint {
@@ -291,28 +293,6 @@ func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent,
 }
 
 var area_key_release_event_callback = C.GCallback(C.our_area_key_release_event_callback)
-
-/*
-func pk(keyval C.guint, window *C.GdkWindow) {
-	var kk *C.GdkKeymapKey
-	var nk C.gint
-
-	km := C.gdk_keymap_get_for_display(C.gdk_window_get_display(window))
-	b := C.gdk_keymap_get_entries_for_keyval(km, keyval, &kk, &nk)
-	if b == C.FALSE {
-		fmt.Println("(no key equivalent)")
-		return
-	}
-	ok := kk
-	for i := C.gint(0); i < nk; i++ {
-		fmt.Printf("equiv %d/%d: %#v\n", i + 1, nk, kk)
-		xkk := uintptr(unsafe.Pointer(kk))
-		xkk += unsafe.Sizeof(kk)
-		kk = (*C.GdkKeymapKey)(unsafe.Pointer(xkk))
-	}
-	C.g_free(C.gpointer(unsafe.Pointer(ok)))
-}
-*/
 
 var extkeys = map[C.guint]ExtKey{
 	C.GDK_KEY_Escape:			Escape,
