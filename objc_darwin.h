@@ -103,7 +103,6 @@ extern void buttonSetTargetAction(id, id);
 extern void buttonSetText(id, id);
 extern id buttonText(id);
 extern id makeCheckbox(void);
-extern void comboboxSelectIndex(id, BOOL, intptr_t);
 extern id makeLineEdit(BOOL);
 extern void lineeditSetText(id, id);
 extern id lineeditText(id);

@@ -1,8 +1,6 @@
 important things:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
-- Mac OS X forces items selected when changing the NSPopUpButton (noneditable Combobox) lists; figure out how to inhibit this
-	- asked: http://stackoverflow.com/questions/23715275/cocoa-how-do-i-suppress-nspopupbutton-automatic-selection-synchronization-nsar
 
 super ultra important things:
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...

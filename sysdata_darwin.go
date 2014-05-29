@@ -31,7 +31,6 @@ type classData struct {
 	selTexts		func(id C.id) []string
 	delete		func(id C.id, index int)
 	len			func(id C.id) int
-	selectIndex	func(id C.id, index int, alternate bool)
 }
 
 func addControl(parentWindow C.id, control C.id) {
@@ -134,9 +133,6 @@ var classTypes = [nctypes]*classData{
 		},
 		len:			func(id C.id) int {
 			return int(C.comboboxLen(id))
-		},
-		selectIndex:	func(id C.id, index int, alternate bool) {
-			C.comboboxSelectIndex(id, toBOOL(alternate), C.intptr_t(index))
 		},
 	},
 	c_lineedit:		&classData{
@@ -402,16 +398,6 @@ func (s *sysData) setAreaSize(width int, height int) {
 	defer close(ret)
 	uitask <- func() {
 		C.setAreaSize(s.id, C.intptr_t(width), C.intptr_t(height))
-		ret <- struct{}{}
-	}
-	<-ret
-}
-
-func (s *sysData) selectIndex(index int) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		classTypes[s.ctype].selectIndex(s.id, index, s.alternate)
 		ret <- struct{}{}
 	}
 	<-ret

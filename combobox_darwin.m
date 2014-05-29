@@ -54,7 +54,7 @@ id makeCombobox(BOOL editable)
 #define BIND bind:comboboxBinding toObject:ac withKeyPath:comboboxKeyPath options:nil
 // for NSPopUpButton, we need a little extra work to make it respect the NSArrayController's selection behavior properties
 // thanks to stevesliva (http://stackoverflow.com/questions/23715275/cocoa-how-do-i-suppress-nspopupbutton-automatic-selection-synchronization-nsar)
-// TODO where in the docs does it say that NSArrayController has a keyPath of selectionIndex? it's not in the Cocoa Bindings Reference
+// note: selectionIndex isn't listed in the Cocoa Bindings Reference for NSArrayController under exposed bindings, but is in the Cocoa Bindings Programming Topics under key-value observant properties, so we can still bind to it
 #define BINDSEL bind:@"selectedIndex" toObject:ac withKeyPath:@"selectionIndex" options:nil
 
 	if (!editable) {

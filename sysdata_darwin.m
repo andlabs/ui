@@ -139,11 +139,6 @@ id makeCheckbox(void)
 	return checkbox;
 }
 
-void comboboxSelectIndex(id combobox, BOOL editable, intptr_t index)
-{
-	// TODO remove
-}
-
 id makeLineEdit(BOOL password)
 {
 	if (password)

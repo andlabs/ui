@@ -143,8 +143,6 @@ func (c *Combobox) make(window *sysData) (err error) {
 	for _, s := range c.initItems {
 		c.sysData.append(s)
 	}
-	// some platforms automatically select an item; undo that
-	c.sysData.selectIndex(-1)
 	c.created = true
 	return nil
 }
