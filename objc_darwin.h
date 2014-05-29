@@ -103,13 +103,6 @@ extern void buttonSetTargetAction(id, id);
 extern void buttonSetText(id, id);
 extern id buttonText(id);
 extern id makeCheckbox(void);
-extern id makeCombobox(BOOL);
-extern id comboboxText(id, BOOL);
-extern void comboboxAppend(id, BOOL, id);
-extern void comboboxInsertBefore(id, BOOL, id, intptr_t);
-extern intptr_t comboboxSelectedIndex(id);
-extern void comboboxDelete(id, intptr_t);
-extern intptr_t comboboxLen(id);
 extern void comboboxSelectIndex(id, BOOL, intptr_t);
 extern id makeLineEdit(BOOL);
 extern void lineeditSetText(id, id);
@@ -121,5 +114,14 @@ extern BOOL isCheckboxChecked(id);
 extern void windowSetContentSize(id, intptr_t, intptr_t);
 extern void setProgress(id, intptr_t);
 extern void setAreaSize(id, intptr_t, intptr_t);
+
+/* combobox_darwin.m */
+extern id makeCombobox(BOOL);
+extern id comboboxText(id, BOOL);
+extern void comboboxAppend(id, BOOL, id);
+extern void comboboxInsertBefore(id, BOOL, id, intptr_t);
+extern intptr_t comboboxSelectedIndex(id);
+extern void comboboxDelete(id, intptr_t);
+extern intptr_t comboboxLen(id);
 
 #endif

@@ -25,8 +25,6 @@
 #import <AppKit/NSFont.h>
 #import <AppKit/NSControl.h>
 #import <AppKit/NSButton.h>
-#import <AppKit/NSPopUpButton.h>
-#import <AppKit/NSComboBox.h>
 #import <AppKit/NSTextField.h>
 #import <AppKit/NSSecureTextField.h>
 #import <AppKit/NSProgressIndicator.h>
@@ -39,8 +37,6 @@ extern NSRect dummyRect;
 #define toNSView(x) to(NSView, (x))
 #define toNSControl(x) to(NSControl, (x))
 #define toNSButton(x) to(NSButton, (x))
-#define toNSPopUpButton(x) to(NSPopUpButton, (x))
-#define toNSComboBox(x) to(NSComboBox, (x))
 #define toNSTextField(x) to(NSTextField, (x))
 #define toNSProgressIndicator(x) to(NSProgressIndicator, (x))
 #define toNSScrollView(x) to(NSScrollView, (x))
@@ -143,89 +139,9 @@ id makeCheckbox(void)
 	return checkbox;
 }
 
-id makeCombobox(BOOL editable)
-{
-	if (!editable) {
-		NSPopUpButton *combobox;
-
-		combobox = [[NSPopUpButton alloc]
-			initWithFrame:dummyRect
-			pullsDown:NO];
-		return combobox;
-	}
-
-	NSComboBox *combobox;
-
-	combobox = [[NSComboBox alloc]
-		initWithFrame:dummyRect];
-	[combobox setUsesDataSource:NO];
-	return combobox;
-}
-
-id comboboxText(id combobox, BOOL editable)
-{
-	if (!editable)
-		return [toNSPopUpButton(combobox) titleOfSelectedItem];
-	return [toNSComboBox(combobox) stringValue];
-}
-
-void comboboxAppend(id combobox, BOOL editable, id str)
-{
-	if (!editable) {
-		[toNSPopUpButton(combobox) addItemWithTitle:str];
-		return;
-	}
-	[toNSComboBox(combobox) addItemWithObjectValue:str];
-}
-
-void comboboxInsertBefore(id combobox, BOOL editable, id str, intptr_t before)
-{
-	if (!editable) {
-		[toNSPopUpButton(combobox) insertItemWithTitle:str atIndex:toNSInteger(before)];
-		return;
-	}
-	[toNSComboBox(combobox) insertItemWithObjectValue:str atIndex:toNSInteger(before)];
-}
-
-intptr_t comboboxSelectedIndex(id combobox)
-{
-	// works the same for both NSPopUpButton and NSComboBox
-	return fromNSInteger([toNSPopUpButton(combobox) indexOfSelectedItem]);
-}
-
-void comboboxDelete(id combobox, intptr_t index)
-{
-	// works the same for both NSPopUpButton and NSComboBox
-	[toNSPopUpButton(combobox) removeItemAtIndex:toNSInteger(index)];
-}
-
-intptr_t comboboxLen(id combobox)
-{
-	// works the same for both NSPopUpButton and NSComboBox
-	return fromNSInteger([toNSPopUpButton(combobox) numberOfItems]);
-}
-
 void comboboxSelectIndex(id combobox, BOOL editable, intptr_t index)
 {
-	NSInteger i;
-	NSInteger selected;
-	NSComboBox *c;
-
-	i = toNSInteger(index);
-	// NSPopUpButton documents -1 as deselecting, so we can just use selectItemAtindex: directly
-	if (!editable) {
-		[toNSPopUpButton(combobox) selectItemAtIndex:i];
-		return;
-	}
-	// NSComboBox, on the other hand, does not, so to be safe, we do things the long way
-	c = toNSComboBox(combobox);
-	if (i == -1) {		// deselect
-		selected = [c indexOfSelectedItem];
-		if (selected != -1)
-			[c deselectItemAtIndex:selected];
-		return;
-	}
-	[c selectItemAtIndex:i];
+	// TODO remove
 }
 
 id makeLineEdit(BOOL password)
