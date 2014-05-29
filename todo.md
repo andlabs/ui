@@ -4,21 +4,7 @@ important things:
 
 super ultra important things:
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
-- formalize what happens if Modifiers by themselves are held
-	- OS X: find out if multiple DIFFERENT modifiers released at once produces multiple events
-		- yes it does
-	- in general, figure out what to do on multiple events, period
-	- current behavior:
-		- Windows (TODO verify): no modifier release unless one modifier is released while another is still held; I think this can be overcome
-		- Unix: all modifiers send press AND release events; left+right sends two events; release mask == pressed keys | released button
-		- Mac OS X: all modifiers send press AND release events; left+right sends TODO; release mask == pressed keys &^ released button
-		- ideally we would want modifiers to behave like Up and Down: if a modifier was pressed or released, have a field Modifier that indicates which modifier was pressed, then use the Modifiers field to indicate which modifiers are currently held
-			- but then we would need to figure out how to deal with the fact that there's left and right and we choose not to differentiate (and because Windows doesn't report two Shift keys being released at once, according to GLFW)
-			- also this makes Modifiers different from everything else... maybe I should drop the Modifiers as a bitmask thing???? Or have Modifiers be the flags if Up and Down are nonzero and an individual bit otherwise? This sounds the most reasonable...
-	- OS X: the behavior of Modifiers and other keys is broken: keyDown:/keyUp: events stop being sent when the state of Modifiers changes, which is NOT what we want
-		- [13:44] <Psy> pietro10: nope, the system decides
-
-			- welp; this changes everything
+- windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
 - OS X: handle Insert/Help key change in a sane and deterministic way
 	- will need old and new Mac keyboards...
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
@@ -50,6 +36,7 @@ super ultra important things:
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 	- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx
+	- related: make sure all keyboard checks are in the same order on all platforms
 - pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
 	- this also happens in real windows (press the windows key to open the start menu); there's something I'm not handling and I'm not sure what it is
 	- oh hey would you look at that http://blogs.msdn.com/b/oldnewthing/archive/2014/05/21/10527168.aspx how timely
