@@ -107,12 +107,31 @@ func preamble(pkg string) string {
 		"package " + pkg + "\n"
 }
 
+// for backwards compatibiilty reasons, Windows defines GetWindowLongPtr()/SetWindowLongPtr() as a macro which expands to GetWindowLong()/SetWindowLong() on 32-bit systems
+// we'll just simulate that here
+var gwlpNames = map[string]string{
+	"386":		"etWindowLong",
+	"amd64":		"etWindowLongPtr",
+}
+
+func printConst(f *os.File, goconst string, winconst string) {
+	fmt.Fprintf(f, "	fmt.Println(\"const %s =\", C.%s)\n", goconst, winconst)
+}
+
+func printGWLPName(f *os.File, which string, char string, targetarch string) {
+	fmt.Fprintf(f, "	fmt.Println(\"var %s = user32.NewProc(\\\"%s\\\")\")\n",
+		which, char + gwlpNames[targetarch])
+}
+
 func main() {
 	if len(os.Args) < 3 {
 		panic("usage: " + os.Args[0] + " path goarch [go-command-options...]")
 	}
 	pkgpath := os.Args[1]
 	targetarch := os.Args[2]
+	if _, ok := gwlpNames[targetarch]; !ok {
+		panic("unknown target windows/" + targetarch)
+	}
 	goopts := os.Args[3:]		// valid if len(os.Args) == 3; in that case this will just be a slice of length zero
 
 	pkg := getPackage(pkgpath)
@@ -163,12 +182,15 @@ func main() {
 	for _, ident := range consts {
 		if ident[0] == 'x' {
 			// hack name; strip the leading x (but not the _ after it) from the constant name but keep the value name unchanged
-			fmt.Fprintf(f, "	fmt.Println(\"const %s =\", C.%s)\n", ident[1:], ident)
+			printConst(f, ident[1:], ident)
 			continue
 		}
 		// not a hack name; strip the leading _ from the value name but keep the constant name unchanged
-		fmt.Fprintf(f, "	fmt.Println(\"const %s =\", C.%s)\n", ident, ident[1:])
+		printConst(f, ident, ident[1:])
 	}
+	// and now for _getWindowLongPtr/_setWindowLongPtr
+	printGWLPName(f, "_getWindowLongPtr", "G", targetarch)
+	printGWLPName(f, "_setWindowLongPtr", "S", targetarch)
 	fmt.Fprintf(f, "}\n")
 	f.Close()
 

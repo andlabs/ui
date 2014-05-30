@@ -162,3 +162,5 @@ const _IDC_ARROW = 32512
 const _IDI_APPLICATION = 32512
 const _INVALID_HANDLE_VALUE = 4294967295
 const _NULL = 0
+var _getWindowLongPtr = user32.NewProc("GetWindowLong")
+var _setWindowLongPtr = user32.NewProc("SetWindowLong")
