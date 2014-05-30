@@ -51,6 +51,7 @@ func setWindowLongPtr(hwnd _HWND, what uintptr, value uintptr) {
 // we can store a pointer in extra space provided by Windows
 // we'll store sysData there
 // see http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
+
 func getSysData(hwnd _HWND) *sysData {
 	return (*sysData)(unsafe.Pointer(getWindowLongPtr(hwnd, negConst(_GWLP_USERDATA))))
 }
@@ -77,7 +78,6 @@ func stdWndProc(unused *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, l
 		if s == nil {		// not yet saved
 			return storeSysData(hwnd, uMsg, wParam, lParam)
 		}
-
 		switch uMsg {
 		case _WM_COMMAND:
 			id := _HMENU(wParam.LOWORD())
