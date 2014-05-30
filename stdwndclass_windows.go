@@ -31,8 +31,53 @@ func defWindowProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRE
 	return _LRESULT(r1)
 }
 
-func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+// don't worry about error returns from GetWindowLongPtr()/SetWindowLongPtr()
+// see comments of http://blogs.msdn.com/b/oldnewthing/archive/2014/02/03/10496248.aspx
+
+func getWindowLongPtr(hwnd _HWND, what uintptr) uintptr {
+	r1, _, _ := _getWindowLongPtr.Call(
+		uintptr(hwnd),
+		what)
+	return r1
+}
+
+func setWindowLongPtr(hwnd _HWND, what uintptr, value uintptr) {
+	_setWindowLongPtr.Call(
+		uintptr(hwnd),
+		what,
+		value)
+}
+
+// we can store a pointer in extra space provided by Windows
+// we'll store sysData there
+// see http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
+func getSysData(hwnd _HWND) *sysData {
+	return (*sysData)(unsafe.Pointer(getWindowLongPtr(hwnd, negConst(_GWLP_USERDATA))))
+}
+
+func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	// we can get the lpParam from CreateWindowEx() in WM_NCCREATE and WM_CREATE
+	// we can freely skip any messages that come prior
+	// see http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2014/02/03/10496248.aspx (note the date on the latter one!)
+	if uMsg == _WM_NCCREATE {
+		// the lpParam to CreateWindowEx() is the first uintptr of the CREATESTRUCT
+		// so rather than create that whole structure, we'll just grab the uintptr at the address pointed to by lParam
+		cs := (*uintptr)(unsafe.Pointer(lParam))
+		saddr := *cs
+		setWindowLongPtr(hwnd, negConst(_GWLP_USERDATA), saddr)
+		// don't set s; we return here
+	}
+	// TODO is this correct for WM_NCCREATE? I think the above link does it but I'm not entirely sure...
+	return defWindowProc(hwnd, uMsg, wParam, lParam)
+}
+
+func stdWndProc(unused *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+		s := getSysData(hwnd)
+		if s == nil {		// not yet saved
+			return storeSysData(hwnd, uMsg, wParam, lParam)
+		}
+
 		switch uMsg {
 		case _WM_COMMAND:
 			id := _HMENU(wParam.LOWORD())

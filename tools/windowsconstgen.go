@@ -110,8 +110,8 @@ func preamble(pkg string) string {
 // for backwards compatibiilty reasons, Windows defines GetWindowLongPtr()/SetWindowLongPtr() as a macro which expands to GetWindowLong()/SetWindowLong() on 32-bit systems
 // we'll just simulate that here
 var gwlpNames = map[string]string{
-	"386":		"etWindowLong",
-	"amd64":		"etWindowLongPtr",
+	"386":		"etWindowLongW",
+	"amd64":		"etWindowLongPtrW",
 }
 
 func printConst(f *os.File, goconst string, winconst string) {

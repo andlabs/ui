@@ -30,6 +30,7 @@ type classData struct {
 	xstyle			uint32
 	mkid				bool
 	altStyle			uint32
+	storeSysData		bool
 	doNotLoadFont	bool
 	appendMsg		uintptr
 	insertBeforeMsg	uintptr
@@ -48,6 +49,7 @@ var classTypes = [nctypes]*classData{
 		register:			registerStdWndClass,
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
+		storeSysData:		true,
 		doNotLoadFont:	true,
 	},
 	c_button:			&classData{
@@ -157,6 +159,10 @@ func (s *sysData) make(window *sysData) (err error) {
 	if s.alternate {
 		style = uintptr(ct.altStyle)
 	}
+	lpParam := uintptr(_NULL)
+	if ct.storeSysData {
+		lpParam = uintptr(unsafe.Pointer(s))
+	}
 	uitask <- &uimsg{
 		call:		_createWindowEx,	
 		p:		[]uintptr{
@@ -171,7 +177,7 @@ func (s *sysData) make(window *sysData) (err error) {
 			pwin,
 			uintptr(cid),
 			uintptr(hInstance),
-			uintptr(_NULL),
+			lpParam,
 		},
 		ret:	ret,
 	}
