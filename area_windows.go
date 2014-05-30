@@ -606,15 +606,6 @@ var (
 
 func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-		defwndproc := func() _LRESULT {
-			r1, _, _ := defWindowProc.Call(
-				uintptr(hwnd),
-				uintptr(uMsg),
-				uintptr(wParam),
-				uintptr(lParam))
-			return _LRESULT(r1)
-		}
-
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
@@ -635,14 +626,14 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 				scrollArea(s, wParam, _SB_VERT)
 				return 0
 			}
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		case _WM_SIZE:
 			// TODO make this unnecessary
 			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
 				adjustAreaScrollbars(s)
 				return 0
 			}
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		case _WM_ACTIVATE:
 			// don't keep the double-click timer running if the user switched programs in between clicks
 			s.clickCounter.reset()
@@ -656,7 +647,7 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 				panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
 				return _MA_ACTIVATE		// TODO eat the click?
 			}
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		case _WM_MOUSEMOVE:
 			areaMouseEvent(s, 0, false, wParam, lParam)
 			return 0
@@ -698,13 +689,13 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			if handled {
 				return 0
 			}
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		case _WM_SYSKEYUP:
 			handled := areaKeyEvent(s, true, wParam, lParam)
 			if handled {
 				return 0
 			}
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		case msgSetAreaSize:
 			s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
 			s.areaheight = int(lParam)
@@ -712,7 +703,7 @@ func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lPara
 			repaintArea(s)					// this calls for an update
 			return 0
 		default:
-			return defwndproc()
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		}
 		panic(fmt.Sprintf("areaWndProc message %d did not return: internal bug in ui library", uMsg))
 	}

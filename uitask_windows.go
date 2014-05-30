@@ -178,10 +178,5 @@ func messageHandlerWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPAR
 		_postQuitMessage.Call(0)
 		return 0
 	}
-	r1, _, _ := defWindowProc.Call(
-		uintptr(hwnd),
-		uintptr(uMsg),
-		uintptr(wParam),
-		uintptr(lParam))
-	return _LRESULT(r1)
+	return defWindowProc(hwnd, uMsg, wParam, lParam)
 }

@@ -19,8 +19,17 @@ var (
 )
 
 var (
-	defWindowProc = user32.NewProc("DefWindowProcW")
+	_defWindowProc = user32.NewProc("DefWindowProcW")
 )
+
+func defWindowProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	r1, _, _ := _defWindowProc.Call(
+		uintptr(hwnd),
+		uintptr(uMsg),
+		uintptr(wParam),
+		uintptr(lParam))
+	return _LRESULT(r1)
+}
 
 func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
@@ -62,12 +71,7 @@ func stdWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam
 			s.signal()
 			return 0
 		default:
-			r1, _, _ := defWindowProc.Call(
-				uintptr(hwnd),
-				uintptr(uMsg),
-				uintptr(wParam),
-				uintptr(lParam))
-			return _LRESULT(r1)
+			return defWindowProc(hwnd, uMsg, wParam, lParam)
 		}
 		panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
 	}
