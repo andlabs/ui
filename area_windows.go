@@ -604,8 +604,12 @@ var (
 	_setFocus = user32.NewProc("SetFocus")
 )
 
-func areaWndProc(s *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+func areaWndProc(unused *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+		s := getSysData(hwnd)
+		if s == nil {		// not yet saved
+			return storeSysData(hwnd, uMsg, wParam, lParam)
+		}
 		switch uMsg {
 		case _WM_PAINT:
 			paintArea(s)
