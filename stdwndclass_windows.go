@@ -60,7 +60,9 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 		cs := (*uintptr)(unsafe.Pointer(lParam))
 		saddr := *cs
 		setWindowLongPtr(hwnd, negConst(_GWLP_USERDATA), saddr)
-		// don't set s; we return here
+		// also set s.hwnd here so it can be used by other window messages right away
+		s := (*sysData)(unsafe.Pointer(saddr))
+		s.hwnd = hwnd
 	}
 	// TODO is this correct for WM_NCCREATE? I think the above link does it but I'm not entirely sure...
 	return defWindowProc(hwnd, uMsg, wParam, lParam)

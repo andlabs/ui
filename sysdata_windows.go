@@ -179,7 +179,12 @@ func (s *sysData) make(window *sysData) (err error) {
 		}
 		return fmt.Errorf("error actually creating window/control: %v", r.err)
 	}
-	s.hwnd = _HWND(r.ret)
+	if !ct.storeSysData {				// regular control; store s.hwnd ourselves
+		s.hwnd = _HWND(r.ret)
+	} else if s.hwnd != _HWND(r.ret) {	// we store sysData in storeSysData(); sanity check
+		// TODO really panic?
+		panic(fmt.Errorf("hwnd mismatch creating window/control: storeSysData() stored 0x%X but CreateWindowEx() returned 0x%X", s.hwnd, ret))
+	}
 	if !ct.doNotLoadFont {
 		uitask <- &uimsg{
 			call:		_sendMessage,
