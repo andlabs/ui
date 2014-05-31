@@ -65,6 +65,10 @@ func doWindowsInit() (err error) {
 	if err != nil {
 		return fmt.Errorf("error initializing standard window class auxiliary info: %v", err)
 	}
+	err = registerStdWndClass()
+	if err != nil {
+		return fmt.Errorf("error registering standard window class (for Window): %v", err)
+	}
 	err = getStandardWindowFonts()
 	if err != nil {
 		return fmt.Errorf("error getting standard window fonts: %v", err)

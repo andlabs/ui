@@ -46,7 +46,7 @@ const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
-		register:			registerStdWndClass,
+		name:			stdWndClass,
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
 		storeSysData:		true,

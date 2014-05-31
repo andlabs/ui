@@ -6,16 +6,10 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
-	"sync"
 )
 
 const (
-	stdWndClassFormat = "gouiwnd%X"
-)
-
-var (
-	curWndClassNum uintptr
-	curWndClassNumLock sync.Mutex
+	stdWndClass = "gouiwnd"
 )
 
 var (
@@ -72,54 +66,52 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 	return defWindowProc(hwnd, uMsg, wParam, lParam)
 }
 
-func stdWndProc(unused *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-		s := getSysData(hwnd)
-		if s == nil {		// not yet saved
-			return storeSysData(hwnd, uMsg, wParam, lParam)
-		}
-		switch uMsg {
-		case _WM_COMMAND:
-			id := _HMENU(wParam.LOWORD())
-			s.childrenLock.Lock()
-			ss := s.children[id]
-			s.childrenLock.Unlock()
-			switch ss.ctype {
-			case c_button:
-				if wParam.HIWORD() == _BN_CLICKED {
-					ss.signal()
-				}
-			}
-			return 0
-		case _WM_GETMINMAXINFO:
-			mm := lParam.MINMAXINFO()
-			// ... minimum size
-			_ = mm
-			return 0
-		case _WM_SIZE:
-			if s.resize != nil {
-				var r _RECT
-
-				r1, _, err := _getClientRect.Call(
-					uintptr(hwnd),
-					uintptr(unsafe.Pointer(&r)))
-				if r1 == 0 {
-					panic("GetClientRect failed: " + err.Error())
-				}
-				// top-left corner is (0,0) so no need for winheight
-				s.doResize(int(r.left), int(r.top), int(r.right), int(r.bottom), 0)
-				// TODO use the Defer movement functions here?
-				// TODO redraw window and all children here?
-			}
-			return 0
-		case _WM_CLOSE:
-			s.signal()
-			return 0
-		default:
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		}
-		panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
+func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	s := getSysData(hwnd)
+	if s == nil {		// not yet saved
+		return storeSysData(hwnd, uMsg, wParam, lParam)
 	}
+	switch uMsg {
+	case _WM_COMMAND:
+		id := _HMENU(wParam.LOWORD())
+		s.childrenLock.Lock()
+		ss := s.children[id]
+		s.childrenLock.Unlock()
+		switch ss.ctype {
+		case c_button:
+			if wParam.HIWORD() == _BN_CLICKED {
+				ss.signal()
+			}
+		}
+		return 0
+	case _WM_GETMINMAXINFO:
+		mm := lParam.MINMAXINFO()
+		// ... minimum size
+		_ = mm
+		return 0
+	case _WM_SIZE:
+		if s.resize != nil {
+			var r _RECT
+
+			r1, _, err := _getClientRect.Call(
+				uintptr(hwnd),
+				uintptr(unsafe.Pointer(&r)))
+			if r1 == 0 {
+				panic("GetClientRect failed: " + err.Error())
+			}
+			// top-left corner is (0,0) so no need for winheight
+			s.doResize(int(r.left), int(r.top), int(r.right), int(r.bottom), 0)
+			// TODO use the Defer movement functions here?
+			// TODO redraw window and all children here?
+		}
+		return 0
+	case _WM_CLOSE:
+		s.signal()
+		return 0
+	default:
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	}
+	panic(fmt.Sprintf("stdWndProc message %d did not return: internal bug in ui library", uMsg))
 }
 
 type _WNDCLASS struct {
@@ -143,33 +135,20 @@ var (
 	_registerClass = user32.NewProc("RegisterClassW")
 )
 
-func registerStdWndClass(s *sysData) (newClassName string, err error) {
-	curWndClassNumLock.Lock()
-	newClassName = fmt.Sprintf(stdWndClassFormat, curWndClassNum)
-	curWndClassNum++
-	curWndClassNumLock.Unlock()
-
+func registerStdWndClass() (err error) {
 	wc := &_WNDCLASS{
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
-		lpfnWndProc:		syscall.NewCallback(stdWndProc(s)),
+		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
+		lpfnWndProc:		syscall.NewCallback(stdWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,
 		hCursor:			cursor,
 		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
 	}
-
-	ret := make(chan uiret)
-	defer close(ret)
-	uitask <- &uimsg{
-		call:		_registerClass,
-		p:		[]uintptr{uintptr(unsafe.Pointer(wc))},
-		ret:		ret,
+	r1, _, err := _registerClass.Call(uintptr(unsafe.Pointer(wc)))
+	if r1 == 0 {		// failure
+		return err
 	}
-	r := <-ret
-	if r.ret == 0 {		// failure
-		return "", r.err
-	}
-	return newClassName, nil
+	return nil
 }
 
 // no need to use/recreate MAKEINTRESOURCE() here as the Windows constant generator already took care of that because Microsoft's headers do already
