@@ -612,25 +612,14 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 		// this is to make things flicker-free; see http://msdn.microsoft.com/en-us/library/ms969905.aspx
 		return 1
 	case _WM_HSCROLL:
-		// TODO make this unnecessary
-		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-			scrollArea(s, wParam, _SB_HORZ)
-		}
+		scrollArea(s, wParam, _SB_HORZ)
 		return 0
 	case _WM_VSCROLL:
-		// TODO make this unnecessary
-		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-			scrollArea(s, wParam, _SB_VERT)
-			return 0
-		}
-		return defWindowProc(hwnd, uMsg, wParam, lParam)
+		scrollArea(s, wParam, _SB_VERT)
+		return 0
 	case _WM_SIZE:
-		// TODO make this unnecessary
-		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-			adjustAreaScrollbars(s)
-			return 0
-		}
-		return defWindowProc(hwnd, uMsg, wParam, lParam)
+		adjustAreaScrollbars(s)
+		return 0
 	case _WM_ACTIVATE:
 		// don't keep the double-click timer running if the user switched programs in between clicks
 		s.clickCounter.reset()
