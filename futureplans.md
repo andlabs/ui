@@ -112,16 +112,6 @@ big things:
 - preferred sizes in general are awkward: on Windows, no text-based size calculation is performed, so we have weird things like Labels always having the same width (so if you place a Label in a Stack by itself and forget to make it stretchy, it'll be truncated on Windows (but not on GTK+ or OS X?!))
 
 big dumb things:
-- for our two custom window classes on Windows, we should allocate extra space in the window class's info structure and then use SetWindowLongPtrW() during WM_CREATE to store the sysData and not have to make a new window class each time; this might also fix the s != nil && s.hwnd != 0 special cases in the Area WndProc if done right
-	- references: https://github.com/glfw/glfw/blob/master/src/win32_window.c#L182, http://www.catch22.net/tuts/custom-controls
-	- this is a bit flakier as SetWindowLongPtr() can fail, and it can also succeed in such a way that the last error is unreliable
-		- and doesn't exist on 32-bit windows; we will need special code for detecting 32-bit/64-bit (see http://bugs.winehq.org/show_bug.cgi?id=30556 and GerbilSoft in irc.badnik.net/#retro)
-		- also CreateWindow() and CreateWindowEx() docs differ in indicating which messages are sent but ultimately send the same set; WM_GETMINMAXINFO is sent first so that throws a wrench in the whole point, AND we'll need a way to properly differentiate between custom classes and controls...
-			- tl;dr what started as a somewhat quick change was really way too much effort for only potential/theoretical gain; approach if someone actually DOES hit Go's syscall.NewCallback() limit
-			- theoretically I could just have a s != nil check in WM_GETMINMAXINFO only, but not too hot on the idea :/
-				- raymond chen does it here: http://blogs.msdn.com/b/oldnewthing/archive/2005/04/22/410773.aspx (check the implementation of Window::s_WndProc())
-				- ...and suggests we do it here http://blogs.msdn.com/b/oldnewthing/archive/2014/02/03/10496248.aspx (**NOTE THE DATE**) - the comments on this one provide some potential ideas, including IIntrospect's comment about HCBT_CREATEWND; later Raymond says we should not worry about SetWindowLongPtr() failing
-				- and raymond suggests GWL_USERDATA here: http://blogs.msdn.com/b/oldnewthing/archive/2005/03/03/384285.aspx
 - listboxes should have horizontal scrollbars on all platforms; this is way too hard on OS X and doesn't work; my code is in experiments/
 	- also moved the Windows code there for the sake of efficiency
 	- GTK+ works just fine though
