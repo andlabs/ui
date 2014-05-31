@@ -25,10 +25,8 @@ type sysData struct {
 
 type classData struct {
 	name			string
-	register			func(s *sysData) (newClassName string, err error)
 	style				uint32
 	xstyle			uint32
-	mkid				bool
 	altStyle			uint32
 	storeSysData		bool
 	doNotLoadFont	bool
@@ -142,19 +140,11 @@ func (s *sysData) make(window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
 	ct := classTypes[s.ctype]
-	classname := ct.name
 	cid := _HMENU(0)
 	pwin := uintptr(_NULL)
 	if window != nil {		// this is a child control
 		cid = window.addChild(s)
 		pwin = uintptr(window.hwnd)
-	}
-	if classname == "" {		// need a new window class
-		n, err := ct.register(s)
-		if err != nil {
-			return fmt.Errorf("error creating window class for new window/control (type %d): %v", s.ctype, err)
-		}
-		classname = n
 	}
 	style := uintptr(ct.style)
 	if s.alternate {
@@ -168,7 +158,7 @@ func (s *sysData) make(window *sysData) (err error) {
 		call:		_createWindowEx,	
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(classname))),
+			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(ct.name))),
 			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// we set the window text later
 			style,
 			negConst(_CW_USEDEFAULT),
