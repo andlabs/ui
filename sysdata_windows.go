@@ -113,7 +113,7 @@ var classTypes = [nctypes]*classData{
 		doNotLoadFont:	true,
 	},
 	c_area:			&classData{
-		register:			registerAreaWndClass,
+		name:			areaWndClass,
 		style:			areastyle,
 		xstyle:			areaxstyle,
 		storeSysData:		true,

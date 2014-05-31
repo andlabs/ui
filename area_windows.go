@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
-	"sync"
 	"image"
 )
 
@@ -16,12 +15,7 @@ const (
 )
 
 const (
-	areaWndClassFormat = "gouiarea%X"
-)
-
-var (
-	areaWndClassNum uintptr
-	areaWndClassNumLock sync.Mutex
+	areaWndClass = "gouiarea"
 )
 
 func getScrollPos(hwnd _HWND) (xpos int32, ypos int32) {
@@ -604,143 +598,128 @@ var (
 	_setFocus = user32.NewProc("SetFocus")
 )
 
-func areaWndProc(unused *sysData) func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-	return func(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
-		s := getSysData(hwnd)
-		if s == nil {		// not yet saved
-			return storeSysData(hwnd, uMsg, wParam, lParam)
-		}
-		switch uMsg {
-		case _WM_PAINT:
-			paintArea(s)
-			return 0
-		case _WM_ERASEBKGND:
-			// don't draw a background; we'll do so when painting
-			// this is to make things flicker-free; see http://msdn.microsoft.com/en-us/library/ms969905.aspx
-			return 1
-		case _WM_HSCROLL:
-			// TODO make this unnecessary
-			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-				scrollArea(s, wParam, _SB_HORZ)
-			}
-			return 0
-		case _WM_VSCROLL:
-			// TODO make this unnecessary
-			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-				scrollArea(s, wParam, _SB_VERT)
-				return 0
-			}
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		case _WM_SIZE:
-			// TODO make this unnecessary
-			if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
-				adjustAreaScrollbars(s)
-				return 0
-			}
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		case _WM_ACTIVATE:
-			// don't keep the double-click timer running if the user switched programs in between clicks
-			s.clickCounter.reset()
-			return 0
-		case _WM_MOUSEACTIVATE:
-			// this happens on every mouse click (apparently), so DON'T reset the click counter, otherwise it will always be reset (not an issue, as MSDN says WM_ACTIVATE is sent alongside WM_MOUSEACTIVATE when necessary)
-			// transfer keyboard focus to our Area on an activating click
-			// (see http://www.catch22.net/tuts/custom-controls)
-			r1, _, err := _setFocus.Call(uintptr(s.hwnd))
-			if r1 == 0 {		// failure
-				panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
-				return _MA_ACTIVATE		// TODO eat the click?
-			}
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		case _WM_MOUSEMOVE:
-			areaMouseEvent(s, 0, false, wParam, lParam)
-			return 0
-		case _WM_LBUTTONDOWN:
-			areaMouseEvent(s, 1, false, wParam, lParam)
-			return 0
-		case _WM_LBUTTONUP:
-			areaMouseEvent(s, 1, true, wParam, lParam)
-			return 0
-		case _WM_MBUTTONDOWN:
-			areaMouseEvent(s, 2, false, wParam, lParam)
-			return 0
-		case _WM_MBUTTONUP:
-			areaMouseEvent(s, 2, true, wParam, lParam)
-			return 0
-		case _WM_RBUTTONDOWN:
-			areaMouseEvent(s, 3, false, wParam, lParam)
-			return 0
-		case _WM_RBUTTONUP:
-			areaMouseEvent(s, 3, true, wParam, lParam)
-			return 0
-		case _WM_XBUTTONDOWN:
-			which := uint((wParam >> 16) & 0xFFFF) + 3		// values start at 1; we want them to start at 4
-			areaMouseEvent(s, which, false, wParam, lParam)
-			return _LRESULT(_TRUE)		// XBUTTON messages are different!
-		case _WM_XBUTTONUP:
-			which := uint((wParam >> 16) & 0xFFFF) + 3
-			areaMouseEvent(s, which, true, wParam, lParam)
-			return _LRESULT(_TRUE)
-		case _WM_KEYDOWN:
-			areaKeyEvent(s, false, wParam, lParam)
-			return 0
-		case _WM_KEYUP:
-			areaKeyEvent(s, true, wParam, lParam)
-			return 0
-		// Alt+[anything] and F10 send these instead
-		case _WM_SYSKEYDOWN:
-			handled := areaKeyEvent(s, false, wParam, lParam)
-			if handled {
-				return 0
-			}
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		case _WM_SYSKEYUP:
-			handled := areaKeyEvent(s, true, wParam, lParam)
-			if handled {
-				return 0
-			}
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		case msgSetAreaSize:
-			s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
-			s.areaheight = int(lParam)
-			adjustAreaScrollbars(s)
-			repaintArea(s)					// this calls for an update
-			return 0
-		default:
-			return defWindowProc(hwnd, uMsg, wParam, lParam)
-		}
-		panic(fmt.Sprintf("areaWndProc message %d did not return: internal bug in ui library", uMsg))
+func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
+	s := getSysData(hwnd)
+	if s == nil {		// not yet saved
+		return storeSysData(hwnd, uMsg, wParam, lParam)
 	}
+	switch uMsg {
+	case _WM_PAINT:
+		paintArea(s)
+		return 0
+	case _WM_ERASEBKGND:
+		// don't draw a background; we'll do so when painting
+		// this is to make things flicker-free; see http://msdn.microsoft.com/en-us/library/ms969905.aspx
+		return 1
+	case _WM_HSCROLL:
+		// TODO make this unnecessary
+		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+			scrollArea(s, wParam, _SB_HORZ)
+		}
+		return 0
+	case _WM_VSCROLL:
+		// TODO make this unnecessary
+		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+			scrollArea(s, wParam, _SB_VERT)
+			return 0
+		}
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	case _WM_SIZE:
+		// TODO make this unnecessary
+		if s != nil && s.hwnd != 0 {			// this message can be sent before s is assigned properly
+			adjustAreaScrollbars(s)
+			return 0
+		}
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	case _WM_ACTIVATE:
+		// don't keep the double-click timer running if the user switched programs in between clicks
+		s.clickCounter.reset()
+		return 0
+	case _WM_MOUSEACTIVATE:
+		// this happens on every mouse click (apparently), so DON'T reset the click counter, otherwise it will always be reset (not an issue, as MSDN says WM_ACTIVATE is sent alongside WM_MOUSEACTIVATE when necessary)
+		// transfer keyboard focus to our Area on an activating click
+		// (see http://www.catch22.net/tuts/custom-controls)
+		r1, _, err := _setFocus.Call(uintptr(s.hwnd))
+		if r1 == 0 {		// failure
+			panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
+			return _MA_ACTIVATE		// TODO eat the click?
+		}
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	case _WM_MOUSEMOVE:
+		areaMouseEvent(s, 0, false, wParam, lParam)
+		return 0
+	case _WM_LBUTTONDOWN:
+		areaMouseEvent(s, 1, false, wParam, lParam)
+		return 0
+	case _WM_LBUTTONUP:
+		areaMouseEvent(s, 1, true, wParam, lParam)
+		return 0
+	case _WM_MBUTTONDOWN:
+		areaMouseEvent(s, 2, false, wParam, lParam)
+		return 0
+	case _WM_MBUTTONUP:
+		areaMouseEvent(s, 2, true, wParam, lParam)
+		return 0
+	case _WM_RBUTTONDOWN:
+		areaMouseEvent(s, 3, false, wParam, lParam)
+		return 0
+	case _WM_RBUTTONUP:
+		areaMouseEvent(s, 3, true, wParam, lParam)
+		return 0
+	case _WM_XBUTTONDOWN:
+		which := uint((wParam >> 16) & 0xFFFF) + 3		// values start at 1; we want them to start at 4
+		areaMouseEvent(s, which, false, wParam, lParam)
+		return _LRESULT(_TRUE)		// XBUTTON messages are different!
+	case _WM_XBUTTONUP:
+		which := uint((wParam >> 16) & 0xFFFF) + 3
+		areaMouseEvent(s, which, true, wParam, lParam)
+		return _LRESULT(_TRUE)
+	case _WM_KEYDOWN:
+		areaKeyEvent(s, false, wParam, lParam)
+		return 0
+	case _WM_KEYUP:
+		areaKeyEvent(s, true, wParam, lParam)
+		return 0
+	// Alt+[anything] and F10 send these instead
+	case _WM_SYSKEYDOWN:
+		handled := areaKeyEvent(s, false, wParam, lParam)
+		if handled {
+			return 0
+		}
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	case _WM_SYSKEYUP:
+		handled := areaKeyEvent(s, true, wParam, lParam)
+		if handled {
+			return 0
+		}
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	case msgSetAreaSize:
+		s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
+		s.areaheight = int(lParam)
+		adjustAreaScrollbars(s)
+		repaintArea(s)					// this calls for an update
+		return 0
+	default:
+		return defWindowProc(hwnd, uMsg, wParam, lParam)
+	}
+	panic(fmt.Sprintf("areaWndProc message %d did not return: internal bug in ui library", uMsg))
 }
 
-func registerAreaWndClass(s *sysData) (newClassName string, err error) {
-	areaWndClassNumLock.Lock()
-	newClassName = fmt.Sprintf(areaWndClassFormat, areaWndClassNum)
-	areaWndClassNum++
-	areaWndClassNumLock.Unlock()
-
+func registerAreaWndClass() (err error) {
 	wc := &_WNDCLASS{
 		style:			_CS_HREDRAW | _CS_VREDRAW,		// no CS_DBLCLKS because do that manually
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(newClassName))),
-		lpfnWndProc:		syscall.NewCallback(areaWndProc(s)),
+		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(areaWndClass))),
+		lpfnWndProc:		syscall.NewCallback(areaWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,
 		hCursor:			cursor,
 		hbrBackground:	_HBRUSH(_NULL),		// no brush; we handle WM_ERASEBKGND
 	}
-
-	ret := make(chan uiret)
-	defer close(ret)
-	uitask <- &uimsg{
-		call:		_registerClass,
-		p:		[]uintptr{uintptr(unsafe.Pointer(wc))},
-		ret:		ret,
+	r1, _, err := _registerClass.Call(uintptr(unsafe.Pointer(wc)))
+	if r1 == 0 {		// failure
+		return err
 	}
-	r := <-ret
-	if r.ret == 0 {		// failure
-		return "", r.err
-	}
-	return newClassName, nil
+	return nil
 }
 
 type _BITMAPINFO struct {
