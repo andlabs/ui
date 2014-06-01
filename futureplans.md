@@ -75,7 +75,8 @@ far off:
 - tab stops
 	- http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx
 	- related: if an Area is the only control, it may or may not ge tkeyboard focus; it doesn't on Windows XP, for instance
-- rename Stack to Box?
+- using the name Stack means we'll need to figure out what to call what are effectively tabless notebooks (probably that)
+	- I won't rename Stack to Box because Box means a lot of different things (for example, in GTK+ it's Stack, but in Cocoa it's groupbox)
 - maybe change multiple selection lists to checkbox lists?
 	- windows HIG refernece: http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx - conflicting, confusing info
 	- gtk+ HIG reference: https://developer.gnome.org/hig-book/3.4/controls-lists.html.en
