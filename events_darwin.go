@@ -67,7 +67,6 @@ var keycodeExtKeys = map[uintptr]ExtKey{
 	0x41:	NDot,
 	0x43:	NMultiply,
 	0x45:	NAdd,
-//	0x47:	kVK_ANSI_KeypadClear,
 	0x4B:	NDivide,
 	0x4C:	NEnter,
 	0x4E:	NSubtract,
