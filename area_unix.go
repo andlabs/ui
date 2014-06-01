@@ -214,7 +214,7 @@ func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEven
 var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)
 
 // we want switching away from the control to reset the double-click counter, like with WM_ACTIVATE on Windows
-// according to tristan in irc.gimp.net/#gtk+, doing this on enter-notify-event and leave-notify-event is correct (and this seems to be true; I have issues verifying the double-click behavior [TODO] but the events DO get sent on program changes with alt-tab so)
+// according to tristan in irc.gimp.net/#gtk+, doing this on enter-notify-event and leave-notify-event is correct (and it seems to be true in my own tests; plus the events DO get sent when switching programs with the keyboard (just pointing that out))
 // differentiating between enter-notify-event and leave-notify-event is unimportant
 
 //export our_area_enterleave_notify_event_callback
