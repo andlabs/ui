@@ -96,14 +96,14 @@ func gtk_window_get_size(window *C.GtkWidget) (int, int) {
 var gtkLayoutCSS = []byte(`GtkLayout {
 	background-color: transparent;
 }
-`)
+` + "\000")
 
 func makeTransparent(layout *C.GtkWidget) {
 	var err *C.GError = nil
 
 	provider := C.gtk_css_provider_new()
 	added := C.gtk_css_provider_load_from_data(provider,
-		(*C.gchar)(unsafe.Pointer(&gtkLayoutCSS[0])), C.gssize(len(gtkLayoutCSS)), &err)
+		(*C.gchar)(unsafe.Pointer(&gtkLayoutCSS[0])), -1, &err)
 	if added == C.FALSE {
 		message := fromgstr(err.message)
 		panic(fmt.Errorf("error loading transparent background CSS for GtkLayout: %s", message))
