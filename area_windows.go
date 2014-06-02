@@ -496,7 +496,7 @@ func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LP
 	}
 }
 
-func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) bool {
+func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) {
 	var ke KeyEvent
 
 	scancode := byte((lparam >> 16) & 0xFF)
@@ -516,15 +516,14 @@ func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) bool {
 		ke.Key = xke.Key
 		ke.ExtKey = xke.ExtKey
 	} else if ke.Modifiers == 0 {
-		// no key, extkey, or modifiers; do nothing but mark not handled
-		return false
+		// no key, extkey, or modifiers; do nothing
+		return
 	}
 	ke.Up = up
-	handled, repaint := s.handler.Key(ke)
+	repaint := s.handler.Key(ke)
 	if repaint {
 		repaintArea(s)
 	}
-	return handled
 }
 
 var extkeys = map[_WPARAM]ExtKey{
@@ -669,18 +668,12 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 	case _WM_KEYUP:
 		areaKeyEvent(s, true, wParam, lParam)
 		return 0
-	// Alt+[anything] and F10 send these instead
+	// Alt+[anything] and F10 send these instead and require us to return to DefWindowProc() so global keystrokes such as Alt+Tab can be processed
 	case _WM_SYSKEYDOWN:
-		handled := areaKeyEvent(s, false, wParam, lParam)
-		if handled {
-			return 0
-		}
+		areaKeyEvent(s, false, wParam, lParam)
 		return defWindowProc(hwnd, uMsg, wParam, lParam)
 	case _WM_SYSKEYUP:
-		handled := areaKeyEvent(s, true, wParam, lParam)
-		if handled {
-			return 0
-		}
+		areaKeyEvent(s, true, wParam, lParam)
 		return defWindowProc(hwnd, uMsg, wParam, lParam)
 	case msgSetAreaSize:
 		s.areawidth = int(wParam)		// see setAreaSize() in sysdata_windows.go
