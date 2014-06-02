@@ -132,42 +132,41 @@ func areaView_mouseUp(self C.id, e C.id) {
 	areaMouseEvent(self, e, true, true)
 }
 
-func sendKeyEvent(self C.id, e C.id, ke KeyEvent) bool {
+func sendKeyEvent(self C.id, ke KeyEvent) {
 	s := getSysData(self)
-	handled, repaint := s.handler.Key(ke)
+	repaint := s.handler.Key(ke)
 	if repaint {
 		C.display(self)
 	}
-	return handled
 }
 
-func areaKeyEvent(self C.id, e C.id, up bool) bool {
+func areaKeyEvent(self C.id, e C.id, up bool) {
 	var ke KeyEvent
 
 	keyCode := uintptr(C.keyCode(e))
 	ke, ok := fromKeycode(keyCode)
 	if !ok {
 		// no such key; modifiers by themselves are handled by -[self flagsChanged:]
-		return false
+		return
 	}
 	// either ke.Key or ke.ExtKey will be set at this point
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = up
-	return sendKeyEvent(self, e, ke)
+	sendKeyEvent(self, ke)
 }
 
 //export areaView_keyDown
-func areaView_keyDown(self C.id, e C.id) C.BOOL {
-	return toBOOL(areaKeyEvent(self, e, false))
+func areaView_keyDown(self C.id, e C.id) {
+	areaKeyEvent(self, e, false)
 }
 
 //export areaView_keyUp
-func areaView_keyUp(self C.id, e C.id) C.BOOL {
-	return toBOOL(areaKeyEvent(self, e, true))
+func areaView_keyUp(self C.id, e C.id) {
+	areaKeyEvent(self, e, true)
 }
 
 //export areaView_flagsChanged
-func areaView_flagsChanged(self C.id, e C.id) C.BOOL {
+func areaView_flagsChanged(self C.id, e C.id) {
 	var ke KeyEvent
 
 	// Mac OS X sends this event on both key up and key down.
@@ -175,12 +174,12 @@ func areaView_flagsChanged(self C.id, e C.id) C.BOOL {
 	keyCode := uintptr(C.keyCode(e))
 	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
 	if !ok {		// unknown modifier; ignore
-		return C.NO
+		return
 	}
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
 	ke.Modifier = mod
 	// don't include the modifier in ke.Modifiers
 	ke.Modifiers &^= mod
-	return toBOOL(sendKeyEvent(self, e, ke))
+	sendKeyEvent(self, ke)
 }

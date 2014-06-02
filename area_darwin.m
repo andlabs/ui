@@ -74,31 +74,24 @@ extern NSRect dummyRect;
 	[self retrack];
 }
 
-#define mouseEvent(m, f) \
+#define event(m, f) \
 	- (void)m:(NSEvent *)e \
 	{ \
 		f(self, e); \
 	}
-mouseEvent(mouseMoved, areaView_mouseMoved_mouseDragged)
-mouseEvent(mouseDragged, areaView_mouseMoved_mouseDragged)
-mouseEvent(rightMouseDragged, areaView_mouseMoved_mouseDragged)
-mouseEvent(otherMouseDragged, areaView_mouseMoved_mouseDragged)
-mouseEvent(mouseDown, areaView_mouseDown)
-mouseEvent(rightMouseDown, areaView_mouseDown)
-mouseEvent(otherMouseDown, areaView_mouseDown)
-mouseEvent(mouseUp, areaView_mouseUp)
-mouseEvent(rightMouseUp, areaView_mouseUp)
-mouseEvent(otherMouseUp, areaView_mouseUp)
-
-#define keyEvent(m, f) \
-	- (void)m:(NSEvent *)e \
-	{ \
-		if (f(self, e) == NO) \
-			[super m:e]; \
-	}
-keyEvent(keyDown, areaView_keyDown)
-keyEvent(keyUp, areaView_keyUp)
-keyEvent(flagsChanged, areaView_flagsChanged)
+event(mouseMoved, areaView_mouseMoved_mouseDragged)
+event(mouseDragged, areaView_mouseMoved_mouseDragged)
+event(rightMouseDragged, areaView_mouseMoved_mouseDragged)
+event(otherMouseDragged, areaView_mouseMoved_mouseDragged)
+event(mouseDown, areaView_mouseDown)
+event(rightMouseDown, areaView_mouseDown)
+event(otherMouseDown, areaView_mouseDown)
+event(mouseUp, areaView_mouseUp)
+event(rightMouseUp, areaView_mouseUp)
+event(otherMouseUp, areaView_mouseUp)
+event(keyDown, areaView_keyDown)
+event(keyUp, areaView_keyUp)
+event(flagsChanged, areaView_flagsChanged)
 
 @end
 
