@@ -8,6 +8,7 @@ import (
 
 // A Label is a static line of text used to mark other controls.
 // Label text is drawn on a single line; text that does not fit is truncated.
+// TODO vertical alignment
 type Label struct {
 	lock		sync.Mutex
 	created	bool

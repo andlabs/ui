@@ -217,6 +217,12 @@ func gtk_label_new() *C.GtkWidget {
 	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE)			// turn off line wrap
 	// don't call gtk_label_set_line_wrap_mode(); there's no "wrap none" value there anyway
 	C.gtk_label_set_ellipsize(togtklabel(label), C.PANGO_ELLIPSIZE_NONE)		// turn off ellipsizing; this + line wrapping above will guarantee cutoff as documented
+	// there's a function gtk_label_set_justify() that indicates GTK_JUSTIFY_LEFT is the default
+	// but this actually is NOT the control justification, just the multi-line justification
+	// so we need to do THIS instead
+	// this will also valign to the top
+	// thanks to mclasen in irc.gimp.net/#gtk+
+	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0)
 	return label
 	// TODO left-justify?
 }
