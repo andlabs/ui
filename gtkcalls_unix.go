@@ -224,7 +224,6 @@ func gtk_label_new() *C.GtkWidget {
 	// thanks to mclasen in irc.gimp.net/#gtk+
 	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0)
 	return label
-	// TODO left-justify?
 }
 
 func gtk_label_set_text(widget *C.GtkWidget, text string) {
