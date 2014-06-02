@@ -44,7 +44,7 @@ func markkey(dest *image.RGBA, keypt image.Point, m Modifiers) {
 	draw.Draw(dest, xr, xi, image.ZP, draw.Over)
 }
 
-func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
+func (a *keyboardArea) Key(e KeyEvent) (repaint bool) {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
@@ -68,9 +68,9 @@ func (a *keyboardArea) Key(e KeyEvent) (handled bool, repaint bool) {
 			markkey(a.kbd, modpoints[Super], m &^ Super)
 		}
 	default:
-		return false, false
+		return false
 	}
-	return true, true
+	return true
 }
 
 var doKeyboard = flag.Bool("kb", false, "run keyboard test (overrides -areabounds)")

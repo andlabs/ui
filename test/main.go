@@ -164,9 +164,9 @@ func (a *areaHandler) Mouse(e MouseEvent) bool {
 	fmt.Printf("%#v\n", e)
 	return false
 }
-func (a *areaHandler) Key(e KeyEvent) (bool, bool) {
+func (a *areaHandler) Key(e KeyEvent) bool {
 	fmt.Printf("%#v %q\n", e, e.Key)
-	return false, false
+	return false
 }
 
 var doArea = flag.Bool("area", false, "run area test instead (overrides -kb and -areabounds)")
