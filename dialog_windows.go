@@ -21,6 +21,7 @@ func _msgBox(primarytext string, secondarytext string, uType uint32) (result int
 	if secondarytext != "" {
 		text += "\n\n" + secondarytext
 	}
+	uType |= _MB_TASKMODAL		// make modal to every window in the program (they're all windows of the uitask, which is a single thread)
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{

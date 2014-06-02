@@ -49,6 +49,7 @@ const _LF_FACESIZE = 32
 const _MA_ACTIVATE = 1
 const _MB_ICONERROR = 16
 const _MB_OK = 0
+const _MB_TASKMODAL = 8192
 const _MK_LBUTTON = 1
 const _MK_MBUTTON = 16
 const _MK_RBUTTON = 2
