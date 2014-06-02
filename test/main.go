@@ -201,7 +201,8 @@ func areaTest() {
 	sizeStack.SetStretchy(0)
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
-	sizeStack = NewHorizontalStack(sizeStack, Space(), Space())
+	modaltest := NewButton("Modal")
+	sizeStack = NewHorizontalStack(sizeStack, Space(), modaltest)
 	sizeStack.SetStretchy(0)
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
@@ -225,6 +226,8 @@ func areaTest() {
 			height, err := strconv.Atoi(heightbox.Text())
 			if err != nil { println(err); continue }
 			a.SetSize(width, height)
+		case <-modaltest.Clicked:
+			MsgBox("Modal Test", "")
 		}
 	}
 }
