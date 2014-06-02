@@ -60,14 +60,15 @@ type AreaHandler interface {
 	// You are allowed to do nothing in this handler (to ignore mouse events).
 	// See MouseEvent for details.
 	// If repaint is true, the Area is marked as needing to be redrawn.
+	// After handling the mouse event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global mouse events this way).
 	Mouse(e MouseEvent) (repaint bool)
 
 	// Key is called when the Area receives a keyboard event.
-	// You are allowed to do nothing except return false for handled in this handler (to ignore keyboard events).
-	// Do not do nothing but return true for handled; this may have unintended consequences.
+	// You are allowed to do nothing in this handler (to ignore keyboard events).
 	// See KeyEvent for details.
 	// If repaint is true, the Area is marked as needing to be redrawn.
-	Key(e KeyEvent) (handled bool, repaint bool)
+	// After handling the key event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global key events, such as Alt-Tab this way).
+	Key(e KeyEvent) (repaint bool)
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
@@ -129,24 +130,8 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 // names chosen for keys here are based on their names
 // on US English QWERTY keyboards; see Key for details.
 // 
-// When you are finished processing the incoming event,
-// return whether or not you did something in response
-// to the given keystroke as the handled return of your
-// AreaHandler's Key() implementation. If you send false,
-// you indicate that you did not handle the keypress, and that
-// the system should handle it instead. (Some systems will stop
-// processing the keyboard event at all if you return true
-// unconditionally, which may result in unwanted behavior like
-// global task-switching keystrokes not being processed.)
-// 
-// Note that even given the above, some systems might intercept
-// some keystrokes (like Alt-F4 on various Unix systems) before
-// Area will ever see them (and the Area might get an incorrect
-// KeyEvent in this case, but this is not guaranteed); be wary.
-// 
 // If a key is pressed that is not supported by Key, ExtKey,
-// or Modifiers, no KeyEvent will be produced, and package
-// ui will act as if false was returned for handled.
+// or Modifiers, no KeyEvent will be produced.
 type KeyEvent struct {
 	// Key is a byte representing a character pressed
 	// in the typewriter section of the keyboard.
