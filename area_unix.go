@@ -262,17 +262,6 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 
 //export our_area_key_press_event_callback
 func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
-/*
-	fmt.Printf("PRESS %#v\n", e)
-	fmt.Printf("this (%d/GDK_KEY_%s):\n", e.keyval,
-		C.GoString((*C.char)(unsafe.Pointer(
-			C.gdk_keyval_name(e.keyval)))))
-	pk(e.keyval, e.window)
-	fmt.Printf("%d/GDK_KEY_A:\n", C.GDK_KEY_A)
-	pk(C.GDK_KEY_A, e.window)
-	fmt.Printf("%d/GDK_KEY_a:\n", C.GDK_KEY_a)
-	pk(C.GDK_KEY_a, e.window)
-*/
 	doKeyEvent(widget, event, data, false)
 	return continueEventChain
 }
