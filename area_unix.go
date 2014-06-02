@@ -157,6 +157,9 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	}
 }
 
+// convenience name to make our intent clear
+const continueEventChain C.gboolean = C.FALSE
+
 //export our_area_button_press_event_callback
 func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	// clicking doesn't automatically transfer keyboard focus; we must do so manually (thanks tristan in irc.gimp.net/#gtk+)
@@ -172,7 +175,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 
 	if e._type != C.GDK_BUTTON_PRESS {
 		// ignore GDK's generated double-clicks and beyond; we handled those ourselves below
-		return C.FALSE		// TODO really false?
+		return continueEventChain
 	}
 	s := (*sysData)(unsafe.Pointer(data))
 	// e.time is unsigned and in milliseconds
@@ -185,7 +188,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 		int(maxDistance), int(maxDistance))
 
 	finishMouseEvent(widget, data, me, me.Down, e.x, e.y, e.state, e.window)
-	return C.FALSE			// TODO really false?
+	return continueEventChain
 }
 
 var area_button_press_event_callback = C.GCallback(C.our_area_button_press_event_callback)
@@ -198,7 +201,7 @@ func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEve
 		Up:		uint(e.button),
 	}
 	finishMouseEvent(widget, data, me, me.Up, e.x, e.y, e.state, e.window)
-	return C.FALSE			// TODO really false?
+	return continueEventChain
 }
 
 var area_button_release_event_callback = C.GCallback(C.our_area_button_release_event_callback)
@@ -208,7 +211,7 @@ func our_area_motion_notify_event_callback(widget *C.GtkWidget, event *C.GdkEven
 	e := (*C.GdkEventMotion)(unsafe.Pointer(event))
 	me := MouseEvent{}
 	finishMouseEvent(widget, data, me, 0, e.x, e.y, e.state, e.window)
-	return C.FALSE			// TODO really false?
+	return continueEventChain
 }
 
 var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_event_callback)
@@ -221,13 +224,13 @@ var area_motion_notify_event_callback = C.GCallback(C.our_area_motion_notify_eve
 func our_area_enterleave_notify_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	s := (*sysData)(unsafe.Pointer(data))
 	s.clickCounter.reset()
-	return C.FALSE		// TODO really false?
+	return continueEventChain
 }
 
 var area_enterleave_notify_event_callback = C.GCallback(C.our_area_enterleave_notify_event_callback)
 
 // shared code for doing a key event
-func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) bool {
+func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) {
 	var ke KeyEvent
 
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
@@ -248,15 +251,13 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 		ke.Key = xke.Key
 		ke.ExtKey = xke.ExtKey
 	} else {		// no match
-		// TODO really stop here? [or should we handle modifiers?]
-		return false		// pretend unhandled
+		return
 	}
 	ke.Up = up
-	handled, repaint := s.handler.Key(ke)
+	repaint := s.handler.Key(ke)
 	if repaint {
 		C.gtk_widget_queue_draw(widget)
 	}
-	return handled
 }
 
 //export our_area_key_press_event_callback
@@ -272,18 +273,16 @@ func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, d
 	fmt.Printf("%d/GDK_KEY_a:\n", C.GDK_KEY_a)
 	pk(C.GDK_KEY_a, e.window)
 */
-	ret := doKeyEvent(widget, event, data, false)
-	_ = ret
-	return C.FALSE			// TODO really false? should probably return !ret (since true indicates stop processing)
+	doKeyEvent(widget, event, data, false)
+	return continueEventChain
 }
 
 var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callback)
 
 //export our_area_key_release_event_callback
 func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
-	ret := doKeyEvent(widget, event, data, true)
-	_ = ret
-	return C.FALSE			// TODO really false? should probably return !ret (since true indicates stop processing)
+	doKeyEvent(widget, event, data, true)
+	return continueEventChain
 }
 
 var area_key_release_event_callback = C.GCallback(C.our_area_key_release_event_callback)
