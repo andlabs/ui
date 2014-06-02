@@ -11,28 +11,16 @@ import (
 )
 
 // #include "gtk_unix.h"
-// /* TODO this doesn't need to be in C; it is because an earlier version did it wrong and depended on a function (g_object_set()) that took ..., which cgo doesn't like... but is it safe to embed \0 in a Go string? */
-// static inline GError *gtkProgressBarAllowArbitraryResize()
-// {
-// 	/* min-horizontal-bar-width is a style property; we do it through CSS */
-// 	/* thanks tristan in irc.gimp.net/#gtk+ */
-// 	static gchar style[] =
-// 		"* {\n"
-// 		"	-GtkProgressBar-min-horizontal-bar-width: 1;\n"
-// 		"}\n";
-// 	GtkCssProvider *provider;
-// 	GError *err = NULL;
-// 
-// 	provider = gtk_css_provider_new();
-// 	if (gtk_css_provider_load_from_data(provider, style, -1, &err) == FALSE)
-// 		return err;
-// 	/* GDK (at least as far back as GTK+ 3.4, but officially documented as of 3.10) merges all screens into one big one, so we don't need to worry about multimonitor */
-// 	/* thanks to baedert and mclasen in irc.gimp.net/#gtk+ */
-// 	gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
-// 		(GtkStyleProvider *) provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
-// 	return NULL;
-// }
 import "C"
+
+var gtkStyles = []byte(
+	// this first one is for ProgressBar so we can arbitrarily resize it
+	// min-horizontal-bar-width is a style property; we do it through CSS
+	// thanks tristan in irc.gimp.net/#gtk+
+	`* {
+	-GtkProgressBar-min-horizontal-bar-width: 1;
+}` +
+	"\000")
 
 func gtk_init() error {
 	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
@@ -43,12 +31,18 @@ func gtk_init() error {
 	if result == C.FALSE {
 		return fmt.Errorf("error actually initilaizing GTK+: %s", fromgstr(err.message))
 	}
-	// otherwise progress bars can't be resized smaller than some predetermined size
-	err = C.gtkProgressBarAllowArbitraryResize()
-	if err != nil {
-		defer C.g_free(C.gpointer(unsafe.Pointer(err)))
-		return fmt.Errorf("error allowing ProgressBar to be arbitrarily resized: %s", fromgstr(err.message))
+
+	// now apply our custom program-global styles
+	provider := C.gtk_css_provider_new();
+	if C.gtk_css_provider_load_from_data(provider, (*C.gchar)(unsafe.Pointer(&gtkStyles[0])), -1, &err) == C.FALSE {
+		return fmt.Errorf("error applying package ui's custom program-global styles to GTK+: %v", fromgstr(err.message))
 	}
+	// GDK (at least as far back as GTK+ 3.4, but officially documented as of 3.10) merges all screens into one big one, so we don't need to worry about multimonitor
+	// thanks to baedert and mclasen in irc.gimp.net/#gtk+
+	C.gtk_style_context_add_provider_for_screen(C.gdk_screen_get_default(),
+		(*C.GtkStyleProvider)(unsafe.Pointer(provider)),
+		C.GTK_STYLE_PROVIDER_PRIORITY_USER)
+
 	return nil
 }
 
