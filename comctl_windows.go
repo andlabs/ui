@@ -56,7 +56,7 @@ func forceCommonControls6() (err error) {
 
 	actctx.cbSize = uint32(unsafe.Sizeof(actctx))
 	// TODO set ACTCTX_FLAG_SET_PROCESS_DEFAULT? I can't find a reference to figure out what this means
-	actctx.lpSource = syscall.StringToUTF16Ptr(filename)
+	actctx.lpSource = toUTF16(filename)
 
 	r1, _, err := _createActCtx.Call(uintptr(unsafe.Pointer(&actctx)))
 	// don't negConst() INVALID_HANDLE_VALUE; windowsconstgen was given a pointer by windows.h, and pointers are unsigned, so converting it back to signed doesn't work
