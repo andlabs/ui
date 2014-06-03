@@ -10,6 +10,9 @@ package ui
 // It is not safe to call ui.Go() in a goroutine. It must be called directly from main().
 //
 // This model is undesirable, but Cocoa limitations require it.
+// 
+// Go does not process the command line for flags (that is, it does not call flag.Parse()), nor does package ui add any of the underlying toolkit's supported command-line flags.
+// If you must, and if the toolkit also has environment variable equivalents to these flags (for instance, GTK+), use those instead.
 func Go(main func()) error {
 	return ui(main)
 }

@@ -35,7 +35,7 @@ func gtk_init() error {
 	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
 
 	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
-	// TODO allow GTK+ standard command-line argument processing?
+	// don't worry about GTK+'s command-line arguments; they're also available as environment variables (thanks mclasen in irc.gimp.net/#gtk+)
 	result := C.gtk_init_with_args(nil, nil, nil, nil, nil, &err)
 	if result == C.FALSE {
 		return fmt.Errorf("error actually initilaizing GTK+: %s", fromgstr(err.message))
