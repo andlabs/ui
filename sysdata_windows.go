@@ -111,7 +111,7 @@ var classTypes = [nctypes]*classData{
 		doNotLoadFont:	true,
 	},
 	c_area:			&classData{
-		name:			toUTF16(areaWndClass),
+		name:			areaWndClass,
 		style:			areastyle,
 		xstyle:			areaxstyle,
 		storeSysData:		true,

@@ -14,8 +14,8 @@ const (
 	areaxstyle = 0 | controlxstyle
 )
 
-const (
-	areaWndClass = "gouiarea"
+var (
+	areaWndClass = toUTF16("gouiarea")
 )
 
 func getScrollPos(hwnd _HWND) (xpos int32, ypos int32) {
@@ -690,7 +690,7 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 func registerAreaWndClass() (err error) {
 	wc := &_WNDCLASS{
 		style:			_CS_HREDRAW | _CS_VREDRAW,		// no CS_DBLCLKS because do that manually
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(areaWndClass))),
+		lpszClassName:	utf16ToArg(areaWndClass),
 		lpfnWndProc:		syscall.NewCallback(areaWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,
