@@ -578,7 +578,7 @@ func init() {
 }
 
 var modonlykeys = map[_WPARAM]Modifiers{
-	// TODO except for Super, are the separate left/right necessary?
+	// even if the separate left/right aren't necessary, have them here anyway, just to be safe
 	_VK_CONTROL:	Ctrl,
 	_VK_LCONTROL:	Ctrl,
 	_VK_RCONTROL:	Ctrl,
