@@ -5,8 +5,6 @@ package ui
 import (
 	"fmt"
 	"os"
-	"syscall"
-	"unsafe"
 )
 
 // TODO change what the default window titles are?
@@ -22,14 +20,16 @@ func _msgBox(primarytext string, secondarytext string, uType uint32) (result int
 		text += "\n\n" + secondarytext
 	}
 	uType |= _MB_TASKMODAL		// make modal to every window in the program (they're all windows of the uitask, which is a single thread)
+	ptext := toUTF16(text)
+	ptitle := toUTF16(os.Args[0])
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
 		call:		_messageBox,
 		p:		[]uintptr{
 			uintptr(_NULL),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(text))),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(os.Args[0]))),
+			utf16ToArg(ptext),
+			utf16ToArg(ptitle),
 			uintptr(uType),
 		},
 		ret:		ret,
