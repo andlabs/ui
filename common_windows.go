@@ -35,10 +35,6 @@ func (w _WPARAM) HIWORD() uint16 {
 	return uint16((w >> 16) & 0xFFFF)
 }
 
-func _LPARAMFromString(str string) _LPARAM {
-	return _LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(str)))
-}
-
 func (l _LPARAM) X() int32 {
 	// according to windowsx.h
 	loword := uint16(l & 0xFFFF)
@@ -72,7 +68,7 @@ func negConst(c int) uintptr {
 }
 
 // the next two are convenience wrappers
-// the intention is not to say utf16ToArg(toUTF16(s)) - even though it appears to work fine, that's just because the garbage collector is slow; if we store this globally then things will break
+// the intention is not to say utf16ToArg(toUTF16(s)) - even though it appears to work fine, that's just because the garbage collector scheduling makes it run long after we're finished; if we store these uintptrs globally instead, then things will break
 // instead, call them separately - s := toUTF16(str); winapifunc.Call(utf16ToArg(s))
 
 func toUTF16(s string) *uint16 {
