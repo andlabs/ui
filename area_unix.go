@@ -121,7 +121,7 @@ func makeModifiers(state C.guint) (m Modifiers) {
 func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb uint, x C.gdouble, y C.gdouble, state C.guint, gdkwindow *C.GdkWindow) {
 	var areawidth, areaheight C.gint
 
-	// on GTK+, mouse buttons 4-7 are for scrolling; if we got here, that's a mistake (and see the TODOs on return values below)
+	// on GTK+, mouse buttons 4-7 are for scrolling; if we got here, that's a mistake
 	if mb >= 4 && mb <= 7 {
 		return
 	}
