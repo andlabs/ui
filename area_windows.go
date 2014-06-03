@@ -421,7 +421,7 @@ var (
 
 func getModifiers() (m Modifiers) {
 	down := func(x uintptr) bool {
-		// TODO this might not be related to the actual message; GLFW does it
+		// GetKeyState() gets the key state at the time of the message, so this is what we want
 		r1, _, _ := _getKeyState.Call(x)
 		return (r1 & 0x80) != 0
 	}
