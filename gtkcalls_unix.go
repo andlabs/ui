@@ -1,5 +1,5 @@
 // +build !windows,!darwin,!plan9
-// TODO is there a way to simplify the above? :/
+// this is manual but it really seems like the only way to do it for now; TODO file a feature request for a 'unix' or 'posix' build metatag?
 
 // 16 february 2014
 
