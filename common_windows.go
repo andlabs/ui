@@ -71,6 +71,18 @@ func negConst(c int) uintptr {
 	return uintptr(c)
 }
 
+// the next two are convenience wrappers
+// the intention is not to say utf16ToArg(toUTF16(s)) - even though it appears to work fine, that's just because the garbage collector is slow; if we store this globally then things will break
+// instead, call them separately - s := toUTF16(str); winapifunc.Call(utf16ToArg(s))
+
+func toUTF16(s string) *uint16 {
+	return syscall.StringToUTF16Ptr(s)
+}
+
+func utf16ToArg(s *uint16) uintptr {
+	return uintptr(unsafe.Pointer(s))
+}
+
 var (
 	_adjustWindowRectEx = user32.NewProc("AdjustWindowRectEx")
 	_createWindowEx = user32.NewProc("CreateWindowExW")
