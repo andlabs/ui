@@ -13,7 +13,6 @@ super ultra important things:
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
 - the windows build appears to be unstable:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
-	- 32-bit: it works, but if I save the class name converted to UTF-16 beforehand, wine indicates that the class name is replaced with the window title, so something there is wrong...
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	TODO re-evaluate; I think I fixed them all ages ago now
 - GTK+: stderr is flooded with
