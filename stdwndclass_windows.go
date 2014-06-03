@@ -8,8 +8,8 @@ import (
 	"unsafe"
 )
 
-const (
-	stdWndClass = "gouiwnd"
+var (
+	stdWndClass = toUTF16("gouiwnd")
 )
 
 var (
@@ -139,7 +139,7 @@ var (
 
 func registerStdWndClass() (err error) {
 	wc := &_WNDCLASS{
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(stdWndClass))),
+		lpszClassName:	utf16ToArg(stdWndClass),
 		lpfnWndProc:		syscall.NewCallback(stdWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,

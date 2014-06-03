@@ -44,7 +44,7 @@ const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
-		name:			toUTF16(stdWndClass),
+		name:			stdWndClass,
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
 		storeSysData:		true,
