@@ -10,7 +10,6 @@ import (
 
 // #include "gtk_unix.h"
 // /* because cgo seems to choke on ... */
-// /* TODO does NULL parent make the box application-global? docs are unclear */
 // GtkWidget *gtkNewMsgBox(GtkMessageType type, GtkButtonsType buttons, char *title, char *text)
 // {
 // 	GtkWidget *k;
