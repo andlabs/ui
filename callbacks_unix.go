@@ -42,10 +42,8 @@ func our_window_configure_event_callback(widget *C.GtkWidget, event *C.GdkEvent,
 		// top-left is (0,0) so no need for winheight
 		s.doResize(0, 0, width, height, 0)
 	}
-	// TODO redraw the window and all children?
-	// returning false indicates that we continue processing events related to configure-event; if we choose not to, then after some controls have been added, the layout fails completely and everything stays in the starting position/size
-	// TODO make sure this is the case
-	return C.FALSE
+	// no need to manually redraw everything: since we use gtk_widget_set_size_request(), that queues both resize and redraw for us (thanks Company in irc.gimp.net/#gtk+)
+	return C.FALSE		// continue the event chain
 }
 
 var window_configure_event_callback = C.GCallback(C.our_window_configure_event_callback)
