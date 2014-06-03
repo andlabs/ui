@@ -24,7 +24,7 @@ type sysData struct {
 }
 
 type classData struct {
-	name			string
+	name			*uint16
 	style				uint32
 	xstyle			uint32
 	altStyle			uint32
@@ -44,24 +44,24 @@ const controlxstyle = 0
 
 var classTypes = [nctypes]*classData{
 	c_window:		&classData{
-		name:			stdWndClass,
+		name:			toUTF16(stdWndClass),
 		style:			_WS_OVERLAPPEDWINDOW,
 		xstyle:			0,
 		storeSysData:		true,
 		doNotLoadFont:	true,
 	},
 	c_button:			&classData{
-		name:			"BUTTON",
+		name:			toUTF16("BUTTON"),
 		style:			_BS_PUSHBUTTON | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_checkbox:		&classData{
-		name:			"BUTTON",
+		name:			toUTF16("BUTTON"),
 		style:			_BS_AUTOCHECKBOX | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_combobox:		&classData{
-		name:			"COMBOBOX",
+		name:			toUTF16("COMBOBOX"),
 		style:			_CBS_DROPDOWNLIST | _WS_VSCROLL | controlstyle,
 		xstyle:			0 | controlxstyle,
 		altStyle:			_CBS_DROPDOWN | _CBS_AUTOHSCROLL | _WS_VSCROLL | controlstyle,
@@ -74,7 +74,7 @@ var classTypes = [nctypes]*classData{
 		lenMsg:			_CB_GETCOUNT,
 	},
 	c_lineedit:		&classData{
-		name:			"EDIT",
+		name:			toUTF16("EDIT"),
 		// WS_EX_CLIENTEDGE without WS_BORDER will apply visual styles
 		// thanks to MindChild in irc.efnet.net/#winprog
 		style:			_ES_AUTOHSCROLL | controlstyle,
@@ -82,14 +82,14 @@ var classTypes = [nctypes]*classData{
 		altStyle:			_ES_PASSWORD | _ES_AUTOHSCROLL | controlstyle,
 	},
 	c_label:			&classData{
-		name:			"STATIC",
+		name:			toUTF16("STATIC"),
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// TODO find out if the default behavior is not to ellipsize
 		style:			_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_listbox:			&classData{
-		name:			"LISTBOX",
+		name:			toUTF16("LISTBOX"),
 		// we don't use LBS_STANDARD because it sorts (and has WS_BORDER; see above)
 		// LBS_NOINTEGRALHEIGHT gives us exactly the size we want
 		// LBS_MULTISEL sounds like it does what we want but it actually doesn't; instead, it toggles item selection regardless of modifier state, which doesn't work like anything else (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775149%28v=vs.85%29.aspx and http://msdn.microsoft.com/en-us/library/windows/desktop/aa511485.aspx)
@@ -105,13 +105,13 @@ var classTypes = [nctypes]*classData{
 		lenMsg:			_LB_GETCOUNT,
 	},
 	c_progressbar:		&classData{
-		name:			x_PROGRESS_CLASS,
+		name:			toUTF16(x_PROGRESS_CLASS),
 		style:			_PBS_SMOOTH | controlstyle,
 		xstyle:			0 | controlxstyle,
 		doNotLoadFont:	true,
 	},
 	c_area:			&classData{
-		name:			areaWndClass,
+		name:			toUTF16(areaWndClass),
 		style:			areastyle,
 		xstyle:			areaxstyle,
 		storeSysData:		true,
@@ -136,6 +136,11 @@ func (s *sysData) delChild(id _HMENU) {
 	delete(s.children, id)
 }
 
+var (
+	_blankString = toUTF16("")
+	blankString = utf16ToArg(_blankString)
+)
+
 func (s *sysData) make(window *sysData) (err error) {
 	ret := make(chan uiret)
 	defer close(ret)
@@ -158,8 +163,8 @@ func (s *sysData) make(window *sysData) (err error) {
 		call:		_createWindowEx,	
 		p:		[]uintptr{
 			uintptr(ct.xstyle),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(ct.name))),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(""))),		// we set the window text later
+			utf16ToArg(ct.name),
+			blankString,		// we set the window text later
 			style,
 			negConst(_CW_USEDEFAULT),
 			negConst(_CW_USEDEFAULT),
@@ -261,13 +266,14 @@ func (s *sysData) hide() {
 }
 
 func (s *sysData) setText(text string) {
+	ptext := toUTF16(text)
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
 		call:		_setWindowText,
 		p:		[]uintptr{
 			uintptr(s.hwnd),
-			uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(text))),
+			utf16ToArg(ptext),
 		},
 		ret:		ret,
 	}
@@ -341,6 +347,7 @@ func (s *sysData) text() (str string) {
 }
 
 func (s *sysData) append(what string) {
+	pwhat := toUTF16(what)
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -349,7 +356,7 @@ func (s *sysData) append(what string) {
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].appendMsg),
 			uintptr(_WPARAM(0)),
-			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
+			utf16ToLPARAM(pwhat),
 		},
 		ret:		ret,
 	}
@@ -362,6 +369,7 @@ func (s *sysData) append(what string) {
 }
 
 func (s *sysData) insertBefore(what string, index int) {
+	pwhat := toUTF16(what)
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
@@ -370,7 +378,7 @@ func (s *sysData) insertBefore(what string, index int) {
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].insertBeforeMsg),
 			uintptr(_WPARAM(index)),
-			uintptr(_LPARAM(unsafe.Pointer(syscall.StringToUTF16Ptr(what)))),
+			utf16ToLPARAM(pwhat),
 		},
 		ret:		ret,
 	}

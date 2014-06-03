@@ -83,6 +83,10 @@ func utf16ToArg(s *uint16) uintptr {
 	return uintptr(unsafe.Pointer(s))
 }
 
+func utf16ToLPARAM(s *uint16) uintptr {
+	return uintptr(_LPARAM(unsafe.Pointer(s)))
+}
+
 var (
 	_adjustWindowRectEx = user32.NewProc("AdjustWindowRectEx")
 	_createWindowEx = user32.NewProc("CreateWindowExW")
