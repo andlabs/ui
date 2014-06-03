@@ -55,7 +55,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 
 	s := (*sysData)(unsafe.Pointer(data))
 	// thanks to desrt in irc.gimp.net/#gtk+
-	// TODO these are in "user coordinates"; is that what we want?
+	// these are in user coordinates, which match what coordinates we want by default, even out of a draw event handler (thanks johncc3, mclasen, and Company in irc.gimp.net/#gtk+)
 	C.cairo_clip_extents(cr, &x0, &y0, &x1, &y1)
 	// we do not need to clear the cliprect; GtkDrawingArea did it for us beforehand
 	cliprect := image.Rect(int(x0), int(y0), int(x1), int(y1))
@@ -84,7 +84,6 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 		0, 0)			// origin of the surface
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
-	// TODO see above about user coordinates; if we do change to device coordinates the following line will need to change or be added to
 	C.cairo_rectangle(cr, x0, y0, x1, y1)		// breaking the nrom here since we have the coordinates as a C double already
 	C.cairo_fill(cr)
 	C.cairo_surface_destroy(surface)		// free surface
