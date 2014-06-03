@@ -123,13 +123,14 @@ func msgloop() {
 	}
 }
 
-const (
-	msghandlerclass = "gomsghandler"
+var (
+	msghandlerclass = toUTF16("gomsghandler")
+	msghandlertitle = toUTF16("ui package message window")
 )
 
 func makeMessageHandler() (hwnd _HWND, err error) {
 	wc := &_WNDCLASS{
-		lpszClassName:	uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(msghandlerclass))),
+		lpszClassName:	utf16ToArg(msghandlerclass),
 		lpfnWndProc:		syscall.NewCallback(messageHandlerWndProc),
 		hInstance:		hInstance,
 		hIcon:			icon,
@@ -144,8 +145,8 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 
 	r1, _, err = _createWindowEx.Call(
 		uintptr(0),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(msghandlerclass))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr("ui package message window"))),
+		utf16ToArg(msghandlerclass),
+		utf16ToArg(msghandlertitle),
 		uintptr(0),
 		negConst(_CW_USEDEFAULT),
 		negConst(_CW_USEDEFAULT),
