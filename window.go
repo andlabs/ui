@@ -20,9 +20,10 @@ type Window struct {
 	initTitle		string
 	initWidth		int
 	initHeight		int
+	shownOnce	bool
 }
 
-// NewWindow creates a new window with the given title and size. The window is not constructed at the OS level until a call to Open().
+// NewWindow allocates a new Window with the given title and size. The window is not created until a call to Create() or Open().
 func NewWindow(title string, width int, height int) *Window {
 	return &Window{
 		sysData:		mksysdata(c_window),
@@ -62,40 +63,38 @@ func (w *Window) SetSize(width int, height int) (err error) {
 	return nil
 }
 
-// Open opens the window, setting its control to the given control, and then shows the window. This can only be called once per window, and finalizes all initialization of the control.
-// TODO rename?
-func (w *Window) Open(control Control) (err error) {
+// Open creates the Window with Create and then shows the Window with Show. As with Create, you cannot call Open more than once per window.
+func (w *Window) Open(control Control) {
+	w.Create(control)
+	w.Show()
+}
+
+// Create creates the Window, setting its control to the given control. It does not show the window. This can only be called once per window, and finalizes all initialization of the control.
+func (w *Window) Create(control Control) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
 	if w.created {
-		// TODO return an error instead?
 		panic("window already open")
 	}
 	w.sysData.event = w.Closing
-	err = w.sysData.make(nil)
+	err := w.sysData.make(nil)
 	if err != nil {
-		return fmt.Errorf("error opening window: %v", err)
+		panic(fmt.Errorf("error opening window: %v", err))
 	}
 	if control != nil {
 		w.sysData.resize = control.setRect
 		err = control.make(w.sysData)
 		if err != nil {
-			return fmt.Errorf("error adding window's control: %v", err)
+			panic(fmt.Errorf("error adding window's control: %v", err))
 		}
 	}
 	err = w.sysData.setWindowSize(w.initWidth, w.initHeight)
 	if err != nil {
-		return fmt.Errorf("error setting window size (in Window.Open()): %v", err)
+		panic(fmt.Errorf("error setting window size (in Window.Open()): %v", err))
 	}
 	w.sysData.setText(w.initTitle)
-	// TODO separate showing?
-	err = w.sysData.firstShow()
-	if err != nil {
-		return fmt.Errorf("error showing window (in Window.Open()): %v", err)
-	}
 	w.created = true
-	return nil
 }
 
 // Show shows the window.
@@ -103,6 +102,14 @@ func (w *Window) Show() {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
+	if !w.shownOnce {
+		w.shownOnce = true
+		err := w.sysData.firstShow()
+		if err != nil {
+			panic(fmt.Errorf("error showing window for the first time: %v", err))
+		}
+		return
+	}
 	w.sysData.show()
 }
 

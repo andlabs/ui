@@ -23,10 +23,7 @@ Here is a simple, complete program that asks the user for their name and greets 
 		ui.AppQuit = w.Closing		// treat quitting the application like closing the main window
 		nameField := ui.NewLineEdit("Enter Your Name Here")
 		button := ui.NewButton("Click Here For a Greeting")
-		err := w.Open(ui.NewVerticalStack(nameField, button))
-		if err != nil {
-			panic(err)
-		}
+		w.Open(ui.NewVerticalStack(nameField, button))
 
 		for {
 			select {

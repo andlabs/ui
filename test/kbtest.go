@@ -78,8 +78,7 @@ func kbTest() {
 	wid, ht, ah := mkkbArea()
 	a := NewArea(wid, ht, ah)
 	w := NewWindow("Hi", wid, ht)
-	err := w.Open(a)
-	if err != nil { panic(err) }
+	w.Open(a)
 	<-w.Closing
 }
 

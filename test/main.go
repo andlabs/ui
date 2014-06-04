@@ -15,15 +15,16 @@ import (
 )
 
 var prefsizetest = flag.Bool("prefsize", false, "")
-func listboxPreferredSizeTest() (*Window, error) {
+func listboxPreferredSizeTest() *Window {
 	lb := NewListbox("xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
 	w := NewWindow("Listbox Preferred Size Test", 300, 300)
-	return w, w.Open(g)
+	w.Open(g)
+	return w
 }
 
 var gridtest = flag.Bool("grid", false, "")
-func gridWindow() (*Window, error) {
+func gridWindow() *Window {
 	w := NewWindow("Grid Test", 400, 400)
 	b00 := NewButton("0,0")
 	b01 := NewButton("0,1")
@@ -39,7 +40,8 @@ func gridWindow() (*Window, error) {
 		l20, c21, l22)
 	g.SetFilling(1, 2)
 	g.SetStretchy(1, 1)
-	return w, w.Open(g)
+	w.Open(g)
+	return w
 }
 
 var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on deleting too far (debug lack of panic on 32-bit)")
@@ -210,10 +212,7 @@ func areaTest() {
 		timedisp,
 		sizeStack)
 	layout.SetStretchy(0)
-	err = w.Open(layout)
-	if err != nil {
-		panic(err)
-	}
+	w.Open(layout)
 	for {
 		select {
 		case <-w.Closing:
@@ -257,10 +256,7 @@ func areaboundsTest() {
 	r.Min.Y++
 	draw.Draw(img, r, u(128, 0, 128), image.ZP, draw.Over)
 	w := NewWindow("Area Bounds Test", 320, 240)
-	err := w.Open(a)
-	if err != nil {
-		panic(err)
-	}
+	w.Open(a)
 	<-w.Closing
 }
 
@@ -324,21 +320,12 @@ func myMain() {
 	if *invalidBefore {
 		invalidTest(cb1, lb1, s, NewGrid(1, Space()))
 	}
-	err := w.Open(s)
-	if err != nil {
-		panic(err)
-	}
+	w.Open(s)
 	if *gridtest {
-		_, err := gridWindow()
-		if err != nil {
-			panic(err)
-		}
+		gridWindow()
 	}
 	if *prefsizetest {
-		_, err = listboxPreferredSizeTest()
-		if err != nil {
-			panic(err)
-		}
+		listboxPreferredSizeTest()
 	}
 
 	ticker := time.Tick(time.Second)
