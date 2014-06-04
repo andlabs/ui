@@ -62,7 +62,7 @@ type _RECT struct {
 }
 
 // Go doesn't allow negative constants to be forced into unsigned types at compile-time; this will do it at runtime.
-// TODO make sure sign extension works fine here (check Go's rules and ABI sign extension rules)
+// This is safe; see http://stackoverflow.com/questions/24022225/what-are-the-sign-extension-rules-for-calling-windows-api-functions-stdcall-t
 func negConst(c int) uintptr {
 	return uintptr(c)
 }

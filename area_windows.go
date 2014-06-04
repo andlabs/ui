@@ -462,12 +462,10 @@ func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LP
 	} else if button != 0 {			// don't run the click counter if the mouse was only moved
 		me.Down = button
 		// this returns a LONG, which is int32, but we don't need to worry about the signedness because for the same bit widths and two's complement arithmetic, s1-s2 == u1-u2 if bits(s1)==bits(s2) and bits(u1)==bits(u2) (and Windows requires two's complement: http://blogs.msdn.com/b/oldnewthing/archive/2005/05/27/422551.aspx)
-		// TODO actually will this break with negative numbers on systems where uintptr is 64 bits wide? only if the ABI doesn't sign-extend...
+		// signedness isn't much of an issue for these calls anyway because http://stackoverflow.com/questions/24022225/what-are-the-sign-extension-rules-for-calling-windows-api-functions-stdcall-t and that we're only using unsigned values (think back to how you (didn't) handle signedness in assembly language) AND because of the above AND because the statistics below (time interval and width/height) really don't make sense if negative
 		time, _, _ := _getMessageTime.Call()
-		// this returns a UINT, which is uint32; don't worry about the smaller size as sign extension won't matter here (see the above)
 		maxTime, _, _ := _getDoubleClickTime.Call()
 		// ignore zero returns and errors; MSDN says zero will be returned on error but that GetLastError() is meaningless
-		// these should be unsigned... TODO MSDN doesn't say and GetSystemMetrics() returns an int (int32)
 		xdist, _, _ := _getSystemMetrics.Call(_SM_CXDOUBLECLK)
 		ydist, _, _ := _getSystemMetrics.Call(_SM_CYDOUBLECLK)
 		me.Count = s.clickCounter.click(button, me.Pos.X, me.Pos.Y,
