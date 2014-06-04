@@ -64,7 +64,7 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 		s := (*sysData)(unsafe.Pointer(saddr))
 		s.hwnd = hwnd
 	}
-	// TODO is this correct for WM_NCCREATE? I think the above link does it but I'm not entirely sure...
+	// then regardless of what happens, defer to DefWindowProc() (if you trace the execution of the above links, this is what they do)
 	return defWindowProc(hwnd, uMsg, wParam, lParam)
 }
 
