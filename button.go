@@ -9,7 +9,7 @@ import (
 // A Button represents a clickable button with some text.
 type Button struct {
 	// Clicked gets a message when the button is clicked.
-	// You cannot change it once the Window containing the Button has been opened.
+	// You cannot change it once the Window containing the Button has been created.
 	// If you do not respond to this signal, nothing will happen.
 	Clicked	chan struct{}
 

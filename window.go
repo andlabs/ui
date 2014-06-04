@@ -10,7 +10,7 @@ import (
 // Window represents an on-screen window.
 type Window struct {
 	// Closing gets a message when the user clicks the window's close button.
-	// You cannot change it once the Window has been opened.
+	// You cannot change it once the Window has been created.
 	// If you do not respond to this signal, nothing will happen; regardless of whether you handle the signal or not, the window will not be closed.
 	Closing		chan struct{}
 
