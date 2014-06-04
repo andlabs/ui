@@ -55,7 +55,8 @@ func forceCommonControls6() (err error) {
 	}
 
 	actctx.cbSize = uint32(unsafe.Sizeof(actctx))
-	// TODO set ACTCTX_FLAG_SET_PROCESS_DEFAULT? I can't find a reference to figure out what this means
+	// make this context the process default, just to be safe
+	actctx.dwFlags = _ACTCTX_FLAG_SET_PROCESS_DEFAULT
 	actctx.lpSource = toUTF16(filename)
 
 	r1, _, err := _createActCtx.Call(uintptr(unsafe.Pointer(&actctx)))

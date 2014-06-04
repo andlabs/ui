@@ -35,6 +35,7 @@ general list:
 	- provide automated About, Preferneces, and Quit that place these in the correct location
 		- Quit should pulse AppQuit
 - will probably want to bring back Event() as NewEvent() should that facility be necesary for menus, etc.
+- figure out why at least the 64-bit build hates being run under Application Verifier
 
 issues of policy:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
