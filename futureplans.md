@@ -41,6 +41,7 @@ issues of policy:
 	- are Checkboxes and Comboboxes too small?
 - consolidate scroll view code in GTK+? it's not a lot, but it's rather divergent...
 - I wonder if I should be reporting if keyboard events ar ehandled or not (force them to be marked as not handled so Windows can work properly or something else??? need to see how Mac OS X does it (calling `super`?))
+- left/right modifiers are presently undefined; see if we can make them not
 
 problem points:
 - because the main event loop is not called if initialization fails, it is presently impossible for MsgBoxError() to work if UI initialization fails; this basically means we cannot allow initializiation to fail on Mac OS X if we want to be able to report UI init failures to the user with one (which would be desirable, maybe (would violate Windows HIG?))
