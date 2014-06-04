@@ -28,7 +28,7 @@ func NewProgressBar() *ProgressBar {
 // If percent is in the range [0,100], the progressBar shows that much percent complete.
 // If percent is -1, the ProgressBar is made indeterminate.
 // Otherwise, SetProgress panics.
-// TODO what happens if you repeatedly call SetProgress(-1)?
+// Calling SetProgress(-1) repeatedly will neither leave indeterminate mode nor stop any animation involved in indeterminate mode indefinitely; any other side-effect of doing so is implementation-defined.
 func (p *ProgressBar) SetProgress(percent int) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
