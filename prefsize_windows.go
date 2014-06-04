@@ -47,7 +47,7 @@ var stdDlgSizes = [nctypes]dlgunits{
 		// see also: http://blogs.msdn.com/b/oldnewthing/archive/2006/03/10/548537.aspx
 		// note that the Microsoft guidelines pages don't take the list size into account
 		longest:	true,
-		height:	12,		// from the Visual Studio 2012 offline docs's Win32 layout page; the online page above says 14
+		height:	12,		// from http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx; the page linked above says 14
 	},
 	c_lineedit:	dlgunits{
 		longest:	true,
