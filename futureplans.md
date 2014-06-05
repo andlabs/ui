@@ -55,6 +55,7 @@ twists of fate:
 - need a way to get ideal size for all controls on Windows, not just push buttons (Microsoft...)
 - Cocoa controls have padding around them; this padding is **opaque** so we can't just use the control's cell rect and some shuffling around
 - when programs that use this package are running, you will not be able to shut down/log off/etc. on Mac OS X because they indiscriminately respond to requests to close with "no" so as to give Go and our program which does not strictly play by NSApplication's rules a fair shot at proper cleanup; this is really a consequence of the way applications work in Cocoa...
+- non-editable comboboxes in GTK+ have extra stuff to make them wider than other controls and thus cut off slightly but noticeably if the window is too small despite having the correct width
 
 style changes:
 - make specific wording in documentation consistent (make/create, etc.)

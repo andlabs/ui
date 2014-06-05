@@ -13,15 +13,18 @@ import (
 // #include "gtk_unix.h"
 // static inline void gtkSetComboBoxArbitrarilyResizeable(GtkWidget *w)
 // {
-// 	// we can safely assume that the cell renderers of a GtkComboBoxText are a single GtkCellRendererText by default
-// 	// thanks mclasen and tristan in irc.gimp.net/#gtk+
+// 	/* we can safely assume that the cell renderers of a GtkComboBoxText are a single GtkCellRendererText by default */
+// 	/* thanks mclasen and tristan in irc.gimp.net/#gtk+ */
 // 	GtkCellLayout *cbox = (GtkCellLayout *) w;
 // 	GList *renderer;
 // 
 // 	renderer = gtk_cell_layout_get_cells(cbox);
-// 	g_object_set(renderer->data, "width-chars", 0, NULL);
+// 	g_object_set(renderer->data,
+// 		"ellipsize-set", TRUE,		/* with no ellipsizing or wrapping, the combobox won't resize */
+// 		"ellipsize", PANGO_ELLIPSIZE_END,
+// 		"width-chars", 0,
+// 		NULL);
 // 	g_list_free(renderer);
-// gtk_combo_box_set_popup_fixed_width(cbox, FALSE);
 // }
 import "C"
 
@@ -169,9 +172,9 @@ fmt.Printf("%p %s\n", c, fromgstr(C.g_type_name(t)))
 
 func gtk_combo_box_text_new_with_entry() *C.GtkWidget {
 	w := C.gtk_combo_box_text_new_with_entry()
-	C.gtkSetComboBoxArbitrarilyResizeable(w)
 	// we need to set the entry's width-chars to achieve the arbitrary sizing we want
 	// thanks to tristan in irc.gimp.net/#gtk+
+	// in my tests, this is sufficient to get the effect we want; setting the cell renderer isn't necessary like it is with an entry-less combobox
 	entry := togtkentry(C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(w))))
 	C.gtk_entry_set_width_chars(entry, 0)
 	return w

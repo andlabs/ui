@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-// A Combobox is a drop-down list of items, of which at most one can be selected at any given time. You may optionally make the combobox editable to allow custom items. Initially, no item will be selected (and no text entered in an editable Combobox's entry field).
+// A Combobox is a drop-down list of items, of which at most one can be selected at any given time. You may optionally make the combobox editable to allow custom items. Initially, no item will be selected (and no text entered in an editable Combobox's entry field). What happens to the text shown in a Combobox if its width is too small is implementation-defined.
 type Combobox struct {
 	lock		sync.Mutex
 	created	bool
