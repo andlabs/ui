@@ -48,6 +48,7 @@ const _LB_GETTEXTLEN = 394
 const _LB_INSERTSTRING = 385
 const _LF_FACESIZE = 32
 const _MA_ACTIVATE = 1
+const _MB_APPLMODAL = 0
 const _MB_ICONERROR = 16
 const _MB_OK = 0
 const _MB_TASKMODAL = 8192
