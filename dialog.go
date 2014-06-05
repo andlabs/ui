@@ -19,7 +19,7 @@ import (
 // If parent is not nil, the message box is modal to that Window only.
 // Attempts to interact with parent will be blocked, but all other Windows in the application can still be used properly.
 // The message box will also stay above parent.
-// As with parent == nil, resizing is implementation-defined, but will work properly if allowed. [TODO verify]
+// As with parent == nil, resizing is implementation-defined, but will work properly if allowed.
 // If parent has not yet been created, MsgBox() panics. [TODO check what happens if hidden]
 func MsgBox(parent *Window, primaryText string, secondaryText string) {
 	// TODO implement panic after resolving above TODO
