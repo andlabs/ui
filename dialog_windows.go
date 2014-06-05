@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-// TODO change what the default window titles are?
-
 var (
 	_messageBox = user32.NewProc("MessageBoxW")
 )
