@@ -22,11 +22,13 @@ import (
 // As with parent == nil, resizing is implementation-defined, but will work properly if allowed. [TODO verify]
 // If parent has not yet been created, MsgBox() panics. [TODO check what happens if hidden]
 func MsgBox(parent *Window, primaryText string, secondaryText string) {
+	// TODO implement panic after resolving above TODO
 	msgBox(parent, primaryText, secondaryText)
 }
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
 // Otherwise, it behaves like MsgBox.
 func MsgBoxError(parent *Window, primaryText string, secondaryText string) {
+	// TODO impelment panic after resolving above TODO
 	msgBoxError(parent, primaryText, secondaryText)
 }
