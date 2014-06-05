@@ -11,6 +11,18 @@ import (
 )
 
 // #include "gtk_unix.h"
+// static inline void gtkSetComboBoxArbitrarilyResizeable(GtkWidget *w)
+// {
+// 	// we can safely assume that the cell renderers of a GtkComboBoxText are a single GtkCellRendererText by default
+// 	// thanks mclasen and tristan in irc.gimp.net/#gtk+
+// 	GtkCellLayout *cbox = (GtkCellLayout *) w;
+// 	GList *renderer;
+// 
+// 	renderer = gtk_cell_layout_get_cells(cbox);
+// 	g_object_set(renderer->data, "width-chars", 0, NULL);
+// 	g_list_free(renderer);
+// gtk_combo_box_set_popup_fixed_width(cbox, FALSE);
+// }
 import "C"
 
 var gtkStyles = []byte(
@@ -146,11 +158,23 @@ func gtk_toggle_button_get_active(widget *C.GtkWidget) bool {
 }
 
 func gtk_combo_box_text_new() *C.GtkWidget {
-	return C.gtk_combo_box_text_new()
+	w := C.gtk_combo_box_text_new()
+	C.gtkSetComboBoxArbitrarilyResizeable(w)
+c:=C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(w)))
+x:=(*C.GTypeInstance)(unsafe.Pointer(c))
+t:=x.g_class.g_type
+fmt.Printf("%p %s\n", c, fromgstr(C.g_type_name(t)))
+	return w
 }
 
 func gtk_combo_box_text_new_with_entry() *C.GtkWidget {
-	return C.gtk_combo_box_text_new_with_entry()
+	w := C.gtk_combo_box_text_new_with_entry()
+	C.gtkSetComboBoxArbitrarilyResizeable(w)
+	// we need to set the entry's width-chars to achieve the arbitrary sizing we want
+	// thanks to tristan in irc.gimp.net/#gtk+
+	entry := togtkentry(C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(w))))
+	C.gtk_entry_set_width_chars(entry, 0)
+	return w
 }
 
 func gtk_combo_box_text_get_active_text(widget *C.GtkWidget) string {
