@@ -49,7 +49,7 @@ var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on de
 func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 	x := func(what string ) {
 		if j := recover(); j == nil {
-			MsgBoxError("test", fmt.Sprintf("%s: no panic", what))
+			MsgBoxError(nil, "test", fmt.Sprintf("%s: no panic", what))
 			panic("invalid test fail")
 		} else {
 			println("got", j.(error).Error())
@@ -143,7 +143,7 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 			defer x("Area.SetSize() " + q.msg); a.SetSize(q.x, q.y); panic(nil)
 		}()
 	}
-	MsgBox("test", "all working as intended")
+	MsgBox(nil, "test", "all working as intended")
 }
 
 var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
@@ -226,7 +226,7 @@ func areaTest() {
 			if err != nil { println(err); continue }
 			a.SetSize(width, height)
 		case <-modaltest.Clicked:
-			MsgBox("Modal Test", "")
+			MsgBox(nil, "Modal Test", "")
 		}
 	}
 }
@@ -368,7 +368,7 @@ _=curtime
 			if c.Checked() {
 				f = MsgBoxError
 			}
-			f("List Info",
+			f(nil, "List Info",
 				fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
 				cb1.SelectedIndex(), cb1.Selection(), cb1.Len(),
 				cb2.SelectedIndex(), cb2.Selection(), cb2.Len(),
@@ -393,8 +393,8 @@ _=curtime
 		case <-invalidButton.Clicked:
 			invalidTest(cb1, lb1, nil, nil)
 		case <-bmsg.Clicked:
-			MsgBox("Title Only", "")
-			MsgBox("Title and Text", "Text and Title")
+			MsgBox(nil, "Title Only, no parent", "")
+			MsgBox(w, "Title and Text", "parent")
 		}
 	}
 	w.Hide()
