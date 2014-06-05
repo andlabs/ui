@@ -163,10 +163,6 @@ func gtk_toggle_button_get_active(widget *C.GtkWidget) bool {
 func gtk_combo_box_text_new() *C.GtkWidget {
 	w := C.gtk_combo_box_text_new()
 	C.gtkSetComboBoxArbitrarilyResizeable(w)
-c:=C.gtk_bin_get_child((*C.GtkBin)(unsafe.Pointer(w)))
-x:=(*C.GTypeInstance)(unsafe.Pointer(c))
-t:=x.g_class.g_type
-fmt.Printf("%p %s\n", c, fromgstr(C.g_type_name(t)))
 	return w
 }
 
