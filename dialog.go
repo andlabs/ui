@@ -20,15 +20,20 @@ import (
 // Attempts to interact with parent will be blocked, but all other Windows in the application can still be used properly.
 // The message box will also stay above parent.
 // As with parent == nil, resizing is implementation-defined, but will work properly if allowed.
-// If parent has not yet been created, MsgBox() panics. [TODO check what happens if hidden]
+// If parent has not yet been created, MsgBox() panics.
+// If parent has not been shown yet or is currently hidden, what MsgBox() does is implementation-defined.
 func MsgBox(parent *Window, primaryText string, secondaryText string) {
-	// TODO implement panic after resolving above TODO
+	if parent != nil && !parent.created {
+		panic("parent window passed to MsgBox() before it was created")
+	}
 	msgBox(parent, primaryText, secondaryText)
 }
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
 // Otherwise, it behaves like MsgBox.
 func MsgBoxError(parent *Window, primaryText string, secondaryText string) {
-	// TODO impelment panic after resolving above TODO
+	if parent != nil && !parent.created {
+		panic("parent window passed to MsgBoxError() before it was created")
+	}
 	msgBoxError(parent, primaryText, secondaryText)
 }
