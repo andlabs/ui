@@ -15,13 +15,6 @@ super ultra important things:
 	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 - david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
 	TODO re-evaluate; I think I fixed them all ages ago now
-- GTK+: stderr is flooded with
-```
-(test:17575): Gdk-CRITICAL **: gdk_device_ungrab: assertion 'GDK_IS_DEVICE (device)' failed
-
-(test:17575): Gtk-CRITICAL **: gtk_device_grab_remove: assertion 'GDK_IS_DEVICE (device)' failed
-```
-	figure out why
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
 	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
