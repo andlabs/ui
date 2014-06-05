@@ -84,6 +84,25 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			if wParam.HIWORD() == _BN_CLICKED {
 				ss.signal()
 			}
+		case c_checkbox:
+			// we opt into doing this ourselves because http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx
+			if wParam.HIWORD() == _BN_CLICKED {
+				state, _, _ := _sendMessage.Call(
+					uintptr(ss.hwnd),
+					uintptr(_BM_GETCHECK),
+					uintptr(0),
+					uintptr(0))
+				if state == _BST_CHECKED {
+					state = _BST_UNCHECKED
+				} else if state == _BST_UNCHECKED {
+					state = _BST_CHECKED
+				}
+				_sendMessage.Call(
+					uintptr(ss.hwnd),
+					uintptr(_BM_SETCHECK),
+					state,		// already uintptr
+					uintptr(0))
+			}
 		}
 		return 0
 	case _WM_GETMINMAXINFO:

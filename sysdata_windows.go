@@ -57,7 +57,8 @@ var classTypes = [nctypes]*classData{
 	},
 	c_checkbox:		&classData{
 		name:			toUTF16("BUTTON"),
-		style:			_BS_AUTOCHECKBOX | controlstyle,
+		// don't use BS_AUTOCHECKBOX because http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx
+		style:			_BS_CHECKBOX | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
 	c_combobox:		&classData{
