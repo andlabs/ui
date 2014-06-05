@@ -9,10 +9,15 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-func _msgBox(primarytext string, secondarytext string, style uintptr) {
+func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) {
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
+		var pwin C.id = nil
+
+		if parent != nil {
+			pwin = parent.sysData.id
+		}
 		primary := toNSString(primarytext)
 		secondary := C.id(nil)
 		if secondarytext != "" {
@@ -20,19 +25,19 @@ func _msgBox(primarytext string, secondarytext string, style uintptr) {
 		}
 		switch style {
 		case 0:		// normal
-			C.msgBox(primary, secondary)
+			C.msgBox(pwin, primary, secondary)
 		case 1:		// error
-			C.msgBoxError(primary, secondary)
+			C.msgBoxError(pwin, primary, secondary)
 		}
 		ret <- struct{}{}
 	}
 	<-ret
 }
 
-func msgBox(primarytext string, secondarytext string) {
-	_msgBox(primarytext, secondarytext, 0)
+func msgBox(parent *Window, primarytext string, secondarytext string) {
+	_msgBox(parent, primarytext, secondarytext, 0)
 }
 
-func msgBoxError(primarytext string, secondarytext string) {
-	_msgBox(primarytext, secondarytext, 1)
+func msgBoxError(parent *Window, primarytext string, secondarytext string) {
+	_msgBox(parent, primarytext, secondarytext, 1)
 }

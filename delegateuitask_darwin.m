@@ -9,6 +9,7 @@
 // see the hack below; we'll include everything first just in case some other headers get included below; if the hack ever gets resolved, we can use the ones below instead
 #import <Foundation/NSAutoreleasePool.h>
 #import <AppKit/NSEvent.h>
+#import <AppKit/NSAlert.h>
 
 // HACK.
 // Apple's header files are bugged: there's an enum that was introduced in 10.7 with new values added in 10.8, but instead of wrapping the whole enum in a version check, they wrap just the fields. This means that on 10.6 that enum will be empty, which is illegal.
@@ -33,6 +34,7 @@
 #import <AppKit/NSWindow.h>
 #import <Foundation/NSAutoreleasePool.h>
 #import <AppKit/NSEvent.h>
+#import <AppKit/NSAlert.h>
 
 extern NSRect dummyRect;
 
@@ -66,6 +68,10 @@ extern NSRect dummyRect;
 {
 	appDelegate_applicationShouldTerminate();
 	return NSTerminateCancel;
+}
+
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
 }
 
 @end
