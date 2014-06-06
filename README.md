@@ -13,7 +13,7 @@ Until then, here's the important things you need to know:
 	- Windows: Windows XP or newer
 	- Unix: this is trickier; I decided to settle on GTK+ 3.4 or newer as Ubuntu 12.04 LTS ships with it
 	- Mac OS X: Mac OS X 10.6 or newer
-- for the WIndows build, you won't need to provide a comctl32.dll version 6 manifest, as the package produces its own
+- for the Windows build, you won't need to provide a comctl32.dll version 6 manifest, as the package produces its own
 	- comctl32.dll version 6 *is* required for proper functioning!
 
 [andlabs/wakeup](https://github.com/andlabs/wakeup) is a repository that provides a sample application.
