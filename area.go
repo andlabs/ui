@@ -24,7 +24,7 @@ import (
 // Character processing methods differ across operating
 // systems; trying ot recreate these yourself is only going
 // to lead to trouble.
-// [Use TextArea instead, providing a TextAreaHandler.]
+// [FOR FUTURE PLANNING Use TextArea instead, providing a TextAreaHandler.]
 // 
 // To facilitate development and debugging, for the time being, Areas only work on GTK+.
 type Area struct {
