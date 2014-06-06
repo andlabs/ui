@@ -23,3 +23,5 @@ If you are feeling adventurous, running `./test.sh` (which accepts `go build` op
 Finally, please send documentation suggestions! I'm taking the documentation of this package very seriously because I don't want to make **anything** ambiguous. (Trust me, ambiguity in API documentation was a pain when writing this...)
 
 Thanks!
+
+(Note: I temporarily disabled Travis.ci; if I can figure out how to do good cross-compiles with it, then I can put it back.)
