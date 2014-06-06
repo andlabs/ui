@@ -129,6 +129,7 @@ const _VK_RWIN = 92
 const _VK_SHIFT = 16
 const _VK_SUBTRACT = 109
 const _VK_UP = 38
+const _WA_INACTIVE = 0
 const _WM_ACTIVATE = 6
 const _WM_APP = 32768
 const _WM_CLOSE = 16

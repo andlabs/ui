@@ -21,6 +21,7 @@ type sysData struct {
 	areawidth			int
 	areaheight		int
 	clickCounter		clickCounter
+	lastfocus			_HWND
 }
 
 type classData struct {

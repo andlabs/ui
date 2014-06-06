@@ -68,6 +68,43 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 	return defWindowProc(hwnd, uMsg, wParam, lParam)
 }
 
+var (
+	_getFocus = user32.NewProc("GetFocus")
+	_isChild = user32.NewProc("IsChild")
+	// _setFocus in area_windows.go
+)
+
+// this is needed to ensure focus is preserved when switching away from and back to our program
+// from http://blogs.msdn.com/b/oldnewthing/archive/2014/05/21/10527168.aspx
+func (s *sysData) handleFocus(wParam _WPARAM) {
+	// parameter splitting from Microsoft's windowsx.h
+	state := uint32(wParam.LOWORD())		// originally UINT
+	minimized := wParam.HIWORD() != 0
+
+	if minimized {		// don't do anything on minimize
+		return
+	}
+	if state == _WA_INACTIVE {				// focusing out
+		old, _, _ := _getFocus.Call()
+		if _HWND(old) != _HWND(_NULL) {		// if there is one
+			r1, _, _ := _isChild.Call(
+				uintptr(s.hwnd),
+				old)
+			if r1 != 0 {
+				s.lastfocus = _HWND(old)
+println("s",s.lastfocus)
+			}
+		}
+	} else {								// focusing in
+		if s.lastfocus != _HWND(_NULL) {		// if we have one
+			r1, _, err := _setFocus.Call(uintptr(s.lastfocus))
+			if _HWND(r1) == _HWND(_NULL) {
+				panic(fmt.Errorf("error setting focus to previously focused window on reactivating Window: %v", err))
+			}
+		}
+	}
+}
+
 func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	s := getSysData(hwnd)
 	if s == nil {		// not yet saved
@@ -105,6 +142,9 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			}
 		}
 		return 0
+//	case _WM_ACTIVATE:
+//		s.handleFocus(wParam)
+//		return 0
 	case _WM_GETMINMAXINFO:
 		mm := lParam.MINMAXINFO()
 		// ... minimum size
