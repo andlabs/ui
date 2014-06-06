@@ -92,15 +92,12 @@ func (s *sysData) handleFocus(wParam _WPARAM) {
 				old)
 			if r1 != 0 {
 				s.lastfocus = _HWND(old)
-println("s",s.lastfocus)
 			}
 		}
 	} else {								// focusing in
 		if s.lastfocus != _HWND(_NULL) {		// if we have one
-			r1, _, err := _setFocus.Call(uintptr(s.lastfocus))
-			if _HWND(r1) == _HWND(_NULL) {
-				panic(fmt.Errorf("error setting focus to previously focused window on reactivating Window: %v", err))
-			}
+			// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
+			_setFocus.Call(uintptr(s.lastfocus))
 		}
 	}
 }
@@ -142,9 +139,9 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			}
 		}
 		return 0
-//	case _WM_ACTIVATE:
-//		s.handleFocus(wParam)
-//		return 0
+	case _WM_ACTIVATE:
+		s.handleFocus(wParam)
+		return 0
 	case _WM_GETMINMAXINFO:
 		mm := lParam.MINMAXINFO()
 		// ... minimum size

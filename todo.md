@@ -30,10 +30,6 @@ super ultra important things:
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 	- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx
 	- related: make sure all keyboard checks are in the same order on all platforms
-- pressing global keycodes (including kwin's zoom in/out) when running the keyboard test in wine causes the Area to lose keyboard focus; this doesn't happen on the GTK+ version (fix the Windows version to behave like the GTK+ version)
-	- this also happens in real windows (press the windows key to open the start menu); there's something I'm not handling and I'm not sure what it is
-	- oh hey would you look at that http://blogs.msdn.com/b/oldnewthing/archive/2014/05/21/10527168.aspx how timely
-		- part 2 http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx
 - Message boxes that belong to agiven parent are still application-modal on all platforms except Mac OS X because the whole system waits... we'll need to use a channel for this, I guess :S
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
 

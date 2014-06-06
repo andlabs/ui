@@ -625,11 +625,9 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 		// this happens on every mouse click (apparently), so DON'T reset the click counter, otherwise it will always be reset (not an issue, as MSDN says WM_ACTIVATE is sent alongside WM_MOUSEACTIVATE when necessary)
 		// transfer keyboard focus to our Area on an activating click
 		// (see http://www.catch22.net/tuts/custom-controls)
-		r1, _, err := _setFocus.Call(uintptr(s.hwnd))
-		if r1 == 0 {		// failure
-			panic(fmt.Errorf("error giving Area keyboard focus: %v", err))
-			return _MA_ACTIVATE		// TODO eat the click?
-		}
+		// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
+		_setFocus.Call(uintptr(s.hwnd))
+//		return _MA_ACTIVATE		// TODO eat the click?
 		return defWindowProc(hwnd, uMsg, wParam, lParam)
 	case _WM_MOUSEMOVE:
 		areaMouseEvent(s, 0, false, wParam, lParam)
