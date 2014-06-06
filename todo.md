@@ -6,6 +6,7 @@ MAC OS X:
 - OS X: handle Insert/Help key change in a sane and deterministic way
 	- will need old and new Mac keyboards...
 - point out that Areas get keyboard focus automatically on click on Mac OS X
+- make sure Areas get keyboard focus when clicking outside the actual Area space on Mac OS X
 
 WINDOWS:
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
@@ -35,8 +36,6 @@ ALL PLATFORMS:
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
 	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
-- see update 18 March 2014 in old README
-- make sure Areas get keyboard focus when clicking outside the actual Area space on all platforms
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 	- TODO remember what this means
 - make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
