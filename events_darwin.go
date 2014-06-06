@@ -90,7 +90,7 @@ var keycodeExtKeys = map[uintptr]ExtKey{
 	0x67:	F11,
 	0x6D:	F10,
 	0x6F:	F12,
-//	0x72:	kVK_Help,
+	0x72:	Insert,		// listed as the Help key but it's in the same position on an Apple keyboard as the Insert key on a Windows keyboard; thanks to SeanieB from irc.badnik.net and Psy in irc.freenode.net/#macdev for confirming they have the same code
 	0x73:	Home,
 	0x74:	PageUp,
 	0x75:	Delete,

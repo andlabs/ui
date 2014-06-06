@@ -187,7 +187,7 @@ type KeyEvent struct {
 type ExtKey uintptr
 const (
 	Escape ExtKey = iota + 1
-	Insert
+	Insert		// equivalent to "Help" on Apple keyboards
 	Delete
 	Home
 	End
