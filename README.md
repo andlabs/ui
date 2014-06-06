@@ -16,7 +16,7 @@ Until then, here's the important things you need to know:
 - for the WIndows build, you won't need to provide a comctl32.dll version 6 manifest, as the package produces its own
 	- comctl32.dll version 6 *is* required for proper functioning!
 
-andlabs/wakeup is a repository that provides a sample application.
+[andlabs/wakeup](https://github.com/andlabs/wakeup) is a repository that provides a sample application.
 
 If you are feeling adventurous, running `./test.sh` (which accepts `go build` options) from within the package directory will build a test program which I use to make sure everything works. (I'm not sure how to do automated tests for a package like this, so `go test` will say no tests found for now; sorry.) If you are cross-compiling to Windows, you will need to have a very specific Go setup which allows multiple cross-compilation setups in a single installation; this requires [a CL which won't be in Go 1.3 but may appear in Go 1.4 if accepted](https://codereview.appspot.com/93580043) and both windows/386 and windows/amd64 set up for cgo. (This is because `./test.sh` on Windows targets invariably regenerates the zconstants_windows_*.go files; there is no option to turn it off lest I become complacent and use it myself.)
 
