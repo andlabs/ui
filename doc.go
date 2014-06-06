@@ -30,7 +30,7 @@ Here is a simple, complete program that asks the user for their name and greets 
 			case <-w.Closing:		// user tries to close the window or quit the program
 				return
 			case <-button.Clicked:	// user clicked the button
-				ui.MsgBox("Hello, " + nameField.Text() + "!", "")
+				ui.MsgBox(w, "Hello, " + nameField.Text() + "!", "")
 			}
 		}
 	}
