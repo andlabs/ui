@@ -79,6 +79,11 @@ var (
 
 // This function runs on uitask; call the functions directly.
 func (s *sysData) preferredSize() (width int, height int) {
+	// the preferred size of an Area is its size
+	if s.ctype == c_area {
+		return s.areawidth, s.areaheight
+	}
+
 	if msg := stdDlgSizes[s.ctype].getsize; msg != 0 {
 		var size _SIZE
 

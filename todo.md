@@ -28,11 +28,11 @@ UNIX:
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
+- make sure the preferred size of Area is its size
 
 ALL PLATFORMS:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
-	- same for Area, using the Area's size (this will be easier)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 	- TODO remember what this means

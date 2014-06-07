@@ -87,6 +87,7 @@ extern intptr_t listboxLen(id);
 extern struct xsize controlPrefSize(id);
 extern struct xsize listboxPrefSize(id);
 extern struct xsize pbarPrefSize(id);
+extern struct xsize areaPrefSize(id);
 
 /* sysdata_darwin.m */
 extern void addControl(id, id);

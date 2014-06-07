@@ -73,3 +73,17 @@ struct xsize pbarPrefSize(id control)
 	s.height = (intptr_t) r.size.height;
 	return s;
 }
+
+struct xsize areaPrefSize(id scrollview)
+{
+	NSView *c;
+	NSRect r;
+	struct xsize s;
+
+	c = areaInScrollView(toNSScrollView(scrollview));
+	// don't size to fit; the frame size is already the size we want
+	r = [c frame];
+	s.width = (intptr_t) r.size.width;
+	s.height = (intptr_t) r.size.height;
+	return s;
+}
