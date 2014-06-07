@@ -90,6 +90,7 @@ const _SW_SHOW = 5
 const _SW_SHOWDEFAULT = 10
 const _TRUE = 1
 const _VK_ADD = 107
+const _VK_CLEAR = 12
 const _VK_CONTROL = 17
 const _VK_DELETE = 46
 const _VK_DIVIDE = 111

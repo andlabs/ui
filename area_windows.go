@@ -499,10 +499,10 @@ func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) {
 
 	scancode := byte((lparam >> 16) & 0xFF)
 	ke.Modifiers = getModifiers()
-	if wparam == _VK_RETURN && (lparam & 0x01000000) != 0 {
-		// the above is special handling for numpad enter
-		// bit 24 of LPARAM (0x01000000) indicates right-hand keys
-		ke.ExtKey = NEnter
+	if extkey, ok := numpadextkeys[wparam]; (lparam & 0x01000000) == 0 && ok {
+		// the above is special handling for numpad keys to ignore the state of Num Lock and Shift; see http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx and https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
+		// bit 24 of LPARAM (0x01000000) indicates right-hand keys; in our case "right-hand keys" means the separate buttons, so 0 means numpad
+		ke.ExtKey = extkey
 	} else if extkey, ok := extkeys[wparam]; ok {
 		ke.ExtKey = extkey
 	} else if mod, ok := modonlykeys[wparam]; ok {
@@ -522,6 +522,22 @@ func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) {
 	if repaint {
 		repaintArea(s)
 	}
+}
+
+// all mappings except the VK_RETURN one come from GLFW - https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
+var numpadextkeys = map[_WPARAM]ExtKey{
+	_VK_HOME:	N7,
+	_VK_UP:		N8,
+	_VK_PRIOR:	N9,
+	_VK_LEFT:	N4,
+	_VK_CLEAR:	N5,
+	_VK_RIGHT:	N6,
+	_VK_END:		N1,
+	_VK_DOWN:	N2,
+	_VK_NEXT:	N3,
+	_VK_INSERT:	N0,
+	_VK_DELETE:	NDot,
+	_VK_RETURN:	NEnter,
 }
 
 var extkeys = map[_WPARAM]ExtKey{
