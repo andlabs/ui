@@ -30,9 +30,17 @@
 // because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
 NSRect dummyRect;
 
+// this can be called before our NSApp is created, so keep a pool
 id toNSString(char *str)
 {
-	return [NSString stringWithUTF8String:str];
+	NSAutoreleasePool *pool;
+	NSString *s;
+
+	pool = [NSAutoreleasePool new];
+	s = [NSString stringWithUTF8String:str];
+	[s retain];		// keep alive after releasing the pool
+	[pool release];
+	return s;
 }
 
 char *fromNSString(id str)
