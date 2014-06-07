@@ -28,7 +28,6 @@ UNIX:
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
-- make sure the preferred size of Area is its size
 
 ALL PLATFORMS:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)

@@ -18,6 +18,9 @@ type sysData struct {
 	container		*C.GtkWidget	// for moving
 	pulse		chan bool		// for sysData.progressPulse()
 	clickCounter	clickCounter	// for Areas
+	// we probably don't need to save these, but we'll do so for sysData.preferredSize() just in case
+	areawidth		int
+	areaheight	int
 }
 
 type classData struct {
@@ -358,6 +361,8 @@ func (s *sysData) setAreaSize(width int, height int) {
 	uitask <- func() {
 		c := gtkAreaGetControl(s.widget)
 		gtk_widget_set_size_request(c, width, height)
+		s.areawidth = width		// for sysData.preferredSize()
+		s.areaheight = height
 		ret <- struct{}{}
 	}
 	<-ret
