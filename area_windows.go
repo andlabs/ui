@@ -497,12 +497,17 @@ func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LP
 func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) {
 	var ke KeyEvent
 
+	// the numeric keypad keys when Num Lock is off are considered left-hand keys as the separate navigation buttons were added later
+	// the numeric keypad enter, however, is a right-hand key because it has the same virtual-key code as the typewriter enter
+	righthand := (lparam & 0x01000000) != 0
+
 	scancode := byte((lparam >> 16) & 0xFF)
 	ke.Modifiers = getModifiers()
-	if extkey, ok := numpadextkeys[wparam]; (lparam & 0x01000000) == 0 && ok {
+	if extkey, ok := numpadextkeys[wparam]; ok && !righthand {
 		// the above is special handling for numpad keys to ignore the state of Num Lock and Shift; see http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx and https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
-		// bit 24 of LPARAM (0x01000000) indicates right-hand keys; in our case "right-hand keys" means the separate buttons, so 0 means numpad
 		ke.ExtKey = extkey
+	} else if wparam == _VK_RETURN && righthand {
+		ke.ExtKey = NEnter
 	} else if extkey, ok := extkeys[wparam]; ok {
 		ke.ExtKey = extkey
 	} else if mod, ok := modonlykeys[wparam]; ok {
@@ -524,7 +529,7 @@ func areaKeyEvent(s *sysData, up bool, wparam _WPARAM, lparam _LPARAM) {
 	}
 }
 
-// all mappings except the VK_RETURN one come from GLFW - https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
+// all mappings come from GLFW - https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
 var numpadextkeys = map[_WPARAM]ExtKey{
 	_VK_HOME:	N7,
 	_VK_UP:		N8,
@@ -537,7 +542,6 @@ var numpadextkeys = map[_WPARAM]ExtKey{
 	_VK_NEXT:	N3,
 	_VK_INSERT:	N0,
 	_VK_DELETE:	NDot,
-	_VK_RETURN:	NEnter,
 }
 
 var extkeys = map[_WPARAM]ExtKey{

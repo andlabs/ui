@@ -17,6 +17,7 @@ WINDOWS:
 		- set progress to 100, indeterminate, inc - frozen indetemrinate animation
 		- need to see if this is a wine bug or not
 - check all uses of RECT.right/.bottom in Windows that don't have an accompanying -RECT.left/.top to make sure they're correct
+- when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
 
 UNIX:
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
@@ -26,12 +27,11 @@ UNIX:
 - resizing seems to be completely and totally broken in the Wayland backend
 	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
+- figure out why Page Up/Page Down does tab stops
 
 ALL PLATFORMS:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
 - make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
-- make sure keyboard events on numpad off on all platforms don't switch between controls
-	- TODO remember what this means
 - make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
 - Message boxes that belong to agiven parent are still application-modal on all platforms except Mac OS X because the whole system waits... we'll need to use a channel for this, I guess :S
