@@ -545,7 +545,7 @@ func (s *sysData) setIndeterminate() {
 	ret := make(chan uiret)
 	defer close(ret)
 	uitask <- &uimsg{
-		call:		_setWindowLong,
+		call:		_setWindowLongPtr,
 		p:		[]uintptr{
 			uintptr(s.hwnd),
 			negConst(_GWL_STYLE),
@@ -592,7 +592,7 @@ func (s *sysData) setProgress(percent int) {
 		}
 		<-ret
 		uitask <- &uimsg{
-			call:		_setWindowLong,
+			call:		_setWindowLongPtr,
 			p:		[]uintptr{
 				uintptr(s.hwnd),
 				negConst(_GWL_STYLE),

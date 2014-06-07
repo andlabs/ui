@@ -88,7 +88,6 @@ var (
 	_createWindowEx = user32.NewProc("CreateWindowExW")
 	_getClientRect = user32.NewProc("GetClientRect")
 	_moveWindow = user32.NewProc("MoveWindow")
-	_setWindowLong = user32.NewProc("SetWindowLongW")
 	_setWindowPos = user32.NewProc("SetWindowPos")
 	_setWindowText = user32.NewProc("SetWindowTextW")
 	_showWindow = user32.NewProc("ShowWindow")
