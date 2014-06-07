@@ -35,8 +35,7 @@ ALL PLATFORMS:
 - make sure keyboard events on numpad off on all platforms don't switch between controls
 	- TODO remember what this means
 - make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
+- Message boxes that belong to agiven parent are still application-modal on all platforms except Mac OS X because the whole system waits... we'll need to use a channel for this, I guess :S
 
 - on Windows, Shift+(num pad key) triggers the shifted key code when num lock is off; will need to reorder key code tests on all platforms to fix this
 	- http://blogs.msdn.com/b/oldnewthing/archive/2004/09/06/226045.aspx
-	- related: make sure all keyboard checks are in the same order on all platforms
-- Message boxes that belong to agiven parent are still application-modal on all platforms except Mac OS X because the whole system waits... we'll need to use a channel for this, I guess :S
