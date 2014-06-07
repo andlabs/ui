@@ -3,7 +3,6 @@ MAC OS X:
 	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
 - 10.6 also spits a bunch of NSNoAutoreleasePool() debug log messages even though I thoguht I had everything in an NSAutoreleasePool...
 - key up with the Command key held and our new modifiers code doesn't seem to happen?
-- point out that Areas get keyboard focus automatically on click on Mac OS X
 - make sure Areas get keyboard focus when clicking outside the actual Area space on Mac OS X
 
 WINDOWS:

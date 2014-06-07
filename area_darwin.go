@@ -124,6 +124,7 @@ func areaView_mouseMoved_mouseDragged(self C.id, e C.id) {
 
 //export areaView_mouseDown
 func areaView_mouseDown(self C.id, e C.id) {
+	// no need to manually set focus; Mac OS X has already done that for us by this point
 	areaMouseEvent(self, e, true, false)
 }
 
