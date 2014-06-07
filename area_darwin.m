@@ -56,6 +56,12 @@ extern NSRect dummyRect;
 	return YES;
 }
 
+// this will have the Area receive a click that switches to the Window it is in from another one
+- (BOOL)acceptsFirstMouse:(NSEvent *)e
+{
+	return YES;
+}
+
 - (void)retrack
 {
 	trackingArea = [[NSTrackingArea alloc]

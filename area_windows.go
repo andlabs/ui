@@ -643,8 +643,8 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 		// (see http://www.catch22.net/tuts/custom-controls)
 		// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
 		_setFocus.Call(uintptr(s.hwnd))
-//		return _MA_ACTIVATE		// TODO eat the click?
-		return defWindowProc(hwnd, uMsg, wParam, lParam)
+		// and don't eat the click, as we want to handle clicks that switch into Windows with Areas from other windows
+		return _MA_ACTIVATE
 	case _WM_MOUSEMOVE:
 		areaMouseEvent(s, 0, false, wParam, lParam)
 		return 0
