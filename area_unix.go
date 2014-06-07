@@ -159,6 +159,11 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 // convenience name to make our intent clear
 const continueEventChain C.gboolean = C.FALSE
 
+// checking for a mouse click that makes the program/window active is meaningless on GTK+: it's a property of the window manager/X11, and it's the WM that decides if the program should become active or not
+// however, one thing is certain: the click event will ALWAYS be sent (to the window that the X11 decides to send it to)
+// I assume the same is true for Wayland
+// thanks Chipzz in irc.gimp.net/#gtk+
+
 //export our_area_button_press_event_callback
 func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	// clicking doesn't automatically transfer keyboard focus; we must do so manually (thanks tristan in irc.gimp.net/#gtk+)
