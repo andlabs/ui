@@ -35,6 +35,7 @@
 #import <Foundation/NSAutoreleasePool.h>
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSAlert.h>
+#import <AppKit/NSHelpManager.h>
 
 extern NSRect dummyRect;
 
@@ -74,6 +75,13 @@ extern NSRect dummyRect;
 {
 }
 
+// see below
+// TODO is this the correct signature?
+- (void)helpbreaker:(NSNotification *)n
+{
+	[NSHelpManager setContextHelpModeActive:NO];
+}
+
 @end
 
 id makeAppDelegate(void)
@@ -94,6 +102,14 @@ BOOL initCocoa(id appDelegate)
 		return NO;
 	[NSApp activateIgnoringOtherApps:YES];		// TODO actually do C.NO here? Russ Cox does YES in his devdraw; the docs say the Finder does NO
 	[NSApp setDelegate:appDelegate];
+	// by default, Mac OS X intercepts Help key keyDown events
+	// we treat Help as Insert, so we don't want this behavior
+	// this will override it; see http://stackoverflow.com/a/4078542/3408572
+	// TODO this doesn't send keyDown:
+	[[NSNotificationCenter defaultCenter] addObserver:appDelegate
+		selector:@selector(helpbreaker:)
+		name:NSContextHelpModeDidActivateNotification
+		object:nil];
 	return YES;
 }
 
