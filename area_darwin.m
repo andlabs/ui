@@ -101,6 +101,13 @@ event(flagsChanged, areaView_flagsChanged)
 
 @end
 
+Class areaClass;
+
+void initAreaClass(void)
+{
+	areaClass = [areaView class];
+}
+
 id makeArea(void)
 {
 	return [[areaView alloc]

@@ -43,6 +43,8 @@ extern void giveScrollViewBezelBorder(id);
 extern id scrollViewContent(id);
 
 /* area_darwin.m */
+extern Class areaClass;
+extern void initAreaClass(void);
 extern id makeArea(void);
 extern void drawImage(void *, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);
 extern uintptr_t modifierFlags(id);
