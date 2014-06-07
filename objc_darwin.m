@@ -30,7 +30,7 @@
 // because the only way to make a new NSControl/NSView is with a frame (it gets overridden later)
 NSRect dummyRect;
 
-// this can be called before our NSApp is created, so keep a pool
+// this can be called before our NSApp is created, so keep a pool to keep 10.6 happy
 id toNSString(char *str)
 {
 	NSAutoreleasePool *pool;

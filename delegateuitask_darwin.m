@@ -126,6 +126,10 @@ id windowGetContentView(id window)
 
 BOOL initCocoa(id appDelegate)
 {
+	// on 10.6 the -[NSApplication setDelegate:] method complains if we don't have one
+	NSAutoreleasePool *pool;
+
+	pool = [NSAutoreleasePool new];
 	dummyRect = NSMakeRect(0, 0, 100, 100);
 	initAreaClass();
 	[ourApplication sharedApplication];			// makes NSApp an object of type ourApplication
@@ -133,6 +137,7 @@ BOOL initCocoa(id appDelegate)
 		return NO;
 	[NSApp activateIgnoringOtherApps:YES];		// TODO actually do C.NO here? Russ Cox does YES in his devdraw; the docs say the Finder does NO
 	[NSApp setDelegate:appDelegate];
+	[pool release];
 	return YES;
 }
 
