@@ -20,7 +20,5 @@ UNIX:
 - figure out why Page Up/Page Down does tab stops
 
 ALL PLATFORMS:
-- explain that if a local and global dialog are both opened at once, whetehr or not the local dialog is modal is system-defined (but the window it is local to will still be properly disabled once dismissed)
-	- will require moving dialog behavior to the package overview
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)

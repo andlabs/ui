@@ -15,21 +15,13 @@ var dialogWindow *Window
 // If you pass an empty string for secondaryText, neither additional information nor space for additional information will be shown.
 // On platforms that allow for the message box window to have a title, os.Args[0] is used.
 // 
-// The message box is modal to the entire application: the user cannot interact with any other window until this one is dismissed.
-// Whether or not resizing Windows will still be allowed is implementation-defined; if the implementation does allow it, resizes will still work properly.
-// Whether or not the message box stays above all other W+indows in the program is also implementation-defined.
+// See "On Dialogs" in the package overview for behavioral information.
 func MsgBox(primaryText string, secondaryText string) {
 	<-dialogWindow.msgBox(primaryText, secondaryText)
 }
 
-// MsgBox behaves like the package-scope MsgBox function, except the message box is modal to w only.
-// Attempts to interact with w will be blocked, but all other Windows in the application can still be used properly.
-// The message box will also stay above w.
-// Whether w can be resized while the message box is displayed is implementation-defined, but will work properly if allowed.
-// If w has not yet been created, MsgBox() panics.
-// If w has not been shown yet or is currently hidden, what MsgBox does is implementation-defined.
-// 
-// On return, done will be a channel that is pulsed when the message box is dismissed.
+// MsgBox is the Window method version of the package-scope function MsgBox.
+// See that function's documentation and "On Dialogs" in the package overview for more information.
 func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan struct{}) {
 	if !w.created {
 		panic("parent window passed to Window.MsgBox() before it was created")
@@ -39,12 +31,14 @@ func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan str
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
 // Otherwise, it behaves like MsgBox.
+// 
+// See "On Dialogs" in the package overview for more information.
 func MsgBoxError(primaryText string, secondaryText string) {
 	<-dialogWindow.msgBoxError(primaryText, secondaryText)
 }
 
-// MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
-// Otherwise, it behaves like Window.MsgBox.
+// MsgBoxError is the Window method version of the package-scope function MsgBoxError.
+// See that function's documentation and "On Dialogs" in the package overview for more information.
 func (w *Window) MsgBoxError(primaryText string, secondaryText string) (done chan struct{}) {
 	if !w.created {
 		panic("parent window passed to MsgBoxError() before it was created")
