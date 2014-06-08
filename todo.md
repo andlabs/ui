@@ -2,6 +2,7 @@ MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
 - make sure Areas get keyboard focus when clicking outside the actual Area space on Mac OS X
+	- http://stackoverflow.com/questions/24102367/how-do-i-make-it-so-clicking-outside-the-actual-nsview-in-a-nsscrollview-but-wit
 
 WINDOWS:
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
@@ -10,10 +11,6 @@ WINDOWS:
 - redrawing controls after a window resize on Windows does not work properly
 - on windows 7, progress bars seem to animate from 0 -> pos when you turn off marquee mode and set pos; see if that's documented or if I'm doing something wrong
 	- intentional: http://social.msdn.microsoft.com/Forums/en-US/61350dc7-6584-4c4e-91b0-69d642c03dae/progressbar-disable-smooth-animation http://stackoverflow.com/questions/2217688/windows-7-aero-theme-progress-bar-bug http://discuss.joelonsoftware.com/default.asp?dotnet.12.600456.2 http://stackoverflow.com/questions/22469876/progressbar-lag-when-setting-position-with-pbm-setpos http://stackoverflow.com/questions/6128287/tprogressbar-never-fills-up-all-the-way-seems-to-be-updating-too-fast - these links have workarounds but blah; more proof that progressbars were programmatically intended to be incremented in steps
-	- related: in wine,
-		- set progress to 0, indeterminate, dec - frozen indeterminate animation
-		- set progress to 100, indeterminate, inc - frozen indetemrinate animation
-		- need to see if this is a wine bug or not
 - check all uses of RECT.right/.bottom in Windows that don't have an accompanying -RECT.left/.top to make sure they're correct
 - when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
 
