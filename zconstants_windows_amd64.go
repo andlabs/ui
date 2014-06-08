@@ -61,6 +61,7 @@ const _MK_XBUTTON1 = 32
 const _MK_XBUTTON2 = 64
 const _PBM_SETMARQUEE = 1034
 const _PBM_SETPOS = 1026
+const _PBM_SETRANGE32 = 1030
 const _PBS_MARQUEE = 8
 const _PBS_SMOOTH = 1
 const _SB_HORZ = 0

@@ -606,17 +606,32 @@ func (s *sysData) setProgress(percent int) {
 		}
 		s.isMarquee = false
 	}
-	uitask <- &uimsg{
-		call:		_sendMessage,
-		p:		[]uintptr{
-			uintptr(s.hwnd),
-			uintptr(_PBM_SETPOS),
-			uintptr(_WPARAM(percent)),
-			uintptr(0),
-		},
-		ret:		ret,
+	send := func(msg uintptr, n int, l _LPARAM) {
+		uitask <- &uimsg{
+			call:		_sendMessage,
+			p:		[]uintptr{
+				uintptr(s.hwnd),
+				msg,
+				uintptr(_WPARAM(n)),
+				uintptr(l),
+			},
+			ret:		ret,
+		}
+		<-ret
 	}
-	<-ret
+	// Windows 7 has a non-disableable slowly-animating progress bar increment
+	// there isn't one for decrement, so we'll work around by going one higher and then lower again
+	// for the case where percent == 100, we need to increase the range temporarily
+	// this kind of thing is why I want to move away from uimsg and toward having uitask take func()s like on the other platforms
+	// sources: http://social.msdn.microsoft.com/Forums/en-US/61350dc7-6584-4c4e-91b0-69d642c03dae/progressbar-disable-smooth-animation http://stackoverflow.com/questions/2217688/windows-7-aero-theme-progress-bar-bug http://discuss.joelonsoftware.com/default.asp?dotnet.12.600456.2 http://stackoverflow.com/questions/22469876/progressbar-lag-when-setting-position-with-pbm-setpos http://stackoverflow.com/questions/6128287/tprogressbar-never-fills-up-all-the-way-seems-to-be-updating-too-fast
+	if percent == 100 {
+		send(_PBM_SETRANGE32, 0, 101)
+	}
+	send(_PBM_SETPOS, percent + 1, 0)
+	send(_PBM_SETPOS, percent, 0)
+	if percent == 100 {
+		send(_PBM_SETRANGE32, 0, 100)
+	}
 }
 
 func (s *sysData) len() int {
