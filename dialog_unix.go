@@ -33,12 +33,12 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, msgtype C
 			// to implement parent, we need to put the GtkMessageDialog into a new window group along with parent
 			// a GtkWindow can only be part of one group
 			// so we use this to save the parent window group (if there is one) and store the new window group
-			// after showing the message box, we restore the previous window group, so future parent == nil can work properly
+			// after showing the message box, we restore the previous window group, so future parent == dialogWindow can work properly
 			// thanks to pbor and mclasen in irc.gimp.net/#gtk+
 			var prevgroup *C.GtkWindowGroup = nil
 			var newgroup *C.GtkWindowGroup
 	
-			if parent != nil {
+			if parent != dialogWindow {
 				pwin = togtkwindow(parent.sysData.widget)
 				// we can't remove a window from the "default window group"; otherwise this throws up Gtk-CRITICAL warnings
 				if C.gtk_window_has_group(pwin) != C.FALSE {
@@ -60,7 +60,7 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, msgtype C
 			response := C.gtk_dialog_run((*C.GtkDialog)(unsafe.Pointer(box)))
 			C.gtk_widget_destroy(box)
 	
-			if parent != nil {
+			if parent != dialogWindow {
 				C.gtk_window_group_remove_window(newgroup, pwin)
 				C.g_object_unref(C.gpointer(unsafe.Pointer(newgroup)))		// free the group
 				if prevgroup != nil {
