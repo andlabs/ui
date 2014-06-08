@@ -49,7 +49,7 @@ var macCrashTest = flag.Bool("maccrash", false, "attempt crash on Mac OS X on de
 func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 	x := func(what string ) {
 		if j := recover(); j == nil {
-			MsgBoxError(nil, "test", fmt.Sprintf("%s: no panic", what))
+			MsgBoxError("test", fmt.Sprintf("%s: no panic", what))
 			panic("invalid test fail")
 		} else {
 			println("got", j.(error).Error())
@@ -143,7 +143,7 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 			defer x("Area.SetSize() " + q.msg); a.SetSize(q.x, q.y); panic(nil)
 		}()
 	}
-	MsgBox(nil, "test", "all working as intended")
+	MsgBox("test", "all working as intended")
 }
 
 var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening window")
@@ -226,7 +226,7 @@ func areaTest() {
 			if err != nil { println(err); continue }
 			a.SetSize(width, height)
 		case <-modaltest.Clicked:
-			MsgBox(nil, "Modal Test", "")
+			MsgBox("Modal Test", "")
 		}
 	}
 }
@@ -260,6 +260,8 @@ func areaboundsTest() {
 	<-w.Closing
 }
 
+var dialogTest = flag.Bool("dialog", false, "add Window.MsgBox() channel test window")
+
 func myMain() {
 	if *doArea {
 		areaTest()
@@ -284,6 +286,9 @@ func myMain() {
 	cb2 := NewCombobox("You can't edit me!", "No you can't!", "No you won't!")
 	e := NewLineEdit("Enter text here too")
 	l := NewLabel("This is a label")
+	resetl := func() {
+		l.SetText("This is a label")
+	}
 	b3 := NewButton("List Info")
 	s3 := NewHorizontalStack(l, b3)
 	s3.SetStretchy(0)
@@ -330,6 +335,17 @@ func myMain() {
 
 	ticker := time.Tick(time.Second)
 
+	dialog_bMsgBox := NewButton("MsgBox()")
+	dialog_bMsgBoxError := NewButton("MsgBoxError()")
+	dialog_win := NewWindow("Dialogs", 200, 200)
+	if *dialogTest {
+		dialog_win.Open(NewVerticalStack(
+			dialog_bMsgBox,
+			dialog_bMsgBoxError))
+	}
+
+	var dialog_sret chan struct{} = nil
+
 mainloop:
 	for {
 		select {
@@ -368,7 +384,7 @@ _=curtime
 			if c.Checked() {
 				f = MsgBoxError
 			}
-			f(nil, "List Info",
+			f("List Info",
 				fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
 				cb1.SelectedIndex(), cb1.Selection(), cb1.Len(),
 				cb2.SelectedIndex(), cb2.Selection(), cb2.Len(),
@@ -393,8 +409,18 @@ _=curtime
 		case <-invalidButton.Clicked:
 			invalidTest(cb1, lb1, nil, nil)
 		case <-bmsg.Clicked:
-			MsgBox(nil, "Title Only, no parent", "")
-			MsgBox(w, "Title and Text", "parent")
+			MsgBox("Title Only, no parent", "")
+			MsgBox("Title and Text", "parent")
+		// dialogs
+		case <-dialog_bMsgBox.Clicked:
+			dialog_sret = dialog_win.MsgBox("Message Box", "Dismiss")
+			l.SetText("DIALOG")
+		case <-dialog_bMsgBoxError.Clicked:
+			dialog_sret = dialog_win.MsgBoxError("Message Box", "Dismiss")
+			l.SetText("DIALOG")
+		case <-dialog_sret:
+			dialog_sret = nil
+			resetl()
 		}
 	}
 	w.Hide()
