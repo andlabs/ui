@@ -15,7 +15,7 @@ UNIX:
 	TODO re-evaluate; I think I fixed them all ages ago now
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (the horizontal scrollbar in Area will disappear smoothly; etc.)
 - resizing seems to be completely and totally broken in the Wayland backend
-	- TODO find out if this is a problem on the GTK+/Wayland side (no initial window-configure event?)
+	- https://github.com/andlabs/misctestprogs/blob/master/gtkwaylandtest.c http://imgur.com/qdxMFkY,7mnCXrL#0 wait for Jasper in IRC
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
 - figure out why Page Up/Page Down does tab stops
 
