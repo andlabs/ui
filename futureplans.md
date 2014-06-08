@@ -36,6 +36,7 @@ general list:
 		- Quit should pulse AppQuit
 - will probably want to bring back Event() as NewEvent() should that facility be necesary for menus, etc.
 - figure out why at least the 64-bit build hates being run under Application Verifier
+- make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
 
 issues of policy:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
