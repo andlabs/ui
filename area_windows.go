@@ -77,6 +77,7 @@ func paintArea(s *sysData) {
 
 	hscroll, vscroll := getScrollPos(s.hwnd)
 
+	// both Windows RECT and Go image.Rect are point..point, so the following is correct
 	cliprect := image.Rect(int(xrect.left), int(xrect.top), int(xrect.right), int(xrect.bottom))
 	cliprect = cliprect.Add(image.Pt(int(hscroll), int(vscroll)))			// adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area

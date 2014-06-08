@@ -158,7 +158,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 				panic("GetClientRect failed: " + err.Error())
 			}
 			// top-left corner is (0,0) so no need for winheight
-			s.doResize(int(r.left), int(r.top), int(r.right), int(r.bottom), 0)
+			s.doResize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), 0)
 			// TODO use the Defer movement functions here?
 			// TODO redraw window and all children here?
 		}
