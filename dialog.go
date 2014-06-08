@@ -6,8 +6,9 @@ import (
 	// ...
 )
 
-// sentinel (presently nil; may be a private instance if subtle bugs start showing up in user code)
-var dialogWindow *Window
+// sentinel (not nil so programmer errors don't go undetected)
+// this window is invalid and cannot be used directly
+var dialogWindow = new(Window)
 
 // MsgBox displays an informational message box to the user with just an OK button.
 // primaryText should be a short string describing the message, and will be displayed with additional emphasis on platforms that support it.
