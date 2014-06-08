@@ -6,8 +6,6 @@ MAC OS X:
 
 WINDOWS:
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
-- the windows build appears to be unstable:
-	- 64-bit crashes in malloc in wine with heap corruption warnings aplenty during DLL loading; in windows 7 it works fine
 - redrawing controls after a window resize on Windows does not work properly
 - check all uses of RECT.right/.bottom in Windows that don't have an accompanying -RECT.left/.top to make sure they're correct
 - when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
