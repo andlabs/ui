@@ -23,7 +23,7 @@ import (
 // }
 import "C"
 
-// dialogg performs the bookkeeping involved for having a GtkDialog behave the way we want.
+// dialog performs the bookkeeping involved for having a GtkDialog behave the way we want.
 type dialog struct {
 	parent		*Window
 	pwin			*C.GtkWindow
