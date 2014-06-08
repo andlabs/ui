@@ -67,6 +67,12 @@ func g_signal_connect(obj *C.GtkWidget, sig string, callback C.GCallback, sysDat
 	C.gSignalConnect(obj, csig, callback, unsafe.Pointer(sysData))
 }
 
+func g_signal_connect_pointer(obj *C.GtkWidget, sig string, callback C.GCallback, p unsafe.Pointer) {
+	csig := C.CString(sig)
+	defer C.free(unsafe.Pointer(csig))
+	C.gSignalConnect(obj, csig, callback, p)
+}
+
 // there are two issues we solve here:
 // 1) we need to make sure the uitask request gets garbage collected when we're done so as to not waste memory, but only when we're done so as to not have craziness happen
 // 2) we need to make sure one idle function runs and finishes running before we start the next; otherwise we could wind up with weird things like the ret channel being closed early
