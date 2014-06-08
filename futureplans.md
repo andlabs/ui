@@ -37,6 +37,20 @@ general list:
 - will probably want to bring back Event() as NewEvent() should that facility be necesary for menus, etc.
 - figure out why at least the 64-bit build hates being run under Application Verifier
 - make sure the preferred size of a Listbox is the minimum size needed to display everything on all platforms (capped at the screen height, of course?)
+- make sure the image drawn on an Area looks correct on all platforms (is not cropped incorrectly or blurred)
+```
+[01:16] <andlabs> so now I need an image that if it's drawn blurry, even slightly, the blur is very obvious... not sure what image that would be though
+[01:16] *** gburd gives gburd permission to talk.
+[01:16] <jsimnz> closeup of a face, pretty easy to tell if its blurry
+[01:16] *** pascalj gives pascalj permission to talk.
+[01:17] *** gburd takes the permission to talk from gburd.
+[01:18] <andlabs> in what way
+[01:19] <andlabs> (also it'd need to be public domain and I can't take a photo o fmy face right now)
+[01:19] *** pascalj takes the permission to talk from pascalj.
+[01:19] <jsimnz> hd photo of face, between pores, and wrinkles, noticing unfocus or blur is pretty easy, in my experiance
+[01:21] <andlabs> all right
+[01:21] <andlabs> I'll keep a note of that thanks
+```
 
 issues of policy:
 - LineEdit heights on Windows seem too big; either that or LineEdit, Button, and Label text is not vertically centered properly
