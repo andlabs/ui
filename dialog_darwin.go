@@ -3,19 +3,26 @@
 package ui
 
 import (
-	// ...
+	"unsafe"
 )
 
 // #include "objc_darwin.h"
 import "C"
 
-func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) {
-	ret := make(chan struct{})
-	defer close(ret)
+//export dialog_send
+func dialog_send(pchan unsafe.Pointer, res C.intptr_t) {
+	rchan := (*chan int)(pchan)
+	go func() {		// send it in a new goroutine like we do with everything else
+		*rchan <- int(res)
+	}()
+}
+
+func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) chan int {
+	ret := make(chan int)
 	uitask <- func() {
 		var pwin C.id = nil
 
-		if parent != nil {
+		if parent != dialogWindow {
 			pwin = parent.sysData.id
 		}
 		primary := toNSString(primarytext)
@@ -25,19 +32,28 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, style uin
 		}
 		switch style {
 		case 0:		// normal
-			C.msgBox(pwin, primary, secondary)
+			C.msgBox(pwin, primary, secondary, unsafe.Pointer(&ret))
 		case 1:		// error
-			C.msgBoxError(pwin, primary, secondary)
+			C.msgBoxError(pwin, primary, secondary, unsafe.Pointer(&ret))
 		}
-		ret <- struct{}{}
 	}
-	<-ret
+	return ret
 }
 
-func msgBox(parent *Window, primarytext string, secondarytext string) {
-	_msgBox(parent, primarytext, secondarytext, 0)
+func (w *Window) msgBox(primarytext string, secondarytext string) (done chan struct{}) {
+	done = make(chan struct{})
+	go func() {
+		<-_msgBox(w, primarytext, secondarytext, 0)
+		done <- struct{}{}
+	}()
+	return done
 }
 
-func msgBoxError(parent *Window, primarytext string, secondarytext string) {
-	_msgBox(parent, primarytext, secondarytext, 1)
+func (w *Window) msgBoxError(primarytext string, secondarytext string) (done chan struct{}) {
+	done = make(chan struct{})
+	go func() {
+		<-_msgBox(w, primarytext, secondarytext, 1)
+		done <- struct{}{}
+	}()
+	return done
 }

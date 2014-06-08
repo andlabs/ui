@@ -1,6 +1,7 @@
 // 15 may 2014
 
 #include "objc_darwin.h"
+#include "_cgo_export.h"
 #import <AppKit/NSAlert.h>
 
 // see delegateuitask_darwin.m
@@ -23,7 +24,7 @@
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
 
-static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style)
+static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style, void *chan)
 {
 	NSAlert *box;
 
@@ -35,20 +36,20 @@ static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyl
 	// TODO is there a named constant? will also need to be changed when we add different dialog types
 	[box addButtonWithTitle:@"OK"];
 	if (parent == nil)
-		[box runModal];
+		dialog_send(chan, (intptr_t) [box runModal]);
 	else
 		[box beginSheetModalForWindow:toNSWindow(parent)
 			modalDelegate:[NSApp delegate]
 			didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-			contextInfo:NULL];
+			contextInfo:chan];
 }
 
-void msgBox(id parent, id primary, id secondary)
+void msgBox(id parent, id primary, id secondary, void *chan)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle, chan);
 }
 
-void msgBoxError(id parent, id primary, id secondary)
+void msgBoxError(id parent, id primary, id secondary, void *chan)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle, chan);
 }

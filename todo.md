@@ -24,4 +24,3 @@ ALL PLATFORMS:
 	- will require moving dialog behavior to the package overview
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
 - make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
-- Message boxes that belong to agiven parent are still application-modal on all platforms except Mac OS X because the whole system waits... we'll need to use a channel for this, I guess :S
