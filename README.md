@@ -25,3 +25,13 @@ Finally, please send documentation suggestions! I'm taking the documentation of 
 Thanks!
 
 (Note: I temporarily disabled Travis.ci; if I can figure out how to do good cross-compiles with it, then I can put it back.)
+
+## Screenshots
+
+You asked for them; here they are.
+
+Image | Description
+----- | -----
+<img src="http://andlabs.lostsig.com/screenshots/20140608/uiwin7.png" width="400px"> | The test program on Windows 7
+<img src="http://andlabs.lostsig.com/screenshots/20140608/uimac.png" width="400px"> | The test program on Mac OS X 10.8
+<img src="http://andlabs.lostsig.com/screenshots/20140608/uikde.png" width="400px"> | The test program on Ubuntu 14.04 with KDE and the oxygen-gtk theme
