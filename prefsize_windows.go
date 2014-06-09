@@ -28,6 +28,7 @@ type dlgunits struct {
 	height	int
 	longest	bool		// TODO actually use this
 	getsize	uintptr
+	area		bool		// use area sizes instead
 }
 
 var stdDlgSizes = [nctypes]dlgunits{
@@ -66,7 +67,9 @@ var stdDlgSizes = [nctypes]dlgunits{
 		width:	237,		// the first reference says 107 also works; TODO decide which to use
 		height:	8,
 	},
-	// TODO area
+	c_area:			dlgunits{
+		area:		true,
+	},
 }
 
 var (
@@ -80,7 +83,7 @@ var (
 // This function runs on uitask; call the functions directly.
 func (s *sysData) preferredSize() (width int, height int) {
 	// the preferred size of an Area is its size
-	if s.ctype == c_area {
+	if stdDlgSizes[s.ctype].area {
 		return s.areawidth, s.areaheight
 	}
 
