@@ -103,7 +103,6 @@ func (s *sysData) preferredSize() (width int, height int) {
 	var tm _TEXTMETRICS
 	var baseX, baseY int
 
-	// TODO use GetDC() and not GetWindowDC()?
 	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
