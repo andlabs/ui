@@ -86,7 +86,7 @@ var classTypes = [nctypes]*classData{
 	c_label:			&classData{
 		name:			toUTF16("STATIC"),
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
-		// TODO find out if the default behavior is not to ellipsize
+		// TODO find out if the default behavior is vertically align to top
 		style:			_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 		xstyle:			0 | controlxstyle,
 	},
