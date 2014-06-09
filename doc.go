@@ -66,5 +66,11 @@ The package-scope functions wait for the dialog box to be dismissed and merely r
 The Window methods return immediately with a channel that will eventually receive either the signal or the return code.
 Package ui does not close these channels, nor does it send multiple values on the same channel.
 
+Scrollbars
+
+[TODO]
+
+The result of resizing the window such that the scrollbars consider themselves too small is implementation-defined.
+
 */
 package ui
