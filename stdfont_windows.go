@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	controlFont		_HANDLE
+	controlFont		_HANDLE		// really the font for messagebox text, but everyone and everything says to use it
 	titleFont			_HANDLE
 	smallTitleFont		_HANDLE
 	menubarFont		_HANDLE
@@ -56,7 +56,6 @@ var (
 	_createFontIndirect = gdi32.NewProc("CreateFontIndirectW")
 )
 
-// TODO the lfMessageFont doesn't seem like the right one for controls but that's all I could find for what people actually use; also I need to return the other ones and check HWND types to make sure I apply the right font to the right thing...
 func getStandardWindowFonts() (err error) {
 	var ncm _NONCLIENTMETRICS
 
