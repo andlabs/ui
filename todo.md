@@ -11,8 +11,6 @@ WINDOWS:
 
 UNIX:
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
-- david wendt is telling me he's getting frequent crashes on his end with the GTK+ amd64 build...
-	TODO re-evaluate; I think I fixed them all ages ago now
 - when resizing a GTK+ window smaller than a certain size, the controls inside will start clipping in bizarre ways (the horizontal scrollbar in Area will disappear smoothly; etc.)
 - resizing seems to be completely and totally broken in the Wayland backend
 	- https://github.com/andlabs/misctestprogs/blob/master/gtkwaylandtest.c http://imgur.com/qdxMFkY,7mnCXrL#0 wait for Jasper in IRC
