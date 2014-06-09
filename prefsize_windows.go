@@ -71,9 +71,9 @@ var stdDlgSizes = [nctypes]dlgunits{
 
 var (
 	_selectObject = gdi32.NewProc("SelectObject")
+	_getDC = user32.NewProc("GetDC")
 	_getTextExtentPoint32 = gdi32.NewProc("GetTextExtentPoint32W")
 	_getTextMetrics = gdi32.NewProc("GetTextMetricsW")
-	_getWindowDC = user32.NewProc("GetWindowDC")
 	_releaseDC = user32.NewProc("ReleaseDC")
 )
 
@@ -103,7 +103,7 @@ func (s *sysData) preferredSize() (width int, height int) {
 	var tm _TEXTMETRICS
 	var baseX, baseY int
 
-	r1, _, err := _getWindowDC.Call(uintptr(s.hwnd))
+	r1, _, err := _getDC.Call(uintptr(s.hwnd))
 	if r1 == 0 {		// failure
 		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
 	}
