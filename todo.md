@@ -11,8 +11,8 @@ WINDOWS:
 
 UNIX:
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
-- resizing seems to be completely and totally broken in the Wayland backend
-	- https://github.com/andlabs/misctestprogs/blob/master/gtkwaylandtest.c http://imgur.com/qdxMFkY,7mnCXrL#0 wait for Jasper in IRC
+- sizing with client-side decorations (Wayland) don't work
+	- several people suggested connecting to size-allocate of the GtkLayout, but then I can wind up in a situation where there's extra padding or border space in the direction I resized
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
 - figure out why Page Up/Page Down does tab stops
 
