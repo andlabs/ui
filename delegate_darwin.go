@@ -2,10 +2,6 @@
 
 package ui
 
-import (
-	// ...
-)
-
 /*
 This creates a class goAppDelegate that will be used as the delegate for /everything/. Specifically, it:
 	- runs uitask requests (uitask:)
@@ -36,11 +32,11 @@ func appDelegate_windowShouldClose(win C.id) {
 //export appDelegate_windowDidResize
 func appDelegate_windowDidResize(win C.id) {
 	s := getSysData(win)
-	wincv := C.windowGetContentView(win)		// we want the content view's size, not the window's
+	wincv := C.windowGetContentView(win) // we want the content view's size, not the window's
 	r := C.frame(wincv)
 	// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
 	s.doResize(0, 0, int(r.width), int(r.height), int(r.height))
-	C.display(win)			// redraw everything
+	C.display(win) // redraw everything
 }
 
 //export appDelegate_buttonClicked

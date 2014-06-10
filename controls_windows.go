@@ -26,17 +26,17 @@ func CheckRadioButton(hDlg HWND, nIDFirstButton int, nIDLastButton int, nIDCheck
 */
 
 var (
-	_getScrollInfo = user32.NewProc("GetScrollInfo")
-	_setScrollInfo = user32.NewProc("SetScrollInfo")
+	_getScrollInfo  = user32.NewProc("GetScrollInfo")
+	_setScrollInfo  = user32.NewProc("SetScrollInfo")
 	_scrollWindowEx = user32.NewProc("ScrollWindowEx")
 )
 
 type _SCROLLINFO struct {
-	cbSize		uint32
-	fMask		uint32
-	nMin			int32		// originally int
-	nMax		int32		// originally int
-	nPage		uint32
-	nPos			int32		// originally int
-	nTrackPos	int32		// originally int
+	cbSize    uint32
+	fMask     uint32
+	nMin      int32 // originally int
+	nMax      int32 // originally int
+	nPage     uint32
+	nPos      int32 // originally int
+	nTrackPos int32 // originally int
 }

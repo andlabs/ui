@@ -28,7 +28,7 @@ func our_window_delete_event_callback(widget *C.GtkWidget, event *C.GdkEvent, wh
 	// called when the user tries to close the window
 	s := (*sysData)(unsafe.Pointer(what))
 	s.signal()
-	return C.TRUE		// do not close the window
+	return C.TRUE // do not close the window
 }
 
 var window_delete_event_callback = C.GCallback(C.our_window_delete_event_callback)
@@ -37,13 +37,13 @@ var window_delete_event_callback = C.GCallback(C.our_window_delete_event_callbac
 func our_window_configure_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
 	// called when the window is resized
 	s := (*sysData)(unsafe.Pointer(what))
-	if s.container != nil && s.resize != nil {		// wait for init
+	if s.container != nil && s.resize != nil { // wait for init
 		width, height := gtk_window_get_size(s.widget)
 		// top-left is (0,0) so no need for winheight
 		s.doResize(0, 0, width, height, 0)
 	}
 	// no need to manually redraw everything: since we use gtk_widget_set_size_request(), that queues both resize and redraw for us (thanks Company in irc.gimp.net/#gtk+)
-	return C.FALSE		// continue the event chain
+	return C.FALSE // continue the event chain
 }
 
 var window_configure_event_callback = C.GCallback(C.our_window_configure_event_callback)
@@ -78,8 +78,8 @@ func g_signal_connect_pointer(obj *C.GtkWidget, sig string, callback C.GCallback
 // 2) we need to make sure one idle function runs and finishes running before we start the next; otherwise we could wind up with weird things like the ret channel being closed early
 // so our_idle_callback() calls the uitask function in what and sends a message back to the dispatcher over done that it finished running; the dispatcher is still holding onto the uitask function so it won't be collected
 type gtkIdleOp struct {
-	what		func()
-	done		chan struct{}
+	what func()
+	done chan struct{}
 }
 
 //export our_idle_callback
@@ -87,7 +87,7 @@ func our_idle_callback(what C.gpointer) C.gboolean {
 	idleop := (*gtkIdleOp)(unsafe.Pointer(what))
 	idleop.what()
 	idleop.done <- struct{}{}
-	return C.FALSE		// remove this idle function; we're finished
+	return C.FALSE // remove this idle function; we're finished
 }
 
 func gdk_threads_add_idle(idleop *gtkIdleOp) {

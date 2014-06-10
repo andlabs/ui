@@ -4,9 +4,9 @@ package ui
 
 import (
 	"fmt"
+	"io/ioutil"
 	"syscall"
 	"unsafe"
-	"io/ioutil"
 )
 
 // pretty much every constant here except _WM_USER is from commctrl.h, except where noted
@@ -17,7 +17,7 @@ var (
 
 var (
 	_activateActCtx = kernel32.NewProc("ActivateActCtx")
-	_createActCtx = kernel32.NewProc("CreateActCtxW")
+	_createActCtx   = kernel32.NewProc("CreateActCtxW")
 )
 
 /*
@@ -43,15 +43,15 @@ func forceCommonControls6() (err error) {
 	manifestfile.Close()
 
 	var actctx struct {
-		cbSize				uint32
-		dwFlags				uint32
-		lpSource				*uint16
-		wProcessorArchitecture	uint16
-		wLangId				uint16		// originally LANGID
-		lpAssemblyDirectory	uintptr		// originally LPCWSTR
-		lpResourceName		uintptr		// originally LPCWSTR
-		lpApplicationName		uintptr		// originally LPCWSTR
-		hModule				_HANDLE		// originally HMODULE
+		cbSize                 uint32
+		dwFlags                uint32
+		lpSource               *uint16
+		wProcessorArchitecture uint16
+		wLangId                uint16  // originally LANGID
+		lpAssemblyDirectory    uintptr // originally LPCWSTR
+		lpResourceName         uintptr // originally LPCWSTR
+		lpApplicationName      uintptr // originally LPCWSTR
+		hModule                _HANDLE // originally HMODULE
 	}
 
 	actctx.cbSize = uint32(unsafe.Sizeof(actctx))
@@ -61,13 +61,13 @@ func forceCommonControls6() (err error) {
 
 	r1, _, err := _createActCtx.Call(uintptr(unsafe.Pointer(&actctx)))
 	// don't negConst() INVALID_HANDLE_VALUE; windowsconstgen was given a pointer by windows.h, and pointers are unsigned, so converting it back to signed doesn't work
-	if r1 == _INVALID_HANDLE_VALUE {		// failure
+	if r1 == _INVALID_HANDLE_VALUE { // failure
 		return fmt.Errorf("error creating activation context for synthesized manifest file: %v", err)
 	}
 	r1, _, err = _activateActCtx.Call(
 		r1,
 		uintptr(unsafe.Pointer(&comctlManifestCookie)))
-	if r1 == uintptr(_FALSE) {		// failure
+	if r1 == uintptr(_FALSE) { // failure
 		return fmt.Errorf("error activating activation context for synthesized manifest file: %v", err)
 	}
 	return nil
@@ -75,8 +75,8 @@ func forceCommonControls6() (err error) {
 
 func initCommonControls() (err error) {
 	var icc struct {
-		dwSize	uint32
-		dwICC	uint32
+		dwSize uint32
+		dwICC  uint32
 	}
 
 	err = forceCommonControls6()
@@ -89,7 +89,7 @@ func initCommonControls() (err error) {
 
 	comctl32 = syscall.NewLazyDLL("comctl32.dll")
 	r1, _, err := comctl32.NewProc("InitCommonControlsEx").Call(uintptr(unsafe.Pointer(&icc)))
-	if r1 == _FALSE {		// failure
+	if r1 == _FALSE { // failure
 		return fmt.Errorf("error initializing Common Controls (comctl32.dll); Windows last error: %v", err)
 	}
 	return nil

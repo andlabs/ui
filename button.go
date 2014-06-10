@@ -11,20 +11,20 @@ type Button struct {
 	// Clicked gets a message when the button is clicked.
 	// You cannot change it once the Window containing the Button has been created.
 	// If you do not respond to this signal, nothing will happen.
-	Clicked	chan struct{}
+	Clicked chan struct{}
 
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initText	string
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initText string
 }
 
 // NewButton creates a new button with the specified text.
 func NewButton(text string) (b *Button) {
 	return &Button{
-		sysData:	mksysdata(c_button),
-		initText:	text,
-		Clicked:	newEvent(),
+		sysData:  mksysdata(c_button),
+		initText: text,
+		Clicked:  newEvent(),
 	}
 }
 
@@ -67,11 +67,11 @@ func (b *Button) make(window *sysData) error {
 
 func (b *Button) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	*rr = append(*rr, resizerequest{
-		sysData:	b.sysData,
-		x:		x,
-		y:		y,
-		width:	width,
-		height:	height,
+		sysData: b.sysData,
+		x:       x,
+		y:       y,
+		width:   width,
+		height:  height,
 	})
 }
 
