@@ -363,6 +363,7 @@ func (s *sysData) setAreaSize(width int, height int) {
 		gtk_widget_set_size_request(c, width, height)
 		s.areawidth = width		// for sysData.preferredSize()
 		s.areaheight = height
+		C.gtk_widget_queue_draw(c)
 		ret <- struct{}{}
 	}
 	<-ret

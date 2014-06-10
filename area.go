@@ -293,6 +293,7 @@ func NewArea(width int, height int, handler AreaHandler) *Area {
 // SetSize sets the Area's internal drawing size.
 // It has no effect on the actual control size.
 // SetSize is safe for concurrent use; if the Area is being repainted or is handling an event, SetSize will wait for that to complete before changing the Area's size.
+// SetSize will also signal the entirety of the Area to be redrawn as in RepaintAll.
 // It panics if width or height is zero or negative.
 func (a *Area) SetSize(width int, height int) {
 	a.lock.Lock()

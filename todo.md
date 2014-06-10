@@ -16,7 +16,3 @@ UNIX:
 	- several people suggested connecting to size-allocate of the GtkLayout, but then I can wind up in a situation where there's extra padding or border space in the direction I resized
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
 - figure out why Page Up/Page Down does tab stops
-
-ALL PLATFORMS:
-- document that Area.SetAreaSize() will repaint the whole Area
-	- make sure this happens on both GTK+ and Mac OS X (it does happen on Windows already)
