@@ -11,16 +11,16 @@ import (
 // Alternatively, a progressbar can show an animation indicating that progress is being made but how much is indeterminate.
 // Newly-created ProgressBars default to showing 0% progress.
 type ProgressBar struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initProg	int
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initProg int
 }
 
 // NewProgressBar creates a new ProgressBar.
 func NewProgressBar() *ProgressBar {
 	return &ProgressBar{
-		sysData:	mksysdata(c_progressbar),
+		sysData: mksysdata(c_progressbar),
 	}
 }
 
@@ -58,11 +58,11 @@ func (p *ProgressBar) make(window *sysData) error {
 
 func (p *ProgressBar) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	*rr = append(*rr, resizerequest{
-		sysData:	p.sysData,
-		x:		x,
-		y:		y,
-		width:	width,
-		height:	height,
+		sysData: p.sysData,
+		x:       x,
+		y:       y,
+		width:   width,
+		height:  height,
 	})
 }
 
