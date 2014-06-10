@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	user32 = syscall.NewLazyDLL("user32.dll")
+	user32   = syscall.NewLazyDLL("user32.dll")
 	kernel32 = syscall.NewLazyDLL("kernel32.dll")
-	gdi32 = syscall.NewLazyDLL("gdi32.dll")
-	comctl32 *syscall.LazyDLL		// comctl32 not defined here; see comctl_windows.go
-	msimg32 = syscall.NewLazyDLL("msimg32.dll")
+	gdi32    = syscall.NewLazyDLL("gdi32.dll")
+	comctl32 *syscall.LazyDLL // comctl32 not defined here; see comctl_windows.go
+	msimg32  = syscall.NewLazyDLL("msimg32.dll")
 )
 
 type _HANDLE uintptr
@@ -38,27 +38,27 @@ func (w _WPARAM) HIWORD() uint16 {
 func (l _LPARAM) X() int32 {
 	// according to windowsx.h
 	loword := uint16(l & 0xFFFF)
-	short := int16(loword)	// convert to signed...
-	return int32(short)		// ...and sign extend
+	short := int16(loword) // convert to signed...
+	return int32(short)    // ...and sign extend
 }
 
 func (l _LPARAM) Y() int32 {
 	// according to windowsx.h
 	hiword := uint16((l & 0xFFFF0000) >> 16)
-	short := int16(hiword)	// convert to signed...
-	return int32(short)		// ...and sign extend
+	short := int16(hiword) // convert to signed...
+	return int32(short)    // ...and sign extend
 }
 
 type _POINT struct {
-	x	int32
-	y	int32
+	x int32
+	y int32
 }
 
 type _RECT struct {
-	left		int32
-	top		int32
-	right		int32
-	bottom	int32
+	left   int32
+	top    int32
+	right  int32
+	bottom int32
 }
 
 // Go doesn't allow negative constants to be forced into unsigned types at compile-time; this will do it at runtime.
@@ -85,20 +85,21 @@ func utf16ToLPARAM(s *uint16) uintptr {
 
 var (
 	_adjustWindowRectEx = user32.NewProc("AdjustWindowRectEx")
-	_createWindowEx = user32.NewProc("CreateWindowExW")
-	_getClientRect = user32.NewProc("GetClientRect")
-	_moveWindow = user32.NewProc("MoveWindow")
-	_setWindowPos = user32.NewProc("SetWindowPos")
-	_setWindowText = user32.NewProc("SetWindowTextW")
-	_showWindow = user32.NewProc("ShowWindow")
+	_createWindowEx     = user32.NewProc("CreateWindowExW")
+	_getClientRect      = user32.NewProc("GetClientRect")
+	_moveWindow         = user32.NewProc("MoveWindow")
+	_setWindowPos       = user32.NewProc("SetWindowPos")
+	_setWindowText      = user32.NewProc("SetWindowTextW")
+	_showWindow         = user32.NewProc("ShowWindow")
+	_getWindowRect      = user32.NewProc("GetWindowRect")
 )
 
 type _MINMAXINFO struct {
-	ptReserved		_POINT
-	ptMaxSize		_POINT
-	ptMaxPosition		_POINT
-	ptMinTrackSize		_POINT
-	ptMaxTrackSize	_POINT
+	ptReserved     _POINT
+	ptMaxSize      _POINT
+	ptMaxPosition  _POINT
+	ptMinTrackSize _POINT
+	ptMaxTrackSize _POINT
 }
 
 func (l _LPARAM) MINMAXINFO() *_MINMAXINFO {
