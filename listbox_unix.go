@@ -75,7 +75,7 @@ func gListboxNew(multisel bool) *C.GtkWidget {
 	tv := (*C.GtkTreeView)(unsafe.Pointer(widget))
 	column := C.gtkTreeViewColumnNewWithAttributes(C.gtk_cell_renderer_text_new())
 	C.gtk_tree_view_column_set_sizing(column, C.GTK_TREE_VIEW_COLUMN_AUTOSIZE)
-	C.gtk_tree_view_column_set_resizable(column, C.FALSE)		// not resizeable by the user; just autoresize
+	C.gtk_tree_view_column_set_resizable(column, C.FALSE) // not resizeable by the user; just autoresize
 	C.gtk_tree_view_append_column(tv, column)
 	C.gtk_tree_view_set_headers_visible(tv, C.FALSE)
 	sel := C.GTK_SELECTION_SINGLE

@@ -34,14 +34,14 @@ func areaPrefSize(control C.id) (width int, height int) {
 }
 
 var prefsizefuncs = [nctypes]func(C.id) (int, int){
-	c_button:			controlPrefSize,
-	c_checkbox:		controlPrefSize,
-	c_combobox:		controlPrefSize,
-	c_lineedit:		controlPrefSize,
-	c_label:			controlPrefSize,
-	c_listbox:			listboxPrefSize,
-	c_progressbar:		pbarPrefSize,
-	c_area:			areaPrefSize,
+	c_button:      controlPrefSize,
+	c_checkbox:    controlPrefSize,
+	c_combobox:    controlPrefSize,
+	c_lineedit:    controlPrefSize,
+	c_label:       controlPrefSize,
+	c_listbox:     listboxPrefSize,
+	c_progressbar: pbarPrefSize,
+	c_area:        areaPrefSize,
 }
 
 func (s *sysData) preferredSize() (width int, height int) {

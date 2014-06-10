@@ -4,10 +4,6 @@
 
 package ui
 
-import (
-	// ...
-)
-
 // GTK+ 3 makes this easy: controls can tell us what their preferred size is!
 // ...actually, it tells us two things: the "minimum size" and the "natural size".
 // The "minimum size" is the smallest size we /can/ display /anything/. The "natural size" is the smallest size we would /prefer/ to display.
