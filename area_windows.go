@@ -698,6 +698,9 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 		adjustAreaScrollbars(s)
 		repaintArea(s)					// this calls for an update
 		return 0
+	case msgRepaintAll:
+		repaintArea(s)
+		return 0
 	default:
 		return defWindowProc(hwnd, uMsg, wParam, lParam)
 	}

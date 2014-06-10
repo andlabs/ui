@@ -669,3 +669,19 @@ func (s *sysData) setAreaSize(width int, height int) {
 	}
 	<-ret
 }
+
+func (s *sysData) repaintAll() {
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_sendMessage,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(msgRepaintAll),
+			uintptr(0),
+			uintptr(0),
+		},
+		ret:		ret,
+	}
+	<-ret
+}

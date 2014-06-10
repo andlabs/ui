@@ -39,6 +39,7 @@ const (
 	msgRequested = _WM_APP + iota + 1		// + 1 just to be safe
 	msgQuit
 	msgSetAreaSize
+	msgRepaintAll
 )
 
 var (
