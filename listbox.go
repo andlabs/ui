@@ -12,16 +12,16 @@ import (
 // For information on scrollbars, see "Scrollbars" in the Overview.
 // Due to implementation issues, the presence of horizontal scrollbars is currently implementation-defined.
 type Listbox struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initItems	[]string
+	lock      sync.Mutex
+	created   bool
+	sysData   *sysData
+	initItems []string
 }
 
 func newListbox(multiple bool, items ...string) (l *Listbox) {
 	l = &Listbox{
-		sysData:		mksysdata(c_listbox),
-		initItems:		items,
+		sysData:   mksysdata(c_listbox),
+		initItems: items,
 	}
 	l.sysData.alternate = multiple
 	return l
@@ -70,7 +70,7 @@ func (l *Listbox) InsertBefore(what string, before int) {
 	if before < 0 || before >= len(l.initItems) {
 		goto badrange
 	}
-	m = make([]string, 0, len(l.initItems) + 1)
+	m = make([]string, 0, len(l.initItems)+1)
 	m = append(m, l.initItems[:before]...)
 	m = append(m, what)
 	l.initItems = append(m, l.initItems[before:]...)
@@ -94,7 +94,7 @@ func (l *Listbox) Delete(index int) {
 	if index < 0 || index >= len(l.initItems) {
 		goto badrange
 	}
-	l.initItems = append(l.initItems[:index], l.initItems[index + 1:]...)
+	l.initItems = append(l.initItems[:index], l.initItems[index+1:]...)
 	return
 badrange:
 	panic(fmt.Errorf("index %d out of range in Listbox.Delete()", index))
@@ -152,11 +152,11 @@ func (l *Listbox) make(window *sysData) (err error) {
 
 func (l *Listbox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	*rr = append(*rr, resizerequest{
-		sysData:	l.sysData,
-		x:		x,
-		y:		y,
-		width:	width,
-		height:	height,
+		sysData: l.sysData,
+		x:       x,
+		y:       y,
+		width:   width,
+		height:  height,
 	})
 }
 

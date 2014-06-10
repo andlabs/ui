@@ -10,17 +10,17 @@ import (
 // Label text is drawn on a single line; text that does not fit is truncated.
 // TODO vertical alignment
 type Label struct {
-	lock		sync.Mutex
-	created	bool
-	sysData	*sysData
-	initText	string
+	lock     sync.Mutex
+	created  bool
+	sysData  *sysData
+	initText string
 }
 
 // NewLabel creates a new Label with the specified text.
 func NewLabel(text string) *Label {
 	return &Label{
-		sysData:	mksysdata(c_label),
-		initText:	text,
+		sysData:  mksysdata(c_label),
+		initText: text,
 	}
 }
 
@@ -62,11 +62,11 @@ func (l *Label) make(window *sysData) error {
 
 func (l *Label) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
 	*rr = append(*rr, resizerequest{
-		sysData:	l.sysData,
-		x:		x,
-		y:		y,
-		width:	width,
-		height:	height,
+		sysData: l.sysData,
+		x:       x,
+		y:       y,
+		width:   width,
+		height:  height,
 	})
 }
 

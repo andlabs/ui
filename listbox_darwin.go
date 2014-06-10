@@ -2,10 +2,6 @@
 
 package ui
 
-import (
-	// ...
-)
-
 /*
 The Cocoa API was not designed to be used directly in code; you were intended to build your user interfaces with Interface Builder. There is no dedicated listbox class; we have to synthesize it with a NSTableView. And this is difficult in code.
 
@@ -81,7 +77,6 @@ func listboxArrayItemAt(array C.id, index int) string {
 	return fromListboxItem(dict)
 }
 
-
 /*
 Now we have to establish the binding. To do this, we need the following things:
 	- the object to bind (NSTableColumn)
@@ -139,7 +134,7 @@ The actual creation code was moved to objc_darwin.go.
 
 func makeListboxScrollView(listbox C.id) C.id {
 	scrollview := makeScrollView(listbox)
-	C.giveScrollViewBezelBorder(scrollview)		// this is what Interface Builder gives the scroll view
+	C.giveScrollViewBezelBorder(scrollview) // this is what Interface Builder gives the scroll view
 	return scrollview
 }
 
@@ -190,7 +185,7 @@ func listboxSelectedIndices(listbox C.id) (list []int) {
 	list = make([]int, count)
 	list[0] = int(C.listboxIndexesFirst(indices))
 	for i := 1; i < count; i++ {
-		list[i] = int(C.listboxIndexesNext(indices, C.uintptr_t(list[i - 1])))
+		list[i] = int(C.listboxIndexesNext(indices, C.uintptr_t(list[i-1])))
 	}
 	return list
 }
