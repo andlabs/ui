@@ -3,7 +3,7 @@ Woah, lots of attention! Thanks!
 This is a placeholder README; the previous file (olddocs/oldREADME.md) was rather long and confusing. I'll be rewriting it properly soon.
 
 Until then, here's the important things you need to know:
-- **this package is very much incomplete and until I clear out the existing set of TODOs has an API which may change without warning** (the API is stable for the most part)
+- **this package is very much incomplete; see `stable.md` for a list of what is guaranteed to not change at the API level — for everything newer, you have been warned!**
 - this package requires Go 1.3, which is presently available as a RC build (source builds from go tip will work too)
 	- I don't think the Windows side uses any Go 1.3 features, but just to be safe I'm going to say express caution
 	- Unix builds need 1.3 to fix some type-checker bugs in cgo
