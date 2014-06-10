@@ -3,8 +3,8 @@
 package ui
 
 import (
-	"unsafe"
 	"image"
+	"unsafe"
 )
 
 // #include <stdlib.h>
@@ -28,10 +28,10 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 	s := getSysData(self)
 	// no need to clear the clip rect; the NSScrollView does that for us (see the setDrawsBackground: call in objc_darwin.m)
 	// rectangles in Cocoa are origin/size, not point0/point1; if we don't watch for this, weird things will happen when scrolling
-	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x + rect.width), int(rect.y + rect.height))
+	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x+rect.width), int(rect.y+rect.height))
 	max := C.frame(self)
 	cliprect = image.Rect(0, 0, int(max.width), int(max.height)).Intersect(cliprect)
-	if cliprect.Empty() {			// no intersection; nothing to paint
+	if cliprect.Empty() { // no intersection; nothing to paint
 		return
 	}
 	i := s.handler.Paint(cliprect)
@@ -42,10 +42,10 @@ func areaView_drawRect(self C.id, rect C.struct_xrect) {
 
 func parseModifiers(e C.id) (m Modifiers) {
 	const (
-		_NSShiftKeyMask = 1 << 17
-		_NSControlKeyMask = 1 << 18
+		_NSShiftKeyMask     = 1 << 17
+		_NSControlKeyMask   = 1 << 18
 		_NSAlternateKeyMask = 1 << 19
-		_NSCommandKeyMask = 1 << 20
+		_NSCommandKeyMask   = 1 << 20
 	)
 
 	mods := uintptr(C.modifierFlags(e))
@@ -77,7 +77,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 	}
 	me.Modifiers = parseModifiers(e)
 	which := uint(C.buttonNumber(e)) + 1
-	if which == 3 {		// swap middle and right button numbers
+	if which == 3 { // swap middle and right button numbers
 		which = 2
 	} else if which == 2 {
 		which = 3
@@ -89,22 +89,22 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool) {
 		// this already works the way we want it to so nothing special needed like with Windows and GTK+
 		me.Count = uint(C.clickCount(e))
 	} else {
-		which = 0			// reset for Held processing below
+		which = 0 // reset for Held processing below
 	}
 	// the docs do say don't use this for tracking (mouseMoved:) since it returns the state now, and mouse move events work by tracking, but as far as I can tell dragging the mouse over the inactive window does not generate an event on Mac OS X, so :/ (tracking doesn't touch dragging anyway except during mouseEntered: and mouseExited:, which we don't handle, and the only other tracking message, cursorChanged:, we also don't handle (yet...? need to figure out if this is how to set custom cursors or not), so)
 	held := C.pressedMouseButtons()
-	if which != 1 && (held & 1) != 0 {		// button 1
+	if which != 1 && (held&1) != 0 { // button 1
 		me.Held = append(me.Held, 1)
 	}
-	if which != 2 && (held & 4) != 0 {		// button 2; mind the swap
+	if which != 2 && (held&4) != 0 { // button 2; mind the swap
 		me.Held = append(me.Held, 2)
 	}
-	if which != 3 && (held & 2) != 0 {		// button 3
+	if which != 3 && (held&2) != 0 { // button 3
 		me.Held = append(me.Held, 3)
 	}
 	held >>= 3
 	for i := uint(4); held != 0; i++ {
-		if which != i && (held & 1) != 0 {
+		if which != i && (held&1) != 0 {
 			me.Held = append(me.Held, i)
 		}
 		held >>= 1
@@ -173,8 +173,8 @@ func areaView_flagsChanged(self C.id, e C.id) {
 	// Mac OS X sends this event on both key up and key down.
 	// Fortunately -[e keyCode] IS valid here, so we can simply map from key code to Modifiers, get the value of [e modifierFlags], and check if the respective bit is set or not — that will give us the up/down state
 	keyCode := uintptr(C.keyCode(e))
-	mod, ok := keycodeModifiers[keyCode]		// comma-ok form to avoid adding entries
-	if !ok {		// unknown modifier; ignore
+	mod, ok := keycodeModifiers[keyCode] // comma-ok form to avoid adding entries
+	if !ok {                             // unknown modifier; ignore
 		return
 	}
 	ke.Modifiers = parseModifiers(e)
