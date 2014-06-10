@@ -4,56 +4,55 @@ package ui
 
 import (
 	"fmt"
-//	"syscall"
 	"unsafe"
 )
 
 var (
-	controlFont		_HANDLE		// really the font for messagebox text, but everyone and everything says to use it
-	titleFont			_HANDLE
-	smallTitleFont		_HANDLE
-	menubarFont		_HANDLE
-	statusbarFont		_HANDLE
+	controlFont    _HANDLE // really the font for messagebox text, but everyone and everything says to use it
+	titleFont      _HANDLE
+	smallTitleFont _HANDLE
+	menubarFont    _HANDLE
+	statusbarFont  _HANDLE
 )
 
 type _LOGFONT struct {
-	lfHeight			int32
-	lfWidth			int32
-	lfEscapement		int32
-	lfOrientation		int32
-	lfWeight			int32
-	lfItalic			byte
-	lfUnderline		byte
-	lfStrikeOut		byte
-	lfCharSet			byte
-	lfOutPrecision		byte
-	lfClipPrecision		byte
-	lfQuality			byte
-	lfPitchAndFamily	byte
-	lfFaceName		[_LF_FACESIZE]uint16
+	lfHeight         int32
+	lfWidth          int32
+	lfEscapement     int32
+	lfOrientation    int32
+	lfWeight         int32
+	lfItalic         byte
+	lfUnderline      byte
+	lfStrikeOut      byte
+	lfCharSet        byte
+	lfOutPrecision   byte
+	lfClipPrecision  byte
+	lfQuality        byte
+	lfPitchAndFamily byte
+	lfFaceName       [_LF_FACESIZE]uint16
 }
 
 type _NONCLIENTMETRICS struct {
-	cbSize			uint32
-	iBorderWidth		int32		// originally int
-	iScrollWidth		int32		// originally int
-	iScrollHeight		int32		// originally int
-	iCaptionWidth		int32		// originally int
-	iCaptionHeight		int32		// originally int
-	lfCaptionFont		_LOGFONT
-	iSmCaptionWidth	int32		// originally int
-	iSmCaptionHeight	int32		// originally int
-	lfSmCaptionFont	_LOGFONT
-	iMenuWidth		int32		// originally int
-	iMenuHeight		int32		// originally int
-	lfMenuFont		_LOGFONT
-	lfStatusFont		_LOGFONT
-	lfMessageFont		_LOGFONT
+	cbSize           uint32
+	iBorderWidth     int32 // originally int
+	iScrollWidth     int32 // originally int
+	iScrollHeight    int32 // originally int
+	iCaptionWidth    int32 // originally int
+	iCaptionHeight   int32 // originally int
+	lfCaptionFont    _LOGFONT
+	iSmCaptionWidth  int32 // originally int
+	iSmCaptionHeight int32 // originally int
+	lfSmCaptionFont  _LOGFONT
+	iMenuWidth       int32 // originally int
+	iMenuHeight      int32 // originally int
+	lfMenuFont       _LOGFONT
+	lfStatusFont     _LOGFONT
+	lfMessageFont    _LOGFONT
 }
 
 var (
 	_systemParametersInfo = user32.NewProc("SystemParametersInfoW")
-	_createFontIndirect = gdi32.NewProc("CreateFontIndirectW")
+	_createFontIndirect   = gdi32.NewProc("CreateFontIndirectW")
 )
 
 func getStandardWindowFonts() (err error) {
@@ -65,13 +64,13 @@ func getStandardWindowFonts() (err error) {
 		uintptr(unsafe.Sizeof(ncm)),
 		uintptr(unsafe.Pointer(&ncm)),
 		0)
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error getting system parameters: %v", err)
 	}
 
 	getfont := func(which *_LOGFONT, what string) (_HANDLE, error) {
 		r1, _, err = _createFontIndirect.Call(uintptr(unsafe.Pointer(which)))
-		if r1 == 0 {		// failure
+		if r1 == 0 { // failure
 			return _NULL, fmt.Errorf("error getting %s font; Windows last error: %v", what, err)
 		}
 		return _HANDLE(r1), nil
@@ -97,5 +96,5 @@ func getStandardWindowFonts() (err error) {
 	if err != nil {
 		return err
 	}
-	return nil		// all good
+	return nil // all good
 }

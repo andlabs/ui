@@ -70,7 +70,7 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 
 var (
 	_getFocus = user32.NewProc("GetFocus")
-	_isChild = user32.NewProc("IsChild")
+	_isChild  = user32.NewProc("IsChild")
 	// _setFocus in area_windows.go
 )
 
@@ -78,15 +78,15 @@ var (
 // from http://blogs.msdn.com/b/oldnewthing/archive/2014/05/21/10527168.aspx
 func (s *sysData) handleFocus(wParam _WPARAM) {
 	// parameter splitting from Microsoft's windowsx.h
-	state := uint32(wParam.LOWORD())		// originally UINT
+	state := uint32(wParam.LOWORD()) // originally UINT
 	minimized := wParam.HIWORD() != 0
 
-	if minimized {		// don't do anything on minimize
+	if minimized { // don't do anything on minimize
 		return
 	}
-	if state == _WA_INACTIVE {				// focusing out
+	if state == _WA_INACTIVE { // focusing out
 		old, _, _ := _getFocus.Call()
-		if _HWND(old) != _HWND(_NULL) {		// if there is one
+		if _HWND(old) != _HWND(_NULL) { // if there is one
 			r1, _, _ := _isChild.Call(
 				uintptr(s.hwnd),
 				old)
@@ -94,8 +94,8 @@ func (s *sysData) handleFocus(wParam _WPARAM) {
 				s.lastfocus = _HWND(old)
 			}
 		}
-	} else {								// focusing in
-		if s.lastfocus != _HWND(_NULL) {		// if we have one
+	} else { // focusing in
+		if s.lastfocus != _HWND(_NULL) { // if we have one
 			// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
 			_setFocus.Call(uintptr(s.lastfocus))
 		}
@@ -104,7 +104,7 @@ func (s *sysData) handleFocus(wParam _WPARAM) {
 
 func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	s := getSysData(hwnd)
-	if s == nil {		// not yet saved
+	if s == nil { // not yet saved
 		return storeSysData(hwnd, uMsg, wParam, lParam)
 	}
 	switch uMsg {
@@ -134,7 +134,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 				_sendMessage.Call(
 					uintptr(ss.hwnd),
 					uintptr(_BM_SETCHECK),
-					state,		// already uintptr
+					state, // already uintptr
 					uintptr(0))
 			}
 		}
@@ -158,7 +158,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 				panic("GetClientRect failed: " + err.Error())
 			}
 			// top-left corner is (0,0) so no need for winheight
-			s.doResize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), 0)
+			s.doResize(int(r.left), int(r.top), int(r.right-r.left), int(r.bottom-r.top), 0)
 			// TODO use the Defer movement functions here?
 			// TODO redraw window and all children here?
 		}
@@ -173,16 +173,16 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 }
 
 type _WNDCLASS struct {
-	style				uint32
-	lpfnWndProc		uintptr
-	cbClsExtra		int32		// originally int
-	cbWndExtra		int32		// originally int
-	hInstance			_HANDLE
-	hIcon			_HANDLE
-	hCursor			_HANDLE
-	hbrBackground	_HBRUSH
-	lpszMenuName	*uint16
-	lpszClassName		uintptr
+	style         uint32
+	lpfnWndProc   uintptr
+	cbClsExtra    int32 // originally int
+	cbWndExtra    int32 // originally int
+	hInstance     _HANDLE
+	hIcon         _HANDLE
+	hCursor       _HANDLE
+	hbrBackground _HBRUSH
+	lpszMenuName  *uint16
+	lpszClassName uintptr
 }
 
 var (
@@ -195,15 +195,15 @@ var (
 
 func registerStdWndClass() (err error) {
 	wc := &_WNDCLASS{
-		lpszClassName:	utf16ToArg(stdWndClass),
-		lpfnWndProc:		syscall.NewCallback(stdWndProc),
-		hInstance:		hInstance,
-		hIcon:			icon,
-		hCursor:			cursor,
-		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+		lpszClassName: utf16ToArg(stdWndClass),
+		lpfnWndProc:   syscall.NewCallback(stdWndProc),
+		hInstance:     hInstance,
+		hIcon:         icon,
+		hCursor:       cursor,
+		hbrBackground: _HBRUSH(_COLOR_BTNFACE + 1),
 	}
 	r1, _, err := _registerClass.Call(uintptr(unsafe.Pointer(wc)))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return err
 	}
 	return nil
@@ -214,7 +214,7 @@ func initWndClassInfo() (err error) {
 	r1, _, err := user32.NewProc("LoadIconW").Call(
 		uintptr(_NULL),
 		uintptr(_IDI_APPLICATION))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error getting window icon: %v", err)
 	}
 	icon = _HANDLE(r1)
@@ -222,7 +222,7 @@ func initWndClassInfo() (err error) {
 	r1, _, err = user32.NewProc("LoadCursorW").Call(
 		uintptr(_NULL),
 		uintptr(_IDC_ARROW))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return fmt.Errorf("error getting window cursor: %v", err)
 	}
 	cursor = _HANDLE(r1)
