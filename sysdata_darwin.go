@@ -13,24 +13,24 @@ import "C"
 type sysData struct {
 	cSysData
 
-	id			C.id
-	trackingArea	C.id		// for Area
+	id           C.id
+	trackingArea C.id // for Area
 }
 
 type classData struct {
-	make		func(parentWindow C.id, alternate bool, s *sysData) C.id
-	getinside		func(scrollview C.id) C.id
-	show		func(what C.id)
-	hide			func(what C.id)
-	settext		func(what C.id, text C.id)
-	text			func(what C.id, alternate bool) C.id
-	append		func(id C.id, what string, alternate bool)
-	insertBefore	func(id C.id, what string, before int, alternate bool)
-	selIndex		func(id C.id) int
-	selIndices		func(id C.id) []int
-	selTexts		func(id C.id) []string
-	delete		func(id C.id, index int)
-	len			func(id C.id) int
+	make         func(parentWindow C.id, alternate bool, s *sysData) C.id
+	getinside    func(scrollview C.id) C.id
+	show         func(what C.id)
+	hide         func(what C.id)
+	settext      func(what C.id, text C.id)
+	text         func(what C.id, alternate bool) C.id
+	append       func(id C.id, what string, alternate bool)
+	insertBefore func(id C.id, what string, before int, alternate bool)
+	selIndex     func(id C.id) int
+	selIndices   func(id C.id) []int
+	selTexts     func(id C.id) []string
+	delete       func(id C.id, index int)
+	len          func(id C.id) int
 }
 
 func addControl(parentWindow C.id, control C.id) {
@@ -56,148 +56,148 @@ func applyStandardControlFont(id C.id) {
 }
 
 var classTypes = [nctypes]*classData{
-	c_window:		&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_window: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			return C.makeWindow(appDelegate)
 		},
-		show:		func(what C.id) {
+		show: func(what C.id) {
 			C.windowShow(what)
 		},
-		hide:			func(what C.id) {
+		hide: func(what C.id) {
 			C.windowHide(what)
 		},
-		settext:		func(what C.id, text C.id) {
+		settext: func(what C.id, text C.id) {
 			C.windowSetTitle(what, text)
 		},
-		text:			func(what C.id, alternate bool) C.id {
+		text: func(what C.id, alternate bool) C.id {
 			return C.windowTitle(what)
 		},
 	},
-	c_button:			&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_button: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			button := C.makeButton()
 			C.buttonSetTargetAction(button, appDelegate)
 			applyStandardControlFont(button)
 			addControl(parentWindow, button)
 			return button
 		},
-		show:		controlShow,
-		hide:			controlHide,
-		settext:		func(what C.id, text C.id) {
+		show: controlShow,
+		hide: controlHide,
+		settext: func(what C.id, text C.id) {
 			C.buttonSetText(what, text)
 		},
-		text:			func(what C.id, alternate bool) C.id {
+		text: func(what C.id, alternate bool) C.id {
 			return C.buttonText(what)
 		},
 	},
-	c_checkbox:		&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_checkbox: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			checkbox := C.makeCheckbox()
 			applyStandardControlFont(checkbox)
 			addControl(parentWindow, checkbox)
 			return checkbox
 		},
-		show:		controlShow,
-		hide:			controlHide,
-		settext:		func(what C.id, text C.id) {
+		show: controlShow,
+		hide: controlHide,
+		settext: func(what C.id, text C.id) {
 			C.buttonSetText(what, text)
 		},
-		text:			func(what C.id, alternate bool) C.id {
+		text: func(what C.id, alternate bool) C.id {
 			return C.buttonText(what)
 		},
 	},
-	c_combobox:		&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_combobox: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			combobox := C.makeCombobox(toBOOL(alternate))
 			applyStandardControlFont(combobox)
 			addControl(parentWindow, combobox)
 			return combobox
 		},
-		show:		controlShow,
-		hide:			controlHide,
-		text:			func(what C.id, alternate bool) C.id {
+		show: controlShow,
+		hide: controlHide,
+		text: func(what C.id, alternate bool) C.id {
 			return C.comboboxText(what, toBOOL(alternate))
 		},
-		append:		func(id C.id, what string, alternate bool) {
+		append: func(id C.id, what string, alternate bool) {
 			C.comboboxAppend(id, toBOOL(alternate), toNSString(what))
 		},
-		insertBefore:	func(id C.id, what string, before int, alternate bool) {
+		insertBefore: func(id C.id, what string, before int, alternate bool) {
 			C.comboboxInsertBefore(id, toBOOL(alternate),
 				toNSString(what), C.intptr_t(before))
 		},
-		selIndex:		func(id C.id) int {
+		selIndex: func(id C.id) int {
 			return int(C.comboboxSelectedIndex(id))
 		},
-		delete:		func(id C.id, index int) {
+		delete: func(id C.id, index int) {
 			C.comboboxDelete(id, C.intptr_t(index))
 		},
-		len:			func(id C.id) int {
+		len: func(id C.id) int {
 			return int(C.comboboxLen(id))
 		},
 	},
-	c_lineedit:		&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_lineedit: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			lineedit := C.makeLineEdit(toBOOL(alternate))
 			applyStandardControlFont(lineedit)
 			addControl(parentWindow, lineedit)
 			return lineedit
 		},
-		show:		controlShow,
-		hide:			controlHide,
-		settext:		func(what C.id, text C.id) {
+		show: controlShow,
+		hide: controlHide,
+		settext: func(what C.id, text C.id) {
 			C.lineeditSetText(what, text)
 		},
-		text:			func(what C.id, alternate bool) C.id {
+		text: func(what C.id, alternate bool) C.id {
 			return C.lineeditText(what)
 		},
 	},
-	c_label:			&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_label: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			label := C.makeLabel()
 			applyStandardControlFont(label)
 			addControl(parentWindow, label)
 			return label
 		},
-		show:		controlShow,
-		hide:			controlHide,
-		settext:		func(what C.id, text C.id) {
+		show: controlShow,
+		hide: controlHide,
+		settext: func(what C.id, text C.id) {
 			C.lineeditSetText(what, text)
 		},
-		text:			func(what C.id, alternate bool) C.id {
+		text: func(what C.id, alternate bool) C.id {
 			return C.lineeditText(what)
 		},
 	},
-	c_listbox:			&classData{
-		make:		makeListbox,
-		show:		controlShow,
-		hide:			controlHide,
-		append:		listboxAppend,
-		insertBefore:	listboxInsertBefore,
-		selIndices:	listboxSelectedIndices,
-		selTexts:		listboxSelectedTexts,
-		delete:		listboxDelete,
-		len:			listboxLen,
+	c_listbox: &classData{
+		make:         makeListbox,
+		show:         controlShow,
+		hide:         controlHide,
+		append:       listboxAppend,
+		insertBefore: listboxInsertBefore,
+		selIndices:   listboxSelectedIndices,
+		selTexts:     listboxSelectedTexts,
+		delete:       listboxDelete,
+		len:          listboxLen,
 	},
-	c_progressbar:		&classData{
-		make:		func(parentWindow C.id, alternate bool, s *sysData) C.id {
+	c_progressbar: &classData{
+		make: func(parentWindow C.id, alternate bool, s *sysData) C.id {
 			pbar := C.makeProgressBar()
 			addControl(parentWindow, pbar)
 			return pbar
 		},
-		show:		controlShow,
-		hide:			controlHide,
+		show: controlShow,
+		hide: controlHide,
 	},
-	c_area:			&classData{
-		make:		makeArea,
-		getinside:		areaInScrollView,
-		show:		controlShow,
-		hide:			controlHide,
+	c_area: &classData{
+		make:      makeArea,
+		getinside: areaInScrollView,
+		show:      controlShow,
+		hide:      controlHide,
 	},
 }
 
 // I need to access sysData from appDelegate, but appDelegate doesn't store any data. So, this.
 var (
-	sysdatas = make(map[C.id]*sysData)
+	sysdatas    = make(map[C.id]*sysData)
 	sysdatalock sync.Mutex
 )
 
@@ -282,7 +282,7 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 	// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 	// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
 	C.setRect(s.id,
-		C.intptr_t(x), C.intptr_t((winheight - y) - height),
+		C.intptr_t(x), C.intptr_t((winheight-y)-height),
 		C.intptr_t(width), C.intptr_t(height))
 	return nil
 }

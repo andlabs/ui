@@ -14,103 +14,103 @@ import "C"
 type sysData struct {
 	cSysData
 
-	widget		*C.GtkWidget
-	container		*C.GtkWidget	// for moving
-	pulse		chan bool		// for sysData.progressPulse()
-	clickCounter	clickCounter	// for Areas
+	widget       *C.GtkWidget
+	container    *C.GtkWidget // for moving
+	pulse        chan bool    // for sysData.progressPulse()
+	clickCounter clickCounter // for Areas
 	// we probably don't need to save these, but we'll do so for sysData.preferredSize() just in case
-	areawidth		int
-	areaheight	int
+	areawidth  int
+	areaheight int
 }
 
 type classData struct {
-	make	func() *C.GtkWidget
-	makeAlt	func() *C.GtkWidget
-	setText	func(widget *C.GtkWidget, text string)
-	text		func(widget *C.GtkWidget) string
-	append	func(widget *C.GtkWidget, text string)
-	insert	func(widget *C.GtkWidget, index int, text string)
-	selected	func(widget *C.GtkWidget) int
-	selMulti	func(widget *C.GtkWidget) []int
-	smtexts	func(widget *C.GtkWidget) []string
-	delete	func(widget *C.GtkWidget, index int)
-	len		func(widget *C.GtkWidget) int
+	make     func() *C.GtkWidget
+	makeAlt  func() *C.GtkWidget
+	setText  func(widget *C.GtkWidget, text string)
+	text     func(widget *C.GtkWidget) string
+	append   func(widget *C.GtkWidget, text string)
+	insert   func(widget *C.GtkWidget, index int, text string)
+	selected func(widget *C.GtkWidget) int
+	selMulti func(widget *C.GtkWidget) []int
+	smtexts  func(widget *C.GtkWidget) []string
+	delete   func(widget *C.GtkWidget, index int)
+	len      func(widget *C.GtkWidget) int
 	// ...
-	signals	callbackMap
-	child		func(widget *C.GtkWidget) *C.GtkWidget
-	childsigs	callbackMap
+	signals   callbackMap
+	child     func(widget *C.GtkWidget) *C.GtkWidget
+	childsigs callbackMap
 }
 
 var classTypes = [nctypes]*classData{
-	c_window:		&classData{
-		make:		gtk_window_new,
-		setText:		gtk_window_set_title,
-		text:			gtk_window_get_title,
-		signals:		callbackMap{
-			"delete-event":		window_delete_event_callback,
-			"configure-event":	window_configure_event_callback,
+	c_window: &classData{
+		make:    gtk_window_new,
+		setText: gtk_window_set_title,
+		text:    gtk_window_get_title,
+		signals: callbackMap{
+			"delete-event":    window_delete_event_callback,
+			"configure-event": window_configure_event_callback,
 		},
 	},
-	c_button:			&classData{
-		make:		gtk_button_new,
-		setText:		gtk_button_set_label,
-		text:			gtk_button_get_label,
-		signals:		callbackMap{
-			"clicked":		button_clicked_callback,
+	c_button: &classData{
+		make:    gtk_button_new,
+		setText: gtk_button_set_label,
+		text:    gtk_button_get_label,
+		signals: callbackMap{
+			"clicked": button_clicked_callback,
 		},
 	},
-	c_checkbox:		&classData{
-		make:		gtk_check_button_new,
-		setText:		gtk_button_set_label,
-		text:			gtk_button_get_label,
+	c_checkbox: &classData{
+		make:    gtk_check_button_new,
+		setText: gtk_button_set_label,
+		text:    gtk_button_get_label,
 	},
-	c_combobox:		&classData{
-		make:		gtk_combo_box_text_new,
-		makeAlt:		gtk_combo_box_text_new_with_entry,
-		text:			gtk_combo_box_text_get_active_text,
-		append:		gtk_combo_box_text_append_text,
-		insert:		gtk_combo_box_text_insert_text,
-		selected:		gtk_combo_box_get_active,
-		delete:		gtk_combo_box_text_remove,
-		len:			gtkComboBoxLen,
+	c_combobox: &classData{
+		make:     gtk_combo_box_text_new,
+		makeAlt:  gtk_combo_box_text_new_with_entry,
+		text:     gtk_combo_box_text_get_active_text,
+		append:   gtk_combo_box_text_append_text,
+		insert:   gtk_combo_box_text_insert_text,
+		selected: gtk_combo_box_get_active,
+		delete:   gtk_combo_box_text_remove,
+		len:      gtkComboBoxLen,
 	},
-	c_lineedit:		&classData{
-		make:		gtk_entry_new,
-		makeAlt:		gtkPasswordEntryNew,
-		setText:		gtk_entry_set_text,
-		text:			gtk_entry_get_text,
+	c_lineedit: &classData{
+		make:    gtk_entry_new,
+		makeAlt: gtkPasswordEntryNew,
+		setText: gtk_entry_set_text,
+		text:    gtk_entry_get_text,
 	},
-	c_label:			&classData{
-		make:		gtk_label_new,
-		setText:		gtk_label_set_text,
-		text:			gtk_label_get_text,
+	c_label: &classData{
+		make:    gtk_label_new,
+		setText: gtk_label_set_text,
+		text:    gtk_label_get_text,
 	},
-	c_listbox:			&classData{
-		make:		gListboxNewSingle,
-		makeAlt:		gListboxNewMulti,
-		text:			gListboxText,
-		append:		gListboxAppend,
-		insert:		gListboxInsert,
-		selMulti:		gListboxSelectedMulti,
-		smtexts:		gListboxSelMultiTexts,
-		delete:		gListboxDelete,
-		len:			gListboxLen,
+	c_listbox: &classData{
+		make:     gListboxNewSingle,
+		makeAlt:  gListboxNewMulti,
+		text:     gListboxText,
+		append:   gListboxAppend,
+		insert:   gListboxInsert,
+		selMulti: gListboxSelectedMulti,
+		smtexts:  gListboxSelMultiTexts,
+		delete:   gListboxDelete,
+		len:      gListboxLen,
 	},
-	c_progressbar:		&classData{
-		make:		gtk_progress_bar_new,
+	c_progressbar: &classData{
+		make: gtk_progress_bar_new,
 	},
-	c_area:			&classData{
-		make:		gtkAreaNew,
-		child:		gtkAreaGetControl,
-		childsigs:		callbackMap{
-			"draw":				area_draw_callback,
-			"button-press-event":	area_button_press_event_callback,
-			"button-release-event":	area_button_release_event_callback,
-			"motion-notify-event":	area_motion_notify_event_callback,
-			"enter-notify-event":	area_enterleave_notify_event_callback,
-			"leave-notify-event":	area_enterleave_notify_event_callback,
-			"key-press-event":		area_key_press_event_callback,
-			"key-release-event":	area_key_release_event_callback,
+	c_area: &classData{
+		make:  gtkAreaNew,
+		child: gtkAreaGetControl,
+		childsigs: callbackMap{
+			"draw":                 area_draw_callback,
+			"button-press-event":   area_button_press_event_callback,
+			"button-release-event": area_button_release_event_callback,
+			"motion-notify-event":  area_motion_notify_event_callback,
+			"enter-notify-event":   area_enterleave_notify_event_callback,
+			"leave-notify-event":   area_enterleave_notify_event_callback,
+			"key-press-event":      area_key_press_event_callback,
+			"key-release-event":    area_key_release_event_callback,
 		},
 	},
 }
@@ -311,14 +311,14 @@ func (s *sysData) progressPulse() {
 			if start {
 				ticker = time.NewTicker(pulseRate)
 				tickchan = ticker.C
-				pulse()			// start the pulse animation now, not 100ms later
+				pulse() // start the pulse animation now, not 100ms later
 			} else {
 				if ticker != nil {
 					ticker.Stop()
 				}
 				ticker = nil
 				tickchan = nil
-				s.pulse <- true		// notify sysData.setProgress()
+				s.pulse <- true // notify sysData.setProgress()
 			}
 		case <-tickchan:
 			pulse()
@@ -336,7 +336,7 @@ func (s *sysData) setProgress(percent int) {
 		return
 	}
 	s.pulse <- false
-	<-s.pulse			// wait for sysData.progressPulse() to register that
+	<-s.pulse // wait for sysData.progressPulse() to register that
 	ret := make(chan struct{})
 	defer close(ret)
 	uitask <- func() {
@@ -361,7 +361,7 @@ func (s *sysData) setAreaSize(width int, height int) {
 	uitask <- func() {
 		c := gtkAreaGetControl(s.widget)
 		gtk_widget_set_size_request(c, width, height)
-		s.areawidth = width		// for sysData.preferredSize()
+		s.areawidth = width // for sysData.preferredSize()
 		s.areaheight = height
 		C.gtk_widget_queue_draw(c)
 		ret <- struct{}{}

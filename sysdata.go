@@ -2,7 +2,7 @@
 
 package ui
 
-const eventbufsiz = 100		// suggested by skelterjohn
+const eventbufsiz = 100 // suggested by skelterjohn
 
 // newEvent returns a new channel suitable for listening for events.
 func newEvent() chan struct{} {
@@ -11,12 +11,12 @@ func newEvent() chan struct{} {
 
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
-	ctype	int
-	event	chan struct{}
-	resize	func(x int, y int, width int, height int, rr *[]resizerequest)
-	resizes	[]resizerequest
-	alternate	bool			// editable for Combobox, multi-select for listbox, password for lineedit
-	handler	AreaHandler	// for Areas
+	ctype     int
+	event     chan struct{}
+	resize    func(x int, y int, width int, height int, rr *[]resizerequest)
+	resizes   []resizerequest
+	alternate bool        // editable for Combobox, multi-select for listbox, password for lineedit
+	handler   AreaHandler // for Areas
 }
 
 // this interface is used to make sure all sysDatas are synced
@@ -41,7 +41,7 @@ var _xSysData interface {
 	len() int
 	setAreaSize(int, int)
 	repaintAll()
-} = &sysData{}		// this line will error if there's an inconsistency
+} = &sysData{} // this line will error if there's an inconsistency
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
 // Thanks skelterjohn for this techinque: if we can't queue any more events, drop them
@@ -71,27 +71,27 @@ const (
 
 func mksysdata(ctype int) *sysData {
 	s := &sysData{
-		cSysData:		cSysData{
-			ctype:	ctype,
+		cSysData: cSysData{
+			ctype: ctype,
 		},
 	}
-	if ctype == c_window {		// make resizes non-nil so it can be passed in
+	if ctype == c_window { // make resizes non-nil so it can be passed in
 		s.resizes = make([]resizerequest, 0, 0)
 	}
 	return s
 }
 
 type resizerequest struct {
-	sysData	*sysData
-	x		int
-	y		int
-	width	int
-	height	int
+	sysData *sysData
+	x       int
+	y       int
+	width   int
+	height  int
 }
 
 func (s *sysData) doResize(x int, y int, width int, height int, winheight int) {
 	if s.resize != nil {
-		s.resizes = s.resizes[0:0]		// set len to 0 without changing cap
+		s.resizes = s.resizes[0:0] // set len to 0 without changing cap
 		s.resize(x, y, width, height, &s.resizes)
 		for _, s := range s.resizes {
 			err := s.sysData.setRect(s.x, s.y, s.width, s.height, winheight)
