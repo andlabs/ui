@@ -18,4 +18,3 @@ UNIX:
 
 ALL PLATFORMS:
 - make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
-- make all widths and heights parameters in constructors in the same place (or drop the ones in Window entirely?)
