@@ -15,7 +15,7 @@ import (
 // static inline GtkWidget *gtkNewMsgBox(GtkWindow *parent, GtkMessageType type, GtkButtonsType buttons, char *title, char *text)
 // {
 // 	GtkWidget *k;
-// 
+//
 // 	k = gtk_message_dialog_new(parent, GTK_DIALOG_MODAL, type, buttons, "%s", (gchar *) title);
 // 	if (text != NULL)
 // 		gtk_message_dialog_format_secondary_text((GtkMessageDialog *) k, "%s", (gchar *) text);
@@ -25,18 +25,18 @@ import "C"
 
 // dialog performs the bookkeeping involved for having a GtkDialog behave the way we want.
 type dialog struct {
-	parent		*Window
-	pwin			*C.GtkWindow
-	hadgroup		C.gboolean
-	prevgroup	*C.GtkWindowGroup
-	newgroup		*C.GtkWindowGroup
-	result		chan int
+	parent    *Window
+	pwin      *C.GtkWindow
+	hadgroup  C.gboolean
+	prevgroup *C.GtkWindowGroup
+	newgroup  *C.GtkWindowGroup
+	result    chan int
 }
 
 func mkdialog(parent *Window) *dialog {
 	return &dialog{
-		parent:	parent,
-		result:	make(chan int),
+		parent: parent,
+		result: make(chan int),
 	}
 }
 
@@ -84,7 +84,7 @@ func (d *dialog) run(mk func() *C.GtkWidget) {
 func our_dialog_response_callback(box *C.GtkDialog, res C.gint, data C.gpointer) {
 	d := (*dialog)(unsafe.Pointer(data))
 	d.cleanup((*C.GtkWidget)(unsafe.Pointer(box)))
-	go d.send(res)		// send on another goroutine, like everything else
+	go d.send(res) // send on another goroutine, like everything else
 }
 
 var dialog_response_callback = C.GCallback(C.our_dialog_response_callback)
@@ -94,10 +94,10 @@ func (d *dialog) cleanup(box *C.GtkWidget) {
 	C.gtk_widget_destroy(box)
 	if d.parent != dialogWindow {
 		C.gtk_window_group_remove_window(d.newgroup, d.pwin)
-		C.g_object_unref(C.gpointer(unsafe.Pointer(d.newgroup)))		// free the group
+		C.g_object_unref(C.gpointer(unsafe.Pointer(d.newgroup))) // free the group
 		if d.prevgroup != nil {
 			C.gtk_window_group_add_window(d.prevgroup, d.pwin)
-		}		// otherwise it'll go back into the default group on its own
+		} // otherwise it'll go back into the default group on its own
 	}
 }
 

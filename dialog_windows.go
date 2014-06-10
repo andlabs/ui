@@ -22,26 +22,26 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 	parenthwnd := _HWND(_NULL)
 	if parent != dialogWindow {
 		parenthwnd = parent.sysData.hwnd
-		uType |= _MB_APPLMODAL		// only for this window
+		uType |= _MB_APPLMODAL // only for this window
 	} else {
-		uType |= _MB_TASKMODAL		// make modal to every window in the program (they're all windows of the uitask, which is a single thread)
+		uType |= _MB_TASKMODAL // make modal to every window in the program (they're all windows of the uitask, which is a single thread)
 	}
 	retchan := make(chan int)
 	go func() {
 		ret := make(chan uiret)
 		defer close(ret)
 		uitask <- &uimsg{
-			call:		_messageBox,
-			p:		[]uintptr{
+			call: _messageBox,
+			p: []uintptr{
 				uintptr(parenthwnd),
 				utf16ToArg(ptext),
 				utf16ToArg(ptitle),
 				uintptr(uType),
 			},
-			ret:		ret,
+			ret: ret,
 		}
 		r := <-ret
-		if r.ret == 0 {		// failure
+		if r.ret == 0 { // failure
 			panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", r.err, uType, os.Args[0], text))
 		}
 		retchan <- int(r.ret)
@@ -61,7 +61,7 @@ func (w *Window) msgBox(primarytext string, secondarytext string) (done chan str
 func (w *Window) msgBoxError(primarytext string, secondarytext string) (done chan struct{}) {
 	done = make(chan struct{})
 	go func() {
-		<-_msgBox(w, primarytext, secondarytext, _MB_OK | _MB_ICONERROR)
+		<-_msgBox(w, primarytext, secondarytext, _MB_OK|_MB_ICONERROR)
 		done <- struct{}{}
 	}()
 	return done

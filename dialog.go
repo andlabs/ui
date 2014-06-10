@@ -2,10 +2,6 @@
 
 package ui
 
-import (
-	// ...
-)
-
 // sentinel (not nil so programmer errors don't go undetected)
 // this window is invalid and cannot be used directly
 var dialogWindow = new(Window)
@@ -15,7 +11,7 @@ var dialogWindow = new(Window)
 // Optionally, secondaryText can be used to show additional information.
 // If you pass an empty string for secondaryText, neither additional information nor space for additional information will be shown.
 // On platforms that allow for the message box window to have a title, os.Args[0] is used.
-// 
+//
 // See "On Dialogs" in the package overview for behavioral information.
 func MsgBox(primaryText string, secondaryText string) {
 	<-dialogWindow.msgBox(primaryText, secondaryText)
@@ -32,7 +28,7 @@ func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan str
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
 // Otherwise, it behaves like MsgBox.
-// 
+//
 // See "On Dialogs" in the package overview for more information.
 func MsgBoxError(primaryText string, secondaryText string) {
 	<-dialogWindow.msgBoxError(primaryText, secondaryText)

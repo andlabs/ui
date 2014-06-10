@@ -12,7 +12,7 @@ import "C"
 //export dialog_send
 func dialog_send(pchan unsafe.Pointer, res C.intptr_t) {
 	rchan := (*chan int)(pchan)
-	go func() {		// send it in a new goroutine like we do with everything else
+	go func() { // send it in a new goroutine like we do with everything else
 		*rchan <- int(res)
 	}()
 }
@@ -31,9 +31,9 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, style uin
 			secondary = toNSString(secondarytext)
 		}
 		switch style {
-		case 0:		// normal
+		case 0: // normal
 			C.msgBox(pwin, primary, secondary, unsafe.Pointer(&ret))
-		case 1:		// error
+		case 1: // error
 			C.msgBoxError(pwin, primary, secondary, unsafe.Pointer(&ret))
 		}
 	}
