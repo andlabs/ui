@@ -3,6 +3,7 @@ MAC OS X:
 	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
 - make sure Areas get keyboard focus when clicking outside the actual Area space on Mac OS X
 	- http://stackoverflow.com/questions/24102367/how-do-i-make-it-so-clicking-outside-the-actual-nsview-in-a-nsscrollview-but-wit
+- on initially starting the Area test, layout is totally wrong
 
 WINDOWS:
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
@@ -15,6 +16,3 @@ UNIX:
 	- several people suggested connecting to size-allocate of the GtkLayout, but then I can wind up in a situation where there's extra padding or border space in the direction I resized
 - [12:55] <myklgo> pietro10: I meant to mention: 1073): Gtk-WARNING **: Theme parsing error: gtk.css:72:20: Not using units is deprecated. Assuming 'px'.    twice.
 - figure out why Page Up/Page Down does tab stops
-
-ALL PLATFORMS:
-- make sure MouseEvent's documentation has dragging described correctly (both Windows and GTK+ do)
