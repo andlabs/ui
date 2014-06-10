@@ -68,9 +68,18 @@ Package ui does not close these channels, nor does it send multiple values on th
 
 Scrollbars
 
-[TODO]
+The following Controls have scrolling support built in:
+
+	Listbox *
+	Area
+
+All of the above controls have both horizontal and vertical scrollbars.
+These scrollbars hide themselves when not needed.
+
+[FUTURE DISCUSSIONS: scrolling programmatically, MouseEvent/KeyEvent scroll overrides]
+
+[FUTURE PLAN: Controls that are not marked with a * in the above list can have their scrollbars disabled completely in code.]
 
 The result of resizing the window such that the scrollbars consider themselves too small is implementation-defined.
-
 */
 package ui

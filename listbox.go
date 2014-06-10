@@ -9,8 +9,8 @@ import (
 
 // A Listbox is a vertical list of items, of which either at most one or any number of items can be selected at any given time.
 // On creation, no item is selected.
-// Listboxes have vertical scrollbars that are hidden when not needed.
-// The presence of horizontal scrollbars is currently undefined.
+// For information on scrollbars, see "Scrollbars" in the Overview.
+// Due to implementation issues, the presence of horizontal scrollbars is currently implementation-defined.
 type Listbox struct {
 	lock		sync.Mutex
 	created	bool
