@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"time"
 	"strconv"
+	"sync"
 	. "github.com/andlabs/ui"
 )
 
@@ -116,7 +117,9 @@ func invalidTest(c *Combobox, l *Listbox, s *Stack, g *Grid) {
 			defer x("Grid.SetStretchy y > len"); g.SetStretchy(0, 5555); panic(nil)
 		}()
 	}
-	ah := &areaHandler{nil}
+	ah := &areaHandler{
+		img:		nil,
+	}
 	type at struct {
 		msg		string
 		x, y		int
@@ -150,6 +153,7 @@ var invalidBefore = flag.Bool("invalid", false, "run invalid test before opening
 
 type areaHandler struct {
 	img		*image.RGBA
+	lock		sync.Mutex
 }
 func (a *areaHandler) Paint(rect image.Rectangle) *image.RGBA {
 //fmt.Println(rect)
@@ -160,6 +164,7 @@ func (a *areaHandler) Paint(rect image.Rectangle) *image.RGBA {
 		i = 1 - i
 	}
 */
+	a.lock.Lock(); defer a.lock.Unlock()
 	return a.img.SubImage(rect).(*image.RGBA)
 }
 func (a *areaHandler) Mouse(e MouseEvent) bool {
@@ -169,6 +174,10 @@ func (a *areaHandler) Mouse(e MouseEvent) bool {
 func (a *areaHandler) Key(e KeyEvent) bool {
 	fmt.Printf("%#v %q\n", e, e.Key)
 	return false
+}
+func (a *areaHandler) mutate() {
+	a.lock.Lock(); defer a.lock.Unlock()
+	draw.Draw(a.img, a.img.Rect, &image.Uniform{color.RGBA{255,255,0,128}}, image.ZP, draw.Over)
 }
 
 var doArea = flag.Bool("area", false, "run area test instead (overrides -kb and -areabounds)")
@@ -191,9 +200,10 @@ func areaTest() {
 	img := image.NewRGBA(ximg.Bounds())
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
 	w := NewWindow("Area Test", 100, 100)
-	a := NewArea(320, 240, &areaHandler{
+	areahandler := &areaHandler{
 		img:		img,
-	})
+	}
+	a := NewArea(320, 240, areahandler)
 	timedisp := NewLabel("")
 	timechan := time.Tick(time.Second)
 	widthbox := NewLineEdit("320")
@@ -204,7 +214,8 @@ func areaTest() {
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
 	modaltest := NewButton("Modal")
-	sizeStack = NewHorizontalStack(sizeStack, Space(), modaltest)
+	repainttest := NewButton("Repaint All")
+	sizeStack = NewHorizontalStack(sizeStack, repainttest, modaltest)
 	sizeStack.SetStretchy(0)
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
@@ -227,6 +238,9 @@ func areaTest() {
 			a.SetSize(width, height)
 		case <-modaltest.Clicked:
 			MsgBox("Modal Test", "")
+		case <-repainttest.Clicked:
+			areahandler.mutate()
+			a.RepaintAll()
 		}
 	}
 }

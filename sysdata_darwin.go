@@ -402,3 +402,13 @@ func (s *sysData) setAreaSize(width int, height int) {
 	}
 	<-ret
 }
+
+func (s *sysData) repaintAll() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		C.display(s.id)
+		ret <- struct{}{}
+	}
+	<-ret
+}

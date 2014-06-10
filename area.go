@@ -308,6 +308,18 @@ func (a *Area) SetSize(width int, height int) {
 	a.initheight = height
 }
 
+// RepaintAll signals the entirety of the Area for redraw.
+// If called before the Window containing the Area is created, RepaintAll does nothing.
+func (a *Area) RepaintAll() {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	if !a.created {
+		return
+	}
+	a.sysData.repaintAll()
+}
+
 func (a *Area) make(window *sysData) error {
 	a.lock.Lock()
 	defer a.lock.Unlock()
