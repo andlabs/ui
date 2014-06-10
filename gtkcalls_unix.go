@@ -17,7 +17,7 @@ import (
 // 	/* thanks mclasen and tristan in irc.gimp.net/#gtk+ */
 // 	GtkCellLayout *cbox = (GtkCellLayout *) w;
 // 	GList *renderer;
-// 
+//
 // 	renderer = gtk_cell_layout_get_cells(cbox);
 // 	g_object_set(renderer->data,
 // 		"ellipsize-set", TRUE,		/* with no ellipsizing or wrapping, the combobox won't resize */
@@ -36,18 +36,18 @@ var gtkStyles = []byte(
 	-GtkProgressBar-min-horizontal-bar-width: 1;
 }
 ` +
-	// on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
-	// this CSS fixes it
-	// thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
-	// this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
-	`GtkLayout {
+		// on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
+		// this CSS fixes it
+		// thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
+		// this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
+		`GtkLayout {
 	background-color: transparent;
 }
 ` +
-	"\000")
+		"\000")
 
 func gtk_init() error {
-	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+	var err *C.GError = nil // redundant in Go, but let's explicitly assign it anyway
 
 	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
 	// don't worry about GTK+'s command-line arguments; they're also available as environment variables (thanks mclasen in irc.gimp.net/#gtk+)
@@ -57,7 +57,7 @@ func gtk_init() error {
 	}
 
 	// now apply our custom program-global styles
-	provider := C.gtk_css_provider_new();
+	provider := C.gtk_css_provider_new()
 	if C.gtk_css_provider_load_from_data(provider, (*C.gchar)(unsafe.Pointer(&gtkStyles[0])), -1, &err) == C.FALSE {
 		return fmt.Errorf("error applying package ui's custom program-global styles to GTK+: %v", fromgstr(err.message))
 	}
@@ -237,9 +237,9 @@ var emptystring = &_emptystring[0]
 
 func gtk_label_new() *C.GtkWidget {
 	label := C.gtk_label_new(emptystring)
-	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE)			// turn off line wrap
+	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE) // turn off line wrap
 	// don't call gtk_label_set_line_wrap_mode(); there's no "wrap none" value there anyway
-	C.gtk_label_set_ellipsize(togtklabel(label), C.PANGO_ELLIPSIZE_NONE)		// turn off ellipsizing; this + line wrapping above will guarantee cutoff as documented
+	C.gtk_label_set_ellipsize(togtklabel(label), C.PANGO_ELLIPSIZE_NONE) // turn off ellipsizing; this + line wrapping above will guarantee cutoff as documented
 	// there's a function gtk_label_set_justify() that indicates GTK_JUSTIFY_LEFT is the default
 	// but this actually is NOT the control justification, just the multi-line justification
 	// so we need to do THIS instead
