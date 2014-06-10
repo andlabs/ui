@@ -54,6 +54,6 @@ func initCocoa() (err error) {
 
 //export appDelegate_uitask
 func appDelegate_uitask(p unsafe.Pointer) {
-	f := (*func ())(unsafe.Pointer(p))
+	f := (*func())(unsafe.Pointer(p))
 	(*f)()
 }

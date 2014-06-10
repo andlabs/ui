@@ -4,9 +4,9 @@ package ui
 
 import (
 	"fmt"
+	"runtime"
 	"syscall"
 	"unsafe"
-	"runtime"
 )
 
 /*
@@ -25,18 +25,18 @@ yay.
 var uitask chan *uimsg
 
 type uimsg struct {
-	call		*syscall.LazyProc
-	p		[]uintptr
-	ret		chan uiret
+	call *syscall.LazyProc
+	p    []uintptr
+	ret  chan uiret
 }
 
 type uiret struct {
-	ret		uintptr
-	err		error
+	ret uintptr
+	err error
 }
 
 const (
-	msgRequested = _WM_APP + iota + 1		// + 1 just to be safe
+	msgRequested = _WM_APP + iota + 1 // + 1 just to be safe
 	msgQuit
 	msgSetAreaSize
 	msgRepaintAll
@@ -67,7 +67,7 @@ func ui(main func()) error {
 				msgRequested,
 				uintptr(0),
 				uintptr(unsafe.Pointer(m)))
-			if r1 == 0 {		// failure
+			if r1 == 0 { // failure
 				panic("error sending message to message loop to call function: " + err.Error())
 			}
 		}
@@ -80,7 +80,7 @@ func ui(main func()) error {
 			msgQuit,
 			uintptr(0),
 			uintptr(0))
-		if r1 == 0 {		// failure
+		if r1 == 0 { // failure
 			panic("error sending quit message to message loop: " + err.Error())
 		}
 	}()
@@ -90,21 +90,21 @@ func ui(main func()) error {
 }
 
 var (
-	_dispatchMessage = user32.NewProc("DispatchMessageW")
-	_getMessage = user32.NewProc("GetMessageW")
-	_postQuitMessage = user32.NewProc("PostQuitMessage")
-	_sendMessage = user32.NewProc("SendMessageW")
+	_dispatchMessage  = user32.NewProc("DispatchMessageW")
+	_getMessage       = user32.NewProc("GetMessageW")
+	_postQuitMessage  = user32.NewProc("PostQuitMessage")
+	_sendMessage      = user32.NewProc("SendMessageW")
 	_translateMessage = user32.NewProc("TranslateMessage")
 )
 
 func msgloop() {
 	var msg struct {
-		hwnd	_HWND
-		message	uint32
-		wParam	_WPARAM
-		lParam	_LPARAM
-		time		uint32
-		pt		_POINT
+		hwnd    _HWND
+		message uint32
+		wParam  _WPARAM
+		lParam  _LPARAM
+		time    uint32
+		pt      _POINT
 	}
 
 	for {
@@ -113,10 +113,10 @@ func msgloop() {
 			uintptr(_NULL),
 			uintptr(0),
 			uintptr(0))
-		if r1 == negConst(-1) {		// error
+		if r1 == negConst(-1) { // error
 			panic("error getting message in message loop: " + err.Error())
 		}
-		if r1 == 0 {		// WM_QUIT message
+		if r1 == 0 { // WM_QUIT message
 			return
 		}
 		_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
@@ -131,16 +131,16 @@ var (
 
 func makeMessageHandler() (hwnd _HWND, err error) {
 	wc := &_WNDCLASS{
-		lpszClassName:	utf16ToArg(msghandlerclass),
-		lpfnWndProc:		syscall.NewCallback(messageHandlerWndProc),
-		hInstance:		hInstance,
-		hIcon:			icon,
-		hCursor:			cursor,
-		hbrBackground:	_HBRUSH(_COLOR_BTNFACE + 1),
+		lpszClassName: utf16ToArg(msghandlerclass),
+		lpfnWndProc:   syscall.NewCallback(messageHandlerWndProc),
+		hInstance:     hInstance,
+		hIcon:         icon,
+		hCursor:       cursor,
+		hbrBackground: _HBRUSH(_COLOR_BTNFACE + 1),
 	}
 
 	r1, _, err := _registerClass.Call(uintptr(unsafe.Pointer(wc)))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return _HWND(_NULL), fmt.Errorf("error registering the class of the invisible window for handling events: %v", err)
 	}
 
@@ -158,7 +158,7 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 		uintptr(_NULL),
 		uintptr(hInstance),
 		uintptr(_NULL))
-	if r1 == 0 {		// failure
+	if r1 == 0 { // failure
 		return _HWND(_NULL), fmt.Errorf("error actually creating invisible window for handling events: %v", err)
 	}
 
@@ -171,8 +171,8 @@ func messageHandlerWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPAR
 		m := (*uimsg)(unsafe.Pointer(lParam))
 		r1, _, err := m.call.Call(m.p...)
 		m.ret <- uiret{
-			ret:	r1,
-			err:	err,
+			ret: r1,
+			err: err,
 		}
 		return 0
 	case msgQuit:

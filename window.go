@@ -12,25 +12,25 @@ type Window struct {
 	// Closing gets a message when the user clicks the window's close button.
 	// You cannot change it once the Window has been created.
 	// If you do not respond to this signal, nothing will happen; regardless of whether you handle the signal or not, the window will not be closed.
-	Closing		chan struct{}
+	Closing chan struct{}
 
-	lock			sync.Mutex
-	created		bool
-	sysData		*sysData
-	initTitle		string
-	initWidth		int
-	initHeight		int
-	shownOnce	bool
+	lock       sync.Mutex
+	created    bool
+	sysData    *sysData
+	initTitle  string
+	initWidth  int
+	initHeight int
+	shownOnce  bool
 }
 
 // NewWindow allocates a new Window with the given title and size. The window is not created until a call to Create() or Open().
 func NewWindow(title string, width int, height int) *Window {
 	return &Window{
-		sysData:		mksysdata(c_window),
-		initTitle:		title,
-		initWidth:		width,
-		initHeight:	height,
-		Closing:		newEvent(),
+		sysData:    mksysdata(c_window),
+		initTitle:  title,
+		initWidth:  width,
+		initHeight: height,
+		Closing:    newEvent(),
 	}
 }
 

@@ -30,8 +30,8 @@ func ui(main func()) error {
 		for f := range uitask {
 			done := make(chan struct{})
 			gdk_threads_add_idle(&gtkIdleOp{
-				what:	f,
-				done:	done,
+				what: f,
+				done: done,
 			})
 			<-done
 			close(done)
