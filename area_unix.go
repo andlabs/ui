@@ -6,8 +6,8 @@ package ui
 
 import (
 	"fmt"
-	"unsafe"
 	"image"
+	"unsafe"
 )
 
 // #include "gtk_unix.h"
@@ -33,7 +33,7 @@ func gtkAreaNew() *C.GtkWidget {
 	// the Area's size will be set later
 	// we need to explicitly subscribe to mouse events with GtkDrawingArea
 	C.gtk_widget_add_events(drawingarea,
-		C.GDK_BUTTON_PRESS_MASK | C.GDK_BUTTON_RELEASE_MASK | C.GDK_POINTER_MOTION_MASK | C.GDK_BUTTON_MOTION_MASK | C.GDK_ENTER_NOTIFY_MASK | C.GDK_LEAVE_NOTIFY_MASK)
+		C.GDK_BUTTON_PRESS_MASK|C.GDK_BUTTON_RELEASE_MASK|C.GDK_POINTER_MOTION_MASK|C.GDK_BUTTON_MOTION_MASK|C.GDK_ENTER_NOTIFY_MASK|C.GDK_LEAVE_NOTIFY_MASK)
 	// and we need to allow focusing on a GtkDrawingArea to enable keyboard events
 	C.gtk_widget_set_can_focus(drawingarea, C.TRUE)
 	scrollarea := C.gtk_scrolled_window_new((*C.GtkAdjustment)(nil), (*C.GtkAdjustment)(nil))
@@ -62,12 +62,12 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	// the cliprect can actually fall outside the size of the Area; clip it by intersecting the two rectangles
 	C.gtk_widget_get_size_request(widget, &maxwid, &maxht)
 	cliprect = image.Rect(0, 0, int(maxwid), int(maxht)).Intersect(cliprect)
-	if cliprect.Empty() {			// no intersection; nothing to paint
-		return C.FALSE			// signals handled without stopping the event chain (thanks to desrt again)
+	if cliprect.Empty() { // no intersection; nothing to paint
+		return C.FALSE // signals handled without stopping the event chain (thanks to desrt again)
 	}
 	i := s.handler.Paint(cliprect)
 	surface := C.cairo_image_surface_create(
-		C.CAIRO_FORMAT_ARGB32,			// alpha-premultiplied; native byte order
+		C.CAIRO_FORMAT_ARGB32, // alpha-premultiplied; native byte order
 		C.int(i.Rect.Dx()),
 		C.int(i.Rect.Dy()))
 	if status := C.cairo_surface_status(surface); status != C.CAIRO_STATUS_SUCCESS {
@@ -81,13 +81,13 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	C.cairo_surface_mark_dirty(surface)
 	C.cairo_set_source_surface(cr,
 		surface,
-		0, 0)			// origin of the surface
+		0, 0) // origin of the surface
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
-	C.cairo_rectangle(cr, x0, y0, x1, y1)		// breaking the nrom here since we have the coordinates as a C double already
+	C.cairo_rectangle(cr, x0, y0, x1, y1) // breaking the nrom here since we have the coordinates as a C double already
 	C.cairo_fill(cr)
-	C.cairo_surface_destroy(surface)		// free surface
-	return C.FALSE		// signals handled without stopping the event chain (thanks to desrt again)
+	C.cairo_surface_destroy(surface) // free surface
+	return C.FALSE                   // signals handled without stopping the event chain (thanks to desrt again)
 }
 
 var area_draw_callback = C.GCallback(C.our_area_draw_callback)
@@ -104,7 +104,7 @@ func makeModifiers(state C.guint) (m Modifiers) {
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		m |= Ctrl
 	}
-	if (state & C.GDK_META_MASK) != 0 {		// TODO get equivalent for Alt
+	if (state & C.GDK_META_MASK) != 0 { // TODO get equivalent for Alt
 		m |= Alt
 	}
 	if (state & C.GDK_SHIFT_MASK) != 0 {
@@ -128,19 +128,19 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	state = translateModifiers(state, gdkwindow)
 	me.Modifiers = makeModifiers(state)
 	// the mb != # checks exclude the Up/Down button from Held
-	if mb != 1 && (state & C.GDK_BUTTON1_MASK) != 0 {
+	if mb != 1 && (state&C.GDK_BUTTON1_MASK) != 0 {
 		me.Held = append(me.Held, 1)
 	}
-	if mb != 2 && (state & C.GDK_BUTTON2_MASK) != 0 {
+	if mb != 2 && (state&C.GDK_BUTTON2_MASK) != 0 {
 		me.Held = append(me.Held, 2)
 	}
-	if mb != 3 && (state & C.GDK_BUTTON3_MASK) != 0 {
+	if mb != 3 && (state&C.GDK_BUTTON3_MASK) != 0 {
 		me.Held = append(me.Held, 3)
 	}
 	// don't check GDK_BUTTON4_MASK or GDK_BUTTON5_MASK because those are for the scrolling buttons mentioned above; there doesn't seem to be a way to detect higher buttons... (TODO)
 	me.Pos = image.Pt(int(x), int(y))
 	C.gtk_widget_get_size_request(widget, &areawidth, &areaheight)
-	if !me.Pos.In(image.Rect(0, 0, int(areawidth), int(areaheight))) {		// outside the actual Area; no event
+	if !me.Pos.In(image.Rect(0, 0, int(areawidth), int(areaheight))) { // outside the actual Area; no event
 		return
 	}
 	// and finally, if the button ID >= 8, continue counting from 4, as above and as in the MouseEvent spec
@@ -171,7 +171,7 @@ func our_area_button_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent
 	e := (*C.GdkEventButton)(unsafe.Pointer(event))
 	me := MouseEvent{
 		// GDK button ID == our button ID with some exceptions taken care of by finishMouseEvent()
-		Down:	uint(e.button),
+		Down: uint(e.button),
 	}
 
 	var maxTime C.gint
@@ -202,7 +202,7 @@ func our_area_button_release_event_callback(widget *C.GtkWidget, event *C.GdkEve
 	e := (*C.GdkEventButton)(unsafe.Pointer(event))
 	me := MouseEvent{
 		// GDK button ID == our button ID with some exceptions taken care of by finishMouseEvent()
-		Up:		uint(e.button),
+		Up: uint(e.button),
 	}
 	finishMouseEvent(widget, data, me, me.Up, e.x, e.y, e.state, e.window)
 	return continueEventChain
@@ -254,7 +254,7 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 		// one of these will be nonzero
 		ke.Key = xke.Key
 		ke.ExtKey = xke.ExtKey
-	} else {		// no match
+	} else { // no match
 		return
 	}
 	ke.Up = up
@@ -281,35 +281,35 @@ func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent,
 var area_key_release_event_callback = C.GCallback(C.our_area_key_release_event_callback)
 
 var extkeys = map[C.guint]ExtKey{
-	C.GDK_KEY_Escape:			Escape,
-	C.GDK_KEY_Insert:			Insert,
-	C.GDK_KEY_Delete:			Delete,
-	C.GDK_KEY_Home:			Home,
-	C.GDK_KEY_End:			End,
-	C.GDK_KEY_Page_Up:		PageUp,
-	C.GDK_KEY_Page_Down:		PageDown,
-	C.GDK_KEY_Up:			Up,
-	C.GDK_KEY_Down:			Down,
-	C.GDK_KEY_Left:			Left,
-	C.GDK_KEY_Right:			Right,
-	C.GDK_KEY_F1:			F1,
-	C.GDK_KEY_F2:			F2,
-	C.GDK_KEY_F3:			F3,
-	C.GDK_KEY_F4:			F4,
-	C.GDK_KEY_F5:			F5,
-	C.GDK_KEY_F6:			F6,
-	C.GDK_KEY_F7:			F7,
-	C.GDK_KEY_F8:			F8,
-	C.GDK_KEY_F9:			F9,
-	C.GDK_KEY_F10:			F10,
-	C.GDK_KEY_F11:			F11,
-	C.GDK_KEY_F12:			F12,
+	C.GDK_KEY_Escape:    Escape,
+	C.GDK_KEY_Insert:    Insert,
+	C.GDK_KEY_Delete:    Delete,
+	C.GDK_KEY_Home:      Home,
+	C.GDK_KEY_End:       End,
+	C.GDK_KEY_Page_Up:   PageUp,
+	C.GDK_KEY_Page_Down: PageDown,
+	C.GDK_KEY_Up:        Up,
+	C.GDK_KEY_Down:      Down,
+	C.GDK_KEY_Left:      Left,
+	C.GDK_KEY_Right:     Right,
+	C.GDK_KEY_F1:        F1,
+	C.GDK_KEY_F2:        F2,
+	C.GDK_KEY_F3:        F3,
+	C.GDK_KEY_F4:        F4,
+	C.GDK_KEY_F5:        F5,
+	C.GDK_KEY_F6:        F6,
+	C.GDK_KEY_F7:        F7,
+	C.GDK_KEY_F8:        F8,
+	C.GDK_KEY_F9:        F9,
+	C.GDK_KEY_F10:       F10,
+	C.GDK_KEY_F11:       F11,
+	C.GDK_KEY_F12:       F12,
 	// numpad numeric keys and . are handled in events_notdarwin.go
-	C.GDK_KEY_KP_Enter:		NEnter,
-	C.GDK_KEY_KP_Add:		NAdd,
-	C.GDK_KEY_KP_Subtract:		NSubtract,
-	C.GDK_KEY_KP_Multiply:		NMultiply,
-	C.GDK_KEY_KP_Divide:		NDivide,
+	C.GDK_KEY_KP_Enter:    NEnter,
+	C.GDK_KEY_KP_Add:      NAdd,
+	C.GDK_KEY_KP_Subtract: NSubtract,
+	C.GDK_KEY_KP_Multiply: NMultiply,
+	C.GDK_KEY_KP_Divide:   NDivide,
 }
 
 // sanity check
@@ -319,7 +319,7 @@ func init() {
 		included[v] = true
 	}
 	for i := 1; i < int(_nextkeys); i++ {
-		if i >= int(N0) && i <= int(N9) {		// skip numpad numbers and .
+		if i >= int(N0) && i <= int(N9) { // skip numpad numbers and .
 			continue
 		}
 		if i == int(NDot) {
@@ -331,15 +331,15 @@ func init() {
 	}
 }
 
-var modonlykeys =  map[C.guint]Modifiers{
-	C.GDK_KEY_Control_L:	Ctrl,
-	C.GDK_KEY_Control_R:	Ctrl,
-	C.GDK_KEY_Alt_L:		Alt,
-	C.GDK_KEY_Alt_R:		Alt,
-	C.GDK_KEY_Meta_L:		Alt,
-	C.GDK_KEY_Meta_R:	Alt,
-	C.GDK_KEY_Shift_L:		Shift,
-	C.GDK_KEY_Shift_R:		Shift,
-	C.GDK_KEY_Super_L:	Super,
-	C.GDK_KEY_Super_R:	Super,
+var modonlykeys = map[C.guint]Modifiers{
+	C.GDK_KEY_Control_L: Ctrl,
+	C.GDK_KEY_Control_R: Ctrl,
+	C.GDK_KEY_Alt_L:     Alt,
+	C.GDK_KEY_Alt_R:     Alt,
+	C.GDK_KEY_Meta_L:    Alt,
+	C.GDK_KEY_Meta_R:    Alt,
+	C.GDK_KEY_Shift_L:   Shift,
+	C.GDK_KEY_Shift_R:   Shift,
+	C.GDK_KEY_Super_L:   Super,
+	C.GDK_KEY_Super_R:   Super,
 }
