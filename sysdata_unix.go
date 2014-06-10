@@ -367,3 +367,14 @@ func (s *sysData) setAreaSize(width int, height int) {
 	}
 	<-ret
 }
+
+func (s *sysData) repaintAll() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		c := gtkAreaGetControl(s.widget)
+		C.gtk_widget_queue_draw(c)
+		ret <- struct{}{}
+	}
+	<-ret
+}
