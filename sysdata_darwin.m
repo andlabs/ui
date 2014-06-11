@@ -229,3 +229,8 @@ void setAreaSize(id scrollview, intptr_t width, intptr_t height)
 	[area setFrame:NSMakeRect(0, 0, (CGFloat) width, (CGFloat) height)];
 	[area display];			// and redraw
 }
+
+void center(id w)
+{
+	[toNSWindow(w) center];
+}

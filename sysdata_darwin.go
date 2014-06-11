@@ -412,3 +412,13 @@ func (s *sysData) repaintAll() {
 	}
 	<-ret
 }
+
+func (s *sysData) center() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		C.center(s.id)
+		ret <- struct{}{}
+	}
+	<-ret
+}

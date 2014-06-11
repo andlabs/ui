@@ -116,6 +116,7 @@ extern BOOL isCheckboxChecked(id);
 extern void windowSetContentSize(id, intptr_t, intptr_t);
 extern void setProgress(id, intptr_t);
 extern void setAreaSize(id, intptr_t, intptr_t);
+extern void center(id);
 
 /* combobox_darwin.m */
 extern id makeCombobox(BOOL);
