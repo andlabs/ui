@@ -121,13 +121,15 @@ func (w *Window) Hide() {
 	w.sysData.hide()
 }
 
-// Centers the window
+// Center centers the Window on-screen.
+// The concept of "screen" in the case of a multi-monitor setup is implementation-defined.
+// It presently panics if the Window has not been created.
 func (w *Window) Center() {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
 	if !w.created {
-		return
+		panic("attempt to center Window before it has been created")
 	}
 	w.sysData.center()
 }
