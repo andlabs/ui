@@ -157,6 +157,11 @@ func (s *sysData) make(window *sysData) error {
 	return nil
 }
 
+// see sysData.center()
+func (s *sysData) resetposition() {
+	C.gtk_window_set_position(togtkwindow(s.widget), C.GTK_WIN_POS_NONE)
+}
+
 // used for Windows; nothing special needed elsewhere
 func (s *sysData) firstShow() error {
 	s.show()
@@ -168,6 +173,7 @@ func (s *sysData) show() {
 	defer close(ret)
 	uitask <- func() {
 		gtk_widget_show(s.widget)
+		s.resetposition()
 		ret <- struct{}{}
 	}
 	<-ret
@@ -178,6 +184,7 @@ func (s *sysData) hide() {
 	defer close(ret)
 	uitask <- func() {
 		gtk_widget_hide(s.widget)
+		s.resetposition()
 		ret <- struct{}{}
 	}
 	<-ret
@@ -375,6 +382,29 @@ func (s *sysData) repaintAll() {
 	uitask <- func() {
 		c := gtkAreaGetControl(s.widget)
 		C.gtk_widget_queue_draw(c)
+		ret <- struct{}{}
+	}
+	<-ret
+}
+
+func (s *sysData) center() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		if C.gtk_widget_get_visible(s.widget) == C.FALSE {
+			// hint to the WM to make it centered when it is shown again
+			// thanks to Jasper in irc.gimp.net/#gtk+
+			C.gtk_window_set_position(togtkwindow(s.widget), C.GTK_WIN_POS_CENTER)
+		} else {
+			var width, height C.gint
+
+			s.resetposition()
+			//we should be able to use gravity to simplify this, but it doesn't take effect immediately, and adding show calls does nothing (thanks Jasper in irc.gimp.net/#gtk+)
+			C.gtk_window_get_size(togtkwindow(s.widget), &width, &height)
+			C.gtk_window_move(togtkwindow(s.widget),
+				(C.gdk_screen_width() / 2) - (width / 2),
+				(C.gdk_screen_height() / 2) - (width / 2))
+		}
 		ret <- struct{}{}
 	}
 	<-ret
