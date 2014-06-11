@@ -515,6 +515,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 		return fmt.Errorf("error getting upper-left of window for resize: %v", r.err)
 	}
 	// 0 because (0,0) is top-left so no winheight
+	// TODO this needs to be run on uitask!
 	err := s.setRect(int(rect.left), int(rect.top), width, height, 0)
 	if err != nil {
 		return fmt.Errorf("error actually resizing window: %v", err)
@@ -688,12 +689,41 @@ func (s *sysData) repaintAll() {
 
 func (s *sysData) center() {
 	var ws _RECT
-	_getWindowRect.Call(uintptr(s.hwnd), uintptr(unsafe.Pointer(&ws)))
-	dw, _, _ := _getSystemMetrics.Call(_SM_CXFULLSCREEN)
-	dh, _, _ := _getSystemMetrics.Call(_SM_CYFULLSCREEN)
+
+	ret := make(chan uiret)
+	defer close(ret)
+	uitask <- &uimsg{
+		call:		_getWindowRect,
+		p:		[]uintptr{
+			uintptr(s.hwnd),
+			uintptr(unsafe.Pointer(&ws)),
+		},
+		ret:		ret,
+	}
+	r := <-ret
+	if r.ret == 0 {
+		panic(fmt.Errorf("error getting window rect for sysData.center(): %v", r.err))
+	}
+	// TODO should this be using the monitor functions instead? http://blogs.msdn.com/b/oldnewthing/archive/2005/05/05/414910.aspx
+	// error returns from GetSystemMetrics() is meaningless because the return value, 0, is still valid
+	uitask <- &uimsg{
+		call:		_getSystemMetrics,
+		p:		[]uintptr{uintptr(_SM_CXFULLSCREEN)},
+		ret:		ret,
+	}
+	r = <-ret
+	dw := r.ret
+	uitask <- &uimsg{
+		call:		_getSystemMetrics,
+		p:		[]uintptr{uintptr(_SM_CYFULLSCREEN)},
+		ret:		ret,
+	}
+	r = <-ret
+	dh := r.ret
 	ww := ws.right - ws.left
 	wh := ws.bottom - ws.top
 	wx := (int32(dw) / 2) - (ww / 2)
 	wy := (int32(dh) / 2) - (wh / 2)
+	// TODO this needs to be run on uitask!
 	s.setRect(int(wx), int(wy), int(ww), int(wh), 0)
 }

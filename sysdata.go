@@ -41,6 +41,7 @@ var _xSysData interface {
 	len() int
 	setAreaSize(int, int)
 	repaintAll()
+	center()
 } = &sysData{} // this line will error if there's an inconsistency
 
 // signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
