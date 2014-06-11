@@ -25,8 +25,6 @@ general list:
 - Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
 - figure out where to auto-place windows in Cocoa (also window coordinates are still not flipped properly so (0,0) on screen is the bottom-left)
-	- also provide a method to center windows; Cocoa provides one for us but
-		- GTK+ too: gtk_window_set_position(window, GTK_WIN_POS_CENTER) (via http://stackoverflow.com/questions/16832581/how-to-make-a-gtkwindow-background-transparent-on-linux)
 - make Combobox and Listbox satisfy sort.Interface?
 - should a noneditable Combobox be allowed to return to unselected mode by the user?
 - provide a way for MouseEvent/KeyEvent to signal that the keypress caused the Area to gain/lose focus
