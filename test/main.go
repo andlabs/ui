@@ -351,11 +351,16 @@ func myMain() {
 
 	dialog_bMsgBox := NewButton("MsgBox()")
 	dialog_bMsgBoxError := NewButton("MsgBoxError()")
+	centerButton := NewButton("Center")
 	dialog_win := NewWindow("Dialogs", 200, 200)
 	if *dialogTest {
-		dialog_win.Open(NewVerticalStack(
+		s := NewVerticalStack(
 			dialog_bMsgBox,
-			dialog_bMsgBoxError))
+			dialog_bMsgBoxError,
+			Space(),
+			centerButton)
+		s.SetStretchy(2)
+		dialog_win.Open(s)
 	}
 
 	var dialog_sret chan struct{} = nil
@@ -435,6 +440,8 @@ _=curtime
 		case <-dialog_sret:
 			dialog_sret = nil
 			resetl()
+		case <-centerButton.Clicked:
+			dialog_win.Center()
 		}
 	}
 	w.Hide()
