@@ -2,22 +2,6 @@
 
 #include "objc_darwin.h"
 #import <AppKit/NSControl.h>
-
-// see delegateuitask_darwin.m
-// in this case, NSScrollView.h, NSTableView.h, AND NSProgressIndicator.h all include NSApplication.h
-
-#ifdef MAC_OS_X_VERSION_10_7
-#undef MAC_OS_X_VERSION_MIN_REQUIRED
-#undef MAC_OS_X_VERSION_MAX_ALLOWED
-#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
-#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
-#endif
-#import <AppKit/NSApplication.h>
-#undef MAC_OS_X_VERSION_MIN_REQUIRED
-#undef MAC_OS_X_VERSION_MAX_ALLOWED
-#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
-#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
-
 #import <AppKit/NSScrollView.h>
 #import <AppKit/NSTableView.h>
 #import <AppKit/NSProgressIndicator.h>

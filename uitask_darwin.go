@@ -8,8 +8,8 @@ import (
 	"unsafe"
 )
 
-// #cgo CFLAGS: -mmacosx-version-min=10.6 -DMACOSX_DEPLOYMENT_TARGET=10.6
-// #cgo LDFLAGS: -mmacosx-version-min=10.6 -lobjc -framework Foundation -framework AppKit
+// #cgo CFLAGS: -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7
+// #cgo LDFLAGS: -mmacosx-version-min=10.7 -lobjc -framework Foundation -framework AppKit
 // /* application compatibilty stuff via https://developer.apple.com/library/mac/documentation/DeveloperTools/Conceptual/cross_development/Configuring/configuring.html, http://www.cocoawithlove.com/2009/09/building-for-earlier-os-versions-in.html, http://opensource.apple.com/source/xnu/xnu-2422.1.72/EXTERNAL_HEADERS/AvailabilityMacros.h (via http://stackoverflow.com/questions/20485797/what-macro-to-use-to-identify-mavericks-osx-10-9-in-c-c-code), and Beelsebob and LookyLuke_ICBM on irc.freenode.net/#macdev */
 // #include "objc_darwin.h"
 import "C"

@@ -4,23 +4,6 @@
 #import <Foundation/NSDictionary.h>
 #import <AppKit/NSArrayController.h>
 #import <AppKit/NSTableColumn.h>
-
-// see delegateuitask_darwin.m
-// in this case, NSTableView.h includes NSApplication.h
-#import <Foundation/NSIndexSet.h>
-
-#ifdef MAC_OS_X_VERSION_10_7
-#undef MAC_OS_X_VERSION_MIN_REQUIRED
-#undef MAC_OS_X_VERSION_MAX_ALLOWED
-#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_7
-#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_7
-#endif
-#import <AppKit/NSApplication.h>
-#undef MAC_OS_X_VERSION_MIN_REQUIRED
-#undef MAC_OS_X_VERSION_MAX_ALLOWED
-#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_6
-#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_6
-
 #import <AppKit/NSTableView.h>
 #import <Foundation/NSIndexSet.h>
 

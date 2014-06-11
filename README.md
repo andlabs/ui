@@ -1,5 +1,11 @@
 Woah, lots of attention! Thanks!
 
+## Updates
+
+- **11 June 2014**<br>**I have decided to remove Mac OS X 10.6 support** because it's only causing problems for building (and everyone else says I should anyway, including Mac developers!). This does break my original goal, but I'm going to have to break things sooner or later. Please let me know if any of you actually use this package on 10.6. (I personally don't like it when programs require 10.7 (or iOS 7, for that matter), but what are you gonna do?)
+
+## README
+
 This is a placeholder README; the previous file (olddocs/oldREADME.md) was rather long and confusing. I'll be rewriting it properly soon.
 
 Until then, here's the important things you need to know:
@@ -9,10 +15,10 @@ Until then, here's the important things you need to know:
 	- Unix builds need 1.3 to fix some type-checker bugs in cgo
 	- Mac OS X builds need 1.3 because Go 1.3 adds Objective-C support to cgo
 - the Windows build does not need cgo unless you want to regenerate the `zconstants_windows_*.go` files; the other targets **do**
-- my plan is to target all versions of OSs that Go itself supports; that means:
+- my plan is to target all versions of OSs that Go itself supports. I will, however, make concessions where appropriate. This means:
 	- Windows: Windows XP or newer
 	- Unix: this is trickier; I decided to settle on GTK+ 3.4 or newer as Ubuntu 12.04 LTS ships with it
-	- Mac OS X: Mac OS X 10.6 or newer
+	- Mac OS X: Mac OS X 10.7 or newer (Go supports 10.6 but this is a pain to compile Cocoa programs for due to flaws in the later header files)
 - for the Windows build, you won't need to provide a comctl32.dll version 6 manifest, as the package produces its own
 	- comctl32.dll version 6 *is* required for proper functioning!
 
