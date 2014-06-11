@@ -685,3 +685,15 @@ func (s *sysData) repaintAll() {
 	}
 	<-ret
 }
+
+func (s *sysData) center() {
+	var ws _RECT
+	_getWindowRect.Call(uintptr(s.hwnd), uintptr(unsafe.Pointer(&ws)))
+	dw, _, _ := _getSystemMetrics.Call(_SM_CXFULLSCREEN)
+	dh, _, _ := _getSystemMetrics.Call(_SM_CYFULLSCREEN)
+	ww := ws.right - ws.left
+	wh := ws.bottom - ws.top
+	wx := (int32(dw) / 2) - (ww / 2)
+	wy := (int32(dh) / 2) - (wh / 2)
+	s.setRect(int(wx), int(wy), int(ww), int(wh), 0)
+}

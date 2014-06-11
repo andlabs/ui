@@ -91,6 +91,7 @@ var (
 	_setWindowPos       = user32.NewProc("SetWindowPos")
 	_setWindowText      = user32.NewProc("SetWindowTextW")
 	_showWindow         = user32.NewProc("ShowWindow")
+	_getWindowRect      = user32.NewProc("GetWindowRect")
 )
 
 type _MINMAXINFO struct {

@@ -120,3 +120,14 @@ func (w *Window) Hide() {
 
 	w.sysData.hide()
 }
+
+// Centers the window
+func (w *Window) Center() {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	if !w.created {
+		return
+	}
+	w.sysData.center()
+}
