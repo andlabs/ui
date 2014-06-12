@@ -28,23 +28,27 @@ import (
 // }
 import "C"
 
-var gtkStyles = []byte(
-	// this first one is for ProgressBar so we can arbitrarily resize it
-	// min-horizontal-bar-width is a style property; we do it through CSS
-	// thanks tristan in irc.gimp.net/#gtk+
-	`* {
+var gtkStyles = []byte(`
+/*
+this first one is for ProgressBar so we can arbitrarily resize it
+min-horizontal-bar-width is a style property; we do it through CSS
+thanks tristan in irc.gimp.net/#gtk+
+*/
+* {
 	-GtkProgressBar-min-horizontal-bar-width: 1;
 }
-` +
-		// on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
-		// this CSS fixes it
-		// thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
-		// this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
-		`GtkLayout {
+
+/*
+on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
+this CSS fixes it
+thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
+this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
+TODO write a program that does the comparison
+*/
+GtkLayout {
 	background-color: transparent;
 }
-` +
-		"\000")
+`)
 
 func gtk_init() error {
 	var err *C.GError = nil // redundant in Go, but let's explicitly assign it anyway
@@ -58,7 +62,7 @@ func gtk_init() error {
 
 	// now apply our custom program-global styles
 	provider := C.gtk_css_provider_new()
-	if C.gtk_css_provider_load_from_data(provider, (*C.gchar)(unsafe.Pointer(&gtkStyles[0])), -1, &err) == C.FALSE {
+	if C.gtk_css_provider_load_from_data(provider, (*C.gchar)(unsafe.Pointer(&gtkStyles[0])), C.gssize(len(gtkStyles)), &err) == C.FALSE {
 		return fmt.Errorf("error applying package ui's custom program-global styles to GTK+: %v", fromgstr(err.message))
 	}
 	// GDK (at least as far back as GTK+ 3.4, but officially documented as of 3.10) merges all screens into one big one, so we don't need to worry about multimonitor
