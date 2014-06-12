@@ -28,7 +28,7 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 	}
 	retchan := make(chan int)
 	go func() {
-		ret := make(chan uiret)
+		ret := make(chan int)
 		defer close(ret)
 		uitask <- func() {
 			r1, _, err := _messageBox.Call(
@@ -39,8 +39,9 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 			if r1 == 0 { // failure
 				panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", err, uType, os.Args[0], text))
 			}
-			retchan <- int(r1)
+			ret <- int(r1)		// so as to not hang up uitask
 		}
+		retchan <- <-ret
 	}()
 	return retchan
 }
