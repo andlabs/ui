@@ -22,7 +22,7 @@ the only recourse, and the one both Microsoft (http://support.microsoft.com/kb/1
 yay.
 */
 
-var uitask chan *uimsg
+var uitask chan interface{}
 
 type uimsg struct {
 	call *syscall.LazyProc
@@ -49,7 +49,7 @@ var (
 func ui(main func()) error {
 	runtime.LockOSThread()
 
-	uitask = make(chan *uimsg)
+	uitask = make(chan interface{})
 	err := doWindowsInit()
 	if err != nil {
 		return fmt.Errorf("error doing general Windows initialization: %v", err)
@@ -66,7 +66,7 @@ func ui(main func()) error {
 				uintptr(hwnd),
 				msgRequested,
 				uintptr(0),
-				uintptr(unsafe.Pointer(m)))
+				uintptr(unsafe.Pointer(&m)))
 			if r1 == 0 { // failure
 				panic("error sending message to message loop to call function: " + err.Error())
 			}
@@ -168,11 +168,16 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 func messageHandlerWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	switch uMsg {
 	case msgRequested:
-		m := (*uimsg)(unsafe.Pointer(lParam))
-		r1, _, err := m.call.Call(m.p...)
-		m.ret <- uiret{
-			ret: r1,
-			err: err,
+		mt := (*interface{})(unsafe.Pointer(lParam))
+		switch m := (*mt).(type) {
+		case *uimsg:
+			r1, _, err := m.call.Call(m.p...)
+			m.ret <- uiret{
+				ret: r1,
+				err: err,
+			}
+		case func():
+			m()
 		}
 		return 0
 	case msgQuit:
