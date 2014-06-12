@@ -7,6 +7,7 @@ MAC OS X:
 
 WINDOWS:
 - there seems to be a caching issue: with the test program and `-dialog`, click one of the dialog buttons, then quickly tap one of the buttons in the main window. The dialog will pop up twice, and after both are closed the program aborts with a send on closed channel
+	- appears to be a bug in my dialog code
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
 - redrawing controls after a window resize on Windows does not work properly
 - when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
