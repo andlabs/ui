@@ -50,7 +50,7 @@ not yet in Ubuntu Utopic (14.10)
 - **gtk_tree_path_new_from_indicesv()** (for when we add Table if we have trees too)
 
 ## Cocoa
-### Mac OS X 10.7+
+### Mac OS X 10.7
 
 - Foundation ([full details](https://developer.apple.com/library/mac/releasenotes/Foundation/RN-FoundationOlderNotes/#//apple_ref/doc/uid/TP40008080-TRANSLATED_CHAPTER_965-TRANSLATED_DEST_0))
 	- can use [ClassName class] == nil to test for feature existence at class level
@@ -79,6 +79,47 @@ not yet in Ubuntu Utopic (14.10)
 	- **placeholder text in NSTextField now shown when focused**
 	- NSTextView now has an optional formatting bar
 
-### Mac OS X 10.8+
+### Mac OS X 10.8
 
-### Mac OS X 10.9+
+- Foundation ([full details](https://developer.apple.com/library/mac/releasenotes/Foundation/RN-FoundationOlderNotes/#//apple_ref/doc/uid/TP40008080-TRANSLATED_CHAPTER_965-TRANSLATED_DEST_999B))
+	- NSDateComponents supports leap months
+	- NSNumberFormatter and NSDateFormatter default to 10.4 behavior by default (need to explicitly do this on 10.7)
+	- **NSUserNotification and NSUserNotificationCenter for Growl-style notifications**
+	- better linguistic triggers for Spanish and Italian
+	- NSByteCountFormatter
+- AppKit ([full details](https://developer.apple.com/library/mac/releasenotes/AppKit/RN-AppKitOlderNotes/#X10_8Notes))
+	- view-based NSTableView/NSOutlineView have expansion tooltips
+	- NSScrollView magnification
+	- Quick Look events; TODO see if they conflict with keyboard handling in Area
+	- NSPageController (maybe useful?)
+	- not useful for package UI, but may be useful for a new library (probably not by me): NSSharingService
+	- NSOpenPanel and NSSavePanel are now longer NSPanels or NSWindows in sandboxed applications; this may be an issue should anyone dare to enable sandboxing on a program that uses package ui
+	- NSTextAlternatives
+	- -[NSOpenGLContext setFullScreen] now ineffective
+	- +[NSColor underPageBackgroundColor]
+
+### Mac OS X 10.9
+
+- Foundation ([full details](https://developer.apple.com/library/mac/releasenotes/Foundation/RN-Foundation/))
+	- system-provided progress reporting/cancellation support
+	- NSURLComponents
+	- **NSCalendar, NSDateFormatter, and NSNumberFormatter are now thread-safe**
+	- various NSCalendar and NSDateComponents improvements
+- AppKit ([full details](https://developer.apple.com/library/mac/releasenotes/AppKit/RN-AppKit/))
+	- sheet handling is now block-based, queued, and in NSWindow; the delegate-based NSApplication API will still exist, except without the queue
+	- similar changes to NSAlert
+	- **return value changes to NSAlert**
+	- window visibility APIs (occlusion)
+	- NSApplicationActivationPolicyAccessory
+	- fullscreen toolbar behavior changes
+	- status items for multiple menu bars
+	- better NSSharingService support
+	- a special accelerated scrolling mode, Responsive Scrolling; won't matter for us since I plan to support the scroll wheel and it won't
+	- NSScrollView live scrolling notifications
+	- NSScrollView floating (anchored/non-scrolling) subviews
+	- better multimonitor support
+	- better key-value observing for NSOpenPanel/NSSavePanel (might want to look this up to see if we can override some other juicy details... TODO)
+	- better accessory view key-view handling in NSOpenPanel/NSSavePanel
+	- NSAppearance
+	- **-[NSTableView moveRowAtIndex:toIndex:] bug regarding first responders fixed**
+	- view-specific RTL overrides
