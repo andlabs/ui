@@ -10,10 +10,14 @@ WINDOWS:
 	- appears to be a bug in my dialog code
 	- appears to have *always* been a bug in dialog code...
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
+- control sizing is a MAJOR pain
+	- http://stackoverflow.com/questions/24130548/is-there-a-proper-way-to-get-the-preferred-size-of-windows-controls-there-are-s
 - redrawing controls after a window resize on Windows does not work properly
 - when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
 
 UNIX:
+- figure out how to detect the alt key and mouse buttons above 5 properly for modifiers/Held[]
+	- http://stackoverflow.com/questions/24053012/gdk-is-there-a-way-i-can-get-if-an-arbitrary-keyval-or-mouse-button-is-down-dur
 - double-check to make sure MouseEvent.Held[] is sorted on Unix after we figure out how to detect buttons above button 5
 - sizing with client-side decorations (Wayland) don't work
 	- several people suggested connecting to size-allocate of the GtkLayout, but then I can wind up in a situation where there's extra padding or border space in the direction I resized
