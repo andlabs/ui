@@ -12,6 +12,8 @@
 #import <AppKit/NSProgressIndicator.h>
 #import <AppKit/NSScrollView.h>
 
+// general TODO: go through all control constructors and their equivalent controls in Interface Builder to see if there's any qualities I'm missing
+
 extern NSRect dummyRect;
 
 #define to(T, x) ((T *) (x))
@@ -123,11 +125,20 @@ id makeCheckbox(void)
 
 id makeLineEdit(BOOL password)
 {
+	id c;
+
 	if (password)
-		return [[NSSecureTextField alloc]
+		c = [[NSSecureTextField alloc]
 			initWithFrame:dummyRect];
-	return [[NSTextField alloc]
-		initWithFrame:dummyRect];
+	else
+		c = [[NSTextField alloc]
+			initWithFrame:dummyRect];
+	// Interface Builder does this to make the text box behave properly
+	// see makeLabel() for other side effects
+	[[toNSTextField(c) cell] setLineBreakMode:NSLineBreakByClipping];
+	// Interface Builder also sets this to allow horizontal scrolling
+	[[toNSTextField(c) cell] setScrollable:YES];
+	return c;
 }
 
 void lineeditSetText(id lineedit, id text)
@@ -151,6 +162,7 @@ id makeLabel(void)
 	[label setDrawsBackground:NO];
 	// this disables both word wrap AND ellipsizing in one fell swoop
 	// we have to send to the control's cell for this
+	// Interface Builder also sets this for its labels, so...
 	[[label cell] setLineBreakMode:NSLineBreakByClipping];
 	// for a multiline label, we either use WordWrapping and send setTruncatesLastVisibleLine: to disable ellipsizing OR use one of those ellipsizing styles
 	return label;
