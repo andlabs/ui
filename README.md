@@ -4,6 +4,9 @@ Woah, lots of attention! Thanks!
 
 ## Updates
 
+- **25 June 2014**<br>Labels by default now align themselves relative to the control they are next to. There is a new function `NewStandaloneLabel()` which returns a label whose text is aligned to the top-left corner of the alloted space regardless.
+	- Right now this implementation is hacky on Mac OS X; to make it work properly, I would need to add support for grabbing baselines; I'll do that sometime later.
+
 - **11 June 2014**<br>**I have decided to remove Mac OS X 10.6 support** because it's only causing problems for building (and everyone else says I should anyway, including Mac developers!). This does break my original goal, but I'm going to have to break things sooner or later. Please let me know if any of you actually use this package on 10.6. (I personally don't like it when programs require 10.7 (or iOS 7, for that matter), but what are you gonna do?)
 
 ## README
