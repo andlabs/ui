@@ -36,7 +36,7 @@ var _xSysData interface {
 	selectedTexts() []string
 	setWindowSize(int, int) error
 	delete(int)
-	preferredSize() (int, int)
+	preferredSize() (int, int, int)
 	setProgress(int)
 	len() int
 	setAreaSize(int, int)

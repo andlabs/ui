@@ -75,6 +75,6 @@ func (b *Button) setRect(x int, y int, width int, height int, rr *[]resizereques
 	})
 }
 
-func (b *Button) preferredSize() (width int, height int) {
+func (b *Button) preferredSize() (width int, height int, yoff int) {
 	return b.sysData.preferredSize()
 }

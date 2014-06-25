@@ -160,6 +160,6 @@ func (l *Listbox) setRect(x int, y int, width int, height int, rr *[]resizereque
 	})
 }
 
-func (l *Listbox) preferredSize() (width int, height int) {
+func (l *Listbox) preferredSize() (width int, height int, yoff int) {
 	return l.sysData.preferredSize()
 }

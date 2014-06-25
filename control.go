@@ -6,5 +6,5 @@ package ui
 type Control interface {
 	make(window *sysData) error
 	setRect(x int, y int, width int, height int, rr *[]resizerequest)
-	preferredSize() (width int, height int)
+	preferredSize() (width int, height int, yoff int)
 }

@@ -78,6 +78,6 @@ func (l *LineEdit) setRect(x int, y int, width int, height int, rr *[]resizerequ
 	})
 }
 
-func (l *LineEdit) preferredSize() (width int, height int) {
+func (l *LineEdit) preferredSize() (width int, height int, yoff int) {
 	return l.sysData.preferredSize()
 }

@@ -157,6 +157,6 @@ func (c *Combobox) setRect(x int, y int, width int, height int, rr *[]resizerequ
 	})
 }
 
-func (c *Combobox) preferredSize() (width int, height int) {
+func (c *Combobox) preferredSize() (width int, height int, yoff int) {
 	return c.sysData.preferredSize()
 }

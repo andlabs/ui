@@ -80,6 +80,6 @@ func (c *Checkbox) setRect(x int, y int, width int, height int, rr *[]resizerequ
 	})
 }
 
-func (c *Checkbox) preferredSize() (width int, height int) {
+func (c *Checkbox) preferredSize() (width int, height int, yoff int) {
 	return c.sysData.preferredSize()
 }

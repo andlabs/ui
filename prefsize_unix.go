@@ -12,11 +12,13 @@ package ui
 // There is a warning about height-for-width controls, but in my tests this isn't an issue.
 // For Areas, we manually save the Area size and use that, just to be safe.
 
-func (s *sysData) preferredSize() (width int, height int) {
+// We don't need to worry about y-offset because label alignment is "vertically center", which GtkLabel does for us.
+
+func (s *sysData) preferredSize() (width int, height int, yoff int) {
 	if s.ctype == c_area {
-		return s.areawidth, s.areaheight
+		return s.areawidth, s.areaheight, 0
 	}
 
 	_, _, width, height = gtk_widget_get_preferred_size(s.widget)
-	return width, height
+	return width, height, 0
 }

@@ -84,6 +84,6 @@ func (l *Label) setRect(x int, y int, width int, height int, rr *[]resizerequest
 	})
 }
 
-func (l *Label) preferredSize() (width int, height int) {
+func (l *Label) preferredSize() (width int, height int, yoff int) {
 	return l.sysData.preferredSize()
 }

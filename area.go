@@ -346,7 +346,7 @@ func (a *Area) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 	})
 }
 
-func (a *Area) preferredSize() (width int, height int) {
+func (a *Area) preferredSize() (width int, height int, yoff int) {
 	return a.sysData.preferredSize()
 }
 
