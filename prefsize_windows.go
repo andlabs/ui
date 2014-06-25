@@ -28,6 +28,8 @@ type dlgunits struct {
 	longest bool // TODO actually use this
 	getsize uintptr
 	area    bool // use area sizes instead
+	yoff		int
+	yoffalt	int
 }
 
 var stdDlgSizes = [nctypes]dlgunits{
@@ -56,6 +58,8 @@ var stdDlgSizes = [nctypes]dlgunits{
 	c_label: dlgunits{
 		longest: true,
 		height:  8,
+		yoff:		3,
+		yoffalt:	0,
 	},
 	c_listbox: dlgunits{
 		longest: true,
@@ -80,10 +84,10 @@ var (
 )
 
 // This function runs on uitask; call the functions directly.
-func (s *sysData) preferredSize() (width int, height int) {
+func (s *sysData) preferredSize() (width int, height int, yoff int) {
 	// the preferred size of an Area is its size
 	if stdDlgSizes[s.ctype].area {
-		return s.areawidth, s.areaheight
+		return s.areawidth, s.areaheight, 0		// no yoff for areas
 	}
 
 	if msg := stdDlgSizes[s.ctype].getsize; msg != 0 {
@@ -95,7 +99,7 @@ func (s *sysData) preferredSize() (width int, height int) {
 			uintptr(0),
 			uintptr(unsafe.Pointer(&size)))
 		if r1 != uintptr(_FALSE) { // success
-			return int(size.cx), int(size.cy)
+			return int(size.cx), int(size.cy), 0	// TODO
 		}
 		// otherwise the message approach failed, so fall back to the regular approach
 		println("message failed; falling back")
@@ -139,7 +143,15 @@ func (s *sysData) preferredSize() (width int, height int) {
 	height = stdDlgSizes[s.ctype].height
 	width = muldiv(width, baseX, 4)   // equivalent to right of rect
 	height = muldiv(height, baseY, 8) // equivalent to bottom of rect
-	return width, height
+
+	yoff = stdDlgSizes[s.ctype].yoff
+	if s.alternate {
+		yoff = stdDlgSizes[s.ctype].yoffalt
+	}
+	if yoff != 0 {
+		yoff = muldiv(yoff, baseY, 8)
+	}
+	return width, height, yoff
 }
 
 var (

@@ -89,6 +89,8 @@ var classTypes = [nctypes]*classData{
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
 		style:  _SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 		xstyle: 0 | controlxstyle,
+		// MAKE SURE THIS IS THE SAME
+		altStyle:		_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
 	},
 	c_listbox: &classData{
 		name: toUTF16("LISTBOX"),
