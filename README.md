@@ -1,3 +1,5 @@
+**Note to Mac users: there is [a bug in Go 1.3 stable](https://code.google.com/p/go/issues/detail?id=8238) that causes cgo to crash trying to build this package. Please follow the linked bug report for detials.**
+
 Woah, lots of attention! Thanks!
 
 ## Updates
