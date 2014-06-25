@@ -82,6 +82,7 @@ var classTypes = [nctypes]*classData{
 	},
 	c_label: &classData{
 		make:    gtk_label_new,
+		makeAlt:	gtk_label_new_standalone,
 		setText: gtk_label_set_text,
 		text:    gtk_label_get_text,
 	},

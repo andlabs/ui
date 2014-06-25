@@ -247,8 +247,16 @@ func gtk_label_new() *C.GtkWidget {
 	// there's a function gtk_label_set_justify() that indicates GTK_JUSTIFY_LEFT is the default
 	// but this actually is NOT the control justification, just the multi-line justification
 	// so we need to do THIS instead
+	// this will valign to the center, which is what the HIG says (https://developer.gnome.org/hig-book/3.4/design-text-labels.html.en) for all controls that label to the side; thankfully this means we don't need to do any extra positioning magic
 	// this will also valign to the top
 	// thanks to mclasen in irc.gimp.net/#gtk+
+	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0.5)
+	return label
+}
+
+func gtk_label_new_standalone() *C.GtkWidget {
+	label := gtk_label_new()
+	// this will valign to the top
 	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0)
 	return label
 }
