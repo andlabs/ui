@@ -1,3 +1,11 @@
+ALL:
+- vertical alignment of labels is a botch right now
+	- windows: unilaterally applied; not much tow orry about here though
+	- gtk: mostly fine, just that list box labels need to be top-aligned
+	- os x: very very wrong
+	- will need to make yoff a function of a control and its neighbor to the right for this to work
+		- on gtk+ the yoff function will need to do the text alignment
+
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
 	- asked: http://stackoverflow.com/questions/23046414/cocoa-how-do-i-get-nscombobox-indexofselecteditem-to-return-1-if-the-user-m
