@@ -367,12 +367,20 @@ func myMain() {
 	var dialog_sret chan struct{} = nil
 
 	if *labelAlignTest {
-		w := NewWindow("Label Align Test", 500, 100)
-		w.Open(NewHorizontalStack(
+		s := NewHorizontalStack(NewStandaloneLabel("Label"), NewLineEdit(""))
+		s.SetStretchy(1)
+		s2 := NewHorizontalStack(NewLabel("Label"), NewLineEdit(""))
+		s2.SetStretchy(1)
+		s = NewVerticalStack(s, s2, Space())
+		s.SetStretchy(2)
+		s = NewHorizontalStack(
 			NewButton("Button"),
 			NewStandaloneLabel("Standalone"),
 			NewLabel("Aligned"),
-			NewButton("Button")))
+			NewButton("Button"),
+			s)
+		s.SetStretchy(4)
+		NewWindow("Label Align Test", 500, 100).Open(s)
 	}
 
 mainloop:
