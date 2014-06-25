@@ -275,6 +275,7 @@ func areaboundsTest() {
 }
 
 var dialogTest = flag.Bool("dialog", false, "add Window.MsgBox() channel test window")
+var labelAlignTest = flag.Bool("label", false, "show Label Alignment test window")
 
 func myMain() {
 	if *doArea {
@@ -364,6 +365,15 @@ func myMain() {
 	}
 
 	var dialog_sret chan struct{} = nil
+
+	if *labelAlignTest {
+		w := NewWindow("Label Align Test", 500, 100)
+		w.Open(NewHorizontalStack(
+			NewButton("Button"),
+			NewStandaloneLabel("Standalone"),
+			NewLabel("Aligned"),
+			NewButton("Button")))
+	}
 
 mainloop:
 	for {
