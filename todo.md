@@ -12,6 +12,7 @@ MAC OS X:
 - make sure Areas get keyboard focus when clicking outside the actual Area space on Mac OS X
 	- http://stackoverflow.com/questions/24102367/how-do-i-make-it-so-clicking-outside-the-actual-nsview-in-a-nsscrollview-but-wit
 - on initially starting the Area test, layout is totally wrong
+- probably use fittingSize instead of sizeToFit
 
 WINDOWS:
 - there seems to be a caching issue: with the test program and `-dialog`, click one of the dialog buttons, then quickly tap one of the buttons in the main window. The dialog will pop up twice, and after both are closed the program aborts with a send on closed channel
