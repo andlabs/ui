@@ -1,0 +1,19 @@
+resize event comes in
+	new window size taken
+	windows: dialog base units re-measured
+	call main widget sizing function
+main widget sizing function
+	get preferred size of all subwidgets
+		windows: uses dialog base units
+	produce map of which controls are next to which controls
+	properly space controls
+		windows: uses dialog base units
+	return list of size allocations back to window sizer
+window sizer
+	mac: converts coordinate space
+	asks each widget to adjust the allocation based on neighboring control
+each widget adjustment
+	mac: neighboring control baselines are aligned for labels
+	gtk: vertical alignment of text changed to top if neighboring control is multi-line
+		TODO - should it be center-aligned or not
+	windows: none
