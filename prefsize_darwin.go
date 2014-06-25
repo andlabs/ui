@@ -10,40 +10,46 @@ Cocoa doesn't provide a reliable way to get the preferred size of a control (you
 */
 
 // standard case: control immediately passed in
-func controlPrefSize(control C.id) (width int, height int) {
-	r := C.controlPrefSize(control)
-	return int(r.width), int(r.height)
+func controlPrefSize(control C.id, alternate C.BOOL) (width int, height int, yoff int) {
+	r := C.controlPrefSize(control, alternate)
+	return int(r.width), int(r.height), int(r.yoff)
+}
+
+// Labels have special yoff calculation
+func labelPrefSize(control C.id, alternate C.BOOL) (width int, height int, yoff int) {
+	r := C.labelPrefSize(control, alternate)
+	return int(r.width), int(r.height), int(r.yoff)
 }
 
 // NSTableView is actually in a NSScrollView so we have to get it out first
-func listboxPrefSize(control C.id) (width int, height int) {
-	r := C.listboxPrefSize(control)
-	return int(r.width), int(r.height)
+func listboxPrefSize(control C.id, alternate C.BOOL) (width int, height int, yoff int) {
+	r := C.listboxPrefSize(control, alternate)
+	return int(r.width), int(r.height), int(r.yoff)
 }
 
 // and for type checking reasons, progress bars are separate despite responding to -[sizeToFit]
-func pbarPrefSize(control C.id) (width int, height int) {
-	r := C.pbarPrefSize(control)
-	return int(r.width), int(r.height)
+func pbarPrefSize(control C.id, alternate C.BOOL) (width int, height int, yoff int) {
+	r := C.pbarPrefSize(control, alternate)
+	return int(r.width), int(r.height), int(r.yoff)
 }
 
 // Areas know their own preferred size
-func areaPrefSize(control C.id) (width int, height int) {
-	r := C.areaPrefSize(control)
-	return int(r.width), int(r.height)
+func areaPrefSize(control C.id, alternate C.BOOL) (width int, height int, yoff int) {
+	r := C.areaPrefSize(control, alternate)
+	return int(r.width), int(r.height), int(r.yoff)
 }
 
-var prefsizefuncs = [nctypes]func(C.id) (int, int){
+var prefsizefuncs = [nctypes]func(C.id, C.BOOL) (int, int, int){
 	c_button:      controlPrefSize,
 	c_checkbox:    controlPrefSize,
 	c_combobox:    controlPrefSize,
 	c_lineedit:    controlPrefSize,
-	c_label:       controlPrefSize,
+	c_label:       labelPrefSize,
 	c_listbox:     listboxPrefSize,
 	c_progressbar: pbarPrefSize,
 	c_area:        areaPrefSize,
 }
 
-func (s *sysData) preferredSize() (width int, height int) {
-	return prefsizefuncs[s.ctype](s.id)
+func (s *sysData) preferredSize() (width int, height int, yoff int) {
+	return prefsizefuncs[s.ctype](s.id, toBOOL(s.alternate))
 }
