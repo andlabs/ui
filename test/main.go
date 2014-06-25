@@ -367,12 +367,26 @@ func myMain() {
 	var dialog_sret chan struct{} = nil
 
 	if *labelAlignTest {
-		s := NewHorizontalStack(NewStandaloneLabel("Label"), NewLineEdit(""))
+		s := NewHorizontalStack(NewStandaloneLabel("Label"), NewLineEdit("Label"))
 		s.SetStretchy(1)
-		s2 := NewHorizontalStack(NewLabel("Label"), NewLineEdit(""))
+		s2 := NewHorizontalStack(NewLabel("Label"), NewLineEdit("Label"))
 		s2.SetStretchy(1)
-		s = NewVerticalStack(s, s2, Space())
-		s.SetStretchy(2)
+		s3 := NewHorizontalStack(NewLabel("Label"), NewButton("Label"))
+		// don't set stretchy
+		s4 := NewHorizontalStack(NewLabel("Label"), NewCheckbox("Label"))
+		// don't set stretchy
+		s5 := NewHorizontalStack(NewLabel("Label"), NewCombobox("Label"))
+		s5.SetStretchy(1)
+		s6 := NewHorizontalStack(NewLabel("Label"), NewEditableCombobox("Label"))
+		s6.SetStretchy(1)
+		s7 := NewHorizontalStack(NewLabel("Label"), NewLabel("Label"))
+		s7.SetStretchy(1)
+		s8 := NewHorizontalStack(NewLabel("Label"), NewListbox("Label"))
+		s8.SetStretchy(1)
+		s9 := NewHorizontalStack(NewLabel("Label"), NewProgressBar())
+		s9.SetStretchy(1)
+		s = NewVerticalStack(s, s2, s3, s4, s5, s6, s7, s8, s9, Space())
+		s.SetStretchy(9)
 		s = NewHorizontalStack(
 			NewButton("Button"),
 			NewStandaloneLabel("Standalone"),
@@ -380,7 +394,7 @@ func myMain() {
 			NewButton("Button"),
 			s)
 		s.SetStretchy(4)
-		NewWindow("Label Align Test", 500, 100).Open(s)
+		NewWindow("Label Align Test", 500, 300).Open(s)
 	}
 
 mainloop:
