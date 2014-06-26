@@ -280,6 +280,10 @@ var labelAlignTest = flag.Bool("label", false, "show Label Alignment test window
 var spacingTest = flag.Bool("spacing", false, "margins and padding on Window")
 
 func myMain() {
+	if *spacetest != "" {
+		spaceTest()
+		return
+	}
 	if *doArea {
 		areaTest()
 		return

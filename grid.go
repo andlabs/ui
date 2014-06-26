@@ -134,16 +134,19 @@ func (g *Grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 
 	var current *allocation		// for neighboring
 
+	// TODO return if nControls == 0?
 	// before we do anything, steal the margin so nested Stacks/Grids don't double down
 	xmargin := d.xmargin
 	ymargin := d.ymargin
 	d.xmargin = 0
 	d.ymargin = 0
-	// 0) inset the available rect by the margins
+	// 0) inset the available rect by the margins and needed padding
 	x += xmargin
 	y += ymargin
 	width -= xmargin * 2
 	height -= ymargin * 2
+	width -= (len(g.colwidths) - 1) * d.xpadding
+	height -= (len(g.rowheights) - 1) * d.ypadding
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0
@@ -197,15 +200,16 @@ func (g *Grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 				current = nil			// spaces don't have allocation data
 			}
 			allocations = append(allocations, as...)
-			x += g.colwidths[col]
+			x += g.colwidths[col] + d.xpadding
 		}
 		x = startx
-		y += g.rowheights[row]
+		y += g.rowheights[row] + d.ypadding
 	}
 	return
 }
 
 // filling and stretchy are ignored for preferred size calculation
+// We don't consider the margins here, but will need to if Window.SizeToFit() is ever made a thing.
 func (g *Grid) preferredSize(d *sysSizeData) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
@@ -214,6 +218,8 @@ func (g *Grid) preferredSize(d *sysSizeData) (width int, height int) {
 		return b
 	}
 
+	width -= (len(g.colwidths) - 1) * d.xpadding
+	height -= (len(g.rowheights) - 1) * d.ypadding
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0
