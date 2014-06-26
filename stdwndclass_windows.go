@@ -157,7 +157,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			if r1 == 0 {
 				panic("GetClientRect failed: " + err.Error())
 			}
-			// top-left corner of a client rect is (0,0) so no need for left/top
+			// top-left corner of a client rect is always (0,0) so no need for left/top
 			s.resizeWindow(int(r.right), int(r.bottom))
 			// TODO use the Defer movement functions here?
 			// TODO redraw window and all children here?
