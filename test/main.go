@@ -276,6 +276,7 @@ func areaboundsTest() {
 
 var dialogTest = flag.Bool("dialog", false, "add Window.MsgBox() channel test window")
 var labelAlignTest = flag.Bool("label", false, "show Label Alignment test window")
+var spacingTest = flag.Bool("spacing", false, "margins and padding on Window")
 
 func myMain() {
 	if *doArea {
@@ -340,6 +341,7 @@ func myMain() {
 	if *invalidBefore {
 		invalidTest(cb1, lb1, s, NewGrid(1, Space()))
 	}
+	w.SetSpaced(*spacingTest)
 	w.Open(s)
 	if *gridtest {
 		gridWindow()
