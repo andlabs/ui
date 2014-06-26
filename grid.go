@@ -139,8 +139,11 @@ func (g *Grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 	ymargin := d.ymargin
 	d.xmargin = 0
 	d.ymargin = 0
-_=xmargin
-_=ymargin
+	// 0) inset the available rect by the margins
+	x += xmargin
+	y += ymargin
+	width -= xmargin * 2
+	height -= ymargin * 2
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0

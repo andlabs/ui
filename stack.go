@@ -89,8 +89,11 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (a
 	ymargin := d.ymargin
 	d.xmargin = 0
 	d.ymargin = 0
-_=xmargin
-_=ymargin
+	// 0) inset the available rect by the margins
+	x += xmargin
+	y += ymargin
+	width -= xmargin * 2
+	height -= ymargin * 2
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
 	stretchyht = height

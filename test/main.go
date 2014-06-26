@@ -41,6 +41,7 @@ func gridWindow() *Window {
 		l20, c21, l22)
 	g.SetFilling(1, 2)
 	g.SetStretchy(1, 1)
+	w.SetSpaced(*spacingTest)
 	w.Open(g)
 	return w
 }
