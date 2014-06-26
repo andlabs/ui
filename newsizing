@@ -1,7 +1,49 @@
-resize event comes in
-	new window size taken
-	windows: dialog base units re-measured
-	call main widget sizing function
+type sysSizeData struct {
+	// windows
+	baseX	int
+	baseY	int
+	// possibly also the HDWP
+	// gtk, mac os x: nothing
+}
+
+func (s *sysData) beginResize() *sysSizeData {
+	// windows: get baseX/baseY for window
+	// gtk, mac: return nothing
+}
+
+func (s *sysData) endResize(d *sysSizeData) {
+	// redraw
+}
+
+type allocation struct {
+	x		int
+	y		int
+	width	int
+	height	int
+	this		Control
+	neighbor	Control
+}
+
+func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+	// windows, gtk: nothing
+	// mac
+	for _, allocation := range allocations {
+		// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
+		// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
+		allocation.y = (winheight - allocation.y) - allocation.height
+	}
+}
+
+func (s *sysData) resizeWindow(width, height int) {
+	d := s.startResize()
+	allocations := s.resize(0, 0, width, height, d)
+	s.translateAllocationCoords(allocations, width, height)
+	for _, c := range s.allocations {
+		c.this.doResize(c, d)
+	}
+	s.finishResize(d)
+}
+
 main widget sizing function
 	get preferred size of all subwidgets
 		windows: uses dialog base units
@@ -9,11 +51,11 @@ main widget sizing function
 	properly space controls
 		windows: uses dialog base units
 	return list of size allocations back to window sizer
-window sizer
-	mac: converts coordinate space
-	asks each widget to adjust the allocation based on neighboring control
+
+each doResize on a control should just defer to sysData.doResize()
+
 each widget adjustment
 	mac: neighboring control baselines are aligned for labels
 	gtk: vertical alignment of text changed to top if neighboring control is multi-line
-		TODO - should it be center-aligned or not
+		TODO - should it be center-aligned vertically or not
 	windows: none
