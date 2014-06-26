@@ -33,12 +33,6 @@ struct xpoint {
 	intptr_t y;
 };
 
-struct xprefsize {
-	intptr_t width;
-	intptr_t height;
-	intptr_t yoff;
-};
-
 /* objc_darwin.m */
 extern id toNSString(char *);
 extern char *fromNSString(id);
@@ -92,11 +86,10 @@ extern uintptr_t listboxIndexesNext(id, uintptr_t);
 extern intptr_t listboxLen(id);
 
 /* prefsize_darwin.m */
-extern struct xprefsize controlPrefSize(id, BOOL);
-extern struct xprefsize labelPrefSize(id, BOOL);
-extern struct xprefsize listboxPrefSize(id, BOOL);
-extern struct xprefsize pbarPrefSize(id, BOOL);
-extern struct xprefsize areaPrefSize(id, BOOL);
+extern struct xsize controlPrefSize(id);
+extern struct xsize listboxPrefSize(id);
+extern struct xsize pbarPrefSize(id);
+extern struct xsize areaPrefSize(id);
 
 /* sysdata_darwin.m */
 extern void addControl(id, id);
