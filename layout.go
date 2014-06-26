@@ -1,14 +1,12 @@
 package ui
 
-// Recursively removes border margins and padding from controls, replaces
-// nil values with stretchy spaces and reorients nested stack to have
-// opposing orientations.
+// Recursively replaces nils with stretchy empty spaces and changes the orientation
+// of inner stack so they are perpenticular to each other.
 func resetControls(parent *Stack) {
 	for i, control := range parent.controls {
 		switch control.(type) {
 		case *Stack:
 			stack := control.(*Stack)
-			stack.borderMargin = 0
 			stack.orientation = !parent.orientation
 			resetControls(stack)
 		case nil:
@@ -30,8 +28,6 @@ func Layout(controls ...Control) *Stack {
 		stretchy:     make([]bool, len(controls)),
 		width:        make([]int, len(controls)),
 		height:       make([]int, len(controls)),
-		padding:      10,
-		borderMargin: 15,
 	}
 
 	resetControls(stack)
