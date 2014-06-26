@@ -4,8 +4,11 @@ Woah, lots of attention! Thanks!
 
 ## Updates
 
+- **26 June 2014**
+	- Controls in Windows can now be spaced apart more naturally. Call `w.SetSpaced(true)` to opt in. **Whether this is opt-in or whether the name will change is still unknown at this point.**
+	- There's a new function `Layout()` which provides high-level layout creation. The function was written by @boppreh and details can be found at #19. **Whether this function will stay in the main package or be moved to a subpackage is still unknown.**
+
 - **25 June 2014**<br>Labels by default now align themselves relative to the control they are next to. There is a new function `NewStandaloneLabel()` which returns a label whose text is aligned to the top-left corner of the alloted space regardless.
-	- Right now this implementation is hacky on Mac OS X; to make it work properly, I would need to add support for grabbing baselines; I'll do that sometime later.
 
 - **11 June 2014**<br>**I have decided to remove Mac OS X 10.6 support** because it's only causing problems for building (and everyone else says I should anyway, including Mac developers!). This does break my original goal, but I'm going to have to break things sooner or later. Please let me know if any of you actually use this package on 10.6. (I personally don't like it when programs require 10.7 (or iOS 7, for that matter), but what are you gonna do?)
 
