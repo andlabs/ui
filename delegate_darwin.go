@@ -34,8 +34,8 @@ func appDelegate_windowDidResize(win C.id) {
 	s := getSysData(win)
 	wincv := C.windowGetContentView(win) // we want the content view's size, not the window's
 	r := C.frame(wincv)
-	// winheight is used here because (0,0) is the bottom-left corner, not the top-left corner
-	s.doResize(0, 0, int(r.width), int(r.height), int(r.height))
+	// (0,0) is the bottom left corner but this is handled in sysData.translateAllocationCoords()
+	s.resizeWindow(int(r.width), int(r.height))
 	C.display(win) // redraw everything
 }
 

@@ -5,6 +5,61 @@ package ui
 // #include "objc_darwin.h"
 import "C"
 
+type sysSizeData struct {
+	cSysSizeData
+
+	// for size calculations
+	// nothing for mac
+
+	// for the actual resizing
+	// neighbor control alignment rect/baseline info
+}
+
+// THIS IS A GUESS. TODO.
+// The only indication that this is remotely correct is the Auto Layout Guide implying that 12 pixels is the "Aqua space".
+const (
+	macXMargin = 12
+	macYMargin = 12
+	macXPadding = 12
+	macYPadding = 12
+)
+
+func (s *sysData) beginResize() (d *sysSizeData) {
+	d = new(sysSizeData)
+	if s.spaced {
+		d.xmargin = macXMargin
+		d.ymargin = macYMargin
+		d.xpadding = macXPadding
+		d.ypadding = macYPadding
+	}
+	return d
+}
+
+func (s *sysData) endResize(d *sysSizeData) {
+	// redraw
+}
+
+func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+	for _, a := range allocations {
+		// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
+		// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
+		a.y = (winheight - a.y) - a.height
+	}
+}
+
+func (s *sysData) commitResize(c *allocation, d *sysSizeData) {
+	if s.ctype == c_label && !s.alternate && c.neighbor != nil {
+		c.neighbor.getAuxResizeInfo(d)
+		// get this control's alignment rect and baseline
+		// align
+	}
+	C.setRect(s.id, C.intptr_t(c.x), C.intptr_t(c.y), C.intptr_t(c.width), C.intptr_t(c.height))
+}
+
+func (s *sysData) getAuxResizeInfo(d *sysSizeData) {
+	// get this control's alignment rect and baseline
+}
+
 /*
 Cocoa doesn't provide a reliable way to get the preferred size of a control (you're supposed to use Interface Builder and have it set up autoresizing for you). The best we can do is call [control sizeToFit] (which is defined for NSControls and has a custom implementation for the other types here) and read the preferred size. Though this changes the size, we're immediately overriding the change on return from sysData.preferredSize(), so no harm done. (This is similar to what we are doing with GTK+, except GTK+ does not actually change the size.)
 */
@@ -17,7 +72,7 @@ func controlPrefSize(control C.id) (width int, height int) {
 
 // NSTableView is actually in a NSScrollView so we have to get it out first
 func listboxPrefSize(control C.id) (width int, height int) {
-	r := C.listboxPrefSize(control, alternate)
+	r := C.listboxPrefSize(control)
 	return int(r.width), int(r.height)
 }
 
@@ -44,6 +99,6 @@ var prefsizefuncs = [nctypes]func(C.id) (int, int){
 	c_area:        areaPrefSize,
 }
 
-func (s *sysData) preferredSize() (width int, height int) {
+func (s *sysData) preferredSize(d *sysSizeData) (width int, height int) {
 	return prefsizefuncs[s.ctype](s.id)
 }
