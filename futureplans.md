@@ -15,7 +15,6 @@ general list:
 - character-limited entry fields (not for passwords), numeric entry fields, multiline entry fields
 	- possible rename of LineEdit?
 		- especially for password fields - NewPasswordEntry()?
-- padding and spacing in Stack
 - allow Combobox to have initial settings
 - Combobox and Listbox insertions and deletions should allow bulk (...string/...int)
 - Combobox/Listbox.DeleteAll
