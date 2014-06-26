@@ -386,7 +386,8 @@ func myMain() {
 		s9 := NewHorizontalStack(NewLabel("Label"), NewProgressBar())
 		s9.SetStretchy(1)
 		s = NewVerticalStack(s, s2, s3, s4, s5, s6, s7, s8, s9, Space())
-		s.SetStretchy(9)
+		s.SetStretchy(7)		// listbox
+		s.SetStretchy(9)		// space
 		s = NewHorizontalStack(
 			NewButton("Button"),
 			NewStandaloneLabel("Standalone"),
