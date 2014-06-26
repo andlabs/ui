@@ -37,17 +37,6 @@ thanks tristan in irc.gimp.net/#gtk+
 * {
 	-GtkProgressBar-min-horizontal-bar-width: 1;
 }
-
-/*
-on some themes, such as oxygen-gtk, GtkLayout draws a solid-color background, not the window background (as GtkFixed and GtkDrawingArea do)
-this CSS fixes it
-thanks to drahnr and ptomato in http://stackoverflow.com/questions/22940588/how-do-i-really-make-a-gtk-3-gtklayout-transparent-draw-theme-background
-this has now been reported to the Oyxgen maintainers (https://bugs.kde.org/show_bug.cgi?id=333983); I'm not sure if I'll remove this or not when that's fixed (only if it breaks other styles... I *think* it breaks elementary OS? need to check again)
-TODO write a program that does the comparison
-*/
-GtkLayout {
-	background-color: transparent;
-}
 `)
 
 func gtk_init() error {
