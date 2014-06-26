@@ -7,6 +7,72 @@ import (
 	"unsafe"
 )
 
+type sysSizeData struct {
+	cSysSizeData
+
+	// for size calculations
+	baseX	int
+	baseY	int
+
+	// for the actual resizing
+	// possibly the HDWP
+}
+
+const (
+	marginDialogUnits = 7
+	paddingDialogUnits = 4
+}
+
+func (s *sysData) beginResize() (d *sysSizeData) {
+	d = new(sysSizeData)
+
+	dc := getTextDC(s.hwnd)
+	defer releaseTextDC(dc)
+
+	r1, _, err = _getTextMetrics.Call(
+		uintptr(dc),
+		uintptr(unsafe.Pointer(&tm)))
+	if r1 == 0 { // failure
+		panic(fmt.Errorf("error getting text metrics for preferred size calculations: %v", err))
+	}
+	d.baseX = int(tm.tmAveCharWidth) // TODO not optimal; third reference has better way
+	d.baseY = int(tm.tmHeight)
+
+	if s.spaced {
+		d.xmargin = muldiv(marginDialogUnits, d.baseX, 4)
+		d.ymargin = muldiv(marginDialogUnits, d.baseY, 8)
+		d.xpadding = muldiv(paddingDialogUnits, d.baseX, 4)
+		d.xpadding = muldiv(paddingDialogUnits, d.baseY, 8)
+	}
+
+	return d
+}
+
+func (s *sysData) endResize(d *sysSizeData) {
+	// redraw
+}
+
+func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+	// no translation needed on windows
+}
+
+func (s *sysData) commitResize(c *allocation, d *sysSizeData) {
+	yoff := stdDlgSizes[s.ctype].yoff
+	if s.alternate {
+		yoff = stdDlgSizes[s.ctype].yoffalt
+	}
+	if yoff != 0 {
+		yoff = muldiv(yoff, d.baseY, 8)
+	}
+	c.y += yoff
+	// TODO move this here
+	s.setRect(c.x, c.y, c.width, c.height)
+}
+
+func (s *sysData) getAuxResizeInfo(d *sysSizeData) {
+	// do nothing
+}
+
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
 // These sizes are given in "dialog units", which are independent of the font in use.
 // We need to convert these into standard pixels, which requires we get the device context of the OS window.
@@ -83,8 +149,34 @@ var (
 	_releaseDC            = user32.NewProc("ReleaseDC")
 )
 
+func getTextDC(hwnd _HWND) (dc _HANDLE) {
+	var tm _TEXTMETRICS
+
+	r1, _, err := _getDC.Call(uintptr(hwnd))
+	if r1 == 0 { // failure
+		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
+	}
+	dc = _HANDLE(r1)
+	r1, _, err = _selectObject.Call(
+		uintptr(dc),
+		uintptr(controlFont))
+	if r1 == 0 { // failure
+		panic(fmt.Errorf("error loading control font into device context for preferred size calculation: %v", err))
+	}
+	return dc
+}
+
+func releaseTextDC(hwnd _HWND, dc _HANDLE) {
+	r1, _, err = _releaseDC.Call(
+		uintptr(hwnd),
+		uintptr(dc))
+	if r1 == 0 { // failure
+		panic(fmt.Errorf("error releasing DC for preferred size calculations: %v", err))
+	}
+}
+
 // This function runs on uitask; call the functions directly.
-func (s *sysData) preferredSize() (width int, height int, yoff int) {
+func (s *sysData) preferredSize(d *sysSizeData) (width int, height int) {
 	// the preferred size of an Area is its size
 	if stdDlgSizes[s.ctype].area {
 		return s.areawidth, s.areaheight, 0		// no yoff for areas
@@ -105,53 +197,15 @@ func (s *sysData) preferredSize() (width int, height int, yoff int) {
 		println("message failed; falling back")
 	}
 
-	var dc _HANDLE
-	var tm _TEXTMETRICS
-	var baseX, baseY int
-
-	r1, _, err := _getDC.Call(uintptr(s.hwnd))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
-	}
-	dc = _HANDLE(r1)
-	r1, _, err = _selectObject.Call(
-		uintptr(dc),
-		uintptr(controlFont))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error loading control font into device context for preferred size calculation: %v", err))
-	}
-	r1, _, err = _getTextMetrics.Call(
-		uintptr(dc),
-		uintptr(unsafe.Pointer(&tm)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting text metrics for preferred size calculations: %v", err))
-	}
-	baseX = int(tm.tmAveCharWidth) // TODO not optimal; third reference has better way
-	baseY = int(tm.tmHeight)
-	r1, _, err = _releaseDC.Call(
-		uintptr(s.hwnd),
-		uintptr(dc))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error releasing DC for preferred size calculations: %v", err))
-	}
-
-	// now that we have the conversion factors...
 	width = stdDlgSizes[s.ctype].width
 	if width == 0 {
 		width = defaultWidth
 	}
 	height = stdDlgSizes[s.ctype].height
-	width = muldiv(width, baseX, 4)   // equivalent to right of rect
-	height = muldiv(height, baseY, 8) // equivalent to bottom of rect
+	width = muldiv(width, d.baseX, 4)   // equivalent to right of rect
+	height = muldiv(height, d.baseY, 8) // equivalent to bottom of rect
 
-	yoff = stdDlgSizes[s.ctype].yoff
-	if s.alternate {
-		yoff = stdDlgSizes[s.ctype].yoffalt
-	}
-	if yoff != 0 {
-		yoff = muldiv(yoff, baseY, 8)
-	}
-	return width, height, yoff
+	return width, height
 }
 
 var (

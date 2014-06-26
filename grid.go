@@ -124,7 +124,7 @@ func (g *Grid) make(window *sysData) error {
 	return nil
 }
 
-func (g *Grid) setRect(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
+func (g *Grid) allocate(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -135,9 +135,12 @@ func (g *Grid) setRect(x int, y int, width int, height int, d *sysSizeData) (all
 	var current *allocation		// for neighboring
 
 	// before we do anything, steal the margin so nested Stacks/Grids don't double down
-	margin := d.margin
-	d.margin = 0
-_=margin
+	xmargin := d.xmargin
+	ymargin := d.ymargin
+	d.xmargin = 0
+	d.ymargin = 0
+_=xmargin
+_=ymargin
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0

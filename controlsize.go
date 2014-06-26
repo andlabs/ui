@@ -11,6 +11,13 @@ type allocation struct {
 	neighbor	Control
 }
 
+type cSysSizeData struct {
+	xmargin		int
+	ymargin		int
+	xpadding		int
+	ypadding		int
+}
+
 // for verification; see sysdata.go
 type sysDataSizeFuncs interface {
 	beginResize() *sysSizeData

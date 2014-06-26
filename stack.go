@@ -85,9 +85,12 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (a
 		return nil
 	}
 	// before we do anything, steal the margin so nested Stacks/Grids don't double down
-	margin := d.margin
-	d.margin = 0
-_=margin
+	xmargin := d.xmargin
+	ymargin := d.ymargin
+	d.xmargin = 0
+	d.ymargin = 0
+_=xmargin
+_=ymargin
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
 	stretchyht = height
