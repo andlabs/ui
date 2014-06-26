@@ -133,7 +133,11 @@ _=ymargin
 			if current != nil {			// connect first left to first right
 				current.neighbor = c
 			}
-			current = as[0]				// next left is first subwidget
+			if len(as) != 0 {
+				current = as[0]			// next left is first subwidget
+			} else {
+				current = nil			// spaces don't have allocation data
+			}
 		}
 		allocations = append(allocations, as...)
 		if s.orientation == horizontal {
