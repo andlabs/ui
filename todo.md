@@ -1,6 +1,7 @@
 ALL:
 - vertical alignment of labels is a botch right now
 	- os x: very very wrong
+	- grids: currently requires labels to be filling, which might have implications...
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
