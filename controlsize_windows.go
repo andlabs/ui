@@ -44,7 +44,7 @@ func (s *sysData) beginResize() (d *sysSizeData) {
 		d.xmargin = muldiv(marginDialogUnits, d.baseX, 4)
 		d.ymargin = muldiv(marginDialogUnits, d.baseY, 8)
 		d.xpadding = muldiv(paddingDialogUnits, d.baseX, 4)
-		d.xpadding = muldiv(paddingDialogUnits, d.baseY, 8)
+		d.ypadding = muldiv(paddingDialogUnits, d.baseY, 8)
 	}
 
 	return d
