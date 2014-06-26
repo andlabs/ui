@@ -12,7 +12,7 @@ type sysSizeData struct {
 	// nothing for mac
 
 	// for the actual resizing
-	// neighbor control alignment rect/baseline info
+	neighborAlign		C.struct_xalignment
 }
 
 // THIS IS A GUESS. TODO.
@@ -50,14 +50,34 @@ func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth,
 func (s *sysData) commitResize(c *allocation, d *sysSizeData) {
 	if s.ctype == c_label && !s.alternate && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
-		// get this control's alignment rect and baseline
-		// align
+		if d.neighborAlign.baseline != 0 {		// no adjustment needed if the given control has no baseline
+			// in order for the baseline value to be correct, the label MUST BE AT THE HEIGHT THAT OS X WANTS IT TO BE!
+			// otherwise, the baseline calculation will be relative to the bottom of the control, and everything will be wrong
+			origsize := C.controlPrefSize(s.id)
+			c.height = int(origsize.height)
+			newrect := C.struct_xrect{
+				x:		C.intptr_t(c.x),
+				y:		C.intptr_t(c.y),
+				width:	C.intptr_t(c.width),
+				height:	C.intptr_t(c.height),
+			}
+			ourAlign := C.alignmentInfo(s.id, newrect)
+			// we need to find the exact Y positions of the baselines
+			// fortunately, this is easy now that (x,y) is the bottom-left corner
+			thisbasey := ourAlign.alignmentRect.y + ourAlign.baseline
+			neighborbasey := d.neighborAlign.alignmentRect.y + d.neighborAlign.baseline
+			// now the amount we have to move the label down by is easy to find
+			yoff := neighborbasey - thisbasey
+			// and we just add that
+			c.y += int(yoff)
+		}
+		// TODO if there's no baseline, the alignment should be to the top /of the alignment rect/, not the frame
 	}
 	C.setRect(s.id, C.intptr_t(c.x), C.intptr_t(c.y), C.intptr_t(c.width), C.intptr_t(c.height))
 }
 
 func (s *sysData) getAuxResizeInfo(d *sysSizeData) {
-	// get this control's alignment rect and baseline
+	d.neighborAlign = C.alignmentInfo(s.id, C.frame(s.id))
 }
 
 /*

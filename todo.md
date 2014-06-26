@@ -1,7 +1,6 @@
 ALL:
-- vertical alignment of labels is a botch right now
-	- os x: very very wrong
-	- grids: currently requires labels to be filling for this to work
+- vertical alignment of labels still has some flaws
+	- gtk+: currently requires labels to be filling for this to work: grids don't do this by default, for instance
 		- won't cause any issues, just an inconvenience that should be addressed
 
 MAC OS X:

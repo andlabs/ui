@@ -15,7 +15,7 @@
 
 #include <stdint.h>
 
-/* wrapper types since the meaning of NSRect, NSSize, and NSPoint are CPU architectured-dependent; also because they're in an Objective-C-only header */
+/* wrapper types since the meaning of NSRect, NSSize, and NSPoint are CPU architecture3d-dependent; also because they're in an Objective-C-only header */
 struct xrect {
 	intptr_t x;
 	intptr_t y;
@@ -31,6 +31,11 @@ struct xsize {
 struct xpoint {
 	intptr_t x;
 	intptr_t y;
+};
+
+struct xalignment {
+	struct xrect alignmentRect;
+	intptr_t baseline;
 };
 
 /* objc_darwin.m */
@@ -90,6 +95,7 @@ extern struct xsize controlPrefSize(id);
 extern struct xsize listboxPrefSize(id);
 extern struct xsize pbarPrefSize(id);
 extern struct xsize areaPrefSize(id);
+extern struct xalignment alignmentInfo(id, struct xrect);
 
 /* sysdata_darwin.m */
 extern void addControl(id, id);
