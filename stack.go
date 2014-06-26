@@ -25,7 +25,7 @@ type Stack struct {
 	orientation   orientation
 	controls      []Control
 	stretchy      []bool
-	width, height, yoff []int // caches to avoid reallocating these each time
+	width, height []int // caches to avoid reallocating these each time
 }
 
 func newStack(o orientation, controls ...Control) *Stack {
@@ -35,7 +35,6 @@ func newStack(o orientation, controls ...Control) *Stack {
 		stretchy:    make([]bool, len(controls)),
 		width:       make([]int, len(controls)),
 		height:      make([]int, len(controls)),
-		yoff:		make([]int, len(controls)),
 	}
 }
 
@@ -93,8 +92,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest
 			nStretchy++
 			continue
 		}
-		w, h, yoff := c.preferredSize()
-		s.yoff[i] = yoff
+		w, h := c.preferredSize()
 		if s.orientation == horizontal { // all controls have same height
 			s.width[i] = w
 			s.height[i] = height
@@ -122,7 +120,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		c.setRect(x, y + s.yoff[i], s.width[i], s.height[i] - s.yoff[i], rr)
+		c.setRect(x, y, s.width[i], s.height[i], rr)
 		if s.orientation == horizontal {
 			x += s.width[i]
 		} else {
@@ -133,7 +131,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
-func (s *Stack) preferredSize() (width int, height int, yoff int) {
+func (s *Stack) preferredSize() (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -145,11 +143,10 @@ func (s *Stack) preferredSize() (width int, height int, yoff int) {
 	var maxswid, maxsht int
 
 	if len(s.controls) == 0 { // no controls, so return emptiness
-		return 0, 0, 0
+		return 0, 0
 	}
 	for i, c := range s.controls {
-		// ignore yoff for preferred size calculations
-		w, h, _ := c.preferredSize()
+		w, h := c.preferredSize()
 		if s.stretchy[i] {
 			nStretchy++
 			maxswid = max(maxswid, w)
@@ -172,9 +169,6 @@ func (s *Stack) preferredSize() (width int, height int, yoff int) {
 	} else {
 		height += nStretchy * maxsht
 	}
-
-	// yoff is always zero for stacks
-	yoff = 0
 	return
 }
 

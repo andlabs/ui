@@ -21,7 +21,7 @@ type Grid struct {
 	controls                 [][]Control
 	filling                  [][]bool
 	stretchyrow, stretchycol int
-	widths, heights, yoff          [][]int // caches to avoid reallocating each time
+	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
 }
 
@@ -42,14 +42,12 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 	cf := make([][]bool, nRows)
 	cw := make([][]int, nRows)
 	ch := make([][]int, nRows)
-	cyoff := make([][]int, nRows)
 	i := 0
 	for row := 0; row < nRows; row++ {
 		cc[row] = make([]Control, nPerRow)
 		cf[row] = make([]bool, nPerRow)
 		cw[row] = make([]int, nPerRow)
 		ch[row] = make([]int, nPerRow)
-		cyoff[row] = make([]int, nPerRow)
 		for x := 0; x < nPerRow; x++ {
 			cc[row][x] = controls[i]
 			i++
@@ -62,7 +60,6 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 		stretchycol: -1,
 		widths:      cw,
 		heights:     ch,
-		yoff:		cyoff,
 		rowheights:  make([]int, nRows),
 		colwidths:   make([]int, nPerRow),
 	}
@@ -145,12 +142,11 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			w, h, yoff := c.preferredSize()
+			w, h := c.preferredSize()
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
 			g.colwidths[col] = max(g.colwidths[col], w)
-			g.yoff[row][col] = yoff
 		}
 	}
 	// 3) handle the stretchy control
@@ -178,7 +174,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			c.setRect(x, y + g.yoff[row][col], w, h - g.yoff[row][col], rr)
+			c.setRect(x, y, w, h, rr)
 			x += g.colwidths[col]
 		}
 		x = startx
@@ -188,7 +184,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 }
 
 // filling and stretchy are ignored for preferred size calculation
-func (g *Grid) preferredSize() (width int, height int, yoff int) {
+func (g *Grid) preferredSize() (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -206,8 +202,7 @@ func (g *Grid) preferredSize() (width int, height int, yoff int) {
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			// ignore yoff for preferred size calculations
-			w, h, _ := c.preferredSize()
+			w, h := c.preferredSize()
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
@@ -221,7 +216,5 @@ func (g *Grid) preferredSize() (width int, height int, yoff int) {
 	for _, h := range g.rowheights {
 		height += h
 	}
-
-	// yoff is always zero for grids
-	return width, height, 0
+	return width, height
 }
