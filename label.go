@@ -89,7 +89,7 @@ func (l *Label) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (l *Label) commitResize(a *allocation, d *sysSizeData) {
-	l.sysData.preferredSize(a, d)
+	l.sysData.commitResize(a, d)
 }
 
 func (l *Label) getAuxResizeInfo(d *sysSizeData) {

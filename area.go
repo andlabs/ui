@@ -350,8 +350,8 @@ func (a *Area) preferredSize(d *sysSizeData) (width int, height int) {
 	return a.sysData.preferredSize(d)
 }
 
-func (a *Area) commitResize(a *allocation, d *sysSizeData) {
-	a.sysData.preferredSize(a, d)
+func (a *Area) commitResize(c *allocation, d *sysSizeData) {
+	a.sysData.commitResize(c, d)
 }
 
 func (a *Area) getAuxResizeInfo(d *sysSizeData) {

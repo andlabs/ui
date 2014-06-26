@@ -19,7 +19,7 @@ type cSysSizeData struct {
 }
 
 // for verification; see sysdata.go
-type sysDataSizeFuncs interface {
+type sysDataSizingFunctions interface {
 	beginResize() *sysSizeData
 	endResize(*sysSizeData)
 	translateAllocationCoords([]*allocation, int, int)
@@ -32,7 +32,7 @@ func (s *sysData) resizeWindow(width, height int) {
 	d := s.beginResize()
 	allocations := s.allocate(0, 0, width, height, d)
 	s.translateAllocationCoords(allocations, width, height)
-	for _, c := range s.allocations {
+	for _, c := range allocations {
 		c.this.commitResize(c, d)
 	}
 	s.endResize(d)

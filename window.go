@@ -100,7 +100,7 @@ func (w *Window) Create(control Control) {
 		panic(fmt.Errorf("error opening window: %v", err))
 	}
 	if control != nil {
-		w.sysData.resize = control.setRect
+		w.sysData.allocate = control.allocate
 		err = control.make(w.sysData)
 		if err != nil {
 			panic(fmt.Errorf("error adding window's control: %v", err))

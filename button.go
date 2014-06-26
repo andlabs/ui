@@ -80,7 +80,7 @@ func (b *Button) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (b *Button) commitResize(a *allocation, d *sysSizeData) {
-	b.sysData.preferredSize(a, d)
+	b.sysData.commitResize(a, d)
 }
 
 func (b *Button) getAuxResizeInfo(d *sysSizeData) {

@@ -21,15 +21,17 @@ type sysSizeData struct {
 const (
 	marginDialogUnits = 7
 	paddingDialogUnits = 4
-}
+)
 
 func (s *sysData) beginResize() (d *sysSizeData) {
 	d = new(sysSizeData)
 
 	dc := getTextDC(s.hwnd)
-	defer releaseTextDC(dc)
+	defer releaseTextDC(s.hwnd, dc)
 
-	r1, _, err = _getTextMetrics.Call(
+	var tm _TEXTMETRICS
+
+	r1, _, err := _getTextMetrics.Call(
 		uintptr(dc),
 		uintptr(unsafe.Pointer(&tm)))
 	if r1 == 0 { // failure
@@ -66,7 +68,7 @@ func (s *sysData) commitResize(c *allocation, d *sysSizeData) {
 	}
 	c.y += yoff
 	// TODO move this here
-	s.setRect(c.x, c.y, c.width, c.height)
+	s.setRect(c.x, c.y, c.width, c.height, 0)
 }
 
 func (s *sysData) getAuxResizeInfo(d *sysSizeData) {
@@ -150,8 +152,6 @@ var (
 )
 
 func getTextDC(hwnd _HWND) (dc _HANDLE) {
-	var tm _TEXTMETRICS
-
 	r1, _, err := _getDC.Call(uintptr(hwnd))
 	if r1 == 0 { // failure
 		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
@@ -167,7 +167,7 @@ func getTextDC(hwnd _HWND) (dc _HANDLE) {
 }
 
 func releaseTextDC(hwnd _HWND, dc _HANDLE) {
-	r1, _, err = _releaseDC.Call(
+	r1, _, err := _releaseDC.Call(
 		uintptr(hwnd),
 		uintptr(dc))
 	if r1 == 0 { // failure
@@ -179,7 +179,7 @@ func releaseTextDC(hwnd _HWND, dc _HANDLE) {
 func (s *sysData) preferredSize(d *sysSizeData) (width int, height int) {
 	// the preferred size of an Area is its size
 	if stdDlgSizes[s.ctype].area {
-		return s.areawidth, s.areaheight, 0		// no yoff for areas
+		return s.areawidth, s.areaheight
 	}
 
 	if msg := stdDlgSizes[s.ctype].getsize; msg != 0 {
@@ -191,7 +191,7 @@ func (s *sysData) preferredSize(d *sysSizeData) (width int, height int) {
 			uintptr(0),
 			uintptr(unsafe.Pointer(&size)))
 		if r1 != uintptr(_FALSE) { // success
-			return int(size.cx), int(size.cy), 0	// TODO
+			return int(size.cx), int(size.cy)
 		}
 		// otherwise the message approach failed, so fall back to the regular approach
 		println("message failed; falling back")

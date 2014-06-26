@@ -184,7 +184,7 @@ _=ymargin
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			as := c.allocation(x, y, w, h, d)
+			as := c.allocate(x, y, w, h, d)
 			if current != nil {			// connect first left to first right
 				current.neighbor = c
 			}

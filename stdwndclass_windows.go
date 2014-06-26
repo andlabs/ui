@@ -148,7 +148,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		_ = mm
 		return 0
 	case _WM_SIZE:
-		if s.resize != nil {
+		if s.allocate != nil {
 			var r _RECT
 
 			r1, _, err := _getClientRect.Call(
@@ -157,8 +157,8 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 			if r1 == 0 {
 				panic("GetClientRect failed: " + err.Error())
 			}
-			// top-left corner is (0,0) so no need for winheight
-			s.doResize(int(r.left), int(r.top), int(r.right-r.left), int(r.bottom-r.top), 0)
+			// top-left corner of a client rect is (0,0) so no need for left/top
+			s.resizeWindow(int(r.right), int(r.bottom))
 			// TODO use the Defer movement functions here?
 			// TODO redraw window and all children here?
 		}

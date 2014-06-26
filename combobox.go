@@ -162,7 +162,7 @@ func (c *Combobox) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (c *Combobox) commitResize(a *allocation, d *sysSizeData) {
-	c.sysData.preferredSize(a, d)
+	c.sysData.commitResize(a, d)
 }
 
 func (c *Combobox) getAuxResizeInfo(d *sysSizeData) {

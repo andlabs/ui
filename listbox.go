@@ -165,7 +165,7 @@ func (l *Listbox) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (l *Listbox) commitResize(a *allocation, d *sysSizeData) {
-	l.sysData.preferredSize(a, d)
+	l.sysData.commitResize(a, d)
 }
 
 func (l *Listbox) getAuxResizeInfo(d *sysSizeData) {

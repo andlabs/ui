@@ -83,7 +83,7 @@ func (l *LineEdit) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (l *LineEdit) commitResize(a *allocation, d *sysSizeData) {
-	l.sysData.preferredSize(a, d)
+	l.sysData.commitResize(a, d)
 }
 
 func (l *LineEdit) getAuxResizeInfo(d *sysSizeData) {

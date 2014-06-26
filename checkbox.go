@@ -85,7 +85,7 @@ func (c *Checkbox) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (c *Checkbox) commitResize(a *allocation, d *sysSizeData) {
-	c.sysData.preferredSize(a, d)
+	c.sysData.commitResize(a, d)
 }
 
 func (c *Checkbox) getAuxResizeInfo(d *sysSizeData) {

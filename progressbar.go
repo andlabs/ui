@@ -71,7 +71,7 @@ func (p *ProgressBar) preferredSize(d *sysSizeData) (width int, height int) {
 }
 
 func (p *ProgressBar) commitResize(a *allocation, d *sysSizeData) {
-	p.sysData.preferredSize(a, d)
+	p.sysData.commitResize(a, d)
 }
 
 func (p *ProgressBar) getAuxResizeInfo(d *sysSizeData) {
