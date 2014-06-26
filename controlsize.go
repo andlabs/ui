@@ -32,8 +32,9 @@ func (s *sysData) resizeWindow(width, height int) {
 	d := s.beginResize()
 	allocations := s.allocate(0, 0, width, height, d)
 	s.translateAllocationCoords(allocations, width, height)
-	for _, c := range allocations {
-		c.this.commitResize(c, d)
+	// move in reverse so as to approximate right->left order so neighbors make sense
+	for i := len(allocations) - 1; i >= 0; i-- {
+		allocations[i].this.commitResize(allocations[i], d)
 	}
 	s.endResize(d)
 }
