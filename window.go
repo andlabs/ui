@@ -21,6 +21,7 @@ type Window struct {
 	initWidth  int
 	initHeight int
 	shownOnce  bool
+	spaced	bool
 }
 
 // NewWindow allocates a new Window with the given title and size. The window is not created until a call to Create() or Open().
@@ -63,6 +64,21 @@ func (w *Window) SetSize(width int, height int) (err error) {
 	return nil
 }
 
+// SetSpaced sets whether the Window's child control takes padding and spacing into account.
+// That is, with w.SetSpaced(true), w's child will have a margin around the window frame and will have sub-controls separated by an implementation-defined amount.
+// Currently, only Stack and Grid explicitly understand this property.
+// This property is visible recursively throughout the widget hierarchy of the Window.
+// This property cannot be set after the Window has been created.
+func (w *Window) SetSpaced(spaced bool) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	if w.created {
+		panic(fmt.Errorf("Window.SetSpaced() called after window created"))
+	}
+	w.spaced = spaced
+}
+
 // Open creates the Window with Create and then shows the Window with Show. As with Create, you cannot call Open more than once per window.
 func (w *Window) Open(control Control) {
 	w.Create(control)
@@ -77,6 +93,7 @@ func (w *Window) Create(control Control) {
 	if w.created {
 		panic("window already open")
 	}
+	w.sysData.spaced = w.spaced
 	w.sysData.event = w.Closing
 	err := w.sysData.make(nil)
 	if err != nil {

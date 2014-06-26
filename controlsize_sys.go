@@ -1,3 +1,7 @@
+// <codedate
+
+package ui
+
 type sysSizeData struct {
 	// for size calculations
 	// all platforms
@@ -26,15 +30,6 @@ func (s *sysData) endResize(d *sysSizeData) {
 	// redraw
 }
 
-type allocation struct {
-	x		int
-	y		int
-	width	int
-	height	int
-	this		Control
-	neighbor	Control
-}
-
 func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	// windows, gtk: nothing
 	// mac
@@ -44,41 +39,6 @@ func (s *sysData) translateAllocationCoords(allocations []*allocation, winwidth,
 		a.y = (winheight - a.y) - a.height
 	}
 }
-
-func (s *sysData) resizeWindow(width, height int) {
-	d := s.beginResize()
-	allocations := s.allocate(0, 0, width, height, d)
-	s.translateAllocationCoords(allocations, width, height)
-	for _, c := range s.allocations {
-		c.this.doResize(c, d)
-	}
-	s.endResize(d)
-}
-
-// setSize() becomes allocate()
-// each allocate on a non-layout control should just return a one-element slice
-// each doResize and getAuxResizeInfo on a control should just defer to sysData
-type Control interface {
-	// ...
-	allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation
-	preferredSize(d *sysSizeData) (width, height int)
-	doResize(c *allocation, d *sysSizeData)
-	getAuxResizeInfo(d *sysSizeData)
-}
-
-// vertical stack: no concept of neighbor, but not too hard to add a vertical neighbor
-// horizontal stack:
-	var current *allocation
-	// ...
-	as := s.controls[i].allocate(...)
-	if current != nil {
-		current.neighbor = as[0].self
-	}
-	current = as[0]
-	// append all of as
-// grid:
-	// same as above, except current is set to nil on each new row
-	// adding a vertical neighbor would require storing an extra list
 
 // windows
 func (s *sysData) doResize(c *allocation, d *sysSizeData) {

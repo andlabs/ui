@@ -14,13 +14,14 @@ type cSysData struct {
 	ctype     int
 	event     chan struct{}
 	resize    func(x int, y int, width int, height int, rr *[]resizerequest)
-	resizes   []resizerequest
+	spaced	bool
 	alternate bool        // editable for Combobox, multi-select for listbox, password for lineedit
 	handler   AreaHandler // for Areas
 }
 
 // this interface is used to make sure all sysDatas are synced
 var _xSysData interface {
+	sysDataSizingFunctions
 	make(window *sysData) error
 	firstShow() error
 	show()
@@ -35,8 +36,6 @@ var _xSysData interface {
 	selectedIndices() []int
 	selectedTexts() []string
 	setWindowSize(int, int) error
-	delete(int)
-	preferredSize() (int, int, int)
 	setProgress(int)
 	len() int
 	setAreaSize(int, int)
@@ -80,25 +79,4 @@ func mksysdata(ctype int) *sysData {
 		s.resizes = make([]resizerequest, 0, 0)
 	}
 	return s
-}
-
-type resizerequest struct {
-	sysData *sysData
-	x       int
-	y       int
-	width   int
-	height  int
-}
-
-func (s *sysData) doResize(x int, y int, width int, height int, winheight int) {
-	if s.resize != nil {
-		s.resizes = s.resizes[0:0] // set len to 0 without changing cap
-		s.resize(x, y, width, height, &s.resizes)
-		for _, s := range s.resizes {
-			err := s.sysData.setRect(s.x, s.y, s.width, s.height, winheight)
-			if err != nil {
-				panic("child resize failed: " + err.Error())
-			}
-		}
-	}
 }
