@@ -37,10 +37,10 @@ var window_delete_event_callback = C.GCallback(C.our_window_delete_event_callbac
 func our_window_configure_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
 	// called when the window is resized
 	s := (*sysData)(unsafe.Pointer(what))
-	if s.container != nil && s.resize != nil { // wait for init
+	if s.container != nil && s.allocate != nil { // wait for init
 		width, height := gtk_window_get_size(s.widget)
-		// top-left is (0,0) so no need for winheight
-		s.doResize(0, 0, width, height, 0)
+		// top-left is (0,0) here
+		s.resizeWindow(width, height)
 	}
 	// no need to manually redraw everything: since we use gtk_widget_set_size_request(), that queues both resize and redraw for us (thanks Company in irc.gimp.net/#gtk+)
 	return C.FALSE // continue the event chain

@@ -1,10 +1,6 @@
 ALL:
 - vertical alignment of labels is a botch right now
-	- windows: unilaterally applied; not much tow orry about here though
-	- gtk: mostly fine, just that list box labels need to be top-aligned
 	- os x: very very wrong
-	- will need to make yoff a function of a control and its neighbor to the right for this to work
-		- on gtk+ the yoff function will need to do the text alignment
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
@@ -22,7 +18,8 @@ WINDOWS:
 - control sizing is a MAJOR pain
 	- http://stackoverflow.com/questions/24130548/is-there-a-proper-way-to-get-the-preferred-size-of-windows-controls-there-are-s
 - redrawing controls after a window resize on Windows does not work properly
-- when adding IsDialogMessage() find out if that make sthe area in the area bounds test automatically focused
+- when adding IsDialogMessage() find out if that makes the area in the area bounds test automatically focused
+- vertical alignment of labels can be wrong (I think; need to check again - TODO)
 
 UNIX:
 - figure out how to detect the alt key and mouse buttons above 5 properly for modifiers/Held[]

@@ -239,6 +239,10 @@ func gtk_entry_get_text(widget *C.GtkWidget) string {
 var _emptystring = [1]C.gchar{0}
 var emptystring = &_emptystring[0]
 
+func gtk_misc_set_alignment(widget *C.GtkWidget, x float64, y float64) {
+	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(widget)), C.gfloat(x), C.gfloat(y))
+}
+
 func gtk_label_new() *C.GtkWidget {
 	label := C.gtk_label_new(emptystring)
 	C.gtk_label_set_line_wrap(togtklabel(label), C.FALSE) // turn off line wrap
@@ -250,14 +254,14 @@ func gtk_label_new() *C.GtkWidget {
 	// this will valign to the center, which is what the HIG says (https://developer.gnome.org/hig-book/3.4/design-text-labels.html.en) for all controls that label to the side; thankfully this means we don't need to do any extra positioning magic
 	// this will also valign to the top
 	// thanks to mclasen in irc.gimp.net/#gtk+
-	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0.5)
+	gtk_misc_set_alignment(label, 0, 0.5)
 	return label
 }
 
 func gtk_label_new_standalone() *C.GtkWidget {
 	label := gtk_label_new()
 	// this will valign to the top
-	C.gtk_misc_set_alignment((*C.GtkMisc)(unsafe.Pointer(label)), 0, 0)
+	gtk_misc_set_alignment(label, 0, 0)
 	return label
 }
 
