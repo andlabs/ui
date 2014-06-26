@@ -89,11 +89,16 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (a
 	ymargin := d.ymargin
 	d.xmargin = 0
 	d.ymargin = 0
-	// 0) inset the available rect by the margins
+	// 0) inset the available rect by the margins and needed padding
 	x += xmargin
 	y += ymargin
 	width -= xmargin * 2
 	height -= ymargin * 2
+	if s.orientation == horizontal {
+		width -= (len(s.controls) - 1) * d.xpadding
+	} else {
+		height -= (len(s.controls) - 1) * d.ypadding
+	}
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
 	stretchyht = height
@@ -144,15 +149,16 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (a
 		}
 		allocations = append(allocations, as...)
 		if s.orientation == horizontal {
-			x += s.width[i]
+			x += s.width[i] + d.xpadding
 		} else {
-			y += s.height[i]
+			y += s.height[i] + d.ypadding
 		}
 	}
 	return allocations
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
+// We don't consider the margins here, but will need to if Window.SizeToFit() is ever made a thing.
 func (s *Stack) preferredSize(d *sysSizeData) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
@@ -166,6 +172,11 @@ func (s *Stack) preferredSize(d *sysSizeData) (width int, height int) {
 
 	if len(s.controls) == 0 { // no controls, so return emptiness
 		return 0, 0
+	}
+	if s.orientation == horizontal {
+		width = (len(s.controls) - 1) * d.xpadding
+	} else {
+		height = (len(s.controls) - 1) * d.ypadding
 	}
 	for i, c := range s.controls {
 		w, h := c.preferredSize(d)
