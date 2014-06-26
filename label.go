@@ -74,16 +74,24 @@ func (l *Label) make(window *sysData) error {
 	return nil
 }
 
-func (l *Label) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: l.sysData,
+func (l *Label) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		l,
+	}}
 }
 
-func (l *Label) preferredSize() (width int, height int, yoff int) {
-	return l.sysData.preferredSize()
+func (l *Label) preferredSize(d *sysSizeData) (width int, height int) {
+	return l.sysData.preferredSize(d)
+}
+
+func (l *Label) commitResize(a *allocation, d *sysSizeData) {
+	l.sysData.preferredSize(a, d)
+}
+
+func (l *Label) getAuxResizeInfo(d *sysSizeData) {
+	l.sysData.getAuxResizeInfo(d)
 }

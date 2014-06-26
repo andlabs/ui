@@ -150,16 +150,24 @@ func (l *Listbox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (l *Listbox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: l.sysData,
+func (l *Listbox) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		l,
+	}}
 }
 
-func (l *Listbox) preferredSize() (width int, height int, yoff int) {
-	return l.sysData.preferredSize()
+func (l *Listbox) preferredSize(d *sysSizeData) (width int, height int) {
+	return l.sysData.preferredSize(d)
+}
+
+func (l *Listbox) commitResize(a *allocation, d *sysSizeData) {
+	l.sysData.preferredSize(a, d)
+}
+
+func (l *Listbox) getAuxResizeInfo(d *sysSizeData) {
+	l.sysData.getAuxResizeInfo(d)
 }

@@ -56,16 +56,24 @@ func (p *ProgressBar) make(window *sysData) error {
 	return nil
 }
 
-func (p *ProgressBar) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: p.sysData,
+func (p *ProgressBar) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		p,
+	}}
 }
 
-func (p *ProgressBar) preferredSize() (width int, height int, yoff int) {
-	return p.sysData.preferredSize()
+func (p *ProgressBar) preferredSize(d *sysSizeData) (width int, height int) {
+	return p.sysData.preferredSize(d)
+}
+
+func (p *ProgressBar) commitResize(a *allocation, d *sysSizeData) {
+	p.sysData.preferredSize(a, d)
+}
+
+func (p *ProgressBar) getAuxResizeInfo(d *sysSizeData) {
+	p.sysData.getAuxResizeInfo(d)
 }

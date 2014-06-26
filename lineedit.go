@@ -68,16 +68,24 @@ func (l *LineEdit) make(window *sysData) error {
 	return nil
 }
 
-func (l *LineEdit) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: l.sysData,
+func (l *LineEdit) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		l,
+	}}
 }
 
-func (l *LineEdit) preferredSize() (width int, height int, yoff int) {
-	return l.sysData.preferredSize()
+func (l *LineEdit) preferredSize(d *sysSizeData) (width int, height int) {
+	return l.sysData.preferredSize(d)
+}
+
+func (l *LineEdit) commitResize(a *allocation, d *sysSizeData) {
+	l.sysData.preferredSize(a, d)
+}
+
+func (l *LineEdit) getAuxResizeInfo(d *sysSizeData) {
+	l.sysData.getAuxResizeInfo(d)
 }

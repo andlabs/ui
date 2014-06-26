@@ -65,16 +65,24 @@ func (b *Button) make(window *sysData) error {
 	return nil
 }
 
-func (b *Button) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: b.sysData,
+func (b *Button) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		b,
+	}}
 }
 
-func (b *Button) preferredSize() (width int, height int, yoff int) {
-	return b.sysData.preferredSize()
+func (b *Button) preferredSize(d *sysSizeData) (width int, height int) {
+	return b.sysData.preferredSize(d)
+}
+
+func (b *Button) commitResize(a *allocation, d *sysSizeData) {
+	b.sysData.preferredSize(a, d)
+}
+
+func (b *Button) getAuxResizeInfo(d *sysSizeData) {
+	b.sysData.getAuxResizeInfo(d)
 }

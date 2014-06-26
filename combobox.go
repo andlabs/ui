@@ -147,16 +147,24 @@ func (c *Combobox) make(window *sysData) (err error) {
 	return nil
 }
 
-func (c *Combobox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: c.sysData,
+func (c *Combobox) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		c,
+	}}
 }
 
-func (c *Combobox) preferredSize() (width int, height int, yoff int) {
-	return c.sysData.preferredSize()
+func (c *Combobox) preferredSize(d *sysSizeData) (width int, height int) {
+	return c.sysData.preferredSize(d)
+}
+
+func (c *Combobox) commitResize(a *allocation, d *sysSizeData) {
+	c.sysData.preferredSize(a, d)
+}
+
+func (c *Combobox) getAuxResizeInfo(d *sysSizeData) {
+	c.sysData.getAuxResizeInfo(d)
 }

@@ -70,16 +70,24 @@ func (c *Checkbox) make(window *sysData) error {
 	return nil
 }
 
-func (c *Checkbox) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: c.sysData,
+func (c *Checkbox) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		c,
+	}}
 }
 
-func (c *Checkbox) preferredSize() (width int, height int, yoff int) {
-	return c.sysData.preferredSize()
+func (c *Checkbox) preferredSize(d *sysSizeData) (width int, height int) {
+	return c.sysData.preferredSize(d)
+}
+
+func (c *Checkbox) commitResize(a *allocation, d *sysSizeData) {
+	c.sysData.preferredSize(a, d)
+}
+
+func (c *Checkbox) getAuxResizeInfo(d *sysSizeData) {
+	c.sysData.getAuxResizeInfo(d)
 }

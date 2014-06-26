@@ -336,19 +336,28 @@ func (a *Area) make(window *sysData) error {
 	return nil
 }
 
-func (a *Area) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
-	*rr = append(*rr, resizerequest{
-		sysData: a.sysData,
+func (a *Area) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
+	return []*allocation{&allocation{
 		x:       x,
 		y:       y,
 		width:   width,
 		height:  height,
-	})
+		this:		a,
+	}}
 }
 
-func (a *Area) preferredSize() (width int, height int, yoff int) {
-	return a.sysData.preferredSize()
+func (a *Area) preferredSize(d *sysSizeData) (width int, height int) {
+	return a.sysData.preferredSize(d)
 }
+
+func (a *Area) commitResize(a *allocation, d *sysSizeData) {
+	a.sysData.preferredSize(a, d)
+}
+
+func (a *Area) getAuxResizeInfo(d *sysSizeData) {
+	a.sysData.getAuxResizeInfo(d)
+}
+
 
 // internal function, but shared by all system implementations: &img.Pix[0] is not necessarily the first pixel in the image
 func pixelDataPos(img *image.RGBA) int {
