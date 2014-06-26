@@ -38,17 +38,3 @@ type controlSizing interface {
 	commitResize(c *allocation, d *sysSizeData)
 	getAuxResizeInfo(d *sysSizeData)
 }
-
-// vertical stack: no concept of neighbor, but not too hard to add a vertical neighbor
-// horizontal stack:
-	var current *allocation
-	// ...
-	as := s.controls[i].allocate(...)
-	if current != nil {
-		current.neighbor = as[0].self
-	}
-	current = as[0]
-	// append all of as
-// grid:
-	// same as above, except current is set to nil on each new row
-	// adding a vertical neighbor would require storing an extra list

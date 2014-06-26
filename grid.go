@@ -124,7 +124,7 @@ func (g *Grid) make(window *sysData) error {
 	return nil
 }
 
-func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+func (g *Grid) setRect(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -132,6 +132,12 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 		return b
 	}
 
+	var current *allocation		// for neighboring
+
+	// before we do anything, steal the margin so nested Stacks/Grids don't double down
+	margin := d.margin
+	d.margin = 0
+_=margin
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0
@@ -142,7 +148,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			w, h := c.preferredSize()
+			w, h := c.preferredSize(d)
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
@@ -167,6 +173,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
+		current = nil		// reset on new columns
 		for col, c := range xcol {
 			w := g.widths[row][col]
 			h := g.heights[row][col]
@@ -174,7 +181,12 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			c.setRect(x, y, w, h, rr)
+			as := c.allocation(x, y, w, h, d)
+			if current != nil {			// connect first left to first right
+				current.neighbor = c
+			}
+			current = as[0]				// next left is first subwidget
+			allocations = append(allocations, as...)
 			x += g.colwidths[col]
 		}
 		x = startx
@@ -184,7 +196,7 @@ func (g *Grid) setRect(x int, y int, width int, height int, rr *[]resizerequest)
 }
 
 // filling and stretchy are ignored for preferred size calculation
-func (g *Grid) preferredSize() (width int, height int) {
+func (g *Grid) preferredSize(d *sysSizeData) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -202,7 +214,7 @@ func (g *Grid) preferredSize() (width int, height int) {
 	// 2) get preferred sizes; compute row/column sizes
 	for row, xcol := range g.controls {
 		for col, c := range xcol {
-			w, h := c.preferredSize()
+			w, h := c.preferredSize(d)
 			g.widths[row][col] = w
 			g.heights[row][col] = h
 			g.rowheights[row] = max(g.rowheights[row], h)
@@ -217,4 +229,12 @@ func (g *Grid) preferredSize() (width int, height int) {
 		height += h
 	}
 	return width, height
+}
+
+func (g *Grid) commitResize(c *allocation, d *sysSizeData) {
+	// this is to satisfy Control; nothing to do here
+}
+
+func (g *Grid) getAuxResizeInfo(d *sysSizeData) {
+	// this is to satisfy Control; nothing to do here
 }

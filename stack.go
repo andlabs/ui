@@ -77,12 +77,17 @@ func (s *Stack) make(window *sysData) error {
 	return nil
 }
 
-func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest) {
+func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
 	var stretchywid, stretchyht int
+	var current *allocation		// for neighboring
 
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
-		return
+		return nil
 	}
+	// before we do anything, steal the margin so nested Stacks/Grids don't double down
+	margin := d.margin
+	d.margin = 0
+_=margin
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
 	stretchyht = height
@@ -92,7 +97,7 @@ func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest
 			nStretchy++
 			continue
 		}
-		w, h := c.preferredSize()
+		w, h := c.preferredSize(d)
 		if s.orientation == horizontal { // all controls have same height
 			s.width[i] = w
 			s.height[i] = height
@@ -120,18 +125,25 @@ func (s *Stack) setRect(x int, y int, width int, height int, rr *[]resizerequest
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		c.setRect(x, y, s.width[i], s.height[i], rr)
+		as := c.allocate(x, y, s.width[i], s.height[i], d)
+		if s.orientation == horizontal {		// no vertical neighbors
+			if current != nil {			// connect first left to first right
+				current.neighbor = c
+			}
+			current = as[0]				// next left is first subwidget
+		}
+		allocations = append(allocations, as...)
 		if s.orientation == horizontal {
 			x += s.width[i]
 		} else {
 			y += s.height[i]
 		}
 	}
-	return
+	return allocations
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
-func (s *Stack) preferredSize() (width int, height int) {
+func (s *Stack) preferredSize(d *sysSizeData) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -146,7 +158,7 @@ func (s *Stack) preferredSize() (width int, height int) {
 		return 0, 0
 	}
 	for i, c := range s.controls {
-		w, h := c.preferredSize()
+		w, h := c.preferredSize(d)
 		if s.stretchy[i] {
 			nStretchy++
 			maxswid = max(maxswid, w)
@@ -171,6 +183,15 @@ func (s *Stack) preferredSize() (width int, height int) {
 	}
 	return
 }
+
+func (s *Stack) commitResize(c *allocation, d *sysSizeData) {
+	// this is to satisfy Control; nothing to do here
+}
+
+func (s *Stack) getAuxResizeInfo(d *sysSizeData) {
+	// this is to satisfy Control; nothing to do here
+}
+
 
 // Space returns a null Control intended for padding layouts with blank space.
 // It appears to its owner as a Control of 0x0 size.
