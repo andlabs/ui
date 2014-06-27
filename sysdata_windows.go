@@ -635,3 +635,21 @@ func (s *sysData) center() {
 	}
 	<-ret
 }
+
+func (s *sysData) setChecked(checked bool) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		c := uintptr(_BST_CHECKED)
+		if !checked {
+			c = uintptr(_BST_UNCHECKED)
+		}
+		_sendMessage.Call(
+			uintptr(s.hwnd),
+			uintptr(_BM_SETCHECK),
+			c,
+			uintptr(0))
+		ret <- struct{}{}
+	}
+	<-ret
+}
