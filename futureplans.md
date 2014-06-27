@@ -19,7 +19,6 @@ general list:
 - Combobox and Listbox insertions and deletions should allow bulk (...string/...int)
 - Combobox/Listbox.DeleteAll
 - Combobox/Listbox.Select (with Listbox.Select allowing bulk)
-	- Checkbox.Check or Checkbox.SetChecked
 - Listbox.SelectAll
 - Listbox/Combobox.Index(n)
 	- Index(n) is the name used by reflect.Value; use a different one?
