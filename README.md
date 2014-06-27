@@ -1,3 +1,5 @@
+**Note to ALL users: [please read and comment; the design of the package is fatally flawed but I want to know what people think of the fix](http://andlabs.lostsig.com/blog/2014/06/27/61/my-ui-package-lessons-learned-about-threading-and-plans-for-the-future).**
+
 **Note to Mac users: there is [a bug in Go 1.3 stable](https://code.google.com/p/go/issues/detail?id=8238) that causes cgo to crash trying to build this package. Please follow the linked bug report for detials.**
 
 Woah, lots of attention! Thanks!
