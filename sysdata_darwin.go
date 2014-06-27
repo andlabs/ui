@@ -422,3 +422,13 @@ func (s *sysData) center() {
 	}
 	<-ret
 }
+
+func (s *sysData) setChecked(checked bool) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		C.setCheckboxChecked(s.id, toBOOL(checked))
+		ret <- struct{}{}
+	}
+	<-ret
+}

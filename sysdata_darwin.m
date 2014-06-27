@@ -228,3 +228,13 @@ void center(id w)
 {
 	[toNSWindow(w) center];
 }
+
+void setCheckboxChecked(id checkbox, BOOL check)
+{
+	// -[NSButton setState:] takes a NSInteger but the state constants are NSCellStateValue which is NSUInteger (despite NSMixedState being -1); let's play it safe here
+	if (check) {
+		[toNSButton(checkbox) setState:NSOnState];
+		return;
+	}
+	[toNSButton(checkbox) setState:NSOffState];
+}

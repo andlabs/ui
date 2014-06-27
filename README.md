@@ -5,8 +5,9 @@ Woah, lots of attention! Thanks!
 ## Updates
 
 - **26 June 2014**
-	- Controls in Windows can now be spaced apart more naturally. Call `w.SetSpaced(true)` to opt in. **Whether this will remain opt-in or whether the name will change is still unknown at this point.**
-	- There's a new function `Layout()` which provides high-level layout creation. The function was written by [boppreh](https://github.com/boppreh) and details can be found [here](https://github.com/andlabs/ui/pull/19). **Whether this function will stay in the main package or be moved to a subpackage is still unknown.**
+-- Controls in Windows can now be spaced apart more naturally. Call `w.SetSpaced(true)` to opt in. **Whether this will remain opt-in or whether the name will change is still unknown at this point.**
+-- There's a new function `Layout()` which provides high-level layout creation. The function was written by [boppreh](https://github.com/boppreh) and details can be found [here](https://github.com/andlabs/ui/pull/19). **Whether this function will stay in the main package or be moved to a subpackage is still unknown.**
+-- There is now `Checkbox.SetChecked()` to set the check state of a Checkbox programmatically.
 
 - **25 June 2014**<br>Labels by default now align themselves relative to the control they are next to. There is a new function `NewStandaloneLabel()` which returns a label whose text is aligned to the top-left corner of the alloted space regardless.
 
