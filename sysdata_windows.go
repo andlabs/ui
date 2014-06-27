@@ -87,10 +87,11 @@ var classTypes = [nctypes]*classData{
 		name: toUTF16("STATIC"),
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
-		style:  _SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
+		// also note that tab stops are remove dfor labels
+		style:  (_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle) &^ _WS_TABSTOP,
 		xstyle: 0 | controlxstyle,
 		// MAKE SURE THIS IS THE SAME
-		altStyle:		_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle,
+		altStyle:		(_SS_NOPREFIX | _SS_LEFTNOWORDWRAP | controlstyle) &^ _WS_TABSTOP,
 	},
 	c_listbox: &classData{
 		name: toUTF16("LISTBOX"),
@@ -110,7 +111,8 @@ var classTypes = [nctypes]*classData{
 	},
 	c_progressbar: &classData{
 		name:          toUTF16(x_PROGRESS_CLASS),
-		style:         _PBS_SMOOTH | controlstyle,
+		// note that tab stops are disabled for progress bars
+		style:         (_PBS_SMOOTH | controlstyle) &^ _WS_TABSTOP,
 		xstyle:        0 | controlxstyle,
 		doNotLoadFont: true,
 	},

@@ -2,6 +2,7 @@ ALL:
 - vertical alignment of labels still has some flaws
 	- gtk+: currently requires labels to be filling for this to work: grids don't do this by default, for instance
 		- won't cause any issues, just an inconvenience that should be addressed
+- make sure tab stop behavior for Areas makes sense, or provide a handler function
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)

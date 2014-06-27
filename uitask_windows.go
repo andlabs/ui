@@ -91,7 +91,9 @@ func ui(main func()) error {
 
 var (
 	_dispatchMessage  = user32.NewProc("DispatchMessageW")
+	_getActiveWindow		= user32.NewProc("GetActiveWindow")
 	_getMessage       = user32.NewProc("GetMessageW")
+	_isDialogMessage		= user32.NewProc("IsDialogMessageW")
 	_postQuitMessage  = user32.NewProc("PostQuitMessage")
 	_sendMessage      = user32.NewProc("SendMessageW")
 	_translateMessage = user32.NewProc("TranslateMessage")
@@ -118,6 +120,14 @@ func msgloop() {
 		}
 		if r1 == 0 { // WM_QUIT message
 			return
+		}
+		// this next bit handles tab stops
+		r1, _, _ = _getActiveWindow.Call()
+		r1, _, _ = _isDialogMessage.Call(
+			r1,		// active window
+			uintptr(unsafe.Pointer(&msg)))
+		if r1 != 0 {
+			continue
 		}
 		_translateMessage.Call(uintptr(unsafe.Pointer(&msg)))
 		_dispatchMessage.Call(uintptr(unsafe.Pointer(&msg)))
