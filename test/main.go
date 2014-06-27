@@ -34,6 +34,7 @@ func gridWindow() *Window {
 	b12 := NewButton("1,2")
 	l20 := NewLabel("2,0")
 	c21 := NewCheckbox("2,1")
+	c21.SetChecked(true)
 	l22 := NewLabel("2,2")
 	g := NewGrid(3,
 		b00, b01, b02,
@@ -43,6 +44,10 @@ func gridWindow() *Window {
 	g.SetStretchy(1, 1)
 	w.SetSpaced(*spacingTest)
 	w.Open(g)
+	go func() {for {select {
+	case <-b12.Clicked:
+		c21.SetChecked(!c21.Checked())
+	}}}()
 	return w
 }
 

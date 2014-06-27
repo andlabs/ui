@@ -410,3 +410,13 @@ func (s *sysData) center() {
 	}
 	<-ret
 }
+
+func (s *sysData) setChecked(checked bool) {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
+		gtk_toggle_button_set_active(s.widget, checked)
+		ret <- struct{}{}
+	}
+	<-ret
+}

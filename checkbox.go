@@ -12,7 +12,7 @@ type Checkbox struct {
 	created   bool
 	sysData   *sysData
 	initText  string
-	initCheck bool
+	initCheck		bool
 }
 
 // NewCheckbox creates a new checkbox with the specified text.
@@ -46,7 +46,19 @@ func (c *Checkbox) Text() string {
 	return c.initText
 }
 
-// Checked() returns whether or not the checkbox has been checked.
+// SetChecked() changes the checked state of the Checkbox.
+func (c *Checkbox) SetChecked(checked bool) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	if c.created {
+		c.sysData.setChecked(checked)
+		return
+	}
+	c.initCheck = checked
+}
+
+// Checked() returns whether or not the Checkbox has been checked.
 func (c *Checkbox) Checked() bool {
 	c.lock.Lock()
 	defer c.lock.Unlock()
@@ -54,7 +66,7 @@ func (c *Checkbox) Checked() bool {
 	if c.created {
 		return c.sysData.isChecked()
 	}
-	return false
+	return c.initCheck
 }
 
 func (c *Checkbox) make(window *sysData) error {
@@ -66,6 +78,7 @@ func (c *Checkbox) make(window *sysData) error {
 		return err
 	}
 	c.sysData.setText(c.initText)
+	c.sysData.setChecked(c.initCheck)
 	c.created = true
 	return nil
 }

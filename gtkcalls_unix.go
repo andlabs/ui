@@ -153,6 +153,10 @@ func gtk_toggle_button_get_active(widget *C.GtkWidget) bool {
 	return fromgbool(C.gtk_toggle_button_get_active(togtktogglebutton(widget)))
 }
 
+func gtk_toggle_button_set_active(widget *C.GtkWidget, checked bool) {
+	C.gtk_toggle_button_set_active(togtktogglebutton(widget), togbool(checked))
+}
+
 func gtk_combo_box_text_new() *C.GtkWidget {
 	w := C.gtk_combo_box_text_new()
 	C.gtkSetComboBoxArbitrarilyResizeable(w)
