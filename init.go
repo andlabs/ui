@@ -24,6 +24,7 @@ func Go() error {
 	Ready <- struct{}{}
 	close(Ready)
 	ui()
+	return nil
 }
 
 // Ready is pulsed when Go() is ready to begin accepting requests to the safe methods.
