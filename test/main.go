@@ -15,18 +15,21 @@ import (
 	. "github.com/andlabs/ui"
 )
 
+type nullwinhandler struct{}
+func (nullwinhandler) Event(Event, interface{}) {}
+
 var prefsizetest = flag.Bool("prefsize", false, "")
 func listboxPreferredSizeTest() *Window {
 	lb := NewListbox("xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
-	w := NewWindow("Listbox Preferred Size Test", 300, 300)
+	w := NewWindow("Listbox Preferred Size Test", 300, 300, nullwinhandler{})
 	w.Open(g)
 	return w
 }
 
 var gridtest = flag.Bool("grid", false, "")
 func gridWindow() *Window {
-	w := NewWindow("Grid Test", 400, 400)
+	w := NewWindow("Grid Test", 400, 400, nullwinhandler{})
 	b00 := NewButton("0,0")
 	b01 := NewButton("0,1")
 	b02 := NewButton("0,2")
@@ -205,7 +208,6 @@ func areaTest() {
 	}
 	img := image.NewRGBA(ximg.Bounds())
 	draw.Draw(img, img.Rect, ximg, image.ZP, draw.Over)
-	w := NewWindow("Area Test", 100, 100)
 	areahandler := &areaHandler{
 		img:		img,
 	}
@@ -229,24 +231,53 @@ func areaTest() {
 		timedisp,
 		sizeStack)
 	layout.SetStretchy(0)
+	w := NewWindow("Area Test", 100, 100, &areatestwinhandler{
+		areahandler:	areahandler,
+		a:			a,
+		timedisp:		timedisp,
+		widthbox:		widthbox,
+		heightbox:	heighbox,
+		resize:		resize,
+		modaltest:	modaltest,
+		repainttest:	repainttest,
+	})
 	w.Open(layout)
-	for {
-		select {
-		case <-w.Closing:
-			return
-		case t := <-timechan:
-			timedisp.SetText(t.String())
-		case <-resize.Clicked:
-			width, err := strconv.Atoi(widthbox.Text())
+	go func() {
+		for t := range timechan {
+			// TODO
+			_ = t
+//			timedisp.SetText(t.String())
+		}
+	}()
+}
+
+type areatestwinhandler struct {
+	areahandler	*areahandler
+	a			*Area
+	timedisp		*Label
+	widthbox		*LineEdit
+	heightbox		*LineEdit
+	resize		*Button
+	modaltest		*Button
+	repainttest	*Button
+}
+func (a *areatestwinhandler) Event(e Event, d interface{}) {
+	switch e {
+	case Closing:
+		*(data.(*bool)) = true
+	case Clicked:
+		switch d {
+		case a.resize:
+			width, err := strconv.Atoi(a.widthbox.Text())
 			if err != nil { println(err); continue }
-			height, err := strconv.Atoi(heightbox.Text())
+			height, err := strconv.Atoi(a.heightbox.Text())
 			if err != nil { println(err); continue }
-			a.SetSize(width, height)
-		case <-modaltest.Clicked:
+			a.a.SetSize(width, height)
+		case modaltest:
 			MsgBox("Modal Test", "")
-		case <-repainttest.Clicked:
-			areahandler.mutate()
-			a.RepaintAll()
+		case repainttest:
+			a.areahandler.mutate()
+			a.a.RepaintAll()
 		}
 	}
 }
@@ -275,9 +306,10 @@ func areaboundsTest() {
 	// middle purple
 	r.Min.Y++
 	draw.Draw(img, r, u(128, 0, 128), image.ZP, draw.Over)
-	w := NewWindow("Area Bounds Test", 320, 240)
+	w := NewWindow("Area Bounds Test", 320, 240, &areatestwinhandler{
+		a:	a,
+	})
 	w.Open(a)
-	<-w.Closing
 }
 
 var dialogTest = flag.Bool("dialog", false, "add Window.MsgBox() channel test window")
@@ -285,6 +317,7 @@ var labelAlignTest = flag.Bool("label", false, "show Label Alignment test window
 var spacingTest = flag.Bool("spacing", false, "margins and padding on Window")
 
 func myMain() {
+	<-Ready
 	if *spacetest != "" {
 		spaceTest()
 		return
@@ -494,11 +527,14 @@ _=curtime
 
 func main() {
 	flag.Parse()
-	err := Go(myMain)
+	go myMain()
+	err := Go()
 	if err != nil {
 		panic(err)
 	}
 }
+
+// TODO move to its own file
 
 // source: https://upload.wikimedia.org/wikipedia/commons/0/06/Regensburg-donaulaende-warp-enhanced_1-320x240.jpg via https://commons.wikimedia.org/wiki/File:Regensburg-donaulaende-warp-enhanced_1-320x240.jpg (thanks Sofi)
 // converted to png with imagemagick because the JPG was throwing up an error about incomplete Huffman data (TODO)

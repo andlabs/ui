@@ -41,14 +41,13 @@ func spaceTest() {
 	a2 := NewArea(w, h, ah)
 	a3 := NewArea(w, h, ah)
 	a4 := NewArea(w, h, ah)
-	win := NewWindow("Stack", 250, 250)
+	win := NewWindow("Stack", 250, 250, nullwindowhandler{})
 	win.SetSpaced(true)
 	win.Open(f(a1, a2))
-	win = NewWindow("Grid", 250, 250)
+	win = NewWindow("Grid", 250, 250, nullwinhandler{})
 	win.SetSpaced(true)
 	g := NewGrid(ng, a3, a4)
 	g.SetFilling(0, 0)
 	g.SetStretchy(gsx, gsy)
 	win.Open(g)
-	select {}
 }
