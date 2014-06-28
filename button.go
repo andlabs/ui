@@ -36,6 +36,9 @@ func (b *Button) Text() string {
 }
 
 func (b *Button) make(window *sysData) error {
+	b.sysData.event = func() {
+		window.winhandler.Event(Clicked, b)
+	}
 	err := b.sysData.make(window)
 	if err != nil {
 		return err

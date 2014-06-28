@@ -98,6 +98,10 @@ func (w *Window) Create(control Control) {
 		panic("window already open")
 	}
 	w.sysData.spaced = w.spaced
+	w.sysData.winhandler = w.handler
+	w.sysData.close = func(b *bool) {
+		w.sysData.winhandler.Event(Closing, b)
+	}
 	err := w.sysData.make(nil)
 	if err != nil {
 		panic(fmt.Errorf("error opening window: %v", err))
