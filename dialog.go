@@ -2,9 +2,40 @@
 
 package ui
 
+// Dialog is an interface adopted by all dialogs.
+type Dialog struct {
+	Response() Response	// response code from the dialog
+	Selection() interface{}	// currently nil
+}
+
+// Response denotes a response from the user to a Dialog.
+type Response uint
+const (
+	NotDone Response = iota
+	OK
+)
+
+// basic return
+type dialogret struct {
+	res	Response
+	sel	interface{}
+}
+func (d *dialogret) Response() Response { return d.res }
+func (d *dialogret) Selection() interface{} { return d.sel }	
+
 // sentinel (not nil so programmer errors don't go undetected)
 // this window is invalid and cannot be used directly
-var dialogWindow = new(Window)
+// notice the support it uses
+var dialogWindow = &Window{
+	sysData:	&sysData{
+		winhandler:	dh,
+	}
+}
+type dhandler chan *dialogret
+func (d dhandler) Event(e Event, dat interface{}) {
+	d <- dat.(*dialogret)
+}
+var dh = make(dhandler)
 
 // MsgBox displays an informational message box to the user with just an OK button.
 // primaryText should be a short string describing the message, and will be displayed with additional emphasis on platforms that support it.
@@ -13,13 +44,14 @@ var dialogWindow = new(Window)
 // On platforms that allow for the message box window to have a title, os.Args[0] is used.
 //
 // See "On Dialogs" in the package overview for behavioral information.
-func MsgBox(primaryText string, secondaryText string) {
-	<-dialogWindow.msgBox(primaryText, secondaryText)
+func MsgBox(primaryText string, secondaryText string) Response {
+	dialogWindow.msgBox(primaryText, secondaryText)
+	return (<-dh).res
 }
 
 // MsgBox is the Window method version of the package-scope function MsgBox.
 // See that function's documentation and "On Dialogs" in the package overview for more information.
-func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan struct{}) {
+func (w *Window) MsgBox(primaryText string, secondaryText string) Dialog {
 	if !w.created {
 		panic("parent window passed to Window.MsgBox() before it was created")
 	}
@@ -30,15 +62,13 @@ func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan str
 // Otherwise, it behaves like MsgBox.
 //
 // See "On Dialogs" in the package overview for more information.
-func MsgBoxError(primaryText string, secondaryText string) {
-	<-dialogWindow.msgBoxError(primaryText, secondaryText)
+func MsgBoxError(primaryText string, secondaryText string) Dialog {
+	dialogWindow.msgBoxError(primaryText, secondaryText)
+	return (<-dh).res
 }
 
 // MsgBoxError is the Window method version of the package-scope function MsgBoxError.
 // See that function's documentation and "On Dialogs" in the package overview for more information.
-func (w *Window) MsgBoxError(primaryText string, secondaryText string) (done chan struct{}) {
-	if !w.created {
-		panic("parent window passed to MsgBoxError() before it was created")
-	}
+func (w *Window) MsgBoxError(primaryText string, secondaryText string) Dialog {
 	return w.msgBoxError(primaryText, secondaryText)
 }
