@@ -12,11 +12,7 @@ const (
 // sentinel (not nil so programmer errors don't go undetected)
 // this window is invalid and cannot be used directly
 // notice the support it uses
-var dialogWindow = &Window{
-	sysData:	&sysData{
-		winhandler:	dh,
-	}
-}
+var dialogWindow = new(Window)
 
 // MsgBox displays an informational message box to the user with just an OK button.
 // primaryText should be a short string describing the message, and will be displayed with additional emphasis on platforms that support it.

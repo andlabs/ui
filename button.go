@@ -14,7 +14,6 @@ func NewButton(text string) (b *Button) {
 	return &Button{
 		sysData:  mksysdata(c_button),
 		initText: text,
-		Clicked:  newEvent(),
 	}
 }
 

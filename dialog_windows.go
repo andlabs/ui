@@ -11,11 +11,11 @@ var (
 	_messageBox = user32.NewProc("MessageBoxW")
 )
 
-var dialogResponse = map[uintptr]Response{
+var dialogResponses = map[uintptr]Response{
 	_IDOK:		OK,
 }
 
-func _msgBox(parent *Window, primarytext string, secondarytext string, uType uint32) (result int) {
+func _msgBox(parent *Window, primarytext string, secondarytext string, uType uint32) Response {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa511267.aspx says "Use task dialogs whenever appropriate to achieve a consistent look and layout. Task dialogs require Windows Vista® or later, so they aren't suitable for earlier versions of Windows. If you must use a message box, separate the main instruction from the supplemental instruction with two line breaks."
 	text := primarytext
 	if secondarytext != "" {

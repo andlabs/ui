@@ -47,10 +47,11 @@ func gridWindow() *Window {
 	g.SetStretchy(1, 1)
 	w.SetSpaced(*spacingTest)
 	w.Open(g)
-	go func() {for {select {
-	case <-b12.Clicked:
-		c21.SetChecked(!c21.Checked())
-	}}}()
+//TODO
+//	go func() {for {select {
+//	case <-b12.Clicked:
+//		c21.SetChecked(!c21.Checked())
+//	}}}()
 	return w
 }
 
@@ -236,7 +237,7 @@ func areaTest() {
 		a:			a,
 		timedisp:		timedisp,
 		widthbox:		widthbox,
-		heightbox:	heighbox,
+		heightbox:	heightbox,
 		resize:		resize,
 		modaltest:	modaltest,
 		repainttest:	repainttest,
@@ -252,7 +253,7 @@ func areaTest() {
 }
 
 type areatestwinhandler struct {
-	areahandler	*areahandler
+	areahandler	*areaHandler
 	a			*Area
 	timedisp		*Label
 	widthbox		*LineEdit
@@ -264,18 +265,19 @@ type areatestwinhandler struct {
 func (a *areatestwinhandler) Event(e Event, d interface{}) {
 	switch e {
 	case Closing:
-		*(data.(*bool)) = true
+		*(d.(*bool)) = true
+		Stop <- struct{}{}
 	case Clicked:
 		switch d {
 		case a.resize:
 			width, err := strconv.Atoi(a.widthbox.Text())
-			if err != nil { println(err); continue }
+			if err != nil { println(err); return }
 			height, err := strconv.Atoi(a.heightbox.Text())
-			if err != nil { println(err); continue }
+			if err != nil { println(err); return }
 			a.a.SetSize(width, height)
-		case modaltest:
+		case a.modaltest:
 			MsgBox("Modal Test", "")
-		case repainttest:
+		case a.repainttest:
 			a.areahandler.mutate()
 			a.a.RepaintAll()
 		}
@@ -378,7 +380,7 @@ func runMainTest() {
 	handler.resetl = func() {
 		handler.l.SetText("This is a label")
 	}
-	handler.b3 := NewButton("List Info")
+	handler.b3 = NewButton("List Info")
 	s3 := NewHorizontalStack(handler.l, handler.b3)
 	s3.SetStretchy(0)
 //	s3.SetStretchy(1)
@@ -390,15 +392,15 @@ func runMainTest() {
 	handler.invalidButton = NewButton("Run Invalid Test")
 	sincdec := NewHorizontalStack(handler.incButton, handler.decButton, handler.indetButton, handler.invalidButton)
 	handler.password = NewPasswordEdit()
-	s0 := NewVerticalStack(handler.s2, handler.c, handler.cb1, handler.cb2, handler.e, handler.s3, handler.pbar, handler.sincdec, Space(), handler.password)
+	s0 := NewVerticalStack(s2, handler.c, handler.cb1, handler.cb2, handler.e, s3, handler.pbar, sincdec, Space(), handler.password)
 	s0.SetStretchy(8)
 	handler.lb1 = NewMultiSelListbox("Select One", "Or More", "To Continue")
 	handler.lb2 = NewListbox("Select", "Only", "One", "Please")
 	handler.i = 0
 	handler.doAdjustments = func() {
 		handler.cb1.Append("append")
-		handler.cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
-		handler.lb1.InsertBefore(fmt.Sprintf("%d", i), 2)
+		handler.cb2.InsertBefore(fmt.Sprintf("before %d", handler.i), 1)
+		handler.lb1.InsertBefore(fmt.Sprintf("%d", handler.i), 2)
 		handler.lb2.Append("Please")
 		handler.i++
 	}
@@ -414,8 +416,8 @@ func runMainTest() {
 	if *invalidBefore {
 		invalidTest(handler.cb1, handler.lb1, s, NewGrid(1, Space()))
 	}
-	w.SetSpaced(*spacingTest)
-	w.Open(s)
+	handler.w.SetSpaced(*spacingTest)
+	handler.w.Open(s)
 	if *gridtest {
 		gridWindow()
 	}
@@ -481,7 +483,7 @@ func (handler *testwinhandler) Event(e Event, d interface{}) {
 	switch e {
 	case Closing:
 		println("window closed event received")
-		*(d.(*bool)) = true
+		Stop <- struct{}{}
 	case Clicked:
 		switch d {
 		case handler.b:
@@ -555,7 +557,7 @@ type dialoghandler struct {
 }
 
 // == TODO ==
-func (handler *dialoghandler) Event(e Event, d Data) {
+func (handler *dialoghandler) Event(e Event, d interface{}) {
 	if e == Clicked {
 		switch d {
 		case handler.bMsgBox:

@@ -18,7 +18,7 @@ import (
 // If you must, and if the toolkit also has environment variable equivalents to these flags (for instance, GTK+), use those instead.
 func Go() error {
 	runtime.LockOSThread()
-	if err := uiinit(main); err != nil {
+	if err := uiinit(); err != nil {
 		return err
 	}
 	Ready <- struct{}{}
@@ -37,9 +37,18 @@ var Ready = make(chan struct{})
 var Stop = make(chan struct{})
 
 // This function is a simple helper functionn that basically pushes the effect of a function call for later. This allows the selected safe Window methods to be safe.
-// It's also currently used by the various dialog box functions on Windows to allow them to return instantly, rather than wait for the dialog box to finish (which both GTK+ and Mac OS X let you do). I consider this a race condition bug. TODO (also TODO document the /intended/ behavior)
+// TODO make sure this acts sanely if called from uitask itself
 func touitask(f func()) {
+	done := make(chan struct{})
+	defer close(done)
 	go func() {		// to avoid locking uitask itself
-		uitask <- f
+		done2 := make(chan struct{})		// make the chain uitask <- f <- uitask to avoid deadlocks
+		defer close(done2)
+		uitask <- func() {
+			f()
+			done2 <- struct{}{}
+		}
+		done <- <-done2
 	}()
+	<-done
 }

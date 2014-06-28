@@ -391,6 +391,7 @@ func (s *sysData) setWindowSize(width int, height int) error {
 	if err != nil {
 		panic(fmt.Errorf("error actually resizing window: %v", err))
 	}
+	return nil
 }
 
 func (s *sysData) delete(index int) {

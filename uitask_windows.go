@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"runtime"
 	"syscall"
 	"unsafe"
 )
@@ -46,13 +45,15 @@ var (
 	_postMessage = user32.NewProc("PostMessageW")
 )
 
+var msghwnd _HWND
+
 func uiinit() error {
 	err := doWindowsInit()
 	if err != nil {
 		return fmt.Errorf("error doing general Windows initialization: %v", err)
 	}
 
-	hwnd, err := makeMessageHandler()
+	msghwnd, err = makeMessageHandler()
 	if err != nil {
 		return fmt.Errorf("error making invisible window for handling events: %v", err)
 	}
@@ -68,7 +69,7 @@ func ui() {
 			select {
 			case m := <-uitask:
 				r1, _, err := _postMessage.Call(
-					uintptr(hwnd),
+					uintptr(msghwnd),
 					msgRequested,
 					uintptr(0),
 				uintptr(unsafe.Pointer(&m)))
@@ -77,10 +78,10 @@ func ui() {
 				}
 			case <-Stop:
 				r1, _, err := _postMessage.Call(
-				uintptr(hwnd),
-				msgQuit,
-				uintptr(0),
-				uintptr(0))
+					uintptr(msghwnd),
+					msgQuit,
+					uintptr(0),
+					uintptr(0))
 				if r1 == 0 { // failure
 					panic("error sending quit message to message loop: " + err.Error())
 				}

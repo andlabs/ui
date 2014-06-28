@@ -74,7 +74,7 @@ func (a *keyboardArea) Key(e KeyEvent) (repaint bool) {
 }
 
 type kbhandler struct{}
-func (kbhandler) Handle(e Event, d interface{}) {
+func (kbhandler) Event(e Event, d interface{}) {
 	if e == Closing {
 		*(d.(*bool)) = true
 	}

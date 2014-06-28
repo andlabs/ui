@@ -3,6 +3,12 @@ ALL:
 	- gtk+: currently requires labels to be filling for this to work: grids don't do this by default, for instance
 		- won't cause any issues, just an inconvenience that should be addressed
 - make sure tab stop behavior for Areas makes sense, or provide a handler function
+- the following seems weird and will not allow clean removal of the last window; think of something better?
+```
+	case ui.Closing:
+		*(d.(*bool)) = true
+		ui.Stop <- struct{}{}
+```
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
@@ -13,9 +19,6 @@ MAC OS X:
 - probably use fittingSize instead of sizeToFit
 
 WINDOWS:
-- there seems to be a caching issue: with the test program and `-dialog`, click one of the dialog buttons, then quickly tap one of the buttons in the main window. The dialog will pop up twice, and after both are closed the program aborts with a send on closed channel
-	- appears to be a bug in my dialog code
-	- appears to have *always* been a bug in dialog code...
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
 - control sizing is a MAJOR pain
 	- http://stackoverflow.com/questions/24130548/is-there-a-proper-way-to-get-the-preferred-size-of-windows-controls-there-are-s
