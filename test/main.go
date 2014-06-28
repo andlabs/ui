@@ -334,55 +334,85 @@ func myMain() {
 		areaboundsTest()
 		return
 	}
-	w := NewWindow("Main Window", 320, 240)
-	b := NewButton("Click Me")
-	b2 := NewButton("Or Me")
-	bmsg := NewButton("Or Even Me!")
-	s2 := NewHorizontalStack(b, b2, bmsg)
+	runMainTest()
+}
+
+type testwinhandler struct {
+	w				*Window
+	b				*Button
+	b2				*Button
+	bmsg			*Button
+	c				*Checkbox
+	cb1				*Combobox
+	cb2				*Combobox
+	e				*LineEdit
+	l				*Label
+	resetl			func()
+	b3				*Button
+	pbar				*ProgressBar
+	prog				int
+	incButton			*Button
+	decButton			*Button
+	indetButton		*Button
+	invalidButton		*Button
+	password			*LineEdit
+	lb1				*Listbox
+	lb2				*Listbox
+	i				int
+	doAdjustments		func()
+}
+
+func runMainTest() {
+	handler := new(testwinhandler)
+	handler.w = NewWindow("Main Window", 320, 240, handler)
+	handler.b = NewButton("Click Me")
+	handler.b2 = NewButton("Or Me")
+	handler.bmsg = NewButton("Or Even Me!")
+	s2 := NewHorizontalStack(handler.b, handler.b2, handler.bmsg)
 	s2.SetStretchy(2)
-	c := NewCheckbox("Check Me")
-	cb1 := NewEditableCombobox("You can edit me!", "Yes you can!", "Yes you will!")
-	cb2 := NewCombobox("You can't edit me!", "No you can't!", "No you won't!")
-	e := NewLineEdit("Enter text here too")
-	l := NewLabel("This is a label")
-	resetl := func() {
-		l.SetText("This is a label")
+	handler.c = NewCheckbox("Check Me")
+	handler.cb1 = NewEditableCombobox("You can edit me!", "Yes you can!", "Yes you will!")
+	handler.cb2 = NewCombobox("You can't edit me!", "No you can't!", "No you won't!")
+	handler.e = NewLineEdit("Enter text here too")
+	handler.l = NewLabel("This is a label")
+	handler.resetl = func() {
+		handler.l.SetText("This is a label")
 	}
-	b3 := NewButton("List Info")
-	s3 := NewHorizontalStack(l, b3)
+	handler.b3 := NewButton("List Info")
+	s3 := NewHorizontalStack(handler.l, handler.b3)
 	s3.SetStretchy(0)
 //	s3.SetStretchy(1)
-	pbar := NewProgressBar()
-	prog := 0
-	incButton := NewButton("Inc")
-	decButton := NewButton("Dec")
-	indetButton := NewButton("Indeterminate")
-	invalidButton := NewButton("Run Invalid Test")
-	sincdec := NewHorizontalStack(incButton, decButton, indetButton, invalidButton)
-	password := NewPasswordEdit()
-	s0 := NewVerticalStack(s2, c, cb1, cb2, e, s3, pbar, sincdec, Space(), password)
+	handler.pbar = NewProgressBar()
+	handler.prog = 0
+	handler.incButton = NewButton("Inc")
+	handler.decButton = NewButton("Dec")
+	handler.indetButton = NewButton("Indeterminate")
+	handler.invalidButton = NewButton("Run Invalid Test")
+	sincdec := NewHorizontalStack(handler.incButton, handler.decButton, handler.indetButton, handler.invalidButton)
+	handler.password = NewPasswordEdit()
+	s0 := NewVerticalStack(handler.s2, handler.c, handler.cb1, handler.cb2, handler.e, handler.s3, handler.pbar, handler.sincdec, Space(), handler.password)
 	s0.SetStretchy(8)
-	lb1 := NewMultiSelListbox("Select One", "Or More", "To Continue")
-	lb2 := NewListbox("Select", "Only", "One", "Please")
-	i := 0
-	doAdjustments := func() {
-		cb1.Append("append")
-		cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
-		lb1.InsertBefore(fmt.Sprintf("%d", i), 2)
-		lb2.Append("Please")
-		i++
+	handler.lb1 = NewMultiSelListbox("Select One", "Or More", "To Continue")
+	handler.lb2 = NewListbox("Select", "Only", "One", "Please")
+	handler.i = 0
+	handler.doAdjustments = func() {
+		handler.cb1.Append("append")
+		handler.cb2.InsertBefore(fmt.Sprintf("before %d", i), 1)
+		handler.lb1.InsertBefore(fmt.Sprintf("%d", i), 2)
+		handler.lb2.Append("Please")
+		handler.i++
 	}
-	doAdjustments()
-	cb1.Append("append multi 1", "append multi 2")
-	lb2.Append("append multi 1", "append multi 2")
-	s1 := NewVerticalStack(lb2, lb1)
+	handler.doAdjustments()
+	handler.cb1.Append("append multi 1", "append multi 2")
+	handler.lb2.Append("append multi 1", "append multi 2")
+	s1 := NewVerticalStack(handler.lb2, handler.lb1)
 	s1.SetStretchy(0)
 	s1.SetStretchy(1)
 	s := NewHorizontalStack(s1, s0)
 	s.SetStretchy(0)
 	s.SetStretchy(1)
 	if *invalidBefore {
-		invalidTest(cb1, lb1, s, NewGrid(1, Space()))
+		invalidTest(handler.cb1, handler.lb1, s, NewGrid(1, Space()))
 	}
 	w.SetSpaced(*spacingTest)
 	w.Open(s)
@@ -393,12 +423,17 @@ func myMain() {
 		listboxPreferredSizeTest()
 	}
 
-	ticker := time.Tick(time.Second)
-
+// == TODO ==
 	dialog_bMsgBox := NewButton("MsgBox()")
 	dialog_bMsgBoxError := NewButton("MsgBoxError()")
 	centerButton := NewButton("Center")
-	dialog_win := NewWindow("Dialogs", 200, 200)
+	dh := &dialoghandler{
+		bMsgBox:			dialog_bMsgBox,
+		bMsgBoxError:		dialog_bMsgBoxError,
+		bCenter:			centerButton,
+//		send:			w.Send,
+	}
+	dh.w = NewWindow("Dialogs", 200, 200, dh)
 	if *dialogTest {
 		s := NewVerticalStack(
 			dialog_bMsgBox,
@@ -406,10 +441,8 @@ func myMain() {
 			Space(),
 			centerButton)
 		s.SetStretchy(2)
-		dialog_win.Open(s)
+		dh.w.Open(s)
 	}
-
-	var dialog_sret chan struct{} = nil
 
 	if *labelAlignTest {
 		s := NewHorizontalStack(NewStandaloneLabel("Label"), NewLineEdit("Label"))
@@ -440,89 +473,104 @@ func myMain() {
 			NewButton("Button"),
 			s)
 		s.SetStretchy(4)
-		NewWindow("Label Align Test", 500, 300).Open(s)
+		NewWindow("Label Align Test", 500, 300, nullwinhandler{}).Open(s)
 	}
+}
 
-mainloop:
-	for {
-		select {
-		case curtime := <-ticker:
-//			l.SetText(curtime.String())
-_=curtime
-		case <-w.Closing:
-			println("window closed event received")
-			break mainloop
-		case <-AppQuit:
-			println("application quit event received")
-			break mainloop
-		case <-b.Clicked:
-			w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
-				c.Checked(),
-				cb1.Selection(),
-				cb2.Selection(),
-				e.Text(),
-				password.Text()))
-			doAdjustments()
-		case <-b2.Clicked:
-			if cb1.Len() > 1 {
-				cb1.Delete(1)
+func (handler *testwinhandler) Event(e Event, d interface{}) {
+	switch e {
+	case Closing:
+		println("window closed event received")
+		*(d.(*bool)) = true
+	case Clicked:
+		switch d {
+		case handler.b:
+			handler.w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
+				handler.c.Checked(),
+				handler.cb1.Selection(),
+				handler.cb2.Selection(),
+				handler.e.Text(),
+				handler.password.Text()))
+			handler.doAdjustments()
+		case handler.b2:
+			if handler.cb1.Len() > 1 {
+				handler.cb1.Delete(1)
 			}
-			if cb2.Len() > 2 {
-				cb2.Delete(2)
+			if handler.cb2.Len() > 2 {
+				handler.cb2.Delete(2)
 			}
-			if lb1.Len() > 3 || *macCrashTest {
-				lb1.Delete(3)
+			if handler.lb1.Len() > 3 || *macCrashTest {
+				handler.lb1.Delete(3)
 			}
-			if lb2.Len() > 4 {
-				lb2.Delete(4)
+			if handler.lb2.Len() > 4 {
+				handler.lb2.Delete(4)
 			}
-		case <-b3.Clicked:
+		case handler.b3:
 			f := MsgBox
-			if c.Checked() {
+			if handler.c.Checked() {
 				f = MsgBoxError
 			}
 			f("List Info",
 				fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
-				cb1.SelectedIndex(), cb1.Selection(), cb1.Len(),
-				cb2.SelectedIndex(), cb2.Selection(), cb2.Len(),
-				lb1.SelectedIndices(), lb1.Selection(), lb1.Len(),
-				lb2.SelectedIndices(), lb2.Selection(), lb2.Len()))
-		case <-incButton.Clicked:
-			prog++
-			if prog > 100 {
-				prog = 100
+				handler.cb1.SelectedIndex(), handler.cb1.Selection(), handler.cb1.Len(),
+				handler.cb2.SelectedIndex(), handler.cb2.Selection(), handler.cb2.Len(),
+				handler.lb1.SelectedIndices(), handler.lb1.Selection(), handler.lb1.Len(),
+				handler.lb2.SelectedIndices(), handler.lb2.Selection(), handler.lb2.Len()))
+		case handler.incButton:
+			handler.prog++
+			if handler.prog > 100 {
+				handler.prog = 100
 			}
-			pbar.SetProgress(prog)
-			cb1.Append("append multi 1", "append multi 2")
-			lb2.Append("append multi 1", "append multi 2")
-		case <-decButton.Clicked:
-			prog--
-			if prog < 0 {
-				prog = 0
+			handler.pbar.SetProgress(handler.prog)
+			handler.cb1.Append("append multi 1", "append multi 2")
+			handler.lb2.Append("append multi 1", "append multi 2")
+		case handler.decButton:
+			handler.prog--
+			if handler.prog < 0 {
+				handler.prog = 0
 			}
-			pbar.SetProgress(prog)
-		case <-indetButton.Clicked:
-			pbar.SetProgress(-1)
-		case <-invalidButton.Clicked:
-			invalidTest(cb1, lb1, nil, nil)
-		case <-bmsg.Clicked:
+			handler.pbar.SetProgress(handler.prog)
+		case handler.indetButton:
+			handler.pbar.SetProgress(-1)
+		case handler.invalidButton:
+			invalidTest(handler.cb1, handler.lb1, nil, nil)
+		case handler.bmsg:
 			MsgBox("Title Only, no parent", "")
 			MsgBox("Title and Text", "parent")
-		// dialogs
-		case <-dialog_bMsgBox.Clicked:
-			dialog_sret = dialog_win.MsgBox("Message Box", "Dismiss")
-			l.SetText("DIALOG")
-		case <-dialog_bMsgBoxError.Clicked:
-			dialog_sret = dialog_win.MsgBoxError("Message Box", "Dismiss")
-			l.SetText("DIALOG")
-		case <-dialog_sret:
-			dialog_sret = nil
-			resetl()
-		case <-centerButton.Clicked:
-			dialog_win.Center()
+		}
+// == TODO ==
+//	case CusotmEvent:
+//		l.SetText("DIALOG")
+//	case CustomEvent + 1:
+//			resetl()
+	}
+}
+
+type dialoghandler struct {
+	bMsgBox			*Button
+	bMsgBoxError		*Button
+	w				*Window
+	bCenter			*Button
+	send				func(Event, interface{})
+}
+
+// == TODO ==
+func (handler *dialoghandler) Event(e Event, d Data) {
+	if e == Clicked {
+		switch d {
+		case handler.bMsgBox:
+//			dialog_sret = handler.w.MsgBox("Message Box", "Dismiss")
+//			handler.send(CustomEvent, nil)
+		case handler.bMsgBoxError:
+//			dialog_sret = handler.w.MsgBoxError("Message Box", "Dismiss")
+//			handler.send(CustomEvent, nil)
+//		case <-dialog_sret:
+//			dialog_sret = nil
+//			handler.send(CustomEvent + 1, nil)
+		case handler.bCenter:
+			handler.w.Center()
 		}
 	}
-	w.Hide()
 }
 
 func main() {
