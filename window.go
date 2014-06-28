@@ -37,7 +37,6 @@ type Event int
 const (
 	Closing Event = iota			// Window close
 	Clicked					// Button click
-	Dismissed					// Dialog closed
 	CustomEvent = 5000		// very high number; higher than the package would ever need, anyway
 )
 

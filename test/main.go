@@ -559,14 +559,13 @@ func (handler *dialoghandler) Event(e Event, d Data) {
 	if e == Clicked {
 		switch d {
 		case handler.bMsgBox:
-//			dialog_sret = handler.w.MsgBox("Message Box", "Dismiss")
+//			handler.send(CustomEvent, "DIALOG")
+			handler.w.MsgBox("Message Box", "Dismiss")
 //			handler.send(CustomEvent, nil)
 		case handler.bMsgBoxError:
-//			dialog_sret = handler.w.MsgBoxError("Message Box", "Dismiss")
+//			handler.send(CustomEvent, "DIALOG")
+			handler.w.MsgBoxError("Message Box", "Dismiss")
 //			handler.send(CustomEvent, nil)
-//		case <-dialog_sret:
-//			dialog_sret = nil
-//			handler.send(CustomEvent + 1, nil)
 		case handler.bCenter:
 			handler.w.Center()
 		}

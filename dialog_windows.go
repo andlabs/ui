@@ -38,20 +38,13 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 	if r1 == 0 { // failure
 		panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", err, uType, os.Args[0], text))
 	}
-	w.sysData.winhandler.Event(Dismissed, &dialogret{
-		res:	dialogResponses[r1],
-	})
+	return dialogResponses[r1]
 }
 
 func (w *Window) msgBox(primarytext string, secondarytext string) {
-	// send to uitask so the function can return immediately
-	touitask(func() {
-		_msgBox(w, primarytext, secondarytext, _MB_OK)
-	})
+	_msgBox(w, primarytext, secondarytext, _MB_OK)
 }
 
 func (w *Window) msgBoxError(primarytext string, secondarytext string) {
-	touitask(func() {
-		_msgBox(w, primarytext, secondarytext, _MB_OK|_MB_ICONERROR)
-	})
+	_msgBox(w, primarytext, secondarytext, _MB_OK|_MB_ICONERROR)
 }
