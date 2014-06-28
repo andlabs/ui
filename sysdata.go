@@ -2,21 +2,15 @@
 
 package ui
 
-const eventbufsiz = 100 // suggested by skelterjohn
-
-// newEvent returns a new channel suitable for listening for events.
-func newEvent() chan struct{} {
-	return make(chan struct{}, eventbufsiz)
-}
-
 // The sysData type contains all system data. It provides the system-specific underlying implementation. It is guaranteed to have the following by embedding:
 type cSysData struct {
 	ctype     int
-	event     chan struct{}
 	allocate    func(x int, y int, width int, height int, d *sysSizeData) []*allocation
 	spaced	bool
 	alternate bool        // editable for Combobox, multi-select for listbox, password for lineedit
-	handler   AreaHandler // for Areas
+	handler   AreaHandler // for Areas; TODO rename to areahandler
+	winhandler	WindowHandler	// for Windows
+	event	func()		// provided by each widget
 }
 
 // this interface is used to make sure all sysDatas are synced
@@ -43,19 +37,6 @@ var _xSysData interface {
 	center()
 	setChecked(bool)
 } = &sysData{} // this line will error if there's an inconsistency
-
-// signal sends the event signal. This raise is done asynchronously to avoid deadlocking the UI task.
-// Thanks skelterjohn for this techinque: if we can't queue any more events, drop them
-func (s *cSysData) signal() {
-	if s.event != nil {
-		go func() {
-			select {
-			case s.event <- struct{}{}:
-			default:
-			}
-		}()
-	}
-}
 
 const (
 	c_window = iota
