@@ -24,7 +24,7 @@ type Window struct {
 // 
 // Each Event() call takes two parameters: the event ID and a data argument. For most events, the data argument is a pointer to the Control that triggered the event.
 // 
-// For Closing, the data argument is [TODO].
+// For Closing, the data argument is a pointer to a bool variable. If, after returning from Event, the value of this variable is true, the Window is closed; if false, the Window is not closed. The default value on entry to the function is [TODO].
 // 
 // For any event >= CustomEvent, the data argument is the argument passed to the Window's SendEvent() method.
 type WindowHandler interface {
