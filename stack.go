@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"sync"
 )
 
 type orientation bool
@@ -20,7 +19,6 @@ const (
 // Any extra space at the end of a Stack is left blank.
 // Some controls may be marked as "stretchy": when the Window they are in changes size, stretchy controls resize to take up the remaining space after non-stretchy controls are laid out. If multiple controls are marked stretchy, they are alloted equal distribution of the remaining space.
 type Stack struct {
-	lock          sync.Mutex
 	created       bool
 	orientation   orientation
 	controls      []Control
@@ -51,9 +49,6 @@ func NewVerticalStack(controls ...Control) *Stack {
 // SetStretchy marks a control in a Stack as stretchy. This cannot be called once the Window containing the Stack has been created.
 // It panics if index is out of range.
 func (s *Stack) SetStretchy(index int) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
 	if s.created {
 		panic("call to Stack.SetStretchy() after Stack has been created")
 	}
@@ -64,9 +59,6 @@ func (s *Stack) SetStretchy(index int) {
 }
 
 func (s *Stack) make(window *sysData) error {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-
 	for i, c := range s.controls {
 		err := c.make(window)
 		if err != nil {
