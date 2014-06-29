@@ -27,8 +27,9 @@ import "C"
 func our_window_delete_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
 	// called when the user tries to close the window
 	s := (*sysData)(unsafe.Pointer(what))
-	s.signal()
-	return C.TRUE // do not close the window
+	b := false		// TODO
+	s.close(&b)
+	return togbool(!b)		// ! because TRUE means don't close
 }
 
 var window_delete_event_callback = C.GCallback(C.our_window_delete_event_callback)
@@ -52,7 +53,7 @@ var window_configure_event_callback = C.GCallback(C.our_window_configure_event_c
 func our_button_clicked_callback(button *C.GtkButton, what C.gpointer) {
 	// called when the user clicks a button
 	s := (*sysData)(unsafe.Pointer(what))
-	s.signal()
+	s.event()
 }
 
 var button_clicked_callback = C.GCallback(C.our_button_clicked_callback)
