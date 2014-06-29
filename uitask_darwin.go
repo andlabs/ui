@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"runtime"
 	"unsafe"
 )
 
@@ -32,7 +31,7 @@ func ui() {
 	go func() {
 		for {
 			select {
-			case f := range uitask:
+			case f := <-uitask:
 				C.douitask(appDelegate, unsafe.Pointer(&f))
 			case <-Stop:
 				C.breakMainLoop()

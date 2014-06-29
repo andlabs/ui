@@ -308,15 +308,15 @@ func (s *sysData) len() int {
 }
 
 func (s *sysData) setAreaSize(width int, height int) {
-	return C.setAreaSize(s.id, C.intptr_t(width), C.intptr_t(height))
+	C.setAreaSize(s.id, C.intptr_t(width), C.intptr_t(height))
 }
 
 func (s *sysData) repaintAll() {
-	return C.display(s.id)
+	C.display(s.id)
 }
 
 func (s *sysData) center() {
-	return C.center(s.id)
+	C.center(s.id)
 }
 
 func (s *sysData) setChecked(checked bool) {

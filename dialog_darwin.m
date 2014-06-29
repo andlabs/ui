@@ -9,7 +9,7 @@
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
 
-static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style)
+static intptr_t alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style)
 {
 	NSAlert *box;
 
