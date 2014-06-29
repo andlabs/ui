@@ -92,9 +92,11 @@ extern NSRect dummyRect;
 	return NSTerminateNow;
 }
 
-- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)chan
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)data
 {
-	dialog_send(chan, (uintptr_t) returnCode);
+	NSInteger *ret = (NSInteger *) data;
+
+	*ret = returnCode;
 }
 
 @end

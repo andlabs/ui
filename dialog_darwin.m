@@ -23,13 +23,14 @@ static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyl
 	if (parent == nil)
 		return (intptr_t) [box runModal];
 	else {
-		NSInteger *ret;
+		NSInteger ret;
 
 		[box beginSheetModalForWindow:toNSWindow(parent)
 			modalDelegate:[NSApp delegate]
 			didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
 			contextInfo:&ret];
 		// TODO
+		return (intptr_t) ret;
 	}
 }
 
