@@ -10,6 +10,7 @@ ALL:
 		ui.Stop <- struct{}{}
 ```
 - implement the concept of closing a window (which renders it unavilable for future use) and make it part of the Closing documentation
+- make sure message boxes can be closed in arbitrary order meaningfully
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
