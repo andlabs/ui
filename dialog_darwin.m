@@ -21,12 +21,14 @@ static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyl
 	// TODO is there a named constant? will also need to be changed when we add different dialog types
 	[box addButtonWithTitle:@"OK"];
 	if (parent == nil)
-		dialog_send(chan, (intptr_t) [box runModal]);
-	else
+		return (intptr_t) [box runModal];
+	else {
 		[box beginSheetModalForWindow:toNSWindow(parent)
 			modalDelegate:[NSApp delegate]
 			didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
 			contextInfo:chan];
+		// TODO
+	}
 }
 
 void msgBox(id parent, id primary, id secondary, void *chan)
