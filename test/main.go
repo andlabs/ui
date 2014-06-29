@@ -538,7 +538,7 @@ func (handler *testwinhandler) Event(e Event, d interface{}) {
 			invalidTest(handler.cb1, handler.lb1, nil, nil)
 		case handler.bmsg:
 			MsgBox("Title Only, no parent", "")
-			MsgBox("Title and Text", "parent")
+			handler.w.MsgBox("Title and Text", "parent")
 		}
 // == TODO ==
 //	case CusotmEvent:
