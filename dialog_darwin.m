@@ -9,7 +9,7 @@
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
 
-static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style, void *chan)
+static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style)
 {
 	NSAlert *box;
 
@@ -23,20 +23,22 @@ static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyl
 	if (parent == nil)
 		return (intptr_t) [box runModal];
 	else {
+		NSInteger *ret;
+
 		[box beginSheetModalForWindow:toNSWindow(parent)
 			modalDelegate:[NSApp delegate]
 			didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-			contextInfo:chan];
+			contextInfo:&ret];
 		// TODO
 	}
 }
 
-void msgBox(id parent, id primary, id secondary, void *chan)
+void msgBox(id parent, id primary, id secondary)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle, chan);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle);
 }
 
-void msgBoxError(id parent, id primary, id secondary, void *chan)
+void msgBoxError(id parent, id primary, id secondary)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle, chan);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle);
 }

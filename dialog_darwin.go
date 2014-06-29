@@ -31,10 +31,10 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, style uin
 	}
 	switch style {
 	case 0: // normal
-		C.msgBox(pwin, primary, secondary, nil)
+		C.msgBox(pwin, primary, secondary)
 		return OK
 	case 1: // error
-		C.msgBoxError(pwin, primary, secondary, nil)
+		C.msgBoxError(pwin, primary, secondary)
 		return OK
 	}
 	panic(fmt.Errorf("unknown message box style %d\n", style))
