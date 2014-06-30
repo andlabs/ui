@@ -35,7 +35,6 @@ const _FALSE = 0
 const _GWLP_USERDATA = -21
 const _GWL_STYLE = -16
 const _ICC_PROGRESS_CLASS = 32
-const _IDOK = 1
 const _LBS_EXTENDEDSEL = 2048
 const _LBS_NOINTEGRALHEIGHT = 256
 const _LBS_NOTIFY = 1

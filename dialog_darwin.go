@@ -3,7 +3,6 @@
 package ui
 
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -18,32 +17,43 @@ func dialog_send(pchan unsafe.Pointer, res C.intptr_t) {
 	}()
 }
 
-func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) Response {
-	var pwin C.id = nil
+func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) chan int {
+	ret := make(chan int)
+	uitask <- func() {
+		var pwin C.id = nil
 
-	if parent != dialogWindow {
-		pwin = parent.sysData.id
+		if parent != dialogWindow {
+			pwin = parent.sysData.id
+		}
+		primary := toNSString(primarytext)
+		secondary := C.id(nil)
+		if secondarytext != "" {
+			secondary = toNSString(secondarytext)
+		}
+		switch style {
+		case 0: // normal
+			C.msgBox(pwin, primary, secondary, unsafe.Pointer(&ret))
+		case 1: // error
+			C.msgBoxError(pwin, primary, secondary, unsafe.Pointer(&ret))
+		}
 	}
-	primary := toNSString(primarytext)
-	secondary := C.id(nil)
-	if secondarytext != "" {
-		secondary = toNSString(secondarytext)
-	}
-	switch style {
-	case 0: // normal
-		C.msgBox(pwin, primary, secondary)
-		return OK
-	case 1: // error
-		C.msgBoxError(pwin, primary, secondary)
-		return OK
-	}
-	panic(fmt.Errorf("unknown message box style %d\n", style))
+	return ret
 }
 
-func (w *Window) msgBox(primarytext string, secondarytext string) {
-	_msgBox(w, primarytext, secondarytext, 0)
+func (w *Window) msgBox(primarytext string, secondarytext string) (done chan struct{}) {
+	done = make(chan struct{})
+	go func() {
+		<-_msgBox(w, primarytext, secondarytext, 0)
+		done <- struct{}{}
+	}()
+	return done
 }
 
-func (w *Window) msgBoxError(primarytext string, secondarytext string) {
-	_msgBox(w, primarytext, secondarytext, 1)
+func (w *Window) msgBoxError(primarytext string, secondarytext string) (done chan struct{}) {
+	done = make(chan struct{})
+	go func() {
+		<-_msgBox(w, primarytext, secondarytext, 1)
+		done <- struct{}{}
+	}()
+	return done
 }

@@ -2,11 +2,16 @@
 
 package ui
 
+import (
+	"sync"
+)
+
 // A Label is a static line of text used to mark other controls.
 // Label text is drawn on a single line; text that does not fit is truncated.
 // A Label can appear in one of two places: bound to a control or standalone.
 // This determines the vertical alignment of the label.
 type Label struct {
+	lock     sync.Mutex
 	created  bool
 	sysData  *sysData
 	initText string
@@ -34,6 +39,9 @@ func NewStandaloneLabel(text string) *Label {
 
 // SetText sets the Label's text.
 func (l *Label) SetText(text string) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		l.sysData.setText(text)
 		return
@@ -43,6 +51,9 @@ func (l *Label) SetText(text string) {
 
 // Text returns the Label's text.
 func (l *Label) Text() string {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	if l.created {
 		return l.sysData.text()
 	}
@@ -50,6 +61,9 @@ func (l *Label) Text() string {
 }
 
 func (l *Label) make(window *sysData) error {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
 	l.sysData.alternate = l.standalone
 	err := l.sysData.make(window)
 	if err != nil {

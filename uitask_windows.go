@@ -4,6 +4,7 @@ package ui
 
 import (
 	"fmt"
+	"runtime"
 	"syscall"
 	"unsafe"
 )
@@ -45,51 +46,47 @@ var (
 	_postMessage = user32.NewProc("PostMessageW")
 )
 
-var msghwnd _HWND
+func ui(main func()) error {
+	runtime.LockOSThread()
 
-func uiinit() error {
+	uitask = make(chan interface{})
 	err := doWindowsInit()
 	if err != nil {
 		return fmt.Errorf("error doing general Windows initialization: %v", err)
 	}
 
-	msghwnd, err = makeMessageHandler()
+	hwnd, err := makeMessageHandler()
 	if err != nil {
 		return fmt.Errorf("error making invisible window for handling events: %v", err)
 	}
 
-	// do this only on success just to be safe
-	uitask = make(chan interface{})
-	return nil
-}
-
-func ui() {
 	go func() {
-		for {
-			select {
-			case m := <-uitask:
-				r1, _, err := _postMessage.Call(
-					uintptr(msghwnd),
-					msgRequested,
-					uintptr(0),
+		for m := range uitask {
+			r1, _, err := _postMessage.Call(
+				uintptr(hwnd),
+				msgRequested,
+				uintptr(0),
 				uintptr(unsafe.Pointer(&m)))
-				if r1 == 0 { // failure
-					panic("error sending message to message loop to call function: " + err.Error())
-				}
-			case <-Stop:
-				r1, _, err := _postMessage.Call(
-					uintptr(msghwnd),
-					msgQuit,
-					uintptr(0),
-					uintptr(0))
-				if r1 == 0 { // failure
-					panic("error sending quit message to message loop: " + err.Error())
-				}
+			if r1 == 0 { // failure
+				panic("error sending message to message loop to call function: " + err.Error())
 			}
 		}
 	}()
 
+	go func() {
+		main()
+		r1, _, err := _postMessage.Call(
+			uintptr(hwnd),
+			msgQuit,
+			uintptr(0),
+			uintptr(0))
+		if r1 == 0 { // failure
+			panic("error sending quit message to message loop: " + err.Error())
+		}
+	}()
+
 	msgloop()
+	return nil
 }
 
 var (

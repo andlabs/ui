@@ -175,6 +175,7 @@ func releaseTextDC(hwnd _HWND, dc _HANDLE) {
 	}
 }
 
+// This function runs on uitask; call the functions directly.
 func (s *sysData) preferredSize(d *sysSizeData) (width int, height int) {
 	// the preferred size of an Area is its size
 	if stdDlgSizes[s.ctype].area {

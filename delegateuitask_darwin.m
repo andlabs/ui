@@ -63,7 +63,8 @@ extern NSRect dummyRect;
 
 - (BOOL)windowShouldClose:(id)win
 {
-	return appDelegate_windowShouldClose(win);
+	appDelegate_windowShouldClose(win);
+	return NO;		// don't close
 }
 
 - (void)windowDidResize:(NSNotification *)n
@@ -78,25 +79,13 @@ extern NSRect dummyRect;
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)app
 {
-	NSArray *windows;
-	NSUInteger i;
-
-	// try to close all windows
-	windows = [NSApp windows];
-	for (i = 0; i < [windows count]; i++)
-		[[windows objectAtIndex:i] performClose:self];
-	// if any windows are left, cancel
-	if ([[NSApp windows] count] != 0)
-		return NSTerminateCancel;
-	// no windows are left; we're good
-	return NSTerminateNow;
+	appDelegate_applicationShouldTerminate();
+	return NSTerminateCancel;
 }
 
-- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)data
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)chan
 {
-	NSInteger *ret = (NSInteger *) data;
-
-	*ret = returnCode;
+	dialog_send(chan, (uintptr_t) returnCode);
 }
 
 @end

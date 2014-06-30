@@ -116,7 +116,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		switch ss.ctype {
 		case c_button:
 			if wParam.HIWORD() == _BN_CLICKED {
-				ss.event()
+				ss.signal()
 			}
 		case c_checkbox:
 			// we opt into doing this ourselves because http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx
@@ -164,11 +164,7 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		}
 		return 0
 	case _WM_CLOSE:
-		close := false		// TODO decide apt default
-		s.close(&close)
-		if close {
-			s.hide()
-		}
+		s.signal()
 		return 0
 	default:
 		return defWindowProc(hwnd, uMsg, wParam, lParam)

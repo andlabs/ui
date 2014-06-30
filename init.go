@@ -2,53 +2,28 @@
 
 package ui
 
-import (
-	"runtime"
-)
-
-// Go sets up the UI environment and pulses Ready.
-// If initialization fails, Go returns an error and Ready is not pulsed.
-// Otherwise, Go does not return to its caller until Stop is pulsed, at which point Go() will return nil.
-// After Go() returns, you cannot call future ui functions/methods meaningfully.
-// Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.
+// Go sets up the UI environment and runs main in a goroutine.
+// If initialization fails, Go returns an error and main is not called.
+// Otherwise, Go does not return to its caller until main does, at which point it returns nil.
+// After it returns, you cannot call future ui functions/methods meaningfully.
 //
-// It is not safe to call ui.Go() in a goroutine. It must be called directly from main(). This means if your code calls other code-modal servers (such as http.ListenAndServe()), they must be run from goroutines. (This is due to limitations in various OSs, such as Mac OS X.)
+// It is not safe to call ui.Go() in a goroutine. It must be called directly from main().
 //
-// Go() does not process the command line for flags (that is, it does not call flag.Parse()), nor does package ui add any of the underlying toolkit's supported command-line flags.
+// This model is undesirable, but Cocoa limitations require it.
+//
+// Go does not process the command line for flags (that is, it does not call flag.Parse()), nor does package ui add any of the underlying toolkit's supported command-line flags.
 // If you must, and if the toolkit also has environment variable equivalents to these flags (for instance, GTK+), use those instead.
-func Go() error {
-	runtime.LockOSThread()
-	if err := uiinit(); err != nil {
-		return err
-	}
-	Ready <- struct{}{}
-	close(Ready)
-	ui()
-	return nil
+func Go(main func()) error {
+	return ui(main)
 }
 
-// Ready is pulsed when Go() is ready to begin accepting requests to the safe methods.
-// Go() will wait for something to receive on Ready, then Ready will be closed.
-var Ready = make(chan struct{})
+// AppQuit is pulsed when the user decides to quit the program if their operating system provides a facility for quitting an entire application, rather than merely close all windows (for instance, Mac OS X via the Dock icon).
+// You should assign one of your Windows's Closing to this variable so the user choosing to quit the application is treated the same as closing that window.
+// If you do not respond to this signal, nothing will happen; regardless of whether or not you respond to this signal, the application will not quit.
+// Do not merely check this channel alone; it is not guaranteed to be pulsed on all systems or in all conditions.
+var AppQuit chan struct{}
 
-// Stop should be pulsed when you are ready for Go() to return.
-// Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.
-// Do not pulse Stop more than once.
-var Stop = make(chan struct{})
-
-// This function is a simple helper functionn that basically pushes the effect of a function call for later. This allows the selected safe Window methods to be safe.
-// TODO make sure this acts sanely if called from uitask itself
-func touitask(f func()) {
-	done := make(chan struct{})
-	defer close(done)
-	go func() {		// to avoid locking uitask itself
-		done2 := make(chan struct{})		// make the chain uitask <- f <- uitask to avoid deadlocks
-		defer close(done2)
-		uitask <- func() {
-			f()
-			done2 <- struct{}{}
-		}
-		done <- <-done2
-	}()
-	<-done
+func init() {
+	// don't expose this in the documentation
+	AppQuit = newEvent()
 }

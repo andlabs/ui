@@ -4,6 +4,7 @@ package ui
 
 import (
 	"fmt"
+	"sync"
 )
 
 // A Grid arranges Controls in a two-dimensional grid.
@@ -15,6 +16,7 @@ import (
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a Grid are given in (row,column) form with (0,0) being the top-left cell.
 type Grid struct {
+	lock                     sync.Mutex
 	created                  bool
 	controls                 [][]Control
 	filling                  [][]bool
@@ -67,6 +69,9 @@ func NewGrid(nPerRow int, controls ...Control) *Grid {
 // This function cannot be called after the Window that contains the Grid has been created.
 // It panics if the given coordinate is invalid.
 func (g *Grid) SetFilling(row int, column int) {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
 	if g.created {
 		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
 	}
@@ -82,6 +87,9 @@ func (g *Grid) SetFilling(row int, column int) {
 // This function cannot be called after the Window that contains the Grid has been created.
 // It panics if the given coordinate is invalid.
 func (g *Grid) SetStretchy(row int, column int) {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
 	if g.created {
 		panic(fmt.Errorf("Grid.SetFilling() called after window create"))
 	}
@@ -94,6 +102,9 @@ func (g *Grid) SetStretchy(row int, column int) {
 }
 
 func (g *Grid) make(window *sysData) error {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+
 	// commit filling for the stretchy control now (see SetStretchy() above)
 	if g.stretchyrow != -1 && g.stretchycol != -1 {
 		g.filling[g.stretchyrow][g.stretchycol] = true
