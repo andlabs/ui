@@ -11,6 +11,10 @@ ALL:
 ```
 - implement the concept of closing a window (which renders it unavilable for future use) and make it part of the Closing documentation
 - make sure message boxes can be closed in arbitrary order meaningfully
+	- windows: the first message box closing will destroy the window properly and reenable the parent, but the actual call to MessageBox() won't return until the second dialog does
+		- docs don't say anything about threads but implies you can't call MessageBox() from a different thread
+	- GTK+: ???
+	- OS X: ???
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
