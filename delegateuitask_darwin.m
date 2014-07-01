@@ -127,7 +127,7 @@ void douitask(id appDelegate, void *p)
 	fp = [NSValue valueWithPointer:p];
 	[appDelegate performSelectorOnMainThread:@selector(uitask:)
 		withObject:fp
-		waitUntilDone:YES];			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
+		waitUntilDone:YES];		// wait since that's what we want the Go uitask() to do
 	[pool release];
 }
 

@@ -19,7 +19,7 @@ func dialog_send(pchan unsafe.Pointer, res C.intptr_t) {
 
 func _msgBox(parent *Window, primarytext string, secondarytext string, style uintptr) chan int {
 	ret := make(chan int)
-	uitask <- func() {
+	uitask(func() {
 		var pwin C.id = nil
 
 		if parent != dialogWindow {
@@ -36,7 +36,7 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, style uin
 		case 1: // error
 			C.msgBoxError(pwin, primary, secondary, unsafe.Pointer(&ret))
 		}
-	}
+	})
 	return ret
 }
 
