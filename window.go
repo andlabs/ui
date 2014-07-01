@@ -22,39 +22,15 @@ type Window struct {
 	initHeight int
 	shownOnce  bool
 	spaced	bool
-	handler	WindowHandler
 }
-
-// WindowHandler represents an event handler for a Window and all its child Controls.
-// 
-// When an event on a Window or one of its child Controls comes in, the respect Window's handler's Event() method is called. The method call occurs on the main thread, and thus any call to any package ui method can be performed.
-// 
-// Each Event() call takes two parameters: the event ID and a data argument. For most events, the data argument is a pointer to the Control that triggered the event.
-// 
-// For Closing, the data argument is a pointer to a bool variable. If, after returning from Event, the value of this variable is true, the Window is closed; if false, the Window is not closed. The default value on entry to the function is [TODO].
-// 
-// For any event >= CustomEvent, the data argument is the argument passed to the Window's SendEvent() method.
-type WindowHandler interface {
-	Event(e Event, data interface{})
-}
-
-// Event represents an event; see WindowHandler for details.
-// All event values >= CustomEvent are available for program use.
-type Event int
-const (
-	Closing Event = iota			// Window close
-	Clicked					// Button click
-	CustomEvent = 5000		// very high number; higher than the package would ever need, anyway
-)
 
 // NewWindow allocates a new Window with the given title and size. The window is not created until a call to Create() or Open().
-func NewWindow(title string, width int, height int, handler WindowHandler) *Window {
+func NewWindow(title string, width int, height int) *Window {
 	return &Window{
 		sysData:    mksysdata(c_window),
 		initTitle:  title,
 		initWidth:  width,
 		initHeight: height,
-		handler:		handler,
 	}
 }
 
@@ -109,7 +85,6 @@ func (w *Window) create(control Control, show bool) {
 			panic("window already open")
 		}
 		w.sysData.spaced = w.spaced
-		w.sysData.winhandler = w.handler
 		w.sysData.close = w.Closing
 		err := w.sysData.make(nil)
 		if err != nil {

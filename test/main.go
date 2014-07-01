@@ -15,9 +15,6 @@ import (
 	. "github.com/andlabs/ui"
 )
 
-type nullwinhandler struct{}
-func (nullwinhandler) Event(Event, interface{}) {}
-
 func die() bool {
 	// TODO we want the bool return to happen before the Stop...
 	Stop <- struct{}{}
@@ -28,14 +25,14 @@ var prefsizetest = flag.Bool("prefsize", false, "")
 func listboxPreferredSizeTest() *Window {
 	lb := NewListbox("xxxxx", "y", "zzz")
 	g := NewGrid(1, lb)
-	w := NewWindow("Listbox Preferred Size Test", 300, 300, nullwinhandler{})
+	w := NewWindow("Listbox Preferred Size Test", 300, 300)
 	w.Open(g)
 	return w
 }
 
 var gridtest = flag.Bool("grid", false, "")
 func gridWindow() *Window {
-	w := NewWindow("Grid Test", 400, 400, nullwinhandler{})
+	w := NewWindow("Grid Test", 400, 400)
 	b00 := NewButton("0,0")
 	b01 := NewButton("0,1")
 	b02 := NewButton("0,2")
@@ -250,16 +247,7 @@ func areaTest() {
 		timedisp,
 		sizeStack)
 	layout.SetStretchy(0)
-	w := NewWindow("Area Test", 100, 100, &areatestwinhandler{
-		areahandler:	areahandler,
-		a:			a,
-		timedisp:		timedisp,
-		widthbox:		widthbox,
-		heightbox:	heightbox,
-		resize:		resize,
-		modaltest:	modaltest,
-		repainttest:	repainttest,
-	})
+	w := NewWindow("Area Test", 100, 100)
 	w.Closing = die
 	w.Open(layout)
 	go func() {
@@ -269,19 +257,6 @@ func areaTest() {
 //			timedisp.SetText(t.String())
 		}
 	}()
-}
-
-type areatestwinhandler struct {
-	areahandler	*areaHandler
-	a			*Area
-	timedisp		*Label
-	widthbox		*LineEdit
-	heightbox		*LineEdit
-	resize		*Button
-	modaltest		*Button
-	repainttest	*Button
-}
-func (a *areatestwinhandler) Event(e Event, d interface{}) {
 }
 
 var areabounds = flag.Bool("areabounds", false, "run area bounds test instead")
@@ -308,9 +283,7 @@ func areaboundsTest() {
 	// middle purple
 	r.Min.Y++
 	draw.Draw(img, r, u(128, 0, 128), image.ZP, draw.Over)
-	w := NewWindow("Area Bounds Test", 320, 240, &areatestwinhandler{
-		a:	a,
-	})
+	w := NewWindow("Area Bounds Test", 320, 240)
 	w.Closing = die
 	w.Open(a)
 }
@@ -367,7 +340,7 @@ type testwinhandler struct {
 
 func runMainTest() {
 	handler := new(testwinhandler)
-	handler.w = NewWindow("Main Window", 320, 240, handler)
+	handler.w = NewWindow("Main Window", 320, 240)
 	handler.w.Closing = func() bool {
 		println("window closed event received")
 		return die()
@@ -441,7 +414,7 @@ func runMainTest() {
 		bCenter:			centerButton,
 //		send:			w.Send,
 	}
-	dh.w = NewWindow("Dialogs", 200, 200, dh)
+	dh.w = NewWindow("Dialogs", 200, 200)
 	dh.setUpEvents()
 	if *dialogTest {
 		s := NewVerticalStack(
@@ -482,12 +455,9 @@ func runMainTest() {
 			NewButton("Button"),
 			s)
 		s.SetStretchy(4)
-		NewWindow("Label Align Test", 500, 300, nullwinhandler{}).Open(s)
+		NewWindow("Label Align Test", 500, 300).Open(s)
 	}
 }
-
-// TODO
-func (handler *testwinhandler) Event(Event,interface{}){}
 
 func (handler *testwinhandler) setUpEvents() {
 	handler.b.Clicked = func() {
@@ -563,11 +533,8 @@ type dialoghandler struct {
 	bMsgBoxError		*Button
 	w				*Window
 	bCenter			*Button
-	send				func(Event, interface{})
+//	send				func(Event, interface{})
 }
-
-// == TODO ==
-func (handler *dialoghandler) Event(e Event, d interface{}) {}
 
 func (handler *dialoghandler) setUpEvents() {
 	handler.bMsgBox.Clicked = func() {
