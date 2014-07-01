@@ -28,6 +28,17 @@ import (
 // 	g_free(p);
 // }
 // extern gboolean our_createWindow_callback(gpointer);
+// /* this is called when we're done */
+// static inline gboolean our_quit_callback(gpointer data)
+// {
+// 	gtk_main_quit();
+// 	return FALSE;		/* remove from idle handler (not like it matters) */
+// }
+// /* I would call gdk_threads_add_idle() directly from ui() but cgo whines, so; trying to access our_quit_callback() in any way other than a call would cause _cgo_main.c to complain too */
+// static inline void signalQuit(void)
+// {
+// 	gdk_threads_add_idle(our_quit_callback, NULL);
+// }
 import "C"
 
 //export our_createWindow_callback
@@ -63,22 +74,10 @@ func uiinit() error {
 }
 
 func ui() {
-	// thanks to tristan and Daniel_S in irc.gimp.net/#gtk
-	// see our_idle_callback in callbacks_unix.go for details
 	go func() {
-		// TODO do differently
 		<-Stop
-		// using gdk_threads_add_idle() will make sure it gets run when any events currently being handled finish running
-		f := func() {
-			C.gtk_main_quit()
-		}
-		done := make(chan struct{})
-		gdk_threads_add_idle_op(&gtkIdleOp{
-			what: f,
-			done: done,
-		})
-		<-done
-		close(done)
+		C.signalQuit()
+		// TODO wait for it to return?
 	}()
 
 	C.gtk_main()

@@ -18,7 +18,6 @@ while we're at it the callback for our idle function will be handled here too
 // extern gboolean our_window_delete_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_window_configure_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern void our_button_clicked_callback(GtkButton *, gpointer);
-// extern gboolean our_idle_callback(gpointer);
 // /* because cgo is flaky with macros; static inline because we have //exports */
 // static inline void gSignalConnect(GtkWidget *widget, char *signal, GCallback callback, void *data) { g_signal_connect(widget, signal, callback, data); }
 import "C"
@@ -70,26 +69,4 @@ func g_signal_connect_pointer(obj *C.GtkWidget, sig string, callback C.GCallback
 	csig := C.CString(sig)
 	defer C.free(unsafe.Pointer(csig))
 	C.gSignalConnect(obj, csig, callback, p)
-}
-
-// there are two issues we solve here:
-// 1) we need to make sure the uitask request gets garbage collected when we're done so as to not waste memory, but only when we're done so as to not have craziness happen
-// 2) we need to make sure one idle function runs and finishes running before we start the next; otherwise we could wind up with weird things like the ret channel being closed early
-// so our_idle_callback() calls the uitask function in what and sends a message back to the dispatcher over done that it finished running; the dispatcher is still holding onto the uitask function so it won't be collected
-type gtkIdleOp struct {
-	what func()
-	done chan struct{}
-}
-
-//export our_idle_callback
-func our_idle_callback(what C.gpointer) C.gboolean {
-	idleop := (*gtkIdleOp)(unsafe.Pointer(what))
-	idleop.what()
-	idleop.done <- struct{}{}
-	return C.FALSE // remove this idle function; we're finished
-}
-
-func gdk_threads_add_idle_op(idleop *gtkIdleOp) {
-	C.gdk_threads_add_idle(C.GCallback(C.our_idle_callback),
-		C.gpointer(unsafe.Pointer(idleop)))
 }
