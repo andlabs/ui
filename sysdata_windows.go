@@ -148,7 +148,9 @@ var (
 )
 
 func (s *sysData) make(window *sysData) (err error) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		ct := classTypes[s.ctype]
 		cid := _HMENU(0)
 		pwin := uintptr(_NULL)
@@ -195,7 +197,9 @@ func (s *sysData) make(window *sysData) (err error) {
 				uintptr(_WPARAM(controlFont)),
 				uintptr(_LPARAM(_TRUE)))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
@@ -207,7 +211,9 @@ var (
 // 	ShowWindow(hwnd, nCmdShow);
 // 	UpdateWindow(hwnd);
 func (s *sysData) firstShow() error {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		_showWindow.Call(
 			uintptr(s.hwnd),
 			uintptr(nCmdShow))
@@ -215,28 +221,40 @@ func (s *sysData) firstShow() error {
 		if r1 == 0 { // failure
 			panic(fmt.Errorf("error updating window for the first time: %v", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
 func (s *sysData) show() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		_showWindow.Call(
 			uintptr(s.hwnd),
 			uintptr(_SW_SHOW))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) hide() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		_showWindow.Call(
 			uintptr(s.hwnd),
 			uintptr(_SW_HIDE))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setText(text string) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		ptext := toUTF16(text)
 		r1, _, err := _setWindowText.Call(
 			uintptr(s.hwnd),
@@ -244,7 +262,9 @@ func (s *sysData) setText(text string) {
 		if r1 == 0 { // failure
 			panic(fmt.Errorf("error setting window/control text: %v", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 // runs on uitask
@@ -263,23 +283,23 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 }
 
 func (s *sysData) isChecked() bool {
-	var b bool
-
-	uitask(func() {
+	ret := make(chan bool)
+	defer close(ret)
+	uitask <- func() {
 		r1, _, _ := _sendMessage.Call(
 			uintptr(s.hwnd),
 			uintptr(_BM_GETCHECK),
 			uintptr(0),
 			uintptr(0))
-		b = r1 == _BST_CHECKED
-	})
-	return b
+		ret <- r1 == _BST_CHECKED
+	}
+	return <-ret
 }
 
-func (s *sysData) text() string {
-	var str string
-
-	uitask(func() {
+func (s *sysData) text() (str string) {
+	ret := make(chan string)
+	defer close(ret)
+	uitask <- func() {
 		var tc []uint16
 
 		r1, _, _ := _sendMessage.Call(
@@ -294,13 +314,15 @@ func (s *sysData) text() string {
 			uintptr(_WM_GETTEXT),
 			uintptr(_WPARAM(length)),
 			uintptr(_LPARAM(unsafe.Pointer(&tc[0]))))
-		str = syscall.UTF16ToString(tc)
-	})
-	return str
+		ret <- syscall.UTF16ToString(tc)
+	}
+	return <-ret
 }
 
 func (s *sysData) append(what string) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		pwhat := toUTF16(what)
 		r1, _, err := _sendMessage.Call(
 			uintptr(s.hwnd),
@@ -312,11 +334,15 @@ func (s *sysData) append(what string) {
 		} else if r1 == uintptr(classTypes[s.ctype].selectedIndexErr) {
 			panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) insertBefore(what string, index int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		pwhat := toUTF16(what)
 		r1, _, err := _sendMessage.Call(
 			uintptr(s.hwnd),
@@ -328,7 +354,9 @@ func (s *sysData) insertBefore(what string, index int) {
 		} else if r1 == uintptr(classTypes[s.ctype].selectedIndexErr) {
 			panic(fmt.Errorf("failed to add item to combobox/listbox (last error: %v)", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 // runs on uitask
@@ -345,12 +373,12 @@ func (s *sysData) doSelectedIndex() int {
 }
 
 func (s *sysData) selectedIndex() int {
-	var i int
-
-	uitask(func() {
-		i = s.doSelectedIndex()
-	})
-	return i
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- s.doSelectedIndex()
+	}
+	return <-ret
 }
 
 // runs on uitask
@@ -387,20 +415,20 @@ func (s *sysData) doSelectedIndices() []int {
 }
 
 func (s *sysData) selectedIndices() []int {
-	var i []int
-
-	uitask(func() {
-		i = s.doSelectedIndices()
-	})
-	return i
+	ret := make(chan []int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- s.doSelectedIndices()
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedTexts() []string {
-	var strings []string
-
-	uitask(func() {
+	ret := make(chan []string)
+	defer close(ret)
+	uitask <- func() {
 		indices := s.doSelectedIndices()
-		strings = make([]string, len(indices))
+		strings := make([]string, len(indices))
 		for i, v := range indices {
 			r1, _, err := _sendMessage.Call(
 				uintptr(s.hwnd),
@@ -421,12 +449,15 @@ func (s *sysData) selectedTexts() []string {
 			}
 			strings[i] = syscall.UTF16ToString(str)
 		}
-	})
-	return strings
+		ret <- strings
+	}
+	return <-ret
 }
 
 func (s *sysData) setWindowSize(width int, height int) error {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		var rect _RECT
 
 		r1, _, err := _getClientRect.Call(
@@ -441,12 +472,16 @@ func (s *sysData) setWindowSize(width int, height int) error {
 		if err != nil {
 			panic(fmt.Errorf("error actually resizing window: %v", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
 func (s *sysData) delete(index int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		r1, _, err := _sendMessage.Call(
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].deleteMsg),
@@ -455,11 +490,15 @@ func (s *sysData) delete(index int) {
 		if r1 == uintptr(classTypes[s.ctype].selectedIndexErr) {
 			panic(fmt.Errorf("failed to delete item from combobox/listbox (last error: %v)", err))
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setIndeterminate() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		r1, _, err := _setWindowLongPtr.Call(
 			uintptr(s.hwnd),
 			negConst(_GWL_STYLE),
@@ -473,7 +512,9 @@ func (s *sysData) setIndeterminate() {
 			uintptr(_WPARAM(_TRUE)),
 			uintptr(0))
 		s.isMarquee = true
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setProgress(percent int) {
@@ -481,7 +522,9 @@ func (s *sysData) setProgress(percent int) {
 		s.setIndeterminate()
 		return
 	}
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		if s.isMarquee {
 			// turn off marquee before switching back
 			_sendMessage.Call(
@@ -517,13 +560,15 @@ func (s *sysData) setProgress(percent int) {
 		if percent == 100 {
 			send(_PBM_SETRANGE32, 0, 100)
 		}
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) len() int {
-	var i int
-
-	uitask(func() {
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
 		r1, _, err := _sendMessage.Call(
 			uintptr(s.hwnd),
 			uintptr(classTypes[s.ctype].lenMsg),
@@ -532,33 +577,43 @@ func (s *sysData) len() int {
 		if r1 == uintptr(classTypes[s.ctype].selectedIndexErr) {
 			panic(fmt.Errorf("unexpected error return from sysData.len(); GetLastError() says %v", err))
 		}
-		i = int(r1)
-	})
-	return i
+		ret <- int(r1)
+	}
+	return <-ret
 }
 
 func (s *sysData) setAreaSize(width int, height int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		_sendMessage.Call(
 			uintptr(s.hwnd),
 			uintptr(msgSetAreaSize),
 			uintptr(width), // WPARAM is UINT_PTR on Windows XP and newer at least, so we're good with this
 			uintptr(height))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) repaintAll() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		_sendMessage.Call(
 			uintptr(s.hwnd),
 			uintptr(msgRepaintAll),
 			uintptr(0),
 			uintptr(0))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) center() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		var ws _RECT
 
 		r1, _, err := _getWindowRect.Call(
@@ -576,11 +631,15 @@ func (s *sysData) center() {
 		wx := (int32(dw) / 2) - (ww / 2)
 		wy := (int32(dh) / 2) - (wh / 2)
 		s.setRect(int(wx), int(wy), int(ww), int(wh), 0)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setChecked(checked bool) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		c := uintptr(_BST_CHECKED)
 		if !checked {
 			c = uintptr(_BST_UNCHECKED)
@@ -590,5 +649,7 @@ func (s *sysData) setChecked(checked bool) {
 			uintptr(_BM_SETCHECK),
 			c,
 			uintptr(0))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }

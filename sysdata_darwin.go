@@ -225,14 +225,20 @@ func (s *sysData) make(window *sysData) error {
 	if window != nil {
 		parentWindow = window.id
 	}
-	uitask(func() {
-		s.id = ct.make(parentWindow, s.alternate, s)
-		if ct.getinside != nil {
-			addSysData(ct.getinside(s.id), s)
-		} else {
-			addSysData(s.id, s)
+	ret := make(chan C.id)
+	defer close(ret)
+	uitask <- func() {
+		ret <- ct.make(parentWindow, s.alternate, s)
+	}
+	s.id = <-ret
+	if ct.getinside != nil {
+		uitask <- func() {
+			ret <- ct.getinside(s.id)
 		}
-	})
+		addSysData(<-ret, s)
+	} else {
+		addSysData(s.id, s)
+	}
 	return nil
 }
 
@@ -243,21 +249,33 @@ func (s *sysData) firstShow() error {
 }
 
 func (s *sysData) show() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].show(s.id)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) hide() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].hide(s.id)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setText(text string) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].settext(s.id, toNSString(text))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
@@ -270,111 +288,147 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 }
 
 func (s *sysData) isChecked() bool {
-	var b bool
-
-	uitask(func() {
-		b = C.isCheckboxChecked(s.id) != C.NO
-	})
-	return b
+	ret := make(chan bool)
+	defer close(ret)
+	uitask <- func() {
+		ret <- C.isCheckboxChecked(s.id) != C.NO
+	}
+	return <-ret
 }
 
 func (s *sysData) text() string {
-	var text string
-
-	uitask(func() {
+	ret := make(chan string)
+	defer close(ret)
+	uitask <- func() {
 		str := classTypes[s.ctype].text(s.id, s.alternate)
-		text = fromNSString(str)
-	})
-	return text
+		ret <- fromNSString(str)
+	}
+	return <-ret
 }
 
 func (s *sysData) append(what string) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].append(s.id, what, s.alternate)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) insertBefore(what string, before int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].insertBefore(s.id, what, before, s.alternate)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) selectedIndex() int {
-	var i int
-
-	uitask(func() {
-		i = classTypes[s.ctype].selIndex(s.id)
-	})
-	return i
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selIndex(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedIndices() []int {
-	var i []int
-
-	uitask(func() {
-		i = classTypes[s.ctype].selIndices(s.id)
-	})
-	return i
+	ret := make(chan []int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selIndices(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) selectedTexts() []string {
-	var texts []string
-
-	uitask(func() {
-		texts = classTypes[s.ctype].selTexts(s.id)
-	})
-	return texts
+	ret := make(chan []string)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].selTexts(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) setWindowSize(width int, height int) error {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.windowSetContentSize(s.id, C.intptr_t(width), C.intptr_t(height))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 	return nil
 }
 
 func (s *sysData) delete(index int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		classTypes[s.ctype].delete(s.id, index)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setProgress(percent int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.setProgress(s.id, C.intptr_t(percent))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) len() int {
-	var i int
-
-	uitask(func() {
-		i = classTypes[s.ctype].len(s.id)
-	})
-	return i
+	ret := make(chan int)
+	defer close(ret)
+	uitask <- func() {
+		ret <- classTypes[s.ctype].len(s.id)
+	}
+	return <-ret
 }
 
 func (s *sysData) setAreaSize(width int, height int) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.setAreaSize(s.id, C.intptr_t(width), C.intptr_t(height))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) repaintAll() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.display(s.id)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) center() {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.center(s.id)
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }
 
 func (s *sysData) setChecked(checked bool) {
-	uitask(func() {
+	ret := make(chan struct{})
+	defer close(ret)
+	uitask <- func() {
 		C.setCheckboxChecked(s.id, toBOOL(checked))
-	})
+		ret <- struct{}{}
+	}
+	<-ret
 }

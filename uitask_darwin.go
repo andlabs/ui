@@ -14,25 +14,30 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-// can be run from any thread
-// will wait for return; see delegateuitask_darwin.m
-func uitask(f func()) {
-	C.douitask(appDelegate, unsafe.Pointer(&f))
-}
+var uitask chan func()
 
 func ui(main func()) error {
 	runtime.LockOSThread()
+
+	uitask = make(chan func())
 
 	err := initCocoa()
 	if err != nil {
 		return err
 	}
 
+	// Cocoa must run on the first thread created by the program, so we run our dispatcher on another thread instead
+	go func() {
+		for f := range uitask {
+			C.douitask(appDelegate, unsafe.Pointer(&f))
+		}
+	}()
+
 	go func() {
 		main()
-		uitask(func() {
+		uitask <- func() {
 			C.breakMainLoop()
-		})
+		}
 	}()
 
 	C.cocoaMainLoop()
