@@ -12,7 +12,7 @@ type Window struct {
 	// Return true to allow the window to be closed; false otherwise.
 	// You cannot change this field after the Window has been created.
 	// [TODO close vs. hide]
-	// TODO nil
+	// If Closing is nil, a default which rejects the close will be used.
 	Closing		func() bool
 
 	created    bool
@@ -86,6 +86,11 @@ func (w *Window) create(control Control, show bool) {
 		}
 		w.sysData.spaced = w.spaced
 		w.sysData.close = w.Closing
+		if w.sysData.close == nil {
+			w.sysData.close = func() bool {
+				return false
+			}
+		}
 		err := w.sysData.make(nil)
 		if err != nil {
 			panic(fmt.Errorf("error opening window: %v", err))
