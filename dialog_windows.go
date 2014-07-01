@@ -30,6 +30,7 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 	go func() {
 		ret := make(chan uiret)
 		defer close(ret)
+/* TODO
 		uitask <- &uimsg{
 			call: _messageBox,
 			p: []uintptr{
@@ -40,6 +41,7 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 			},
 			ret: ret,
 		}
+*/
 		r := <-ret
 		if r.ret == 0 { // failure
 			panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", r.err, uType, os.Args[0], text))
