@@ -164,9 +164,8 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		}
 		return 0
 	case _WM_CLOSE:
-		close := false		// TODO decide apt default
-		s.close(&close)
-		if close {
+		if s.close() {
+			// TODO destroy
 			s.hide()
 		}
 		return 0

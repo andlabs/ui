@@ -27,9 +27,7 @@ import "C"
 func our_window_delete_event_callback(widget *C.GtkWidget, event *C.GdkEvent, what C.gpointer) C.gboolean {
 	// called when the user tries to close the window
 	s := (*sysData)(unsafe.Pointer(what))
-	b := false		// TODO
-	s.close(&b)
-	return togbool(!b)		// ! because TRUE means don't close
+	return togbool(s.close())		// ! because TRUE means don't close
 }
 
 var window_delete_event_callback = C.GCallback(C.our_window_delete_event_callback)

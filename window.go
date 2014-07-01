@@ -8,6 +8,13 @@ import (
 
 // Window represents an on-screen window.
 type Window struct {
+	// Closing is called when the Close button is pressed by the user, or when the application needs to be quit (should the underlying system provide a concept of application distinct from window).
+	// Return true to allow the window to be closed; false otherwise.
+	// You cannot change this field after the Window has been created.
+	// [TODO close vs. hide]
+	// TODO nil
+	Closing		func() bool
+
 	created    bool
 	sysData    *sysData
 	initTitle  string
@@ -103,9 +110,7 @@ func (w *Window) create(control Control, show bool) {
 		}
 		w.sysData.spaced = w.spaced
 		w.sysData.winhandler = w.handler
-		w.sysData.close = func(b *bool) {
-			w.sysData.winhandler.Event(Closing, b)
-		}
+		w.sysData.close = w.Closing
 		err := w.sysData.make(nil)
 		if err != nil {
 			panic(fmt.Errorf("error opening window: %v", err))

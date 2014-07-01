@@ -18,6 +18,12 @@ import (
 type nullwinhandler struct{}
 func (nullwinhandler) Event(Event, interface{}) {}
 
+func die() bool {
+	// TODO we want the bool return to happen before the Stop...
+	Stop <- struct{}{}
+	return true
+}
+
 var prefsizetest = flag.Bool("prefsize", false, "")
 func listboxPreferredSizeTest() *Window {
 	lb := NewListbox("xxxxx", "y", "zzz")
@@ -242,6 +248,7 @@ func areaTest() {
 		modaltest:	modaltest,
 		repainttest:	repainttest,
 	})
+	w.Closing = die
 	w.Open(layout)
 	go func() {
 		for t := range timechan {
@@ -264,9 +271,6 @@ type areatestwinhandler struct {
 }
 func (a *areatestwinhandler) Event(e Event, d interface{}) {
 	switch e {
-	case Closing:
-		*(d.(*bool)) = true
-		Stop <- struct{}{}
 	case Clicked:
 		switch d {
 		case a.resize:
@@ -311,6 +315,7 @@ func areaboundsTest() {
 	w := NewWindow("Area Bounds Test", 320, 240, &areatestwinhandler{
 		a:	a,
 	})
+	w.Closing = die
 	w.Open(a)
 }
 
@@ -367,6 +372,10 @@ type testwinhandler struct {
 func runMainTest() {
 	handler := new(testwinhandler)
 	handler.w = NewWindow("Main Window", 320, 240, handler)
+	handler.w.Closing = func() bool {
+		println("window closed event received")
+		return die()
+	}
 	handler.b = NewButton("Click Me")
 	handler.b2 = NewButton("Or Me")
 	handler.bmsg = NewButton("Or Even Me!")
@@ -481,9 +490,6 @@ func runMainTest() {
 
 func (handler *testwinhandler) Event(e Event, d interface{}) {
 	switch e {
-	case Closing:
-		println("window closed event received")
-		Stop <- struct{}{}
 	case Clicked:
 		switch d {
 		case handler.b:

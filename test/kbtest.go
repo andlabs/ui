@@ -75,9 +75,6 @@ func (a *keyboardArea) Key(e KeyEvent) (repaint bool) {
 
 type kbhandler struct{}
 func (kbhandler) Event(e Event, d interface{}) {
-	if e == Closing {
-		*(d.(*bool)) = true
-	}
 }
 
 var doKeyboard = flag.Bool("kb", false, "run keyboard test (overrides -areabounds)")
@@ -85,6 +82,7 @@ func kbTest() {
 	wid, ht, ah := mkkbArea()
 	a := NewArea(wid, ht, ah)
 	w := NewWindow("Hi", wid, ht, kbhandler{})
+	w.Closing = func() bool { return true }
 	w.Open(a)
 }
 

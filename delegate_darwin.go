@@ -26,9 +26,7 @@ func makeAppDelegate() {
 //export appDelegate_windowShouldClose
 func appDelegate_windowShouldClose(win C.id) C.BOOL {
 	sysData := getSysData(win)
-	b := false		// TODO
-	sysData.close(&b)
-	return toBOOL(b)
+	return toBOOL(sysData.close())
 }
 
 //export appDelegate_windowDidResize
