@@ -89,7 +89,7 @@ func our_idle_callback(what C.gpointer) C.gboolean {
 	return C.FALSE // remove this idle function; we're finished
 }
 
-func gdk_threads_add_idle(idleop *gtkIdleOp) {
+func gdk_threads_add_idle_op(idleop *gtkIdleOp) {
 	C.gdk_threads_add_idle(C.GCallback(C.our_idle_callback),
 		C.gpointer(unsafe.Pointer(idleop)))
 }

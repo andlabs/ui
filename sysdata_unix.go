@@ -220,9 +220,10 @@ func (s *sysData) delete(index int) {
 func (s *sysData) progressPulse() {
 	// TODO this could probably be done differently...
 	pulse := func() {
-		touitask(func() {
-			gtk_progress_bar_pulse(s.widget)
-		})
+		// TODO
+//		touitask(func() {
+//			gtk_progress_bar_pulse(s.widget)
+//		})
 	}
 
 	var ticker *time.Ticker
