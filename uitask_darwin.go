@@ -13,7 +13,28 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-var uitask chan func()
+// the performSelectorOnMainThread: in our uitask functions is told to wait until the action is done before it returns
+// so we're fine keeping this on the Go side since the GC won't collect it from under us
+type uitaskParams struct {
+	window	*Window		// createWindow
+	control	Control		// createWindow
+	show	bool			// createWindow
+}
+
+//export uitask_createWindow
+func uitask_createWindow(data unsafe.Pointer) {
+	uc := (*uitaskParams)(data)
+	uc.window.create(uc.control, uc.show)
+}
+
+func (_uitask) createWindow(w *Window, c Control, s bool) {
+	uc := &uitaskParams{
+		window:	w,
+		control:	c,
+		show:	s,
+	}
+	C.douitask(appDelegate, C.createWindow, unsafe.Pointer(uc))
+}
 
 func uiinit() error {
 	err := initCocoa()
@@ -21,22 +42,15 @@ func uiinit() error {
 		return err
 	}
 
-	// do this at the end in case something goes wrong
-	uitask = make(chan func())
 	return nil
 }
 
 func ui() {
 	// Cocoa must run on the first thread created by the program, so we run our dispatcher on another thread instead
 	go func() {
-		for {
-			select {
-			case f := <-uitask:
-				C.douitask(appDelegate, unsafe.Pointer(&f))
-			case <-Stop:
-				C.breakMainLoop()
-			}
-		}
+		<-Stop
+		// TODO is this function thread-safe?
+		C.breakMainLoop()
 	}()
 
 	C.cocoaMainLoop()
