@@ -4,6 +4,11 @@ package ui
 
 // A Button represents a clickable button with some text.
 type Button struct {
+	// Clicked is called when the button is clicked.
+	// This cannot be changed after the Window containing the Button has been created.
+	// If you do not specify a handler, a default of "do nothing" will be used instead.
+	Clicked func()
+
 	created  bool
 	sysData  *sysData
 	initText string
@@ -35,8 +40,9 @@ func (b *Button) Text() string {
 }
 
 func (b *Button) make(window *sysData) error {
-	b.sysData.event = func() {
-		window.winhandler.Event(Clicked, b)
+	b.sysData.event = b.Clicked
+	if b.sysData.event == nil {
+		b.sysData.event = func() {}
 	}
 	err := b.sysData.make(window)
 	if err != nil {
@@ -49,11 +55,11 @@ func (b *Button) make(window *sysData) error {
 
 func (b *Button) allocate(x int, y int, width int, height int, d *sysSizeData) []*allocation {
 	return []*allocation{&allocation{
-		x:       x,
-		y:       y,
-		width:   width,
-		height:  height,
-		this:		b,
+		x:      x,
+		y:      y,
+		width:  width,
+		height: height,
+		this:   b,
 	}}
 }
 

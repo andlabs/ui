@@ -44,6 +44,9 @@ func gridWindow() *Window {
 	l20 := NewLabel("2,0")
 	c21 := NewCheckbox("2,1")
 	c21.SetChecked(true)
+	b12.Clicked = func() {
+		c21.SetChecked(!c21.Checked())
+	}
 	l22 := NewLabel("2,2")
 	g := NewGrid(3,
 		b00, b01, b02,
@@ -53,11 +56,6 @@ func gridWindow() *Window {
 	g.SetStretchy(1, 1)
 	w.SetSpaced(*spacingTest)
 	w.Open(g)
-//TODO
-//	go func() {for {select {
-//	case <-b12.Clicked:
-//		c21.SetChecked(!c21.Checked())
-//	}}}()
 	return w
 }
 
@@ -224,12 +222,26 @@ func areaTest() {
 	widthbox := NewLineEdit("320")
 	heightbox := NewLineEdit("240")
 	resize := NewButton("Resize")
+	resize.Clicked = func() {
+		width, err := strconv.Atoi(widthbox.Text())
+		if err != nil { println(err); return }
+		height, err := strconv.Atoi(heightbox.Text())
+		if err != nil { println(err); return }
+		a.SetSize(width, height)
+	}
 	sizeStack := NewHorizontalStack(widthbox, heightbox, resize)
 	sizeStack.SetStretchy(0)
 	sizeStack.SetStretchy(1)
 	sizeStack.SetStretchy(2)
 	modaltest := NewButton("Modal")
+	modaltest.Clicked = func() {
+		MsgBox("Modal Test", "")
+	}
 	repainttest := NewButton("Repaint All")
+	repainttest.Clicked = func() {
+		areahandler.mutate()
+		a.RepaintAll()
+	}
 	sizeStack = NewHorizontalStack(sizeStack, repainttest, modaltest)
 	sizeStack.SetStretchy(0)
 	sizeStack.SetStretchy(1)
@@ -270,22 +282,6 @@ type areatestwinhandler struct {
 	repainttest	*Button
 }
 func (a *areatestwinhandler) Event(e Event, d interface{}) {
-	switch e {
-	case Clicked:
-		switch d {
-		case a.resize:
-			width, err := strconv.Atoi(a.widthbox.Text())
-			if err != nil { println(err); return }
-			height, err := strconv.Atoi(a.heightbox.Text())
-			if err != nil { println(err); return }
-			a.a.SetSize(width, height)
-		case a.modaltest:
-			MsgBox("Modal Test", "")
-		case a.repainttest:
-			a.areahandler.mutate()
-			a.a.RepaintAll()
-		}
-	}
 }
 
 var areabounds = flag.Bool("areabounds", false, "run area bounds test instead")
@@ -426,6 +422,7 @@ func runMainTest() {
 		invalidTest(handler.cb1, handler.lb1, s, NewGrid(1, Space()))
 	}
 	handler.w.SetSpaced(*spacingTest)
+	handler.setUpEvents()
 	handler.w.Open(s)
 	if *gridtest {
 		gridWindow()
@@ -445,6 +442,7 @@ func runMainTest() {
 //		send:			w.Send,
 	}
 	dh.w = NewWindow("Dialogs", 200, 200, dh)
+	dh.setUpEvents()
 	if *dialogTest {
 		s := NewVerticalStack(
 			dialog_bMsgBox,
@@ -488,70 +486,76 @@ func runMainTest() {
 	}
 }
 
-func (handler *testwinhandler) Event(e Event, d interface{}) {
-	switch e {
-	case Clicked:
-		switch d {
-		case handler.b:
-			handler.w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
-				handler.c.Checked(),
-				handler.cb1.Selection(),
-				handler.cb2.Selection(),
-				handler.e.Text(),
-				handler.password.Text()))
-			handler.doAdjustments()
-		case handler.b2:
-			if handler.cb1.Len() > 1 {
-				handler.cb1.Delete(1)
-			}
-			if handler.cb2.Len() > 2 {
-				handler.cb2.Delete(2)
-			}
-			if handler.lb1.Len() > 3 || *macCrashTest {
-				handler.lb1.Delete(3)
-			}
-			if handler.lb2.Len() > 4 {
-				handler.lb2.Delete(4)
-			}
-		case handler.b3:
-			f := MsgBox
-			if handler.c.Checked() {
-				f = MsgBoxError
-			}
-			f("List Info",
-				fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
-				handler.cb1.SelectedIndex(), handler.cb1.Selection(), handler.cb1.Len(),
-				handler.cb2.SelectedIndex(), handler.cb2.Selection(), handler.cb2.Len(),
-				handler.lb1.SelectedIndices(), handler.lb1.Selection(), handler.lb1.Len(),
-				handler.lb2.SelectedIndices(), handler.lb2.Selection(), handler.lb2.Len()))
-		case handler.incButton:
-			handler.prog++
-			if handler.prog > 100 {
-				handler.prog = 100
-			}
-			handler.pbar.SetProgress(handler.prog)
-			handler.cb1.Append("append multi 1", "append multi 2")
-			handler.lb2.Append("append multi 1", "append multi 2")
-		case handler.decButton:
-			handler.prog--
-			if handler.prog < 0 {
-				handler.prog = 0
-			}
-			handler.pbar.SetProgress(handler.prog)
-		case handler.indetButton:
-			handler.pbar.SetProgress(-1)
-		case handler.invalidButton:
-			invalidTest(handler.cb1, handler.lb1, nil, nil)
-		case handler.bmsg:
-			MsgBox("Title Only, no parent", "")
-			handler.w.MsgBox("Title and Text", "parent")
+// TODO
+func (handler *testwinhandler) Event(Event,interface{}){}
+
+func (handler *testwinhandler) setUpEvents() {
+	handler.b.Clicked = func() {
+		handler.w.SetTitle(fmt.Sprintf("%v | %s | %s | %s | %s",
+			handler.c.Checked(),
+			handler.cb1.Selection(),
+			handler.cb2.Selection(),
+			handler.e.Text(),
+			handler.password.Text()))
+		handler.doAdjustments()
+	}
+	handler.b2.Clicked = func() {
+		if handler.cb1.Len() > 1 {
+			handler.cb1.Delete(1)
 		}
+		if handler.cb2.Len() > 2 {
+			handler.cb2.Delete(2)
+		}
+		if handler.lb1.Len() > 3 || *macCrashTest {
+			handler.lb1.Delete(3)
+		}
+		if handler.lb2.Len() > 4 {
+			handler.lb2.Delete(4)
+		}
+	}
+	handler.b3.Clicked = func() {
+		f := MsgBox
+		if handler.c.Checked() {
+			f = MsgBoxError
+		}
+		f("List Info",
+			fmt.Sprintf("cb1: %d %q (len %d)\ncb2: %d %q (len %d)\nlb1: %d %q (len %d)\nlb2: %d %q (len %d)",
+			handler.cb1.SelectedIndex(), handler.cb1.Selection(), handler.cb1.Len(),
+			handler.cb2.SelectedIndex(), handler.cb2.Selection(), handler.cb2.Len(),
+			handler.lb1.SelectedIndices(), handler.lb1.Selection(), handler.lb1.Len(),
+			handler.lb2.SelectedIndices(), handler.lb2.Selection(), handler.lb2.Len()))
+	}
+	handler.incButton.Clicked = func() {
+		handler.prog++
+		if handler.prog > 100 {
+			handler.prog = 100
+		}
+		handler.pbar.SetProgress(handler.prog)
+		handler.cb1.Append("append multi 1", "append multi 2")
+		handler.lb2.Append("append multi 1", "append multi 2")
+	}
+	handler.decButton.Clicked = func() {
+		handler.prog--
+		if handler.prog < 0 {
+			handler.prog = 0
+		}
+		handler.pbar.SetProgress(handler.prog)
+	}
+	handler.indetButton.Clicked = func() {
+		handler.pbar.SetProgress(-1)
+	}
+	handler.invalidButton.Clicked = func() {
+		invalidTest(handler.cb1, handler.lb1, nil, nil)
+	}
+	handler.bmsg.Clicked = func() {
+		MsgBox("Title Only, no parent", "")
+		handler.w.MsgBox("Title and Text", "parent")
+	}
 // == TODO ==
 //	case CusotmEvent:
 //		l.SetText("DIALOG")
 //	case CustomEvent + 1:
 //			resetl()
-	}
 }
 
 type dialoghandler struct {
@@ -563,20 +567,21 @@ type dialoghandler struct {
 }
 
 // == TODO ==
-func (handler *dialoghandler) Event(e Event, d interface{}) {
-	if e == Clicked {
-		switch d {
-		case handler.bMsgBox:
-//			handler.send(CustomEvent, "DIALOG")
-			handler.w.MsgBox("Message Box", "Dismiss")
-//			handler.send(CustomEvent, nil)
-		case handler.bMsgBoxError:
-//			handler.send(CustomEvent, "DIALOG")
-			handler.w.MsgBoxError("Message Box", "Dismiss")
-//			handler.send(CustomEvent, nil)
-		case handler.bCenter:
-			handler.w.Center()
-		}
+func (handler *dialoghandler) Event(e Event, d interface{}) {}
+
+func (handler *dialoghandler) setUpEvents() {
+	handler.bMsgBox.Clicked = func() {
+//		handler.send(CustomEvent, "DIALOG")
+		handler.w.MsgBox("Message Box", "Dismiss")
+//		handler.send(CustomEvent, nil)
+	}
+	handler.bMsgBoxError.Clicked = func() {
+//		handler.send(CustomEvent, "DIALOG")
+		handler.w.MsgBoxError("Message Box", "Dismiss")
+//		handler.send(CustomEvent, nil)
+	}
+	handler.bCenter.Clicked = func() {
+		handler.w.Center()
 	}
 }
 
