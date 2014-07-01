@@ -71,47 +71,45 @@ func (w *Window) SetSpaced(spaced bool) {
 
 // Open creates the Window with Create and then shows the Window with Show. As with Create, you cannot call Open more than once per window.
 func (w *Window) Open(control Control) {
-	w.create(control, true)
+	uitask.createWindow(w, control, true)
 }
 
 // Create creates the Window, setting its control to the given control. It does not show the window. This can only be called once per window, and finalizes all initialization of the control.
 func (w *Window) Create(control Control) {
-	w.create(control, false)
+	uitask.createWindow(w, control, false)
 }
 
 func (w *Window) create(control Control, show bool) {
-	touitask(func() {
-		if w.created {
-			panic("window already open")
+	if w.created {
+		panic("window already open")
+	}
+	w.sysData.spaced = w.spaced
+	w.sysData.close = w.Closing
+	if w.sysData.close == nil {
+		w.sysData.close = func() bool {
+			return false
 		}
-		w.sysData.spaced = w.spaced
-		w.sysData.close = w.Closing
-		if w.sysData.close == nil {
-			w.sysData.close = func() bool {
-				return false
-			}
-		}
-		err := w.sysData.make(nil)
+	}
+	err := w.sysData.make(nil)
+	if err != nil {
+		panic(fmt.Errorf("error opening window: %v", err))
+	}
+	if control != nil {
+		w.sysData.allocate = control.allocate
+		err = control.make(w.sysData)
 		if err != nil {
-			panic(fmt.Errorf("error opening window: %v", err))
+			panic(fmt.Errorf("error adding window's control: %v", err))
 		}
-		if control != nil {
-			w.sysData.allocate = control.allocate
-			err = control.make(w.sysData)
-			if err != nil {
-				panic(fmt.Errorf("error adding window's control: %v", err))
-			}
-		}
-		err = w.sysData.setWindowSize(w.initWidth, w.initHeight)
-		if err != nil {
-			panic(fmt.Errorf("error setting window size (in Window.Open()): %v", err))
-		}
-		w.sysData.setText(w.initTitle)
-		w.created = true
-		if show {
-			w.Show()
-		}
-	})
+	}
+	err = w.sysData.setWindowSize(w.initWidth, w.initHeight)
+	if err != nil {
+		panic(fmt.Errorf("error setting window size (in Window.Open()): %v", err))
+	}
+	w.sysData.setText(w.initTitle)
+	w.created = true
+	if show {
+		w.Show()
+	}
 }
 
 // Show shows the window.

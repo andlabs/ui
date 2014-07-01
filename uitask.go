@@ -36,19 +36,14 @@ var Ready = make(chan struct{})
 // Do not pulse Stop more than once.
 var Stop = make(chan struct{})
 
-// This function is a simple helper functionn that basically pushes the effect of a function call for later. This allows the selected safe Window methods to be safe.
-// TODO make sure this acts sanely if called from uitask itself
-func touitask(f func()) {
-	done := make(chan struct{})
-	defer close(done)
-	go func() {		// to avoid locking uitask itself
-		done2 := make(chan struct{})		// make the chain uitask <- f <- uitask to avoid deadlocks
-		defer close(done2)
-		uitask <- func() {
-			f()
-			done2 <- struct{}{}
-		}
-		done <- <-done2
-	}()
-	<-done
-}
+// uitask is an object of a type implemented by each uitask_***.go that does everything that needs to be communicated to the main thread.
+type _uitask struct{}
+var uitask = _uitask{}
+
+// and the required methods are:
+var xuitask interface {
+	// creates a window
+	// TODO whether this waits for the window creation to finish is implementation defined?
+	createWindow(*Window, Control, bool)
+} = uitask
+// compilation will fail if uitask doesn't have all these methods

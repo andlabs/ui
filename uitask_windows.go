@@ -9,6 +9,8 @@ import (
 )
 
 /*
+TODO rewrite this comment block
+
 problem: messages have to be dispatched on the same thread as system calls, and we can't mux GetMessage() with select, and PeekMessage() every iteration is wasteful (and leads to lag for me (only) with the concurrent garbage collector sweep)
 possible: solution: use PostThreadMessage() to send uimsgs out to the message loop, which runs on its own goroutine
 (I had come up with this first but wanted to try other things before doing it (and wasn't really sure if user-defined messages were safe, not quite understanding the system); nsf came up with it independently and explained that this was really the only right way to do it, so thanks to him)
@@ -21,31 +23,37 @@ the only recourse, and the one both Microsoft (http://support.microsoft.com/kb/1
 yay.
 */
 
-var uitask chan interface{}
-
-type uimsg struct {
-	call *syscall.LazyProc
-	p    []uintptr
-	ret  chan uiret
-}
-
-type uiret struct {
-	ret uintptr
-	err error
-}
+var msghwnd _HWND
 
 const (
-	msgRequested = _WM_APP + iota + 1 // + 1 just to be safe
-	msgQuit
+	msgQuit = _WM_APP + iota + 1			// + 1 just to be safe
 	msgSetAreaSize
 	msgRepaintAll
+	msgCreateWindow
 )
 
-var (
-	_postMessage = user32.NewProc("PostMessageW")
-)
+type uitaskParams struct {
+	window	*Window		// createWindow
+	control	Control		// createWindow
+	show	bool			// createWindow
+}
 
-var msghwnd _HWND
+// SendMessage() won't return unti lthe deed is done, even if the deed is on another thread
+// SendMessage() does a thread switch if necessary
+// this also means we don't have to worry about the uitaskParams object being garbage collected
+
+func (_uitask) createWindow(w *Window, c Control, s bool) {
+	uc := &uitaskParams{
+		window:	w,
+		control:	c,
+		show:	s,
+	}
+	_sendMessage.Call(
+		uintptr(msghwnd),
+		msgCreateWindow,
+		uintptr(0),
+		uintptr(unsafe.Pointer(uc)))
+}
 
 func uiinit() error {
 	err := doWindowsInit()
@@ -58,34 +66,24 @@ func uiinit() error {
 		return fmt.Errorf("error making invisible window for handling events: %v", err)
 	}
 
-	// do this only on success just to be safe
-	uitask = make(chan interface{})
 	return nil
 }
 
+var (
+	_postMessage = user32.NewProc("PostMessageW")
+)
+
 func ui() {
 	go func() {
-		for {
-			select {
-			case m := <-uitask:
-				r1, _, err := _postMessage.Call(
-					uintptr(msghwnd),
-					msgRequested,
-					uintptr(0),
-				uintptr(unsafe.Pointer(&m)))
-				if r1 == 0 { // failure
-					panic("error sending message to message loop to call function: " + err.Error())
-				}
-			case <-Stop:
-				r1, _, err := _postMessage.Call(
-					uintptr(msghwnd),
-					msgQuit,
-					uintptr(0),
-					uintptr(0))
-				if r1 == 0 { // failure
-					panic("error sending quit message to message loop: " + err.Error())
-				}
-			}
+		<-Stop
+		// PostMessage() so it gets handled after any events currently being processed complete
+		r1, _, err := _postMessage.Call(
+			uintptr(msghwnd),
+			msgQuit,
+			uintptr(0),
+			uintptr(0))
+		if r1 == 0 { // failure
+			panic("error sending quit message to message loop: " + err.Error())
 		}
 	}()
 
@@ -180,22 +178,13 @@ func makeMessageHandler() (hwnd _HWND, err error) {
 
 func messageHandlerWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	switch uMsg {
-	case msgRequested:
-		mt := (*interface{})(unsafe.Pointer(lParam))
-		switch m := (*mt).(type) {
-		case *uimsg:
-			r1, _, err := m.call.Call(m.p...)
-			m.ret <- uiret{
-				ret: r1,
-				err: err,
-			}
-		case func():
-			m()
-		}
-		return 0
 	case msgQuit:
 		// does not return a value according to MSDN
 		_postQuitMessage.Call(0)
+		return 0
+	case msgCreateWindow:
+		uc := (*uitaskParams)(unsafe.Pointer(lParam))
+		uc.window.create(uc.control, uc.show)
 		return 0
 	}
 	return defWindowProc(hwnd, uMsg, wParam, lParam)
