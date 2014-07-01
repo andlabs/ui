@@ -5,10 +5,11 @@
 package ui
 
 import (
-	"time"
+	"unsafe"
 )
 
 // #include "gtk_unix.h"
+// extern gboolean our_pulse_callback(gpointer);
 import "C"
 
 type sysData struct {
@@ -16,7 +17,7 @@ type sysData struct {
 
 	widget       *C.GtkWidget
 	container    *C.GtkWidget // for moving
-	pulse        chan bool    // for sysData.progressPulse()
+	pulseTimer	C.guint	// for indeterminate progress bars
 	clickCounter clickCounter // for Areas
 	// we probably don't need to save these, but we'll do so for sysData.preferredSize() just in case
 	areawidth  int
@@ -216,54 +217,33 @@ func (s *sysData) delete(index int) {
 	classTypes[s.ctype].delete(s.widget, index)
 }
 
-// With GTK+, we must manually pulse the indeterminate progressbar ourselves. This goroutine does that.
-func (s *sysData) progressPulse() {
-	// TODO this could probably be done differently...
-	pulse := func() {
-		// TODO
-//		touitask(func() {
-//			gtk_progress_bar_pulse(s.widget)
-//		})
-	}
+// With GTK+, we must manually pulse the indeterminate progressbar ourselves.
+// To ensure pulsing runs on the main lop and doesn't cause any other weird racy things, we'll use g_timeout_add().
+// Zenity 3.4 does this too (https://git.gnome.org/browse/zenity/tree/src/progress.c?id=3.4.0).
+// The following is Zenity 3.4's pulse rate.
+const pulseRate = 100	// in milliseconds
 
-	var ticker *time.Ticker
-	var tickchan <-chan time.Time
-
-	// the pulse rate used by Zenity (https://git.gnome.org/browse/zenity/tree/src/progress.c#n69 for blob cbffe08e8337ba1375a0ac7210eff5a2e4313bb8)
-	const pulseRate = 100 * time.Millisecond
-
-	for {
-		select {
-		case start := <-s.pulse:
-			if start {
-				ticker = time.NewTicker(pulseRate)
-				tickchan = ticker.C
-				pulse() // start the pulse animation now, not 100ms later
-			} else {
-				if ticker != nil {
-					ticker.Stop()
-				}
-				ticker = nil
-				tickchan = nil
-				s.pulse <- true // notify sysData.setProgress()
-			}
-		case <-tickchan:
-			pulse()
-		}
-	}
+//export our_pulse_callback
+func our_pulse_callback(data C.gpointer) C.gboolean {
+	// TODO this can be called when closing the window
+	s := (*sysData)(unsafe.Pointer(data))
+	gtk_progress_bar_pulse(s.widget)
+	return C.TRUE		// continue processing
 }
 
 func (s *sysData) setProgress(percent int) {
-	if s.pulse == nil {
-		s.pulse = make(chan bool)
-		go s.progressPulse()
+	if s.pulseTimer != 0 {		// kill current timer
+		// TODO only if not indeterminate already?
+		C.g_source_remove(s.pulseTimer)
+		s.pulseTimer = 0
 	}
 	if percent == -1 {
-		s.pulse <- true
+		gtk_progress_bar_pulse(s.widget)		// start animation now
+		s.pulseTimer = C.g_timeout_add(pulseRate,
+			C.GSourceFunc(C.our_pulse_callback),
+			C.gpointer(unsafe.Pointer(s)))
 		return
 	}
-	s.pulse <- false
-	<-s.pulse // wait for sysData.progressPulse() to register that
 	gtk_progress_bar_set_fraction(s.widget, percent)
 }
 
