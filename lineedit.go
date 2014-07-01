@@ -2,13 +2,8 @@
 
 package ui
 
-import (
-	"sync"
-)
-
 // A LineEdit is a control which allows you to enter a single line of text.
 type LineEdit struct {
-	lock     sync.Mutex
 	created  bool
 	sysData  *sysData
 	initText string
@@ -33,9 +28,6 @@ func NewPasswordEdit() *LineEdit {
 
 // SetText sets the LineEdit's text.
 func (l *LineEdit) SetText(text string) {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		l.sysData.setText(text)
 		return
@@ -45,9 +37,6 @@ func (l *LineEdit) SetText(text string) {
 
 // Text returns the LineEdit's text.
 func (l *LineEdit) Text() string {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	if l.created {
 		return l.sysData.text()
 	}
@@ -55,9 +44,6 @@ func (l *LineEdit) Text() string {
 }
 
 func (l *LineEdit) make(window *sysData) error {
-	l.lock.Lock()
-	defer l.lock.Unlock()
-
 	l.sysData.alternate = l.password
 	err := l.sysData.make(window)
 	if err != nil {

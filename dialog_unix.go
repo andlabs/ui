@@ -9,7 +9,6 @@ import (
 )
 
 // #include "gtk_unix.h"
-// extern void our_dialog_response_callback(GtkDialog *, gint, gpointer);
 // /* because cgo seems to choke on ... */
 // /* parent will be NULL if there is no parent, so this is fine */
 // static inline GtkWidget *gtkNewMsgBox(GtkWindow *parent, GtkMessageType type, GtkButtonsType buttons, char *title, char *text)
@@ -23,6 +22,11 @@ import (
 // }
 import "C"
 
+// the actual type of these constants is GtkResponseType but gtk_dialog_run() returns a gint
+var dialogResponses = map[C.gint]Response{
+	C.GTK_RESPONSE_OK:		OK,
+}
+
 // dialog performs the bookkeeping involved for having a GtkDialog behave the way we want.
 type dialog struct {
 	parent    *Window
@@ -30,13 +34,12 @@ type dialog struct {
 	hadgroup  C.gboolean
 	prevgroup *C.GtkWindowGroup
 	newgroup  *C.GtkWindowGroup
-	result    chan int
+	result    Response
 }
 
 func mkdialog(parent *Window) *dialog {
 	return &dialog{
 		parent: parent,
-		result: make(chan int),
 	}
 }
 
@@ -59,36 +62,6 @@ func (d *dialog) prepare() {
 	}
 }
 
-func (d *dialog) run(mk func() *C.GtkWidget) {
-	d.prepare()
-	box := mk()
-	if d.parent == dialogWindow {
-		go func() {
-			res := make(chan C.gint)
-			defer close(res)
-			uitask <- func() {
-				r := C.gtk_dialog_run((*C.GtkDialog)(unsafe.Pointer(box)))
-				d.cleanup(box)
-				res <- r
-			}
-			d.send(<-res)
-		}()
-		return
-	}
-	// otherwise just connect the delete signal
-	g_signal_connect_pointer(box, "response", dialog_response_callback, unsafe.Pointer(d))
-	C.gtk_widget_show_all(box)
-}
-
-//export our_dialog_response_callback
-func our_dialog_response_callback(box *C.GtkDialog, res C.gint, data C.gpointer) {
-	d := (*dialog)(unsafe.Pointer(data))
-	d.cleanup((*C.GtkWidget)(unsafe.Pointer(box)))
-	go d.send(res) // send on another goroutine, like everything else
-}
-
-var dialog_response_callback = C.GCallback(C.our_dialog_response_callback)
-
 func (d *dialog) cleanup(box *C.GtkWidget) {
 	// have to explicitly close the dialog box, otherwise wacky things will happen
 	C.gtk_widget_destroy(box)
@@ -101,43 +74,33 @@ func (d *dialog) cleanup(box *C.GtkWidget) {
 	}
 }
 
-func (d *dialog) send(res C.gint) {
-	// this is where processing would go
-	d.result <- int(res)
+func (d *dialog) run(mk func() *C.GtkWidget) {
+	d.prepare()
+	box := mk()
+	r := C.gtk_dialog_run((*C.GtkDialog)(unsafe.Pointer(box)))
+	d.cleanup(box)
+	d.result = dialogResponses[r]
 }
 
-func _msgBox(parent *Window, primarytext string, secondarytext string, msgtype C.GtkMessageType, buttons C.GtkButtonsType) (result chan int) {
-	result = make(chan int)
+func _msgBox(parent *Window, primarytext string, secondarytext string, msgtype C.GtkMessageType, buttons C.GtkButtonsType) (response Response) {
 	d := mkdialog(parent)
-	uitask <- func() {
-		cprimarytext := C.CString(primarytext)
-		defer C.free(unsafe.Pointer(cprimarytext))
-		csecondarytext := (*C.char)(nil)
-		if secondarytext != "" {
-			csecondarytext = C.CString(secondarytext)
-			defer C.free(unsafe.Pointer(csecondarytext))
-		}
-		d.run(func() *C.GtkWidget {
-			return C.gtkNewMsgBox(d.pwin, msgtype, buttons, cprimarytext, csecondarytext)
-		})
+	cprimarytext := C.CString(primarytext)
+	defer C.free(unsafe.Pointer(cprimarytext))
+	csecondarytext := (*C.char)(nil)
+	if secondarytext != "" {
+		csecondarytext = C.CString(secondarytext)
+		defer C.free(unsafe.Pointer(csecondarytext))
 	}
+	d.run(func() *C.GtkWidget {
+		return C.gtkNewMsgBox(d.pwin, msgtype, buttons, cprimarytext, csecondarytext)
+	})
 	return d.result
 }
 
-func (w *Window) msgBox(primarytext string, secondarytext string) (done chan struct{}) {
-	done = make(chan struct{})
-	go func() {
-		<-_msgBox(w, primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_OTHER), C.GtkButtonsType(C.GTK_BUTTONS_OK))
-		done <- struct{}{}
-	}()
-	return done
+func (w *Window) msgBox(primarytext string, secondarytext string) {
+	_msgBox(w, primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_OTHER), C.GtkButtonsType(C.GTK_BUTTONS_OK))
 }
 
-func (w *Window) msgBoxError(primarytext string, secondarytext string) (done chan struct{}) {
-	done = make(chan struct{})
-	go func() {
-		<-_msgBox(w, primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_ERROR), C.GtkButtonsType(C.GTK_BUTTONS_OK))
-		done <- struct{}{}
-	}()
-	return done
+func (w *Window) msgBoxError(primarytext string, secondarytext string) {
+	_msgBox(w, primarytext, secondarytext, C.GtkMessageType(C.GTK_MESSAGE_ERROR), C.GtkButtonsType(C.GTK_BUTTONS_OK))
 }

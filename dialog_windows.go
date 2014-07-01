@@ -11,7 +11,11 @@ var (
 	_messageBox = user32.NewProc("MessageBoxW")
 )
 
-func _msgBox(parent *Window, primarytext string, secondarytext string, uType uint32) (result chan int) {
+var dialogResponses = map[uintptr]Response{
+	_IDOK:		OK,
+}
+
+func _msgBox(parent *Window, primarytext string, secondarytext string, uType uint32) Response {
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa511267.aspx says "Use task dialogs whenever appropriate to achieve a consistent look and layout. Task dialogs require Windows Vista® or later, so they aren't suitable for earlier versions of Windows. If you must use a message box, separate the main instruction from the supplemental instruction with two line breaks."
 	text := primarytext
 	if secondarytext != "" {
@@ -26,43 +30,21 @@ func _msgBox(parent *Window, primarytext string, secondarytext string, uType uin
 	} else {
 		uType |= _MB_TASKMODAL // make modal to every window in the program (they're all windows of the uitask, which is a single thread)
 	}
-	retchan := make(chan int)
-	go func() {
-		ret := make(chan uiret)
-		defer close(ret)
-		uitask <- &uimsg{
-			call: _messageBox,
-			p: []uintptr{
-				uintptr(parenthwnd),
-				utf16ToArg(ptext),
-				utf16ToArg(ptitle),
-				uintptr(uType),
-			},
-			ret: ret,
-		}
-		r := <-ret
-		if r.ret == 0 { // failure
-			panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", r.err, uType, os.Args[0], text))
-		}
-		retchan <- int(r.ret)
-	}()
-	return retchan
+	r1, _, err := _messageBox.Call(
+		uintptr(parenthwnd),
+		utf16ToArg(ptext),
+		utf16ToArg(ptitle),
+		uintptr(uType))
+	if r1 == 0 { // failure
+		panic(fmt.Sprintf("error displaying message box to user: %v\nstyle: 0x%08X\ntitle: %q\ntext:\n%s", err, uType, os.Args[0], text))
+	}
+	return dialogResponses[r1]
 }
 
-func (w *Window) msgBox(primarytext string, secondarytext string) (done chan struct{}) {
-	done = make(chan struct{})
-	go func() {
-		<-_msgBox(w, primarytext, secondarytext, _MB_OK)
-		done <- struct{}{}
-	}()
-	return done
+func (w *Window) msgBox(primarytext string, secondarytext string) {
+	_msgBox(w, primarytext, secondarytext, _MB_OK)
 }
 
-func (w *Window) msgBoxError(primarytext string, secondarytext string) (done chan struct{}) {
-	done = make(chan struct{})
-	go func() {
-		<-_msgBox(w, primarytext, secondarytext, _MB_OK|_MB_ICONERROR)
-		done <- struct{}{}
-	}()
-	return done
+func (w *Window) msgBoxError(primarytext string, secondarytext string) {
+	_msgBox(w, primarytext, secondarytext, _MB_OK|_MB_ICONERROR)
 }

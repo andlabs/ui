@@ -2,18 +2,8 @@
 
 package ui
 
-import (
-	"sync"
-)
-
 // A Button represents a clickable button with some text.
 type Button struct {
-	// Clicked gets a message when the button is clicked.
-	// You cannot change it once the Window containing the Button has been created.
-	// If you do not respond to this signal, nothing will happen.
-	Clicked chan struct{}
-
-	lock     sync.Mutex
 	created  bool
 	sysData  *sysData
 	initText string
@@ -24,15 +14,11 @@ func NewButton(text string) (b *Button) {
 	return &Button{
 		sysData:  mksysdata(c_button),
 		initText: text,
-		Clicked:  newEvent(),
 	}
 }
 
 // SetText sets the button's text.
 func (b *Button) SetText(text string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	if b.created {
 		b.sysData.setText(text)
 		return
@@ -42,9 +28,6 @@ func (b *Button) SetText(text string) {
 
 // Text returns the button's text.
 func (b *Button) Text() string {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
 	if b.created {
 		return b.sysData.text()
 	}
@@ -52,10 +35,9 @@ func (b *Button) Text() string {
 }
 
 func (b *Button) make(window *sysData) error {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	b.sysData.event = b.Clicked
+	b.sysData.event = func() {
+		window.winhandler.Event(Clicked, b)
+	}
 	err := b.sysData.make(window)
 	if err != nil {
 		return err

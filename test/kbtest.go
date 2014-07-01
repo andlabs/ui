@@ -73,13 +73,19 @@ func (a *keyboardArea) Key(e KeyEvent) (repaint bool) {
 	return true
 }
 
+type kbhandler struct{}
+func (kbhandler) Event(e Event, d interface{}) {
+	if e == Closing {
+		*(d.(*bool)) = true
+	}
+}
+
 var doKeyboard = flag.Bool("kb", false, "run keyboard test (overrides -areabounds)")
 func kbTest() {
 	wid, ht, ah := mkkbArea()
 	a := NewArea(wid, ht, ah)
-	w := NewWindow("Hi", wid, ht)
+	w := NewWindow("Hi", wid, ht, kbhandler{})
 	w.Open(a)
-	<-w.Closing
 }
 
 var (
@@ -212,6 +218,8 @@ var modpoints = map[Modifiers]image.Point{
 	Shift:		image.Pt(4, 159),
 	Super:	image.Pt(61, 199),
 }
+
+// TODO move the following to its own file
 
 // source: http://openclipart.org/image/800px/svg_to_png/154537/1312973798.png (medium image) via http://openclipart.org/detail/154537/us-english-keyboard-layout-v0.1-by-nitiraseem
 var kbpic = []byte{

@@ -24,9 +24,11 @@ func makeAppDelegate() {
 }
 
 //export appDelegate_windowShouldClose
-func appDelegate_windowShouldClose(win C.id) {
+func appDelegate_windowShouldClose(win C.id) C.BOOL {
 	sysData := getSysData(win)
-	sysData.signal()
+	b := false		// TODO
+	sysData.close(&b)
+	return toBOOL(b)
 }
 
 //export appDelegate_windowDidResize
@@ -42,13 +44,5 @@ func appDelegate_windowDidResize(win C.id) {
 //export appDelegate_buttonClicked
 func appDelegate_buttonClicked(button C.id) {
 	sysData := getSysData(button)
-	sysData.signal()
-}
-
-//export appDelegate_applicationShouldTerminate
-func appDelegate_applicationShouldTerminate() {
-	// asynchronous so as to return control to the event loop
-	go func() {
-		AppQuit <- struct{}{}
-	}()
+	sysData.event()
 }

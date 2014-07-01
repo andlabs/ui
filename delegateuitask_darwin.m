@@ -63,8 +63,7 @@ extern NSRect dummyRect;
 
 - (BOOL)windowShouldClose:(id)win
 {
-	appDelegate_windowShouldClose(win);
-	return NO;		// don't close
+	return appDelegate_windowShouldClose(win);
 }
 
 - (void)windowDidResize:(NSNotification *)n
@@ -79,13 +78,25 @@ extern NSRect dummyRect;
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)app
 {
-	appDelegate_applicationShouldTerminate();
-	return NSTerminateCancel;
+	NSArray *windows;
+	NSUInteger i;
+
+	// try to close all windows
+	windows = [NSApp windows];
+	for (i = 0; i < [windows count]; i++)
+		[[windows objectAtIndex:i] performClose:self];
+	// if any windows are left, cancel
+	if ([[NSApp windows] count] != 0)
+		return NSTerminateCancel;
+	// no windows are left; we're good
+	return NSTerminateNow;
 }
 
-- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)chan
+- (void)alertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)data
 {
-	dialog_send(chan, (uintptr_t) returnCode);
+	NSInteger *ret = (NSInteger *) data;
+
+	*ret = returnCode;
 }
 
 @end
@@ -127,7 +138,7 @@ void douitask(id appDelegate, void *p)
 	fp = [NSValue valueWithPointer:p];
 	[appDelegate performSelectorOnMainThread:@selector(uitask:)
 		withObject:fp
-		waitUntilDone:YES];		// wait since that's what we want the Go uitask() to do
+		waitUntilDone:YES];			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
 	[pool release];
 }
 

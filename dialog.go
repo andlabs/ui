@@ -2,8 +2,16 @@
 
 package ui
 
+// Response denotes a response from the user to a Dialog.
+type Response uint
+const (
+	NotDone Response = iota
+	OK
+)
+
 // sentinel (not nil so programmer errors don't go undetected)
 // this window is invalid and cannot be used directly
+// notice the support it uses
 var dialogWindow = new(Window)
 
 // MsgBox displays an informational message box to the user with just an OK button.
@@ -14,16 +22,16 @@ var dialogWindow = new(Window)
 //
 // See "On Dialogs" in the package overview for behavioral information.
 func MsgBox(primaryText string, secondaryText string) {
-	<-dialogWindow.msgBox(primaryText, secondaryText)
+	dialogWindow.msgBox(primaryText, secondaryText)
 }
 
 // MsgBox is the Window method version of the package-scope function MsgBox.
 // See that function's documentation and "On Dialogs" in the package overview for more information.
-func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan struct{}) {
+func (w *Window) MsgBox(primaryText string, secondaryText string) {
 	if !w.created {
 		panic("parent window passed to Window.MsgBox() before it was created")
 	}
-	return w.msgBox(primaryText, secondaryText)
+	w.msgBox(primaryText, secondaryText)
 }
 
 // MsgBoxError displays a message box to the user with just an OK button and an icon indicating an error.
@@ -31,14 +39,14 @@ func (w *Window) MsgBox(primaryText string, secondaryText string) (done chan str
 //
 // See "On Dialogs" in the package overview for more information.
 func MsgBoxError(primaryText string, secondaryText string) {
-	<-dialogWindow.msgBoxError(primaryText, secondaryText)
+	dialogWindow.msgBoxError(primaryText, secondaryText)
 }
 
 // MsgBoxError is the Window method version of the package-scope function MsgBoxError.
 // See that function's documentation and "On Dialogs" in the package overview for more information.
-func (w *Window) MsgBoxError(primaryText string, secondaryText string) (done chan struct{}) {
+func (w *Window) MsgBoxError(primaryText string, secondaryText string) {
 	if !w.created {
-		panic("parent window passed to MsgBoxError() before it was created")
+		panic("parent window passed to Window.MsgBox() before it was created")
 	}
-	return w.msgBoxError(primaryText, secondaryText)
+	w.msgBoxError(primaryText, secondaryText)
 }

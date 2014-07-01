@@ -118,42 +118,30 @@ var classTypes = [nctypes]*classData{
 
 func (s *sysData) make(window *sysData) error {
 	ct := classTypes[s.ctype]
-	ret := make(chan *C.GtkWidget)
-	defer close(ret)
-	uitask <- func() {
-		if s.alternate {
-			ret <- ct.makeAlt()
-			return
-		}
-		ret <- ct.make()
+	if s.alternate {
+		s.widget = ct.makeAlt()
+	} else {
+		s.widget = ct.make()
 	}
-	s.widget = <-ret
 	if window == nil {
-		uitask <- func() {
-			fixed := gtkNewWindowLayout()
-			gtk_container_add(s.widget, fixed)
-			for signame, sigfunc := range ct.signals {
-				g_signal_connect(s.widget, signame, sigfunc, s)
-			}
-			ret <- fixed
+		fixed := gtkNewWindowLayout()
+		gtk_container_add(s.widget, fixed)
+		for signame, sigfunc := range ct.signals {
+			g_signal_connect(s.widget, signame, sigfunc, s)
 		}
-		s.container = <-ret
+		s.container = fixed
 	} else {
 		s.container = window.container
-		uitask <- func() {
-			gtkAddWidgetToLayout(s.container, s.widget)
-			for signame, sigfunc := range ct.signals {
-				g_signal_connect(s.widget, signame, sigfunc, s)
-			}
-			if ct.child != nil {
-				child := ct.child(s.widget)
-				for signame, sigfunc := range ct.childsigs {
-					g_signal_connect(child, signame, sigfunc, s)
-				}
-			}
-			ret <- nil
+		gtkAddWidgetToLayout(s.container, s.widget)
+		for signame, sigfunc := range ct.signals {
+			g_signal_connect(s.widget, signame, sigfunc, s)
 		}
-		<-ret
+		if ct.child != nil {
+			child := ct.child(s.widget)
+			for signame, sigfunc := range ct.childsigs {
+				g_signal_connect(child, signame, sigfunc, s)
+			}
+		}
 	}
 	return nil
 }
@@ -170,35 +158,17 @@ func (s *sysData) firstShow() error {
 }
 
 func (s *sysData) show() {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		gtk_widget_show(s.widget)
-		s.resetposition()
-		ret <- struct{}{}
-	}
-	<-ret
+	gtk_widget_show(s.widget)
+	s.resetposition()
 }
 
 func (s *sysData) hide() {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		gtk_widget_hide(s.widget)
-		s.resetposition()
-		ret <- struct{}{}
-	}
-	<-ret
+	gtk_widget_hide(s.widget)
+	s.resetposition()
 }
 
 func (s *sysData) setText(text string) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		classTypes[s.ctype].setText(s.widget, text)
-		ret <- struct{}{}
-	}
-	<-ret
+	classTypes[s.ctype].setText(s.widget, text)
 }
 
 func (s *sysData) setRect(x int, y int, width int, height int, winheight int) error {
@@ -208,103 +178,51 @@ func (s *sysData) setRect(x int, y int, width int, height int, winheight int) er
 }
 
 func (s *sysData) isChecked() bool {
-	ret := make(chan bool)
-	defer close(ret)
-	uitask <- func() {
-		ret <- gtk_toggle_button_get_active(s.widget)
-	}
-	return <-ret
+	return gtk_toggle_button_get_active(s.widget)
 }
 
 func (s *sysData) text() string {
-	ret := make(chan string)
-	defer close(ret)
-	uitask <- func() {
-		ret <- classTypes[s.ctype].text(s.widget)
-	}
-	return <-ret
+	return classTypes[s.ctype].text(s.widget)
 }
 
 func (s *sysData) append(what string) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		classTypes[s.ctype].append(s.widget, what)
-		ret <- struct{}{}
-	}
-	<-ret
+	classTypes[s.ctype].append(s.widget, what)
 }
 
 func (s *sysData) insertBefore(what string, before int) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		classTypes[s.ctype].insert(s.widget, before, what)
-		ret <- struct{}{}
-	}
-	<-ret
+	classTypes[s.ctype].insert(s.widget, before, what)
 }
 
 func (s *sysData) selectedIndex() int {
-	ret := make(chan int)
-	defer close(ret)
-	uitask <- func() {
-		ret <- classTypes[s.ctype].selected(s.widget)
-	}
-	return <-ret
+	return classTypes[s.ctype].selected(s.widget)
 }
 
 func (s *sysData) selectedIndices() []int {
-	ret := make(chan []int)
-	defer close(ret)
-	uitask <- func() {
-		ret <- classTypes[s.ctype].selMulti(s.widget)
-	}
-	return <-ret
+	return classTypes[s.ctype].selMulti(s.widget)
 }
 
 func (s *sysData) selectedTexts() []string {
-	ret := make(chan []string)
-	defer close(ret)
-	uitask <- func() {
-		ret <- classTypes[s.ctype].smtexts(s.widget)
-	}
-	return <-ret
+	return classTypes[s.ctype].smtexts(s.widget)
 }
 
 func (s *sysData) setWindowSize(width int, height int) error {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		// does not take window geometry into account (and cannot, since the window manager won't give that info away)
-		// thanks to TingPing in irc.gimp.net/#gtk+
-		gtk_window_resize(s.widget, width, height)
-		ret <- struct{}{}
-	}
-	<-ret
+	// does not take window geometry into account (and cannot, since the window manager won't give that info away)
+	// thanks to TingPing in irc.gimp.net/#gtk+
+	gtk_window_resize(s.widget, width, height)
 	return nil
 }
 
 func (s *sysData) delete(index int) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		classTypes[s.ctype].delete(s.widget, index)
-		ret <- struct{}{}
-	}
-	<-ret
+	classTypes[s.ctype].delete(s.widget, index)
 }
 
 // With GTK+, we must manually pulse the indeterminate progressbar ourselves. This goroutine does that.
 func (s *sysData) progressPulse() {
+	// TODO this could probably be done differently...
 	pulse := func() {
-		ret := make(chan struct{})
-		defer close(ret)
-		uitask <- func() {
+		touitask(func() {
 			gtk_progress_bar_pulse(s.widget)
-			ret <- struct{}{}
-		}
-		<-ret
+		})
 	}
 
 	var ticker *time.Ticker
@@ -345,78 +263,44 @@ func (s *sysData) setProgress(percent int) {
 	}
 	s.pulse <- false
 	<-s.pulse // wait for sysData.progressPulse() to register that
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		gtk_progress_bar_set_fraction(s.widget, percent)
-		ret <- struct{}{}
-	}
-	<-ret
+	gtk_progress_bar_set_fraction(s.widget, percent)
 }
 
 func (s *sysData) len() int {
-	ret := make(chan int)
-	defer close(ret)
-	uitask <- func() {
-		ret <- classTypes[s.ctype].len(s.widget)
-	}
-	return <-ret
+	return classTypes[s.ctype].len(s.widget)
 }
 
 func (s *sysData) setAreaSize(width int, height int) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		c := gtkAreaGetControl(s.widget)
-		gtk_widget_set_size_request(c, width, height)
-		s.areawidth = width // for sysData.preferredSize()
-		s.areaheight = height
-		C.gtk_widget_queue_draw(c)
-		ret <- struct{}{}
-	}
-	<-ret
+	c := gtkAreaGetControl(s.widget)
+	gtk_widget_set_size_request(c, width, height)
+	s.areawidth = width // for sysData.preferredSize()
+	s.areaheight = height
+	C.gtk_widget_queue_draw(c)
 }
 
+// TODO should this be made safe? (TODO move to area.go)
 func (s *sysData) repaintAll() {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		c := gtkAreaGetControl(s.widget)
-		C.gtk_widget_queue_draw(c)
-		ret <- struct{}{}
-	}
-	<-ret
+	c := gtkAreaGetControl(s.widget)
+	C.gtk_widget_queue_draw(c)
 }
 
 func (s *sysData) center() {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		if C.gtk_widget_get_visible(s.widget) == C.FALSE {
-			// hint to the WM to make it centered when it is shown again
-			// thanks to Jasper in irc.gimp.net/#gtk+
-			C.gtk_window_set_position(togtkwindow(s.widget), C.GTK_WIN_POS_CENTER)
-		} else {
-			var width, height C.gint
+	if C.gtk_widget_get_visible(s.widget) == C.FALSE {
+		// hint to the WM to make it centered when it is shown again
+		// thanks to Jasper in irc.gimp.net/#gtk+
+		C.gtk_window_set_position(togtkwindow(s.widget), C.GTK_WIN_POS_CENTER)
+	} else {
+		var width, height C.gint
 
-			s.resetposition()
-			//we should be able to use gravity to simplify this, but it doesn't take effect immediately, and adding show calls does nothing (thanks Jasper in irc.gimp.net/#gtk+)
-			C.gtk_window_get_size(togtkwindow(s.widget), &width, &height)
-			C.gtk_window_move(togtkwindow(s.widget),
-				(C.gdk_screen_width() / 2) - (width / 2),
-				(C.gdk_screen_height() / 2) - (width / 2))
-		}
-		ret <- struct{}{}
+		s.resetposition()
+		//we should be able to use gravity to simplify this, but it doesn't take effect immediately, and adding show calls does nothing (thanks Jasper in irc.gimp.net/#gtk+)
+		C.gtk_window_get_size(togtkwindow(s.widget), &width, &height)
+		C.gtk_window_move(togtkwindow(s.widget),
+			(C.gdk_screen_width() / 2) - (width / 2),
+			(C.gdk_screen_height() / 2) - (width / 2))
 	}
-	<-ret
 }
 
 func (s *sysData) setChecked(checked bool) {
-	ret := make(chan struct{})
-	defer close(ret)
-	uitask <- func() {
-		gtk_toggle_button_set_active(s.widget, checked)
-		ret <- struct{}{}
-	}
-	<-ret
+	gtk_toggle_button_set_active(s.widget, checked)
 }

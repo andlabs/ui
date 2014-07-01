@@ -2,13 +2,8 @@
 
 package ui
 
-import (
-	"sync"
-)
-
 // A Checkbox is a clickable square with a label. The square can be either checked or unchecked. Checkboxes start out unchecked.
 type Checkbox struct {
-	lock      sync.Mutex
 	created   bool
 	sysData   *sysData
 	initText  string
@@ -25,9 +20,6 @@ func NewCheckbox(text string) (c *Checkbox) {
 
 // SetText sets the checkbox's text.
 func (c *Checkbox) SetText(text string) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		c.sysData.setText(text)
 		return
@@ -37,9 +29,6 @@ func (c *Checkbox) SetText(text string) {
 
 // Text returns the checkbox's text.
 func (c *Checkbox) Text() string {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.text()
 	}
@@ -48,9 +37,6 @@ func (c *Checkbox) Text() string {
 
 // SetChecked() changes the checked state of the Checkbox.
 func (c *Checkbox) SetChecked(checked bool) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		c.sysData.setChecked(checked)
 		return
@@ -60,9 +46,6 @@ func (c *Checkbox) SetChecked(checked bool) {
 
 // Checked() returns whether or not the Checkbox has been checked.
 func (c *Checkbox) Checked() bool {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	if c.created {
 		return c.sysData.isChecked()
 	}
@@ -70,9 +53,6 @@ func (c *Checkbox) Checked() bool {
 }
 
 func (c *Checkbox) make(window *sysData) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
 	err := c.sysData.make(window)
 	if err != nil {
 		return err

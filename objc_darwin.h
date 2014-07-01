@@ -68,8 +68,8 @@ extern void breakMainLoop(void);
 extern void cocoaMainLoop(void);
 
 /* dialog_darwin.m */
-extern void msgBox(id, id, id, void *);
-extern void msgBoxError(id, id, id, void *);
+extern void msgBox(id, id, id);
+extern void msgBoxError(id, id, id);
 
 /* listbox_darwin.m */
 extern id toListboxItem(id, id);

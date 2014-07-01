@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"runtime"
 	"unsafe"
 )
 
@@ -16,32 +15,31 @@ import "C"
 
 var uitask chan func()
 
-func ui(main func()) error {
-	runtime.LockOSThread()
-
-	uitask = make(chan func())
-
+func uiinit() error {
 	err := initCocoa()
 	if err != nil {
 		return err
 	}
 
+	// do this at the end in case something goes wrong
+	uitask = make(chan func())
+	return nil
+}
+
+func ui() {
 	// Cocoa must run on the first thread created by the program, so we run our dispatcher on another thread instead
 	go func() {
-		for f := range uitask {
-			C.douitask(appDelegate, unsafe.Pointer(&f))
-		}
-	}()
-
-	go func() {
-		main()
-		uitask <- func() {
-			C.breakMainLoop()
+		for {
+			select {
+			case f := <-uitask:
+				C.douitask(appDelegate, unsafe.Pointer(&f))
+			case <-Stop:
+				C.breakMainLoop()
+			}
 		}
 	}()
 
 	C.cocoaMainLoop()
-	return nil
 }
 
 func initCocoa() (err error) {

@@ -9,7 +9,7 @@
 #define to(T, x) ((T *) (x))
 #define toNSWindow(x) to(NSWindow, (x))
 
-static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style, void *chan)
+static intptr_t alert(id parent, NSString *primary, NSString *secondary, NSAlertStyle style)
 {
 	NSAlert *box;
 
@@ -21,20 +21,25 @@ static void alert(id parent, NSString *primary, NSString *secondary, NSAlertStyl
 	// TODO is there a named constant? will also need to be changed when we add different dialog types
 	[box addButtonWithTitle:@"OK"];
 	if (parent == nil)
-		dialog_send(chan, (intptr_t) [box runModal]);
-	else
+		return (intptr_t) [box runModal];
+	else {
+		NSInteger ret;
+
 		[box beginSheetModalForWindow:toNSWindow(parent)
 			modalDelegate:[NSApp delegate]
 			didEndSelector:@selector(alertDidEnd:returnCode:contextInfo:)
-			contextInfo:chan];
+			contextInfo:&ret];
+		// TODO
+		return (intptr_t) ret;
+	}
 }
 
-void msgBox(id parent, id primary, id secondary, void *chan)
+void msgBox(id parent, id primary, id secondary)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle, chan);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSInformationalAlertStyle);
 }
 
-void msgBoxError(id parent, id primary, id secondary, void *chan)
+void msgBoxError(id parent, id primary, id secondary)
 {
-	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle, chan);
+	alert(parent, (NSString *) primary, (NSString *) secondary, NSCriticalAlertStyle);
 }

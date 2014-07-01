@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"reflect"
-	"sync"
 	"unsafe"
 )
 
@@ -28,7 +27,6 @@ import (
 // to lead to trouble.
 // [FOR FUTURE PLANNING Use TextArea instead, providing a TextAreaHandler.]
 type Area struct {
-	lock       sync.Mutex
 	created    bool
 	sysData    *sysData
 	handler    AreaHandler
@@ -298,9 +296,6 @@ func NewArea(width int, height int, handler AreaHandler) *Area {
 // SetSize will also signal the entirety of the Area to be redrawn as in RepaintAll.
 // It panics if width or height is zero or negative.
 func (a *Area) SetSize(width int, height int) {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-
 	checkAreaSize(width, height, "Area.SetSize()")
 	if a.created {
 		a.sysData.setAreaSize(width, height)
@@ -313,9 +308,6 @@ func (a *Area) SetSize(width int, height int) {
 // RepaintAll signals the entirety of the Area for redraw.
 // If called before the Window containing the Area is created, RepaintAll does nothing.
 func (a *Area) RepaintAll() {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-
 	if !a.created {
 		return
 	}
@@ -323,9 +315,6 @@ func (a *Area) RepaintAll() {
 }
 
 func (a *Area) make(window *sysData) error {
-	a.lock.Lock()
-	defer a.lock.Unlock()
-
 	a.sysData.handler = a.handler
 	err := a.sysData.make(window)
 	if err != nil {
