@@ -9,6 +9,7 @@ dialogs are code-modal; no result until dialog closed and blocks owner hwnd
 owner hwnd required to keep on top; can't keep on top unconditionally
 changing parents is possible; initially unowned might not be? TODO
 creating windows and controls before main loop begins possible
+sending a message across threads will hang up the first thread during the send if you so choose
 
 GTK+
 GUI work must be done on the main thread; what thread this is isn't particularly clear but I'm assuming it's the one that calls gtk_init()
@@ -19,6 +20,7 @@ dialogs can either be code modal or not
 can't keep dialog window always on top (X11-based limitation); only above the transient window (if any)
 changing parents is possible but IIRC is done in a control-dependent manner? also requires incrementing the refcount
 creating windows and controls before main loop begins possible
+sending a message across threads will NOT hang up the first thread during the send, and the GTK+ designers don't think this is good design
 
 COCOA
 only one thread, must be thread main() is called on
@@ -29,3 +31,4 @@ two types of dialogs:
 	- non-code-modal; affects current window only but need to sit and wait for a callback to come in before you know it's done
 not sure if changing parents is possible TODO
 not sure if creating windows/controls before [NSApp run] is supported
+sending a message across threads will hang up the first thread during the send if you so choose
