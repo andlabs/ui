@@ -71,7 +71,7 @@ func storeSysData(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRES
 var (
 	_getFocus = user32.NewProc("GetFocus")
 	_isChild  = user32.NewProc("IsChild")
-	// _setFocus in area_windows.go
+	_setFocus = user32.NewProc("SetFocus")
 )
 
 // this is needed to ensure focus is preserved when switching away from and back to our program

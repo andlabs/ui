@@ -610,6 +610,10 @@ func (s *sysData) repaintAll() {
 	<-ret
 }
 
+var (
+	_getSystemMetrics = user32.NewProc("GetSystemMetrics")
+)
+
 func (s *sysData) center() {
 	ret := make(chan struct{})
 	defer close(ret)

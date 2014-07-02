@@ -7,6 +7,8 @@ import (
 	"image"
 	"syscall"
 	"unsafe"
+
+	"github.com/akavel/winq"
 )
 
 const (
@@ -19,59 +21,37 @@ var (
 )
 
 func getScrollPos(hwnd _HWND) (xpos int32, ypos int32) {
+	var try winq.Try
 	var si _SCROLLINFO
 
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_POS | _SIF_TRACKPOS
-	r1, _, err := _getScrollInfo.Call(
-		uintptr(hwnd),
-		uintptr(_SB_HORZ),
-		uintptr(unsafe.Pointer(&si)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting horizontal scroll position for Area: %v", err))
+	try.N("GetScrollInfo", hwnd, _SB_HORZ, &si)
+	if try.Err != nil {
+		panic(fmt.Errorf("error getting horizontal scroll position for Area: %v", try.Err))
 	}
 	xpos = si.nPos
 	si.cbSize = uint32(unsafe.Sizeof(si)) // MSDN example code reinitializes this each time, so we'll do it too just to be safe
 	si.fMask = _SIF_POS | _SIF_TRACKPOS
-	r1, _, err = _getScrollInfo.Call(
-		uintptr(hwnd),
-		uintptr(_SB_VERT),
-		uintptr(unsafe.Pointer(&si)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting vertical scroll position for Area: %v", err))
+	try.N("GetScrollInfo", hwnd, _SB_VERT, &si)
+	if try.Err != nil {
+		panic(fmt.Errorf("error getting vertical scroll position for Area: %v", try.Err))
 	}
 	ypos = si.nPos
 	return xpos, ypos
 }
-
-var (
-	_alphaBlend             = msimg32.NewProc("AlphaBlend")
-	_beginPaint             = user32.NewProc("BeginPaint")
-	_bitBlt                 = gdi32.NewProc("BitBlt")
-	_createCompatibleBitmap = gdi32.NewProc("CreateCompatibleBitmap")
-	_createCompatibleDC     = gdi32.NewProc("CreateCompatibleDC")
-	_createDIBSection       = gdi32.NewProc("CreateDIBSection")
-	_deleteDC               = gdi32.NewProc("DeleteDC")
-	_deleteObject           = gdi32.NewProc("DeleteObject")
-	_endPaint               = user32.NewProc("EndPaint")
-	_fillRect               = user32.NewProc("FillRect")
-	_getUpdateRect          = user32.NewProc("GetUpdateRect")
-	// _selectObject in prefsize_windows.go
-)
 
 const (
 	areaBackgroundBrush = _HBRUSH(_COLOR_BTNFACE + 1)
 )
 
 func paintArea(s *sysData) {
+	var try winq.Try
 	var xrect _RECT
 	var ps _PAINTSTRUCT
 
-	r1, _, _ := _getUpdateRect.Call(
-		uintptr(s.hwnd),
-		uintptr(unsafe.Pointer(&xrect)),
-		uintptr(_TRUE)) // erase the update rect with the background color
-	if r1 == 0 { // no update rect; do nothing
+	try.N("GetUpdateRect", s.hwnd, &xrect, _TRUE) // erase the update rect with the background color
+	if try.Err != nil {                           // no update rect; do nothing
 		return
 	}
 
@@ -88,53 +68,43 @@ func paintArea(s *sysData) {
 
 	// TODO don't do the above, but always draw the background color?
 
-	r1, _, err := _beginPaint.Call(
-		uintptr(s.hwnd),
-		uintptr(unsafe.Pointer(&ps)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error beginning Area repaint: %v", err))
+	hdc := _HANDLE(try.N("BeginPaint", s.hwnd, &ps))
+	if try.Err != nil {
+		panic(fmt.Errorf("error beginning Area repaint: %v", try.Err))
 	}
-	hdc := _HANDLE(r1)
+	defer try.Detach().A("EndPaint", s.hwnd, &ps) // return value always nonzero according to MSDN
 
 	// very big thanks to Ninjifox for suggesting this technique and helping me go through it
 
 	// first let's create the destination image, which we fill with the windows background color
 	// this is how we fake drawing the background; see also http://msdn.microsoft.com/en-us/library/ms969905.aspx
-	r1, _, err = _createCompatibleDC.Call(uintptr(hdc))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error creating off-screen rendering DC: %v", err))
+	rdc := _HANDLE(try.N("CreateCompatibleDC", hdc))
+	if try.Err != nil {
+		panic(fmt.Errorf("error creating off-screen rendering DC: %v", try.Err))
 	}
-	rdc := _HANDLE(r1)
+	defer try.Detach().N("DeleteDC", rdc)
 	// the bitmap has to be compatible with the window
 	// if we create a bitmap compatible with the DC we just created, it'll be monochrome
 	// thanks to David Heffernan in http://stackoverflow.com/questions/23033636/winapi-gdi-fillrectcolor-btnface-fills-with-strange-grid-like-brush-on-window
-	r1, _, err = _createCompatibleBitmap.Call(
-		uintptr(hdc),
-		uintptr(xrect.right-xrect.left),
-		uintptr(xrect.bottom-xrect.top))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error creating off-screen rendering bitmap: %v", err))
+	rbitmap := _HANDLE(try.N("CreateCompatibleBitmap", hdc, xrect.right-xrect.left, xrect.bottom-xrect.top))
+	if try.Err != nil {
+		panic(fmt.Errorf("error creating off-screen rendering bitmap: %v", try.Err))
 	}
-	rbitmap := _HANDLE(r1)
-	r1, _, err = _selectObject.Call(
-		uintptr(rdc),
-		uintptr(rbitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error connecting off-screen rendering bitmap to off-screen rendering DC: %v", err))
+	defer try.Detach().N("DeleteObject", rbitmap)
+	prevrbitmap := _HANDLE(try.N("SelectObject", rdc, rbitmap))
+	if try.Err != nil {
+		panic(fmt.Errorf("error connecting off-screen rendering bitmap to off-screen rendering DC: %v", try.Err))
 	}
-	prevrbitmap := _HANDLE(r1)
+	defer try.Detach().N("SelectObject", rdc, prevrbitmap)
 	rrect := _RECT{
 		left:   0,
 		right:  xrect.right - xrect.left,
 		top:    0,
 		bottom: xrect.bottom - xrect.top,
 	}
-	r1, _, err = _fillRect.Call(
-		uintptr(rdc),
-		uintptr(unsafe.Pointer(&rrect)),
-		uintptr(areaBackgroundBrush))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error filling off-screen rendering bitmap with the system background color: %v", err))
+	try.N("FillRect", rdc, &rrect, areaBackgroundBrush)
+	if try.Err != nil { // failure
+		panic(fmt.Errorf("error filling off-screen rendering bitmap with the system background color: %v", try.Err))
 	}
 
 	i := s.handler.Paint(cliprect)
@@ -153,17 +123,17 @@ func paintArea(s *sysData) {
 	bi.bmiHeader.biSizeImage = uint32(i.Rect.Dx() * i.Rect.Dy() * 4)
 	// this is all we need, but because this confused me at first, I will say the two pixels-per-meter fields are unused (see http://blogs.msdn.com/b/oldnewthing/archive/2013/05/15/10418646.aspx and page 581 of Charles Petzold's Programming Windows, Fifth Edition)
 	ppvBits := uintptr(0) // now for the trouble: CreateDIBSection() allocates the memory for us...
-	r1, _, err = _createDIBSection.Call(
-		uintptr(_NULL), // Ninjifox does this, so do some wine tests (http://source.winehq.org/source/dlls/gdi32/tests/bitmap.c#L725, thanks vpovirk in irc.freenode.net/#winehackers) and even Raymond Chen (http://blogs.msdn.com/b/oldnewthing/archive/2006/11/16/1086835.aspx), so.
-		uintptr(unsafe.Pointer(&bi)),
-		uintptr(_DIB_RGB_COLORS),
-		uintptr(unsafe.Pointer(&ppvBits)),
-		uintptr(0), // we're not dealing with hSection or dwOffset
-		uintptr(0))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error creating HBITMAP for image returned by AreaHandler.Paint(): %v", err))
+	ibitmap := _HANDLE(try.N("CreateDIBSection",
+		_NULL, // Ninjifox does this, so do some wine tests (http://source.winehq.org/source/dlls/gdi32/tests/bitmap.c#L725, thanks vpovirk in irc.freenode.net/#winehackers) and even Raymond Chen (http://blogs.msdn.com/b/oldnewthing/archive/2006/11/16/1086835.aspx), so.
+		&bi,
+		_DIB_RGB_COLORS,
+		&ppvBits,
+		0, // we're not dealing with hSection or dwOffset
+		0))
+	if try.Err != nil {
+		panic(fmt.Errorf("error creating HBITMAP for image returned by AreaHandler.Paint(): %v", try.Err))
 	}
-	ibitmap := _HANDLE(r1)
+	defer try.Detach().N("DeleteObject", ibitmap)
 
 	// now we have to do TWO MORE things before we can finally do alpha blending
 	// first, we need to load the bitmap memory, because Windows makes it for us
@@ -174,18 +144,16 @@ func paintArea(s *sysData) {
 
 	// the second thing is... make a device context for the bitmap :|
 	// Ninjifox just makes another compatible DC; we'll do the same
-	r1, _, err = _createCompatibleDC.Call(uintptr(hdc))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error creating HDC for image returned by AreaHandler.Paint(): %v", err))
+	idc := _HANDLE(try.N("CreateCompatibleDC", hdc))
+	if try.Err != nil {
+		panic(fmt.Errorf("error creating HDC for image returned by AreaHandler.Paint(): %v", try.Err))
 	}
-	idc := _HANDLE(r1)
-	r1, _, err = _selectObject.Call(
-		uintptr(idc),
-		uintptr(ibitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error connecting HBITMAP for image returned by AreaHandler.Paint() to its HDC: %v", err))
+	defer try.Detach().N("DeleteDC", idc)
+	previbitmap := _HANDLE(try.N("SelectObject", idc, ibitmap))
+	if try.Err != nil {
+		panic(fmt.Errorf("error connecting HBITMAP for image returned by AreaHandler.Paint() to its HDC: %v", try.Err))
 	}
-	previbitmap := _HANDLE(r1)
+	defer try.Detach().N("SelectObject", idc, previbitmap)
 
 	// AND FINALLY WE CAN DO THE ALPHA BLENDING!!!!!!111
 	blendfunc := _BLENDFUNCTION{
@@ -194,87 +162,52 @@ func paintArea(s *sysData) {
 		SourceConstantAlpha: 255,           // only use per-pixel alphas
 		AlphaFormat:         _AC_SRC_ALPHA, // premultiplied
 	}
-	r1, _, err = _alphaBlend.Call(
-		uintptr(rdc), // destination
-		uintptr(0),   // origin and size
-		uintptr(0),
-		uintptr(i.Rect.Dx()),
-		uintptr(i.Rect.Dy()),
-		uintptr(idc), // source image
-		uintptr(0),
-		uintptr(0),
-		uintptr(i.Rect.Dx()),
-		uintptr(i.Rect.Dy()),
+	try.N("AlphaBlend",
+		rdc, // destination
+		0,   // origin and size
+		0,
+		i.Rect.Dx(),
+		i.Rect.Dy(),
+		idc, // source image
+		0,
+		0,
+		i.Rect.Dx(),
+		i.Rect.Dy(),
 		blendfunc.arg())
-	if r1 == _FALSE { // failure
-		panic(fmt.Errorf("error alpha-blending image returned by AreaHandler.Paint() onto background: %v", err))
+	if try.Err != nil {
+		panic(fmt.Errorf("error alpha-blending image returned by AreaHandler.Paint() onto background: %v", try.Err))
 	}
 
 	// and finally we can just blit that into the window
-	r1, _, err = _bitBlt.Call(
-		uintptr(hdc),
-		uintptr(xrect.left),
-		uintptr(xrect.top),
-		uintptr(xrect.right-xrect.left),
-		uintptr(xrect.bottom-xrect.top),
-		uintptr(rdc),
-		uintptr(0), // from the rdc's origin
-		uintptr(0),
-		uintptr(_SRCCOPY))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error blitting Area image to Area: %v", err))
+	try.N("BitBlt",
+		hdc,
+		xrect.left,
+		xrect.top,
+		xrect.right-xrect.left,
+		xrect.bottom-xrect.top,
+		rdc,
+		0, // from the rdc's origin
+		0,
+		_SRCCOPY)
+	if try.Err != nil {
+		panic(fmt.Errorf("error blitting Area image to Area: %v", try.Err))
 	}
-
-	// now to clean up
-	r1, _, err = _selectObject.Call(
-		uintptr(idc),
-		uintptr(previbitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error reverting HDC for image returned by AreaHandler.Paint() to original HBITMAP: %v", err))
-	}
-	r1, _, err = _selectObject.Call(
-		uintptr(rdc),
-		uintptr(prevrbitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error reverting HDC for off-screen rendering to original HBITMAP: %v", err))
-	}
-	r1, _, err = _deleteObject.Call(uintptr(ibitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error deleting HBITMAP for image returned by AreaHandler.Paint(): %v", err))
-	}
-	r1, _, err = _deleteObject.Call(uintptr(rbitmap))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error deleting HBITMAP for off-screen rendering: %v", err))
-	}
-	r1, _, err = _deleteDC.Call(uintptr(idc))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error deleting HDC for image returned by AreaHandler.Paint(): %v", err))
-	}
-	r1, _, err = _deleteDC.Call(uintptr(rdc))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error deleting HDC for off-screen rendering: %v", err))
-	}
-
-	// return value always nonzero according to MSDN
-	_endPaint.Call(
-		uintptr(s.hwnd),
-		uintptr(unsafe.Pointer(&ps)))
 }
 
 func getAreaControlSize(hwnd _HWND) (width int, height int) {
+	var try winq.Try
 	var rect _RECT
 
-	r1, _, err := _getClientRect.Call(
-		uintptr(hwnd),
-		uintptr(unsafe.Pointer(&rect)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting size of actual Area control: %v", err))
+	try.N("GetClientRect", hwnd, &rect)
+	if try.Err != nil {
+		panic(fmt.Errorf("error getting size of actual Area control: %v", try.Err))
 	}
 	return int(rect.right - rect.left),
 		int(rect.bottom - rect.top)
 }
 
 func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
+	var try winq.Try
 	var si _SCROLLINFO
 
 	cwid, cht := getAreaControlSize(s.hwnd)
@@ -287,12 +220,9 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_POS | _SIF_TRACKPOS
-	r1, _, err := _getScrollInfo.Call(
-		uintptr(s.hwnd),
-		which,
-		uintptr(unsafe.Pointer(&si)))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error getting current scroll position for scrolling: %v", err))
+	try.N("GetScrollInfo", s.hwnd, which, &si)
+	if try.Err != nil {
+		panic(fmt.Errorf("error getting current scroll position for scrolling: %v", try.Err))
 	}
 
 	newpos := si.nPos
@@ -334,17 +264,17 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 		dx = int32(0)
 		dy = delta
 	}
-	r1, _, err = _scrollWindowEx.Call(
-		uintptr(s.hwnd),
-		uintptr(dx),
-		uintptr(dy),
-		uintptr(0), // these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
-		uintptr(0),
-		uintptr(0),
-		uintptr(0),
-		uintptr(_SW_INVALIDATE|_SW_ERASE)) // mark the remaining rect as needing redraw and erase...
-	if r1 == _ERROR { // failure
-		panic(fmt.Errorf("error scrolling Area: %v", err))
+	try.N("ScrollWindowEx",
+		s.hwnd,
+		dx,
+		dy,
+		0, // these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
+		0,
+		0,
+		0,
+		_SW_INVALIDATE|_SW_ERASE) // mark the remaining rect as needing redraw and erase...
+	if try.Err != nil {
+		panic(fmt.Errorf("error scrolling Area: %v", try.Err))
 	}
 	// ...but don't redraw the window yet; we need to apply our scroll changes
 
@@ -352,19 +282,17 @@ func scrollArea(s *sysData, wparam _WPARAM, which uintptr) {
 	si.cbSize = uint32(unsafe.Sizeof(si))
 	si.fMask = _SIF_POS
 	si.nPos = newpos
-	_setScrollInfo.Call(
-		uintptr(s.hwnd),
-		which,
-		uintptr(unsafe.Pointer(&si)))
+	try.A("SetScrollInfo", s.hwnd, which, &si)
 
 	// NOW redraw it
-	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error updating Area after scrolling: %v", err))
+	try.N("UpdateWindow", s.hwnd)
+	if try.Err != nil {
+		panic(fmt.Errorf("error updating Area after scrolling: %v", try.Err))
 	}
 }
 
 func adjustAreaScrollbars(s *sysData) {
+	var try winq.Try
 	var si _SCROLLINFO
 
 	cwid, cht := getAreaControlSize(s.hwnd)
@@ -380,51 +308,35 @@ func adjustAreaScrollbars(s *sysData) {
 	si.nMin = 0
 	si.nMax = int32(s.areawidth - 1) // the max point is inclusive, so we have to pass in the last valid value, not the first invalid one (see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/31/54601.aspx); if we don't, we get weird things like the scrollbar sometimes showing one extra scroll position at the end that you can never scroll to
 	si.nPage = uint32(cwid)
-	_setScrollInfo.Call(
-		uintptr(s.hwnd),
-		uintptr(_SB_HORZ),
-		uintptr(unsafe.Pointer(&si)),
-		uintptr(_TRUE)) // redraw the scroll bar
+	try.A("SetScrollInfo", s.hwnd, _SB_HORZ, &si, _TRUE) // redraw the scroll bar
 
 	si.cbSize = uint32(unsafe.Sizeof(si)) // MSDN sample code does this a second time; let's do it too to be safe
 	si.fMask = _SIF_RANGE | _SIF_PAGE
 	si.nMin = 0
 	si.nMax = int32(s.areaheight - 1)
 	si.nPage = uint32(cht)
-	_setScrollInfo.Call(
-		uintptr(s.hwnd),
-		uintptr(_SB_VERT),
-		uintptr(unsafe.Pointer(&si)),
-		uintptr(_TRUE)) // redraw the scroll bar
+	try.A("SetScrollInfo", s.hwnd, _SB_VERT, &si, _TRUE) // redraw the scroll bar
 }
-
-var (
-	_invalidateRect = user32.NewProc("InvalidateRect")
-)
 
 func repaintArea(s *sysData) {
-	r1, _, err := _invalidateRect.Call(
-		uintptr(s.hwnd),
-		uintptr(0),     // the whole area
-		uintptr(_TRUE)) // have Windows erase if possible
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error flagging Area as needing repainting after event (last error: %v)", err))
+	var try winq.Try
+	try.N("InvalidateRect",
+		s.hwnd,
+		0,     // the whole area
+		_TRUE) // have Windows erase if possible
+	if try.Err != nil {
+		panic(fmt.Errorf("error flagging Area as needing repainting after event (last error: %v)", try.Err))
 	}
-	r1, _, err = _updateWindow.Call(uintptr(s.hwnd))
-	if r1 == 0 { // failure
-		panic(fmt.Errorf("error repainting Area after event: %v", err))
+	try.N("UpdateWindow", s.hwnd)
+	if try.Err != nil {
+		panic(fmt.Errorf("error repainting Area after event: %v", try.Err))
 	}
 }
-
-var (
-	_getKeyState = user32.NewProc("GetKeyState")
-)
 
 func getModifiers() (m Modifiers) {
 	down := func(x uintptr) bool {
 		// GetKeyState() gets the key state at the time of the message, so this is what we want
-		r1, _, _ := _getKeyState.Call(x)
-		return (r1 & 0x80) != 0
+		return (new(winq.Try).A("GetKeyState", x) & 0x80) != 0
 	}
 
 	if down(_VK_CONTROL) {
@@ -442,13 +354,8 @@ func getModifiers() (m Modifiers) {
 	return m
 }
 
-var (
-	_getMessageTime     = user32.NewProc("GetMessageTime")
-	_getDoubleClickTime = user32.NewProc("GetDoubleClickTime")
-	_getSystemMetrics   = user32.NewProc("GetSystemMetrics")
-)
-
 func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LPARAM) {
+	var try winq.Try
 	var me MouseEvent
 
 	xpos, ypos := getScrollPos(s.hwnd) // mouse coordinates are relative to control; make them relative to Area
@@ -464,11 +371,11 @@ func areaMouseEvent(s *sysData, button uint, up bool, wparam _WPARAM, lparam _LP
 		me.Down = button
 		// this returns a LONG, which is int32, but we don't need to worry about the signedness because for the same bit widths and two's complement arithmetic, s1-s2 == u1-u2 if bits(s1)==bits(s2) and bits(u1)==bits(u2) (and Windows requires two's complement: http://blogs.msdn.com/b/oldnewthing/archive/2005/05/27/422551.aspx)
 		// signedness isn't much of an issue for these calls anyway because http://stackoverflow.com/questions/24022225/what-are-the-sign-extension-rules-for-calling-windows-api-functions-stdcall-t and that we're only using unsigned values (think back to how you (didn't) handle signedness in assembly language) AND because of the above AND because the statistics below (time interval and width/height) really don't make sense if negative
-		time, _, _ := _getMessageTime.Call()
-		maxTime, _, _ := _getDoubleClickTime.Call()
+		time := try.A("GetMessageTime")
+		maxTime := try.A("GetDoubleClickTime")
 		// ignore zero returns and errors; MSDN says zero will be returned on error but that GetLastError() is meaningless
-		xdist, _, _ := _getSystemMetrics.Call(_SM_CXDOUBLECLK)
-		ydist, _, _ := _getSystemMetrics.Call(_SM_CYDOUBLECLK)
+		xdist := try.A("GetSystemMetrics", _SM_CXDOUBLECLK)
+		ydist := try.A("GetSystemMetrics", _SM_CYDOUBLECLK)
 		me.Count = s.clickCounter.click(button, me.Pos.X, me.Pos.Y,
 			time, maxTime, int(xdist/2), int(ydist/2))
 	}
@@ -612,10 +519,6 @@ var modonlykeys = map[_WPARAM]Modifiers{
 	_VK_RWIN: Super,
 }
 
-var (
-	_setFocus = user32.NewProc("SetFocus")
-)
-
 func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESULT {
 	s := getSysData(hwnd)
 	if s == nil { // not yet saved
@@ -647,7 +550,7 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 		// transfer keyboard focus to our Area on an activating click
 		// (see http://www.catch22.net/tuts/custom-controls)
 		// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
-		_setFocus.Call(uintptr(s.hwnd))
+		new(winq.Try).A("SetFocus", s.hwnd)
 		// and don't eat the click, as we want to handle clicks that switch into Windows with Areas from other windows
 		return _MA_ACTIVATE
 	case _WM_MOUSEMOVE:
@@ -708,6 +611,7 @@ func areaWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESU
 }
 
 func registerAreaWndClass() (err error) {
+	var try winq.Try
 	wc := &_WNDCLASS{
 		style:         _CS_HREDRAW | _CS_VREDRAW, // no CS_DBLCLKS because do that manually
 		lpszClassName: utf16ToArg(areaWndClass),
@@ -717,11 +621,8 @@ func registerAreaWndClass() (err error) {
 		hCursor:       cursor,
 		hbrBackground: _HBRUSH(_NULL), // no brush; we handle WM_ERASEBKGND
 	}
-	r1, _, err := _registerClass.Call(uintptr(unsafe.Pointer(wc)))
-	if r1 == 0 { // failure
-		return err
-	}
-	return nil
+	try.N("RegisterClass", wc)
+	return try.Err
 }
 
 type _BITMAPINFO struct {
