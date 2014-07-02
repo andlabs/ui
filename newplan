@@ -1,0 +1,31 @@
+I had a mental breakdown watching everything fall apart miserably and so I decided to just start over, this time designing around the underlying APIs, not around what I actually want the API to look like.
+
+WINDOWS
+GUI work can be done on multiple threads; just run a message loop on each thread (and set COM threading to STA)
+each thread owns whatever window handles were created on that thread
+will need a master thread to coordinate everything
+dialogs are code-modal; no result until dialog closed and blocks owner hwnd
+	open-close order important; threads circumvent this
+owner hwnd required to keep on top; can't keep on top unconditionally
+changing parents is possible; initially unowned might not be? TODO
+creating windows and controls before main loop begins possible
+
+GTK+
+GUI work must be done on the main thread; what thread this is isn't particularly clear but I'm assuming it's the one that calls gtk_init()
+IIRC windows/controls can only be made on the main thread as well
+dialogs can either be code modal or not
+	dialogs are modal to all windows in the same window group; only the transient window is actually DISABLED, however
+	not sure if open/close order can be affected since gtk_dialog_run() does that transient window thing
+can't keep dialog window always on top (X11-based limitation); only above the transient window (if any)
+changing parents is possible but IIRC is done in a control-dependent manner? also requires incrementing the refcount
+creating windows and controls before main loop begins possible
+
+COCOA
+only one thread, must be thread main() is called on
+cannot create new windows/controls on any other thread
+everything is coordinated with the NSApp delegate
+two types of dialogs:
+	- code-modal; stops ALL interaction with program
+	- non-code-modal; affects current window only but need to sit and wait for a callback to come in before you know it's done
+not sure if changing parents is possible TODO
+not sure if creating windows/controls before [NSApp run] is supported
