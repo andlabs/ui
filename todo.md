@@ -15,6 +15,7 @@ ALL:
 		- docs don't say anything about threads but implies you can't call MessageBox() from a different thread
 	- GTK+: ???
 	- OS X: ???
+- describe the thread safety of Window (needs to clarify construct, create, open, close, show, hide first)
 
 MAC OS X:
 - NSComboBox scans the entered text to see if it matches one of the items and returns the index of that item if it does; find out how to suppress this so that it returns -1 unless the item was chosen from the list (like the other platforms)
