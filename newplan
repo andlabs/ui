@@ -8,8 +8,15 @@ dialogs are code-modal; no result until dialog closed and blocks owner hwnd
 	open-close order important; threads circumvent this
 owner hwnd required to keep on top; can't keep on top unconditionally
 changing parents is possible; initially unowned might not be? TODO
+	might not be possible if we have one thread per window? TODO googling fails
 creating windows and controls before main loop begins possible
 sending a message across threads will hang up the first thread during the send if you so choose
+
+	POSSIBLE BACKEND DESIGN
+	each top-level window exists on its own thread
+	each request would be a SendMessage(hwndParent, msgDoThing, hwnd, &arg)
+	this allows the API to be fully multithreaded, and allows us to have callabcks just be normal
+	the ui.Go() function would sit waiting for Stop to be sent, at which point it would signal all open windows to quit unconditionally
 
 GTK+
 GUI work must be done on the main thread; what thread this is isn't particularly clear but I'm assuming it's the one that calls gtk_init()
@@ -21,14 +28,33 @@ can't keep dialog window always on top (X11-based limitation); only above the tr
 changing parents is possible but IIRC is done in a control-dependent manner? also requires incrementing the refcount
 creating windows and controls before main loop begins possible
 sending a message across threads will NOT hang up the first thread during the send, and the GTK+ designers don't think this is good design
+	- there is gdk_threads_enter()/gdk_threads_leave() but they're X11-only and deprecated as of GTK+ 3.6
+	- gdk_threads_add_idle() does not block
+	- g_main_context_invoke() also doesn't block if not on the main thread
 
 COCOA
 only one thread, must be thread main() is called on
 cannot create new windows/controls on any other thread
+	there are complex rules involving windows but let's not bother
 everything is coordinated with the NSApp delegate
 two types of dialogs:
 	- code-modal; stops ALL interaction with program
 	- non-code-modal; affects current window only but need to sit and wait for a callback to come in before you know it's done
+		I have a stackoverflow question asking about this but no one has given me a real answer yet, just more questions
+	- font and color choosers are neither, but since they're NSPanels which are NSWindows I could coerce them to be :S would take a fair bit of work though
 not sure if changing parents is possible TODO
-not sure if creating windows/controls before [NSApp run] is supported
+creating windows/controls before [NSApp run] possible
+	TODO documented?
 sending a message across threads will hang up the first thread during the send if you so choose
+
+	POSSIBLE BACKEND DESIGN
+	all calls are done with performSelectorOnMainThread:
+	each widget calls a function that creates a window
+	this allows the API to be fully multithreaded, and allows us to have callabcks just be normal
+	the ui.Go() function would sit waiting for Stop to be sent, at which point it would signal all open windows to quit unconditionally, then break the event loop without calling terminate
+	for window-specific dialogs, a goroutine/channel hack may be necessary if this SO question doesn't get an answer
+		the answer might also be victim to ordering...
+
+GENERAL NOTES
+what about spinning an inner message pump during each event and run event handlers in their own goroutine?
+	no, still subject to the same race condition that could lead to a double button press

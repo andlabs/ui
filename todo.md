@@ -24,6 +24,7 @@ MAC OS X:
 	- http://stackoverflow.com/questions/24102367/how-do-i-make-it-so-clicking-outside-the-actual-nsview-in-a-nsscrollview-but-wit
 - on initially starting the Area test, layout is totally wrong
 - probably use fittingSize instead of sizeToFit
+- use cascadeTopLeftFromPoint: for NSWindow or a similar routine
 
 WINDOWS:
 - windows: windows key handling is just wrong; figure out how to avoid (especially since Windows intercepts that key by default)
