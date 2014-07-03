@@ -6,9 +6,9 @@ import (
 	"runtime"
 )
 
-// Go sets up the UI environment and pulses Ready.
+// Go sets up the UI environment.
 // If initialization fails, Go returns an error and Ready is not pulsed.
-// Otherwise, Go does not return to its caller until Stop is pulsed, at which point Go() will return nil.
+// Otherwise, Go first runs start(), which should contain code to create the first Window, and then fires up the event loop, not returning to its caller until Stop is pulsed, at which point Go() will return nil.
 // After Go() returns, you cannot call future ui functions/methods meaningfully.
 // Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.
 //
@@ -16,17 +16,17 @@ import (
 //
 // Go() does not process the command line for flags (that is, it does not call flag.Parse()), nor does package ui add any of the underlying toolkit's supported command-line flags.
 // If you must, and if the toolkit also has environment variable equivalents to these flags (for instance, GTK+), use those instead.
-func Go() error {
+func Go(start func()) error {
 	runtime.LockOSThread()
 	if err := uiinit(); err != nil {
 		return err
 	}
-	Ready <- struct{}{}
-	close(Ready)
+	start()
 	ui()
 	return nil
 }
 
+// TODO this needs to be replaced with a function
 // Stop should be pulsed when you are ready for Go() to return.
 // Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.
 // Do not pulse Stop more than once.

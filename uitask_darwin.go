@@ -4,7 +4,6 @@ package ui
 
 import (
 	"fmt"
-	"unsafe"
 )
 
 // #cgo CFLAGS: -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7

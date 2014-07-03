@@ -293,7 +293,6 @@ var labelAlignTest = flag.Bool("label", false, "show Label Alignment test window
 var spacingTest = flag.Bool("spacing", false, "margins and padding on Window")
 
 func myMain() {
-	<-Ready
 	if *spacetest != "" {
 		spaceTest()
 		return
@@ -554,8 +553,7 @@ func (handler *dialoghandler) setUpEvents() {
 
 func main() {
 	flag.Parse()
-	go myMain()
-	err := Go()
+	err := Go(myMain)
 	if err != nil {
 		panic(err)
 	}
