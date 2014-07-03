@@ -29,31 +29,7 @@ const (
 	msgQuit = _WM_APP + iota + 1			// + 1 just to be safe
 	msgSetAreaSize
 	msgRepaintAll
-	msgCreateWindow
 )
-
-type uitaskParams struct {
-	window	*Window		// createWindow
-	control	Control		// createWindow
-	show	bool			// createWindow
-}
-
-// SendMessage() won't return unti lthe deed is done, even if the deed is on another thread
-// SendMessage() does a thread switch if necessary
-// this also means we don't have to worry about the uitaskParams object being garbage collected
-
-func (_uitask) createWindow(w *Window, c Control, s bool) {
-	uc := &uitaskParams{
-		window:	w,
-		control:	c,
-		show:	s,
-	}
-	_sendMessage.Call(
-		uintptr(msghwnd),
-		msgCreateWindow,
-		uintptr(0),
-		uintptr(unsafe.Pointer(uc)))
-}
 
 func uiinit() error {
 	err := doWindowsInit()
@@ -181,10 +157,6 @@ func messageHandlerWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPAR
 	case msgQuit:
 		// does not return a value according to MSDN
 		_postQuitMessage.Call(0)
-		return 0
-	case msgCreateWindow:
-		uc := (*uitaskParams)(unsafe.Pointer(lParam))
-		uc.window.create(uc.control, uc.show)
 		return 0
 	}
 	return defWindowProc(hwnd, uMsg, wParam, lParam)

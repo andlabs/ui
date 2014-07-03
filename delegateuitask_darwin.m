@@ -56,15 +56,6 @@ extern NSRect dummyRect;
 
 @implementation appDelegate
 
-// these are the uitask actions
-
-- (void)createWindow:(NSValue *)fp
-{
-	uitask_createWindow([fp pointerValue]);
-}
-
-// these are the other delegate functions
-
 - (BOOL)windowShouldClose:(id)win
 {
 	return appDelegate_windowShouldClose(win);
@@ -115,9 +106,6 @@ id windowGetContentView(id window)
 	return [((NSWindow *) window) contentView];
 }
 
-// these are for douitask() but are here because @selector() is not a constant expression
-SEL createWindow;
-
 BOOL initCocoa(id appDelegate)
 {
 	// on 10.6 the -[NSApplication setDelegate:] method complains if we don't have one
@@ -131,24 +119,8 @@ BOOL initCocoa(id appDelegate)
 		return NO;
 	[NSApp activateIgnoringOtherApps:YES];		// TODO actually do C.NO here? Russ Cox does YES in his devdraw; the docs say the Finder does NO
 	[NSApp setDelegate:appDelegate];
-	// uitask selectors
-	createWindow = @selector(createWindow:);
 	[pool release];
 	return YES;
-}
-
-void douitask(id appDelegate, SEL sel, void *p)
-{
-	NSAutoreleasePool *pool;
-	NSValue *fp;
-
-	// we need to make an NSAutoreleasePool, otherwise we get leak warnings on stderr
-	pool = [NSAutoreleasePool new];
-	fp = [NSValue valueWithPointer:p];
-	[appDelegate performSelectorOnMainThread:sel
-		withObject:fp
-		waitUntilDone:YES];			// wait so we can properly drain the autorelease pool; on other platforms we wind up waiting anyway (since the main thread can only handle one thing at a time) so
-	[pool release];
 }
 
 void breakMainLoop(void)

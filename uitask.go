@@ -27,23 +27,7 @@ func Go() error {
 	return nil
 }
 
-// Ready is pulsed when Go() is ready to begin accepting requests to the safe methods.
-// Go() will wait for something to receive on Ready, then Ready will be closed.
-var Ready = make(chan struct{})
-
 // Stop should be pulsed when you are ready for Go() to return.
 // Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.
 // Do not pulse Stop more than once.
 var Stop = make(chan struct{})
-
-// uitask is an object of a type implemented by each uitask_***.go that does everything that needs to be communicated to the main thread.
-type _uitask struct{}
-var uitask = _uitask{}
-
-// and the required methods are:
-var xuitask interface {
-	// creates a window
-	// TODO whether this waits for the window creation to finish is implementation defined?
-	createWindow(*Window, Control, bool)
-} = uitask
-// compilation will fail if uitask doesn't have all these methods

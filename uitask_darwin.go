@@ -13,29 +13,6 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-// the performSelectorOnMainThread: in our uitask functions is told to wait until the action is done before it returns
-// so we're fine keeping this on the Go side since the GC won't collect it from under us
-type uitaskParams struct {
-	window	*Window		// createWindow
-	control	Control		// createWindow
-	show	bool			// createWindow
-}
-
-//export uitask_createWindow
-func uitask_createWindow(data unsafe.Pointer) {
-	uc := (*uitaskParams)(data)
-	uc.window.create(uc.control, uc.show)
-}
-
-func (_uitask) createWindow(w *Window, c Control, s bool) {
-	uc := &uitaskParams{
-		window:	w,
-		control:	c,
-		show:	s,
-	}
-	C.douitask(appDelegate, C.createWindow, unsafe.Pointer(uc))
-}
-
 func uiinit() error {
 	err := initCocoa()
 	if err != nil {
@@ -62,10 +39,4 @@ func initCocoa() (err error) {
 		return fmt.Errorf("error setting NSApplication activation policy (basically identifies our program as a separate program; needed for several things, such as Dock icon, application menu, window resizing, etc.) (unknown reason)")
 	}
 	return nil
-}
-
-//export appDelegate_uitask
-func appDelegate_uitask(p unsafe.Pointer) {
-	f := (*func())(unsafe.Pointer(p))
-	(*f)()
 }

@@ -71,15 +71,12 @@ func (w *Window) SetSpaced(spaced bool) {
 
 // Open creates the Window with Create and then shows the Window with Show. As with Create, you cannot call Open more than once per window.
 func (w *Window) Open(control Control) {
-	uitask.createWindow(w, control, true)
+	w.Create(control)
+	w.Show()
 }
 
 // Create creates the Window, setting its control to the given control. It does not show the window. This can only be called once per window, and finalizes all initialization of the control.
 func (w *Window) Create(control Control) {
-	uitask.createWindow(w, control, false)
-}
-
-func (w *Window) create(control Control, show bool) {
 	if w.created {
 		panic("window already open")
 	}
@@ -107,9 +104,6 @@ func (w *Window) create(control Control, show bool) {
 	}
 	w.sysData.setText(w.initTitle)
 	w.created = true
-	if show {
-		w.Show()
-	}
 }
 
 // Show shows the window.

@@ -63,8 +63,6 @@ extern uintptr_t keyCode(id);
 extern id makeAppDelegate(void);
 extern id windowGetContentView(id);
 extern BOOL initCocoa(id);
-extern SEL createWindow;
-extern void douitask(id, SEL, void *);
 extern void breakMainLoop(void);
 extern void cocoaMainLoop(void);
 
