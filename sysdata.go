@@ -9,8 +9,9 @@ type cSysData struct {
 	spaced	bool
 	alternate bool        // editable for Combobox, multi-select for listbox, password for lineedit
 	handler   AreaHandler // for Areas; TODO rename to areahandler
-	close	func() bool	// provided by each Window
-	event	func()		// provided by each control
+	close	func() bool		// provided by each Window
+	post		func(interface{})	// provided by each Window
+	event	func()			// provided by each control
 }
 
 // this interface is used to make sure all sysDatas are synced

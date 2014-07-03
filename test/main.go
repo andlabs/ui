@@ -249,12 +249,13 @@ func areaTest() {
 	layout.SetStretchy(0)
 	w := NewWindow("Area Test", 100, 100)
 	w.Closing = die
+	w.Posted = func(data interface{}) {
+		timedisp.SetText(data.(string))
+	}
 	w.Open(layout)
 	go func() {
 		for t := range timechan {
-			// TODO
-			_ = t
-//			timedisp.SetText(t.String())
+			Post(w, t.String())
 		}
 	}()
 }

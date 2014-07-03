@@ -26,6 +26,14 @@ func Go(start func()) error {
 	return nil
 }
 
+// Post issues a request to the given Window to do something on the main thread.
+// Note the name of the function: there is no guarantee that the request will be handled immediately.
+// Because this can be safely called from any goroutine, it is a package-level function, and not a method on Window.
+// TODO garbage collection
+func Post(w *Window, data interface{}) {
+	uipost(w, data)
+}
+
 // TODO this needs to be replaced with a function
 // Stop should be pulsed when you are ready for Go() to return.
 // Pulsing Stop will cause Go() to return immediately; the programmer is responsible for cleaning up (for instance, hiding open Windows) beforehand.

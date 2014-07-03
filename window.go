@@ -15,6 +15,11 @@ type Window struct {
 	// If Closing is nil, a default which rejects the close will be used.
 	Closing		func() bool
 
+	// Posted is called when Post() is called with the given Window as an argument.
+	// It receives the data passed to Post() as an argument.
+	// If Posted is nil, a default handler which does nothing will be used.
+	Posted		func(data interface{})
+
 	created    bool
 	sysData    *sysData
 	initTitle  string
@@ -86,6 +91,10 @@ func (w *Window) Create(control Control) {
 		w.sysData.close = func() bool {
 			return false
 		}
+	}
+	w.sysData.post = w.Posted
+	if w.sysData.post == nil {
+		w.sysData.post = func(data interface{}) {}
 	}
 	err := w.sysData.make(nil)
 	if err != nil {

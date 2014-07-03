@@ -108,6 +108,10 @@ func stdWndProc(hwnd _HWND, uMsg uint32, wParam _WPARAM, lParam _LPARAM) _LRESUL
 		return storeSysData(hwnd, uMsg, wParam, lParam)
 	}
 	switch uMsg {
+	case msgPost:
+		data := (*interface{})(unsafe.Pointer(lParam))
+		s.post(*data)
+		return 0
 	case _WM_COMMAND:
 		id := _HMENU(wParam.LOWORD())
 		s.childrenLock.Lock()

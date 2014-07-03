@@ -29,6 +29,7 @@ const (
 	msgQuit = _WM_APP + iota + 1			// + 1 just to be safe
 	msgSetAreaSize
 	msgRepaintAll
+	msgPost
 )
 
 func uiinit() error {
@@ -64,6 +65,15 @@ func ui() {
 	}()
 
 	msgloop()
+}
+
+// we'll use SendMessage() here, which will do a thread switch, call the function immediately, and wait for it to return, so we don't have to worry about the garbage collector collecting data
+func uipost(w *Window, data interface{}) {
+	_sendMessage.Call(
+		uintptr(w.sysData.hwnd),		// note: we pass this directly to the window
+		msgPost,
+		0,
+		uintptr(unsafe.Pointer(&data)))
 }
 
 var (
