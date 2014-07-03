@@ -59,3 +59,11 @@ sending a message across threads will hang up the first thread during the send i
 GENERAL NOTES
 what about spinning an inner message pump during each event and run event handlers in their own goroutine?
 	no, still subject to the same race condition that could lead to a double button press
+another caveat I neve rnoticed before
+	[20:20] <andlabs> ,..ack
+	[20:20] <andlabs> I just realized osmething else about my API design
+	[20:21] <andlabs> I can't stop preemption during an event handle
+	[20:21] <andlabs> r
+	[20:23] <andlabs> no matter how I slice it I might have to have tow different sets of funcitons
+	[20:23] <andlabs> one for outside evernts and one for inside events
+	[20:23] <andlabs> yuck
