@@ -31,6 +31,7 @@ sending a message across threads will NOT hang up the first thread during the se
 	- there is gdk_threads_enter()/gdk_threads_leave() but they're X11-only and deprecated as of GTK+ 3.6
 	- gdk_threads_add_idle() does not block
 	- g_main_context_invoke() also doesn't block if not on the main thread
+	- g_signal_emit() is not thread safe
 
 COCOA
 only one thread, must be thread main() is called on
