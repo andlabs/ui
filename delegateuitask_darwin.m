@@ -56,6 +56,13 @@ extern NSRect dummyRect;
 
 @implementation appDelegate
 
+- (void)uipost:(id)pv
+{
+	NSValue *v = (NSValue *) pv;
+
+	appDelegate_uipost([v pointerValue]);
+}
+
 - (BOOL)windowShouldClose:(id)win
 {
 	return appDelegate_windowShouldClose(win);
@@ -121,6 +128,18 @@ BOOL initCocoa(id appDelegate)
 	[NSApp setDelegate:appDelegate];
 	[pool release];
 	return YES;
+}
+
+void uipost(id appDelegate, void *data)
+{
+	// need an autorelease pool here
+	NSAutoreleasePool *pool;
+
+	pool = [NSAutoreleasePool new];
+	[appDelegate performSelectorOnMainThread:@selector(uipost:)
+		withObject:[NSValue valueWithPointer:data]
+		waitUntilDone:YES];		// note this bit; see uitask_darwin.go for details
+	[pool release];
 }
 
 void breakMainLoop(void)

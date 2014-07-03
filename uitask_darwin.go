@@ -4,6 +4,7 @@ package ui
 
 import (
 	"fmt"
+	"unsafe"
 )
 
 // #cgo CFLAGS: -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7
@@ -30,6 +31,28 @@ func ui() {
 	}()
 
 	C.cocoaMainLoop()
+}
+
+// we're going to call the appDelegate selector with waitUntilDone:YES so we don't have to worry about garbage collection
+// we DO need to collect the two pointers together, though
+
+type uipostmsg struct {
+	w		*Window
+	data		interface{}
+}
+
+//export appDelegate_uipost
+func appDelegate_uipost(xmsg unsafe.Pointer) {
+	msg := (*uipostmsg)(xmsg)
+	msg.w.sysData.post(msg.data)
+}
+
+func uipost(w *Window, data interface{}) {
+	msg := &uipostmsg{
+		w:		w,
+		data:		data,
+	}
+	C.uipost(appDelegate, unsafe.Pointer(msg))
 }
 
 func initCocoa() (err error) {

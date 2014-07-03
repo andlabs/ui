@@ -63,6 +63,7 @@ extern uintptr_t keyCode(id);
 extern id makeAppDelegate(void);
 extern id windowGetContentView(id);
 extern BOOL initCocoa(id);
+extern void uipost(id, void *);
 extern void breakMainLoop(void);
 extern void cocoaMainLoop(void);
 
