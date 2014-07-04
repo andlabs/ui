@@ -1,10 +1,43 @@
+## Big Note
+
+Well, it's come to this. Race conditions in th eevent handler and GTK+ not supposed to be use like this make me have no choice but to make the API completely single-threaded.
+
+Most of the documentation is updated properly. The package documentation and dialog box documentation is not; the latter is something I'm not sure how to solve within the designs of all three supported environments (which are all wildly different with regards to dialog boxes and code modality). The test program and wakeup have been updated accordingly. **The Window MsgBox() methods will not work properly on Mac OS X until further notice.**
+
+I'm not sure if I'm going to continue developing this package or write a whole new API from scratch; like skelterjohn's go.uik, this would have manual widget drawing and a single look and feel across all platforms, because native single-threaded APIs cannot be made natively multithreaded. (The best hope is Windows, where each thread can have GUI state, followed by Mac OS X, where you can decide to push things onto the main thread and wait for them to run.)
+
+The biggest problem with a concurrent event loop, which I don't know how to solve, is something I call atomicity of event handlers. Let's say you have an event handler;
+
+```go
+func button1Clicked() {
+	button2.Disable()
+	timer.Stop()
+}
+```
+
+As things stand, it is entirely possible for the scheduler to interrupt the event handler at any point. If it's interrupted before calling `button2.Disable()`, the user may be able to click button 2 before it gets disabled, leading to an event you don't want. And if it's interrupted before the call to `timer.Stop()`, the timer might have a chance to fire, giving you a spurious timer interrupt.
+
+I currently have no idea how to avoid this problem, but it's the only problem I can think of when designing a concurrent user interface.
+
+It is now July. I've spent five months developing and tuning eveyrthing and its sudden popularity last month caught me well off-guard. I thought I had everything ready for the music editing software that I wanted to make, but these problems have resulted in me creating an API that no longer satisfies its goal of working the Go way.
+
+If anyone knows a possible solution to the above event problem, ***PLEASE*** let me know.
+
+I'm not sure where I'm going to take things from here. Until then, thanks for all the support. I appreciate it. The project was fun, and I learned a lot of things I've always wanted to learn.
+
+I know one thing, though: I don't want to abandon desktop programming in Go.
+
+- andlabs
+
+## Old README
+
 **Note to ALL users: [please read and comment; the design of the package is fatally flawed but I want to know what people think of the fix](http://andlabs.lostsig.com/blog/2014/06/27/61/my-ui-package-lessons-learned-about-threading-and-plans-for-the-future).**
 
 **Note to Mac users: there is [a bug in Go 1.3 stable](https://code.google.com/p/go/issues/detail?id=8238) that causes cgo to crash trying to build this package. Please follow the linked bug report for detials.**
 
 Woah, lots of attention! Thanks!
 
-## Updates
+## Old Updates
 
 - **26 June 2014**
 	- Controls in Windows can now be spaced apart more naturally. Call `w.SetSpaced(true)` to opt in. **Whether this will remain opt-in or whether the name will change is still unknown at this point.**

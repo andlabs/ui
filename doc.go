@@ -1,6 +1,8 @@
 // 12 march 2014
 
 /*
+NOTE: THE FOLLOWING IS OUTDATED; PLEASE SEE THE REPOSITORY FOR MORE INFORMATION.
+
 Package ui is a simple package which provides a way to write portable GUI programs quickly and easily. It aims to run on as many systems as Go itself, but presently has support for Windows, Mac OS X, and other Unix systems using the Windows API, Cocoa, and GTK+ 3, respectively. It also aims to be Go-like: events are transmitted via channels, and the library is fully safe for concurrent use.
 
 To use the library, place your main program code in another function and call Go(), passing that function as a parameter. (This is necessary due to threading restrictions on some environments, such as Cocoa.) Once in the function you pass to Go(), you can safely use the rest of the library. When this function returns, so does Go(), and package functions become unavailable.
