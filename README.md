@@ -1,5 +1,7 @@
 ## Big Note
 
+**7 July 2014** - currently rewriting to be concurrent at the cost of a 100% elegant API (I will have helpers to ameliorate this issue)
+
 Well, it's come to this. Race conditions in th eevent handler and GTK+ not supposed to be use like this make me have no choice but to make the API completely single-threaded.
 
 Most of the documentation is updated properly. The package documentation and dialog box documentation is not; the latter is something I'm not sure how to solve within the designs of all three supported environments (which are all wildly different with regards to dialog boxes and code modality). The test program and wakeup have been updated accordingly. **The Window MsgBox() methods will not work properly on Mac OS X until further notice.**
