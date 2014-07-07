@@ -31,3 +31,16 @@ type Window interface {
 	// TODO SetSize (TODO remove?)
 	// TODO Center
 }
+
+// NewWindow returns a Request to create a new Window with the given title text and size.
+func NewWindow(title string, width int, height int) *Request {
+	return newWindow(title, width, height)
+}
+
+// GetNewWindow is like NewWindow but sends the Request along the given Doer and returns the resultant Window.
+// Example:
+// 	w := ui.GetNewWindow(ui.Do, "Main Window")
+func GetNewWindow(c Doer, title string, width int, height int) Window {
+	c <- newWindow(title, width, height)
+	return (<-c.resp).(Window)
+}

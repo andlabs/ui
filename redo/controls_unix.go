@@ -24,13 +24,19 @@ type button struct {
 	button	*C.GtkButton
 }
 
-func newButton(text string) Button {
-	ctext := togstr(text)
-	defer freegstr(ctext)
-	widget := C.gtk_button_new_with_label(ctext)
-	return &button{
-		widget:	newWidget(widget),
-		button:	(*C.GtkButton)(unsafe.Pointer(widget)),
+func newButton(text string) *Request {
+	c := make(chan interface{})
+	return &Request{
+		op:		func() {
+			ctext := togstr(text)
+			defer freegstr(ctext)
+			widget := C.gtk_button_new_with_label(ctext)
+			c <- &button{
+				widget:	newWidget(widget),
+				button:	(*C.GtkButton)(unsafe.Pointer(widget)),
+			}
+		},
+		resp:		c,
 	}
 }
 
