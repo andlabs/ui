@@ -15,15 +15,15 @@ type Control interface {
 type Button interface {
 	Control
 
-	// OnClicked sets the event handler for when the Button is clicked.
-	OnClicked(func(d Doer))
+	// OnClicked creates a Request to set the event handler for when the Button is clicked.
+	OnClicked(func(d Doer)) *Request
 
-	// Text and SetText are Requests that get and set the Button's label text.
+	// Text and SetText creates a Request that get and set the Button's label text.
 	Text() *Request
 	SetText(text string) *Request
 }
 
-// NewButton returns a Request to create a new Button with the given label text.
+// NewButton creates a Request to create a new Button with the given label text.
 func NewButton(text string) *Request {
 	return newButton(text)
 }

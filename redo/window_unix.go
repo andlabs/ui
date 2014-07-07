@@ -107,4 +107,7 @@ func (w *window) Close() *Request {
 	}
 }
 
-// TODO OnClosing
+func (w *window) OnClosing(func e(c Doer) bool) *Request {
+	// TODO
+	return nil
+}

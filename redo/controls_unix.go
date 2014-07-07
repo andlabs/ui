@@ -40,7 +40,10 @@ func newButton(text string) *Request {
 	}
 }
 
-// TODO OnClicked
+func (b *Button) OnClicked(func e(c Doer)) *Request {
+	// TODO
+	return nil
+}
 
 func (b *button) Text() *Request {
 	c := make(chan interface{})

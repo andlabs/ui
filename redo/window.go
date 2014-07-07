@@ -22,11 +22,11 @@ type Window interface {
 	// Attempting to use a Window after it has been closed results in undefined behavior.
 	Close() *Request
 
-	// OnClosing registers an event handler that is triggered when the user clicks the Window's close button.
+	// OnClosing creates a Request to register an event handler that is triggered when the user clicks the Window's close button.
 	// On systems where whole applications own windows, OnClosing is also triggered when the user asks to close the application.
 	// If this handler returns true, the Window is closed as defined by Close above.
 	// If this handler returns false, the Window is not closed.
-	OnClosing(func(c Doer) bool)
+	OnClosing(func(c Doer) bool) *Request
 
 	// TODO SetSize (TODO remove?)
 	// TODO Center
