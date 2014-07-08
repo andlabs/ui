@@ -8,14 +8,6 @@
 @end
 
 @implementation appDelegateClass
-
-- (void)issue:(id)obj
-{
-	NSValue *what = (NSValue *) obj;
-
-	doissue([what pointerValue]);
-}
-
 @end
 
 appDelegateClass *appDelegate;
@@ -40,19 +32,10 @@ void uimsgloop(void)
 	[NSApp run];
 }
 
-// Ideally we would have this work like on the other platforms and issue a NSEvent to the end of the event queue
-// Unfortunately, there doesn't seem to be a way for NSEvents to hold pointer values, only (signed) NSIntegers
-// So we'll have to do the performSelectorOnMainThread: approach
-// [TODO]
+// thanks to mikeash in irc.freenode.net/#macdev for suggesting the use of Grand Dispatch and blocks for this
 void issue(void *what)
 {
-	NSAutoreleasePool *p;
-	NSValue *v;
-
-	p = [NSAutoreleasePool new];
-	v = [NSValue valueWithPointer:what];
-	[appDelegate performSelectorOnMainThread:@selector(issue:)
-		withObject:v
-		waitUntilDone:NO];
-	[p release];
+	dispatch_async(dispatch_get_main_queue(), ^{
+		doissue(what);
+	});
 }
