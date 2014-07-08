@@ -43,11 +43,11 @@ var stall = make(chan struct{})
 // TODO
 // - define event
 // - figure out how to return values from event handlers
-func doevent(e event) {
+func doevent(e func(Doer)) {
 	stall <- struct{}{}		// enter event handler
 	c := make(Doer)
 	go func() {
-		e.do(c)
+		e(c)
 		close(c)
 	}()
 	for req := range c {
