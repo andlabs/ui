@@ -13,15 +13,15 @@ type widgetbase struct {
 	widget	*C.GtkWidget
 }
 
-func newWidget(w *C.GtkWidget) *widget {
-	return &widget{
+func newWidget(w *C.GtkWidget) *widgetbase {
+	return &widgetbase{
 		widget:	w,
 	}
 }
 
 type button struct {
 	*widgetbase
-	button	*C.GtkButton
+	button		*C.GtkButton
 }
 
 func newButton(text string) *Request {
@@ -32,15 +32,15 @@ func newButton(text string) *Request {
 			defer freegstr(ctext)
 			widget := C.gtk_button_new_with_label(ctext)
 			c <- &button{
-				widget:	newWidget(widget),
-				button:	(*C.GtkButton)(unsafe.Pointer(widget)),
+				widgetbase:	newWidget(widget),
+				button:		(*C.GtkButton)(unsafe.Pointer(widget)),
 			}
 		},
 		resp:		c,
 	}
 }
 
-func (b *Button) OnClicked(func e(c Doer)) *Request {
+func (b *button) OnClicked(e func(c Doer)) *Request {
 	// TODO
 	return nil
 }

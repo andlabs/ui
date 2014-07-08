@@ -12,8 +12,8 @@ import (
 import "C"
 
 func uiinit() error {
-	// TODO replace with the eerror-checking version
-	C.gtk_init()
+	// TODO replace with the error-checking version
+	C.gtk_init(nil, nil)
 	return nil
 }
 
@@ -29,6 +29,6 @@ func issue(req *Request) {
 func doissue(data C.gpointer) C.gboolean {
 	req := (*Request)(unsafe.Pointer(data))
 	req.op()
-	close(req.done)
+	close(req.resp)
 	return C.FALSE		// don't repeat
 }

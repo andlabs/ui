@@ -21,24 +21,24 @@ func newWindow(title string, width int, height int) *Request {
 	return &Request{
 		op:		func() {
 			widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
-			ctext := togstr(text)
-			defer freegstr(ctext)
+			ctitle := togstr(title)
+			defer freegstr(ctitle)
 			w := &window{
 				widget:		widget,
 				container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
 				bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
 				window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
 			}
-			C.gtk_window_set_title(w.window, ctext)
+			C.gtk_window_set_title(w.window, ctitle)
 			// TODO size
 			// TODO content
-			c <-  w
+			c <- w
 		},
 		resp:		c,
 	}
 }
 
-func (w *window) SetControl(c Control) *Request {
+func (w *window) SetControl(control Control) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
@@ -46,7 +46,7 @@ func (w *window) SetControl(c Control) *Request {
 			// TODO reparent
 			c <- struct{}{}
 		},
-		done:	c,
+		resp:		c,
 	}
 }
 
@@ -64,9 +64,9 @@ func (w *window) SetTitle(title string) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			ctext := togstr(text)
-			defer freegstr(ctext)
-			C.gtk_window_set_title(w.window, ctext)
+			ctitle := togstr(title)
+			defer freegstr(ctitle)
+			C.gtk_window_set_title(w.window, ctitle)
 			c <- struct{}{}
 		},
 		resp:		c,
@@ -107,7 +107,7 @@ func (w *window) Close() *Request {
 	}
 }
 
-func (w *window) OnClosing(func e(c Doer) bool) *Request {
+func (w *window) OnClosing(e func(c Doer) bool) *Request {
 	// TODO
 	return nil
 }

@@ -32,6 +32,7 @@ func NewButton(text string) *Request {
 // Example:
 // 	b := ui.GetNewButton(ui.Do, "OK")
 func GetNewButton(c Doer, text string) Button {
-	c <- newButton(text)
-	return (<-c.resp).(Button)
+	req := newButton(text)
+	c <- req
+	return (<-req.resp).(Button)
 }

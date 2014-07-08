@@ -41,6 +41,7 @@ func NewWindow(title string, width int, height int) *Request {
 // Example:
 // 	w := ui.GetNewWindow(ui.Do, "Main Window")
 func GetNewWindow(c Doer, title string, width int, height int) Window {
-	c <- newWindow(title, width, height)
-	return (<-c.resp).(Window)
+	req := newWindow(title, width, height)
+	c <- req
+	return (<-req.resp).(Window)
 }
