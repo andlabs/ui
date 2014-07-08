@@ -28,7 +28,6 @@ func issue(req *Request) {
 //export doissue
 func doissue(data C.gpointer) C.gboolean {
 	req := (*Request)(unsafe.Pointer(data))
-	req.op()
-	close(req.resp)
+	perform(req)
 	return C.FALSE		// don't repeat
 }
