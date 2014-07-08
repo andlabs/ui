@@ -4,6 +4,7 @@ package ui
 
 import (
 	"runtime"
+	"sync"
 )
 
 // Go initializes package ui.
@@ -38,16 +39,40 @@ func uitask() {
 // Do is not processed in between.
 var stall = make(chan struct{})
 
+type event struct {
+	// All events internally return bool; those that don't will be wrapped around to return a dummy value.
+	do		func(c Doer) bool
+	lock		sync.Mutex
+}
+
+func (e *event) set(f func(Doer)) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+
+	e.do = func(c Doer) bool {
+		f(c)
+		return false
+	}
+}
+
+func (e *event) setbool(f func(Doer) bool) {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+
+	e.do = f
+}
+
 // This is the common code for running an event.
 // It runs on the main thread without a message pump; it provides its own.
-// TODO
-// - define event
-// - figure out how to return values from event handlers
-func doevent(e func(Doer)) {
+func (e *event) fire() bool {
 	stall <- struct{}{}		// enter event handler
 	c := make(Doer)
+	result := false
 	go func() {
-		e(c)
+		e.lock.Lock()
+		defer e.lock.Unlock()
+
+		result = e.do(c)
 		close(c)
 	}()
 	for req := range c {
@@ -65,6 +90,7 @@ func doevent(e func(Doer)) {
 		// TODO add conditional checks to the request handler instead?
 		resp:		make(chan interface{}),
 	})
+	return result
 }
 
 // Common code for performing a Request.
