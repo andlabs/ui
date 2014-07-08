@@ -2,7 +2,23 @@
 
 package ui
 
-// TODO Go, Start, Stop
+import (
+	"runtime"
+)
+
+// Go initializes package ui.
+// TODO write this bit
+func Go() error {
+	runtime.LockOSThread()
+	if err := uiinit(); err != nil {
+		return err
+	}
+	go uitask()
+	uimsgloop()
+	return nil
+}
+
+// TODO Stop
 
 // This is the ui main loop.
 // It is spawned by Go as a goroutine.
