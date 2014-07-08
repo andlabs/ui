@@ -12,10 +12,10 @@ func TestPackage(t *testing.T) {
 	go func() {
 		w := GetNewWindow(Do, "Hello", 320, 240)
 		done := make(chan struct{})
-		Wait(Do, w.OnClosing(func(Doer) bool {
-			done <- struct{}{}
-			return true
-		}))
+//		Wait(Do, w.OnClosing(func(Doer) bool {
+//			done <- struct{}{}
+//			return true
+//		}))
 		Wait(Do, w.Show())
 		<-done
 	}()
