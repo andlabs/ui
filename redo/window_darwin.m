@@ -6,6 +6,22 @@
 
 #define toNSWindow(x) ((NSWindow *) (x))
 
+// TODO why do I need the explicit interface specification?
+@interface goWindowDelegate : NSObject <NSWindowDelegate> {
+@public
+	void *gowin;
+}
+@end
+
+@implementation goWindowDelegate
+
+- (BOOL)windowShouldClose:(id)win
+{
+	return windowClosing(self->gowin);
+}
+
+@end
+
 id newWindow(intptr_t width, intptr_t height)
 {
 	return [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, (CGFloat) width, (CGFloat) height)
@@ -14,9 +30,13 @@ id newWindow(intptr_t width, intptr_t height)
 		defer:YES];
 }
 
-void windowSetAppDelegate(id win)
+void windowSetDelegate(id win, void *w)
 {
-	[toNSWindow(win) setDelegate:getAppDelegate()];
+	goWindowDelegate *d;
+
+	d = [goWindowDelegate new];
+	d->gowin = w;
+	[toNSWindow(win) setDelegate:d];
 }
 
 const char *windowTitle(id win)

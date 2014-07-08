@@ -23,11 +23,12 @@ func newWindow(title string, width int, height int) *Request {
 			ctitle := C.CString(title)
 			defer C.free(unsafe.Pointer(ctitle))
 			C.windowSetTitle(id, ctitle)
-			C.windowSetAppDelegate(id)
-			c <- &window{
+			w := &window{
 				id:		id,
 				closing:	newEvent(),
 			}
+			C.windowSetDelegate(id, unsafe.Pointer(w))
+			c <- w
 		},
 		resp:		c,
 	}
@@ -112,7 +113,17 @@ func (w *window) OnClosing(e func(c Doer) bool) *Request {
 	}
 }
 
-// TODO windowClosing
+//export windowClosing
+func windowClosing(xw unsafe.Pointer) C.BOOL {
+	w := (*window)(unsafe.Pointer(xw))
+	close := w.closing.fire()
+	if close {
+		// TODO make sure this actually closes the window the way we want
+		return C.YES
+	}
+	return C.NO
+}
+	
 
 // TODO for testing
 func newButton(string) *Request { return nil }
