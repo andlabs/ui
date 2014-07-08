@@ -1,3 +1,5 @@
+// +build !darwin
+
 // 7 july 2014
 
 package ui

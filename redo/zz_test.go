@@ -8,7 +8,8 @@ import (
 	"testing"
 )
 
-func TestPackage(t *testing.T) {
+// because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
+func init() {
 	go func() {
 		w := GetNewWindow(Do, "Hello", 320, 240)
 		done := make(chan struct{})
@@ -21,6 +22,10 @@ func TestPackage(t *testing.T) {
 	}()
 	err := Go()
 	if err != nil {
-		t.Error(err)
+		panic(err)
 	}
+}
+
+func TestDummy(t *testing.T) {
+	// do nothing
 }
