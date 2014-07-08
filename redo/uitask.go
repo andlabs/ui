@@ -45,10 +45,23 @@ type event struct {
 	lock		sync.Mutex
 }
 
+// do should never be nil; TODO should we make setters panic instead?
+
+func newEvent() *event {
+	return &event{
+		do:	func(c Doer) bool {
+			return false
+		},
+	}
+}
+
 func (e *event) set(f func(Doer)) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 
+	if f == nil {
+		f = func(c Doer) {}
+	}
 	e.do = func(c Doer) bool {
 		f(c)
 		return false
@@ -59,6 +72,11 @@ func (e *event) setbool(f func(Doer) bool) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 
+	if f == nil {
+		f = func(c Doer) bool {
+			return false
+		}
+	}
 	e.do = f
 }
 

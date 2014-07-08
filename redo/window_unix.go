@@ -7,6 +7,7 @@ import (
 )
 
 // #include "gtk_unix.h"
+// extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
 import "C"
 
 type window struct {
@@ -14,6 +15,8 @@ type window struct {
 	container	*C.GtkContainer
 	bin		*C.GtkBin
 	window	*C.GtkWindow
+
+	closing	*event
 }
 
 func newWindow(title string, width int, height int) *Request {
@@ -28,8 +31,14 @@ func newWindow(title string, width int, height int) *Request {
 				container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
 				bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
 				window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
+				closing:		newEvent(),
 			}
 			C.gtk_window_set_title(w.window, ctitle)
+			g_signal_connect(
+				C.gpointer(unsafe.Pointer(w.window)),
+				"delete-event",
+				C.GCallback(C.windowClosing),
+				C.gpointer(unsafe.Pointer(w)))
 			// TODO size
 			// TODO content
 			c <- w
@@ -108,6 +117,22 @@ func (w *window) Close() *Request {
 }
 
 func (w *window) OnClosing(e func(c Doer) bool) *Request {
-	// TODO
-	return nil
+	c := make(chan interface{})
+	return &Request{
+		op:		func() {
+			w.closing.setbool(e)
+			c <- struct{}{}
+		},
+		resp:		c,
+	}
+}
+
+//export windowClosing
+func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean {
+	w := (*window)(unsafe.Pointer(data))
+	close := w.closing.fire()
+	if close {
+		return C.GDK_EVENT_PROPAGATE		// will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
+	}
+	return C.GDK_EVENT_STOP				// keeps window alive
 }
