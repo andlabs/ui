@@ -124,6 +124,10 @@ func winName(t reflect.Type) string {
 		return "uintptr"
 	case reflect.Ptr:
 		return "*" + winName(t.Elem())
+	case reflect.Struct:
+		// the t.Name() will be the cgo-mangled name; get the original name out
+		parts := strings.Split(t.Name(), "_")
+		return "s_" + parts[len(parts) - 1]
 	}
 	return t.Kind().String()
 }
