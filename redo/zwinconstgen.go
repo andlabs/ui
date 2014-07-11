@@ -108,6 +108,15 @@ import (
 // #include <stdint.h>
 {{range .Consts}}// uintptr_t {{.}} = (uintptr_t) ({{noprefix .}});
 {{end}}import "C"
+func winName(t reflect.Type) string {
+	switch t.Kind() {
+	case reflect.UnsafePointer:
+		return "uintptr"
+	case reflect.Ptr:
+		return "*" + winName(t.Elem())
+	}
+	return t.Kind().String()
+}
 func main() {
 	buf := new(bytes.Buffer)
 	fmt.Fprintln(buf, "package ui")
@@ -117,7 +126,7 @@ func main() {
 {{range .Structs}}	t = reflect.TypeOf(C.{{noprefix .}}{})
 	fmt.Fprintf(buf, "type %s struct {\n", {{printf "%q" .}})
 	for i := 0; i < t.NumField(); i++ {
-		fmt.Fprintf(buf, "\t%s %s\n", t.Field(i).Name, t.Field(i).Type.Kind())
+		fmt.Fprintf(buf, "\t%s %s\n", t.Field(i).Name, winName(t.Field(i).Type))
 	}
 	fmt.Fprintf(buf, "}")
 {{end}}
