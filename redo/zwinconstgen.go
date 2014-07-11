@@ -86,24 +86,23 @@ func writeLine(f *os.File, line string) {
 }
 
 const cgopreamble = `
-#define UNICODE
-#define _UNICODE
-#define STRICT
-#define STRICT_TYPED_ITEMIDS
-/* get Windows version right; right now Windows XP */
-#define WINVER 0x0501
-#define _WIN32_WINNT 0x0501
-#define _WIN32_WINDOWS 0x0501		/* according to Microsoft's winperf.h */
-#define _WIN32_IE 0x0600			/* according to Microsoft's sdkddkver.h */
-#define NTDDI_VERSION 0x05010000	/* according to Microsoft's sdkddkver.h */
-#include <windows.h>
-#include <commctrl.h>
-#include <stdint.h>
-`
+// #define UNICODE
+// #define _UNICODE
+// #define STRICT
+// #define STRICT_TYPED_ITEMIDS
+// /* get Windows version right; right now Windows XP */
+// #define WINVER 0x0501
+// #define _WIN32_WINNT 0x0501
+// #define _WIN32_WINDOWS 0x0501		/* according to Microsoft's winperf.h */
+// #define _WIN32_IE 0x0600				/* according to Microsoft's sdkddkver.h */
+// #define NTDDI_VERSION 0x05010000	/* according to Microsoft's sdkddkver.h */
+// #include <windows.h>
+// #include <commctrl.h>
+// #include <stdint.h>`		// no closing newline; added by writeLine()
 
 func writeConstCast(f *os.File, c string) {
 	cc := c[2:]		// strip leading c_
-	fmt.Fprintf(f, "uintptr_t %s = (uintptr_t) (%s);\n", c, cc)
+	fmt.Fprintf(f, "// uintptr_t %s = (uintptr_t) (%s);\n", c, cc)
 }
 
 func writeConstPrint(f *os.File, c string) {
@@ -169,28 +168,24 @@ func main() {
 	writeLine(f, "package main")
 	writeLine(f, "import \"fmt\"")
 	writeLine(f, "import \"bytes\"")
-	writeLine(f, "import \"runtime\"")
+	writeLine(f, "import \"reflect\"")
 	writeLine(f, "import \"go/format\"")
-	writeLine(f, "/*")
 	writeLine(f, cgopreamble)
 	for _, c := range consts {
 		writeConstCast(f, c)
 	}
-	writeLine(f, "*/")
 	writeLine(f, "import \"C\"")
 	writeLine(f, "func main() {")
 	writeLine(f, "\tbuf := new(bytes.Buffer)")
-	writeLine(f, "\tfmt.Fprintln(buf, \"package main\")")
-	writeLine(f, "\tfmt.Fprintln(buf, \"func main() {\")")
+	writeLine(f, "\tfmt.Fprintln(buf, \"package ui\")")
 	for _, c := range consts {
 		writeConstPrint(f, c)
 	}
-	writeLine(f, "\tfmt.Fprintln(buf, \"var t reflect.Type\")")
-	writeLine(f, "\tfmt.Fprintln(buf, \"var s string\")")
+	writeLine(f, "\tvar t reflect.Type")
+	writeLine(f, "\tvar s string")
 	for _, s := range structs {
 		writeStructPrint(f, s)
 	}
-	writeLine(f, "\tfmt.Fprintln(buf, \"}\")")
 	writeLine(f, "\tres, err := format.Source(buf.Bytes())")
 	writeLine(f, "\tif err != nil { panic(err) }")
 	writeLine(f, "\tfmt.Printf(\"%s\", res)")
