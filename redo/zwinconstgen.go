@@ -13,6 +13,7 @@ import (
 	"sort"
 	"io/ioutil"
 	"path/filepath"
+	"text/template"
 	"os/exec"
 )
 
@@ -85,7 +86,13 @@ func writeLine(f *os.File, line string) {
 	fmt.Fprintf(f, "%s\n", line)
 }
 
-const cgopreamble = `
+const outTemplate = `package main
+import (
+	"fmt"
+	"bytes"
+	"reflect"
+	"go/format"
+)
 // #define UNICODE
 // #define _UNICODE
 // #define STRICT
@@ -98,25 +105,37 @@ const cgopreamble = `
 // #define NTDDI_VERSION 0x05010000	/* according to Microsoft's sdkddkver.h */
 // #include <windows.h>
 // #include <commctrl.h>
-// #include <stdint.h>`		// no closing newline; added by writeLine()
+// #include <stdint.h>
+{{range .Consts}}// uintptr_t {{.}} = (uintptr_t) ({{noprefix .}});
+{{end}}import "C"
+func main() {
+	buf := new(bytes.Buffer)
+	fmt.Fprintln(buf, "package ui")
+{{range .Consts}}	fmt.Fprintf(buf, "const %s = %d\n", {{printf "%q" .}}, C.{{.}})
+{{end}}
+	var t reflect.Type
+{{range .Structs}}	t = reflect.TypeOf(C.{{noprefix .}}{})
+	fmt.Fprintf(buf, "type %s struct {\n", {{printf "%q" .}})
+	for i := 0; i < t.NumField(); i++ {
+		fmt.Fprintf(buf, "\t%s %s\n", t.Field(i).Name, t.Field(i).Type.Kind())
+	}
+	fmt.Fprintf(buf, "}")
+{{end}}
+	res, err := format.Source(buf.Bytes())
+	if err != nil { panic(err) }
+	fmt.Printf("%s", res)
+}
+`
 
-func writeConstCast(f *os.File, c string) {
-	cc := c[2:]		// strip leading c_
-	fmt.Fprintf(f, "// uintptr_t %s = (uintptr_t) (%s);\n", c, cc)
+type templateArgs struct {
+	Consts	[]string
+	Structs	[]string
 }
 
-func writeConstPrint(f *os.File, c string) {
-	fmt.Fprintf(f, "\tfmt.Fprintf(buf, \"const %%s = %%d\\n\", %q, C.%s)\n", c, c)
-}
-
-func writeStructPrint(f *os.File, s string) {
-	cs := s[2:]		// strip leading s_
-	fmt.Fprintf(f, "\tt = reflect.TypeOf(C.%s{})\n", cs)
-	fmt.Fprintf(f, "\tfmt.Fprintf(buf, \"type %%s struct {\\n\", %q)\n", s)
-	fmt.Fprintf(f, "\tfor i := 0; i < t.NumField(); i++ {\n")
-	fmt.Fprintf(f, "\t\tfmt.Fprintf(buf, \"\\t%%s %%s\\n\", t.Field(i).Name, t.Field(i).Type.Kind())\n")
-	fmt.Fprintf(f, "\t}\n")
-	fmt.Fprintf(f, "\tfmt.Fprintf(buf, \"}\\n\")\n")
+var templateFuncs = template.FuncMap{
+	"noprefix":	func(s string) string {
+		return s[2:]
+	},
 }
 
 func main() {
@@ -169,30 +188,14 @@ func main() {
 		panic(err)
 	}
 
-	writeLine(f, "package main")
-	writeLine(f, "import \"fmt\"")
-	writeLine(f, "import \"bytes\"")
-	writeLine(f, "import \"reflect\"")
-	writeLine(f, "import \"go/format\"")
-	writeLine(f, cgopreamble)
-	for _, c := range consts {
-		writeConstCast(f, c)
+	t := template.Must(template.New("winconstgenout").Funcs(templateFuncs).Parse(outTemplate))
+	err = t.Execute(f, &templateArgs{
+		Consts:		consts,
+		Structs:		structs,
+	})
+	if err != nil {
+		panic(err)
 	}
-	writeLine(f, "import \"C\"")
-	writeLine(f, "func main() {")
-	writeLine(f, "\tbuf := new(bytes.Buffer)")
-	writeLine(f, "\tfmt.Fprintln(buf, \"package ui\")")
-	for _, c := range consts {
-		writeConstPrint(f, c)
-	}
-	writeLine(f, "\tvar t reflect.Type")
-	for _, s := range structs {
-		writeStructPrint(f, s)
-	}
-	writeLine(f, "\tres, err := format.Source(buf.Bytes())")
-	writeLine(f, "\tif err != nil { panic(err) }")
-	writeLine(f, "\tfmt.Printf(\"%s\", res)")
-	writeLine(f, "}")
 
 	cmd := exec.Command("go", "run")
 	cmd.Args = append(cmd.Args, goopts...)		// valid if len(goopts) == 0; in that case this will just be a no-op
