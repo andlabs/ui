@@ -128,10 +128,10 @@ func main() {
 	for i := 0; i < t.NumField(); i++ {
 		fmt.Fprintf(buf, "\t%s %s\n", t.Field(i).Name, winName(t.Field(i).Type))
 	}
-	fmt.Fprintf(buf, "}")
+	fmt.Fprintf(buf, "}\n")
 {{end}}
 	res, err := format.Source(buf.Bytes())
-	if err != nil { panic(err) }
+	if err != nil { panic(err.Error() + "\n" + string(buf.Bytes())) }
 	fmt.Printf("%s", res)
 }
 `
