@@ -92,6 +92,7 @@ import (
 	"bytes"
 	"reflect"
 	"go/format"
+	"strings"
 )
 // #define UNICODE
 // #define _UNICODE
@@ -108,7 +109,16 @@ import (
 // #include <stdint.h>
 {{range .Consts}}// uintptr_t {{.}} = (uintptr_t) ({{noprefix .}});
 {{end}}import "C"
+// MinGW will generate handle pointers as pointers to some structure type under some conditions I don't fully understand; here's full overrides
+var handleOverrides = []string{
+	"HWND",
+}
 func winName(t reflect.Type) string {
+	for _, s := range handleOverrides {
+		if strings.Contains(t.Name(), s) {
+			return "uintptr"
+		}
+	}
 	switch t.Kind() {
 	case reflect.UnsafePointer:
 		return "uintptr"
