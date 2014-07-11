@@ -127,7 +127,15 @@ func winName(t reflect.Type) string {
 	case reflect.Struct:
 		// the t.Name() will be the cgo-mangled name; get the original name out
 		parts := strings.Split(t.Name(), "_")
-		return "s_" + parts[len(parts) - 1]
+		part := parts[len(parts) - 1]
+		// many Windows API types have struct tagXXX as their declarator
+		// if you wonder why, see http://blogs.msdn.com/b/oldnewthing/archive/2008/03/26/8336829.aspx?Redirected=true
+		if strings.HasPrefix(part, "tag") {
+			part = part[3:]
+		}
+		return "s_" + part
+	case reflect.Array:
+		return fmt.Sprintf("[%d]%s", t.Len(), winName(t.Elem()))
 	}
 	return t.Kind().String()
 }
