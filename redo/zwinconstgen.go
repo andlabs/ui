@@ -152,6 +152,15 @@ func main() {
 	}
 	fmt.Fprintf(buf, "}\n")
 {{end}}
+
+	// let's generate names for window procedure types
+	fmt.Fprintf(buf, "\n")
+	fmt.Fprintf(buf, "type t_UINT %s\n", winName(reflect.TypeOf(C.UINT(0))))
+	fmt.Fprintf(buf, "type t_WPARAM %s\n", winName(reflect.TypeOf(C.WPARAM(0))))
+	fmt.Fprintf(buf, "type t_LPARAM %s\n", winName(reflect.TypeOf(C.LPARAM(0))))
+	fmt.Fprintf(buf, "type t_LRESULT %s\n", winName(reflect.TypeOf(C.LRESULT(0))))
+
+	// and finally done
 	res, err := format.Source(buf.Bytes())
 	if err != nil { panic(err.Error() + "\n" + string(buf.Bytes())) }
 	fmt.Printf("%s", res)
