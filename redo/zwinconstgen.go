@@ -112,7 +112,11 @@ func writeConstPrint(f *os.File, c string) {
 func writeStructPrint(f *os.File, s string) {
 	cs := s[2:]		// strip leading s_
 	fmt.Fprintf(f, "\tt = reflect.TypeOf(C.%s{})\n", cs)
-	// TODO
+	fmt.Fprintf(f, "\tfmt.Fprintf(buf, \"type %%s struct {\\n\", %q)\n", s)
+	fmt.Fprintf(f, "\tfor i := 0; i < t.NumField(); i++ {\n")
+	fmt.Fprintf(f, "\t\tfmt.Fprintf(buf, \"\\t%%s %%s\\n\", t.Field(i).Name, t.Field(i).Type.Kind())\n")
+	fmt.Fprintf(f, "\t}\n")
+	fmt.Fprintf(f, "\tfmt.Fprintf(buf, \"}\\n\")\n")
 }
 
 func main() {
@@ -182,7 +186,6 @@ func main() {
 		writeConstPrint(f, c)
 	}
 	writeLine(f, "\tvar t reflect.Type")
-	writeLine(f, "\tvar s string")
 	for _, s := range structs {
 		writeStructPrint(f, s)
 	}
