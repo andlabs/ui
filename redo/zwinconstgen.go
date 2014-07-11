@@ -112,6 +112,12 @@ import (
 // MinGW will generate handle pointers as pointers to some structure type under some conditions I don't fully understand; here's full overrides
 var handleOverrides = []string{
 	"HWND",
+	"HINSTANCE",
+	"HICON",
+	"HCURSOR",
+	"HBRUSH",
+	// These are all pointers to functions; handle them identically to handles.
+	"WNDPROC",
 }
 func winName(t reflect.Type) string {
 	for _, s := range handleOverrides {
