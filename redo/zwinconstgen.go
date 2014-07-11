@@ -173,11 +173,11 @@ func main() {
 	writeLine(f, "import \"go/format\"")
 	writeLine(f, "/*")
 	writeLine(f, cgopreamble)
-	for _, const := range consts {
-		writeConstCast(f, const)
+	for _, c := range consts {
+		writeConstCast(f, c)
 	}
 	writeLine(f, "*/")
-	writeLine(f, "import \"C\")
+	writeLine(f, "import \"C\"")
 	writeLine(f, "func main() {")
 	writeLine(f, "\tbuf := new(bytes.Buffer)")
 	writeLine(f, "\tfmt.Fprintln(buf, \"package main\")")
@@ -193,7 +193,7 @@ func main() {
 	writeLine(f, "\tfmt.Fprintln(buf, \"}\")")
 	writeLine(f, "\tres, err := format.Source(buf.Bytes())")
 	writeLine(f, "\tif err != nil { panic(err) }")
-	wrtieLine(f, "\tfmt.Printf(\"%s\", res)")
+	writeLine(f, "\tfmt.Printf(\"%s\", res)")
 	writeLine(f, "}")
 
 	cmd := exec.Command("go", "run")
