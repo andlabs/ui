@@ -123,11 +123,18 @@ func (w *window) Hide() *Request {
 	}
 }
 
+func doclose(w *window) {
+	res, err := f_DestroyWindow(w.hwnd)
+	if res == 0 {
+		panic(fmt.Errorf("error destroying window: %v", err))
+	}
+}
+
 func (w *window) Close() *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			// TODO
+			doclose(w)
 			c <- struct{}{}
 		},
 		resp:		c,
@@ -158,6 +165,12 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
 	}
 	switch msg {
+	case c_WM_CLOSE:
+		close := w.closing.fire()
+		if close {
+			doclose(w)
+		}
+		return 0
 	default:
 		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
 	}
