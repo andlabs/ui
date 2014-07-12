@@ -20,6 +20,7 @@ type Window interface {
 	// Close creates a Request to close the Window.
 	// Any Controls within the Window are destroyed, and the Window itself is also destroyed.
 	// Attempting to use a Window after it has been closed results in undefined behavior.
+	// TODO does this raise OnClosing or bypass it?
 	Close() *Request
 
 	// OnClosing creates a Request to register an event handler that is triggered when the user clicks the Window's close button.
