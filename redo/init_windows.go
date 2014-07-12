@@ -32,9 +32,27 @@ func getWinMainParams() (err error) {
 	return nil
 }
 
+// TODO move to common_windows.go
+var hNULL uintptr = 0
+
+func loadIconsCursors() (err error) {
+	hDefaultIcon, err = f_LoadIconW(hNULL, c_IDI_APPLICATION)
+	if hDefaultIcon == hNULL {
+		return fmt.Errorf("error loading default icon: %v", err)
+	}
+	hArrowCursor, err = f_LoadCursorW(hNULL, c_IDC_ARROW)
+	if hArrowCursor == hNULL {
+		return fmt.Errorf("error loading arrow (default) cursor: %v", err)
+	}
+	return nil
+}
+
 func initWindows() error {
 	if err := getWinMainParams(); err != nil {
 		return fmt.Errorf("error getting WinMain() parameters: %v", err)
+	}
+	if err := loadIconsCursors(); err != nil {
+		return fmt.Errorf("error loading standard/default icons and cursors: %v", err)
 	}
 	return nil
 }

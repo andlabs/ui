@@ -172,6 +172,22 @@ var gwlpNames = map[string]string{
 	"amd64":		"etWindowLongPtrW",
 }
 
+// in reality these use LONG_PTR for the actual values; LONG_PTR is a signed value, but for our use case it doesn't really matter
+func genGetSetWindowLongPtr(targetarch string) {
+	name := gwlpNames[targetarch]
+
+	funcs = append(funcs, fmt.Sprintf("var fv_GetWindowLongPtrW = user32.NewProc(%q)", "G" + name))
+	funcs = append(funcs, "func f_GetWindowLongPtrW(hwnd uintptr, which uintptr) uintptr {")
+	funcs = append(funcs, "\tres, _, _ := fv_GetWindowLongPtrW.Call(hwnd, which)")
+	funcs = append(funcs, "\treturn res")
+	funcs = append(funcs, "}")
+
+	funcs = append(funcs, fmt.Sprintf("var fv_SetWindowLongPtrW = user32.NewProc(%q)", "S" + name))
+	funcs = append(funcs, "func f_SetWindowLongPtrW(hwnd uintptr, which uintptr, value uintptr) {")
+	funcs = append(funcs, "\tfv_SetWindowLongPtrW.Call(hwnd, which, value)")
+	funcs = append(funcs, "}")
+}
+
 const outTemplate = `package main
 import (
 	"fmt"
@@ -202,6 +218,7 @@ var handleOverrides = []string{
 	"HICON",
 	"HCURSOR",
 	"HBRUSH",
+	"HMENU",
 	// These are all pointers to functions; handle them identically to handles.
 	"WNDPROC",
 }
@@ -259,6 +276,8 @@ func main() {
 	fmt.Fprintf(buf, "type t_WPARAM %s\n", winName(reflect.TypeOf(C.WPARAM(0))))
 	fmt.Fprintf(buf, "type t_LPARAM %s\n", winName(reflect.TypeOf(C.LPARAM(0))))
 	fmt.Fprintf(buf, "type t_LRESULT %s\n", winName(reflect.TypeOf(C.LRESULT(0))))
+	// and one for GetMessageW()
+	fmt.Fprintf(buf, "type t_BOOL %s\n", winName(reflect.TypeOf(C.BOOL(0))))
 
 	// functions
 {{range .Funcs}}	fmt.Fprintf(buf, "%s\n", {{printf "%q" .}})
@@ -331,6 +350,9 @@ func main() {
 	sort.Strings(consts)
 	sort.Strings(structs)
 	sort.Strings(sorteddlls)
+
+	// and finally
+	genGetSetWindowLongPtr(targetarch)
 
 	// thanks to james4k in irc.freenode.net/#go-nuts
 	tmpdir, err := ioutil.TempDir("", "windowsconstgen")
