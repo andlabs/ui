@@ -47,7 +47,7 @@ func uimsgloop() {
 
 func issue(req *Request) {
 	res, err := f_PostMessageW(
-		hNULL,		// TODO
+		msgwin,
 		msgRequest,
 		0,
 		t_LPARAM(uintptr(unsafe.Pointer(req))))

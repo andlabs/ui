@@ -46,7 +46,7 @@ func newWindow(title string, width int, height int) *Request {
 				0,
 				windowclassptr,
 				syscall.StringToUTF16Ptr(title),
-				c_WS_OVERLAPPED,
+				c_WS_OVERLAPPEDWINDOW,
 				c_CW_USEDEFAULT, c_CW_USEDEFAULT,
 				uintptr(width), uintptr(height),
 				hNULL, hNULL, hInstance, unsafe.Pointer(w))
@@ -151,6 +151,8 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 		// the lpParam is available during WM_NCCREATE and WM_CREATE
 		if msg == c_WM_NCCREATE {
 			storelpParam(hwnd, lParam)
+			w := (*window)(unsafe.Pointer(f_GetWindowLongPtrW(hwnd, c_GWLP_USERDATA)))
+			w.hwnd = hwnd
 		}
 		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
 		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
