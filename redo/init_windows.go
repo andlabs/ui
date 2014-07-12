@@ -15,8 +15,8 @@ var (
 )
 
 func getWinMainParams() (err error) {
-	hInstance, err = f_GetModuleHandle(nil)
-	if err != nil {
+	hInstance, err = f_GetModuleHandleW(nil)
+	if hInstance == 0 {
 		return fmt.Errorf("error getting hInstance: %v", err)
 	}
 
