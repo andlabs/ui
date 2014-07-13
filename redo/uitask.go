@@ -19,7 +19,19 @@ func Go() error {
 	return nil
 }
 
-// TODO Stop
+// Stop returns a Request for package ui to stop.
+// Some time after this request is received, Go() will return without performing any final cleanup.
+// If Stop is issued during an event handler, it will be registered when the event handler returns.
+func Stop() *Request {
+	c := make(chan interface{})
+	return &Request{
+		op:		func() {
+			uistop()
+			c <- struct{}{}
+		},
+		resp:		c,
+	}
+}
 
 // This is the ui main loop.
 // It is spawned by Go as a goroutine.

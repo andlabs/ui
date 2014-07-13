@@ -26,3 +26,4 @@ package ui
 // wfunc user32 SendMessageW uintptr t_UINT t_WPARAM t_LPARAM t_LRESULT,noerr
 // wfunc user32 UpdateWindow uintptr uintptr
 // wfunc user32 DestroyWindow uintptr uintptr
+// wfunc user32 PostQuitMessage uintptr void

@@ -13,7 +13,8 @@ func init() {
 	go func() {
 		w := GetNewWindow(Do, "Hello", 320, 240)
 		done := make(chan struct{})
-		Wait(Do, w.OnClosing(func(Doer) bool {
+		Wait(Do, w.OnClosing(func(c Doer) bool {
+			Wait(c, Stop())
 			done <- struct{}{}
 			return true
 		}))

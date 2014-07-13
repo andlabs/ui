@@ -45,6 +45,11 @@ func uimsgloop() {
 	}
 }
 
+func uistop() {
+	// this works fine as documented in modal loops, as modal loops are supposed to repost quit messages (http://blogs.msdn.com/b/oldnewthing/archive/2005/02/22/378018.aspx), and all the Windows internal ones do
+	f_PostQuitMessage(0)
+}
+
 func issue(req *Request) {
 	res, err := f_PostMessageW(
 		msgwin,
