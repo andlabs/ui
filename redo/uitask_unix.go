@@ -23,6 +23,10 @@ func uimsgloop() {
 	C.gtk_main()
 }
 
+func uistop() {
+	C.gtk_main_quit()
+}
+
 func issue(req *Request) {
 	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(req)))
 }
