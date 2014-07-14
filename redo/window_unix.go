@@ -18,6 +18,9 @@ type window struct {
 	bin		*C.GtkBin
 	window	*C.GtkWindow
 
+	layoutc	*C.GtkContainer
+	layout	*C.GtkLayout
+
 	closing	*event
 }
 
@@ -28,11 +31,14 @@ func newWindow(title string, width int, height int) *Request {
 			widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 			ctitle := togstr(title)
 			defer freegstr(ctitle)
+			layoutw := C.gtk_layout_new(nil, nil)
 			w := &window{
 				widget:		widget,
 				container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
 				bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
 				window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
+				layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
+				layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
 				closing:		newEvent(),
 			}
 			C.gtk_window_set_title(w.window, ctitle)
@@ -42,7 +48,7 @@ func newWindow(title string, width int, height int) *Request {
 				C.GCallback(C.windowClosing),
 				C.gpointer(unsafe.Pointer(w)))
 			// TODO size
-			// TODO content
+			C.gtk_container_add(w.container, layoutw)
 			c <- w
 		},
 		resp:		c,
