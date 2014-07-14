@@ -32,7 +32,26 @@ void uimsgloop(void)
 	[NSApp run];
 }
 
-// thanks to mikeash in irc.freenode.net/#macdev for suggesting the use of Grand Dispatch and blocks for this
+// don't use [NSApp terminate:]; that quits the program
+void uistop(void)
+{
+	NSEvent *e;
+
+	[NSApp stop:NSApp];
+	// stop: won't register until another event has passed; let's synthesize one
+	e = [NSEvent otherEventWithType:NSApplicationDefined
+		location:NSZeroPoint
+		modifierFlags:0
+		timestamp:[[NSProcessInfo processInfo] systemUptime]
+		windowNumber:0
+		context:[NSGraphicsContext currentContext]
+		subtype:0
+		data1:0
+		data2:0];
+	[NSApp postEvent:e atStart:NO];		// let pending events take priority
+}
+
+// thanks to mikeash in irc.freenode.net/#macdev for suggesting the use of Grand Central Dispatch and blocks for this
 void issue(void *what)
 {
 	dispatch_async(dispatch_get_main_queue(), ^{

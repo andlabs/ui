@@ -21,6 +21,10 @@ func uimsgloop() {
 	C.uimsgloop()
 }
 
+func uistop() {
+	C.uistop()
+}
+
 func issue(req *Request) {
 	C.issue(unsafe.Pointer(req))
 }
