@@ -14,7 +14,7 @@ func init() {
 		w := GetNewWindow(Do, "Hello", 320, 240)
 		done := make(chan struct{})
 		Wait(Do, w.OnClosing(func(c Doer) bool {
-			Wait(c, Stop())
+			Stop()
 			done <- struct{}{}
 			return true
 		}))

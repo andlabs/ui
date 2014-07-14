@@ -14,42 +14,52 @@ func Go() error {
 	if err := uiinit(); err != nil {
 		return err
 	}
-	go uitask()
+	go uitask(Do)
 	uimsgloop()
 	return nil
 }
 
-// Stop returns a Request for package ui to stop.
+// Stop issues a Request for package ui to stop.
 // Some time after this request is received, Go() will return without performing any final cleanup.
-// If Stop is issued during an event handler, it will be registered when the event handler returns.
-func Stop() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			uistop()
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+// Stop is internally issued to ui.Do, so it will not be registered until any event handlers and dialog boxes return.
+func Stop() {
+	go func() {
+		c := make(chan interface{})
+		Do <- &Request{
+			op:		func() {
+				uistop()
+				c <- struct{}{}
+			},
+			resp:		c,
+		}
+		<-c
+	}()
 }
 
 // This is the ui main loop.
 // It is spawned by Go as a goroutine.
-func uitask() {
+// It can also be called recursively using the recur/unrecur chain.
+func uitask(doer Doer) {
 	for {
 		select {
-		case req := <-Do:
+		case req := <-doer:
 			// TODO foreign event
 			issue(req)
-		case <-stall:		// wait for event to finish
-			<-stall		// see below for information
+		case rec := <-recur:		// want to perform event
+			c := make(Doer)
+			rec <- c
+			uitask(c)
+		case <-unrecur:		// finished with event
+			close(doer)
+			return
 		}
 	}
 }
 
-// At each event, this is pulsed twice: once when the event begins, and once when the event ends.
-// Do is not processed in between.
-var stall = make(chan struct{})
+// Send a channel over recur to have uitask() above enter a recursive loop in which the Doer sent back becomes the active request handler.
+// Pulse unrecur when finished.
+var recur = make(chan chan Doer)
+var unrecur = make(chan struct{})
 
 type event struct {
 	// All events internally return bool; those that don't will be wrapped around to return a dummy value.
@@ -95,25 +105,24 @@ func (e *event) setbool(f func(Doer) bool) {
 // This is the common code for running an event.
 // It runs on the main thread without a message pump; it provides its own.
 func (e *event) fire() bool {
-	stall <- struct{}{}		// enter event handler
-	c := make(Doer)
+	cc := make(chan Doer)
+	recur <- cc
+	c := <-cc
 	result := false
+	finished := make(chan struct{})
 	go func() {
 		e.lock.Lock()
 		defer e.lock.Unlock()
 
 		result = e.do(c)
-		close(c)
+		finished <- struct{}{}
 	}()
-	for req := range c {
-		// note: this is perform, not issue!
-		// doevent runs on the main thread without a message pump!
-		perform(req)
-	}
-	// leave the event handler; leave it only after returning from an event handler so we must issue it like a normal Request
+	<-finished
+	close(finished)
+	// leave the event handler; leave it only after returning from the OS-side event handler so we must issue it like a normal Request
 	issue(&Request{
 		op:		func() {
-			stall <- struct{}{}
+			unrecur <- struct{}{}
 		},
 		// unfortunately, closing a nil channel causes a panic
 		// therefore, we have to make a dummy channel
