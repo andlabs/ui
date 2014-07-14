@@ -19,9 +19,9 @@ func Go() error {
 	return nil
 }
 
-// Stop issues a Request for package ui to stop.
+// Stop issues a Request for package ui to stop and returns immediately.
 // Some time after this request is received, Go() will return without performing any final cleanup.
-// Stop is internally issued to ui.Do, so it will not be registered until any event handlers and dialog boxes return.
+// Stop is internally issued to Do, so it will not be registered until any event handlers and dialog boxes return.
 func Stop() {
 	go func() {
 		c := make(chan interface{})
