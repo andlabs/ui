@@ -6,10 +6,12 @@ package ui
 
 import (
 	"unsafe"
+"fmt"
 )
 
 // #include "gtk_unix.h"
 // extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean windowResizing(GtkWidget *, GdkEvent *, gpointer);
 import "C"
 
 type window struct {
@@ -46,6 +48,11 @@ func newWindow(title string, width int, height int) *Request {
 				C.gpointer(unsafe.Pointer(w.window)),
 				"delete-event",
 				C.GCallback(C.windowClosing),
+				C.gpointer(unsafe.Pointer(w)))
+			g_signal_connect(
+				C.gpointer(unsafe.Pointer(w.window)),
+				"configure-event",
+				C.GCallback(C.windowResizing),
 				C.gpointer(unsafe.Pointer(w)))
 			// TODO size
 			C.gtk_container_add(w.container, layoutw)
@@ -143,4 +150,15 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 		return C.GDK_EVENT_PROPAGATE		// will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
 	}
 	return C.GDK_EVENT_STOP				// keeps window alive
+}
+
+//export windowResizing
+func windowResizing(wid *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	w := (*window)(unsafe.Pointer(data))
+	e := (*C.GdkEventConfigure)(unsafe.Pointer(event))
+	_ = w // TODO
+	// TODO this does not take CSD into account; my attempts at doing so so far have failed to work correctly in the face of rapid live resizing
+	// TODO triggered twice on each resize or maximize for some reason???
+	fmt.Printf("new size %d x %d\n", e.width, e.height)
+	return C.GDK_EVENT_PROPAGATE		// let's be safe
 }
