@@ -4,6 +4,7 @@ package ui
 
 import (
 	"unsafe"
+"fmt"
 )
 
 // #include "objc_darwin.h"
@@ -123,7 +124,13 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 	}
 	return C.NO
 }
-	
+
+//export windowResized
+func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
+	w := (*window)(unsafe.Pointer(xw))
+_=w//TODO
+	fmt.Printf("new size %d x %d\n", width, height)
+}
 
 // TODO for testing
 func newButton(string) *Request { return nil }

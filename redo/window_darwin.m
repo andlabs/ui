@@ -20,6 +20,16 @@
 	return windowClosing(self->gowin);
 }
 
+- (void)windowDidResize:(NSNotification *)n
+{
+	NSWindow *w;
+	NSRect r;
+
+	w = toNSWindow([n object]);
+	r = [[w contentView] frame];
+	windowResized(self->gowin, (uintptr_t) r.size.width, (uintptr_t) r.size.height);
+}
+
 @end
 
 id newWindow(intptr_t width, intptr_t height)
