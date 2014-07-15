@@ -165,6 +165,15 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
 	}
 	switch msg {
+	case c_WM_SIZE:
+		var r s_RECT
+
+		res, err := f_GetClientRect(w.hwnd, &r)
+		if res == 0 {
+			panic(fmt.Errorf("error getting client rect for Window in WM_SIZE: %v", err))
+		}
+		fmt.Printf("new size %d x %d\n", r.right - r.left, r.bottom - r.top)
+		return 0
 	case c_WM_CLOSE:
 		close := w.closing.fire()
 		if close {

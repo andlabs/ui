@@ -27,3 +27,4 @@ package ui
 // wfunc user32 UpdateWindow uintptr uintptr
 // wfunc user32 DestroyWindow uintptr uintptr
 // wfunc user32 PostQuitMessage uintptr void
+// wfunc user32 GetClientRect uintptr *s_RECT uintptr
