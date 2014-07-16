@@ -13,11 +13,36 @@ import "C"
 
 type widgetbase struct {
 	widget	*C.GtkWidget
+	parentw	*window
+	floating	bool
 }
 
 func newWidget(w *C.GtkWidget) *widgetbase {
 	return &widgetbase{
 		widget:	w,
+	}
+}
+
+// these few methods are embedded by all the various Controls since they all will do the same thing
+
+func (w *widgetbase) unparent() {
+	if w.parentw != nil {
+		// add another reference so it doesn't get removed by accident
+		C.g_object_ref(C.gpointer(unsafe.Pointer(w.widget)))
+		// we unref this in parent() below
+		w.floating = true
+		C.gtk_container_remove(w.parentw.layoutc, w.widget)
+		w.parentw = nil
+	}
+}
+
+func (w *widgetbase) parent(win *window) {
+	C.gtk_container_add(win.layoutc, w.widget)
+	w.parentw = win
+	// was previously parented; unref our saved ref
+	if w.floating {
+		C.g_object_unref(C.gpointer(unsafe.Pointer(w.widget)))
+		w.floating = false
 	}
 }
 

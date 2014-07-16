@@ -12,6 +12,8 @@ import (
 func init() {
 	go func() {
 		w := GetNewWindow(Do, "Hello", 320, 240)
+		b := GetNewButton(Do, "There")
+		Wait(Do, w.SetControl(b))
 		done := make(chan struct{})
 		Wait(Do, w.OnClosing(func(c Doer) bool {
 			Stop()

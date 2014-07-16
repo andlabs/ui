@@ -5,7 +5,8 @@ package ui
 // Control represents a control.
 // All Controls have event handlers that take a single argument (the Doer active during the event) and return nothing.
 type Control interface {
-	// TODO reparent (public)
+	unparent()
+	parent(*window)
 	// TODO enable/disable (public)
 	// TODO show/hide (public)
 	// TODO sizing (likely private)
