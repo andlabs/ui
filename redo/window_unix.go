@@ -68,6 +68,9 @@ func (w *window) SetControl(control Control) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
+			if w.child != nil {		// unparent existing control
+				w.child.unparent()
+			}
 			control.unparent()
 			control.parent(w)
 			w.child = control
