@@ -12,6 +12,8 @@ type window struct {
 	hwnd		uintptr
 	shownbefore	bool
 
+	child			Control
+
 	closing		*event
 }
 
@@ -65,8 +67,12 @@ func (w *window) SetControl(control Control) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			// TODO unparent
-			// TODO reparent
+			if w.child != nil {		// unparent existing control
+				w.child.unparent()
+			}
+			control.unparent()
+			control.parent(w)
+			w.child = control
 			c <- struct{}{}
 		},
 		resp:		c,

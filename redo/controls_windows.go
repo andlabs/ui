@@ -19,7 +19,8 @@ func newWidget(class *uint16, style uintptr, extstyle uintptr) *widgetbase {
 		class, emptystr,
 		style | c_WS_CHILD | c_WS_VISIBLE,
 		c_CW_USEDEFAULT, c_CW_USEDEFAULT,
-		c_CW_USEDEFAULT, c_CW_USEDEFAULT,
+//		c_CW_USEDEFAULT, c_CW_USEDEFAULT,
+100,100,
 		// the following has the consequence of making the control message-only at first
 		// this shouldn't cause any problems... hopefully not
 		// but see the msgwndproc() for caveat info
