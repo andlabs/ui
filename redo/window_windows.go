@@ -185,6 +185,3 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 	}
 	panic(fmt.Errorf("Window message %d does not return a value (bug in windowWndProc())", msg))
 }
-
-// TODO
-func newButton(string)*Request{return nil}
