@@ -26,4 +26,11 @@ extern void windowShow(id);
 extern void windowHide(id);
 extern void windowClose(id);
 
+/* controls_darwin.m */
+extern void unparent(id);
+extern void parent(id, id, BOOL);
+extern id newButton(char *);
+extern const char *buttonText(id);
+extern void buttonSetText(id, char *);
+
 #endif

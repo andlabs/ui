@@ -13,6 +13,8 @@ import "C"
 type window struct {
 	id		C.id
 
+	child		Control
+
 	closing	*event
 }
 
@@ -39,8 +41,12 @@ func (w *window) SetControl(control Control) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			// TODO unparent
-			// TODO reparent
+			if w.child != nil {		// unparent existing control
+				w.child.unparent()
+			}
+			control.unparent()
+			control.parent(w)
+			w.child = control
 			c <- struct{}{}
 		},
 		resp:		c,
@@ -131,6 +137,3 @@ func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
 _=w//TODO
 	fmt.Printf("new size %d x %d\n", width, height)
 }
-
-// TODO for testing
-func newButton(string) *Request { return nil }
