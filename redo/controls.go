@@ -9,7 +9,7 @@ type Control interface {
 	parent(*window)
 	// TODO enable/disable (public)
 	// TODO show/hide (public)
-	// TODO sizing (likely private)
+	controlSizing
 }
 
 // Button is a clickable button that performs some task.

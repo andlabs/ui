@@ -26,6 +26,8 @@ type window struct {
 	child		Control
 
 	closing	*event
+
+	spaced	bool
 }
 
 func newWindow(title string, width int, height int) *Request {
@@ -162,7 +164,7 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 func windowResizing(wid *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	w := (*window)(unsafe.Pointer(data))
 	e := (*C.GdkEventConfigure)(unsafe.Pointer(event))
-	_ = w // TODO
+	w.doresize(int(e.width), int(e.height))
 	// TODO this does not take CSD into account; my attempts at doing so so far have failed to work correctly in the face of rapid live resizing
 	// TODO triggered twice on each resize or maximize for some reason???
 	fmt.Printf("new size %d x %d\n", e.width, e.height)
