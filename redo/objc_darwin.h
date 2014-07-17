@@ -30,6 +30,7 @@ extern void windowClose(id);
 extern void unparent(id);
 extern void parent(id, id, BOOL);
 extern id newButton(char *);
+extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);
 extern void buttonSetText(id, char *);
 

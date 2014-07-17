@@ -20,6 +20,9 @@ func init() {
 			done <- struct{}{}
 			return true
 		}))
+		Wait(Do, b.OnClicked(func(c Doer) {
+			println("in OnClicked()")
+		}))
 		Wait(Do, w.Show())
 		<-done
 	}()

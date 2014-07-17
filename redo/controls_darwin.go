@@ -47,6 +47,7 @@ func (w *widgetbase) parent(win *window) {
 
 type button struct {
 	*widgetbase
+	clicked		*event
 }
 
 func newButton(text string) *Request {
@@ -55,17 +56,33 @@ func newButton(text string) *Request {
 		op:		func() {
 			ctext := C.CString(text)
 			defer C.free(unsafe.Pointer(ctext))
-			c <- &button{
+			b := &button{
 				widgetbase:	newWidget(C.newButton(ctext)),
+				clicked:		newEvent(),
 			}
+			C.buttonSetDelegate(b.id, unsafe.Pointer(b))
+			c <- b
 		},
 		resp:		c,
 	}
 }
 
 func (b *button) OnClicked(e func(c Doer)) *Request {
-	// TODO
-	return nil
+	c := make(chan interface{})
+	return &Request{
+		op:		func() {
+			b.clicked.set(e)
+			c <- struct{}{}
+		},
+		resp:		c,
+	}
+}
+
+//export buttonClicked
+func buttonClicked(xb unsafe.Pointer) {
+	b := (*button)(unsafe.Pointer(xb))
+	b.clicked.fire()
+	println("button clicked")
 }
 
 func (b *button) Text() *Request {

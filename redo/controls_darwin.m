@@ -22,6 +22,21 @@ void parent(id control, id parentid, BOOL floating)
 		[toNSView(control) release];
 }
 
+@interface goControlDelegate : NSObject {
+@public
+	void *gocontrol;
+}
+@end
+
+@implementation goControlDelegate
+
+- (IBAction)buttonClicked:(id)sender
+{
+	buttonClicked(self->gocontrol);
+}
+
+@end
+
 id newButton(char *text)
 {
 	NSButton *b;
@@ -34,6 +49,16 @@ id newButton(char *text)
 	[b setBordered:YES];
 	[b setBezelStyle:NSRoundedBezelStyle];
 	return b;
+}
+
+void buttonSetDelegate(id button, void *b)
+{
+	goControlDelegate *d;
+
+	d = [goControlDelegate new];
+	d->gocontrol = b;
+	[toNSButton(button) setTarget:d];
+	[toNSButton(button) setAction:@selector(buttonClicked:)];
 }
 
 const char *buttonText(id button)
