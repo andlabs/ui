@@ -15,6 +15,8 @@ type window struct {
 	child			Control
 
 	closing		*event
+
+	spaced		bool
 }
 
 const windowclassname = "gouiwindow"
@@ -178,6 +180,7 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 		if res == 0 {
 			panic(fmt.Errorf("error getting client rect for Window in WM_SIZE: %v", err))
 		}
+		w.doresize(int(r.right - r.left), int(r.bottom - r.top))
 		fmt.Printf("new size %d x %d\n", r.right - r.left, r.bottom - r.top)
 		return 0
 	case c_WM_CLOSE:

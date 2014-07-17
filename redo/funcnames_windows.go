@@ -29,3 +29,12 @@ package ui
 // wfunc user32 PostQuitMessage uintptr void
 // wfunc user32 GetClientRect uintptr *s_RECT uintptr
 // wfunc user32 SetParent uintptr uintptr uintptr
+// wfunc gdi32 GetTextMetricsW uintptr *s_TEXTMETRICW uintptr
+
+// TODO int here will be wrong on 64-bit systems
+// wfunc kernel32 MulDiv int int int int,noerr
+// wfunc user32 MoveWindow uintptr int int int int t_BOOL uintptr
+
+// wfunc user32 GetDC uintptr uintptr
+// wfunc gdi32 SelectObject uintptr uintptr uintptr
+// wfunc user32 ReleaseDC uintptr uintptr uintptr
