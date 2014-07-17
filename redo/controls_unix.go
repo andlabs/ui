@@ -9,6 +9,7 @@ import (
 )
 
 // #include "gtk_unix.h"
+// extern void buttonClicked(GtkButton *, gpointer);
 import "C"
 
 type widgetbase struct {
@@ -49,6 +50,7 @@ func (w *widgetbase) parent(win *window) {
 type button struct {
 	*widgetbase
 	button		*C.GtkButton
+	clicked		*event
 }
 
 func newButton(text string) *Request {
@@ -58,18 +60,38 @@ func newButton(text string) *Request {
 			ctext := togstr(text)
 			defer freegstr(ctext)
 			widget := C.gtk_button_new_with_label(ctext)
-			c <- &button{
+			b := &button{
 				widgetbase:	newWidget(widget),
 				button:		(*C.GtkButton)(unsafe.Pointer(widget)),
+				clicked:		newEvent(),
 			}
+			g_signal_connect(
+				C.gpointer(unsafe.Pointer(b.button)),
+				"clicked",
+				C.GCallback(C.buttonClicked),
+				C.gpointer(unsafe.Pointer(b)))
+			c <- b
 		},
 		resp:		c,
 	}
 }
 
 func (b *button) OnClicked(e func(c Doer)) *Request {
-	// TODO
-	return nil
+	c := make(chan interface{})
+	return &Request{
+		op:		func() {
+			b.clicked.set(e)
+			c <- struct{}{}
+		},
+		resp:		c,
+	}
+}
+
+//export buttonClicked
+func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
+	b := (*button)(unsafe.Pointer(data))
+	b.clicked.fire()
+	println("button clicked")
 }
 
 func (b *button) Text() *Request {
