@@ -56,6 +56,7 @@ func (w *window) translateAllocationCoords(allocations []*allocation, winwidth, 
 }
 
 // TODO move this to sizing.go
+// TODO when doing so, account for margins
 func (w *widgetbase) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
         return []*allocation{&allocation{
                 x:      x,

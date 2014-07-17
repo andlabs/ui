@@ -16,6 +16,8 @@ type window struct {
 	child		Control
 
 	closing	*event
+
+	spaced	bool
 }
 
 func newWindow(title string, width int, height int) *Request {
@@ -133,7 +135,8 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 
 //export windowResized
 func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
+	// TODO this isn't called when the window first opens up
 	w := (*window)(unsafe.Pointer(xw))
-_=w//TODO
+	w.doresize(int(width), int(height))
 	fmt.Printf("new size %d x %d\n", width, height)
 }

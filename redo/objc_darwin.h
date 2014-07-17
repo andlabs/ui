@@ -33,4 +33,7 @@ extern id newButton(char *);
 extern const char *buttonText(id);
 extern void buttonSetText(id, char *);
 
+/* sizing_darwin.m */
+extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
+
 #endif
