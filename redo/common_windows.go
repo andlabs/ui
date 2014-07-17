@@ -8,8 +8,18 @@ import (
 	"unsafe"
 )
 
-// TODO get rid of this when we actually use s_POINT somewhere
-var dummyToFoolwinconstgen s_POINT
+// #include "winapi_windows.h"
+import "C"
+
+//export xpanic
+func xpanic(msg *C.char, lasterr C.DWORD) {
+	panic(fmt.Errorf("%s: %s", C.GoString(msg), syscall.Errno(lasterr))
+}
+
+//export xmissedmsg
+func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
+	panic(fmt.Errorf("%s window procedure message %d does not return a value (bug in %s)", C.GoString(purpose), uMsg, C.GoString(f)))
+}
 
 func getWindowText(hwnd uintptr) string {
 	// WM_GETTEXTLENGTH and WM_GETTEXT return the count /without/ the terminating null character
