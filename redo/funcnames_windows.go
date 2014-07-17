@@ -39,3 +39,5 @@ package ui
 // wfunc gdi32 SelectObject uintptr uintptr uintptr
 // wfunc user32 ReleaseDC uintptr uintptr uintptr
 // wfunc user32 IsChild uintptr uintptr uintptr,noerr
+// wfunc kernel32 CreateActCtxW *s_ACTCTXW uintptr
+// wfunc kernel32 ActivateActCtx uintptr *t_ULONG_PTR uintptr
