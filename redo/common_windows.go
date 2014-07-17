@@ -46,3 +46,13 @@ func storelpParam(hwnd uintptr, lParam t_LPARAM) {
 	cs = (*s_CREATESTRUCTW)(unsafe.Pointer(uintptr(lParam)))
 	f_SetWindowLongPtrW(hwnd, c_GWLP_USERDATA, cs.lpCreateParams)
 }
+
+func (w t_WPARAM) HIWORD() uint16 {
+	u := uintptr(w) & 0xFFFF0000
+	return uint16(u >> 16)
+}
+
+func (w t_WPARAM) LOWORD() uint16 {
+	u := uintptr(w) & 0x0000FFFF
+	return uint16(u)
+}

@@ -38,3 +38,4 @@ package ui
 // wfunc user32 GetDC uintptr uintptr
 // wfunc gdi32 SelectObject uintptr uintptr uintptr
 // wfunc user32 ReleaseDC uintptr uintptr uintptr
+// wfunc user32 IsChild uintptr uintptr uintptr,noerr

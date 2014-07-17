@@ -276,6 +276,8 @@ func main() {
 	fmt.Fprintf(buf, "type t_WPARAM %s\n", winName(reflect.TypeOf(C.WPARAM(0))))
 	fmt.Fprintf(buf, "type t_LPARAM %s\n", winName(reflect.TypeOf(C.LPARAM(0))))
 	fmt.Fprintf(buf, "type t_LRESULT %s\n", winName(reflect.TypeOf(C.LRESULT(0))))
+	fmt.Fprintf(buf, "type t_UINT_PTR %s\n", winName(reflect.TypeOf(C.UINT_PTR(0))))
+	fmt.Fprintf(buf, "type t_DWORD_PTR %s\n", winName(reflect.TypeOf(C.DWORD_PTR(0))))
 	// and one for GetMessageW()
 	fmt.Fprintf(buf, "type t_BOOL %s\n", winName(reflect.TypeOf(C.BOOL(0))))
 

@@ -160,6 +160,7 @@ func (w *window) OnClosing(e func(Doer) bool) *Request {
 	}
 }
 
+// TODO msg -> uMsg
 func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t_LRESULT {
 	w := (*window)(unsafe.Pointer(f_GetWindowLongPtrW(hwnd, c_GWLP_USERDATA)))
 	if w == nil {
@@ -173,6 +174,8 @@ func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t
 		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
 	}
 	switch msg {
+	case c_WM_COMMAND:
+		return forwardCommand(hwnd, msg, wParam, lParam)
 	case c_WM_SIZE:
 		var r s_RECT
 

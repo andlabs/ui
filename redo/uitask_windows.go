@@ -11,6 +11,7 @@ import (
 // global messages unique to everything
 const (
 	msgRequest = c_WM_APP + 1 + iota		// + 1 just to be safe
+	msgCOMMAND					// WM_COMMAND proxy; see forwardCommand() in controls_windows.go
 )
 
 var msgwin uintptr
@@ -91,6 +92,8 @@ func makemsgwin() error {
 
 func msgwinproc(hwnd uintptr, uMsg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t_LRESULT {
 	switch uMsg {
+	case c_WM_COMMAND:
+		return forwardCommand(hwnd, uMsg, wParam, lParam)
 	case msgRequest:
 		req := (*Request)(unsafe.Pointer(uintptr(lParam)))
 		perform(req)
