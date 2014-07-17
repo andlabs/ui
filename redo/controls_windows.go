@@ -100,10 +100,15 @@ func newButton(text string) *Request {
 				c_BS_PUSHBUTTON | c_WS_TABSTOP,
 				0)
 			setWindowText(w.hwnd, text, []t_LRESULT{c_FALSE})
-			c <- &button{
+			b := &button{
 				widgetbase:	w,
 				clicked:		newEvent(),
 			}
+			res, err := f_SetWindowSubclass(w.hwnd, buttonsubprocptr, 0, t_DWORD_PTR(uintptr(unsafe.Pointer(b))))
+			if res == c_FALSE {
+				panic(fmt.Errorf("error subclassing Button to give it its own event handler: %v", err))
+			}
+			c <- b
 		},
 		resp:		c,
 	}
@@ -128,7 +133,12 @@ func (b *button) SetText(text string) *Request {
 	return b.settext(text)
 }
 
-var buttonsubprocptr = syscall.NewCallback(buttonSubProc)
+var buttonsubprocptr uintptr
+
+// to avoid recursive initialization loop
+func init() {
+	buttonsubprocptr = syscall.NewCallback(buttonSubProc)
+}
 
 func buttonSubProc(hwnd uintptr, uMsg t_UINT, wParam t_WPARAM, lParam t_LPARAM, id t_UINT_PTR, data t_DWORD_PTR) t_LRESULT {
 	b := (*button)(unsafe.Pointer(uintptr(data)))
@@ -139,12 +149,15 @@ func buttonSubProc(hwnd uintptr, uMsg t_UINT, wParam t_WPARAM, lParam t_LPARAM, 
 			println("button clicked")
 			return 0
 		}
-		// TODO return
+		return f_DefSubclassProc(hwnd, uMsg, wParam, lParam)
 	case c_WM_NCDESTROY:
-		// TODO remove
-		// TODO return
+		res, err := f_RemoveWindowSubclass(b.hwnd, buttonsubprocptr, id)
+		if res == c_FALSE {
+			panic(fmt.Errorf("error removing Button subclass (which was for its own event handler): %v", err))
+		}
+		return f_DefSubclassProc(hwnd, uMsg, wParam, lParam)
 	default:
-		// TODO return
+		return f_DefSubclassProc(hwnd, uMsg, wParam, lParam)
 	}
 	panic(fmt.Errorf("Button message %d does not return a value (bug in buttonSubProc())", uMsg))
 }

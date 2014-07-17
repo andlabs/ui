@@ -102,8 +102,8 @@ func f_RemoveWindowSubclass(hwnd uintptr, subproc uintptr, id t_UINT_PTR) (uintp
 	return r1, err
 }
 
-func f_DefSubclassProc(hwnd uintptr, uMsg t_UINT, wParam t_WPARAM, lParam t_LPARAM, id t_UINT_PTR, data t_DWORD_PTR) t_LRESULT {
-	r1, _, _ := fv_DefSubclassProc.Call(hwnd, uintptr(uMsg), uintptr(wParam), uintptr(lParam), uintptr(id), uintptr(data))
+func f_DefSubclassProc(hwnd uintptr, uMsg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t_LRESULT {
+	r1, _, _ := fv_DefSubclassProc.Call(hwnd, uintptr(uMsg), uintptr(wParam), uintptr(lParam))
 	return t_LRESULT(r1)
 }
 
