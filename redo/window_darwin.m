@@ -22,10 +22,15 @@
 
 - (void)windowDidResize:(NSNotification *)n
 {
+	[self doWindowResize:[n object]];
+}
+
+- (void)doWindowResize:(id)win
+{
 	NSWindow *w;
 	NSRect r;
 
-	w = toNSWindow([n object]);
+	w = toNSWindow(win);
 	r = [[w contentView] frame];
 	windowResized(self->gowin, (uintptr_t) r.size.width, (uintptr_t) r.size.height);
 }
@@ -62,6 +67,8 @@ void windowSetTitle(id win, const char * title)
 void windowShow(id win)
 {
 	[toNSWindow(win) makeKeyAndOrderFront:toNSWindow(win)];
+	// calling the above the first time won't emit a size changed event (unlike on Windows and GTK+), so fake one to get the controls laid out properly
+	[[toNSWindow(win) delegate] doWindowResize:win];
 }
 
 void windowHide(id win)
