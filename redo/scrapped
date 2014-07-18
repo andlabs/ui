@@ -1,0 +1,2 @@
+Window.SetSize()
+Window.Center() (only really effective on Mac OS X)

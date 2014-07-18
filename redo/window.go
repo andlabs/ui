@@ -29,9 +29,6 @@ type Window interface {
 	// If this handler returns true, the Window is closed as defined by Close above.
 	// If this handler returns false, the Window is not closed.
 	OnClosing(func(c Doer) bool) *Request
-
-	// TODO SetSize (TODO remove?)
-	// TODO Center
 }
 
 // NewWindow returns a Request to create a new Window with the given title text and size.
