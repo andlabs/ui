@@ -13,7 +13,7 @@ import "C"
 
 //export xpanic
 func xpanic(msg *C.char, lasterr C.DWORD) {
-	panic(fmt.Errorf("%s: %s", C.GoString(msg), syscall.Errno(lasterr))
+	panic(fmt.Errorf("%s: %s", C.GoString(msg), syscall.Errno(lasterr)))
 }
 
 //export xmissedmsg
