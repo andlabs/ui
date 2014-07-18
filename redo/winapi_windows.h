@@ -40,6 +40,7 @@ extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 /* controls_windows.c */
 extern HWND newWidget(LPCWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
+extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
 extern void setButtonSubclass(HWND, void *);
 
@@ -48,6 +49,11 @@ extern HINSTANCE hInstance;
 extern int nCmdShow;
 extern HICON hDefaultIcon;
 extern HCURSOR hArrowCursor;
+extern HFONT controlFont;
+extern HFONT titleFont;
+extern HFONT smallTitleFont;
+extern HFONT menubarFont;
+extern HFONT statusbarFont;
 extern DWORD initWindows(char **);
 
 /* sizing_windows.c */

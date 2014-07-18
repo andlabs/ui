@@ -10,12 +10,9 @@ HDC getDC(HWND hwnd)
 	dc = GetDC(hwnd);
 	if (dc == NULL)
 		xpanic("error getting DC for preferred size calculations", GetLastError());
-/* TODO */
 	/* TODO save for restoring later */
-/*
 	if (SelectObject(dc, controlFont) == NULL)
 		xpanic("error loading control font into device context for preferred size calculation", GetLastError());
-*/
 	return dc;
 }
 

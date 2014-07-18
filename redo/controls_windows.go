@@ -67,6 +67,7 @@ func newButton(text string) *Request {
 				C.BS_PUSHBUTTON | C.WS_TABSTOP,
 				0)
 			C.setWindowText(w.hwnd, toUTF16(text))
+			C.controlSetControlFont(w.hwnd)
 			b := &button{
 				widgetbase:	w,
 				clicked:		newEvent(),

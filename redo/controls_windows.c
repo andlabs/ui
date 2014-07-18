@@ -31,6 +31,11 @@ void controlSetParent(HWND control, HWND parent)
 		xpanic("error changing control parent", GetLastError());
 }
 
+void controlSetControlFont(HWND which)
+{
+	SendMessageW(which, WM_SETFONT, (WPARAM) controlFont, TRUE);
+}
+
 /*
 all controls that have events receive the events themselves through subclasses
 to do this, all windows (including the message-only window; see http://support.microsoft.com/default.aspx?scid=KB;EN-US;Q104069) forward WM_COMMAND to each control with this function

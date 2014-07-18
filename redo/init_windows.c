@@ -8,9 +8,16 @@ int nCmdShow;
 HICON hDefaultIcon;
 HCURSOR hArrowCursor;
 
+HFONT controlFont;
+HFONT titleFont;
+HFONT smallTitleFont;
+HFONT menubarFont;
+HFONT statusbarFont;
+
 DWORD initWindows(char **errmsg)
 {
 	STARTUPINFOW si;
+	NONCLIENTMETRICSW ncm;
 
 	/* WinMain() parameters */
 	hInstance = GetModuleHandleW(NULL);
@@ -34,6 +41,25 @@ DWORD initWindows(char **errmsg)
 		*errmsg = "error loading arrow (default) cursor";
 		return GetLastError();
 	}
+
+	/* standard fonts */
+#define GETFONT(l, f, n) l = CreateFontIndirectW(&ncm.f); \
+	if (l == NULL) { \
+		*errmsg = "error loading " n " font"; \
+		return GetLastError(); \
+	}
+
+	ZeroMemory(&ncm, sizeof (NONCLIENTMETRICSW));
+	ncm.cbSize = sizeof (NONCLIENTMETRICSW);
+	if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICSW), &ncm, sizeof (NONCLIENTMETRICSW)) == 0) {
+		*errmsg = "error getting non-client metrics parameters";
+		return GetLastError();
+	}
+	GETFONT(controlFont, lfMessageFont, "control");
+	GETFONT(titleFont, lfCaptionFont, "titlebar");
+	GETFONT(smallTitleFont, lfSmCaptionFont, "small title bar");
+	GETFONT(menubarFont, lfMenuFont, "menu bar");
+	GETFONT(statusbarFont, lfStatusFont, "status bar");
 
 	return 0;
 }
