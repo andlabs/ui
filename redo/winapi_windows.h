@@ -1,5 +1,9 @@
 /* 17 july 2014 */
 
+/* cgo will include this file multiple times */
+#ifndef __GO_UI_WINAPI_WINDOWS_H__
+#define __GO_UI_WINAPI_WINDOWS_H__
+
 #define UNICODE
 #define _UNICODE
 #define STRICT
@@ -63,3 +67,5 @@ extern void getWindowText(HWND, WPARAM, LPCWSTR);
 extern void setWindowText(HWND, LPCWSTR);
 extern void updateWindow(HWND);
 extern void storelpParam(HWND, LPARAM);
+
+#endif
