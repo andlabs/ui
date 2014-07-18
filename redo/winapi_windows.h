@@ -32,3 +32,9 @@ extern DWORD initCommonControls(LPCWSTR, char **);
 extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
+
+/* controls_windows.c */
+extern HWND newWidget(LPCWSTR, DWORD, DWORD);
+extern void controlSetParent(HWND, HWND);
+extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
+extern void setButtonSubclass(HWND, void *);
