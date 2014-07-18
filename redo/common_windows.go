@@ -21,6 +21,10 @@ func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
 	panic(fmt.Errorf("%s window procedure message %d does not return a value (bug in %s)", C.GoString(purpose), uMsg, C.GoString(f)))
 }
 
+func toUINT16(s string) C.LPCWSTR {
+	return C.LPCWSTR(unsafe.Pointer(syscall.StringToUTF16(s)))
+}
+
 func getWindowText(hwnd uintptr) string {
 	// WM_GETTEXTLENGTH and WM_GETTEXT return the count /without/ the terminating null character
 	// but WM_GETTEXT expects the buffer size handed to it to /include/ the terminating null character

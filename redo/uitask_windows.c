@@ -10,21 +10,21 @@ void uimsgloop(void)
 
 	for (;;) {
 		SetLastError(0);
-		res = GetMessage(&msg, NULL, 0, 0);
+		res = GetMessageW(&msg, NULL, 0, 0);
 		if (res < 0)
 			xpanic("error calling GetMessage()", GetLastError());
 		if (res == 0)		/* WM_QUIT */
 			break;
 		/* TODO IsDialogMessage() */
 		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		DispatchMessageW(&msg);
 	}
 }
 
 void issue(void *request)
 {
 	SetLastError(0);
-	if (PostMessage(msgwin, msgRequested, 0, (LPARAM) request) == 0)
+	if (PostMessageW(msgwin, msgRequested, 0, (LPARAM) request) == 0)
 		xpanic("error issuing request", GetLastError());
 }
 
@@ -41,7 +41,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		xperform((void *) lParam);
 		return 0;
 	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("message-only", "msgwinproc()", uMsg);
 	return 0;		/* unreachable */
@@ -49,21 +49,21 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 DWORD makemsgwin(char **errmsg)
 {
-	WNDCLASS wc;
+	WNDCLASSW wc;
 	HWND hwnd;
 
-	ZeroMemory(&wc, sizeof (WNDCLASS));
+	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpfnWndProc = msgwinproc;
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
 	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
 	wc.lpszClassName = msgwinclass;
-	if (RegisterClass(&wc) == 0) {
+	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering message-only window classs";
 		return GetLastError();
 	}
-	msgwin = CreateWindowEx(
+	msgwin = CreateWindowExW(
 		0,
 		msgwinclass, L"package ui message-only window",
 		0,
