@@ -1,6 +1,7 @@
 /* 17 july 2014 */
 
 #include "winapi_windows.h"
+#include "_cgo_export.h"
 
 HWND newWidget(LPCWSTR class, DWORD style, DWORD extstyle)
 {
@@ -49,7 +50,7 @@ static LRESULT CALLBACK buttonSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg) {
 	case msgCOMMAND:
 		if (HIWORD(wParam) == BN_CLICKED) {
-			buttonClicked(data);
+			buttonClicked((void *) data);
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);

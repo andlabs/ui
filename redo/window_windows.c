@@ -1,6 +1,7 @@
 /* 17 july 2014 */
 
 #include "winapi_windows.h"
+#include "_cgo_export.h"
 
 #define windowclass L"gouiwindow"
 
