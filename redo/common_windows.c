@@ -7,7 +7,7 @@ LRESULT getWindowTextLen(HWND hwnd)
 	return SendMessageW(hwnd, WM_GETTEXTLENGTH, 0, 0);
 }
 
-void getWindowText(HWND hwnd, WPARAM n, LPCWSTR out)
+void getWindowText(HWND hwnd, WPARAM n, LPCWSTR buf)
 {
 	SetLastError(0);
 	if (SendMessageW(hwnd, WM_GETTEXT, n + 1, (LPARAM) buf) != n)

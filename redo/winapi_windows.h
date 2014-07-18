@@ -44,7 +44,7 @@ extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
 extern void setButtonSubclass(HWND, void *);
 
 /* init_windows.c */
-extern HINSTANCE hInstnace;
+extern HINSTANCE hInstance;
 extern int nCmdShow;
 extern HICON hDefaultIcon;
 extern HCURSOR hArrowCursor;

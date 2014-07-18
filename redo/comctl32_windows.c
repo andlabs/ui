@@ -39,7 +39,7 @@ DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 	}
 
 	/* GetProcAddress() only takes a multibyte string */
-#define LOAD(fn) f = GetModuleHandle(comctl32, fn); \
+#define LOAD(fn) f = GetProcAddress(comctl32, fn); \
 	if (f == NULL) { \
 		*errmsg = "error loading " fn "()"; \
 		return GetLastError(); \
