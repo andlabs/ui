@@ -38,3 +38,10 @@ extern HWND newWidget(LPCWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
 extern void setButtonSubclass(HWND, void *);
+
+/* init_windows.c */
+extern HINSTANCE hInstnace;
+extern int nCmdShow;
+extern HICON hDefaultIcon;
+extern HCURSOR hArrowCursor;
+extern DWORD initWindows(char **);

@@ -15,8 +15,11 @@ import "C"
 var msgwin C.HWND
 
 func uiinit() error {
-	if err := initWindows(); err != nil {
-		return fmt.Errorf("error initializing package ui on Windows: %v", err)
+	var errmsg *C.char
+
+	errcode := C.initWindows(&errmsg)
+	if errcode != 0 || errmsg != nil {
+		return fmt.Errorf("error initializing package ui on Windows: %s: %v", C.GoString(errmsg), syscall.Errno(errcode))
 	}
 	if err := initCommonControls(); err != nil {
 		return fmt.Errorf("error initializing comctl32.dll version 6: %v", err)
