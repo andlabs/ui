@@ -66,9 +66,19 @@ func (w *widgetbase) commitResize(c *allocation, d *sizing) {
 		}
 	}
 */
-	// TODO this uses w.parentw directly; change?
-	C.gtk_layout_move(w.parentw.layout, w.widget, C.gint(c.x), C.gint(c.y))
-	C.gtk_widget_set_size_request(w.widget, C.gint(c.width), C.gint(c.height))
+
+	// as we resize on size-allocate, we have to also use size-allocate on our children
+	// this is fine anyway; in fact, this allows us to move without knowing what the container is!
+	// this is what GtkBox does anyway
+	// thanks to tristan in irc.gimp.net/#gtk+
+
+	var r C.GtkAllocation
+
+	r.x = C.int(c.x)
+	r.y = C.int(c.y)
+	r.width = C.int(c.width)
+	r.height = C.int(c.height)
+	C.gtk_widget_size_allocate(w.widget, &r)
 }
 
 func (w *widgetbase) getAuxResizeInfo(d *sizing) {

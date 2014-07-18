@@ -11,7 +11,7 @@ import (
 
 // #include "gtk_unix.h"
 // extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
-// extern gboolean windowResizing(GtkWidget *, GdkEvent *, gpointer);
+// extern void windowResizing(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type window struct {
@@ -53,9 +53,13 @@ func newWindow(title string, width int, height int) *Request {
 				"delete-event",
 				C.GCallback(C.windowClosing),
 				C.gpointer(unsafe.Pointer(w)))
-			g_signal_connect(
-				C.gpointer(unsafe.Pointer(w.window)),
-				"configure-event",
+			// we connect to the layout's size-allocate, not to the window's configure-event
+			// this allows us to handle client-side decoration-based configurations (such as GTK+ on Wayland) properly
+			// also see commitResize() in sizing_unix.go for additional notes
+			// thanks to many people in irc.gimp.net/#gtk+ for help (including tristan for suggesting g_signal_connect_after())
+			g_signal_connect_after(
+				C.gpointer(unsafe.Pointer(layoutw)),
+				"size-allocate",
 				C.GCallback(C.windowResizing),
 				C.gpointer(unsafe.Pointer(w)))
 			// TODO size
@@ -161,12 +165,8 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 }
 
 //export windowResizing
-func windowResizing(wid *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	w := (*window)(unsafe.Pointer(data))
-	e := (*C.GdkEventConfigure)(unsafe.Pointer(event))
-	w.doresize(int(e.width), int(e.height))
-	// TODO this does not take CSD into account; my attempts at doing so so far have failed to work correctly in the face of rapid live resizing
-	// TODO triggered twice on each resize or maximize for some reason???
-	fmt.Printf("new size %d x %d\n", e.width, e.height)
-	return C.GDK_EVENT_PROPAGATE		// let's be safe
+	w.doresize(int(r.width), int(r.height))
+	fmt.Printf("new size %d x %d\n", r.width, r.height)
 }

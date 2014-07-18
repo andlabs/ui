@@ -14,6 +14,10 @@ import (
 // {
 // 	g_signal_connect(obj, sig, callback, data);
 // }
+// void gSignalConnectAfter(gpointer obj, gchar *sig, GCallback callback, gpointer data)
+// {
+// 	g_signal_connect_after(obj, sig, callback, data);
+// }
 import "C"
 
 func fromgstr(s *C.gchar) string {
@@ -32,4 +36,10 @@ func g_signal_connect(object C.gpointer, name string, to C.GCallback, data C.gpo
 	cname := togstr(name)
 	defer freegstr(cname)
 	C.gSignalConnect(object, cname, to, data)
+}
+
+func g_signal_connect_after(object C.gpointer, name string, to C.GCallback, data C.gpointer) {
+	cname := togstr(name)
+	defer freegstr(cname)
+	C.gSignalConnectAfter(object, cname, to, data)
 }
