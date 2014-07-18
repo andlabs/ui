@@ -3,8 +3,6 @@
 package ui
 
 import (
-	"fmt"
-	"syscall"
 	"unsafe"
 )
 
@@ -15,7 +13,7 @@ type widgetbase struct {
 	hwnd	C.HWND
 }
 
-func newWidget(class C.LPCWSTR, style uintptr, extstyle uintptr) *widgetbase {
+func newWidget(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *widgetbase {
 	return &widgetbase{
 		hwnd:	C.newWidget(class, style, extstyle),
 	}
@@ -43,7 +41,7 @@ func (w *widgetbase) text() *Request {
 	}
 }
 
-func (w *widgetbase) settext(text string, results ...t_LRESULT) *Request {
+func (w *widgetbase) settext(text string) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
@@ -97,13 +95,6 @@ func (b *button) Text() *Request {
 
 func (b *button) SetText(text string) *Request {
 	return b.settext(text)
-}
-
-var buttonsubprocptr uintptr
-
-// to avoid recursive initialization loop
-func init() {
-	buttonsubprocptr = syscall.NewCallback(buttonSubProc)
 }
 
 //export buttonClicked

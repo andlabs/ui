@@ -5,6 +5,11 @@
 static ULONG_PTR comctlManifestCookie;
 static HMODULE comctl32;
 
+/* TODO do any of these take WINAPI? */
+BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
+BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
+LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
+
 DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 {
 	ACTCTX actctx;

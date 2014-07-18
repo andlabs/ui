@@ -9,6 +9,9 @@ import (
 	"unsafe"
 )
 
+// #include "winapi_windows.h"
+import "C"
+
 // pretty much every constant here except _WM_USER is from commctrl.h, except where noted
 
 /*

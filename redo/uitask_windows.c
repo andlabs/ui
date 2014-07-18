@@ -24,7 +24,7 @@ void uimsgloop(void)
 void issue(void *request)
 {
 	SetLastError(0);
-	if (PostMessageW(msgwin, msgRequested, 0, (LPARAM) request) == 0)
+	if (PostMessageW(msgwin, msgRequest, 0, (LPARAM) request) == 0)
 		xpanic("error issuing request", GetLastError());
 }
 
@@ -37,7 +37,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	switch (uMsg) {
 	case WM_COMMAND:
 		return forwardCommand(hwnd, uMsg, wParam, lParam);
-	case msgRequested:
+	case msgRequest:
 		xperform((void *) lParam);
 		return 0;
 	default:

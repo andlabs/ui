@@ -22,13 +22,13 @@ func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
 }
 
 func toUTF16(s string) C.LPCWSTR {
-	return C.LPCWSTR(unsafe.Pointer(syscall.StringToUTF16(s)))
+	return C.LPCWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(s)))
 }
 
-func getWindowText(hwnd uintptr) string {
+func getWindowText(hwnd C.HWND) string {
 	// WM_GETTEXTLENGTH and WM_GETTEXT return the count /without/ the terminating null character
 	// but WM_GETTEXT expects the buffer size handed to it to /include/ the terminating null character
-	n := C.getWindowTextLen(hwnd, c_WM_GETTEXTLENGTH, 0, 0)
+	n := C.getWindowTextLen(hwnd)
 	buf := make([]uint16, int(n + 1))
 	C.getWindowText(hwnd, C.WPARAM(n),
 		C.LPCWSTR(unsafe.Pointer(&buf[0])))

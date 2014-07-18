@@ -38,7 +38,7 @@ func uimsgloop() {
 }
 
 func uistop() {
-	f_PostQuitMessage(0)
+	C.PostQuitMessage(0)
 }
 
 func issue(req *Request) {

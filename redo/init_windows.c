@@ -2,7 +2,7 @@
 
 #include "winapi_windows.h"
 
-HINSTANCE hInstnace;
+HINSTANCE hInstance;
 int nCmdShow;
 
 HICON hDefaultIcon;
@@ -29,7 +29,7 @@ DWORD initWindows(char **errmsg)
 		*errmsg = "error loading default icon";
 		return GetLastError();
 	}
-	hDefaultCursor = LoadCursorW(NULL, IDC_ARROW);
+	hArrowCursor = LoadCursorW(NULL, IDC_ARROW);
 	if (hArrowCursor == NULL) {
 		*errmsg = "error loading arrow (default) cursor";
 		return GetLastError();

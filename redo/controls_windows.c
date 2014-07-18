@@ -19,7 +19,7 @@ HWND newWidget(LPCWSTR class, DWORD style, DWORD extstyle)
 		also don't use low control IDs as they will conflict with dialog boxes (IDCANCEL, etc.)
 		*/
 		msgwin, (HMENU) 100, hInstance, NULL);
-	if (hwnd == NULL) {
+	if (hwnd == NULL)
 		xpanic("error creating control", GetLastError());
 	return hwnd;
 }

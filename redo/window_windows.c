@@ -4,7 +4,7 @@
 
 #define windowclass L"gouiwindow"
 
-static LRESULT CALLBACK windowWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	void *data;
 	RECT r;
@@ -23,10 +23,10 @@ static LRESULT CALLBACK windowWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	switch (uMsg) {
 	case WM_COMMAND:
-		return forwardCommand(hwnd, msg, wParam, lParam)
+		return forwardCommand(hwnd, uMsg, wParam, lParam);
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
-			xparent("error getting client rect for Window in WM_SIZE", GetLastError());
+			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
 		windowResize(data, &r);
 		return 0;
 	case WM_CLOSE:
@@ -67,9 +67,9 @@ HWND newWindow(LPCWSTR title, int width, int height, void *data)
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, NULL, hInstance, w);
+		NULL, NULL, hInstance, data);
 	if (hwnd == NULL)
-		xpanic("Window creation failed", GetLastError();
+		xpanic("Window creation failed", GetLastError());
 	return hwnd;
 }
 

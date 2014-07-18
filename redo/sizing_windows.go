@@ -2,10 +2,6 @@
 
 package ui
 
-import (
-	"fmt"
-)
-
 // #include "winapi_windows.h"
 import "C"
 
@@ -38,10 +34,10 @@ func (w *window) beginResize() (d *sizing) {
 	d.baseY = int(tm.tmHeight)
 
 	if w.spaced {
-		d.xmargin = int(C.MulDiv(marginDialogUnits, d.baseX, 4))
-		d.ymargin = int(C.MulDiv(marginDialogUnits, d.baseY, 8))
-		d.xpadding = int(C.MulDiv(paddingDialogUnits, d.baseX, 4))
-		d.ypadding = int(C.MulDiv(paddingDialogUnits, d.baseY, 8))
+		d.xmargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseX), 4))
+		d.ymargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseY), 8))
+		d.xpadding = int(C.MulDiv(paddingDialogUnits, C.int(d.baseX), 4))
+		d.ypadding = int(C.MulDiv(paddingDialogUnits, C.int(d.baseY), 8))
 	}
 
 	return d
@@ -75,11 +71,11 @@ func (w *widgetbase) commitResize(c *allocation, d *sizing) {
 		yoff = stdDlgSizes[s.ctype].yoffalt
 	}
 	if yoff != 0 {
-		yoff = int(C.MulDiv(yoff, d.baseY, 8))
+		yoff = int(C.MulDiv(C.int(yoff), C.int(d.baseY), 8))
 	}
 	c.y += yoff
 */
-	C.moveWindow(w.hwnd, int(c.x), int(c.y), int(c.width), int(c.height))
+	C.moveWindow(w.hwnd, C.int(c.x), C.int(c.y), C.int(c.width), C.int(c.height))
 }
 
 func (w *widgetbase) getAuxResizeInfo(d *sizing) {
@@ -185,8 +181,8 @@ func (w *widgetbase) preferredSize(d *sizing) (width int, height int) {
 		width = defaultWidth
 	}
 	height = stdDlgSizes[s.ctype].height
-	width = f_MulDiv(width, d.baseX, 4)   // equivalent to right of rect
-	height = f_MulDiv(height, d.baseY, 8) // equivalent to bottom of rect
+	width = int(C.MulDiv(C.int(width), C.int(d.baseX), 4))		// equivalent to right of rect
+	height = int(C.MulDiv(C.int(height), C.int(d.baseY), 8))		// equivalent to bottom of rect
 */
 	return width, height
 }
