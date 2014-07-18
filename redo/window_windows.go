@@ -8,8 +8,11 @@ import (
 	"unsafe"
 )
 
+// #include "winapi_windows.h"
+import "C"
+
 type window struct {
-	hwnd		uintptr
+	hwnd		C.HWND
 	shownbefore	bool
 
 	child			Control
@@ -19,21 +22,15 @@ type window struct {
 	spaced		bool
 }
 
-const windowclassname = "gouiwindow"
+const windowclassname = ""
 var windowclassptr = syscall.StringToUTF16Ptr(windowclassname)
 
 func makeWindowWindowClass() error {
-	var wc s_WNDCLASSW
+	var errmsg *C.char
 
-	wc.lpfnWndProc = syscall.NewCallback(windowWndProc)
-	wc.hInstance = hInstance
-	wc.hIcon = hDefaultIcon
-	wc.hCursor = hArrowCursor
-	wc.hbrBackground = c_COLOR_BTNFACE + 1
-	wc.lpszClassName = windowclassptr
-	res, err := f_RegisterClassW(&wc)
-	if res == 0 {
-		return fmt.Errorf("error registering Window window class: %v", err)
+	err := C.makeWindowWindowClass(&errmsg)
+	if err != 0 || errmsg != nil {
+		return fmt.Errorf("%s: %v", C.GoString(errmsg), syscall.Errno(err))
 	}
 	return nil
 }
@@ -46,17 +43,8 @@ func newWindow(title string, width int, height int) *Request {
 				// hwnd set in WM_CREATE handler
 				closing:	newEvent(),
 			}
-			hwnd, err := f_CreateWindowExW(
-				0,
-				windowclassptr,
-				syscall.StringToUTF16Ptr(title),
-				c_WS_OVERLAPPEDWINDOW,
-				c_CW_USEDEFAULT, c_CW_USEDEFAULT,
-				uintptr(width), uintptr(height),
-				hNULL, hNULL, hInstance, unsafe.Pointer(w))
-			if hwnd == hNULL {
-				panic(fmt.Errorf("Window creation failed: %v", err))
-			} else if hwnd != w.hwnd {
+			hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
+			if hwnd != w.hwnd {
 				panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
 			}
 			c <- w
@@ -85,7 +73,7 @@ func (w *window) Title() *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			c <- getWindowText(w.hwnd)
+			c <- C.GoString(C.getWindowText(w.hwnd))
 		},
 		resp:		c,
 	}
@@ -95,7 +83,7 @@ func (w *window) SetTitle(title string) *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			setWindowText(w.hwnd, title, []t_LRESULT{c_FALSE})
+			C.setWindowText(w.hwnd, toUTF16(title))
 			c <- struct{}{}
 		},
 		resp:		c,
@@ -107,12 +95,11 @@ func (w *window) Show() *Request {
 	return &Request{
 		op:		func() {
 			if !w.shownbefore {
-				// TODO get rid of need for cast
-				f_ShowWindow(w.hwnd, uintptr(nCmdShow))
-				updateWindow(w.hwnd, "Window.Show()")
+				C.ShowWindow(w.hwnd, C.nCmdShow)
+				C.updateWindow(w.hwnd)
 				w.shownbefore = true
 			} else {
-				f_ShowWindow(w.hwnd, c_SW_SHOW)
+				C.ShowWindow(w.hwnd, C.SW_SHOW)
 			}
 			c <- struct{}{}
 		},
@@ -124,17 +111,10 @@ func (w *window) Hide() *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			f_ShowWindow(w.hwnd, c_SW_HIDE)
+			C.ShowWindow(w.hwnd, C.SW_HIDE)
 			c <- struct{}{}
 		},
 		resp:		c,
-	}
-}
-
-func doclose(w *window) {
-	res, err := f_DestroyWindow(w.hwnd)
-	if res == 0 {
-		panic(fmt.Errorf("error destroying window: %v", err))
 	}
 }
 
@@ -142,7 +122,7 @@ func (w *window) Close() *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			doclose(w)
+			C.windowClose(w.hwnd)
 			c <- struct{}{}
 		},
 		resp:		c,
@@ -160,40 +140,23 @@ func (w *window) OnClosing(e func(Doer) bool) *Request {
 	}
 }
 
-// TODO msg -> uMsg
-func windowWndProc(hwnd uintptr, msg t_UINT, wParam t_WPARAM, lParam t_LPARAM) t_LRESULT {
-	w := (*window)(unsafe.Pointer(f_GetWindowLongPtrW(hwnd, c_GWLP_USERDATA)))
-	if w == nil {
-		// the lpParam is available during WM_NCCREATE and WM_CREATE
-		if msg == c_WM_NCCREATE {
-			storelpParam(hwnd, lParam)
-			w := (*window)(unsafe.Pointer(f_GetWindowLongPtrW(hwnd, c_GWLP_USERDATA)))
-			w.hwnd = hwnd
-		}
-		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
-		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
-	}
-	switch msg {
-	case c_WM_COMMAND:
-		return forwardCommand(hwnd, msg, wParam, lParam)
-	case c_WM_SIZE:
-		var r s_RECT
+//export storeWindowHWND
+func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
+	w := (*window)(data)
+	w.hwnd = hwnd
+}
 
-		res, err := f_GetClientRect(w.hwnd, &r)
-		if res == 0 {
-			panic(fmt.Errorf("error getting client rect for Window in WM_SIZE: %v", err))
-		}
-		w.doresize(int(r.right - r.left), int(r.bottom - r.top))
-		fmt.Printf("new size %d x %d\n", r.right - r.left, r.bottom - r.top)
-		return 0
-	case c_WM_CLOSE:
-		close := w.closing.fire()
-		if close {
-			doclose(w)
-		}
-		return 0
-	default:
-		return f_DefWindowProcW(hwnd, msg, wParam, lParam)
+//export windowResize
+func windowResize(data unsafe.Pointer, r *C.RECT) {
+	w := (*window)(data)
+	w.doresize(int(r.right - r.left), int(r.bottom - r.top))
+}
+
+//export windowClosing
+func windowClosing(data unsafe.Pointer) {
+	w := (*window)(data)
+	close := w.closing.fire()
+	if close {
+		C.windowClose(w.hwnd)
 	}
-	panic(fmt.Errorf("Window message %d does not return a value (bug in windowWndProc())", msg))
 }

@@ -51,3 +51,8 @@ extern HDC getDC(HWND);
 extern void releaseDC(HWND, HDC);
 extern void getTextMetricsW(HDC, TEXTMETRICW *);
 extern void moveWindow(HWND, int, int, int, int);
+
+/* window_windows.c */
+extern DWORD makeWindowWindowClass(char **);
+extern HWND newWindow(LPCWSTR, int, int, void *);
+extern void windowClose(HWND);
