@@ -66,9 +66,12 @@ void windowSetTitle(id win, const char * title)
 
 void windowShow(id win)
 {
+	goWindowDelegate *d;
+
 	[toNSWindow(win) makeKeyAndOrderFront:toNSWindow(win)];
 	// calling the above the first time won't emit a size changed event (unlike on Windows and GTK+), so fake one to get the controls laid out properly
-	[[toNSWindow(win) delegate] doWindowResize:win];
+	d = [toNSWindow(win) delegate];
+	[d doWindowResize:win];
 }
 
 void windowHide(id win)
