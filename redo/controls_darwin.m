@@ -6,6 +6,7 @@
 
 #define toNSView(x) ((NSView *) (x))
 #define toNSWindow(x) ((NSWindow *) (x))
+#define toNSControl(x) ((NSControl *) (x))
 #define toNSButton(x) ((NSButton *) (x))
 
 void unparent(id control)
@@ -20,6 +21,11 @@ void parent(id control, id parentid, BOOL floating)
 	[[toNSWindow(parentid) contentView] addSubview:toNSView(control)];
 	if (floating)		// previously unparented
 		[toNSView(control) release];
+}
+
+static inline void setStandardControlFont(id control)
+{
+	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]]];
 }
 
 @interface goControlDelegate : NSObject {
@@ -48,6 +54,7 @@ id newButton(char *text)
 	[b setTitle:[NSString stringWithUTF8String:text]];
 	[b setBordered:YES];
 	[b setBezelStyle:NSRoundedBezelStyle];
+	setStandardControlFont(b);
 	return b;
 }
 
