@@ -6,6 +6,9 @@ import (
 	"fmt"
 )
 
+// #include "winapi_windows.h"
+import "C"
+
 type sizing struct {
 	sizingbase
 
@@ -25,23 +28,20 @@ const (
 func (w *window) beginResize() (d *sizing) {
 	d = new(sizing)
 
-	dc := getTextDC(w.hwnd)
-	defer releaseTextDC(w.hwnd, dc)
+	dc := C.getDC(w.hwnd)
+	defer C.releaseDC(w.hwnd, dc)
 
-	var tm s_TEXTMETRICW
+	var tm C.TEXTMETRICW
 
-	res, err := f_GetTextMetricsW(dc, &tm)
-	if res == 0 {
-		panic(fmt.Errorf("error getting text metrics for preferred size calculations: %v", err))
-	}
+	C.getTextMetricsW(dc, &tm)
 	d.baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference below has better way
 	d.baseY = int(tm.tmHeight)
 
 	if w.spaced {
-		d.xmargin = f_MulDiv(marginDialogUnits, d.baseX, 4)
-		d.ymargin = f_MulDiv(marginDialogUnits, d.baseY, 8)
-		d.xpadding = f_MulDiv(paddingDialogUnits, d.baseX, 4)
-		d.ypadding = f_MulDiv(paddingDialogUnits, d.baseY, 8)
+		d.xmargin = int(C.MulDiv(marginDialogUnits, d.baseX, 4))
+		d.ymargin = int(C.MulDiv(marginDialogUnits, d.baseY, 8))
+		d.xpadding = int(C.MulDiv(paddingDialogUnits, d.baseX, 4))
+		d.ypadding = int(C.MulDiv(paddingDialogUnits, d.baseY, 8))
 	}
 
 	return d
@@ -75,14 +75,11 @@ func (w *widgetbase) commitResize(c *allocation, d *sizing) {
 		yoff = stdDlgSizes[s.ctype].yoffalt
 	}
 	if yoff != 0 {
-		yoff = f_MulDiv(yoff, d.baseY, 8)
+		yoff = int(C.MulDiv(yoff, d.baseY, 8))
 	}
 	c.y += yoff
 */
-	res, err := f_MoveWindow(w.hwnd, c.x, c.y, c.width, c.height, c_TRUE)
-	if res == 0 {
-		panic(fmt.Errorf("error setting window/control rect: %v", err))
-	}
+	C.moveWindow(w.hwnd, int(c.x), int(c.y), int(c.width), int(c.height))
 }
 
 func (w *widgetbase) getAuxResizeInfo(d *sizing) {
@@ -159,29 +156,6 @@ var stdDlgSizes = [nctypes]dlgunits{
 	},
 }
 */
-
-func getTextDC(hwnd uintptr) (dc uintptr) {
-	dc, err := f_GetDC(hwnd)
-	if dc == hNULL {
-		panic(fmt.Errorf("error getting DC for preferred size calculations: %v", err))
-	}
-// TODO
-/*
-	// TODO save so it can be restored later
-	res, err = f_SelectObject(dc, controlFont)
-	if res == hNULL {
-		panic(fmt.Errorf("error loading control font into device context for preferred size calculation: %v", err))
-	}
-*/
-	return dc
-}
-
-func releaseTextDC(hwnd uintptr, dc uintptr) {
-	res, err := f_ReleaseDC(hwnd, dc)
-	if res == 0 {
-		panic(fmt.Errorf("error releasing DC for preferred size calculations: %v", err))
-	}
-}
 
 func (w *widgetbase) preferredSize(d *sizing) (width int, height int) {
 // TODO

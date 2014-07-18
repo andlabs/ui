@@ -45,3 +45,9 @@ extern int nCmdShow;
 extern HICON hDefaultIcon;
 extern HCURSOR hArrowCursor;
 extern DWORD initWindows(char **);
+
+/* sizing_windows.c */
+extern HDC getDC(HWND);
+extern void releaseDC(HWND, HDC);
+extern void getTextMetricsW(HDC, TEXTMETRICW *);
+extern void moveWindow(HWND, int, int, int, int);
