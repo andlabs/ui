@@ -73,7 +73,7 @@ func (w *window) Title() *Request {
 	c := make(chan interface{})
 	return &Request{
 		op:		func() {
-			c <- C.GoString(C.getWindowText(w.hwnd))
+			c <- getWindowText(w.hwnd)
 		},
 		resp:		c,
 	}

@@ -56,3 +56,10 @@ extern void moveWindow(HWND, int, int, int, int);
 extern DWORD makeWindowWindowClass(char **);
 extern HWND newWindow(LPCWSTR, int, int, void *);
 extern void windowClose(HWND);
+
+/* common_windows.c */
+extern LRESULT getWindowTextLen(HWND);
+extern void getWindowText(HWND, WPARAM, LPCWSTR);
+extern void setWindowText(HWND, LPCWSTR);
+extern void updateWindow(HWND);
+extern void storelpParam(HWND, LPARAM);
