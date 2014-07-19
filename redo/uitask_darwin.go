@@ -25,12 +25,11 @@ func uistop() {
 	C.uistop()
 }
 
-func issue(req *Request) {
-	C.issue(unsafe.Pointer(req))
+func issue(f func()) {
+	C.issue(unsafe.Pointer(&f))
 }
 
 //export doissue
-func doissue(r unsafe.Pointer) {
-	req := (*Request)(unsafe.Pointer(r))
-	perform(req)
+func doissue(fp unsafe.Pointer) {
+	perform(fp)
 }

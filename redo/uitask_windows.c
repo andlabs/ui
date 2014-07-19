@@ -38,7 +38,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	case WM_COMMAND:
 		return forwardCommand(hwnd, uMsg, wParam, lParam);
 	case msgRequest:
-		xperform((void *) lParam);
+		doissue((void *) lParam);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);

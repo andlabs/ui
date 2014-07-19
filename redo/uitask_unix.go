@@ -27,13 +27,12 @@ func uistop() {
 	C.gtk_main_quit()
 }
 
-func issue(req *Request) {
-	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(req)))
+func issue(f func()) {
+	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(&f)))
 }
 
 //export doissue
 func doissue(data C.gpointer) C.gboolean {
-	req := (*Request)(unsafe.Pointer(data))
-	perform(req)
+	perform(unsafe.Pointer(data))
 	return C.FALSE		// don't repeat
 }

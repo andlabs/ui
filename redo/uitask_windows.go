@@ -41,8 +41,8 @@ func uistop() {
 	C.PostQuitMessage(0)
 }
 
-func issue(req *Request) {
-	C.issue(unsafe.Pointer(req))
+func issue(f func()) {
+	C.issue(unsafe.Pointer(&f))
 }
 
 func makemsgwin() error {
@@ -55,8 +55,7 @@ func makemsgwin() error {
 	return nil
 }
 
-//export xperform
-func xperform(xreq unsafe.Pointer) {
-	req := (*Request)(xreq)
-	perform(req)
+//export doissue
+func doissue(fp unsafe.Pointer) {
+	perform(fp)
 }
