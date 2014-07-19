@@ -47,7 +47,6 @@ type button struct {
 var buttonclass = toUTF16("BUTTON")
 
 func newButton(text string) *button {
-	op:		func() {
 	w := newWidget(buttonclass,
 		C.BS_PUSHBUTTON | C.WS_TABSTOP,
 		0)
@@ -70,7 +69,7 @@ func (b *button) Text() string {
 }
 
 func (b *button) SetText(text string) {
-	return b.settext(text)
+	b.settext(text)
 }
 
 //export buttonClicked

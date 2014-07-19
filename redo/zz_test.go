@@ -15,14 +15,14 @@ var closeOnClick = flag.Bool("close", false, "close on click")
 func init() {
 	flag.Parse()
 	go Do(func() {
-		w := NewWindow(Do, "Hello", 320, 240)
-		b := NewButton(Do, "There")
+		w := NewWindow("Hello", 320, 240)
+		b := NewButton("There")
 		w.SetControl(b)
 		if *closeOnClick {
 			b.SetText("Click to Close")
 		}
 		done := make(chan struct{})
-		w.OnClosing(func(c Doer) bool {
+		w.OnClosing(func() bool {
 			if *closeOnClick {
 				panic("window closed normally in close on click mode (should not happen)")
 			}
@@ -31,17 +31,17 @@ func init() {
 			done <- struct{}{}
 			return true
 		})
-		b.OnClicked(func(c Doer) {
+		b.OnClicked(func() {
 			println("in OnClicked()")
 			if *closeOnClick {
-				Wait(c, w.Close())
+				w.Close()
 				Stop()
 				done <- struct{}{}
 			}
 		})
 		w.Show()
 		<-done
-	})()
+	})
 	err := Go()
 	if err != nil {
 		panic(err)

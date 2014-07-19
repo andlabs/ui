@@ -5,6 +5,7 @@ package ui
 import (
 	"runtime"
 	"sync"
+	"unsafe"
 )
 
 // Go initializes package ui.
@@ -42,7 +43,7 @@ func Stop() {
 
 type event struct {
 	// All events internally return bool; those that don't will be wrapped around to return a dummy value.
-	do		func(c Doer) bool
+	do		func() bool
 	lock		sync.Mutex
 }
 
@@ -50,31 +51,31 @@ type event struct {
 
 func newEvent() *event {
 	return &event{
-		do:	func(c Doer) bool {
+		do:	func() bool {
 			return false
 		},
 	}
 }
 
-func (e *event) set(f func(Doer)) {
+func (e *event) set(f func()) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 
 	if f == nil {
-		f = func(c Doer) {}
+		f = func() {}
 	}
-	e.do = func(c Doer) bool {
-		f(c)
+	e.do = func() bool {
+		f()
 		return false
 	}
 }
 
-func (e *event) setbool(f func(Doer) bool) {
+func (e *event) setbool(f func() bool) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 
 	if f == nil {
-		f = func(c Doer) bool {
+		f = func() bool {
 			return false
 		}
 	}
@@ -87,7 +88,7 @@ func (e *event) fire() bool {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 
-	return e.do(c)
+	return e.do()
 }
 
 // Common code for performing a requested action (ui.Do() or ui.Stop()).
