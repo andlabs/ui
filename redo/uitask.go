@@ -108,6 +108,7 @@ func (e *event) fire() bool {
 	cc := make(chan Doer)
 	recur <- cc
 	c := <-cc
+	close(cc)
 	result := false
 	finished := make(chan struct{})
 	go func() {
