@@ -14,34 +14,37 @@ var closeOnClick = flag.Bool("close", false, "close on click")
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
 	flag.Parse()
-	go Do(func() {
-		w := NewWindow("Hello", 320, 240)
-		b := NewButton("There")
-		w.SetControl(b)
-		if *closeOnClick {
-			b.SetText("Click to Close")
-		}
+	go func() {
 		done := make(chan struct{})
-		w.OnClosing(func() bool {
+		Do(func() {
+			w := NewWindow("Hello", 320, 240)
+			b := NewButton("There")
+			w.SetControl(b)
 			if *closeOnClick {
-				panic("window closed normally in close on click mode (should not happen)")
+				b.SetText("Click to Close")
 			}
-			println("window close event received")
-			Stop()
-			done <- struct{}{}
-			return true
-		})
-		b.OnClicked(func() {
-			println("in OnClicked()")
-			if *closeOnClick {
-				w.Close()
+			w.OnClosing(func() bool {
+				if *closeOnClick {
+					panic("window closed normally in close on click mode (should not happen)")
+				}
+				println("window close event received")
 				Stop()
 				done <- struct{}{}
-			}
+				return true
+			})
+			// GTK+ TODO: this is causing a resize event to happen afterward?!
+			b.OnClicked(func() {
+				println("in OnClicked()")
+				if *closeOnClick {
+					w.Close()
+					Stop()
+					done <- struct{}{}
+				}
+			})
+			w.Show()
 		})
-		w.Show()
 		<-done
-	})
+	}()
 	err := Go()
 	if err != nil {
 		panic(err)
