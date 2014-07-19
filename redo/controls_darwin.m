@@ -12,7 +12,6 @@
 void unparent(id control)
 {
 	[toNSView(control) retain];		// save from being freed when released by the removal selector below
-	// TODO removeFromSuperviewWithoutNeedingDisplay?
 	[toNSView(control) removeFromSuperview];
 }
 
