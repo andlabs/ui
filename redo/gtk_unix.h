@@ -16,9 +16,7 @@ Thanks to desrt in irc.gimp.net/#gtk+
 #define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
 #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 
-/* TODO are there equivalent compatibility macros for the other components of GTK+? Specifically:
-	cairo
-*/
+/* cairo has no such macros (thanks Company in irc.gimp.net/#gtk+) */
 
 #include <stdlib.h>
 #include <gtk/gtk.h>
