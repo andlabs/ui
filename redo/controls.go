@@ -25,6 +25,6 @@ type Button interface {
 }
 
 // NewButton creates a new Button with the given label text.
-func NewButton(text string) *button {
+func NewButton(text string) Button {
 	return newButton(text)
 }
