@@ -15,9 +15,13 @@ func Go() error {
 	if err := uiinit(); err != nil {
 		return err
 	}
+	go uiissueloop()
 	uimsgloop()
 	return nil
 }
+
+// To ensure that Do() and Stop() only do things after Go() has been called, this channel accepts the requests to issue. The issuing is done by uiissueloop() below.
+var issuer = make(chan func())
 
 // Do performs f on the main loop, as if it were an event handler.
 // It waits for f to execute before returning.
@@ -25,10 +29,10 @@ func Go() error {
 func Do(f func()) {
 	done := make(chan struct{})
 	defer close(done)
-	issue(func() {
+	issuer <- func() {
 		f()
 		done <- struct{}{}
-	})
+	}
 	<-done
 }
 
@@ -38,7 +42,13 @@ func Do(f func()) {
 // Stop will not have an effect until any event handlers or dialog boxes presently active return.
 // (TODO make sure this is the case for dialog boxes)
 func Stop() {
-	issue(uistop)
+	issuer <- uistop
+}
+
+func uiissueloop() {
+	for f := range issuer {
+		issue(f)
+	}
 }
 
 type event struct {
