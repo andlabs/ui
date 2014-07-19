@@ -53,38 +53,25 @@ type button struct {
 	clicked		*event
 }
 
-func newButton(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctext := togstr(text)
-			defer freegstr(ctext)
-			widget := C.gtk_button_new_with_label(ctext)
-			b := &button{
-				widgetbase:	newWidget(widget),
-				button:		(*C.GtkButton)(unsafe.Pointer(widget)),
-				clicked:		newEvent(),
-			}
-			g_signal_connect(
-				C.gpointer(unsafe.Pointer(b.button)),
-				"clicked",
-				C.GCallback(C.buttonClicked),
-				C.gpointer(unsafe.Pointer(b)))
-			c <- b
-		},
-		resp:		c,
+func newButton(text string) *button {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	widget := C.gtk_button_new_with_label(ctext)
+	b := &button{
+		widgetbase:	newWidget(widget),
+		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
+		clicked:		newEvent(),
 	}
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(b.button)),
+		"clicked",
+		C.GCallback(C.buttonClicked),
+		C.gpointer(unsafe.Pointer(b)))
+	return b
 }
 
-func (b *button) OnClicked(e func(c Doer)) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			b.clicked.set(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (b *button) OnClicked(e func()) {
+	b.clicked.set(e)
 }
 
 //export buttonClicked
@@ -94,25 +81,12 @@ func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
 	println("button clicked")
 }
 
-func (b *button) Text() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- fromgstr(C.gtk_button_get_label(b.button))
-		},
-		resp:		c,
-	}
+func (b *button) Text() string {
+	return fromgstr(C.gtk_button_get_label(b.button))
 }
 
-func (b *button) SetText(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctext := togstr(text)
-			defer freegstr(ctext)
-			C.gtk_button_set_label(b.button, ctext)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (b *button) SetText(text string) {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	C.gtk_button_set_label(b.button, ctext)
 }

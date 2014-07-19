@@ -50,32 +50,19 @@ type button struct {
 	clicked		*event
 }
 
-func newButton(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctext := C.CString(text)
-			defer C.free(unsafe.Pointer(ctext))
-			b := &button{
-				widgetbase:	newWidget(C.newButton(ctext)),
-				clicked:		newEvent(),
-			}
-			C.buttonSetDelegate(b.id, unsafe.Pointer(b))
-			c <- b
-		},
-		resp:		c,
+func newButton(text string) *button {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	b := &button{
+		widgetbase:	newWidget(C.newButton(ctext)),
+		clicked:		newEvent(),
 	}
+	C.buttonSetDelegate(b.id, unsafe.Pointer(b))
+	return b
 }
 
-func (b *button) OnClicked(e func(c Doer)) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			b.clicked.set(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (b *button) OnClicked(e func()) {
+	b.clicked.set(e)
 }
 
 //export buttonClicked
@@ -85,25 +72,12 @@ func buttonClicked(xb unsafe.Pointer) {
 	println("button clicked")
 }
 
-func (b *button) Text() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- C.GoString(C.buttonText(b.id))
-		},
-		resp:		c,
-	}
+func (b *button) Text() string {
+	return C.GoString(C.buttonText(b.id))
 }
 
-func (b *button) SetText(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctext := C.CString(text)
-			defer C.free(unsafe.Pointer(ctext))
-			C.buttonSetText(b.id, ctext)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (b *button) SetText(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.buttonSetText(b.id, ctext)
 }

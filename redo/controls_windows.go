@@ -31,25 +31,12 @@ func (w *widgetbase) parent(win *window) {
 
 // don't embed these as exported; let each Control decide if it should
 
-func (w *widgetbase) text() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- getWindowText(w.hwnd)
-		},
-		resp:		c,
-	}
+func (w *widgetbase) text() string {
+	return getWindowText(w.hwnd)
 }
 
-func (w *widgetbase) settext(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.setWindowText(w.hwnd, toUTF16(text))
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *widgetbase) settext(text string) {
+	C.setWindowText(w.hwnd, toUTF16(text))
 }
 
 type button struct {
@@ -59,42 +46,30 @@ type button struct {
 
 var buttonclass = toUTF16("BUTTON")
 
-func newButton(text string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			w := newWidget(buttonclass,
-				C.BS_PUSHBUTTON | C.WS_TABSTOP,
-				0)
-			C.setWindowText(w.hwnd, toUTF16(text))
-			C.controlSetControlFont(w.hwnd)
-			b := &button{
-				widgetbase:	w,
-				clicked:		newEvent(),
-			}
-			C.setButtonSubclass(w.hwnd, unsafe.Pointer(b))
-			c <- b
-		},
-		resp:		c,
+func newButton(text string) *button {
+	op:		func() {
+	w := newWidget(buttonclass,
+		C.BS_PUSHBUTTON | C.WS_TABSTOP,
+		0)
+	C.setWindowText(w.hwnd, toUTF16(text))
+	C.controlSetControlFont(w.hwnd)
+	b := &button{
+		widgetbase:	w,
+		clicked:		newEvent(),
 	}
+	C.setButtonSubclass(w.hwnd, unsafe.Pointer(b))
+	return b
 }
 
-func (b *button) OnClicked(e func(c Doer)) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			b.clicked.set(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (b *button) OnClicked(e func()) {
+	b.clicked.set(e)
 }
 
-func (b *button) Text() *Request {
+func (b *button) Text() string {
 	return b.text()
 }
 
-func (b *button) SetText(text string) *Request {
+func (b *button) SetText(text string) {
 	return b.settext(text)
 }
 

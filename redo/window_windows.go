@@ -35,109 +35,55 @@ func makeWindowWindowClass() error {
 	return nil
 }
 
-func newWindow(title string, width int, height int) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			w := &window{
-				// hwnd set in WM_CREATE handler
-				closing:	newEvent(),
-			}
-			hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
-			if hwnd != w.hwnd {
-				panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
-			}
-			c <- w
-		},
-		resp:		c,
+func newWindow(title string, width int, height int) *window {
+	w := &window{
+		// hwnd set in WM_CREATE handler
+		closing:	newEvent(),
+	}
+	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
+	if hwnd != w.hwnd {
+		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
+	}
+	return w
+}
+
+func (w *window) SetControl(control Control) {
+	if w.child != nil {		// unparent existing control
+		w.child.unparent()
+	}
+	control.unparent()
+	control.parent(w)
+	w.child = control
+}
+
+func (w *window) Title() string {
+	return getWindowText(w.hwnd)
+}
+
+func (w *window) SetTitle(title string) {
+	C.setWindowText(w.hwnd, toUTF16(title))
+}
+
+func (w *window) Show() {
+	if !w.shownbefore {
+		C.ShowWindow(w.hwnd, C.nCmdShow)
+		C.updateWindow(w.hwnd)
+		w.shownbefore = true
+	} else {
+		C.ShowWindow(w.hwnd, C.SW_SHOW)
 	}
 }
 
-func (w *window) SetControl(control Control) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			if w.child != nil {		// unparent existing control
-				w.child.unparent()
-			}
-			control.unparent()
-			control.parent(w)
-			w.child = control
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Hide() {
+	C.ShowWindow(w.hwnd, C.SW_HIDE)
 }
 
-func (w *window) Title() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- getWindowText(w.hwnd)
-		},
-		resp:		c,
-	}
+func (w *window) Close() {
+	C.windowClose(w.hwnd)
 }
 
-func (w *window) SetTitle(title string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.setWindowText(w.hwnd, toUTF16(title))
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
-}
-
-func (w *window) Show() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			if !w.shownbefore {
-				C.ShowWindow(w.hwnd, C.nCmdShow)
-				C.updateWindow(w.hwnd)
-				w.shownbefore = true
-			} else {
-				C.ShowWindow(w.hwnd, C.SW_SHOW)
-			}
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
-}
-
-func (w *window) Hide() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.ShowWindow(w.hwnd, C.SW_HIDE)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
-}
-
-func (w *window) Close() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.windowClose(w.hwnd)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
-}
-
-func (w *window) OnClosing(e func(Doer) bool) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			w.closing.setbool(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) OnClosing(e func() bool) {
+	w.closing.setbool(e)
 }
 
 //export storeWindowHWND

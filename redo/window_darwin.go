@@ -20,106 +20,52 @@ type window struct {
 	spaced	bool
 }
 
-func newWindow(title string, width int, height int) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			id := C.newWindow(C.intptr_t(width), C.intptr_t(height))
-			ctitle := C.CString(title)
-			defer C.free(unsafe.Pointer(ctitle))
-			C.windowSetTitle(id, ctitle)
-			w := &window{
-				id:		id,
-				closing:	newEvent(),
-			}
-			C.windowSetDelegate(id, unsafe.Pointer(w))
-			c <- w
-		},
-		resp:		c,
+func newWindow(title string, width int, height int) *window {
+	id := C.newWindow(C.intptr_t(width), C.intptr_t(height))
+	ctitle := C.CString(title)
+	defer C.free(unsafe.Pointer(ctitle))
+	C.windowSetTitle(id, ctitle)
+	w := &window{
+		id:		id,
+		closing:	newEvent(),
 	}
+	C.windowSetDelegate(id, unsafe.Pointer(w))
+	return w
 }
 
-func (w *window) SetControl(control Control) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			if w.child != nil {		// unparent existing control
-				w.child.unparent()
-			}
-			control.unparent()
-			control.parent(w)
-			w.child = control
-			c <- struct{}{}
-		},
-		resp:		c,
+func (w *window) SetControl(control Control) {
+	if w.child != nil {		// unparent existing control
+		w.child.unparent()
 	}
+	control.unparent()
+	control.parent(w)
+	w.child = control
 }
 
-func (w *window) Title() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- C.GoString(C.windowTitle(w.id))
-		},
-		resp:		c,
-	}
+func (w *window) Title() string {
+	return C.GoString(C.windowTitle(w.id))
 }
 
-func (w *window) SetTitle(title string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctitle := C.CString(title)
-			defer C.free(unsafe.Pointer(ctitle))
-			C.windowSetTitle(w.id, ctitle)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) SetTitle(title string) {
+	ctitle := C.CString(title)
+	defer C.free(unsafe.Pointer(ctitle))
+	C.windowSetTitle(w.id, ctitle)
 }
 
-func (w *window) Show() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.windowShow(w.id)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Show() {
+	C.windowShow(w.id)
 }
 
-func (w *window) Hide() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.windowHide(w.id)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Hide() {
+	C.windowHide(w.id)
 }
 
-func (w *window) Close() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.windowClose(w.id)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Close() {
+	C.windowClose(w.id)
 }
 
-func (w *window) OnClosing(e func(c Doer) bool) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			w.closing.setbool(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) OnClosing(e func() bool) {
+	w.closing.setbool(e)
 }
 
 //export windowClosing

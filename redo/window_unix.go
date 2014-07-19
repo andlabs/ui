@@ -30,128 +30,73 @@ type window struct {
 	spaced	bool
 }
 
-func newWindow(title string, width int, height int) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
-			ctitle := togstr(title)
-			defer freegstr(ctitle)
-			layoutw := C.gtk_layout_new(nil, nil)
-			w := &window{
-				widget:		widget,
-				container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
-				bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
-				window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
-				layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
-				layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
-				closing:		newEvent(),
-			}
-			C.gtk_window_set_title(w.window, ctitle)
-			g_signal_connect(
-				C.gpointer(unsafe.Pointer(w.window)),
-				"delete-event",
-				C.GCallback(C.windowClosing),
-				C.gpointer(unsafe.Pointer(w)))
-			// we connect to the layout's size-allocate, not to the window's configure-event
-			// this allows us to handle client-side decoration-based configurations (such as GTK+ on Wayland) properly
-			// also see commitResize() in sizing_unix.go for additional notes
-			// thanks to many people in irc.gimp.net/#gtk+ for help (including tristan for suggesting g_signal_connect_after())
-			g_signal_connect_after(
-				C.gpointer(unsafe.Pointer(layoutw)),
-				"size-allocate",
-				C.GCallback(C.windowResizing),
-				C.gpointer(unsafe.Pointer(w)))
-			// TODO size
-			C.gtk_container_add(w.container, layoutw)
-			c <- w
-		},
-		resp:		c,
+func newWindow(title string, width int, height int) *window {
+	widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
+	ctitle := togstr(title)
+	defer freegstr(ctitle)
+	layoutw := C.gtk_layout_new(nil, nil)
+	w := &window{
+		widget:		widget,
+		container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
+		bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
+		window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
+		layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
+		layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
+		closing:		newEvent(),
 	}
+	C.gtk_window_set_title(w.window, ctitle)
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(w.window)),
+		"delete-event",
+		C.GCallback(C.windowClosing),
+		C.gpointer(unsafe.Pointer(w)))
+	// we connect to the layout's size-allocate, not to the window's configure-event
+	// this allows us to handle client-side decoration-based configurations (such as GTK+ on Wayland) properly
+	// also see commitResize() in sizing_unix.go for additional notes
+	// thanks to many people in irc.gimp.net/#gtk+ for help (including tristan for suggesting g_signal_connect_after())
+	g_signal_connect_after(
+		C.gpointer(unsafe.Pointer(layoutw)),
+		"size-allocate",
+		C.GCallback(C.windowResizing),
+		C.gpointer(unsafe.Pointer(w)))
+	// TODO size
+	C.gtk_container_add(w.container, layoutw)
+	return w
 }
 
-func (w *window) SetControl(control Control) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			if w.child != nil {		// unparent existing control
-				w.child.unparent()
-			}
-			control.unparent()
-			control.parent(w)
-			w.child = control
-			c <- struct{}{}
-		},
-		resp:		c,
+func (w *window) SetControl(control Control) {
+	if w.child != nil {		// unparent existing control
+		w.child.unparent()
 	}
+	control.unparent()
+	control.parent(w)
+	w.child = control
 }
 
-func (w *window) Title() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			c <- fromgstr(C.gtk_window_get_title(w.window))
-		},
-		resp:		c,
-	}
+func (w *window) Title() string {
+	return fromgstr(C.gtk_window_get_title(w.window))
 }
 
-func (w *window) SetTitle(title string) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			ctitle := togstr(title)
-			defer freegstr(ctitle)
-			C.gtk_window_set_title(w.window, ctitle)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) SetTitle(title string) {
+	ctitle := togstr(title)
+	defer freegstr(ctitle)
+	C.gtk_window_set_title(w.window, ctitle)
 }
 
-
-func (w *window) Show() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.gtk_widget_show_all(w.widget)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Show() {
+	C.gtk_widget_show_all(w.widget)
 }
 
-func (w *window) Hide() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.gtk_widget_hide(w.widget)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Hide() {
+	C.gtk_widget_hide(w.widget)
 }
 
-func (w *window) Close() *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			C.gtk_widget_destroy(w.widget)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) Close() {
+	C.gtk_widget_destroy(w.widget)
 }
 
-func (w *window) OnClosing(e func(c Doer) bool) *Request {
-	c := make(chan interface{})
-	return &Request{
-		op:		func() {
-			w.closing.setbool(e)
-			c <- struct{}{}
-		},
-		resp:		c,
-	}
+func (w *window) OnClosing(e func() bool) {
+	w.closing.setbool(e)
 }
 
 //export windowClosing

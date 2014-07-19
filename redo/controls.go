@@ -16,24 +16,15 @@ type Control interface {
 type Button interface {
 	Control
 
-	// OnClicked creates a Request to set the event handler for when the Button is clicked.
-	OnClicked(func(d Doer)) *Request
+	// OnClicked sets the event handler for when the Button is clicked.
+	OnClicked(func())
 
-	// Text and SetText creates a Request that get and set the Button's label text.
-	Text() *Request
-	SetText(text string) *Request
+	// Text and SetText get and set the Button's label text.
+	Text() string
+	SetText(text string)
 }
 
-// NewButton creates a Request to create a new Button with the given label text.
-func NewButton(text string) *Request {
+// NewButton creates a new Button with the given label text.
+func NewButton(text string) {
 	return newButton(text)
-}
-
-// GetNewButton is like NewButton but sends the Request along the given Doer and returns the resultant Button.
-// Example:
-// 	b := ui.GetNewButton(ui.Do, "OK")
-func GetNewButton(c Doer, text string) Button {
-	req := newButton(text)
-	c <- req
-	return (<-req.resp).(Button)
 }
