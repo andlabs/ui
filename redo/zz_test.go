@@ -14,15 +14,15 @@ var closeOnClick = flag.Bool("close", false, "close on click")
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
 	flag.Parse()
-	go func() {
-		w := GetNewWindow(Do, "Hello", 320, 240)
-		b := GetNewButton(Do, "There")
-		Wait(Do, w.SetControl(b))
+	go Do(func() {
+		w := NewWindow(Do, "Hello", 320, 240)
+		b := NewButton(Do, "There")
+		w.SetControl(b)
 		if *closeOnClick {
-			Wait(Do, b.SetText("Click to Close"))
+			b.SetText("Click to Close")
 		}
 		done := make(chan struct{})
-		Wait(Do, w.OnClosing(func(c Doer) bool {
+		w.OnClosing(func(c Doer) bool {
 			if *closeOnClick {
 				panic("window closed normally in close on click mode (should not happen)")
 			}
@@ -30,18 +30,18 @@ func init() {
 			Stop()
 			done <- struct{}{}
 			return true
-		}))
-		Wait(Do, b.OnClicked(func(c Doer) {
+		})
+		b.OnClicked(func(c Doer) {
 			println("in OnClicked()")
 			if *closeOnClick {
 				Wait(c, w.Close())
 				Stop()
 				done <- struct{}{}
 			}
-		}))
-		Wait(Do, w.Show())
+		})
+		w.Show()
 		<-done
-	}()
+	})()
 	err := Go()
 	if err != nil {
 		panic(err)
