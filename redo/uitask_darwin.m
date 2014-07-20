@@ -4,7 +4,7 @@
 #import "_cgo_export.h"
 #import <Cocoa/Cocoa.h>
 
-@interface appDelegateClass : NSObject
+@interface appDelegateClass : NSObject <NSApplicationDelegate>
 @end
 
 @implementation appDelegateClass

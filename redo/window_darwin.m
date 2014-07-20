@@ -6,7 +6,6 @@
 
 #define toNSWindow(x) ((NSWindow *) (x))
 
-// TODO why do I need the explicit interface specification?
 @interface goWindowDelegate : NSObject <NSWindowDelegate> {
 @public
 	void *gowin;
