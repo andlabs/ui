@@ -73,7 +73,6 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 	w := (*window)(unsafe.Pointer(xw))
 	close := w.closing.fire()
 	if close {
-		// TODO make sure this actually closes the window the way we want
 		return C.YES
 	}
 	return C.NO
