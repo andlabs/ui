@@ -21,7 +21,6 @@ type Window interface {
 	// Any Controls within the Window are destroyed, and the Window itself is also destroyed.
 	// Attempting to use a Window after it has been closed results in undefined behavior.
 	// Close unconditionally closes the Window; it neither raises OnClosing nor checks for a return from OnClosing.
-	// TODO make sure the above happens on Mac OS X; it does on Windows and GTK+
 	Close()
 
 	// OnClosing registers an event handler that is triggered when the user clicks the Window's close button.

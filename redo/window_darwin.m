@@ -81,5 +81,5 @@ void windowHide(id win)
 
 void windowClose(id win)
 {
-	// TODO
+	[toNSWindow(win) close];
 }
