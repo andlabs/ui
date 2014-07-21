@@ -28,3 +28,26 @@ type Button interface {
 func NewButton(text string) Button {
 	return newButton(text)
 }
+
+// Checkbox is a clickable box that indicates some Boolean value.
+type Checkbox interface {
+	Control
+
+	// OnClicked sets the event handler for when the Checkbox is clicked (to change its toggle state).
+	// TODO change to OnCheckChanged or OnToggled?
+	OnClicked(func())
+
+	// Text and SetText are Requests that get and set the Checkbox's label text.
+	Text() string
+	SetText(text string)
+
+	// Checked and SetChecked get and set the Checkbox's check state.
+	Checked() bool
+	SetChecked(checked bool)
+}
+
+// NewCheckbox creates a new Checkbox with the given label text.
+// The Checkbox will be initially unchecked.
+func NewCheckbox(text string) Checkbox {
+	return newCheckbox(text)
+}
