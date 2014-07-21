@@ -22,7 +22,7 @@ type window struct {
 
 	layoutw	*C.GtkWidget
 	layoutc	*C.GtkContainer
-	layout	*C.GtkFixed
+	layout	*C.GtkLayout
 
 	child		Control
 
@@ -35,7 +35,7 @@ func newWindow(title string, width int, height int) *window {
 	widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 	ctitle := togstr(title)
 	defer freegstr(ctitle)
-	layoutw := C.gtk_fixed_new()
+	layoutw := C.gtk_layout_new(nil, nil)
 	w := &window{
 		widget:		widget,
 		container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
@@ -43,7 +43,7 @@ func newWindow(title string, width int, height int) *window {
 		window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
 		layoutw:		layoutw,
 		layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
-		layout:		(*C.GtkFixed)(unsafe.Pointer(layoutw)),
+		layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
 		closing:		newEvent(),
 	}
 	C.gtk_window_set_title(w.window, ctitle)
