@@ -5,6 +5,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -14,8 +15,14 @@ import (
 import "C"
 
 func uiinit() error {
-	// TODO replace with the error-checking version
-	C.gtk_init(nil, nil)
+	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+
+	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
+	// don't worry about GTK+'s command-line arguments; they're also available as environment variables (thanks mclasen in irc.gimp.net/#gtk+)
+	result := C.gtk_init_with_args(nil, nil, nil, nil, nil, &err)
+	if result == C.FALSE {
+		return fmt.Errorf("error actually initilaizing GTK+: %s", fromgstr(err.message))
+	}
 	return nil
 }
 
