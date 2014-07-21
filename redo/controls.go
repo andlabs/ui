@@ -49,5 +49,7 @@ type Checkbox interface {
 // NewCheckbox creates a new Checkbox with the given label text.
 // The Checkbox will be initially unchecked.
 func NewCheckbox(text string) Checkbox {
-	return newCheckbox(text)
+//	return newCheckbox(text)
+return nil
+//TODO add checkbox after resolving other TODOs
 }
