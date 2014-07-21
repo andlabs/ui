@@ -5,7 +5,7 @@
 static ULONG_PTR comctlManifestCookie;
 static HMODULE comctl32;
 
-/* TODO do any of these take WINAPI? */
+/* these are listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
 BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
@@ -16,7 +16,7 @@ DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 	HANDLE ac;
 	INITCOMMONCONTROLSEX icc;
 	FARPROC f;
-	/* TODO does this take WINAPI? */
+	/* this is listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
 	BOOL (*WINAPI ficc)(const LPINITCOMMONCONTROLSEX);
 
 	ZeroMemory(&actctx, sizeof (ACTCTX));
