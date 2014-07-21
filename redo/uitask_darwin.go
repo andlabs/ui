@@ -6,8 +6,8 @@ import (
 	"unsafe"
 )
 
-// #cgo CFLAGS: -DTODO
-// #cgo LDFLAGS: -lobjc -framework Foundation -framework AppKit
+// #cgo CFLAGS: -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7
+// #cgo LDFLAGS: -mmacosx-version-min=10.7 -lobjc -framework Foundation -framework AppKit
 // #include "objc_darwin.h"
 import "C"
 
