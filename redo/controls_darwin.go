@@ -9,14 +9,6 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-// TODO move to common_darwin.go
-func toBOOL(b bool) C.BOOL {
-	if b == true {
-		return C.YES
-	}
-	return C.NO
-}
-
 type widgetbase struct {
 	id		C.id
 	parentw	*window
