@@ -10,6 +10,7 @@ import (
 
 // #include "gtk_unix.h"
 // extern void buttonClicked(GtkButton *, gpointer);
+// extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
 type widgetbase struct {
@@ -45,6 +46,8 @@ func (w *widgetbase) parent(win *window) {
 		C.g_object_unref(C.gpointer(unsafe.Pointer(w.widget)))
 		w.floating = false
 	}
+	// make sure the new widget is shown
+	C.gtk_widget_show_all(w.widget)
 }
 
 type button struct {
@@ -53,10 +56,8 @@ type button struct {
 	clicked		*event
 }
 
-func newButton(text string) *button {
-	ctext := togstr(text)
-	defer freegstr(ctext)
-	widget := C.gtk_button_new_with_label(ctext)
+// shared code for setting up buttons, check boxes, etc.
+func finishNewButton(widget *C.GtkWidget, event string, handler unsafe.Pointer) *button {
 	b := &button{
 		widgetbase:	newWidget(widget),
 		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
@@ -64,10 +65,17 @@ func newButton(text string) *button {
 	}
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(b.button)),
-		"clicked",
-		C.GCallback(C.buttonClicked),
+		event,
+		C.GCallback(handler),
 		C.gpointer(unsafe.Pointer(b)))
 	return b
+}
+
+func newButton(text string) *button {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	widget := C.gtk_button_new_with_label(ctext)
+	return finishNewButton(widget, "clicked", C.buttonClicked)
 }
 
 func (b *button) OnClicked(e func()) {
@@ -89,4 +97,37 @@ func (b *button) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_button_set_label(b.button, ctext)
+}
+
+type checkbox struct {
+	// embed button so its methods and events carry over
+	*button
+	toggle		*C.GtkToggleButton
+	checkbox		*C.GtkCheckButton
+}
+
+func newCheckbox(text string) *checkbox {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	widget := C.gtk_check_button_new_with_label(ctext)
+	return &checkbox{
+		button:		finishNewButton(widget, "toggled", C.checkboxToggled),
+		toggle:		(*C.GtkToggleButton)(unsafe.Pointer(widget)),
+		checkbox:	(*C.GtkCheckButton)(unsafe.Pointer(widget)),
+	}
+}
+
+//export checkboxToggled
+func checkboxToggled(bwid *C.GtkToggleButton, data C.gpointer) {
+	// note that the finishNewButton() call uses the embedded *button as data
+	// this is fine because we're only deferring to buttonClicked() anyway
+	buttonClicked(nil, data)
+}
+
+func (c *checkbox) Checked() bool {
+	return fromgbool(C.gtk_toggle_button_get_active(c.toggle))
+}
+
+func (c *checkbox) SetChecked(checked bool) {
+	C.gtk_toggle_button_set_active(c.toggle, togbool(checked))
 }

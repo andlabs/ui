@@ -34,7 +34,7 @@ type Checkbox interface {
 	Control
 
 	// OnClicked sets the event handler for when the Checkbox is clicked (to change its toggle state).
-	// TODO change to OnCheckChanged or OnToggled?
+	// TODO change to OnToggled() or OnChecked()?
 	OnClicked(func())
 
 	// Text and SetText are Requests that get and set the Checkbox's label text.
@@ -49,7 +49,5 @@ type Checkbox interface {
 // NewCheckbox creates a new Checkbox with the given label text.
 // The Checkbox will be initially unchecked.
 func NewCheckbox(text string) Checkbox {
-//	return newCheckbox(text)
-return nil
-//TODO add checkbox after resolving other TODOs
+	return newCheckbox(text)
 }

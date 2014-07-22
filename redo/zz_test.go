@@ -5,6 +5,7 @@ package ui
 // This file is called zz_test.go to keep it separate from the other files in this package (and because go test won't accept just test.go)
 
 import (
+	"fmt"
 	"flag"
 	"testing"
 )
@@ -39,6 +40,12 @@ func init() {
 					w.Close()
 					Stop()
 					done <- struct{}{}
+				} else {
+					c := NewCheckbox("You Should Now See Me Instead")
+					w.SetControl(c)
+					c.OnClicked(func() {
+						w.SetTitle(fmt.Sprint(c.Checked()))
+					})
 				}
 			})
 			w.Show()

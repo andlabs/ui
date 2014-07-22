@@ -32,6 +32,17 @@ func freegstr(s *C.gchar) {
 	C.free(unsafe.Pointer(s))
 }
 
+func fromgbool(b C.gboolean) bool {
+	return b != C.FALSE
+}
+
+func togbool(b bool) C.gboolean {
+	if b == true {
+		return C.TRUE
+	}
+	return C.FALSE
+}
+
 func g_signal_connect(object C.gpointer, name string, to C.GCallback, data C.gpointer) {
 	cname := togstr(name)
 	defer freegstr(cname)
