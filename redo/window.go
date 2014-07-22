@@ -34,3 +34,17 @@ type Window interface {
 func NewWindow(title string, width int, height int) Window {
 	return newWindow(title, width, height)
 }
+
+// everything below is kept here because they're the same on all platforms
+// TODO move event stuff here and make windowbase
+
+func (w *window) SetControl(control Control) {
+	if w.child != nil {		// unparent existing control
+		w.child.unparent()
+	}
+	control.unparent()
+	control.parent(w)
+	w.child = control
+	// TODO trigger a resize to let the new control actually be shown
+	// TODO do the same with control's old parent, if any
+}

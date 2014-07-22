@@ -33,15 +33,6 @@ func newWindow(title string, width int, height int) *window {
 	return w
 }
 
-func (w *window) SetControl(control Control) {
-	if w.child != nil {		// unparent existing control
-		w.child.unparent()
-	}
-	control.unparent()
-	control.parent(w)
-	w.child = control
-}
-
 func (w *window) Title() string {
 	return C.GoString(C.windowTitle(w.id))
 }
