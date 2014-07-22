@@ -43,6 +43,9 @@ extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
 extern void setButtonSubclass(HWND, void *);
+extern void setCheckboxSubclass(HWND, void *);
+extern BOOL checkboxChecked(HWND);
+extern void checkboxSetChecked(HWND, BOOL);
 
 /* init_windows.c */
 extern HINSTANCE hInstance;

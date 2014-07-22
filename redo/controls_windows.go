@@ -46,9 +46,9 @@ type button struct {
 
 var buttonclass = toUTF16("BUTTON")
 
-func newButton(text string) *button {
+func startNewButton(text string, style C.DWORD) *button {
 	w := newWidget(buttonclass,
-		C.BS_PUSHBUTTON | C.WS_TABSTOP,
+		style | C.WS_TABSTOP,
 		0)
 	C.setWindowText(w.hwnd, toUTF16(text))
 	C.controlSetControlFont(w.hwnd)
@@ -56,7 +56,12 @@ func newButton(text string) *button {
 		widgetbase:	w,
 		clicked:		newEvent(),
 	}
-	C.setButtonSubclass(w.hwnd, unsafe.Pointer(b))
+	return b
+}
+
+func newButton(text string) *button {
+	b := startNewButton(text, C.BS_PUSHBUTTON)
+	C.setButtonSubclass(b.hwnd, unsafe.Pointer(b))
 	return b
 }
 
@@ -77,4 +82,40 @@ func buttonClicked(data unsafe.Pointer) {
 	b := (*button)(data)
 	b.clicked.fire()
 	println("button clicked")
+}
+
+type checkbox struct {
+	*button
+}
+
+func newCheckbox(text string) *checkbox {
+	c := &checkbox{
+		// don't use BS_AUTOCHECKBOX here because it creates problems when refocusing (see http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx)
+		// we'll handle actually toggling the check state ourselves (see controls_windows.c)
+		button:	startNewButton(text, C.BS_CHECKBOX),
+	}
+	C.setCheckboxSubclass(c.hwnd, unsafe.Pointer(c))
+	return c
+}
+
+func (c *checkbox) Checked() bool {
+	if C.checkboxChecked(c.hwnd) == C.FALSE {
+		return false
+	}
+	return true
+}
+
+func (c *checkbox) SetChecked(checked bool) {
+	if checked {
+		C.checkboxSetChecked(c.hwnd, C.TRUE)
+		return
+	}
+	C.checkboxSetChecked(c.hwnd, C.FALSE)
+}
+
+//export checkboxToggled
+func checkboxToggled(data unsafe.Pointer) {
+	c := (*checkbox)(data)
+	c.clicked.fire()
+	println("checkbox toggled")
 }
