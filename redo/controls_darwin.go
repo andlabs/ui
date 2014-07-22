@@ -11,7 +11,7 @@ import "C"
 
 type widgetbase struct {
 	id		C.id
-	parentw	*window
+	notnew	bool		// to prevent unparenting a new control
 	floating	bool
 }
 
@@ -24,17 +24,18 @@ func newWidget(id C.id) *widgetbase {
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
 func (w *widgetbase) unparent() {
-	if w.parentw != nil {
+	if w.notnew {
+		// redrawing the old window handled by C.unparent()
 		C.unparent(w.id)
 		w.floating = true
-		w.parentw = nil
 	}
 }
 
 func (w *widgetbase) parent(win *window) {
+	// redrawing the new window handled by C.parent()
 	C.parent(w.id, win.id, toBOOL(w.floating))
 	w.floating = false
-	w.parentw = win
+	w.notnew = true
 }
 
 type button struct {

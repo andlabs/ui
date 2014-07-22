@@ -45,6 +45,5 @@ func (w *window) SetControl(control Control) {
 	control.unparent()
 	control.parent(w)
 	w.child = control
-	// TODO trigger a resize to let the new control actually be shown
-	// TODO do the same with control's old parent, if any
+	// each call to unparent() and parent() will cause the old/new parents to be redrawn; we don't have to worry about that here
 }
