@@ -93,7 +93,7 @@ static LRESULT CALLBACK checkboxSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
-		if ((*fv_RemoveWindowSubclass)(hwnd, buttonSubProc, id) == FALSE)
+		if ((*fv_RemoveWindowSubclass)(hwnd, checkboxSubProc, id) == FALSE)
 			xpanic("error removing Checkbox subclass (which was for its own event handler)", GetLastError());
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	default:
