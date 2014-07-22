@@ -27,6 +27,7 @@ func (w *widgetbase) unparent() {
 
 func (w *widgetbase) parent(win *window) {
 	C.controlSetParent(w.hwnd, win.hwnd)
+	// TODO new control does not show up until window is resized
 }
 
 // don't embed these as exported; let each Control decide if it should
