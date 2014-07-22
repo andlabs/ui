@@ -34,7 +34,7 @@ func (w *widgetbase) unparent() {
 		// we unref this in parent() below
 		w.floating = true
 		C.gtk_container_remove(w.parentw.layoutc, w.widget)
-		// redraw since we changed controls (by queueing a resize; thanks xxx in irc.gimp.net/#gtk+)
+		// redraw since we changed controls (by queueing a resize; thanks Jasper in irc.gimp.net/#gtk+)
 		C.gtk_widget_queue_resize(w.parentw.layoutw)
 		w.parentw = nil
 	}
