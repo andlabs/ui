@@ -43,15 +43,20 @@ type button struct {
 	clicked		*event
 }
 
-func newButton(text string) *button {
+func finishNewButton(id C.id, text string) *button {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	b := &button{
-		widgetbase:	newWidget(C.newButton(ctext)),
+		widgetbase:	newWidget(id),
 		clicked:		newEvent(),
 	}
+	C.buttonSetText(b.id, ctext)
 	C.buttonSetDelegate(b.id, unsafe.Pointer(b))
 	return b
+}
+
+func newButton(text string) *button {
+	return finishNewButton(C.newButton(), text)
 }
 
 func (b *button) OnClicked(e func()) {
@@ -73,4 +78,25 @@ func (b *button) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	C.buttonSetText(b.id, ctext)
+}
+
+type checkbox struct {
+	*button
+}
+
+func newCheckbox(text string) *checkbox {
+	return &checkbox{
+		button:	finishNewButton(C.newCheckbox(), text),
+	}
+}
+
+// we don't need to define our own event here; we can just reuse Button's
+// (it's all target-action anyway)
+
+type (c *checkbox) Checked() bool {
+	return fromBOOL(C.checkboxChecked(c.id))
+}
+
+type (c *checkbox) SetChecked(checked bool) {
+	C.checkboxSetChecked(c.id, toBOOL(checked))
 }

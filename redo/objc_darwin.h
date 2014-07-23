@@ -32,10 +32,13 @@ extern void windowClose(id);
 /* controls_darwin.m */
 extern void unparent(id);
 extern void parent(id, id, BOOL);
-extern id newButton(char *);
+extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);
 extern void buttonSetText(id, char *);
+extern id newCheckbox(void);
+extern BOOL checkboxChecked(id);
+extern void checkboxSetChecked(id, BOOL);
 
 /* sizing_darwin.m */
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);

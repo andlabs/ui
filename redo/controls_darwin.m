@@ -49,7 +49,7 @@ static inline void setStandardControlFont(id control)
 
 @end
 
-id newButton(char *text)
+id newButton(void)
 {
 	NSButton *b;
 
@@ -57,11 +57,10 @@ id newButton(char *text)
 	b = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
 	// TODO verify all of these against Interface Builder
 	[b setButtonType:NSMomentaryLightButton];
-	[b setTitle:[NSString stringWithUTF8String:text]];
 	[b setBordered:YES];
 	[b setBezelStyle:NSRoundedBezelStyle];
 	setStandardControlFont(b);
-	return b;
+	return (id) b;
 }
 
 void buttonSetDelegate(id button, void *b)
@@ -82,4 +81,33 @@ const char *buttonText(id button)
 void buttonSetText(id button, char *text)
 {
 	[toNSButton(button) setTitle:[NSString stringWithUTF8String:text]];
+}
+
+id newCheckbox(void)
+{
+	NSButton *c;
+
+	c = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	// TODO verify all of these against Interface Builder
+	[c setButtonType:NSSwitchButton];
+	[c setBordered:NO];
+	setStandardControlFont(c);
+	return (id) c;
+}
+
+BOOL checkboxChecked(id c)
+{
+	if ([toNSButton(c) state] == NSOnState)
+		return YES;
+	return NO;
+}
+
+void checkboxSetChecked(id c, BOOL checked)
+{
+	NSInteger state;
+
+	state = NSOnState;
+	if (checked == NO)
+		state = NSOffState;
+	[toNSButton(c) setState:state];
 }
