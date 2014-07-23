@@ -28,6 +28,7 @@ extern void windowSetTitle(id, const char *);
 extern void windowShow(id);
 extern void windowHide(id);
 extern void windowClose(id);
+extern void windowRedraw(id);
 
 /* controls_darwin.m */
 extern void unparent(id);

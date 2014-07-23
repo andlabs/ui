@@ -87,4 +87,5 @@ void windowRedraw(id win)
 
 	d = [toNSWindow(win) delegate];
 	[d doWindowResize:win];
+	// TODO new control sizes don't take effect properly, even with [toNSWindow(win) display];
 }

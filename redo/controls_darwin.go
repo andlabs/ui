@@ -93,10 +93,10 @@ func newCheckbox(text string) *checkbox {
 // we don't need to define our own event here; we can just reuse Button's
 // (it's all target-action anyway)
 
-type (c *checkbox) Checked() bool {
+func (c *checkbox) Checked() bool {
 	return fromBOOL(C.checkboxChecked(c.id))
 }
 
-type (c *checkbox) SetChecked(checked bool) {
+func (c *checkbox) SetChecked(checked bool) {
 	C.checkboxSetChecked(c.id, toBOOL(checked))
 }
