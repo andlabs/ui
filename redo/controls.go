@@ -51,3 +51,17 @@ type Checkbox interface {
 func NewCheckbox(text string) Checkbox {
 	return newCheckbox(text)
 }
+
+// LineEdit blah blah blah TODO write this
+// TODO change name
+type LineEdit interface {
+	Control
+
+	// TODO figure out what events are appropriate
+
+	// Text and SetText are Requests that get and set the Checkbox's label text.
+	Text() string
+	SetText(text string)
+}
+
+// TODO NewLineEdit, NewPasswordEdit, ...
