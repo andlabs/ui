@@ -30,6 +30,14 @@ func (w *widgetbase) parent(win *window) {
 	// TODO new control does not show up until window is resized
 }
 
+func (w *widgetbase) containerShow() {
+	C.ShowWindow(w.hwnd, C.SW_SHOW)
+}
+
+func (w *widgetbase) containerHide() {
+	C.ShowWindow(w.hwnd, C.SW_HIDE)
+}
+
 // don't embed these as exported; let each Control decide if it should
 
 func (w *widgetbase) text() string {
