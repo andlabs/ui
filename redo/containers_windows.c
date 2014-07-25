@@ -57,7 +57,7 @@ void tabAppend(HWND hwnd, LPCWSTR name)
 		xpanic("error adding tab to Tab", GetLastError());
 }
 
-extern void tabGetContentRect(HWND hwnd, RECT *r)
+void tabGetContentRect(HWND hwnd, RECT *r)
 {
 	/* not &r; already a pointer (thanks MindChild in irc.efnet.net/#winprog for spotting my failure) */
 	SendMessageW(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM) r);
