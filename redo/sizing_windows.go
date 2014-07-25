@@ -21,6 +21,7 @@ const (
 	paddingDialogUnits = 4
 )
 
+// only windows are containers, so only windows get beginResize()
 func (w *window) beginResize() (d *sizing) {
 	d = new(sizing)
 
@@ -43,11 +44,11 @@ func (w *window) beginResize() (d *sizing) {
 	return d
 }
 
-func (w *window) endResize(d *sizing) {
+func (c *container) endResize(d *sizing) {
 	// redraw
 }
 
-func (w *window) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	// no translation needed on windows
 }
 

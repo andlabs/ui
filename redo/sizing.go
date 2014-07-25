@@ -33,16 +33,31 @@ type controlSizing interface {
 	getAuxResizeInfo(*sizing)
 }
 
-func (w *window) doresize(width, height int) {
-	if w.child == nil {		// no children; nothing to do
+// on Windows, this is only embedded by window, as all other containers cannot have their own children
+// on GTK+ and Mac OS X, one is embedded by window and all containers; the containers call container.continueResize()
+type container struct {
+	child			Control
+	spaced		bool
+	beginResize	func() (d *sizing)
+}
+
+func (c *container) resize(width, height int) {
+	if c.child == nil {		// no children; nothing to do
 		return
 	}
-	d := w.beginResize()
-	allocations := w.child.allocate(0, 0, width, height, d)
-	w.translateAllocationCoords(allocations, width, height)
+	d := c.beginResize()
+	c.continueResize(width, height, d)
+}
+
+func (c *container) continueResize(width, height int, d *sizing) {
+	if c.child == nil {		// no children; nothing to do
+		return
+	}
+	allocations := c.child.allocate(0, 0, width, height, d)
+	c.translateAllocationCoords(allocations, width, height)
 	// move in reverse so as to approximate right->left order so neighbors make sense
 	for i := len(allocations) - 1; i >= 0; i-- {
 		allocations[i].this.commitResize(allocations[i], d)
 	}
-	w.endResize(d)
+	c.endResize(d)
 }

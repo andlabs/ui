@@ -12,14 +12,12 @@ import (
 import "C"
 
 type window struct {
+	*container
+
 	hwnd		C.HWND
 	shownbefore	bool
 
-	child			Control
-
 	closing		*event
-
-	spaced		bool
 }
 
 const windowclassname = ""
@@ -42,8 +40,10 @@ type controlParent interface {
 func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		// hwnd set in WM_CREATE handler
-		closing:	newEvent(),
+		closing:		newEvent(),
+		container:		new(container),
 	}
+	w.container.beginResize = w.beginResize
 	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	if hwnd != w.hwnd {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
@@ -97,7 +97,7 @@ func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	w.doresize(int(r.right - r.left), int(r.bottom - r.top))
+	w.resize(int(r.right - r.left), int(r.bottom - r.top))
 }
 
 //export windowClosing
