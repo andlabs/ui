@@ -37,6 +37,8 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	switch (uMsg) {
 	case WM_COMMAND:
 		return forwardCommand(hwnd, uMsg, wParam, lParam);
+	case WM_NOTIFY:
+		return forwardNotify(hwnd, uMsg, wParam, lParam);
 	case msgRequest:
 		doissue((void *) lParam);
 		return 0;

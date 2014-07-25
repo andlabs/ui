@@ -17,11 +17,13 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <stdint.h>
+#include <uxtheme.h>
 
 /* global messages unique to everything */
 enum {
 	msgRequest = WM_APP + 1,		/* + 1 just to be safe */
 	msgCOMMAND,				/* WM_COMMAND proxy; see forwardCommand() in controls_windows.go */
+	msgNOTIFY,					/* WM_NOTIFY proxy */
 };
 
 /* uitask_windows.c */
@@ -42,6 +44,7 @@ extern HWND newWidget(LPCWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
+extern LRESULT forwardNotify(HWND, UINT, WPARAM, LPARAM);
 extern void setButtonSubclass(HWND, void *);
 extern void setCheckboxSubclass(HWND, void *);
 extern BOOL checkboxChecked(HWND);
@@ -76,5 +79,11 @@ extern void getWindowText(HWND, WPARAM, LPCWSTR);
 extern void setWindowText(HWND, LPCWSTR);
 extern void updateWindow(HWND);
 extern void storelpParam(HWND, LPARAM);
+
+/* containers_windows.go */
+extern LPCWSTR xWC_TABCONTROL;
+extern void setTabSubclass(HWND, void *);
+extern void tabAppend(HWND, LPCWSTR);
+extern void tabGetContentRect(HWND, RECT *);
 
 #endif

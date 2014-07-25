@@ -35,7 +35,7 @@ DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 
 	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
 	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
-	icc.dwICC = ICC_PROGRESS_CLASS;
+	icc.dwICC = ICC_PROGRESS_CLASS | ICC_TAB_CLASSES;
 
 	comctl32 = LoadLibraryW(L"comctl32.dll");
 	if (comctl32 == NULL) {

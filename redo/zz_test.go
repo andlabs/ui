@@ -20,7 +20,8 @@ func init() {
 		Do(func() {
 			w := NewWindow("Hello", 320, 240)
 			b := NewButton("There")
-			w.SetControl(b)
+			t := NewTab()
+			w.SetControl(t)
 			if *closeOnClick {
 				b.SetText("Click to Close")
 			}
@@ -40,13 +41,13 @@ func init() {
 					w.Close()
 					Stop()
 					done <- struct{}{}
-				} else {
-					c := NewCheckbox("You Should Now See Me Instead")
-					w.SetControl(c)
-					c.OnClicked(func() {
-						w.SetTitle(fmt.Sprint(c.Checked()))
-					})
 				}
+			})
+			t.Append("Button", b)
+			c := NewCheckbox("You Should Now See Me Instead")
+			t.Append("Checkbox", c)
+			c.OnClicked(func() {
+				w.SetTitle(fmt.Sprint(c.Checked()))
 			})
 			w.Show()
 		})

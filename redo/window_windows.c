@@ -25,6 +25,8 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg) {
 	case WM_COMMAND:
 		return forwardCommand(hwnd, uMsg, wParam, lParam);
+	case WM_NOTIFY:
+		return forwardNotify(hwnd, uMsg, wParam, lParam);
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());

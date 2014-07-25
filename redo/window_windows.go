@@ -44,6 +44,11 @@ func newWindow(title string, width int, height int) *window {
 	if hwnd != w.hwnd {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
 	}
+	// TODO keep?
+	hresult := C.EnableThemeDialogTexture(w.hwnd, C.ETDT_ENABLE | C.ETDT_USETABTEXTURE)
+	if hresult != C.S_OK {
+		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
+	}
 	return w
 }
 

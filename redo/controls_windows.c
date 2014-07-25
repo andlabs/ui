@@ -50,6 +50,17 @@ LRESULT forwardCommand(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
+LRESULT forwardNotify(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	NMHDR *nmhdr = (NMHDR *) lParam;
+	HWND control = nmhdr->hwndFrom;
+
+	/* don't generate an event if the control (if there is one) is unparented (a child of the message-only window) */
+	if (control != NULL && IsChild(msgwin, control) == 0)
+		return SendMessageW(control, msgNOTIFY, wParam, lParam);
+	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+}
+
 static LRESULT CALLBACK buttonSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	switch (uMsg) {
