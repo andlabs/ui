@@ -14,6 +14,7 @@ On Windows, container controls are just regular controls; their children have to
 
 TODO
 - make sure all tabs cannot be deselected (that is, make sure the current tab can never have index -1)
+- make sure tabs initially show the right control
 */
 
 type tab struct {
