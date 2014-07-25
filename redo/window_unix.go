@@ -16,7 +16,7 @@ import "C"
 
 type window struct {
 	widget	*C.GtkWidget
-	container	*C.GtkContainer
+	wc		*C.GtkContainer
 	bin		*C.GtkBin
 	window	*C.GtkWindow
 
@@ -24,28 +24,32 @@ type window struct {
 	layoutc	*C.GtkContainer
 	layout	*C.GtkLayout
 
-	child		Control
-
 	closing	*event
 
-	spaced	bool
+	*container
 }
 
-func newWindow(title string, width int, height int) *window {
+type controlParent interface {
+	setParent(*C.GtkContainer)
+}
+
+func newWindow(title string, width int, height int, control Control) *window {
 	widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 	ctitle := togstr(title)
 	defer freegstr(ctitle)
 	layoutw := C.gtk_layout_new(nil, nil)
 	w := &window{
 		widget:		widget,
-		container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
+		wc:			(*C.GtkContainer)(unsafe.Pointer(widget)),
 		bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
 		window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
 		layoutw:		layoutw,
 		layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
 		layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
 		closing:		newEvent(),
+		container:		new(container),
 	}
+	w.container.beginResize = w.beginResize
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(w.window)),
@@ -62,7 +66,9 @@ func newWindow(title string, width int, height int) *window {
 		C.GCallback(C.windowResizing),
 		C.gpointer(unsafe.Pointer(w)))
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
-	C.gtk_container_add(w.container, layoutw)
+	C.gtk_container_add(w.wc, layoutw)
+	w.child = control
+	w.child.setParent(w.layoutc)
 	return w
 }
 
@@ -105,6 +111,6 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 //export windowResizing
 func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	w := (*window)(unsafe.Pointer(data))
-	w.doresize(int(r.width), int(r.height))
+	w.resize(int(r.width), int(r.height))
 	fmt.Printf("new size %d x %d\n", r.width, r.height)
 }

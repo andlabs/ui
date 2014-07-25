@@ -15,8 +15,6 @@ import "C"
 
 type widgetbase struct {
 	widget	*C.GtkWidget
-	parentw	*window
-	floating	bool
 }
 
 func newWidget(w *C.GtkWidget) *widgetbase {
@@ -27,31 +25,18 @@ func newWidget(w *C.GtkWidget) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) unparent() {
-	if w.parentw != nil {
-		// add another reference so it doesn't get removed by accident
-		C.g_object_ref(C.gpointer(unsafe.Pointer(w.widget)))
-		// we unref this in parent() below
-		w.floating = true
-		C.gtk_container_remove(w.parentw.layoutc, w.widget)
-		// redraw since we changed controls (by queueing a resize; thanks Jasper in irc.gimp.net/#gtk+)
-		C.gtk_widget_queue_resize(w.parentw.layoutw)
-		w.parentw = nil
-	}
-}
-
-func (w *widgetbase) parent(win *window) {
-	C.gtk_container_add(win.layoutc, w.widget)
-	w.parentw = win
-	// was previously parented; unref our saved ref
-	if w.floating {
-		C.g_object_unref(C.gpointer(unsafe.Pointer(w.widget)))
-		w.floating = false
-	}
+func (w *widgetbase) setParent(c *C.GtkContainer) {
+	C.gtk_container_add(c, w.widget)
 	// make sure the new widget is shown
 	C.gtk_widget_show_all(w.widget)
-	// redraw since we changed controls (see above)
-	C.gtk_widget_queue_resize(win.layoutw)
+}
+
+func (w *widgetbase) containerShow() {
+	C.gtk_widget_show_all(w.widget)
+}
+
+func (w *widgetbase) containerHide() {
+	C.gtk_widget_hide(w.widget)
 }
 
 type button struct {
@@ -135,3 +120,7 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.gtk_toggle_button_set_active(c.toggle, togbool(checked))
 }
+
+//TODO
+func newTab() Tab{return newButton("tab")}
+func(*button)Append(string,Control){}

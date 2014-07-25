@@ -35,11 +35,12 @@ func (w *window) beginResize() (d *sizing) {
 	return d
 }
 
-func (w *window) endResize(d *sizing) {
-	C.gtk_widget_queue_draw(w.widget)
+func (c *container) endResize(d *sizing) {
+	// TODO
+//	C.gtk_widget_queue_draw(w.widget)
 }
 
-func (w *window) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	// no need for coordinate conversion with gtk+
 }
 
