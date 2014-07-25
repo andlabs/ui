@@ -6,9 +6,6 @@ package ui
 // Windows in package ui can only contain one control; the Stack and Grid layout Controls allow you to pack multiple Controls in a Window.
 // Note that a Window is not itself a Control.
 type Window interface {
-	// SetControl sets the Window's child Control.
-	SetControl(c Control)
-
 	// Title and SetTitle get and set the Window's title, respectively.
 	Title() string
 	SetTitle(title string)
@@ -30,20 +27,7 @@ type Window interface {
 	OnClosing(func() bool)
 }
 
-// NewWindow creates a new Window with the given title text and size.
-func NewWindow(title string, width int, height int) Window {
-	return newWindow(title, width, height)
-}
-
-// everything below is kept here because they're the same on all platforms
-// TODO move event stuff here and make windowbase
-
-func (w *window) SetControl(control Control) {
-	if w.child != nil {		// unparent existing control
-		w.child.unparent()
-	}
-	control.unparent()
-	control.parent(w)
-	w.child = control
-	// each call to unparent() and parent() will cause the old/new parents to be redrawn; we don't have to worry about that here
+// NewWindow creates a new Window with the given title text, size, and control.
+func NewWindow(title string, width int, height int, control Control) Window {
+	return newWindow(title, width, height, control)
 }

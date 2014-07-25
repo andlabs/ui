@@ -20,7 +20,6 @@ TODO
 type tab struct {
 	*widgetbase
 	tabs			[]Control
-	curparent		*window
 }
 
 func newTab() Tab {
@@ -35,28 +34,17 @@ func newTab() Tab {
 	return t
 }
 
-func (t *tab) unparent() {
-	t.widgetbase.unparent()
+func (t *tab) setParent(win C.HWND) {
+	t.widgetbase.setParent(win)
 	for _, c := range t.tabs {
-		c.unparent()
+		c.setParent(win)
 	}
-	t.curparent = nil
-}
-
-func (t *tab) parent(win *window) {
-	t.widgetbase.parent(win)
-	for _, c := range t.tabs {
-		c.parent(win)
-	}
-	t.curparent = win
 }
 
 func (t *tab) Append(name string, control Control) {
 	t.tabs = append(t.tabs, control)
-	if t.curparent == nil {
-		control.unparent()
-	} else {
-		control.parent(t.curparent)
+	if t.parent != nil {
+		control.setParent(t.parent)
 	}
 	C.tabAppend(t.hwnd, toUTF16(name))
 }

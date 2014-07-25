@@ -18,13 +18,8 @@ func init() {
 	go func() {
 		done := make(chan struct{})
 		Do(func() {
-			w := NewWindow("Hello", 320, 240)
-			b := NewButton("There")
 			t := NewTab()
-			w.SetControl(t)
-			if *closeOnClick {
-				b.SetText("Click to Close")
-			}
+			w := NewWindow("Hello", 320, 240, t)
 			w.OnClosing(func() bool {
 				if *closeOnClick {
 					panic("window closed normally in close on click mode (should not happen)")
@@ -34,6 +29,10 @@ func init() {
 				done <- struct{}{}
 				return true
 			})
+			b := NewButton("There")
+			if *closeOnClick {
+				b.SetText("Click to Close")
+			}
 			// GTK+ TODO: this is causing a resize event to happen afterward?!
 			b.OnClicked(func() {
 				println("in OnClicked()")
@@ -45,10 +44,10 @@ func init() {
 			})
 			t.Append("Button", b)
 			c := NewCheckbox("You Should Now See Me Instead")
-			t.Append("Checkbox", c)
 			c.OnClicked(func() {
 				w.SetTitle(fmt.Sprint(c.Checked()))
 			})
+			t.Append("Checkbox", c)
 			w.Show()
 		})
 		<-done

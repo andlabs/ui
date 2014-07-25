@@ -11,6 +11,7 @@ import "C"
 
 type widgetbase struct {
 	hwnd	C.HWND
+	parent	C.HWND
 }
 
 func newWidget(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *widgetbase {
@@ -21,13 +22,9 @@ func newWidget(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) unparent() {
-	C.controlSetParent(w.hwnd, C.msgwin)
-}
-
-func (w *widgetbase) parent(win *window) {
-	C.controlSetParent(w.hwnd, win.hwnd)
-	// TODO new control does not show up until window is resized
+func (w *widgetbase) setParent(win C.HWND) {
+	C.controlSetParent(w.hwnd, win)
+	w.parent = win
 }
 
 func (w *widgetbase) containerShow() {
