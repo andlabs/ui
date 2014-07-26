@@ -9,24 +9,14 @@
 #define toNSControl(x) ((NSControl *) (x))
 #define toNSButton(x) ((NSButton *) (x))
 
-void unparent(id control)
-{
-	NSWindow *old;
-
-	[toNSView(control) retain];		// save from being freed when released by the removal selector below
-	old = [toNSView(control) window];
-	[toNSView(control) removeFromSuperview];
-	// redraw since we changed controls
-	windowRedraw((id) old);
-}
-
-void parent(id control, id parentid, BOOL floating)
+void parent(id control, id parentid)
 {
 	[[toNSWindow(parentid) contentView] addSubview:toNSView(control)];
-	if (floating)		// previously unparented
-		[toNSView(control) release];
-	// redraw since we changed controls
-	windowRedraw(parentid);
+}
+
+void controlSetHidden(id control, BOOL hidden)
+{
+	[toNSView(control) setHidden:hidden];
 }
 
 static inline void setStandardControlFont(id control)

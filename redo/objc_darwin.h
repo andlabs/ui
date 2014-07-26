@@ -31,8 +31,8 @@ extern void windowClose(id);
 extern void windowRedraw(id);
 
 /* controls_darwin.m */
-extern void unparent(id);
-extern void parent(id, id, BOOL);
+extern void parent(id, id);
+extern void controlSetHidden(id, BOOL);
 extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);

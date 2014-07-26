@@ -35,11 +35,11 @@ func (w *window) beginResize() (d *sizing) {
 	return d
 }
 
-func (w *window) endResize(d *sizing) {
+func (c *container) endResize(d *sizing) {
 	// redraw
 }
 
-func (w *window) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	for _, a := range allocations {
 		// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 		// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left

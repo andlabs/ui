@@ -13,23 +13,29 @@ import "C"
 type window struct {
 	id		C.id
 
-	child		Control
-
 	closing	*event
 
-	spaced	bool
+	*container
 }
 
-func newWindow(title string, width int, height int) *window {
+type controlParent interface {
+	setParent(C.id)
+}
+
+func newWindow(title string, width int, height int, control Control) *window {
 	id := C.newWindow(C.intptr_t(width), C.intptr_t(height))
 	ctitle := C.CString(title)
 	defer C.free(unsafe.Pointer(ctitle))
 	C.windowSetTitle(id, ctitle)
 	w := &window{
-		id:		id,
-		closing:	newEvent(),
+		id:			id,
+		closing:		newEvent(),
+		container:		new(container),
 	}
+	w.container.beginResize = w.beginResize
 	C.windowSetDelegate(id, unsafe.Pointer(w))
+	w.child = control
+	w.child.setParent(w.id)
 	return w
 }
 
@@ -72,6 +78,6 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 //export windowResized
 func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
 	w := (*window)(unsafe.Pointer(xw))
-	w.doresize(int(width), int(height))
+	w.resize(int(width), int(height))
 	fmt.Printf("new size %d x %d\n", width, height)
 }

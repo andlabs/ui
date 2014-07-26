@@ -12,12 +12,12 @@ import (
 import "C"
 
 type window struct {
-	*container
-
 	hwnd		C.HWND
 	shownbefore	bool
 
 	closing		*event
+
+	*container
 }
 
 const windowclassname = ""

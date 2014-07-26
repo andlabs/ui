@@ -11,8 +11,6 @@ import "C"
 
 type widgetbase struct {
 	id		C.id
-	notnew	bool		// to prevent unparenting a new control
-	floating	bool
 }
 
 func newWidget(id C.id) *widgetbase {
@@ -23,19 +21,17 @@ func newWidget(id C.id) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) unparent() {
-	if w.notnew {
-		// redrawing the old window handled by C.unparent()
-		C.unparent(w.id)
-		w.floating = true
-	}
+func (w *widgetbase) setParent(parent C.id) {
+	// redrawing the new window handled by C.parent()
+	C.parent(w.id, parent)
 }
 
-func (w *widgetbase) parent(win *window) {
-	// redrawing the new window handled by C.parent()
-	C.parent(w.id, win.id, toBOOL(w.floating))
-	w.floating = false
-	w.notnew = true
+func (w *widgetbase) containerShow() {
+	C.controlSetHidden(w.id, C.NO)
+}
+
+func (w *widgetbase) containerHide() {
+	C.controlSetHidden(w.id, C.YES)
 }
 
 type button struct {
@@ -100,3 +96,7 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.checkboxSetChecked(c.id, toBOOL(checked))
 }
+
+//TODO
+func newTab() Tab{return newButton("tab")}
+func(*button)Append(string,Control){}
