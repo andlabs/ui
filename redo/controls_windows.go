@@ -125,3 +125,35 @@ func checkboxToggled(data unsafe.Pointer) {
 	c.clicked.fire()
 	println("checkbox toggled")
 }
+
+type textField struct {
+	*widgetbase
+}
+
+var editclass = toUTF16("EDIT")
+
+func startNewTextField(style C.DWORD) *textField {
+	w := newWidget(editclass,
+		style | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_BORDER | C.WS_TABSTOP,
+		C.WS_EX_CLIENTEDGE)
+	C.controlSetControlFont(w.hwnd)
+	return &textField{
+		widgetbase:	w,
+	}
+}
+
+func newTextField() *textField {
+	return startNewTextField(0)
+}
+
+func newPasswordField() *textField {
+	return startNewTextField(C.ES_PASSWORD)
+}
+
+func (t *textField) Text() string {
+	return t.text()
+}
+
+func (t *textField) SetText(text string) {
+	t.settext(text)
+}

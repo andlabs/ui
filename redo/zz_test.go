@@ -48,6 +48,10 @@ func init() {
 				w.SetTitle(fmt.Sprint(c.Checked()))
 			})
 			t.Append("Checkbox", c)
+			e := NewTextField()
+			t.Append("Text Field", e)
+			e = NewPasswordField()
+			t.Append("Password Field", e)
 			w.Show()
 		})
 		<-done
