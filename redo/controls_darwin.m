@@ -106,7 +106,7 @@ static id finishNewTextField(NSTextField *t)
 	// same for text fields and password fields
 	setStandardControlFont((id) t);
 	// TODO border (Interface Builder setting is confusing)
-	// TODO smart quotes
+	// smart quotes and other autocorrect features are handled by the window; see newWindow() in window_darwin.m for details
 	// Interface Builder does this to make the text box behave properly
 	// this disables both word wrap AND ellipsizing in one fell swoop
 	// however, we need to send it to the control's cell, not to the control directly
