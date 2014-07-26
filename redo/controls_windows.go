@@ -134,8 +134,8 @@ var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textField {
 	w := newWidget(editclass,
-		style | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_BORDER | C.WS_TABSTOP,
-		C.WS_EX_CLIENTEDGE)
+		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_BORDER | C.WS_TABSTOP,
+		C.WS_EX_CLIENTEDGE)		// shows visual style-themed edit control borders (TODO get credit from old source)
 	C.controlSetControlFont(w.hwnd)
 	return &textField{
 		widgetbase:	w,
