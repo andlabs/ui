@@ -34,6 +34,7 @@ extern void windowRedraw(id);
 /* controls_darwin.m */
 extern void parent(id, id);
 extern void controlSetHidden(id, BOOL);
+extern void setStandardControlFont(id);
 extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);

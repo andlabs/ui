@@ -30,7 +30,7 @@ id newTab(void *gotab)
 	goTabView *t;
 
 	t = [[goTabView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	// TODO font
+	setStandardControlFont((id) t);		// safe; same selector provided by NSTabView
 	t->gotab = gotab;
 	return (id) t;
 }

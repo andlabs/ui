@@ -20,7 +20,7 @@ void controlSetHidden(id control, BOOL hidden)
 	[toNSView(control) setHidden:hidden];
 }
 
-static inline void setStandardControlFont(id control)
+void setStandardControlFont(id control)
 {
 	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]]];
 }
@@ -46,11 +46,10 @@ id newButton(void)
 
 	// TODO cache the initial rect?
 	b = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	// TODO verify all of these against Interface Builder
-	[b setButtonType:NSMomentaryLightButton];
+	[b setButtonType:NSMomentaryPushInButton];
 	[b setBordered:YES];
 	[b setBezelStyle:NSRoundedBezelStyle];
-	setStandardControlFont(b);
+	setStandardControlFont((id) b);
 	return (id) b;
 }
 
@@ -79,10 +78,9 @@ id newCheckbox(void)
 	NSButton *c;
 
 	c = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	// TODO verify all of these against Interface Builder
 	[c setButtonType:NSSwitchButton];
 	[c setBordered:NO];
-	setStandardControlFont(c);
+	setStandardControlFont((id) c);
 	return (id) c;
 }
 
@@ -105,7 +103,9 @@ void checkboxSetChecked(id c, BOOL checked)
 
 static id finishNewTextField(NSTextField *t)
 {
-	// TODO font
+	// same for text fields and password fields
+	setStandardControlFont((id) t);
+	// TODO border (Interface Builder setting is confusing)
 	// TODO smart quotes
 	// Interface Builder does this to make the text box behave properly
 	// this disables both word wrap AND ellipsizing in one fell swoop
