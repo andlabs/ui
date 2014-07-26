@@ -53,16 +53,23 @@ func NewCheckbox(text string) Checkbox {
 	return newCheckbox(text)
 }
 
-// LineEdit blah blah blah TODO write this
-// TODO change name
-type LineEdit interface {
+// TextField is a Control in which the user can enter a single line of text.
+type TextField interface {
 	Control
 
 	// TODO figure out what events are appropriate
 
-	// Text and SetText are Requests that get and set the Checkbox's label text.
+	// Text and SetText are Requests that get and set the TextField's text.
 	Text() string
 	SetText(text string)
 }
 
-// TODO NewLineEdit, NewPasswordEdit, ...
+// NewTextField creates a new TextField.
+func NewTextField() TextField {
+	return newTextField()
+}
+
+// NewPasswordField creates a new TextField for entering passwords; that is, it hides the text being entered.
+func NewPasswordField() TextField {
+	return newPasswordField()
+}
