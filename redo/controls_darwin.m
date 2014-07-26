@@ -8,6 +8,7 @@
 #define toNSWindow(x) ((NSWindow *) (x))
 #define toNSControl(x) ((NSControl *) (x))
 #define toNSButton(x) ((NSButton *) (x))
+#define toNSTextField(x) ((NSTextField *) (x))
 
 void parent(id control, id parentid)
 {
@@ -100,4 +101,43 @@ void checkboxSetChecked(id c, BOOL checked)
 	if (checked == NO)
 		state = NSOffState;
 	[toNSButton(c) setState:state];
+}
+
+static id finishNewTextField(NSTextField *t)
+{
+	// TODO font
+	// TODO smart quotes
+	// Interface Builder does this to make the text box behave properly
+	// this disables both word wrap AND ellipsizing in one fell swoop
+	// however, we need to send it to the control's cell, not to the control directly
+	[[t cell] setLineBreakMode:NSLineBreakByClipping];
+	// Interface Builder also sets this to allow horizontal scrolling
+	[[t cell] setScrollable:YES];
+	return (id) t;
+}
+
+id newTextField(void)
+{
+	NSTextField *t;
+
+	t = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	return finishNewTextField(t);
+}
+
+id newPasswordField(void)
+{
+	NSSecureTextField *t;
+
+	t = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	return finishNewTextField(toNSTextField(t));
+}
+
+const char *textFieldText(id t)
+{
+	return [[toNSTextField(t) stringValue] UTF8String];
+}
+
+void textFieldSetText(id t, char *text)
+{
+	[toNSTextField(t) setStringValue:[NSString stringWithUTF8String:text]];
 }

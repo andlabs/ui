@@ -96,3 +96,29 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.checkboxSetChecked(c.id, toBOOL(checked))
 }
+
+type textField struct {
+	*widgetbase
+}
+
+func newTextField() *textField {
+	return &textField{
+		widgetbase:	newWidget(C.newTextField()),
+	}
+}
+
+func newPasswordField() *textField {
+	return &textField{
+		widgetbase:	newWidget(C.newPasswordField()),
+	}
+}
+
+func (t *textField) Text() string {
+	return C.GoString(C.textFieldText(t.id))
+}
+
+func (t *textField) SetText(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.textFieldSetText(t.id, ctext)
+}

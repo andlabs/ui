@@ -41,6 +41,10 @@ extern void buttonSetText(id, char *);
 extern id newCheckbox(void);
 extern BOOL checkboxChecked(id);
 extern void checkboxSetChecked(id, BOOL);
+extern id newTextField(void);
+extern id newPasswordField(void);
+extern const char *textFieldText(id);
+extern void textFieldSetText(id, char *);
 
 /* sizing_darwin.m */
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
