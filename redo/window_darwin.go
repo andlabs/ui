@@ -35,7 +35,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	w.container.beginResize = w.beginResize
 	C.windowSetDelegate(id, unsafe.Pointer(w))
 	w.child = control
-	w.child.setParent(w.id)
+	w.child.setParent(C.windowContentView(w.id))
 	return w
 }
 

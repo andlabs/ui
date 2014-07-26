@@ -96,7 +96,3 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.checkboxSetChecked(c.id, toBOOL(checked))
 }
-
-//TODO
-func newTab() Tab{return newButton("tab")}
-func(*button)Append(string,Control){}

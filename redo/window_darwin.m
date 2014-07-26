@@ -80,6 +80,11 @@ void windowClose(id win)
 	[toNSWindow(win) close];
 }
 
+id windowContentView(id win)
+{
+	return (id) [toNSWindow(win) contentView];
+}
+
 // fake a resize event under certain conditions; see each invocation for details
 void windowRedraw(id win)
 {

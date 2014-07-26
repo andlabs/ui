@@ -28,6 +28,7 @@ extern void windowSetTitle(id, const char *);
 extern void windowShow(id);
 extern void windowHide(id);
 extern void windowClose(id);
+extern id windowContentView(id);
 extern void windowRedraw(id);
 
 /* controls_darwin.m */
@@ -43,5 +44,9 @@ extern void checkboxSetChecked(id, BOOL);
 
 /* sizing_darwin.m */
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
+
+/* containers_darwin.m */
+extern id newTab(void *);
+extern id tabAppend(id, char *);
 
 #endif

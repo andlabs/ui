@@ -1,3 +1,5 @@
+// +build !windows,!darwin
+
 // 25 july 2014
 
 package ui

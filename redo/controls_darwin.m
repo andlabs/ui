@@ -11,7 +11,7 @@
 
 void parent(id control, id parentid)
 {
-	[[toNSWindow(parentid) contentView] addSubview:toNSView(control)];
+	[toNSView(parentid) addSubview:toNSView(control)];
 }
 
 void controlSetHidden(id control, BOOL hidden)
