@@ -120,3 +120,36 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.gtk_toggle_button_set_active(c.toggle, togbool(checked))
 }
+
+type textField struct {
+	*widgetbase
+	entry		*C.GtkEntry
+}
+
+func startNewTextField() *textField {
+	w := C.gtk_entry_new()
+	return &textField{
+		widgetbase:	newWidget(w),
+		entry:		(*C.GtkEntry)(unsafe.Pointer(w)),
+	}
+}
+
+func newTextField() *textField {
+	return startNewTextField()
+}
+
+func newPasswordField() *textField {
+	t := startNewTextField()
+	C.gtk_entry_set_visibility(t.entry, C.FALSE)
+	return t
+}
+
+func (t *textField) Text() string {
+	return fromgstr(C.gtk_entry_get_text(t.entry))
+}
+
+func (t *textField) SetText(text string) {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	C.gtk_entry_set_text(t.entry, ctext)
+}
