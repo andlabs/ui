@@ -43,7 +43,6 @@ func newWindow(title string, width int, height int, control Control) *window {
 		closing:		newEvent(),
 		container:		new(container),
 	}
-	w.container.beginResize = w.beginResize
 	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	if hwnd != w.hwnd {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in window (%p) differ", hwnd, w.hwnd))
@@ -97,6 +96,7 @@ func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
+	w.container.d = w.beginResize()
 	w.resize(int(r.right - r.left), int(r.bottom - r.top))
 }
 

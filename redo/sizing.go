@@ -28,23 +28,17 @@ type controlSizing interface {
 // on Windows, this is only embedded by window, as all other containers cannot have their own children; beginResize() points to an instance method literal (TODO get correct term) from window
 // on GTK+ and Mac OS X, one is embedded by window and all containers; beginResize() points to a global function (TODO NOT GOOD; ideally the sizing data should be passed across size-allocate requests)
 type container struct {
-	child			Control
-	spaced		bool
-	beginResize	func() (d *sizing)	// for the initial call
-	d			*sizing			// for recursive calls
+	child		Control
+	spaced	bool
+	d		*sizing
 }
 
 func (c *container) resize(width, height int) {
 	if c.child == nil {		// no children; nothing to do
 		return
 	}
-	if c.d == nil {			// initial call
-		if c.beginResize == nil {
-			// should be a recursive call, but is not
-			// TODO get rid of this
-			return
-		}
-		c.d = c.beginResize()
+	if c.d == nil {			// not ready (called early or out of the proper recursive call chain (such as by the underlying system when marking an unparented Tab as shown))
+		return
 	}
 	d := c.d
 	allocations := c.child.allocate(0, 0, width, height, d)
@@ -54,6 +48,5 @@ func (c *container) resize(width, height int) {
 		allocations[i].this.commitResize(allocations[i], d)
 	}
 	// always set c.d to nil so it can be garbage-collected
-	// the c.endResize() above won't matter since the c.d there is evaluated then, not when c.endResize() is called
 	c.d = nil
 }

@@ -49,7 +49,6 @@ func newWindow(title string, width int, height int, control Control) *window {
 		closing:		newEvent(),
 		container:		new(container),
 	}
-	w.container.beginResize = w.beginResize
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(w.window)),
@@ -111,6 +110,7 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 //export windowResizing
 func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	w := (*window)(unsafe.Pointer(data))
+	w.container.d = w.beginResize()
 	w.resize(int(r.width), int(r.height))
 	fmt.Printf("new size %d x %d\n", r.width, r.height)
 }

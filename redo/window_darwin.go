@@ -32,7 +32,6 @@ func newWindow(title string, width int, height int, control Control) *window {
 		closing:		newEvent(),
 		container:		new(container),
 	}
-	w.container.beginResize = w.beginResize
 	C.windowSetDelegate(id, unsafe.Pointer(w))
 	w.child = control
 	w.child.setParent(C.windowContentView(w.id))
@@ -78,6 +77,7 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 //export windowResized
 func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
 	w := (*window)(unsafe.Pointer(xw))
+	w.container.d = w.beginResize()
 	w.resize(int(width), int(height))
 	fmt.Printf("new size %d x %d\n", width, height)
 }
