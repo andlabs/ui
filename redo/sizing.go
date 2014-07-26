@@ -45,7 +45,6 @@ func (c *container) resize(width, height int) {
 			return
 		}
 		c.d = c.beginResize()
-		defer c.endResize(c.d)
 	}
 	d := c.d
 	allocations := c.child.allocate(0, 0, width, height, d)

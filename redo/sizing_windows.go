@@ -44,10 +44,6 @@ func (w *window) beginResize() (d *sizing) {
 	return d
 }
 
-func (c *container) endResize(d *sizing) {
-	// redraw
-}
-
 func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	// no translation needed on windows
 }
