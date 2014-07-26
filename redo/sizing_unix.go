@@ -24,14 +24,15 @@ const (
 	gtkYPadding = 6
 )
 
-func (w *window) beginResize() (d *sizing) {
+func beginResize() (d *sizing) {
 	d = new(sizing)
-	if w.spaced {
-		d.xmargin = gtkXMargin
-		d.ymargin = gtkYMargin
-		d.xpadding = gtkXPadding
-		d.ypadding = gtkYPadding
-	}
+//TODO
+//	if w.spaced {
+//		d.xmargin = gtkXMargin
+//		d.ymargin = gtkYMargin
+//		d.xpadding = gtkXPadding
+//		d.ypadding = gtkYPadding
+//	}
 	return d
 }
 

@@ -18,14 +18,6 @@ type sizingbase struct {
 	ypadding		int
 }
 
-// this ensures that all *windows across all platforms contain the necessary functions
-// if this fails to compile, we have a problem
-var windowSizeEnsure interface {
-	beginResize() *sizing
-	endResize(*sizing)
-	translateAllocationCoords([]*allocation, int, int)
-} = &window{}
-
 type controlSizing interface {
 	allocate(x int, y int, width int, height int, d *sizing) []*allocation
 	preferredSize(*sizing) (int, int)
@@ -33,8 +25,8 @@ type controlSizing interface {
 	getAuxResizeInfo(*sizing)
 }
 
-// on Windows, this is only embedded by window, as all other containers cannot have their own children
-// on GTK+ and Mac OS X, one is embedded by window and all containers; the containers call container.continueResize()
+// on Windows, this is only embedded by window, as all other containers cannot have their own children; beginResize() points to an instance method literal (TODO get correct term) from window
+// on GTK+ and Mac OS X, one is embedded by window and all containers; beginResize() points to a global function (TODO NOT GOOD; ideally the sizing data should be passed across size-allocate requests)
 type container struct {
 	child			Control
 	spaced		bool
@@ -46,13 +38,6 @@ func (c *container) resize(width, height int) {
 		return
 	}
 	d := c.beginResize()
-	c.continueResize(width, height, d)
-}
-
-func (c *container) continueResize(width, height int, d *sizing) {
-	if c.child == nil {		// no children; nothing to do
-		return
-	}
 	allocations := c.child.allocate(0, 0, width, height, d)
 	c.translateAllocationCoords(allocations, width, height)
 	// move in reverse so as to approximate right->left order so neighbors make sense

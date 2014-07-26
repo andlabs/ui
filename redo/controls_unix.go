@@ -120,7 +120,3 @@ func (c *checkbox) Checked() bool {
 func (c *checkbox) SetChecked(checked bool) {
 	C.gtk_toggle_button_set_active(c.toggle, togbool(checked))
 }
-
-//TODO
-func newTab() Tab{return newButton("tab")}
-func(*button)Append(string,Control){}

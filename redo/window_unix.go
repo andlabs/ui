@@ -49,7 +49,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 		closing:		newEvent(),
 		container:		new(container),
 	}
-	w.container.beginResize = w.beginResize
+	w.container.beginResize = beginResize
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(w.window)),
