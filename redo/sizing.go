@@ -41,7 +41,7 @@ func (c *container) resize(width, height int) {
 		return
 	}
 	d := c.d
-	allocations := c.child.allocate(0, 0, width, height, d)
+	allocations := c.child.allocate(0 + d.xmargin, 0 + d.ymargin, width - (2 * d.xmargin), height - (2 * d.ymargin), d)
 	c.translateAllocationCoords(allocations, width, height)
 	// move in reverse so as to approximate right->left order so neighbors make sense
 	for i := len(allocations) - 1; i >= 0; i-- {
