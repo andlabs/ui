@@ -77,7 +77,6 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 //export windowResized
 func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
 	w := (*window)(unsafe.Pointer(xw))
-	w.container.d = w.beginResize()
 	w.resize(int(width), int(height))
 	fmt.Printf("new size %d x %d\n", width, height)
 }

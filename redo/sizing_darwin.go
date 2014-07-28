@@ -24,9 +24,9 @@ const (
 	macYPadding = 12
 )
 
-func (w *window) beginResize() (d *sizing) {
+func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
-	if w.spaced {
+	if spaced {
 		d.xmargin = macXMargin
 		d.ymargin = macYMargin
 		d.xpadding = macXPadding

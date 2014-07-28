@@ -11,18 +11,16 @@ import (
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
-var spaced = flag.Bool("spaced", false, "enable spacing")
 
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
+	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
 	flag.Parse()
 	go func() {
 		done := make(chan struct{})
 		Do(func() {
 			t := NewTab()
 			w := NewWindow("Hello", 320, 240, t)
-			// TODO use a method here
-			w.(*window).spaced = *spaced
 			w.OnClosing(func() bool {
 				if *closeOnClick {
 					panic("window closed normally in close on click mode (should not happen)")

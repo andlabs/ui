@@ -25,7 +25,6 @@ func newTab() Tab {
 func (t *tab) Append(name string, control Control) {
 	// TODO isolate and standardize
 	c := new(container)
-	// don't set beginResize; this container's resize() will be a recursive call
 	t.containers = append(t.containers, c)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
@@ -35,11 +34,7 @@ func (t *tab) Append(name string, control Control) {
 }
 
 func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	// set up the recursive calls
-	for _, c := range t.containers {
-		c.d = d
-	}
-	// and prepare the tabbed control itself
+	// only prepared the tabbed control; its children will be reallocated when that one is resized
 	return t.widgetbase.allocate(x, y, width, height, d)
 }
 
