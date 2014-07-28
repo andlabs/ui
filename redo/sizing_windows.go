@@ -21,20 +21,13 @@ const (
 	paddingDialogUnits = 4
 )
 
-// only windows are containers, so only windows get beginResize()
-func (w *window) beginResize() (d *sizing) {
+func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
 
-	dc := C.getDC(w.hwnd)
-	defer C.releaseDC(w.hwnd, dc)
+	d.baseX = int(C.baseX)
+	d.baseY = int(C.baseY)
 
-	var tm C.TEXTMETRICW
-
-	C.getTextMetricsW(dc, &tm)
-	d.baseX = int(tm.tmAveCharWidth)		// TODO not optimal; third reference below has better way
-	d.baseY = int(tm.tmHeight)
-
-	if w.spaced {
+	if spaced {
 		d.xmargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseX), 4))
 		d.ymargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseY), 8))
 		d.xpadding = int(C.MulDiv(paddingDialogUnits, C.int(d.baseX), 4))

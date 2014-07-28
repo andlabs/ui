@@ -96,7 +96,6 @@ func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	w.container.d = w.beginResize()
 	w.resize(int(r.right - r.left), int(r.bottom - r.top))
 }
 
