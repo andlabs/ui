@@ -16,6 +16,7 @@ type Table interface {
 	// Lock and Unlock lock and unlock Data for reading or writing.
 	// RLock and RUnlock lock and unlock Data for reading only.
 	// These methods have identical semantics to the analogous methods of sync.RWMutex.
+	// In addition, Unlock() will request an update of the Table to account for whatever was changed.
 	Lock()
 	Unlock()
 	RLock()
