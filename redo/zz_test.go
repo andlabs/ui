@@ -12,6 +12,18 @@ import (
 
 var closeOnClick = flag.Bool("close", false, "close on click")
 
+type dtype struct {
+	Name	string
+	Address	string
+}
+var ddata = []dtype{
+	{ "alpha", "beta" },
+	{ "gamma", "delta" },
+	{ "epsilon", "zeta" },
+	{ "eta", "theta" },
+	{ "iota", "kappa" },
+}
+
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
 	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
@@ -30,6 +42,12 @@ func init() {
 				done <- struct{}{}
 				return true
 			})
+			table := NewTable(reflect.TypeOf(ddata[0]))
+			table.Lock()
+			dq := table.Data().(*[]dtype)
+			*dq = ddata
+			table.Unlock()
+			t.Append("Table", table)
 			b := NewButton("There")
 			if *closeOnClick {
 				b.SetText("Click to Close")
