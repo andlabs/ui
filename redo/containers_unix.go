@@ -28,6 +28,8 @@ func newTab() Tab {
 		widgetbase:	newWidget(widget),
 		notebook:		(*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
+	// there are no scrolling arrows by default; add them in case there are too many tabs
+	C.gtk_notebook_set_scrollable(t.notebook, C.TRUE)
 	return t
 }
 
