@@ -96,7 +96,8 @@ func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	w.resize(int(r.right - r.left), int(r.bottom - r.top))
+	// the origin of the window's content area is always (0, 0), but let's use the values from the RECT just to be safe
+	w.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
 }
 
 //export windowClosing

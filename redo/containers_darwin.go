@@ -42,6 +42,7 @@ func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*alloca
 func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {
 	t := (*tab)(unsafe.Pointer(data))
 	for _, c := range t.containers {
-		c.resize(int(width), int(height))
+		// the tab area's coordinate system is localized, so the origin is (0, 0)
+		c.resize(0, 0, int(width), int(height))
 	}
 }

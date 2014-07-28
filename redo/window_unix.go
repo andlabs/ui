@@ -110,6 +110,7 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 //export windowResizing
 func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	w := (*window)(unsafe.Pointer(data))
-	w.resize(int(r.width), int(r.height))
+	// the origin of the window's content area is always (0, 0)
+	w.resize(0, 0, int(r.width), int(r.height))
 	fmt.Printf("new size %d x %d\n", r.width, r.height)
 }

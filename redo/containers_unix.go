@@ -66,5 +66,6 @@ func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*alloca
 //export layoutResizing
 func layoutResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	c := (*container)(unsafe.Pointer(data))
-	c.resize(int(r.width), int(r.height))
+	// the layout's coordinate system is localized, so the origin is (0, 0)
+	c.resize(0, 0, int(r.width), int(r.height))
 }
