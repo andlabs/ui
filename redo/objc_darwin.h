@@ -54,4 +54,10 @@ extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 extern id newTab(void *);
 extern id tabAppend(id, char *);
 
+/* table_darwin.m */
+extern id newTable(void);
+extern void tableAppendColumn(id, char *);
+extern void tableUpdate(id);
+extern id newScrollView(id);
+
 #endif
