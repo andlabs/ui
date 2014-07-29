@@ -7,12 +7,17 @@ LPCWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
+	NMHDR *nmhdr = (NMHDR *) lParam;
+	NMLVDISPINFOW *fill = (NMLVDISPINFO *) lParam;
+
 	switch (uMsg) {
-	case msgCOMMAND:
-		/* TODO */
-		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case msgNOTIFY:
-		/* TODO */
+		switch (nmhdr->code) {
+		case LVN_GETDISPINFO:
+			/* TODO we could probably copy into the buffer provided by the list view control instead... see LVITEM's docs */
+			tableGetCellText((void *) data, fill->item.iItem, fill->item.iSubItem, &(fill->item.pszText));
+			return 0;
+		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, tableSubProc, id) == FALSE)
@@ -45,7 +50,8 @@ void tableAppendColumn(HWND hwnd, int index, LPCWSTR name)
 		xpanic("error adding column to Table", GetLastError());
 }
 
-void tableUpdate(HWND table, int nItems)
+void tableUpdate(HWND hwnd, int nItems)
 {
-	/* TODO */
+	if (SendMessageW(hwnd, LVM_SETITEMCOUNT, (WPARAM) nItems, 0) == 0)
+		xpanic("error setting number of items in Table", GetLastError());
 }

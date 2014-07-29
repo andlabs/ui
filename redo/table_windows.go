@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 	"reflect"
 )
@@ -22,7 +23,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 			C.WS_EX_CLIENTEDGE),		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 		tablebase:		b,
 	}
-	C.setTableSubclass(t.hwnd, unsafe.Pointer(&t))
+	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t.hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
@@ -36,4 +37,16 @@ func (t *table) Unlock() {
 	t.RLock()
 	defer t.RUnlock()
 	C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+}
+
+//export tableGetCellText
+func tableGetCellText(data unsafe.Pointer, row C.int, col C.int, str *C.LPWSTR) {
+	t := (*table)(data)
+	t.RLock()
+	defer t.RUnlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	datum := d.Index(int(row)).Field(int(col))
+	s := fmt.Sprintf("%v", datum)
+	// TODO get rid of conversions
+	*str = C.LPWSTR(unsafe.Pointer(toUTF16(s)))
 }
