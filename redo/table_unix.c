@@ -14,6 +14,8 @@ void tableAppendColumn(GtkTreeView *table, gint index, gchar *name)
 	col = gtk_tree_view_column_new_with_attributes(name, renderer,
 		"text", index,
 		NULL);
+	/* allow columns to be resized */
+	gtk_tree_view_column_set_resizable(col, TRUE);
 	gtk_tree_view_append_column(table, col);
 }
 

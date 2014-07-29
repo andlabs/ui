@@ -13,9 +13,6 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
-// TODOs
-// - make column headers resizeable
-
 type table struct {
 	*widgetbase
 	*tablebase
