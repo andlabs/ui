@@ -14,8 +14,7 @@ On Windows, container controls are just regular controls; their children have to
 
 TODO
 - make sure all tabs cannot be deselected (that is, make sure the current tab can never have index -1)
-- make sure tabs initially show the right control
-- for some reason the text entry tabs show the checkbox tab until the checkbox tab is clicked, THEN they show their proper contents
+- see if we can safely make the controls children of the tab control itself or if that would just screw our subclassing
 */
 
 type tab struct {
@@ -48,6 +47,10 @@ func (t *tab) Append(name string, control Control) {
 	c.child = control
 	if t.parent != nil {
 		c.child.setParent(t.parent)
+	}
+	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
+	if len(t.tabs) != 1 {
+		c.child.containerHide()
 	}
 	C.tabAppend(t.hwnd, toUTF16(name))
 }
