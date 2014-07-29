@@ -1,6 +1,7 @@
 /* 28 july 2014 */
 
 #include "winapi_windows.h"
+#include "_cgo_export.h"
 
 /* provided for cgo's benefit */
 LPCWSTR xWC_LISTVIEW = WC_LISTVIEW;
