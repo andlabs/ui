@@ -13,6 +13,9 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
+// TODOs
+// - make column headers resizeable
+
 type table struct {
 	*widgetbase
 	*tablebase
@@ -28,6 +31,7 @@ type table struct {
 
 	// stuff required by GtkTreeModel
 	nColumns		C.gint
+	old			C.gint
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -66,6 +70,11 @@ func (t *table) preferredSize(d *sizing) (width int, height int) {
 	return int(r.width), int(r.height)
 }
 
+func (t *table) Lock() {
+	t.tablebase.Lock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	t.old = C.gint(d.Len())
+}
 
 func (t *table) Unlock() {
 	t.unlock()
@@ -73,7 +82,9 @@ func (t *table) Unlock() {
 	// not sure about this one...
 	t.RLock()
 	defer t.RUnlock()
-	// TODO
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	new := C.gint(d.Len())
+	C.tableUpdate(t.model, t.old, new)
 }
 
 //export goTableModel_get_n_columns

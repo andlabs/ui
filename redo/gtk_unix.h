@@ -34,5 +34,6 @@ struct goTableModelClass {
 	GObjectClass parent_class;
 };
 extern goTableModel *newTableModel(void *);
+extern void tableUpdate(goTableModel *, gint, gint);
 
 #endif

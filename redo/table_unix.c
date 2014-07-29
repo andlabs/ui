@@ -41,12 +41,12 @@ static void goTableModel_dispose(GObject *obj)
 	G_OBJECT_CLASS(goTableModel_parent_class)->dispose(obj);
 }
 
-/* and now for the interface function definitions */
-
 static void goTableModel_finalize(GObject *obj)
 {
 	G_OBJECT_CLASS(goTableModel_parent_class)->finalize(obj);
 }
+
+/* and now for the interface function definitions */
 
 static GtkTreeModelFlags goTableModel_get_flags(GtkTreeModel *model)
 {
@@ -96,6 +96,9 @@ static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint 
 	/* TODO what if iter is invalid? */
 	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
 	str = goTableModel_do_get_value(t->gotable, (gint) iter->user_data, column);
+	/* value is uninitialized */
+	/* TODO add support for multiple types */
+	g_value_init(value, G_TYPE_STRING);
 	g_value_set_string(value, str);
 	free(str);
 }
@@ -238,4 +241,39 @@ static void goTableModel_class_init(goTableModelClass *class)
 goTableModel *newTableModel(void *gotable)
 {
 	return (goTableModel *) g_object_new(goTableModel_get_type(), "gotable", (gpointer) gotable, NULL);
+}
+
+/* somewhat naive, but the only alternatives seem to be unloading/reloading the model (or the view!), which is bleh */
+void tableUpdate(goTableModel *t, gint old, gint new)
+{
+	gint i;
+	gint nUpdate;
+	GtkTreePath *path;
+	GtkTreeIter iter;
+
+	iter.stamp = GOOD_STAMP;
+	/* first, append extra items */
+	if (old < new) {
+		for (i = old; i < new; i++) {
+			path = gtk_tree_path_new_from_indices(i, -1);
+			iter.user_data = (gpointer) i;
+			g_signal_emit_by_name(t, "row-inserted", path, &iter);
+		}
+		nUpdate = old;
+	} else
+		nUpdate = new;
+	/* next, update existing items */
+	for (i = 0; i < nUpdate; i++) {
+		path = gtk_tree_path_new_from_indices(i, -1);
+		iter.user_data = (gpointer) i;
+		g_signal_emit_by_name(t, "row-updated", path, &iter);
+	}
+	/* finally, remove deleted items */
+	if (old > new)
+		for (i = new; i < old; i++) {
+			/* note that we repeatedly remove the row at index new, as that changes with each removal; NOT i */
+			path = gtk_tree_path_new_from_indices(new, -1);
+			/* row-deleted has no iter */
+			g_signal_emit_by_name(t, "row-deleted", path);
+		}
 }
