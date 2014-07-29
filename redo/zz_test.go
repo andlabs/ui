@@ -75,7 +75,7 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.e = NewTextField()
 	tw.t.Append("Text Field", tw.e)
 	tw.e2 = NewPasswordField()
-	tw.t.Append("Password Field", tw.e)
+	tw.t.Append("Password Field", tw.e2)
 	tw.w.Show()
 }
 
