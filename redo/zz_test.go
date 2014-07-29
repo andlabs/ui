@@ -25,55 +25,68 @@ var ddata = []dtype{
 	{ "iota", "kappa" },
 }
 
+type testwin struct {
+	t		Tab
+	w		Window
+	table		Table
+	b		Button
+	c		Checkbox
+	e		TextField
+	e2		TextField
+}
+
+func (tw *testwin) make(done chan struct{}) {
+	tw.t = NewTab()
+	tw.w = NewWindow("Hello", 320, 240, tw.t)
+	tw.w.OnClosing(func() bool {
+		if *closeOnClick {
+			panic("window closed normally in close on click mode (should not happen)")
+		}
+		println("window close event received")
+		Stop()
+		done <- struct{}{}
+		return true
+	})
+	tw.table = NewTable(reflect.TypeOf(ddata[0]))
+	tw.table.Lock()
+	dq := tw.table.Data().(*[]dtype)
+	*dq = ddata
+	tw.table.Unlock()
+	tw.t.Append("Table", tw.table)
+	tw.b = NewButton("There")
+	if *closeOnClick {
+		tw.b.SetText("Click to Close")
+	}
+	// GTK+ TODO: this is causing a resize event to happen afterward?!
+	tw.b.OnClicked(func() {
+		println("in OnClicked()")
+		if *closeOnClick {
+			tw.w.Close()
+			Stop()
+			done <- struct{}{}
+		}
+	})
+	tw.t.Append("Button", tw.b)
+	tw.c = NewCheckbox("You Should Now See Me Instead")
+	tw.c.OnClicked(func() {
+		tw.w.SetTitle(fmt.Sprint(tw.c.Checked()))
+	})
+	tw.t.Append("Checkbox", tw.c)
+	tw.e = NewTextField()
+	tw.t.Append("Text Field", tw.e)
+	tw.e2 = NewPasswordField()
+	tw.t.Append("Password Field", tw.e)
+	tw.w.Show()
+}
+
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
 	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
 	flag.Parse()
 	go func() {
+		tw := new(testwin)
 		done := make(chan struct{})
-		Do(func() {
-			t := NewTab()
-			w := NewWindow("Hello", 320, 240, t)
-			w.OnClosing(func() bool {
-				if *closeOnClick {
-					panic("window closed normally in close on click mode (should not happen)")
-				}
-				println("window close event received")
-				Stop()
-				done <- struct{}{}
-				return true
-			})
-			table := NewTable(reflect.TypeOf(ddata[0]))
-			table.Lock()
-			dq := table.Data().(*[]dtype)
-			*dq = ddata
-			table.Unlock()
-			t.Append("Table", table)
-			b := NewButton("There")
-			if *closeOnClick {
-				b.SetText("Click to Close")
-			}
-			// GTK+ TODO: this is causing a resize event to happen afterward?!
-			b.OnClicked(func() {
-				println("in OnClicked()")
-				if *closeOnClick {
-					w.Close()
-					Stop()
-					done <- struct{}{}
-				}
-			})
-			t.Append("Button", b)
-			c := NewCheckbox("You Should Now See Me Instead")
-			c.OnClicked(func() {
-				w.SetTitle(fmt.Sprint(c.Checked()))
-			})
-			t.Append("Checkbox", c)
-			e := NewTextField()
-			t.Append("Text Field", e)
-			e = NewPasswordField()
-			t.Append("Password Field", e)
-			w.Show()
-		})
+		Do(func() { tw.make(done) })
 		<-done
 	}()
 	err := Go()
