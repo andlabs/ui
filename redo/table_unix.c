@@ -3,17 +3,26 @@
 #include "gtk_unix.h"
 #include "_cgo_export.h"
 
-void tableAppendColumn(GtkTreeView *table, gchar *name)
+void tableAppendColumn(GtkTreeView *table, gint index, gchar *name)
 {
 	GtkTreeViewColumn *col;
 	GtkCellRenderer *renderer;
 
 	renderer = gtk_cell_renderer_text_new();
 	col = gtk_tree_view_column_new_with_attributes(name, renderer,
-		/* TODO */
+		"text", index,
 		NULL);
 	gtk_tree_view_append_column(table, col);
 }
+
+/*
+how our GtkTreeIters are stored:
+	stamp: either GOOD_STAMP or BAD_STAMP
+	user_data: row index
+TODO verify range of gint
+*/
+#define GOOD_STAMP 0x1234
+#define BAD_STAMP 0x5678
 
 static void goTableModel_initGtkTreeModel(GtkTreeModelIface *);
 
@@ -42,35 +51,153 @@ static GtkTreeModelFlags goTableModel_get_flags(GtkTreeModel *model)
 	return GTK_TREE_MODEL_LIST_ONLY;
 }
 
+/* get_n_columns in Go */
+
+static GType goTableModel_get_column_type(GtkTreeModel *model, gint column)
+{
+	/* TODO change when we get more column types */
+	return G_TYPE_STRING;
+}
+
+static gboolean goTableModel_get_iter(GtkTreeModel *model, GtkTreeIter *iter, GtkTreePath *path)
+{
+	goTableModel *t = (goTableModel *) model;
+	gint index;
+
+	if (gtk_tree_path_get_depth(path) != 1)
+		goto bad;
+	index = gtk_tree_path_get_indices(path)[0];
+	if (index < 0)
+		goto bad;
+	if (index >= goTableModel_getRowCount(t->gotable))
+		goto bad;
+	iter->stamp = GOOD_STAMP;
+	iter->user_data = (gpointer) index;
+	return TRUE;
+bad:
+	iter->stamp = BAD_STAMP;
+	return FALSE;
+}
+
+static GtkTreePath *goTableModel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	if (iter->stamp != GOOD_STAMP)
+		return NULL;		/* TODO is this right? */
+	return gtk_tree_path_new_from_indices((gint) iter->user_data, -1);
+}
+
+static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint column, GValue *value)
+{
+	goTableModel *t = (goTableModel *) model;
+	gchar *str;
+
+	/* TODO what if iter is invalid? */
+	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
+	str = goTableModel_do_get_value(t->gotable, (gint) iter->user_data, column);
+	g_value_set_string(value, str);
+	free(str);
+}
+
+static gboolean goTableModel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	goTableModel *t = (goTableModel *) model;
+	gint index;
+
+	if (iter->stamp != GOOD_STAMP)
+		return FALSE;		/* TODO correct? */
+	index = (gint) iter->user_data;
+	index++;
+	iter->user_data = (gpointer) index;
+	if (index >= goTableModel_getRowCount(t->gotable)) {
+		iter->stamp = BAD_STAMP;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static gboolean goTableModel_iter_previous(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	goTableModel *t = (goTableModel *) model;
+	gint index;
+
+	if (iter->stamp != GOOD_STAMP)
+		return FALSE;		/* TODO correct? */
+	index = (gint) iter->user_data;
+	index--;
+	iter->user_data = (gpointer) index;
+	if (index < 0) {
+		iter->stamp = BAD_STAMP;
+		return FALSE;
+	}
+	return TRUE;
+}
+
+static gboolean goTableModel_iter_children(GtkTreeModel *model, GtkTreeIter *child, GtkTreeIter *parent)
+{
+	goTableModel *t = (goTableModel *) model;
+
+	if (parent == NULL && goTableModel_getRowCount(t->gotable) > 0) {
+		child->stamp = GOOD_STAMP;
+		child->user_data = 0;
+		return TRUE;
+	}
+	child->stamp = BAD_STAMP;
+	return FALSE;
+}
+
+static gboolean goTableModel_iter_has_child(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	return FALSE;
+}
+
+static gint goTableModel_iter_n_children(GtkTreeModel *model, GtkTreeIter *iter)
+{
+	goTableModel *t = (goTableModel *) model;
+
+	if (iter == NULL)
+		return goTableModel_getRowCount(t->gotable);
+	return 0;
+}
+
+static gboolean goTableModel_iter_nth_child(GtkTreeModel *model, GtkTreeIter *child, GtkTreeIter *parent, gint n)
+{
+	goTableModel *t = (goTableModel *) model;
+
+	if (parent == NULL && n >= 0 && n < goTableModel_getRowCount(t->gotable)) {
+		child->stamp = GOOD_STAMP;
+		child->user_data = (gpointer) n;
+		return TRUE;
+	}
+	child->stamp = BAD_STAMP;
+	return FALSE;
+}
+
+static gboolean goTableModel_iter_parent(GtkTreeModel *model, GtkTreeIter *parent, GtkTreeIter *child)
+{
+	parent->stamp = BAD_STAMP;
+	return FALSE;
+}
+
+/* end of interface definitions */
+
 static void goTableModel_initGtkTreeModel(GtkTreeModelIface *interface)
 {
-	GtkTreeModelIface *chain;
-
-	chain = (GtkTreeModelIface *) g_type_interface_peek_parent(interface);
+	/* don't chain; we have nothing to chain to */
 #define DEF(x) interface->x = goTableModel_ ## x;
-#define CHAIN(x) interface->x = chain->x;
-	/* signals */
-	CHAIN(row_changed)
-	CHAIN(row_inserted)
-	CHAIN(row_has_child_toggled)
-	CHAIN(row_deleted)
-	CHAIN(rows_reordered)
-	/* vtable */
 	DEF(get_flags)
-	CHAIN(get_n_columns)
-	CHAIN(get_column_type)
-	CHAIN(get_iter)
-	CHAIN(get_path)
-	CHAIN(get_value)
-	CHAIN(iter_next)
-	CHAIN(iter_previous)
-	CHAIN(iter_children)
-	CHAIN(iter_has_child)
-	CHAIN(iter_n_children)
-	CHAIN(iter_nth_child)
-	CHAIN(iter_parent)
-	CHAIN(ref_node)
-	CHAIN(unref_node)
+	DEF(get_n_columns)
+	DEF(get_column_type)
+	DEF(get_iter)
+	DEF(get_path)
+	DEF(get_value)
+	DEF(iter_next)
+	DEF(iter_previous)
+	DEF(iter_children)
+	DEF(iter_has_child)
+	DEF(iter_n_children)
+	DEF(iter_nth_child)
+	DEF(iter_parent)
+	/* no need for ref_node and unref_node */
 }
 
 static GParamSpec *goTableModelProperties[2];
