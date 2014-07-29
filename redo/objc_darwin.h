@@ -59,5 +59,6 @@ extern id newTable(void);
 extern void tableAppendColumn(id, char *);
 extern void tableUpdate(id);
 extern id newScrollView(id);
+extern void tableMakeDataSource(id, void *);
 
 #endif

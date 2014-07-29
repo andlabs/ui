@@ -14,6 +14,24 @@
 @end
 
 @implementation goTableDataSource
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)view
+{
+	return (NSInteger) goTableDataSource_getRowCount(self->gotable);
+}
+
+- (id)tableView:(NSTableView *)view objectValueForTableColumn:(NSTableColumn *)col row:(NSInteger)row
+{
+	char *str;
+	NSString *s;
+
+	// TODO there has to be a better way to get the column index
+	str = goTableDataSource_getValue(self->gotable, (intptr_t) row, (intptr_t) [[view tableColumns] indexOfObject:col]);
+	s = [NSString stringWithUTF8String:str];
+	free(str);		// allocated with C.CString() on the Go side
+	return s;
+}
+
 @end
 
 id newTable(void)
@@ -58,4 +76,13 @@ id newScrollView(id content)
 	sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
 	[sv setDocumentView:toNSView(content)];
 	return (id) sv;
+}
+
+void tableMakeDataSource(id table, void *gotable)
+{
+	goTableDataSource *model;
+
+	model = [goTableDataSource new];
+	model->gotable = gotable;
+	[toNSTableView(table) setDataSource:model];
 }

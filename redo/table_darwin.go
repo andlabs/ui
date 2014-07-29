@@ -3,7 +3,7 @@
 package ui
 
 import (
-//	"fmt"
+	"fmt"
 	"reflect"
 	"unsafe"
 )
@@ -26,7 +26,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		tablebase:		b,
 		table:		id,
 	}
-	// TODO model
+	C.tableMakeDataSource(t.table, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
 		C.tableAppendColumn(t.table, cname)
@@ -42,4 +42,24 @@ func (t *table) Unlock() {
 	t.RLock()
 	defer t.RUnlock()
 	C.tableUpdate(t.table)
+}
+
+//export goTableDataSource_getValue
+func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t) *C.char {
+	t := (*table)(data)
+	t.RLock()
+	defer t.RUnlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	datum := d.Index(int(row)).Field(int(col))
+	s := fmt.Sprintf("%v", datum)
+	return C.CString(s)
+}
+
+//export goTableDataSource_getRowCount
+func goTableDataSource_getRowCount(data unsafe.Pointer) C.intptr_t {
+	t := (*table)(data)
+	t.RLock()
+	defer t.RUnlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	return C.intptr_t(d.Len())
 }
