@@ -55,3 +55,9 @@ void tableUpdate(HWND hwnd, int nItems)
 	if (SendMessageW(hwnd, LVM_SETITEMCOUNT, (WPARAM) nItems, 0) == 0)
 		xpanic("error setting number of items in Table", GetLastError());
 }
+
+void tableAddExtendedStyles(HWND hwnd, LPARAM styles)
+{
+	/* the bits of WPARAM specify which bits of LPARAM to look for; having WPARAM == LPARAM ensures that only the bits we want to add are affected */
+	SendMessageW(hwnd, LVM_SETEXTENDEDLISTVIEWSTYLE, (WPARAM) styles, styles);
+}

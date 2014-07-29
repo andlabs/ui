@@ -92,5 +92,6 @@ extern LPCWSTR xWC_LISTVIEW;
 extern void setTableSubclass(HWND, void *);
 extern void tableAppendColumn(HWND, int, LPCWSTR);
 extern void tableUpdate(HWND, int);
+extern void tableAddExtendedStyles(HWND, LPARAM);
 
 #endif
