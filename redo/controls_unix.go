@@ -13,6 +13,9 @@ import (
 // extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
+// TODOs:
+// - standalone label on its own: should it be centered or not?
+
 type widgetbase struct {
 	widget	*C.GtkWidget
 }
@@ -152,4 +155,54 @@ func (t *textField) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_entry_set_text(t.entry, ctext)
+}
+
+type label struct {
+	*widgetbase
+	misc			*C.GtkMisc
+	label			*C.GtkLabel
+	standalone	bool
+}
+
+func finishNewLabel(text string, standalone bool) *label {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	widget := C.gtk_label_new(ctext)
+	return &label{
+		widgetbase:	newWidget(widget),
+		misc:		(*C.GtkMisc)(unsafe.Pointer(widget)),
+		label:		(*C.GtkLabel)(unsafe.Pointer(widget)),
+		standalone:	standalone,
+	}
+}
+
+func newLabel(text string) Label {
+	return finishNewLabel(text, false)
+}
+
+func newStandaloneLabel(text string) Label {
+	return finishNewLabel(text, true)
+}
+
+func (l *label) Text() string {
+	return fromgstr(C.gtk_label_get_text(l.label))
+}
+
+func (l *label) SetText(text string) {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	C.gtk_label_set_text(l.label, ctext)
+}
+
+func (l *label) commitResize(c *allocation, d *sizing) {
+	if !l.standalone && c.neighbor != nil {
+		c.neighbor.getAuxResizeInfo(d)
+		if d.shouldVAlignTop {
+			// TODO should it be center-aligned to the first line or not
+			C.gtk_misc_set_alignment(l.misc, 0, 0)
+		} else {
+			C.gtk_misc_set_alignment(l.misc, 0, 0.5)
+		}
+	}
+	l.widgetbase.commitResize(c, d)
 }

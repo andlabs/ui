@@ -157,3 +157,43 @@ func (t *textField) Text() string {
 func (t *textField) SetText(text string) {
 	t.settext(text)
 }
+
+type label struct {
+	*widgetbase
+	standalone	bool
+}
+
+var labelclass = toUTF16("STATIC")
+
+func finishNewLabel(text string, standalone bool) *label {
+	w := newWidget(labelclass,
+		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
+		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
+		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
+		0)
+	C.setWindowText(w.hwnd, toUTF16(text))
+	C.controlSetControlFont(w.hwnd)
+	l := &label{
+		widgetbase:	w,
+		standalone:	standalone,
+	}
+	return l
+}
+
+func newLabel(text string) Label {
+	return finishNewLabel(text, false)
+}
+
+func newStandaloneLabel(text string) Label {
+	return finishNewLabel(text, true)
+}
+
+func (l *label) Text() string {
+	return l.text()
+}
+
+func (l *label) SetText(text string) {
+	l.settext(text)
+}
+
+// TODO label commitResize

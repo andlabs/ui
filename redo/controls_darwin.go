@@ -101,16 +101,18 @@ type textField struct {
 	*widgetbase
 }
 
-func newTextField() *textField {
+func finishNewTextField(id C.id) *textField {
 	return &textField{
-		widgetbase:	newWidget(C.newTextField()),
+		widgetbase:	newWidget(id),
 	}
 }
 
+func newTextField() *textField {
+	return finishNewTextField(C.newTextField())
+}
+
 func newPasswordField() *textField {
-	return &textField{
-		widgetbase:	newWidget(C.newPasswordField()),
-	}
+	return finishNewTextField(C.newPasswordField())
 }
 
 func (t *textField) Text() string {
@@ -122,3 +124,28 @@ func (t *textField) SetText(text string) {
 	defer C.free(unsafe.Pointer(ctext))
 	C.textFieldSetText(t.id, ctext)
 }
+
+// cheap trick
+type label struct {
+	*textField
+	standalone	bool
+}
+
+func finishNewLabel(text string, standalone bool) *label {
+	l := &label{
+		textField:		finishNewTextField(C.newLabel()),
+		standalone:	standalone,
+	}
+	l.SetText(text)
+	return l
+}
+
+func newLabel(text string) Label {
+	return finishNewLabel(text, false)
+}
+
+func newStandaloneLabel(text string) Label {
+	return finishNewLabel(text, true)
+}
+
+// TODO label commitResize

@@ -101,17 +101,20 @@ void checkboxSetChecked(id c, BOOL checked)
 	[toNSButton(c) setState:state];
 }
 
-static id finishNewTextField(NSTextField *t)
+static id finishNewTextField(NSTextField *t, BOOL bordered)
 {
-	// same for text fields and password fields
+	// same for text fields, password fields, and labels
 	setStandardControlFont((id) t);
-	// TODO border (Interface Builder setting is confusing)
+	// TODO text field/password field border (Interface Builder setting is confusing)
+	if (!bordered)
+		[t setBordered:NO];
 	// smart quotes and other autocorrect features are handled by the window; see newWindow() in window_darwin.m for details
 	// Interface Builder does this to make the text box behave properly
 	// this disables both word wrap AND ellipsizing in one fell swoop
 	// however, we need to send it to the control's cell, not to the control directly
 	[[t cell] setLineBreakMode:NSLineBreakByClipping];
 	// Interface Builder also sets this to allow horizontal scrolling
+	// it also sets this for labels, despite those not being scrollable
 	[[t cell] setScrollable:YES];
 	return (id) t;
 }
@@ -121,7 +124,7 @@ id newTextField(void)
 	NSTextField *t;
 
 	t = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	return finishNewTextField(t);
+	return finishNewTextField(t, YES);
 }
 
 id newPasswordField(void)
@@ -129,7 +132,7 @@ id newPasswordField(void)
 	NSSecureTextField *t;
 
 	t = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	return finishNewTextField(toNSTextField(t));
+	return finishNewTextField(toNSTextField(t), YES);
 }
 
 const char *textFieldText(id t)
@@ -140,4 +143,15 @@ const char *textFieldText(id t)
 void textFieldSetText(id t, char *text)
 {
 	[toNSTextField(t) setStringValue:[NSString stringWithUTF8String:text]];
+}
+
+id newLabel(void)
+{
+	NSTextField *l;
+
+	l = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	[l setEditable:NO];
+	[l setSelectable:NO];
+	[l setDrawsBackground:NO];
+	return finishNewTextField(l, NO);
 }

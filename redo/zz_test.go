@@ -28,6 +28,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	l		Label
 	table		Table
 	b		Button
 	c		Checkbox
@@ -47,6 +48,8 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.l = NewStandaloneLabel("hello")
+	tw.t.Append("Label", tw.l)
 	tw.table = NewTable(reflect.TypeOf(ddata[0]))
 	tw.table.Lock()
 	dq := tw.table.Data().(*[]dtype)

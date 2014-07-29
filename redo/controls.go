@@ -38,7 +38,7 @@ type Checkbox interface {
 	// TODO change to OnToggled() or OnChecked()?
 	OnClicked(func())
 
-	// Text and SetText are Requests that get and set the Checkbox's label text.
+	// Text and SetText get and set the Checkbox's label text.
 	Text() string
 	SetText(text string)
 
@@ -72,4 +72,29 @@ func NewTextField() TextField {
 // NewPasswordField creates a new TextField for entering passwords; that is, it hides the text being entered.
 func NewPasswordField() TextField {
 	return newPasswordField()
+}
+
+
+// Label is a Control that shows a static line of text.
+// Label shows one line of text; any text that does not fit is truncated.
+// A Label can either have smart vertical alignment relative to the control to its right or just be vertically aligned to the top (standalone).
+type Label interface {
+	Control
+
+	// Text and SetText get and set the Label's text.
+	Text() string
+	SetText(text string)
+}
+
+// NewLabel creates a new Label with the given text.
+// The Label will smartly vertically position itself relative to the control to its immediate right.
+// TODO Grids on GTK+ will not respect this unless SetFilling()
+func NewLabel(text string) Label {
+	return newLabel(text)
+}
+
+// NewStandaloneLabel creates a new Label with the given text.
+// The Label will be vertically positioned at the top of its allocated space.
+func NewStandaloneLabel(text string) Label {
+	return newStandaloneLabel(text)
 }

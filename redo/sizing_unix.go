@@ -50,19 +50,6 @@ func (w *widgetbase) allocate(x int, y int, width int, height int, d *sizing) []
 }
 
 func (w *widgetbase) commitResize(c *allocation, d *sizing) {
-// TODO
-/*
-	if s.ctype == c_label && !s.alternate && c.neighbor != nil {
-		c.neighbor.getAuxResizeInfo(d)
-		if d.shouldVAlignTop {
-			// TODO should it be center-aligned to the first line or not
-			gtk_misc_set_alignment(s.widget, 0, 0)
-		} else {
-			gtk_misc_set_alignment(s.widget, 0, 0.5)
-		}
-	}
-*/
-
 	// as we resize on size-allocate, we have to also use size-allocate on our children
 	// this is fine anyway; in fact, this allows us to move without knowing what the container is!
 	// this is what GtkBox does anyway
