@@ -13,6 +13,8 @@ import (
 // Tables maintain their own storage behind a sync.RWMutex-compatible sync.Locker; use Table.Lock()/Table.Unlock() to make changes and Table.RLock()/Table.RUnlock() to merely read values.
 // TODO headers
 type Table interface {
+	Control
+
 	// Lock and Unlock lock and unlock Data for reading or writing.
 	// RLock and RUnlock lock and unlock Data for reading only.
 	// These methods have identical semantics to the analogous methods of sync.RWMutex.
@@ -41,16 +43,18 @@ func NewTable(ty reflect.Type) Table {
 		panic(fmt.Errorf("unknown or unsupported type %v given to NewTable()", ty))
 	}
 	b := new(tablebase)
-	// arbitrary starting capacity
-	b.data = reflect.NewSlice(ty, 0, 512).Addr().Interface()
-	return finishNewTable(b)
+	// we want a pointer to a slice
+	b.data = reflect.New(reflect.SliceOf(ty)).Interface()
+	return finishNewTable(b, ty)
 }
 
 func (b *tablebase) Lock() {
 	b.lock.Lock()
 }
 
-func (b *tablebase) Unlock() {
+// Unlock() is defined on each backend implementation of Table
+// they should all call this, however
+func (b *tablebase) unlock() {
 	b.lock.Unlock()
 }
 
@@ -62,6 +66,6 @@ func (b *tablebase) RUnlock() {
 	b.lock.RUnlock()
 }
 
-func (b *tablebase) Data() {
+func (b *tablebase) Data() interface{} {
 	return b.data
 }

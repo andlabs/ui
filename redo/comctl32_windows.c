@@ -10,6 +10,12 @@ BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 
+#define wantedICCClasses ( \
+	ICC_PROGRESS_CLASS |		/* progress bars */		\
+	ICC_TAB_CLASSES |			/* tabs */				\
+	ICC_LISTVIEW_CLASSES |		/* list views */			\
+	0)
+
 DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 {
 	ACTCTX actctx;
@@ -35,7 +41,7 @@ DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
 
 	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
 	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
-	icc.dwICC = ICC_PROGRESS_CLASS | ICC_TAB_CLASSES;
+	icc.dwICC = wantedICCClasses;
 
 	comctl32 = LoadLibraryW(L"comctl32.dll");
 	if (comctl32 == NULL) {

@@ -87,4 +87,10 @@ extern void setTabSubclass(HWND, void *);
 extern void tabAppend(HWND, LPCWSTR);
 extern void tabGetContentRect(HWND, RECT *);
 
+/* table_windows.go */
+extern LPCWSTR xWC_LISTVIEW;
+extern void setTableSubclass(HWND, void *);
+extern void tableAppendColumn(HWND, int, LPCWSTR);
+extern void tableUpdate(HWND, int);
+
 #endif
