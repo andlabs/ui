@@ -5,7 +5,6 @@
 #import <Cocoa/Cocoa.h>
 
 #define toNSTableView(x) ((NSTableView *) (x))
-#define toNSView(x) ((NSView *) (x))
 
 @interface goTableDataSource : NSObject <NSTableViewDataSource> {
 @public
@@ -66,16 +65,6 @@ void tableAppendColumn(id t, char *name)
 void tableUpdate(id t)
 {
 	[toNSTableView(t) reloadData];
-}
-
-// TODO SPLIT
-id newScrollView(id content)
-{
-	NSScrollView *sv;
-
-	sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-	[sv setDocumentView:toNSView(content)];
-	return (id) sv;
 }
 
 void tableMakeDataSource(id table, void *gotable)

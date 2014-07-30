@@ -31,7 +31,7 @@ extern void windowClose(id);
 extern id windowContentView(id);
 extern void windowRedraw(id);
 
-/* controls_darwin.m */
+/* basicctrls_darwin.m */
 extern void parent(id, id);
 extern void controlSetHidden(id, BOOL);
 extern void setStandardControlFont(id);
@@ -51,7 +51,7 @@ extern id newLabel(void);
 /* sizing_darwin.m */
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 
-/* containers_darwin.m */
+/* containerctrls_darwin.m */
 extern id newTab(void *);
 extern id tabAppend(id, char *);
 
@@ -59,7 +59,9 @@ extern id tabAppend(id, char *);
 extern id newTable(void);
 extern void tableAppendColumn(id, char *);
 extern void tableUpdate(id);
-extern id newScrollView(id);
 extern void tableMakeDataSource(id, void *);
+
+/* control_darwin.m */
+extern id newScrollView(id);
 
 #endif
