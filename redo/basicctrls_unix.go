@@ -16,38 +16,8 @@ import "C"
 // TODOs:
 // - standalone label on its own: should it be centered or not?
 
-type widgetbase struct {
-	widget	*C.GtkWidget
-}
-
-func newWidget(w *C.GtkWidget) *widgetbase {
-	return &widgetbase{
-		widget:	w,
-	}
-}
-
-// these few methods are embedded by all the various Controls since they all will do the same thing
-
-type controlParent struct {
-	c	*C.GtkContainer
-}
-
-func (w *widgetbase) setParent(c *controlParent) {
-	C.gtk_container_add(c.c, w.widget)
-	// make sure the new widget is shown
-	C.gtk_widget_show_all(w.widget)
-}
-
-func (w *widgetbase) containerShow() {
-	C.gtk_widget_show_all(w.widget)
-}
-
-func (w *widgetbase) containerHide() {
-	C.gtk_widget_hide(w.widget)
-}
-
 type button struct {
-	*widgetbase
+	*controlbase
 	button		*C.GtkButton
 	clicked		*event
 }
@@ -55,7 +25,7 @@ type button struct {
 // shared code for setting up buttons, check boxes, etc.
 func finishNewButton(widget *C.GtkWidget, event string, handler unsafe.Pointer) *button {
 	b := &button{
-		widgetbase:	newWidget(widget),
+		controlbase:	newControl(widget),
 		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
 		clicked:		newEvent(),
 	}
@@ -129,14 +99,14 @@ func (c *checkbox) SetChecked(checked bool) {
 }
 
 type textField struct {
-	*widgetbase
+	*controlbase
 	entry		*C.GtkEntry
 }
 
 func startNewTextField() *textField {
 	w := C.gtk_entry_new()
 	return &textField{
-		widgetbase:	newWidget(w),
+		controlbase:	newControl(w),
 		entry:		(*C.GtkEntry)(unsafe.Pointer(w)),
 	}
 }
@@ -162,22 +132,26 @@ func (t *textField) SetText(text string) {
 }
 
 type label struct {
-	*widgetbase
-	misc			*C.GtkMisc
-	label			*C.GtkLabel
-	standalone	bool
+	*controlbase
+	misc					*C.GtkMisc
+	label					*C.GtkLabel
+	standalone			bool
+	supercommitResize		func(c *allocation, d *sizing)
 }
 
 func finishNewLabel(text string, standalone bool) *label {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	widget := C.gtk_label_new(ctext)
-	return &label{
-		widgetbase:	newWidget(widget),
+	l := &label{
+		controlbase:	newControl(widget),
 		misc:		(*C.GtkMisc)(unsafe.Pointer(widget)),
 		label:		(*C.GtkLabel)(unsafe.Pointer(widget)),
 		standalone:	standalone,
 	}
+	l.supercommitResize = l.fcommitResize
+	l.fcommitResize = l.labelcommitResize
+	return l
 }
 
 func newLabel(text string) Label {
@@ -198,7 +172,7 @@ func (l *label) SetText(text string) {
 	C.gtk_label_set_text(l.label, ctext)
 }
 
-func (l *label) commitResize(c *allocation, d *sizing) {
+func (l *label) labelcommitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
 		if d.shouldVAlignTop {
@@ -208,5 +182,5 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 			C.gtk_misc_set_alignment(l.misc, 0, 0.5)
 		}
 	}
-	l.widgetbase.commitResize(c, d)
+	l.supercommitResize(c, d)
 }

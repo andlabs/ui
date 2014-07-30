@@ -14,14 +14,10 @@ import (
 import "C"
 
 type table struct {
-	*widgetbase
+	*scrolledcontrol
 	*tablebase
 
-	treewidget	*C.GtkWidget
 	treeview		*C.GtkTreeView
-
-	scrollc		*C.GtkContainer
-	scrollwindow	*C.GtkScrolledWindow
 
 	model		*C.goTableModel
 	modelgtk		*C.GtkTreeModel
@@ -33,19 +29,11 @@ type table struct {
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
-	scroller := C.gtk_scrolled_window_new(nil, nil)
 	t := &table{
-		// TODO kludge
-		widgetbase:	newWidget(scroller),
+		scrolledcontrol:	newScrolledControl(widget, true),
 		tablebase:		b,
-		treewidget:	widget,
 		treeview:		(*C.GtkTreeView)(unsafe.Pointer(widget)),
-		scrollc:		(*C.GtkContainer)(unsafe.Pointer(scroller)),
-		scrollwindow:	(*C.GtkScrolledWindow)(unsafe.Pointer(scroller)),
 	}
-	// give the scrolled window a border (thanks to jlindgren in irc.gimp.net/#gtk+)
-	C.gtk_scrolled_window_set_shadow_type(t.scrollwindow, C.GTK_SHADOW_IN)
-	C.gtk_container_add(t.scrollc, t.treewidget)
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
 	t.modelgtk = (*C.GtkTreeModel)(unsafe.Pointer(model))
@@ -58,13 +46,6 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// and for some GtkTreeModel boilerplate
 	t.nColumns = C.gint(ty.NumField())
 	return t
-}
-
-func (t *table) preferredSize(d *sizing) (width int, height int) {
-	var r C.GtkRequisition
-
-	C.gtk_widget_get_preferred_size(t.treewidget, nil, &r)
-	return int(r.width), int(r.height)
 }
 
 func (t *table) Lock() {

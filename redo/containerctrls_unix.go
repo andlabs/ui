@@ -13,7 +13,7 @@ import (
 import "C"
 
 type tab struct {
-	*widgetbase
+	*controlbase
 	notebook		*C.GtkNotebook
 
 	containers	[]*container
@@ -25,7 +25,7 @@ type tab struct {
 func newTab() Tab {
 	widget := C.gtk_notebook_new()
 	t := &tab{
-		widgetbase:	newWidget(widget),
+		controlbase:	newControl(widget),
 		notebook:		(*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
 	// there are no scrolling arrows by default; add them in case there are too many tabs
@@ -58,10 +58,7 @@ func (t *tab) Append(name string, control Control) {
 	}
 }
 
-func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	// only prepared the tabbed control; its children will be reallocated when that one is resized
-	return t.widgetbase.allocate(x, y, width, height, d)
-}
+// no need to override Control.allocate() as only prepared the tabbed control; its children will be reallocated when that one is resized
 
 //export layoutResizing
 func layoutResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
