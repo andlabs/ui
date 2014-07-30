@@ -58,18 +58,26 @@ func (s *Stack) SetStretchy(index int) {
 	s.stretchy[index] = true
 }
 
-func (s *Stack) make(window *sysData) error {
-	for i, c := range s.controls {
-		err := c.make(window)
-		if err != nil {
-			return fmt.Errorf("error adding control %d to Stack: %v", i, err)
-		}
+func (s *Stack) setParent(parent *controlParent) {
+	for _, c := range s.controls {
+		c.setParent(parent)
 	}
 	s.created = true
-	return nil
 }
 
-func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
+func (s *Stack) containerShow() {
+	for _, c := range s.controls {
+		c.containerShow()
+	}
+}
+
+func (s *Stack) containerHide() {
+	for _, c := range s.controls {
+		c.containerHide()
+	}
+}
+
+func (s *Stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	var stretchywid, stretchyht int
 	var current *allocation		// for neighboring
 
@@ -142,7 +150,7 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sysSizeData) (a
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
 // We don't consider the margins here, but will need to in container if Window.SizeToFit() is ever made a thing. TODO
-func (s *Stack) preferredSize(d *sysSizeData) (width int, height int) {
+func (s *Stack) preferredSize(d *sizing) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -188,11 +196,11 @@ func (s *Stack) preferredSize(d *sysSizeData) (width int, height int) {
 	return
 }
 
-func (s *Stack) commitResize(c *allocation, d *sysSizeData) {
+func (s *Stack) commitResize(c *allocation, d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 
-func (s *Stack) getAuxResizeInfo(d *sysSizeData) {
+func (s *Stack) getAuxResizeInfo(d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 

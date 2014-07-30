@@ -28,6 +28,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	s		*Stack		// TODO make Stack
 	l		Label
 	table		Table
 	b		Button
@@ -48,6 +49,14 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	stack1 := NewHorizontalStack(NewLabel("Test"), NewTextField())
+	stack1.SetStretchy(1)
+	stack2 := NewHorizontalStack(NewLabel("Test 2"),
+		NewTable(reflect.TypeOf(struct{A,B,C int}{})))
+	stack2.SetStretchy(1)
+	tw.s = NewVerticalStack(stack1, stack2)
+	tw.s.SetStretchy(1)
+	tw.t.Append("Stack", tw.s)
 	tw.l = NewStandaloneLabel("hello")
 	tw.t.Append("Label", tw.l)
 	tw.table = NewTable(reflect.TypeOf(ddata[0]))
