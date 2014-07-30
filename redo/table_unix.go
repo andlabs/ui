@@ -31,8 +31,13 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
 	t := &table{
 		scrolledcontrol:	newScrolledControl(widget, true),
-		tablebase:		b,
-		treeview:		(*C.GtkTreeView)(unsafe.Pointer(widget)),
+		tablebase:			b,
+		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
+	}
+	t.fgetAuxResizeInfo = func(d *sizing) {
+		// a Label to the left of a Table should be vertically aligned to the top
+		// TODO do the same with Area
+		d.shouldVAlignTop = true
 	}
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model

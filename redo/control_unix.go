@@ -81,8 +81,7 @@ func newControl(widget *C.GtkWidget) *controlbase {
 		C.gtk_widget_size_allocate(c.widget, &r)
 	}
 	c.fgetAuxResizeInfo = func(d *sizing) {
-//TODO
-//		d.shouldVAlignTop = (s.ctype == c_listbox) || (s.ctype == c_area)
+		// controls set this to true if a Label to its left should be vertically aligned to the control's top
 		d.shouldVAlignTop = false
 	}
 	return c
