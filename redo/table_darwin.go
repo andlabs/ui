@@ -12,24 +12,20 @@ import (
 import "C"
 
 type table struct {
-	*widgetbase
+	*scrolledcontrol
 	*tablebase
-
-	// TODO kludge
-	table		C.id
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	id := C.newTable()
 	t := &table{
-		widgetbase:	newWidget(C.newScrollView(id)),
-		tablebase:		b,
-		table:		id,
+		scrolledcontrol:	newScrolledControl(id),
+		tablebase:			b,
 	}
-	C.tableMakeDataSource(t.table, unsafe.Pointer(t))
+	C.tableMakeDataSource(t.id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
-		C.tableAppendColumn(t.table, cname)
+		C.tableAppendColumn(t.id, cname)
 		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
 	}
 	return t
@@ -41,7 +37,7 @@ func (t *table) Unlock() {
 	// not sure about this one...
 	t.RLock()
 	defer t.RUnlock()
-	C.tableUpdate(t.table)
+	C.tableUpdate(t.id)
 }
 
 //export goTableDataSource_getValue

@@ -10,7 +10,7 @@ import (
 import "C"
 
 type tab struct {
-	*widgetbase
+	*controlbase
 
 	containers	[]*container
 }
@@ -18,7 +18,7 @@ type tab struct {
 func newTab() Tab {
 	t := new(tab)
 	id := C.newTab(unsafe.Pointer(t))
-	t.widgetbase = newWidget(id)
+	t.controlbase = newControl(id)
 	return t
 }
 
@@ -33,10 +33,7 @@ func (t *tab) Append(name string, control Control) {
 	c.child.setParent(&controlParent{tabview})
 }
 
-func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	// only prepared the tabbed control; its children will be reallocated when that one is resized
-	return t.widgetbase.allocate(x, y, width, height, d)
-}
+// no need to override Control.allocate() as only prepared the tabbed control; its children will be reallocated when that one is resized
 
 //export tabResized
 func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {

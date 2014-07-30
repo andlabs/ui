@@ -9,37 +9,8 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-type widgetbase struct {
-	id		C.id
-}
-
-func newWidget(id C.id) *widgetbase {
-	return &widgetbase{
-		id:	id,
-	}
-}
-
-// these few methods are embedded by all the various Controls since they all will do the same thing
-
-type controlParent struct {
-	id	C.id
-}
-
-func (w *widgetbase) setParent(parent *controlParent) {
-	// redrawing the new window handled by C.parent()
-	C.parent(w.id, parent.id)
-}
-
-func (w *widgetbase) containerShow() {
-	C.controlSetHidden(w.id, C.NO)
-}
-
-func (w *widgetbase) containerHide() {
-	C.controlSetHidden(w.id, C.YES)
-}
-
 type button struct {
-	*widgetbase
+	*controlbase
 	clicked		*event
 }
 
@@ -47,7 +18,7 @@ func finishNewButton(id C.id, text string) *button {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	b := &button{
-		widgetbase:	newWidget(id),
+		controlbase:	newControl(id),
 		clicked:		newEvent(),
 	}
 	C.buttonSetText(b.id, ctext)
@@ -102,12 +73,12 @@ func (c *checkbox) SetChecked(checked bool) {
 }
 
 type textField struct {
-	*widgetbase
+	*controlbase
 }
 
 func finishNewTextField(id C.id) *textField {
 	return &textField{
-		widgetbase:	newWidget(id),
+		controlbase:	newControl(id),
 	}
 }
 
