@@ -9,61 +9,21 @@ import (
 // #include "winapi_windows.h"
 import "C"
 
-type widgetbase struct {
-	hwnd	C.HWND
-	parent	C.HWND
-}
-
-func newWidget(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *widgetbase {
-	return &widgetbase{
-		hwnd:	C.newWidget(class, style, extstyle),
-	}
-}
-
-// these few methods are embedded by all the various Controls since they all will do the same thing
-
-type controlParent struct {
-	hwnd	C.HWND
-}
-
-func (w *widgetbase) setParent(win *controlParent) {
-	C.controlSetParent(w.hwnd, win.hwnd)
-	w.parent = win.hwnd
-}
-
-func (w *widgetbase) containerShow() {
-	C.ShowWindow(w.hwnd, C.SW_SHOW)
-}
-
-func (w *widgetbase) containerHide() {
-	C.ShowWindow(w.hwnd, C.SW_HIDE)
-}
-
-// don't embed these as exported; let each Control decide if it should
-
-func (w *widgetbase) text() string {
-	return getWindowText(w.hwnd)
-}
-
-func (w *widgetbase) settext(text string) {
-	C.setWindowText(w.hwnd, toUTF16(text))
-}
-
 type button struct {
-	*widgetbase
+	*controlbase
 	clicked		*event
 }
 
 var buttonclass = toUTF16("BUTTON")
 
 func startNewButton(text string, style C.DWORD) *button {
-	w := newWidget(buttonclass,
+	c := newControl(buttonclass,
 		style | C.WS_TABSTOP,
 		0)
-	C.setWindowText(w.hwnd, toUTF16(text))
-	C.controlSetControlFont(w.hwnd)
+	C.setWindowText(c.hwnd, toUTF16(text))
+	C.controlSetControlFont(c.hwnd)
 	b := &button{
-		widgetbase:	w,
+		controlbase:	c,
 		clicked:		newEvent(),
 	}
 	return b
@@ -84,7 +44,7 @@ func (b *button) Text() string {
 }
 
 func (b *button) SetText(text string) {
-	b.settext(text)
+	b.setText(text)
 }
 
 //export buttonClicked
@@ -93,6 +53,8 @@ func buttonClicked(data unsafe.Pointer) {
 	b.clicked.fire()
 	println("button clicked")
 }
+
+// TODO button preferredSize
 
 type checkbox struct {
 	*button
@@ -131,18 +93,18 @@ func checkboxToggled(data unsafe.Pointer) {
 }
 
 type textField struct {
-	*widgetbase
+	*controlbase
 }
 
 var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textField {
-	w := newWidget(editclass,
+	c := newControl(editclass,
 		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
-	C.controlSetControlFont(w.hwnd)
+	C.controlSetControlFont(c.hwnd)
 	return &textField{
-		widgetbase:	w,
+		controlbase:	c,
 	}
 }
 
@@ -159,28 +121,31 @@ func (t *textField) Text() string {
 }
 
 func (t *textField) SetText(text string) {
-	t.settext(text)
+	t.setText(text)
 }
 
 type label struct {
-	*widgetbase
-	standalone	bool
+	*controlbase
+	standalone			bool
+	supercommitResize		func(c *allocation, d *sizing)
 }
 
 var labelclass = toUTF16("STATIC")
 
 func finishNewLabel(text string, standalone bool) *label {
-	w := newWidget(labelclass,
+	c := newControl(labelclass,
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
 		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
 		0)
-	C.setWindowText(w.hwnd, toUTF16(text))
-	C.controlSetControlFont(w.hwnd)
+	C.setWindowText(c.hwnd, toUTF16(text))
+	C.controlSetControlFont(c.hwnd)
 	l := &label{
-		widgetbase:	w,
+		controlbase:	c,
 		standalone:	standalone,
 	}
+	l.supercommitResize = l.fcommitResize
+	l.fcommitResize = l.labelcommitResize
 	return l
 }
 
@@ -197,7 +162,20 @@ func (l *label) Text() string {
 }
 
 func (l *label) SetText(text string) {
-	l.settext(text)
+	l.setText(text)
 }
 
-// TODO label commitResize
+func (l *label) labelcommitResize(c *allocation, d *sizing) {
+// TODO
+/*
+	yoff := stdDlgSizes[s.ctype].yoff
+	if s.standalone {
+		yoff = stdDlgSizes[s.ctype].yoffalt
+	}
+	if yoff != 0 {
+		yoff = int(C.MulDiv(C.int(yoff), C.int(d.baseY), 8))
+	}
+	c.y += yoff
+*/
+	l.supercommitResize(c, d)
+}

@@ -41,37 +41,6 @@ func (c *container) translateAllocationCoords(allocations []*allocation, winwidt
 	// no translation needed on windows
 }
 
-// TODO move this to sizing.go
-// TODO when doing so, account for margins
-func (w *widgetbase) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-        return []*allocation{&allocation{
-                x:      x,
-                y:      y,
-                width:  width,
-                height: height,
-                this:   w,
-        }}
-}
-
-func (w *widgetbase) commitResize(c *allocation, d *sizing) {
-// TODO
-/*
-	yoff := stdDlgSizes[s.ctype].yoff
-	if s.alternate {
-		yoff = stdDlgSizes[s.ctype].yoffalt
-	}
-	if yoff != 0 {
-		yoff = int(C.MulDiv(C.int(yoff), C.int(d.baseY), 8))
-	}
-	c.y += yoff
-*/
-	C.moveWindow(w.hwnd, C.int(c.x), C.int(c.y), C.int(c.width), C.int(c.height))
-}
-
-func (w *widgetbase) getAuxResizeInfo(d *sizing) {
-	// do nothing
-}
-
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
 // These sizes are given in "dialog units", which are independent of the font in use.
 // We need to convert these into standard pixels, which requires we get the device context of the OS window.
@@ -143,7 +112,7 @@ var stdDlgSizes = [nctypes]dlgunits{
 }
 */
 
-func (w *widgetbase) preferredSize(d *sizing) (width int, height int) {
+//func (w *widgetbase) preferredSize(d *sizing) (width int, height int) {
 // TODO
 /*
 	// the preferred size of an Area is its size
@@ -174,8 +143,8 @@ func (w *widgetbase) preferredSize(d *sizing) (width int, height int) {
 	width = int(C.MulDiv(C.int(width), C.int(d.baseX), 4))		// equivalent to right of rect
 	height = int(C.MulDiv(C.int(height), C.int(d.baseY), 8))		// equivalent to bottom of rect
 */
-	return width, height
-}
+//	return width, height
+//}
 
 // note on MulDiv():
 // div will not be 0 in the usages above

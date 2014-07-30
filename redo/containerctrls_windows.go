@@ -18,24 +18,30 @@ TODO
 */
 
 type tab struct {
-	*widgetbase
-	tabs			[]*container
+	*controlbase
+	tabs				[]*container
+	supersetParent		func(p *controlParent)
+	superallocate		func(x int, y int, width int, height int, d *sizing) []*allocation
 }
 
 func newTab() Tab {
-	w := newWidget(C.xWC_TABCONTROL,
+	c := newControl(C.xWC_TABCONTROL,
 		C.TCS_TOOLTIPS | C.WS_TABSTOP,
 		0)
 	t := &tab{
-		widgetbase:	w,
+		controlbase:	c,
 	}
-	C.controlSetControlFont(w.hwnd)
-	C.setTabSubclass(w.hwnd, unsafe.Pointer(t))
+	t.supersetParent = t.fsetParent
+	t.fsetParent = t.tabsetParent
+	t.superallocate = t.fallocate
+	t.fallocate = t.taballocate
+	C.controlSetControlFont(t.hwnd)
+	C.setTabSubclass(t.hwnd, unsafe.Pointer(t))
 	return t
 }
 
-func (t *tab) setParent(p *controlParent) {
-	t.widgetbase.setParent(p)
+func (t *tab) tabsetParent(p *controlParent) {
+	t.supersetParent(p)
 	for _, c := range t.tabs {
 		c.child.setParent(p)
 	}
@@ -68,7 +74,7 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 }
 
 // a tab control contains other controls; size appropriately
-func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+func (t *tab) taballocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	var r C.RECT
 
 	// figure out what the rect for each child is...
@@ -84,5 +90,5 @@ func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*alloca
 		c.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
 	}
 	// and now allocate the tab control itself
-	return t.widgetbase.allocate(x, y, width, height, d)
+	return t.superallocate(x, y, width, height, d)
 }
