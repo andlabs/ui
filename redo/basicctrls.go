@@ -2,17 +2,6 @@
 
 package ui
 
-// Control represents a control.
-// All Controls have event handlers that take a single argument (the Doer active during the event) and return nothing.
-type Control interface {
-	setParent(p *controlParent)	// controlParent defined per-platform
-	// TODO enable/disable (public)
-	// TODO show/hide (public)
-	containerShow()			// for Windows, where all controls need ot belong to an overlapped window, not to a container control; these respect programmer settings
-	containerHide()
-	controlSizing
-}
-
 // Button is a clickable button that performs some task.
 type Button interface {
 	Control

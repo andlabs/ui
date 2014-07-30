@@ -2,7 +2,18 @@
 
 package ui
 
-// All Controls embed this structure, which provides the Control interface methods.
+// Control represents a control.
+// All Controls have event handlers that take a single argument (the Doer active during the event) and return nothing.
+type Control interface {
+	setParent(p *controlParent)	// controlParent defined per-platform
+	// TODO enable/disable (public)
+	// TODO show/hide (public)
+	containerShow()			// for Windows, where all controls need ot belong to an overlapped window, not to a container control; these respect programmer settings
+	containerHide()
+	controlSizing
+}
+
+// All Controls on the backend (that is, everything except Stack and Grid) embed this structure, which provides the Control interface methods.
 // If a Control needs to override one of these functions, it assigns to the function variables.
 type controldefs struct {
 	fsetParent func(p *controlParent)
