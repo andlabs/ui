@@ -22,9 +22,13 @@ func newWidget(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) setParent(win C.HWND) {
-	C.controlSetParent(w.hwnd, win)
-	w.parent = win
+type controlParent struct {
+	hwnd	C.HWND
+}
+
+func (w *widgetbase) setParent(win *controlParent) {
+	C.controlSetParent(w.hwnd, win.hwnd)
+	w.parent = win.hwnd
 }
 
 func (w *widgetbase) containerShow() {

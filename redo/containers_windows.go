@@ -34,10 +34,10 @@ func newTab() Tab {
 	return t
 }
 
-func (t *tab) setParent(win C.HWND) {
-	t.widgetbase.setParent(win)
+func (t *tab) setParent(p *controlParent) {
+	t.widgetbase.setParent(p)
 	for _, c := range t.tabs {
-		c.child.setParent(win)
+		c.child.setParent(p)
 	}
 }
 
@@ -46,7 +46,7 @@ func (t *tab) Append(name string, control Control) {
 	t.tabs = append(t.tabs, c)
 	c.child = control
 	if t.parent != nil {
-		c.child.setParent(t.parent)
+		c.child.setParent(&controlParent{t.parent})
 	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {

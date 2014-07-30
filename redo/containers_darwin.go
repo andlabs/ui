@@ -30,7 +30,7 @@ func (t *tab) Append(name string, control Control) {
 	defer C.free(unsafe.Pointer(cname))
 	tabview := C.tabAppend(t.id, cname)
 	c.child = control
-	c.child.setParent(tabview)
+	c.child.setParent(&controlParent{tabview})
 }
 
 func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {

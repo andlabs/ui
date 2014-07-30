@@ -29,10 +29,6 @@ type window struct {
 	*container
 }
 
-type controlParent interface {
-	setParent(*C.GtkContainer)
-}
-
 func newWindow(title string, width int, height int, control Control) *window {
 	widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 	ctitle := togstr(title)
@@ -67,7 +63,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
 	C.gtk_container_add(w.wc, layoutw)
 	w.child = control
-	w.child.setParent(w.layoutc)
+	w.child.setParent(&controlParent{w.layoutc})
 	return w
 }
 

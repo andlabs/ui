@@ -18,10 +18,6 @@ type window struct {
 	*container
 }
 
-type controlParent interface {
-	setParent(C.id)
-}
-
 func newWindow(title string, width int, height int, control Control) *window {
 	id := C.newWindow(C.intptr_t(width), C.intptr_t(height))
 	ctitle := C.CString(title)
@@ -34,7 +30,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	}
 	C.windowSetDelegate(id, unsafe.Pointer(w))
 	w.child = control
-	w.child.setParent(C.windowContentView(w.id))
+	w.child.setParent(&controlParent{C.windowContentView(w.id)})
 	return w
 }
 

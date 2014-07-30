@@ -33,10 +33,6 @@ func makeWindowWindowClass() error {
 	return nil
 }
 
-type controlParent interface {
-	setParent(C.HWND)
-}
-
 func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		// hwnd set in WM_CREATE handler
@@ -53,7 +49,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
 	}
 	w.child = control
-	w.child.setParent(w.hwnd)
+	w.child.setParent(&controlParent{w.hwnd})
 	return w
 }
 

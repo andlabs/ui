@@ -21,9 +21,13 @@ func newWidget(id C.id) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) setParent(parent C.id) {
+type controlParent struct {
+	id	C.id
+}
+
+func (w *widgetbase) setParent(parent *controlParent) {
 	// redrawing the new window handled by C.parent()
-	C.parent(w.id, parent)
+	C.parent(w.id, parent.id)
 }
 
 func (w *widgetbase) containerShow() {

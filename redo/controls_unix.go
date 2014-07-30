@@ -28,8 +28,12 @@ func newWidget(w *C.GtkWidget) *widgetbase {
 
 // these few methods are embedded by all the various Controls since they all will do the same thing
 
-func (w *widgetbase) setParent(c *C.GtkContainer) {
-	C.gtk_container_add(c, w.widget)
+type controlParent struct {
+	c	*C.GtkContainer
+}
+
+func (w *widgetbase) setParent(c *controlParent) {
+	C.gtk_container_add(c.c, w.widget)
 	// make sure the new widget is shown
 	C.gtk_widget_show_all(w.widget)
 }

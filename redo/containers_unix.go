@@ -42,7 +42,7 @@ func (t *tab) Append(name string, control Control) {
 	c := new(container)
 	t.containers = append(t.containers, c)
 	c.child = control
-	c.child.setParent((*C.GtkContainer)(unsafe.Pointer(layout)))
+	c.child.setParent(&controlParent{(*C.GtkContainer)(unsafe.Pointer(layout))})
 	g_signal_connect_after(
 		C.gpointer(unsafe.Pointer(layout)),
 		"size-allocate",
