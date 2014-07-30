@@ -35,6 +35,7 @@ extern void windowRedraw(id);
 extern void parent(id, id);
 extern void controlSetHidden(id, BOOL);
 extern void setStandardControlFont(id);
+extern void setSmallControlFont(id);
 extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);

@@ -45,12 +45,10 @@ id newTable(void)
 	[t setAllowsMultipleSelection:NO];
 	[t setAllowsEmptySelection:YES];
 	[t setAllowsColumnSelection:NO];
-	// TODO check against interface builder
 	return (id) t;
 }
 
-// TODO scroll view
-
+// TODO other types
 void tableAppendColumn(id t, char *name)
 {
 	NSTableColumn *c;
@@ -58,7 +56,9 @@ void tableAppendColumn(id t, char *name)
 	c = [[NSTableColumn alloc] initWithIdentifier:nil];
 	[c setEditable:NO];
 	[[c headerCell] setStringValue:[NSString stringWithUTF8String:name]];
-	// TODO other options
+	setSmallControlFont((id) [c headerCell]);
+	setStandardControlFont((id) [c dataCell]);
+	// TODO text layout options
 	[toNSTableView(t) addTableColumn:c];
 }
 
