@@ -67,6 +67,7 @@ func NewPasswordField() TextField {
 // Label is a Control that shows a static line of text.
 // Label shows one line of text; any text that does not fit is truncated.
 // A Label can either have smart vertical alignment relative to the control to its right or just be vertically aligned to the top (standalone).
+// The effect of placing a non-standalone Label in any context other than to the immediate left of a Control (TODO currently basic Control only? recheck Stack/Grid code) is undefined.
 type Label interface {
 	Control
 
