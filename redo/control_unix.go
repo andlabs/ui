@@ -35,16 +35,7 @@ func newControl(widget *C.GtkWidget) *controlbase {
 	c.fcontainerHide = func() {
 		C.gtk_widget_hide(c.widget)
 	}
-	c.fallocate = func(x int, y int, width int, height int, d *sizing) []*allocation {
-		// TODO split into its own function
-		return []*allocation{&allocation{
-			x:		x,
-			y:		y,
-			width:	width,
-			height:	height,
-			this:		c,
-		}}
-	}
+	c.fallocate = baseallocate(c)
 	c.fpreferredSize = func(d *sizing) (int, int) {
 		// GTK+ 3 makes this easy: controls can tell us what their preferred size is!
 		// ...actually, it tells us two things: the "minimum size" and the "natural size".

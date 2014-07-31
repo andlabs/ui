@@ -28,16 +28,7 @@ func newControl(id C.id) *controlbase {
 	c.fcontainerHide = func() {
 		C.controlSetHidden(c.id, C.YES)
 	}
-	c.fallocate = func(x int, y int, width int, height int, d *sizing) []*allocation {
-		// TODO split into its own function
-		return []*allocation{&allocation{
-			x:		x,
-			y:		y,
-			width:	width,
-			height:	height,
-			this:		c,
-		}}
-	}
+	c.fallocate = baseallocate(c)
 	c.fpreferredSize = func(d *sizing) (int, int) {
 		// TODO
 		return 64, 32

@@ -54,3 +54,16 @@ func (w *controldefs) commitResize(c *allocation, d *sizing) {
 func (w *controldefs) getAuxResizeInfo(d *sizing) {
 	w.fgetAuxResizeInfo(d)
 }
+
+// and this is the same across all platforms
+func baseallocate(c *controlbase) func(x int, y int, width int, height int, d *sizing) []*allocation {
+	return func(x int, y int, width int, height int, d *sizing) []*allocation {
+		return []*allocation{&allocation{
+			x:		x,
+			y:		y,
+			width:	width,
+			height:	height,
+			this:		c,
+		}}
+	}
+}

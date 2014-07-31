@@ -29,16 +29,7 @@ func newControl(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
 	c.fcontainerHide = func() {
 		C.ShowWindow(c.hwnd, C.SW_HIDE)
 	}
-	c.fallocate = func(x int, y int, width int, height int, d *sizing) []*allocation {
-		// TODO split into its own function
-		return []*allocation{&allocation{
-			x:		x,
-			y:		y,
-			width:	width,
-			height:	height,
-			this:		c,
-		}}
-	}
+	c.fallocate = baseallocate(c)
 	c.fpreferredSize = func(d *sizing) (int, int) {
 		// TODO
 		return 75, 23
