@@ -165,17 +165,17 @@ func (l *label) SetText(text string) {
 	l.setText(text)
 }
 
+const (
+	// via http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+	labelYOffset = 3
+	// TODO the label is offset slightly by default...
+)
+
 func (l *label) labelcommitResize(c *allocation, d *sizing) {
-// TODO
-/*
-	yoff := stdDlgSizes[s.ctype].yoff
-	if s.standalone {
-		yoff = stdDlgSizes[s.ctype].yoffalt
+	if !l.standalone {
+		yoff := int(C.MulDiv(C.int(labelYOffset), C.int(d.baseY), 8))
+		c.y += yoff
+		c.height -= yoff
 	}
-	if yoff != 0 {
-		yoff = int(C.MulDiv(C.int(yoff), C.int(d.baseY), 8))
-	}
-	c.y += yoff
-*/
 	l.supercommitResize(c, d)
 }
