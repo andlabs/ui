@@ -21,8 +21,8 @@ func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
 	panic(fmt.Errorf("%s window procedure message %d does not return a value (bug in %s)", C.GoString(purpose), uMsg, C.GoString(f)))
 }
 
-func toUTF16(s string) C.LPCWSTR {
-	return C.LPCWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(s)))
+func toUTF16(s string) C.LPWSTR {
+	return C.LPWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(s)))
 }
 
 func getWindowText(hwnd C.HWND) string {
@@ -31,6 +31,6 @@ func getWindowText(hwnd C.HWND) string {
 	n := C.getWindowTextLen(hwnd)
 	buf := make([]uint16, int(n + 1))
 	C.getWindowText(hwnd, C.WPARAM(n),
-		C.LPCWSTR(unsafe.Pointer(&buf[0])))
+		C.LPWSTR(unsafe.Pointer(&buf[0])))
 	return syscall.UTF16ToString(buf)
 }

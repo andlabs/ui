@@ -8,14 +8,14 @@ LRESULT getWindowTextLen(HWND hwnd)
 	return SendMessageW(hwnd, WM_GETTEXTLENGTH, 0, 0);
 }
 
-void getWindowText(HWND hwnd, WPARAM n, LPCWSTR buf)
+void getWindowText(HWND hwnd, WPARAM n, LPWSTR buf)
 {
 	SetLastError(0);
 	if (SendMessageW(hwnd, WM_GETTEXT, n + 1, (LPARAM) buf) != n)
 		xpanic("WM_GETTEXT did not copy the correct number of characters out", GetLastError());
 }
 
-void setWindowText(HWND hwnd, LPCWSTR text)
+void setWindowText(HWND hwnd, LPWSTR text)
 {
 	switch (SendMessageW(hwnd, WM_SETTEXT, 0, (LPARAM) text)) {
 	case FALSE:

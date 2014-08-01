@@ -15,7 +15,7 @@ type controlParent struct {
 	hwnd	C.HWND
 }
 
-func newControl(class C.LPCWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
+func newControl(class C.LPWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
 	c := new(controlbase)
 	c.hwnd = C.newWidget(class, style, extstyle)
 	c.controldefs = new(controldefs)

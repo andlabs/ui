@@ -4,7 +4,7 @@
 #include "_cgo_export.h"
 
 /* provided for cgo's benefit */
-LPCWSTR xWC_LISTVIEW = WC_LISTVIEW;
+LPWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
@@ -37,7 +37,7 @@ void setTableSubclass(HWND hwnd, void *data)
 		xpanic("error subclassing Table to give it its own event handler", GetLastError());
 }
 
-void tableAppendColumn(HWND hwnd, int index, LPCWSTR name)
+void tableAppendColumn(HWND hwnd, int index, LPWSTR name)
 {
 	LVCOLUMNW col;
 

@@ -33,14 +33,14 @@ extern HWND msgwin;
 extern DWORD makemsgwin(char **);
 
 /* comctl32_windows.c */
-extern DWORD initCommonControls(LPCWSTR, char **);
+extern DWORD initCommonControls(LPWSTR, char **);
 /* these are listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
 extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 
 /* controls_windows.c */
-extern HWND newWidget(LPCWSTR, DWORD, DWORD);
+extern HWND newWidget(LPWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
@@ -71,26 +71,26 @@ extern void moveWindow(HWND, int, int, int, int);
 
 /* window_windows.c */
 extern DWORD makeWindowWindowClass(char **);
-extern HWND newWindow(LPCWSTR, int, int, void *);
+extern HWND newWindow(LPWSTR, int, int, void *);
 extern void windowClose(HWND);
 
 /* common_windows.c */
 extern LRESULT getWindowTextLen(HWND);
-extern void getWindowText(HWND, WPARAM, LPCWSTR);
-extern void setWindowText(HWND, LPCWSTR);
+extern void getWindowText(HWND, WPARAM, LPWSTR);
+extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
 extern void storelpParam(HWND, LPARAM);
 
 /* containers_windows.go */
-extern LPCWSTR xWC_TABCONTROL;
+extern LPWSTR xWC_TABCONTROL;
 extern void setTabSubclass(HWND, void *);
-extern void tabAppend(HWND, LPCWSTR);
+extern void tabAppend(HWND, LPWSTR);
 extern void tabGetContentRect(HWND, RECT *);
 
 /* table_windows.go */
-extern LPCWSTR xWC_LISTVIEW;
+extern LPWSTR xWC_LISTVIEW;
 extern void setTableSubclass(HWND, void *);
-extern void tableAppendColumn(HWND, int, LPCWSTR);
+extern void tableAppendColumn(HWND, int, LPWSTR);
 extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
 

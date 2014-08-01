@@ -60,7 +60,7 @@ DWORD makeWindowWindowClass(char **errmsg)
 	return 0;
 }
 
-HWND newWindow(LPCWSTR title, int width, int height, void *data)
+HWND newWindow(LPWSTR title, int width, int height, void *data)
 {
 	HWND hwnd;
 

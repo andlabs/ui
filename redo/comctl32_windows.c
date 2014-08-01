@@ -16,7 +16,7 @@ LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 	ICC_LISTVIEW_CLASSES |		/* list views */			\
 	0)
 
-DWORD initCommonControls(LPCWSTR manifest, char **errmsg)
+DWORD initCommonControls(LPWSTR manifest, char **errmsg)
 {
 	ACTCTX actctx;
 	HANDLE ac;

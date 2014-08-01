@@ -39,7 +39,7 @@ func initCommonControls() (err error) {
 
 	var errmsg *C.char
 
-	errcode := C.initCommonControls(C.LPCWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(filename))), &errmsg)
+	errcode := C.initCommonControls(C.LPWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(filename))), &errmsg)
 	if errcode != 0 || errmsg != nil {
 		return fmt.Errorf("error actually initializing comctl32.dll: %s: %v", C.GoString(errmsg), syscall.Errno(errcode))
 	}

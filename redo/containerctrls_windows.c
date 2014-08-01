@@ -4,7 +4,7 @@
 #include "_cgo_export.h"
 
 /* provided for cgo's benefit */
-LPCWSTR xWC_TABCONTROL = WC_TABCONTROL;
+LPWSTR xWC_TABCONTROL = WC_TABCONTROL;
 
 static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
@@ -42,14 +42,13 @@ void setTabSubclass(HWND hwnd, void *data)
 		xpanic("error subclassing Tab to give it its own event handler", GetLastError());
 }
 
-void tabAppend(HWND hwnd, LPCWSTR name)
+void tabAppend(HWND hwnd, LPWSTR name)
 {
 	TCITEM item;
 	LRESULT n;
 
 	ZeroMemory(&item, sizeof (TCITEM));
 	item.mask = TCIF_TEXT;
-	/* TODO the C means const; change everything to use LPWSTR instead */
 	item.pszText = name;
 	/* MSDN's example code uses the first invalid index directly for this */
 	n = SendMessageW(hwnd, TCM_GETITEMCOUNT, 0, 0);
