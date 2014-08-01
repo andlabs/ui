@@ -18,6 +18,8 @@
 #include <commctrl.h>
 #include <stdint.h>
 #include <uxtheme.h>
+#include <string.h>
+#include <wchar.h>
 
 /* global messages unique to everything */
 enum {
@@ -68,6 +70,7 @@ extern int baseX;
 extern int baseY;
 extern void calculateBaseUnits(HWND);
 extern void moveWindow(HWND, int, int, int, int);
+extern LONG controlTextLength(HWND, LPWSTR);
 
 /* window_windows.c */
 extern DWORD makeWindowWindowClass(char **);
