@@ -20,7 +20,7 @@ func startNewButton(text string, style C.DWORD) *button {
 	c := newControl(buttonclass,
 		style | C.WS_TABSTOP,
 		0)
-	C.setWindowText(c.hwnd, toUTF16(text))
+	c.setText(text)
 	C.controlSetControlFont(c.hwnd)
 	b := &button{
 		controlbase:	c,
@@ -138,7 +138,7 @@ func finishNewLabel(text string, standalone bool) *label {
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
 		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
 		0)
-	C.setWindowText(c.hwnd, toUTF16(text))
+	c.setText(text)
 	C.controlSetControlFont(c.hwnd)
 	l := &label{
 		controlbase:	c,
