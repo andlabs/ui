@@ -144,6 +144,7 @@ func finishNewLabel(text string, standalone bool) *label {
 		controlbase:	c,
 		standalone:	standalone,
 	}
+	l.fpreferredSize = l.labelpreferredSize
 	l.supercommitResize = l.fcommitResize
 	l.fcommitResize = l.labelcommitResize
 	return l
@@ -167,9 +168,14 @@ func (l *label) SetText(text string) {
 
 const (
 	// via http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+	labelHeight = 8
 	labelYOffset = 3
 	// TODO the label is offset slightly by default...
 )
+
+func (l *label) labelpreferredSize(d *sizing) (width, height int) {
+	return int(l.textlen), fromdlgunitsY(labelHeight, d)
+}
 
 func (l *label) labelcommitResize(c *allocation, d *sizing) {
 	if !l.standalone {
