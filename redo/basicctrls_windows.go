@@ -174,6 +174,7 @@ const (
 )
 
 func (l *label) labelpreferredSize(d *sizing) (width, height int) {
+	// TODO have some padding to the right of the width
 	return int(l.textlen), fromdlgunitsY(labelHeight, d)
 }
 
