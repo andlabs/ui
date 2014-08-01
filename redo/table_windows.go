@@ -50,6 +50,5 @@ func tableGetCellText(data unsafe.Pointer, row C.int, col C.int, str *C.LPWSTR) 
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	s := fmt.Sprintf("%v", datum)
-	// TODO get rid of conversions
-	*str = C.LPWSTR(unsafe.Pointer(toUTF16(s)))
+	*str = toUTF16(s)
 }

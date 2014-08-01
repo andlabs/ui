@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"syscall"
-	"unsafe"
 )
 
 // #include "winapi_windows.h"
 import "C"
+
+// TODO possibly rewrite the whole file access bits in C
 
 // pretty much every constant here except _WM_USER is from commctrl.h, except where noted
 
@@ -39,18 +40,12 @@ func initCommonControls() (err error) {
 
 	var errmsg *C.char
 
-	errcode := C.initCommonControls(C.LPWSTR(unsafe.Pointer(syscall.StringToUTF16Ptr(filename))), &errmsg)
+	errcode := C.initCommonControls(toUTF16(filename), &errmsg)
 	if errcode != 0 || errmsg != nil {
 		return fmt.Errorf("error actually initializing comctl32.dll: %s: %v", C.GoString(errmsg), syscall.Errno(errcode))
 	}
 	return nil
 }
-
-// Common Controls class names.
-const (
-	// x (lowercase) prefix to avoid being caught by the constants generator
-	x_PROGRESS_CLASS = "msctls_progress32"
-)
 
 var manifest = []byte(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
