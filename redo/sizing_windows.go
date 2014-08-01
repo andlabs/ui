@@ -9,11 +9,23 @@ type sizing struct {
 	sizingbase
 
 	// for size calculations
-	baseX	int
-	baseY	int
+	baseX	C.int
+	baseY	C.int
 
 	// for the actual resizing
 	// possibly the HDWP
+}
+
+// note on MulDiv():
+// div will not be 0 in the usages below
+// we also ignore overflow; that isn't likely to happen for our use case anytime soon
+
+func fromdlgunitsX(du int, d *sizing) int {
+	return int(C.MulDiv(C.int(du), d.baseX, 4))
+}
+
+func fromdlgunitsY(du int, d *sizing) int {
+	return int(C.MulDiv(C.int(du), d.baseY, 8))
 }
 
 const (
@@ -24,14 +36,14 @@ const (
 func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
 
-	d.baseX = int(C.baseX)
-	d.baseY = int(C.baseY)
+	d.baseX = C.baseX
+	d.baseY = C.baseY
 
 	if spaced {
-		d.xmargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseX), 4))
-		d.ymargin = int(C.MulDiv(marginDialogUnits, C.int(d.baseY), 8))
-		d.xpadding = int(C.MulDiv(paddingDialogUnits, C.int(d.baseX), 4))
-		d.ypadding = int(C.MulDiv(paddingDialogUnits, C.int(d.baseY), 8))
+		d.xmargin = fromdlgunitsX(marginDialogUnits, d)
+		d.ymargin = fromdlgunitsY(marginDialogUnits, d)
+		d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
+		d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
 	}
 
 	return d
@@ -140,12 +152,8 @@ var stdDlgSizes = [nctypes]dlgunits{
 		width = defaultWidth
 	}
 	height = stdDlgSizes[s.ctype].height
-	width = int(C.MulDiv(C.int(width), C.int(d.baseX), 4))		// equivalent to right of rect
-	height = int(C.MulDiv(C.int(height), C.int(d.baseY), 8))		// equivalent to bottom of rect
+	width = fromdlgunitsX(width, d)		// equivalent to right of rect
+	height = fromdlguntisY(height, d)		// equivalent to bottom of rect
 */
 //	return width, height
 //}
-
-// note on MulDiv():
-// div will not be 0 in the usages above
-// we also ignore overflow; that isn't likely to happen for our use case anytime soon

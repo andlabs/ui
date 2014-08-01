@@ -173,7 +173,7 @@ const (
 
 func (l *label) labelcommitResize(c *allocation, d *sizing) {
 	if !l.standalone {
-		yoff := int(C.MulDiv(C.int(labelYOffset), C.int(d.baseY), 8))
+		yoff := fromdlgunitsY(labelYOffset, d)
 		c.y += yoff
 		c.height -= yoff
 	}

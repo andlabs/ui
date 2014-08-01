@@ -9,6 +9,7 @@ type controlbase struct {
 	*controldefs
 	hwnd	C.HWND
 	parent	C.HWND		// for Tab and Group
+	textlen	C.LONG
 }
 
 type controlParent struct {
@@ -50,5 +51,7 @@ func (c *controlbase) text() string {
 }
 
 func (c *controlbase) setText(text string) {
-	C.setWindowText(c.hwnd, toUTF16(text))
+	t := toUTF16(text)
+	C.setWindowText(c.hwnd, t)
+	c.textlen = C.controlTextLength(c.hwnd, t)
 }
