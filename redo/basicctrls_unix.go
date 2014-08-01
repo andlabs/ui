@@ -176,7 +176,7 @@ func (l *label) labelcommitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
 		if d.shouldVAlignTop {
-			// TODO should it be center-aligned to the first line or not
+			// don't bother aligning it to the first line of text in the control; this is harder than it's worth (thanks gregier in irc.gimp.net/#gtk+)
 			C.gtk_misc_set_alignment(l.misc, 0, 0)
 		} else {
 			C.gtk_misc_set_alignment(l.misc, 0, 0.5)
