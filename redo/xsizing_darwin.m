@@ -75,3 +75,16 @@ struct xalignment alignmentInfo(id c, struct xrect newrect)
 	a.baseline = (intptr_t) [v baselineOffsetFromBottom];
 	return a;
 }
+
+struct xrect frame(id c)
+{
+	NSRect r;
+	struct xrect s;
+
+	r = [toNSView(c) frame];
+	s.x = (intptr_t) r.origin.x;
+	s.y = (intptr_t) r.origin.y;
+	s.width = (intptr_t) r.size.width;
+	s.height = (intptr_t) r.size.height;
+	return s;
+}
