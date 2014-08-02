@@ -70,6 +70,7 @@ func (b *button) buttonpreferredSize(d *sizing) (width, height int) {
 		return int(size.cx), int(size.cy)
 	}
 	// that failed, fall back
+println("message failed; falling back")
 	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
 	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
 	return xmargins + int(b.textlen), fromdlgunitsY(buttonHeight, d)
