@@ -65,4 +65,23 @@ extern void tableMakeDataSource(id, void *);
 /* control_darwin.m */
 extern id newScrollView(id);
 
+/* xsizing_darwin.m */
+struct xsize {
+	intptr_t width;
+	intptr_t height;
+};
+struct xrect {
+	intptr_t x;
+	intptr_t y;
+	intptr_t width;
+	intptr_t height;
+};
+struct xalignment {
+	struct xrect rect;
+	intptr_t baseline;
+};
+extern struct xsize controlPrefSize(id);
+extern struct xsize areaPrefSize(id);
+extern struct xalignment alignmentInfo(id, struct xrect);
+
 #endif
