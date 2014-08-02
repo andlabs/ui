@@ -6,7 +6,6 @@ package ui
 
 import (
 	"unsafe"
-"fmt"
 )
 
 // #include "gtk_unix.h"
@@ -20,30 +19,21 @@ type window struct {
 	bin		*C.GtkBin
 	window	*C.GtkWindow
 
-	layoutw	*C.GtkWidget
-	layoutc	*C.GtkContainer
-	layout	*C.GtkLayout
-
 	closing	*event
 
-	*container
+	*layout
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
 	widget := C.gtk_window_new(C.GTK_WINDOW_TOPLEVEL)
 	ctitle := togstr(title)
 	defer freegstr(ctitle)
-	layoutw := C.gtk_layout_new(nil, nil)
 	w := &window{
 		widget:		widget,
 		wc:			(*C.GtkContainer)(unsafe.Pointer(widget)),
 		bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
 		window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
-		layoutw:		layoutw,
-		layoutc:		(*C.GtkContainer)(unsafe.Pointer(layoutw)),
-		layout:		(*C.GtkLayout)(unsafe.Pointer(layoutw)),
 		closing:		newEvent(),
-		container:		new(container),
 	}
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
@@ -51,19 +41,9 @@ func newWindow(title string, width int, height int, control Control) *window {
 		"delete-event",
 		C.GCallback(C.windowClosing),
 		C.gpointer(unsafe.Pointer(w)))
-	// we connect to the layout's size-allocate, not to the window's configure-event
-	// this allows us to handle client-side decoration-based configurations (such as GTK+ on Wayland) properly
-	// also see commitResize() in sizing_unix.go for additional notes
-	// thanks to many people in irc.gimp.net/#gtk+ for help (including tristan for suggesting g_signal_connect_after())
-	g_signal_connect_after(
-		C.gpointer(unsafe.Pointer(layoutw)),
-		"size-allocate",
-		C.GCallback(C.windowResizing),
-		C.gpointer(unsafe.Pointer(w)))
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
-	C.gtk_container_add(w.wc, layoutw)
-	w.child = control
-	w.child.setParent(&controlParent{w.layoutc})
+	w.layout = newLayout(control)
+	C.gtk_container_add(w.wc, w.layout.layoutwidget)
 	return w
 }
 
@@ -108,5 +88,4 @@ func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	w := (*window)(unsafe.Pointer(data))
 	// the origin of the window's content area is always (0, 0)
 	w.resize(0, 0, int(r.width), int(r.height))
-	fmt.Printf("new size %d x %d\n", r.width, r.height)
 }

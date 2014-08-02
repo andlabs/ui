@@ -9,17 +9,13 @@ import (
 )
 
 // #include "gtk_unix.h"
-// extern void layoutResizing(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type tab struct {
 	*controlbase
 	notebook		*C.GtkNotebook
 
-	containers	[]*container
-	layoutws		[]*C.GtkWidget
-	layoutcs		[]*C.GtkContainer
-	layouts		[]*C.GtkLayout
+	tabs			[]*layout
 }
 
 func newTab() Tab {
@@ -34,35 +30,16 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	// TODO isolate and standardize
-	layout := C.gtk_layout_new(nil, nil)
-	t.layoutws = append(t.layoutws, layout)
-	t.layoutcs = append(t.layoutcs, (*C.GtkContainer)(unsafe.Pointer(layout)))
-	t.layouts = append(t.layouts, (*C.GtkLayout)(unsafe.Pointer(layout)))
-	c := new(container)
-	t.containers = append(t.containers, c)
-	c.child = control
-	c.child.setParent(&controlParent{(*C.GtkContainer)(unsafe.Pointer(layout))})
-	g_signal_connect_after(
-		C.gpointer(unsafe.Pointer(layout)),
-		"size-allocate",
-		C.GCallback(C.layoutResizing),
-		C.gpointer(unsafe.Pointer(c)))
+	tl := newLayout(control)
+	t.tabs = append(t.tabs, tl)
 	cname := togstr(name)
 	defer freegstr(cname)
 	tab := C.gtk_notebook_append_page(t.notebook,
-		layout,
+		tl.layoutwidget,
 		C.gtk_label_new(cname))
 	if tab == -1 {
 		panic("gtk_notebook_append_page() failed")
 	}
 }
 
-// no need to override Control.allocate() as only prepared the tabbed control; its children will be reallocated when that one is resized
-
-//export layoutResizing
-func layoutResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
-	c := (*container)(unsafe.Pointer(data))
-	// the layout's coordinate system is localized, so the origin is (0, 0)
-	c.resize(0, 0, int(r.width), int(r.height))
-}
+// no need to override Control.commitResize() as only prepared the tabbed control; its children will be reallocated when that one is resized
