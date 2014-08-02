@@ -66,6 +66,7 @@ func newCheckbox(text string) *checkbox {
 		// we'll handle actually toggling the check state ourselves (see controls_windows.c)
 		button:	startNewButton(text, C.BS_CHECKBOX),
 	}
+	c.fpreferredSize = c.checkboxpreferredSize
 	C.setCheckboxSubclass(c.hwnd, unsafe.Pointer(c))
 	return c
 }
@@ -94,6 +95,18 @@ func checkboxToggled(data unsafe.Pointer) {
 
 type textField struct {
 	*controlbase
+}
+
+const (
+	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+	checkboxHeight = 10
+	// from http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx
+	checkboxXFromLeftOfBoxToLeftOfLabel = 12
+)
+
+func (c *checkbox) checkboxpreferredSize(d *sizing) (width, height int) {
+	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c.textlen),
+		fromdlgunitsY(checkboxHeight, d)
 }
 
 var editclass = toUTF16("EDIT")
@@ -174,7 +187,6 @@ const (
 )
 
 func (l *label) labelpreferredSize(d *sizing) (width, height int) {
-	// TODO have some padding to the right of the width
 	return int(l.textlen), fromdlgunitsY(labelHeight, d)
 }
 
