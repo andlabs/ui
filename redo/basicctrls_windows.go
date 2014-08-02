@@ -32,6 +32,7 @@ func startNewButton(text string, style C.DWORD) *button {
 func newButton(text string) *button {
 	b := startNewButton(text, C.BS_PUSHBUTTON)
 	C.setButtonSubclass(b.hwnd, unsafe.Pointer(b))
+	b.fpreferredSize = b.buttonpreferredSize
 	return b
 }
 
@@ -54,7 +55,25 @@ func buttonClicked(data unsafe.Pointer) {
 	println("button clicked")
 }
 
-// TODO button preferredSize
+const (
+	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+	buttonHeight = 14
+)
+
+func (b *button) buttonpreferredSize(d *sizing) (width, height int) {
+	// common controls 6 thankfully provides a method to grab this...
+	var size C.SIZE
+
+	size.cx = 0		// explicitly ask for ideal size
+	size.cy = 0
+	if C.SendMessageW(b.hwnd, C.BCM_GETIDEALSIZE, 0, C.LPARAM(uintptr(unsafe.Pointer(&size)))) != C.FALSE {
+		return int(size.cx), int(size.cy)
+	}
+	// that failed, fall back
+	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
+	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
+	return xmargins + int(b.textlen), fromdlgunitsY(buttonHeight, d)
+}
 
 type checkbox struct {
 	*button
