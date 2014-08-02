@@ -30,6 +30,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t.hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
+	t.fpreferredSize = t.tablepreferredSize
 	return t
 }
 
@@ -40,6 +41,16 @@ func (t *table) Unlock() {
 	t.RLock()
 	defer t.RUnlock()
 	C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+}
+
+const (
+	// from C++ Template 05 in http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx as this is the best I can do for now... (TODO see if I can reliably get item width/height from text size)
+	tableWidth = 183
+	tableHeight = 50
+)
+
+func (t *table) tablepreferredSize(d *sizing) (width, height int) {
+	return fromdlgunitsX(tableWidth, d), fromdlgunitsY(tableHeight, d)
 }
 
 //export tableGetCellText
