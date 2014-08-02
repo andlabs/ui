@@ -61,3 +61,34 @@ void tabGetContentRect(HWND hwnd, RECT *r)
 	/* not &r; already a pointer (thanks MindChild in irc.efnet.net/#winprog for spotting my failure) */
 	SendMessageW(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM) r);
 }
+
+/* TODO this assumes that all inactive tabs have the same height */
+LONG tabGetTabHeight(HWND hwnd)
+{
+	RECT r;
+	RECT r2;
+	LRESULT n, current, other;
+
+	n = SendMessageW(hwnd, TCM_GETITEMCOUNT, 0, 0);
+	/* if there are no tabs, then the control just draws a box over the full window rect, reserving no space for tabs (TODO check on windows xp and 7) */
+	if (n == 0)
+		return 0;
+	/* get the current tab's height */
+	/* note that Windows calls the tabs themselves "items" */
+	current = SendMessageW(hwnd, TCM_GETCURSEL, 0, 0);
+	if (SendMessageW(hwnd, TCM_GETITEMRECT, (WPARAM) current, (LPARAM) (&r)) == FALSE)
+		xpanic("error getting current tab's tab height for Tab.preferredSize()", GetLastError());
+	/* if there's only one tab, then it's the current one; just get its size and return it */
+	if (n == 1)
+		goto onlyOne;
+	/* otherwise, get an inactive tab's height and return the taller of the two heights */
+	other = current + 1;
+	if (other >= n)
+		other = 0;
+	if (SendMessageW(hwnd, TCM_GETITEMRECT, (WPARAM) other, (LPARAM) (&r2)) == FALSE)
+		xpanic("error getting other tab's tab height for Tab.preferredSize()", GetLastError());
+	if ((r2.bottom - r2.top) > (r.bottom - r.top))
+		return r2.bottom - r2.top;
+onlyOne:
+	return r.bottom - r.top;
+}
