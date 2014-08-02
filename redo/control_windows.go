@@ -31,10 +31,7 @@ func newControl(class C.LPWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
 		C.ShowWindow(c.hwnd, C.SW_HIDE)
 	}
 	c.fallocate = baseallocate(c)
-	c.fpreferredSize = func(d *sizing) (int, int) {
-		// TODO
-		return 75, 23
-	}
+	// don't specify c.fpreferredSize; it is custom on ALL controls
 	c.fcommitResize = func(a *allocation, d *sizing) {
 		C.moveWindow(c.hwnd, C.int(a.x), C.int(a.y), C.int(a.width), C.int(a.height))
 	}
