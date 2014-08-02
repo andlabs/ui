@@ -19,7 +19,7 @@ TODO
 
 type tab struct {
 	*controlbase
-	tabs				[]*container
+	tabs				[]*sizer
 	supersetParent		func(p *controlParent)
 	superallocate		func(x int, y int, width int, height int, d *sizing) []*allocation
 }
@@ -48,15 +48,15 @@ func (t *tab) tabsetParent(p *controlParent) {
 }
 
 func (t *tab) Append(name string, control Control) {
-	c := new(container)
-	t.tabs = append(t.tabs, c)
-	c.child = control
+	s := new(sizer)
+	t.tabs = append(t.tabs, s)
+	s.child = control
 	if t.parent != nil {
-		c.child.setParent(&controlParent{t.parent})
+		s.child.setParent(&controlParent{t.parent})
 	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
-		c.child.containerHide()
+		s.child.containerHide()
 	}
 	C.tabAppend(t.hwnd, toUTF16(name))
 }
@@ -74,6 +74,7 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 }
 
 // a tab control contains other controls; size appropriately
+// TODO change this to commitResize()
 func (t *tab) taballocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	var r C.RECT
 
@@ -85,9 +86,9 @@ func (t *tab) taballocate(x int, y int, width int, height int, d *sizing) []*all
 	C.tabGetContentRect(t.hwnd, &r)
 	// and allocate
 	// don't allocate to just the current tab; allocate to all tabs!
-	for _, c := range t.tabs {
+	for _, s := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
-		c.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
+		s.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
 	}
 	// and now allocate the tab control itself
 	return t.superallocate(x, y, width, height, d)

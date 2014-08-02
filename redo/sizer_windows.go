@@ -41,7 +41,7 @@ const (
 	paddingDialogUnits = 4
 )
 
-func (c *container) beginResize() (d *sizing) {
+func (s *sizer) beginResize() (d *sizing) {
 	d = new(sizing)
 
 	d.baseX = C.baseX
@@ -57,7 +57,7 @@ func (c *container) beginResize() (d *sizing) {
 	return d
 }
 
-func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+func (s *sizer) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	// no translation needed on windows
 }
 

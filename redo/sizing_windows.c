@@ -3,6 +3,8 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
+/* TODO rename to sizer_windows.c and move all but the first function to control_windows.c */
+
 BOOL baseUnitsCalculated = FALSE;
 int baseX;
 int baseY;

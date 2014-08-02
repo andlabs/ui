@@ -17,7 +17,7 @@ type window struct {
 
 	closing		*event
 
-	*container
+	*sizer
 }
 
 const windowclassname = ""
@@ -37,7 +37,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		// hwnd set in WM_CREATE handler
 		closing:		newEvent(),
-		container:		new(container),
+		sizer:		new(sizer),
 	}
 	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	if hwnd != w.hwnd {
