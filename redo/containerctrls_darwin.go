@@ -19,6 +19,7 @@ func newTab() Tab {
 	t := new(tab)
 	id := C.newTab(unsafe.Pointer(t))
 	t.controlbase = newControl(id)
+	t.fpreferredSize = t.tabpreferredSize
 	return t
 }
 
@@ -32,7 +33,12 @@ func (t *tab) Append(name string, control Control) {
 	s.child.setParent(&controlParent{tabview})
 }
 
-// no need to override Control.allocate() as only prepared the tabbed control; its children will be reallocated when that one is resized
+func (t *tab) tabpreferredSize(d *sizing) (width, height int) {
+	s := C.tabPrefSize(t.id)
+	return int(s.width), int(s.height)
+}
+
+// no need to override Control.commitResize() as only prepared the tabbed control; its children will be reallocated when that one is resized
 
 //export tabResized
 func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {

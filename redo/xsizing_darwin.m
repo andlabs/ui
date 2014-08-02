@@ -4,6 +4,7 @@
 #import <Cocoa/Cocoa.h>
 
 #define toNSControl(x) ((NSControl *) (x))
+#define toNSTabView(x) ((NSTabView *) (x))
 #define toNSScrollView(x) ((NSScrollView *) (x))
 #define toNSView(x) ((NSView *) (x))
 
@@ -22,6 +23,19 @@ struct xsize controlPrefSize(id control)
 	s.width = (intptr_t) r.size.width;
 	s.height = (intptr_t) r.size.height;
 	return s;
+}
+
+struct xsize tabPrefSize(id control)
+{
+	NSTabView *tv;
+	NSSize s;
+	struct xsize t;
+
+	tv = toNSTabView(control);
+	s = [tv minimumSize];
+	t.width = (intptr_t) s.width;
+	t.height = (intptr_t) s.height;
+	return t;
 }
 
 // TODO use this, possibly update to not need scrollview

@@ -30,8 +30,8 @@ func newControl(id C.id) *controlbase {
 	}
 	c.fallocate = baseallocate(c)
 	c.fpreferredSize = func(d *sizing) (int, int) {
-		// TODO
-		return 64, 32
+		s := C.controlPrefSize(c.id)
+		return int(s.width), int(s.height)
 	}
 	c.fcommitResize = func(a *allocation, d *sizing) {
 //TODO
