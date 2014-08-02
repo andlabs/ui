@@ -43,6 +43,7 @@ func NewCheckbox(text string) Checkbox {
 }
 
 // TextField is a Control in which the user can enter a single line of text.
+// TODO rename private implementations from textField to textfield
 type TextField interface {
 	Control
 
