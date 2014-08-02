@@ -33,6 +33,7 @@ func newTab() Tab {
 	}
 	t.supersetParent = t.fsetParent
 	t.fsetParent = t.tabsetParent
+	t.fpreferredSize = t.tabpreferredSize
 	t.superallocate = t.fallocate
 	t.fallocate = t.taballocate
 	C.controlSetControlFont(t.hwnd)
@@ -71,6 +72,20 @@ func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
 	t.tabs[int(new)].child.containerShow()
+}
+
+func (t *tab) tabpreferredSize(d *sizing) (width, height int) {
+	// TODO only consider the size of the current tab?
+	for _, s := range t.tabs {
+		w, h := s.child.preferredSize(d)
+		if width < w {
+			width = w
+		}
+		if height < h {
+			height = h
+		}
+	}
+	return width, height + int(C.tabGetTabHeight(t.hwnd))
 }
 
 // a tab control contains other controls; size appropriately
