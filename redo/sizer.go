@@ -25,16 +25,18 @@ type controlSizing interface {
 	getAuxResizeInfo(*sizing)
 }
 
-// on Windows, this is only embedded by window, as all other containers cannot have their own children; beginResize() points to an instance method literal (TODO get correct term) from window
-// on GTK+ and Mac OS X, one is embedded by window and all containers; beginResize() points to a global function (TODO NOT GOOD; ideally the sizing data should be passed across size-allocate requests)
-type container struct {
+// A sizer hosts a Control and resizes that Control based on changes in size to the parent Window.
+// sizer is used by Window, Tab, and [TODO implement] Group to contain and control their respective controls.
+// Window is the beginning of the resize chain; resizes happen on the system side.
+// Tab and Group are Controls and thus implement controlSizing; they should call their internal sizers's resize() method in their own commitResize().
+type sizer struct {
 	child		Control
 }
 
 // set to true to apply spacing to all windows
 var spaced bool = false
 
-func (c *container) resize(x, y, width, height int) {
+func (c *sizer) resize(x, y, width, height int) {
 	if c.child == nil {		// no children; nothing to do
 		return
 	}
