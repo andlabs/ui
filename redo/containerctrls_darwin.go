@@ -12,7 +12,7 @@ import "C"
 type tab struct {
 	*controlbase
 
-	containers	[]*container
+	tabs			[]*sizer
 }
 
 func newTab() Tab {
@@ -23,14 +23,13 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	// TODO isolate and standardize
-	c := new(container)
-	t.containers = append(t.containers, c)
+	s := new(sizer)
+	t.tabs = append(t.tabs, s)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	tabview := C.tabAppend(t.id, cname)
-	c.child = control
-	c.child.setParent(&controlParent{tabview})
+	s.child = control
+	s.child.setParent(&controlParent{tabview})
 }
 
 // no need to override Control.allocate() as only prepared the tabbed control; its children will be reallocated when that one is resized
@@ -38,8 +37,8 @@ func (t *tab) Append(name string, control Control) {
 //export tabResized
 func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {
 	t := (*tab)(unsafe.Pointer(data))
-	for _, c := range t.containers {
+	for _, s := range t.tabs {
 		// the tab area's coordinate system is localized, so the origin is (0, 0)
-		c.resize(0, 0, int(width), int(height))
+		s.resize(0, 0, int(width), int(height))
 	}
 }

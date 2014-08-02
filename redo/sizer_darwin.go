@@ -24,7 +24,7 @@ const (
 	macYPadding = 12
 )
 
-func (c *container) beginResize() (d *sizing) {
+func (s *sizer) beginResize() (d *sizing) {
 	d = new(sizing)
 	if spaced {
 		d.xmargin = macXMargin
@@ -35,7 +35,7 @@ func (c *container) beginResize() (d *sizing) {
 	return d
 }
 
-func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
+func (s *sizer) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
 	for _, a := range allocations {
 		// winheight - y because (0,0) is the bottom-left corner of the window and not the top-left corner
 		// (winheight - y) - height because (x, y) is the bottom-left corner of the control and not the top-left
