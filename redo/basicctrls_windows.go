@@ -93,10 +93,6 @@ func checkboxToggled(data unsafe.Pointer) {
 	println("checkbox toggled")
 }
 
-type textField struct {
-	*controlbase
-}
-
 const (
 	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	checkboxHeight = 10
@@ -109,6 +105,10 @@ func (c *checkbox) checkboxpreferredSize(d *sizing) (width, height int) {
 		fromdlgunitsY(checkboxHeight, d)
 }
 
+type textField struct {
+	*controlbase
+}
+
 var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textField {
@@ -116,9 +116,11 @@ func startNewTextField(style C.DWORD) *textField {
 		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	C.controlSetControlFont(c.hwnd)
-	return &textField{
+	t := &textField{
 		controlbase:	c,
 	}
+	t.fpreferredSize = t.textfieldpreferredSize
+	return t
 }
 
 func newTextField() *textField {
@@ -135,6 +137,16 @@ func (t *textField) Text() string {
 
 func (t *textField) SetText(text string) {
 	t.setText(text)
+}
+
+const (
+	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+	textfieldWidth = 107		// this is actually the shorter progress bar width, but Microsoft only indicates as wide as necessary
+	textfieldHeight = 14
+)
+
+func (t *textField) textfieldpreferredSize(d *sizing) (width, height int) {
+	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }
 
 type label struct {
