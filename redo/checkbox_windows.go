@@ -43,10 +43,7 @@ func (c *checkbox) SetText(text string) {
 }
 
 func (c *checkbox) Checked() bool {
-	if C.checkboxChecked(c.hwnd) == C.FALSE {
-		return false
-	}
-	return true
+	return C.checkboxChecked(c.hwnd) != C.FALSE
 }
 
 func (c *checkbox) SetChecked(checked bool) {
