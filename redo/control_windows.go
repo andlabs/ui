@@ -22,6 +22,8 @@ func newControl(class C.LPWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
 	return c
 }
 
+// TODO for maximum correctness these shouldn't take controlbases... but then the amount of duplicated code would skyrocket
+
 func basesetParent(c *controlbase, p *controlParent) {
 	C.controlSetParent(c.hwnd, p.hwnd)
 	c.parent = p.hwnd
