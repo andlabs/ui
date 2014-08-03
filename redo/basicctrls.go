@@ -23,9 +23,8 @@ func NewButton(text string) Button {
 type Checkbox interface {
 	Control
 
-	// OnClicked sets the event handler for when the Checkbox is clicked (to change its toggle state).
-	// TODO change to OnToggled() or OnChecked()?
-	OnClicked(func())
+	// OnToggled sets the event handler for when the Checkbox is toggled.
+	OnToggled(func())
 
 	// Text and SetText get and set the Checkbox's label text.
 	Text() string
