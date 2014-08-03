@@ -14,15 +14,15 @@ import (
 import "C"
 
 type textField struct {
-	*controlbase
+	_widget		*C.GtkWidget
 	entry		*C.GtkEntry
 }
 
 func startNewTextField() *textField {
-	w := C.gtk_entry_new()
+	widget := C.gtk_entry_new()
 	return &textField{
-		controlbase:	newControl(w),
-		entry:		(*C.GtkEntry)(unsafe.Pointer(w)),
+		_widget:		widget,
+		entry:		(*C.GtkEntry)(unsafe.Pointer(widget)),
 	}
 }
 
@@ -44,4 +44,36 @@ func (t *textField) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_entry_set_text(t.entry, ctext)
+}
+
+func (t *textField) widget() *C.GtkWidget {
+	return t._widget
+}
+
+func (t *textField) setParent(p *controlParent) {
+	basesetParent(t, p)
+}
+
+func (t *textField) containerShow() {
+	basecontainerShow(t)
+}
+
+func (t *textField) containerHide() {
+	basecontainerHide(t)
+}
+
+func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
+func (t *textField) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(t, d)
+}
+
+func (t *textField) commitResize(a *allocation, d *sizing) {
+	basecommitResize(t, a, d)
+}
+
+func (t *textField) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

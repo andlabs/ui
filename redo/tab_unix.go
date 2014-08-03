@@ -12,7 +12,7 @@ import (
 import "C"
 
 type tab struct {
-	*controlbase
+	_widget		*C.GtkWidget
 	notebook		*C.GtkNotebook
 
 	tabs			[]*layout
@@ -21,7 +21,7 @@ type tab struct {
 func newTab() Tab {
 	widget := C.gtk_notebook_new()
 	t := &tab{
-		controlbase:	newControl(widget),
+		_widget:		widget,
 		notebook:		(*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
 	// there are no scrolling arrows by default; add them in case there are too many tabs
@@ -42,4 +42,35 @@ func (t *tab) Append(name string, control Control) {
 	}
 }
 
+func (t *tab) widget() *C.GtkWidget {
+	return t._widget
+}
+
+func (t *tab) setParent(p *controlParent) {
+	basesetParent(t, p)
+}
+
+func (t *tab) containerShow() {
+	basecontainerShow(t)
+}
+
+func (t *tab) containerHide() {
+	basecontainerHide(t)
+}
+
+func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
+func (t *tab) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(t, d)
+}
+
 // no need to override Control.commitResize() as only prepared the tabbed control; its children will be reallocated when that one is resized
+func (t *tab) commitResize(a *allocation, d *sizing) {
+	basecommitResize(t, a, d)
+}
+
+func (t *tab) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
+}

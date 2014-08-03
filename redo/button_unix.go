@@ -10,46 +10,34 @@ import (
 
 // #include "gtk_unix.h"
 // extern void buttonClicked(GtkButton *, gpointer);
-// extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
 type button struct {
-	*controlbase
+	_widget		*C.GtkWidget
 	button		*C.GtkButton
 	clicked		*event
 }
 
 // shared code for setting up buttons, check boxes, etc.
-func finishNewButton(widget *C.GtkWidget, event string, handler unsafe.Pointer) *button {
+func newButton(text string) *button {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	widget := C.gtk_button_new_with_label(ctext)
 	b := &button{
-		controlbase:	newControl(widget),
+		_widget:		widget,
 		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
 		clicked:		newEvent(),
 	}
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(b.button)),
-		event,
-		C.GCallback(handler),
+		"clicked",
+		C.GCallback(C.buttonClicked),
 		C.gpointer(unsafe.Pointer(b)))
 	return b
 }
 
-func newButton(text string) *button {
-	ctext := togstr(text)
-	defer freegstr(ctext)
-	widget := C.gtk_button_new_with_label(ctext)
-	return finishNewButton(widget, "clicked", C.buttonClicked)
-}
-
 func (b *button) OnClicked(e func()) {
 	b.clicked.set(e)
-}
-
-//export buttonClicked
-func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
-	b := (*button)(unsafe.Pointer(data))
-	b.clicked.fire()
-	println("button clicked")
 }
 
 func (b *button) Text() string {
@@ -60,4 +48,43 @@ func (b *button) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_button_set_label(b.button, ctext)
+}
+
+//export buttonClicked
+func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
+	b := (*button)(unsafe.Pointer(data))
+	b.clicked.fire()
+	println("button clicked")
+}
+
+func (b *button) widget() *C.GtkWidget {
+	return b._widget
+}
+
+func (b *button) setParent(p *controlParent) {
+	basesetParent(b, p)
+}
+
+func (b *button) containerShow() {
+	basecontainerShow(b)
+}
+
+func (b *button) containerHide() {
+	basecontainerHide(b)
+}
+
+func (b *button) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(b, x, y, width, height, d)
+}
+
+func (b *button) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(b, d)
+}
+
+func (b *button) commitResize(a *allocation, d *sizing) {
+	basecommitResize(b, a, d)
+}
+
+func (b *button) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

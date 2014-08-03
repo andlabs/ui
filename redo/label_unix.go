@@ -17,11 +17,10 @@ import "C"
 // - standalone label on its own: should it be centered or not?
 
 type label struct {
-	*controlbase
-	misc					*C.GtkMisc
-	label					*C.GtkLabel
-	standalone			bool
-	supercommitResize		func(c *allocation, d *sizing)
+	_widget		*C.GtkWidget
+	misc			*C.GtkMisc
+	label			*C.GtkLabel
+	standalone	bool
 }
 
 func finishNewLabel(text string, standalone bool) *label {
@@ -29,13 +28,11 @@ func finishNewLabel(text string, standalone bool) *label {
 	defer freegstr(ctext)
 	widget := C.gtk_label_new(ctext)
 	l := &label{
-		controlbase:	newControl(widget),
+		_widget:		widget,
 		misc:		(*C.GtkMisc)(unsafe.Pointer(widget)),
 		label:		(*C.GtkLabel)(unsafe.Pointer(widget)),
 		standalone:	standalone,
 	}
-	l.supercommitResize = l.fcommitResize
-	l.fcommitResize = l.labelcommitResize
 	return l
 }
 
@@ -57,7 +54,31 @@ func (l *label) SetText(text string) {
 	C.gtk_label_set_text(l.label, ctext)
 }
 
-func (l *label) labelcommitResize(c *allocation, d *sizing) {
+func (l *label) widget() *C.GtkWidget {
+	return l._widget
+}
+
+func (l *label) setParent(p *controlParent) {
+	basesetParent(l, p)
+}
+
+func (l *label) containerShow() {
+	basecontainerShow(l)
+}
+
+func (l *label) containerHide() {
+	basecontainerHide(l)
+}
+
+func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(l, x, y, width, height, d)
+}
+
+func (l *label) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(l, d)
+}
+
+func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
 		if d.shouldVAlignTop {
@@ -67,5 +88,9 @@ func (l *label) labelcommitResize(c *allocation, d *sizing) {
 			C.gtk_misc_set_alignment(l.misc, 0, 0.5)
 		}
 	}
-	l.supercommitResize(c, d)
+	basecommitResize(l, c, d)
+}
+
+func (l *label) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

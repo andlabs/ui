@@ -14,10 +14,11 @@ import (
 import "C"
 
 type table struct {
-	*scrolledcontrol
 	*tablebase
 
+	_widget		*C.GtkWidget
 	treeview		*C.GtkTreeView
+	scroller		*scroller
 
 	model		*C.goTableModel
 	modelgtk		*C.GtkTreeModel
@@ -30,14 +31,10 @@ type table struct {
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
 	t := &table{
-		scrolledcontrol:	newScrolledControl(widget, true),
+		scroller:			newScroller(widget, true),
 		tablebase:			b,
+		_widget:			widget,
 		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
-	}
-	t.fgetAuxResizeInfo = func(d *sizing) {
-		// a Label to the left of a Table should be vertically aligned to the top
-		// TODO do the same with Area
-		d.shouldVAlignTop = true
 	}
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
@@ -95,4 +92,38 @@ func goTableModel_getRowCount(data unsafe.Pointer) C.gint {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	return C.gint(d.Len())
+}
+
+func (t *table) widget() *C.GtkWidget {
+	return t._widget
+}
+
+func (t *table) setParent(p *controlParent) {
+	t.scroller.setParent(p)
+}
+
+func (t *table) containerShow() {
+	basecontainerShow(t)
+}
+
+func (t *table) containerHide() {
+	basecontainerHide(t)
+}
+
+func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
+func (t *table) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(t, d)
+}
+
+func (t *table) commitResize(c *allocation, d *sizing) {
+	t.scroller.commitResize(c, d)
+}
+
+func (t *table) getAuxResizeInfo(d *sizing) {
+	// a Label to the left of a Table should be vertically aligned to the top
+	// TODO do the same with Area
+	d.shouldVAlignTop = true
 }
