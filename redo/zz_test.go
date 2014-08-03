@@ -98,7 +98,7 @@ func (tw *testwin) make(done chan struct{}) {
 	})
 	tw.t.Append("Button", tw.b)
 	tw.c = NewCheckbox("You Should Now See Me Instead")
-	tw.c.OnClicked(func() {
+	tw.c.OnToggled(func() {
 		tw.w.SetTitle(fmt.Sprint(tw.c.Checked()))
 	})
 	tw.t.Append("Checkbox", tw.c)
