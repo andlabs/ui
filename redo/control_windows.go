@@ -6,7 +6,6 @@ package ui
 import "C"
 
 type controlbase struct {
-	*controldefs
 	hwnd	C.HWND
 	parent	C.HWND		// for Tab and Group
 	textlen	C.LONG
@@ -18,27 +17,32 @@ type controlParent struct {
 
 func newControl(class C.LPWSTR, style C.DWORD, extstyle C.DWORD) *controlbase {
 	c := new(controlbase)
+	// TODO rename to newWidget
 	c.hwnd = C.newWidget(class, style, extstyle)
-	c.controldefs = new(controldefs)
-	c.fsetParent = func(p *controlParent) {
-		C.controlSetParent(c.hwnd, p.hwnd)
-		c.parent = p.hwnd
-	}
-	c.fcontainerShow = func() {
-		C.ShowWindow(c.hwnd, C.SW_SHOW)
-	}
-	c.fcontainerHide = func() {
-		C.ShowWindow(c.hwnd, C.SW_HIDE)
-	}
-	c.fallocate = baseallocate(c)
-	// don't specify c.fpreferredSize; it is custom on ALL controls
-	c.fcommitResize = func(a *allocation, d *sizing) {
-		C.moveWindow(c.hwnd, C.int(a.x), C.int(a.y), C.int(a.width), C.int(a.height))
-	}
-	c.fgetAuxResizeInfo = func(d *sizing) {
-		// do nothing
-	}
 	return c
+}
+
+func basesetParent(c *controlbase, p *controlParent) {
+	C.controlSetParent(c.hwnd, p.hwnd)
+	c.parent = p.hwnd
+}
+
+func basecontainerShow(c *controlbase) {
+	C.ShowWindow(c.hwnd, C.SW_SHOW)
+}
+
+func basecontainerHide(c *controlbase) {
+	C.ShowWindow(c.hwnd, C.SW_HIDE)
+}
+
+// don't specify basepreferredSize; it is custom on ALL controls
+
+func basecommitResize(c *controlbase, a *allocation, d *sizing) {
+	C.moveWindow(c.hwnd, C.int(a.x), C.int(a.y), C.int(a.width), C.int(a.height))
+}
+
+func basegetAuxResizeInfo(d *sizing) {
+	// do nothing
 }
 
 // these are provided for convenience

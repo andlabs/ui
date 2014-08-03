@@ -19,9 +19,7 @@ TODO
 
 type tab struct {
 	*controlbase
-	tabs				[]*sizer
-	supersetParent		func(p *controlParent)
-	superallocate		func(x int, y int, width int, height int, d *sizing) []*allocation
+	tabs			[]*sizer
 }
 
 func newTab() Tab {
@@ -31,21 +29,9 @@ func newTab() Tab {
 	t := &tab{
 		controlbase:	c,
 	}
-	t.supersetParent = t.fsetParent
-	t.fsetParent = t.tabsetParent
-	t.fpreferredSize = t.tabpreferredSize
-	t.superallocate = t.fallocate
-	t.fallocate = t.taballocate
 	C.controlSetControlFont(t.hwnd)
 	C.setTabSubclass(t.hwnd, unsafe.Pointer(t))
 	return t
-}
-
-func (t *tab) tabsetParent(p *controlParent) {
-	t.supersetParent(p)
-	for _, c := range t.tabs {
-		c.child.setParent(p)
-	}
 }
 
 func (t *tab) Append(name string, control Control) {
@@ -74,7 +60,28 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t.tabs[int(new)].child.containerShow()
 }
 
-func (t *tab) tabpreferredSize(d *sizing) (width, height int) {
+func (t *tab) setParent(p *controlParent) {
+	basesetParent(t.controlbase, p)
+	for _, c := range t.tabs {
+		c.child.setParent(p)
+	}
+}
+
+// TODO actually write this
+func (t *tab) containerShow() {
+	basecontainerShow(t.controlbase)
+}
+
+// TODO actually write this
+func (t *tab) containerHide() {
+	basecontainerHide(t.controlbase)
+}
+
+func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
+func (t *tab) preferredSize(d *sizing) (width, height int) {
 	// TODO only consider the size of the current tab?
 	for _, s := range t.tabs {
 		w, h := s.child.preferredSize(d)
@@ -89,22 +96,25 @@ func (t *tab) tabpreferredSize(d *sizing) (width, height int) {
 }
 
 // a tab control contains other controls; size appropriately
-// TODO change this to commitResize()
-func (t *tab) taballocate(x int, y int, width int, height int, d *sizing) []*allocation {
+func (t *tab) commitResize(c *allocation, d *sizing) {
 	var r C.RECT
 
 	// figure out what the rect for each child is...
-	r.left = C.LONG(x)				// load structure with the window's rect
-	r.top = C.LONG(y)
-	r.right = C.LONG(x + width)
-	r.bottom = C.LONG(y + height)
+	r.left = C.LONG(c.x)				// load structure with the window's rect
+	r.top = C.LONG(c.y)
+	r.right = C.LONG(c.x + c.width)
+	r.bottom = C.LONG(c.y + c.height)
 	C.tabGetContentRect(t.hwnd, &r)
-	// and allocate
-	// don't allocate to just the current tab; allocate to all tabs!
+	// and resize tabs
+	// don't resize just the current tab; resize all tabs!
 	for _, s := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
 		s.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
 	}
-	// and now allocate the tab control itself
-	return t.superallocate(x, y, width, height, d)
+	// and now resize the tab control itself
+	basecommitResize(t.controlbase, c, d)
+}
+
+func (t *tab) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

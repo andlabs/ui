@@ -19,7 +19,6 @@ func startNewTextField(style C.DWORD) *textField {
 	t := &textField{
 		controlbase:	c,
 	}
-	t.fpreferredSize = t.textfieldpreferredSize
 	return t
 }
 
@@ -39,12 +38,36 @@ func (t *textField) SetText(text string) {
 	t.setText(text)
 }
 
+func (t *textField) setParent(p *controlParent) {
+	basesetParent(t.controlbase, p)
+}
+
+func (t *textField) containerShow() {
+	basecontainerShow(t.controlbase)
+}
+
+func (t *textField) containerHide() {
+	basecontainerHide(t.controlbase)
+}
+
+func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
 const (
 	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	textfieldWidth = 107		// this is actually the shorter progress bar width, but Microsoft only indicates as wide as necessary
 	textfieldHeight = 14
 )
 
-func (t *textField) textfieldpreferredSize(d *sizing) (width, height int) {
+func (t *textField) preferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
+}
+
+func (t *textField) commitResize(a *allocation, d *sizing) {
+	basecommitResize(t.controlbase, a, d)
+}
+
+func (t *textField) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

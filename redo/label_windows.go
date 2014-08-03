@@ -7,8 +7,7 @@ import "C"
 
 type label struct {
 	*controlbase
-	standalone			bool
-	supercommitResize		func(c *allocation, d *sizing)
+	standalone	bool
 }
 
 var labelclass = toUTF16("STATIC")
@@ -25,9 +24,6 @@ func finishNewLabel(text string, standalone bool) *label {
 		controlbase:	c,
 		standalone:	standalone,
 	}
-	l.fpreferredSize = l.labelpreferredSize
-	l.supercommitResize = l.fcommitResize
-	l.fcommitResize = l.labelcommitResize
 	return l
 }
 
@@ -47,6 +43,22 @@ func (l *label) SetText(text string) {
 	l.setText(text)
 }
 
+func (l *label) setParent(p *controlParent) {
+	basesetParent(l.controlbase, p)
+}
+
+func (l *label) containerShow() {
+	basecontainerShow(l.controlbase)
+}
+
+func (l *label) containerHide() {
+	basecontainerHide(l.controlbase)
+}
+
+func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(l, x, y, width, height, d)
+}
+
 const (
 	// via http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	labelHeight = 8
@@ -54,15 +66,19 @@ const (
 	// TODO the label is offset slightly by default...
 )
 
-func (l *label) labelpreferredSize(d *sizing) (width, height int) {
+func (l *label) preferredSize(d *sizing) (width, height int) {
 	return int(l.textlen), fromdlgunitsY(labelHeight, d)
 }
 
-func (l *label) labelcommitResize(c *allocation, d *sizing) {
+func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone {
 		yoff := fromdlgunitsY(labelYOffset, d)
 		c.y += yoff
 		c.height -= yoff
 	}
-	l.supercommitResize(c, d)
+	basecommitResize(l.controlbase, c, d)
+}
+
+func (l *label) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }

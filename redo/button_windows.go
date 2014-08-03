@@ -16,9 +16,9 @@ type button struct {
 
 var buttonclass = toUTF16("BUTTON")
 
-func startNewButton(text string, style C.DWORD) *button {
+func newButton(text string) *button {
 	c := newControl(buttonclass,
-		style | C.WS_TABSTOP,
+		C.BS_PUSHBUTTON | C.WS_TABSTOP,
 		0)
 	c.setText(text)
 	C.controlSetControlFont(c.hwnd)
@@ -26,13 +26,7 @@ func startNewButton(text string, style C.DWORD) *button {
 		controlbase:	c,
 		clicked:		newEvent(),
 	}
-	return b
-}
-
-func newButton(text string) *button {
-	b := startNewButton(text, C.BS_PUSHBUTTON)
 	C.setButtonSubclass(b.hwnd, unsafe.Pointer(b))
-	b.fpreferredSize = b.buttonpreferredSize
 	return b
 }
 
@@ -55,13 +49,29 @@ func buttonClicked(data unsafe.Pointer) {
 	println("button clicked")
 }
 
+func (b *button) setParent(p *controlParent) {
+	basesetParent(b.controlbase, p)
+}
+
+func (b *button) containerShow() {
+	basecontainerShow(b.controlbase)
+}
+
+func (b *button) containerHide() {
+	basecontainerHide(b.controlbase)
+}
+
+func (b *button) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(b, x, y, width, height, d)
+}
+
 const (
 	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	buttonHeight = 14
 )
 
-func (b *button) buttonpreferredSize(d *sizing) (width, height int) {
-	// common controls 6 thankfully provides a method to grab this...
+func (b *button) preferredSize(d *sizing) (width, height int) {
+	// comctl32.dll version 6 thankfully provides a method to grab this...
 	var size C.SIZE
 
 	size.cx = 0		// explicitly ask for ideal size
@@ -74,4 +84,12 @@ println("message failed; falling back")
 	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
 	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
 	return xmargins + int(b.textlen), fromdlgunitsY(buttonHeight, d)
+}
+
+func (b *button) commitResize(a *allocation, d *sizing) {
+	basecommitResize(b.controlbase, a, d)
+}
+
+func (b *button) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(d)
 }
