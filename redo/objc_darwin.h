@@ -52,7 +52,7 @@ extern id newLabel(void);
 /* sizing_darwin.m */
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 
-/* containerctrls_darwin.m */
+/* tab_darwin.m */
 extern id newTab(void *);
 extern id tabAppend(id, char *);
 
