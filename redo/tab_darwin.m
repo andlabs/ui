@@ -5,6 +5,7 @@
 #import <Cocoa/Cocoa.h>
 
 #define toNSTabView(x) ((NSTabView *) (x))
+#define toNSView(x) ((NSView *) (x))
 
 @interface goTabView : NSTabView {
 @public
@@ -35,12 +36,12 @@ id newTab(void *gotab)
 	return (id) t;
 }
 
-id tabAppend(id t, char *name)
+void tabAppend(id t, char *name, id view)
 {
 	NSTabViewItem *i;
 
 	i = [[NSTabViewItem alloc] initWithIdentifier:nil];
 	[i setLabel:[NSString stringWithUTF8String:name]];
+	[i setView:toNSView(view)];
 	[toNSTabView(t) addTabViewItem:i];
-	return (id) [i view];
 }

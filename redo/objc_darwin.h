@@ -55,7 +55,7 @@ extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 
 /* tab_darwin.m */
 extern id newTab(void *);
-extern id tabAppend(id, char *);
+extern void tabAppend(id, char *, id);
 
 /* table_darwin.m */
 extern id newTable(void);
@@ -86,5 +86,8 @@ extern struct xsize tabPrefSize(id);
 extern struct xsize areaPrefSize(id);
 extern struct xalignment alignmentInfo(id, struct xrect);
 extern struct xrect frame(id);
+
+/* container_darwin.m */
+extern id newContainerView(void *);
 
 #endif

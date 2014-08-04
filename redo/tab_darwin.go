@@ -11,7 +11,7 @@ import "C"
 
 type tab struct {
 	_id		C.id
-	tabs		[]*sizer
+	tabs		[]*container
 }
 
 func newTab() Tab {
@@ -21,22 +21,20 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	s := new(sizer)
-	t.tabs = append(t.tabs, s)
+	c := newContainer(control)
+	t.tabs = append(t.tabs, c)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	tabview := C.tabAppend(t._id, cname)
-	s.child = control
-	s.child.setParent(&controlParent{tabview})
+	C.tabAppend(t._id, cname, c.view)
 }
 
 //export tabResized
 func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {
-	t := (*tab)(unsafe.Pointer(data))
-	for _, s := range t.tabs {
+//	t := (*tab)(unsafe.Pointer(data))
+//	for _, c := range t.tabs {
 		// the tab area's coordinate system is localized, so the origin is (0, 0)
-		s.resize(0, 0, int(width), int(height))
-	}
+//		c.resize(0, 0, int(width), int(height))
+//	}
 }
 
 func (t *tab) id() C.id {
