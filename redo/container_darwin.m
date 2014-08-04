@@ -4,6 +4,8 @@
 #include "_cgo_export.h"
 #include <Cocoa/Cocoa.h>
 
+#define toNSView(x) ((NSView *) (x))
+
 // calling -[className] on the content views of NSWindow, NSTabItem, and NSBox all return NSView, so I'm assuming I just need to override these
 // fornunately:
 // - NSWindow resizing calls -[setFrameSize:] (but not -[setFrame:])
@@ -23,8 +25,7 @@
 - (void)setFrameSize:(NSSize)s
 {
 	[super setFrameSize:s];
-	if (self->gocontainer != NULL)
-		containerResized(self->gocontainer, (intptr_t) s.width, (intptr_t) s.height);
+	containerResized(self->gocontainer, (intptr_t) s.width, (intptr_t) s.height);
 }
 
 @end
@@ -36,4 +37,9 @@ id newContainerView(void *gocontainer)
 	c = [[goContainerView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
 	c->gocontainer = gocontainer;
 	return (id) c;
+}
+
+void moveControl(id c, intptr_t x, intptr_t y, intptr_t width, intptr_t height)
+{
+	[toNSView(c) setFrame:NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) width, (CGFloat) height)];
 }

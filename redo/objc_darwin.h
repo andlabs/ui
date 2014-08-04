@@ -51,7 +51,8 @@ extern const char *textFieldText(id);
 extern void textFieldSetText(id, char *);
 extern id newLabel(void);
 
-/* sizing_darwin.m */
+/* container_darwin.m */
+extern id newContainerView(void *);
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 
 /* tab_darwin.m */
@@ -87,8 +88,5 @@ extern struct xsize tabPrefSize(id);
 extern struct xsize areaPrefSize(id);
 extern struct xalignment alignmentInfo(id, struct xrect);
 extern struct xrect frame(id);
-
-/* container_darwin.m */
-extern id newContainerView(void *);
 
 #endif

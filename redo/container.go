@@ -25,18 +25,18 @@ type controlSizing interface {
 	getAuxResizeInfo(*sizing)
 }
 
-// A sizer hosts a Control and resizes that Control based on changes in size to the parent Window.
-// sizer is used by Window, Tab, and [TODO implement] Group to contain and control their respective controls.
-// Window is the beginning of the resize chain; resizes happen on the system side.
-// Tab and Group are Controls and thus implement controlSizing; they should call their internal sizers's resize() method in their own commitResize().
-type sizer struct {
+// A container hosts a Control and resizes that Control based on changes in size to the parent Window.
+// container is used by Window, Tab, and [TODO implement] Group to contain and control their respective Controls.
+// Tab and Group use containers for their content; as such, their commitResize() functions should only change the size of the Tab and Group themselves, and have their containers do the real work.
+// All containers must embed containerbase.
+type containerbase struct {
 	child		Control
 }
 
 // set to true to apply spacing to all windows
 var spaced bool = false
 
-func (c *sizer) resize(x, y, width, height int) {
+func (c *container) resize(x, y, width, height int) {
 	if c.child == nil {		// no children; nothing to do
 		return
 	}
