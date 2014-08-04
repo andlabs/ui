@@ -5,55 +5,63 @@ package ui
 // #include "objc_darwin.h"
 import "C"
 
-type controlbase struct {
-	*controldefs
-	id	C.id
+// all Controls that call base methods must be this
+type controlPrivate interface {
+	id() C.id
+	Control
 }
 
 type controlParent struct {
 	id	C.id
 }
 
-func newControl(id C.id) *controlbase {
-	c := new(controlbase)
-	c.id = id
-	c.controldefs = new(controldefs)
-	c.fsetParent = func(p *controlParent) {
-		// redrawing the new window handled by C.parent()
-		C.parent(c.id, p.id)
-	}
-	c.fcontainerShow = func() {
-		C.controlSetHidden(c.id, C.NO)
-	}
-	c.fcontainerHide = func() {
-		C.controlSetHidden(c.id, C.YES)
-	}
-	c.fallocate = baseallocate(c)
-	c.fpreferredSize = func(d *sizing) (int, int) {
-		s := C.controlPrefSize(c.id)
-		return int(s.width), int(s.height)
-	}
-	c.fcommitResize = func(a *allocation, d *sizing) {
-		C.moveControl(c.id, C.intptr_t(a.x), C.intptr_t(a.y), C.intptr_t(a.width), C.intptr_t(a.height))
-	}
-	c.fgetAuxResizeInfo = func(d *sizing) {
-		d.neighborAlign = C.alignmentInfo(c.id, C.frame(c.id))
-	}
-	return c
+func basesetParent(c controlPrivate, p *controlParent) {
+	// redrawing the new window handled by C.parent()
+	C.parent(c.id(), p.id)
 }
 
-type scrolledcontrol struct {
-	*controlbase
-	scroller			*controlbase
+func basecontainerShow(c controlPrivate) {
+	C.controlSetHidden(c.id(), C.NO)
 }
 
-func newScrolledControl(id C.id) *scrolledcontrol {
-	scroller := C.newScrollView(id)
-	s := &scrolledcontrol{
-		controlbase:		newControl(id),
-		scroller:			newControl(scroller),
+func basecontainerHide(c controlPrivate) {
+	C.controlSetHidden(c.id(), C.YES)
+}
+
+func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
+	s := C.controlPrefSize(c.id())
+	return int(s.width), int(s.height)
+}
+
+func basecommitResize(c controlPrivate, a *allocation, d *sizing) {
+	dobasecommitResize(c.id(), a, d)
+}
+
+func dobasecommitResize(id C.id, c *allocation, d *sizing) {
+	C.moveControl(id, C.intptr_t(c.x), C.intptr_t(c.y), C.intptr_t(c.width), C.intptr_t(c.height))
+}
+
+func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
+	id := c.id()
+	d.neighborAlign = C.alignmentInfo(id, C.frame(id))
+}
+
+type scroller struct {
+	id	C.id
+}
+
+func newScroller(child C.id) *scroller {
+	id := C.newScrollView(child)
+	s := &scroller{
+		id:	id,
 	}
-	s.fsetParent = s.scroller.fsetParent
-	s.fcommitResize = s.scroller.fcommitResize
 	return s
+}
+
+func (s *scroller) setParent(p *controlParent) {
+	C.parent(s.id, p.id)
+}
+
+func (s *scroller) commitResize(c *allocation, d *sizing) {
+	dobasecommitResize(s.id, c, d)
 }

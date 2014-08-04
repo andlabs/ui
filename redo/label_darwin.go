@@ -2,24 +2,24 @@
 
 package ui
 
+import (
+	"unsafe"
+)
+
 // #include "objc_darwin.h"
 import "C"
 
-// cheap trick
 type label struct {
-	*textField
-	standalone			bool
-	supercommitResize		func(c *allocation, d *sizing)
+	_id			C.id
+	standalone	bool
 }
 
 func finishNewLabel(text string, standalone bool) *label {
 	l := &label{
-		textField:		finishNewTextField(C.newLabel()),
+		_id:			C.newLabel(),
 		standalone:	standalone,
 	}
 	l.SetText(text)
-	l.supercommitResize = l.fcommitResize
-	l.fcommitResize = l.labelcommitResize
 	return l
 }
 
@@ -31,13 +31,47 @@ func newStandaloneLabel(text string) Label {
 	return finishNewLabel(text, true)
 }
 
-func (l *label) labelcommitResize(c *allocation, d *sizing) {
+func (l *label) Text() string {
+	return C.GoString(C.textFieldText(l._id))
+}
+
+func (l *label) SetText(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.textFieldSetText(l._id, ctext)
+}
+
+func (l *label) id() C.id {
+	return l._id
+}
+
+func (l *label) setParent(p *controlParent) {
+	basesetParent(l, p)
+}
+
+func (l *label) containerShow() {
+	basecontainerShow(l)
+}
+
+func (l *label) containerHide() {
+	basecontainerHide(l)
+}
+
+func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(l, x, y, width, height, d)
+}
+
+func (l *label) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(l, d)
+}
+
+func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
 		if d.neighborAlign.baseline != 0 {		// no adjustment needed if the given control has no baseline
 			// in order for the baseline value to be correct, the label MUST BE AT THE HEIGHT THAT OS X WANTS IT TO BE!
 			// otherwise, the baseline calculation will be relative to the bottom of the control, and everything will be wrong
-			origsize := C.controlPrefSize(l.id)
+			origsize := C.controlPrefSize(l._id)
 			c.height = int(origsize.height)
 			newrect := C.struct_xrect{
 				x:		C.intptr_t(c.x),
@@ -45,7 +79,7 @@ func (l *label) labelcommitResize(c *allocation, d *sizing) {
 				width:	C.intptr_t(c.width),
 				height:	C.intptr_t(c.height),
 			}
-			ourAlign := C.alignmentInfo(l.id, newrect)
+			ourAlign := C.alignmentInfo(l._id, newrect)
 			// we need to find the exact Y positions of the baselines
 			// fortunately, this is easy now that (x,y) is the bottom-left corner
 			thisbasey := ourAlign.rect.y + ourAlign.baseline
@@ -57,5 +91,9 @@ func (l *label) labelcommitResize(c *allocation, d *sizing) {
 		}
 		// TODO if there's no baseline, the alignment should be to the top /of the alignment rect/, not the frame
 	}
-	l.supercommitResize(c, d)
+	basecommitResize(l, c, d)
+}
+
+func (l *label) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(l, d)
 }

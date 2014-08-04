@@ -41,6 +41,7 @@ extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);
 extern void buttonSetText(id, char *);
 extern id newCheckbox(void);
+extern void checkboxSetDelegate(id, void *);
 extern BOOL checkboxChecked(id);
 extern void checkboxSetChecked(id, BOOL);
 extern id newTextField(void);

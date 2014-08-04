@@ -12,20 +12,23 @@ import (
 import "C"
 
 type table struct {
-	*scrolledcontrol
 	*tablebase
+
+	_id			C.id
+	scroller		*scroller
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	id := C.newTable()
 	t := &table{
-		scrolledcontrol:	newScrolledControl(id),
-		tablebase:			b,
+		_id:			id,
+		scroller:		newScroller(id),
+		tablebase:		b,
 	}
-	C.tableMakeDataSource(t.id, unsafe.Pointer(t))
+	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
-		C.tableAppendColumn(t.id, cname)
+		C.tableAppendColumn(t._id, cname)
 		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
 	}
 	return t
@@ -37,7 +40,7 @@ func (t *table) Unlock() {
 	// not sure about this one...
 	t.RLock()
 	defer t.RUnlock()
-	C.tableUpdate(t.id)
+	C.tableUpdate(t._id)
 }
 
 //export goTableDataSource_getValue
@@ -58,4 +61,36 @@ func goTableDataSource_getRowCount(data unsafe.Pointer) C.intptr_t {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	return C.intptr_t(d.Len())
+}
+
+func (t *table) id() C.id {
+	return t._id
+}
+
+func (t *table) setParent(p *controlParent) {
+	t.scroller.setParent(p)
+}
+
+func (t *table) containerShow() {
+	basecontainerShow(t)
+}
+
+func (t *table) containerHide() {
+	basecontainerHide(t)
+}
+
+func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(t, x, y, width, height, d)
+}
+
+func (t *table) preferredSize(d *sizing) (width, height int) {
+	return basepreferredSize(t, d)
+}
+
+func (t *table) commitResize(c *allocation, d *sizing) {
+	t.scroller.commitResize(c, d)
+}
+
+func (t *table) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(t, d)
 }

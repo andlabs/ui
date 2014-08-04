@@ -47,6 +47,11 @@ void setSmallControlFont(id control)
 	buttonClicked(self->gocontrol);
 }
 
+- (IBAction)checkboxToggled:(id)sender
+{
+	checkboxChecked(self->gocontrol);
+}
+
 @end
 
 id newButton(void)
@@ -93,6 +98,16 @@ id newCheckbox(void)
 	return (id) c;
 }
 
+void checkboxSetDelegate(id checkbox, void *b)
+{
+	goControlDelegate *d;
+
+	d = [goControlDelegate new];
+	d->gocontrol = b;
+	[toNSButton(checkbox) setTarget:d];
+	[toNSButton(checkbox) setAction:@selector(checkboxToggled:)];
+}
+
 BOOL checkboxChecked(id c)
 {
 	if ([toNSButton(c) state] == NSOnState)
@@ -110,6 +125,7 @@ void checkboxSetChecked(id c, BOOL checked)
 	[toNSButton(c) setState:state];
 }
 
+// also good for labels
 static id finishNewTextField(NSTextField *t, BOOL bordered)
 {
 	// same for text fields, password fields, and labels
@@ -144,11 +160,13 @@ id newPasswordField(void)
 	return finishNewTextField(toNSTextField(t), YES);
 }
 
+// also good for labels
 const char *textFieldText(id t)
 {
 	return [[toNSTextField(t) stringValue] UTF8String];
 }
 
+// also good for labels
 void textFieldSetText(id t, char *text)
 {
 	[toNSTextField(t) setStringValue:[NSString stringWithUTF8String:text]];

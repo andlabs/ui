@@ -31,6 +31,6 @@ func (AAA *BBB) commitResize(a *allocation, d *sizing) {
 }
 
 func (AAA *BBB) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(AAA, d)
 }
 END
