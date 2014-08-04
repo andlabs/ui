@@ -76,7 +76,7 @@ func dobasecommitResize(w *C.GtkWidget, c *allocation, d *sizing) {
 	C.gtk_widget_size_allocate(w, &r)
 }
 
-func basegetAuxResizeInfo(d *sizing) {
+func basegetAuxResizeInfo(c Control, d *sizing) {
 	// controls set this to true if a Label to its left should be vertically aligned to the control's top
 	d.shouldVAlignTop = false
 }

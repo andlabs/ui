@@ -92,5 +92,5 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 }
 
 func (l *label) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(l, d)
 }

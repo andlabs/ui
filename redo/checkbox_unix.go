@@ -96,5 +96,5 @@ func (c *checkbox) commitResize(a *allocation, d *sizing) {
 }
 
 func (c *checkbox) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(c, d)
 }

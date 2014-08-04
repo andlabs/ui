@@ -75,5 +75,5 @@ func (t *textField) commitResize(a *allocation, d *sizing) {
 }
 
 func (t *textField) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(t, d)
 }
