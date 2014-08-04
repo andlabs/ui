@@ -10,6 +10,7 @@ import (
 import "C"
 
 type container struct {
+	// TODO rename to id
 	view		C.id
 	*sizer
 }
@@ -27,5 +28,6 @@ func newContainer(child Control) *container {
 //export containerResized
 func containerResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {
 	c := (*container)(unsafe.Pointer(data))
+	// the origin of a view's content area is always (0, 0)
 	c.resize(0, 0, int(width), int(height))
 }

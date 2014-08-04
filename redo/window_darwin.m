@@ -5,6 +5,7 @@
 #import <Cocoa/Cocoa.h>
 
 #define toNSWindow(x) ((NSWindow *) (x))
+#define toNSView(x) ((NSView *) (x))
 
 @interface goWindowDelegate : NSObject <NSWindowDelegate> {
 @public
@@ -17,11 +18,6 @@
 - (BOOL)windowShouldClose:(id)win
 {
 	return windowClosing(self->gowin);
-}
-
-- (void)windowDidResize:(NSNotification *)n
-{
-	[self doWindowResize:[n object]];
 }
 
 - (void)doWindowResize:(id)win
@@ -67,6 +63,11 @@ void windowSetDelegate(id win, void *w)
 	d = [goWindowDelegate new];
 	d->gowin = w;
 	[toNSWindow(win) setDelegate:d];
+}
+
+void windowSetContentView(id win, id view)
+{
+	[toNSWindow(win) setContentView:toNSView(view)];
 }
 
 const char *windowTitle(id win)

@@ -15,7 +15,7 @@ type window struct {
 
 	closing	*event
 
-	*sizer
+	*container
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
@@ -26,11 +26,10 @@ func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		id:			id,
 		closing:		newEvent(),
-		sizer:		new(sizer),
+		container:		newContainer(control),
 	}
-	C.windowSetDelegate(id, unsafe.Pointer(w))
-	w.child = control
-	w.child.setParent(&controlParent{C.windowContentView(w.id)})
+	C.windowSetDelegate(w.id, unsafe.Pointer(w))
+	C.windowSetContentView(w.id, w.container.view)
 	return w
 }
 
@@ -68,12 +67,4 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 		return C.YES
 	}
 	return C.NO
-}
-
-//export windowResized
-func windowResized(xw unsafe.Pointer, width C.uintptr_t, height C.uintptr_t) {
-	w := (*window)(unsafe.Pointer(xw))
-	// the origin of the window's content area is always (0, 0)
-	w.resize(0, 0, int(width), int(height))
-	fmt.Printf("new size %d x %d\n", width, height)
 }

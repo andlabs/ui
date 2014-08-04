@@ -5,7 +5,11 @@
 #include <Cocoa/Cocoa.h>
 
 // calling -[className] on the content views of NSWindow, NSTabItem, and NSBox all return NSView, so I'm assuming I just need to override these
-// fortunately, in the case of NSTabView, this -[setFrame:] is called when resizing and when changing tabs, so we can indeed use this directly there
+// fornunately:
+// - NSWindow resizing calls -[setFrameSize:] (but not -[setFrame:])
+// - NSTab resizing calls both -[setFrame:] and -[setFrameSIze:] on the current tab
+// - NSTab switching tabs calls both -[setFrame:] and -[setFrameSize:] on the new tab
+// so we just override setFrameSize:
 @interface goContainerView : NSView {
 @public
 	void *gocontainer;
@@ -14,11 +18,12 @@
 
 @implementation goContainerView
 
-- (void)setFrame:(NSRect)r
+- (void)setFrameSize:(NSSize)s
 {
-	[super setFrame:r];
+NSLog(@"setFrameSize %@", NSStringFromSize(s));
+	[super setFrameSize:s];
 	if (self->gocontainer != NULL)
-		containerResized(self->gocontainer, (intptr_t) r.size.width, (intptr_t) r.size.height);
+		containerResized(self->gocontainer, (intptr_t) s.width, (intptr_t) s.height);
 }
 
 @end

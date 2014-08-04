@@ -23,6 +23,7 @@ extern void issue(void *);
 /* window_darwin.m */
 extern id newWindow(intptr_t, intptr_t);
 extern void windowSetDelegate(id, void *);
+extern void windowSetContentView(id, id);
 extern const char *windowTitle(id);
 extern void windowSetTitle(id, const char *);
 extern void windowShow(id);
