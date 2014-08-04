@@ -49,14 +49,6 @@ func (l *label) setParent(p *controlParent) {
 	basesetParent(l, p)
 }
 
-func (l *label) containerShow() {
-	basecontainerShow(l)
-}
-
-func (l *label) containerHide() {
-	basecontainerHide(l)
-}
-
 func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(l, x, y, width, height, d)
 }

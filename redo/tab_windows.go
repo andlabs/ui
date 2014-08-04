@@ -74,16 +74,6 @@ func (t *tab) setParent(p *controlParent) {
 	t.parent = p
 }
 
-// TODO get rid of this
-func (t *tab) containerShow() {
-	basecontainerShow(t)
-}
-
-// TODO get rid of this
-func (t *tab) containerHide() {
-	basecontainerHide(t)
-}
-
 func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }

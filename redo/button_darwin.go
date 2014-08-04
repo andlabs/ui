@@ -55,14 +55,6 @@ func (b *button) setParent(p *controlParent) {
 	basesetParent(b, p)
 }
 
-func (b *button) containerShow() {
-	basecontainerShow(b)
-}
-
-func (b *button) containerHide() {
-	basecontainerHide(b)
-}
-
 func (b *button) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(b, x, y, width, height, d)
 }

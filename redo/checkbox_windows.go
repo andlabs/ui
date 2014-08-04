@@ -78,14 +78,6 @@ func (c *checkbox) setParent(p *controlParent) {
 	basesetParent(c, p)
 }
 
-func (c *checkbox) containerShow() {
-	basecontainerShow(c)
-}
-
-func (c *checkbox) containerHide() {
-	basecontainerHide(c)
-}
-
 func (c *checkbox) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(c, x, y, width, height, d)
 }

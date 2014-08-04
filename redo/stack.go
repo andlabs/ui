@@ -65,18 +65,6 @@ func (s *Stack) setParent(parent *controlParent) {
 	s.created = true
 }
 
-func (s *Stack) containerShow() {
-	for _, c := range s.controls {
-		c.containerShow()
-	}
-}
-
-func (s *Stack) containerHide() {
-	for _, c := range s.controls {
-		c.containerHide()
-	}
-}
-
 func (s *Stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	var stretchywid, stretchyht int
 	var current *allocation		// for neighboring

@@ -7,9 +7,6 @@ package ui
 type Control interface {
 	setParent(p *controlParent)	// controlParent defined per-platform
 	// TODO enable/disable (public)
-	// TODO show/hide (public)
-	containerShow()			// for Windows, where all controls need ot belong to an overlapped window, not to a container control; these respect programmer settings
-	containerHide()
 	controlSizing
 }
 

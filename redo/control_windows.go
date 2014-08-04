@@ -18,14 +18,6 @@ func basesetParent(c controlPrivate, p *controlParent) {
 	C.controlSetParent(c.hwnd(), p.hwnd)
 }
 
-func basecontainerShow(c controlPrivate) {
-	C.ShowWindow(c.hwnd(), C.SW_SHOW)
-}
-
-func basecontainerHide(c controlPrivate) {
-	C.ShowWindow(c.hwnd(), C.SW_HIDE)
-}
-
 // don't specify basepreferredSize; it is custom on ALL controls
 
 func basecommitResize(c controlPrivate, a *allocation, d *sizing) {

@@ -54,14 +54,6 @@ func (t *textField) setParent(p *controlParent) {
 	basesetParent(t, p)
 }
 
-func (t *textField) containerShow() {
-	basecontainerShow(t)
-}
-
-func (t *textField) containerHide() {
-	basecontainerHide(t)
-}
-
 func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }

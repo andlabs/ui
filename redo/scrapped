@@ -1,2 +1,3 @@
 Window.SetSize()
 Window.Center() (only really effective on Mac OS X)
+Control.Show()/Control.Hide() (too much effort to get right)

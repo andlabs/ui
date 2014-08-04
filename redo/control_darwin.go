@@ -20,14 +20,6 @@ func basesetParent(c controlPrivate, p *controlParent) {
 	C.parent(c.id(), p.id)
 }
 
-func basecontainerShow(c controlPrivate) {
-	C.controlSetHidden(c.id(), C.NO)
-}
-
-func basecontainerHide(c controlPrivate) {
-	C.controlSetHidden(c.id(), C.YES)
-}
-
 func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
 	s := C.controlPrefSize(c.id())
 	return int(s.width), int(s.height)

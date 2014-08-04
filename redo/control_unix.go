@@ -22,17 +22,10 @@ type controlParent struct {
 }
 
 func basesetParent(c controlPrivate, p *controlParent) {
-	C.gtk_container_add(p.c, c.widget())
+	widget := c.widget()		// avoid multiple interface lookups
+	C.gtk_container_add(p.c, widget)
 	// make sure the new widget is shown if not explicitly hidden
-	c.containerShow()
-}
-
-func basecontainerShow(c controlPrivate) {
-	C.gtk_widget_show_all(c.widget())
-}
-
-func basecontainerHide(c controlPrivate) {
-	C.gtk_widget_hide(c.widget())
+	C.gtk_widget_show_all(widget)
 }
 
 func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
@@ -103,7 +96,7 @@ func newScroller(widget *C.GtkWidget, native bool) *scroller {
 
 func (s *scroller) setParent(p *controlParent) {
 	C.gtk_container_add(p.c, s.scrollwidget)
-	// TODO for when hiding/showing is implemented
+	// see basesetParent() above for why we call gtk_widget_show_all()
 	C.gtk_widget_show_all(s.scrollwidget)
 }
 

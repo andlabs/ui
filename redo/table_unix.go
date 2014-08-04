@@ -102,14 +102,6 @@ func (t *table) setParent(p *controlParent) {
 	t.scroller.setParent(p)
 }
 
-func (t *table) containerShow() {
-	basecontainerShow(t)
-}
-
-func (t *table) containerHide() {
-	basecontainerHide(t)
-}
-
 func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }

@@ -10,14 +10,6 @@ func (AAA *BBB) setParent(p *controlParent) {
 	basesetParent(AAA, p)
 }
 
-func (AAA *BBB) containerShow() {
-	basecontainerShow(AAA)
-}
-
-func (AAA *BBB) containerHide() {
-	basecontainerHide(AAA)
-}
-
 func (AAA *BBB) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(AAA, x, y, width, height, d)
 }
