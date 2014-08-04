@@ -15,9 +15,9 @@ type tab struct {
 }
 
 func newTab() Tab {
-	t := new(tab)
-	t._id = C.newTab(unsafe.Pointer(t))
-	return t
+	return &tab{
+		_id:		C.newTab(),
+	}
 }
 
 func (t *tab) Append(name string, control Control) {
@@ -26,15 +26,6 @@ func (t *tab) Append(name string, control Control) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	C.tabAppend(t._id, cname, c.view)
-}
-
-//export tabResized
-func tabResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) {
-//	t := (*tab)(unsafe.Pointer(data))
-//	for _, c := range t.tabs {
-		// the tab area's coordinate system is localized, so the origin is (0, 0)
-//		c.resize(0, 0, int(width), int(height))
-//	}
 }
 
 func (t *tab) id() C.id {
@@ -54,7 +45,7 @@ func (t *tab) preferredSize(d *sizing) (width, height int) {
 	return int(s.width), int(s.height)
 }
 
-// no need to override Control.commitResize() as only prepared the tabbed control; its children will be reallocated when that one is resized
+// no need to override Control.commitResize() as only prepared the tabbed control; its children will be resized when that one is resized (and NSTabView itself will call setFrame: for us)
 func (t *tab) commitResize(a *allocation, d *sizing) {
 	basecommitResize(t, a, d)
 }

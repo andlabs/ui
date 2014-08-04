@@ -7,32 +7,12 @@
 #define toNSTabView(x) ((NSTabView *) (x))
 #define toNSView(x) ((NSView *) (x))
 
-@interface goTabView : NSTabView {
-@public
-	void *gotab;
-}
-@end
-
-@implementation goTabView
-
-- (void)setFrame:(NSRect)r
+id newTab(void)
 {
-	NSRect content;
+	NSTabView *t;
 
-	[super setFrame:r];
-	content = [self contentRect];
-	tabResized(self->gotab, (intptr_t) content.size.width, (intptr_t) content.size.height);
-}
-
-@end
-
-id newTab(void *gotab)
-{
-	goTabView *t;
-
-	t = [[goTabView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	t = [[NSTabView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
 	setStandardControlFont((id) t);		// safe; same selector provided by NSTabView
-	t->gotab = gotab;
 	return (id) t;
 }
 

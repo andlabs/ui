@@ -54,7 +54,7 @@ extern id newLabel(void);
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 
 /* tab_darwin.m */
-extern id newTab(void *);
+extern id newTab(void);
 extern void tabAppend(id, char *, id);
 
 /* table_darwin.m */
