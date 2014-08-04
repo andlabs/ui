@@ -18,19 +18,20 @@ TODO
 */
 
 type tab struct {
-	*controlbase
-	tabs			[]*sizer
+	_hwnd	C.HWND
+	tabs		[]*sizer
+	parent	C.HWND
 }
 
 func newTab() Tab {
-	c := newControl(C.xWC_TABCONTROL,
+	hwnd := C.newControl(C.xWC_TABCONTROL,
 		C.TCS_TOOLTIPS | C.WS_TABSTOP,
 		0)
 	t := &tab{
-		controlbase:	c,
+		_hwnd:	hwnd,
 	}
-	C.controlSetControlFont(t.hwnd)
-	C.setTabSubclass(t.hwnd, unsafe.Pointer(t))
+	C.controlSetControlFont(t._hwnd)
+	C.setTabSubclass(t._hwnd, unsafe.Pointer(t))
 	return t
 }
 
@@ -45,7 +46,7 @@ func (t *tab) Append(name string, control Control) {
 	if len(t.tabs) != 1 {
 		s.child.containerHide()
 	}
-	C.tabAppend(t.hwnd, toUTF16(name))
+	C.tabAppend(t._hwnd, toUTF16(name))
 }
 
 //export tabChanging
@@ -60,21 +61,26 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t.tabs[int(new)].child.containerShow()
 }
 
+func (t *tab) hwnd() C.HWND {
+	return t._hwnd
+}
+
 func (t *tab) setParent(p *controlParent) {
-	basesetParent(t.controlbase, p)
+	basesetParent(t, p)
 	for _, c := range t.tabs {
 		c.child.setParent(p)
 	}
+	t.parent = p.hwnd
 }
 
 // TODO actually write this
 func (t *tab) containerShow() {
-	basecontainerShow(t.controlbase)
+	basecontainerShow(t)
 }
 
 // TODO actually write this
 func (t *tab) containerHide() {
-	basecontainerHide(t.controlbase)
+	basecontainerHide(t)
 }
 
 func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -92,7 +98,7 @@ func (t *tab) preferredSize(d *sizing) (width, height int) {
 			height = h
 		}
 	}
-	return width, height + int(C.tabGetTabHeight(t.hwnd))
+	return width, height + int(C.tabGetTabHeight(t._hwnd))
 }
 
 // a tab control contains other controls; size appropriately
@@ -104,7 +110,7 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	r.top = C.LONG(c.y)
 	r.right = C.LONG(c.x + c.width)
 	r.bottom = C.LONG(c.y + c.height)
-	C.tabGetContentRect(t.hwnd, &r)
+	C.tabGetContentRect(t._hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
 	for _, s := range t.tabs {
@@ -112,7 +118,7 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 		s.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
 	}
 	// and now resize the tab control itself
-	basecommitResize(t.controlbase, c, d)
+	basecommitResize(t, c, d)
 }
 
 func (t *tab) getAuxResizeInfo(d *sizing) {

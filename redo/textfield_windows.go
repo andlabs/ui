@@ -6,19 +6,20 @@ package ui
 import "C"
 
 type textField struct {
-	*controlbase
+	_hwnd	C.HWND
+	_textlen	C.LONG
 }
 
 var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textField {
-	c := newControl(editclass,
+	hwnd := C.newControl(editclass,
 		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
-	C.controlSetControlFont(c.hwnd)
 	t := &textField{
-		controlbase:	c,
+		_hwnd:	hwnd,
 	}
+	C.controlSetControlFont(t._hwnd)
 	return t
 }
 
@@ -31,23 +32,35 @@ func newPasswordField() *textField {
 }
 
 func (t *textField) Text() string {
-	return t.text()
+	return baseText(t)
 }
 
 func (t *textField) SetText(text string) {
-	t.setText(text)
+	baseSetText(t, text)
+}
+
+func (t *textField) hwnd() C.HWND {
+	return t._hwnd
+}
+
+func (t *textField) textlen() C.LONG {
+	return t._textlen
+}
+
+func (t *textField) settextlen(len C.LONG) {
+	t._textlen = len
 }
 
 func (t *textField) setParent(p *controlParent) {
-	basesetParent(t.controlbase, p)
+	basesetParent(t, p)
 }
 
 func (t *textField) containerShow() {
-	basecontainerShow(t.controlbase)
+	basecontainerShow(t)
 }
 
 func (t *textField) containerHide() {
-	basecontainerHide(t.controlbase)
+	basecontainerHide(t)
 }
 
 func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -65,7 +78,7 @@ func (t *textField) preferredSize(d *sizing) (width, height int) {
 }
 
 func (t *textField) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t.controlbase, a, d)
+	basecommitResize(t, a, d)
 }
 
 func (t *textField) getAuxResizeInfo(d *sizing) {

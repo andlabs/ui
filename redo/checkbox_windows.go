@@ -10,23 +10,24 @@ import (
 import "C"
 
 type checkbox struct {
-	*controlbase
-	toggled		*event
+	_hwnd	C.HWND
+	_textlen	C.LONG
+	toggled	*event
 }
 
 func newCheckbox(text string) *checkbox {
 	// don't use BS_AUTOCHECKBOX here because it creates problems when refocusing (see http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx)
 	// we'll handle actually toggling the check state ourselves (see controls_windows.c)
-	cc := newControl(buttonclass,
+	hwnd := C.newControl(buttonclass,
 		C.BS_CHECKBOX | C.WS_TABSTOP,
 		0)
-	cc.setText(text)
-	C.controlSetControlFont(cc.hwnd)
 	c := &checkbox{
-		controlbase:	cc,
+		_hwnd:		hwnd,
 		toggled:		newEvent(),
 	}
-	C.setCheckboxSubclass(c.hwnd, unsafe.Pointer(c))
+	c.SetText(text)
+	C.controlSetControlFont(c._hwnd)
+	C.setCheckboxSubclass(c._hwnd, unsafe.Pointer(c))
 	return c
 }
 
@@ -35,23 +36,23 @@ func (c *checkbox) OnToggled(e func()) {
 }
 
 func (c *checkbox) Text() string {
-	return c.text()
+	return baseText(c)
 }
 
 func (c *checkbox) SetText(text string) {
-	c.setText(text)
+	baseSetText(c, text)
 }
 
 func (c *checkbox) Checked() bool {
-	return C.checkboxChecked(c.hwnd) != C.FALSE
+	return C.checkboxChecked(c._hwnd) != C.FALSE
 }
 
 func (c *checkbox) SetChecked(checked bool) {
 	if checked {
-		C.checkboxSetChecked(c.hwnd, C.TRUE)
+		C.checkboxSetChecked(c._hwnd, C.TRUE)
 		return
 	}
-	C.checkboxSetChecked(c.hwnd, C.FALSE)
+	C.checkboxSetChecked(c._hwnd, C.FALSE)
 }
 
 //export checkboxToggled
@@ -61,16 +62,28 @@ func checkboxToggled(data unsafe.Pointer) {
 	println("checkbox toggled")
 }
 
+func (c *checkbox) hwnd() C.HWND {
+	return c._hwnd
+}
+
+func (c *checkbox) textlen() C.LONG {
+	return c._textlen
+}
+
+func (c *checkbox) settextlen(len C.LONG) {
+	c._textlen = len
+}
+
 func (c *checkbox) setParent(p *controlParent) {
-	basesetParent(c.controlbase, p)
+	basesetParent(c, p)
 }
 
 func (c *checkbox) containerShow() {
-	basecontainerShow(c.controlbase)
+	basecontainerShow(c)
 }
 
 func (c *checkbox) containerHide() {
-	basecontainerHide(c.controlbase)
+	basecontainerHide(c)
 }
 
 func (c *checkbox) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -85,12 +98,12 @@ const (
 )
 
 func (c *checkbox) preferredSize(d *sizing) (width, height int) {
-	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c.textlen),
+	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c._textlen),
 		fromdlgunitsY(checkboxHeight, d)
 }
 
 func (c *checkbox) commitResize(a *allocation, d *sizing) {
-	basecommitResize(c.controlbase, a, d)
+	basecommitResize(c, a, d)
 }
 
 func (c *checkbox) getAuxResizeInfo(d *sizing) {

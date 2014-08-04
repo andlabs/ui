@@ -3,7 +3,7 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-HWND newWidget(LPWSTR class, DWORD style, DWORD extstyle)
+HWND newControl(LPWSTR class, DWORD style, DWORD extstyle)
 {
 	HWND hwnd;
 

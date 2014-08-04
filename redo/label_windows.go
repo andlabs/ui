@@ -6,24 +6,25 @@ package ui
 import "C"
 
 type label struct {
-	*controlbase
+	_hwnd		C.HWND
+	_textlen		C.LONG
 	standalone	bool
 }
 
 var labelclass = toUTF16("STATIC")
 
 func finishNewLabel(text string, standalone bool) *label {
-	c := newControl(labelclass,
+	hwnd := C.newControl(labelclass,
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
 		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
 		0)
-	c.setText(text)
-	C.controlSetControlFont(c.hwnd)
 	l := &label{
-		controlbase:	c,
+		_hwnd:		hwnd,
 		standalone:	standalone,
 	}
+	l.SetText(text)
+	C.controlSetControlFont(l._hwnd)
 	return l
 }
 
@@ -36,23 +37,35 @@ func newStandaloneLabel(text string) Label {
 }
 
 func (l *label) Text() string {
-	return l.text()
+	return baseText(l)
 }
 
 func (l *label) SetText(text string) {
-	l.setText(text)
+	baseSetText(l, text)
+}
+
+func (l *label) hwnd() C.HWND {
+	return l._hwnd
+}
+
+func (l *label) textlen() C.LONG {
+	return l._textlen
+}
+
+func (l *label) settextlen(len C.LONG) {
+	l._textlen = len
 }
 
 func (l *label) setParent(p *controlParent) {
-	basesetParent(l.controlbase, p)
+	basesetParent(l, p)
 }
 
 func (l *label) containerShow() {
-	basecontainerShow(l.controlbase)
+	basecontainerShow(l)
 }
 
 func (l *label) containerHide() {
-	basecontainerHide(l.controlbase)
+	basecontainerHide(l)
 }
 
 func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -67,7 +80,7 @@ const (
 )
 
 func (l *label) preferredSize(d *sizing) (width, height int) {
-	return int(l.textlen), fromdlgunitsY(labelHeight, d)
+	return int(l._textlen), fromdlgunitsY(labelHeight, d)
 }
 
 func (l *label) commitResize(c *allocation, d *sizing) {
@@ -76,7 +89,7 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 		c.y += yoff
 		c.height -= yoff
 	}
-	basecommitResize(l.controlbase, c, d)
+	basecommitResize(l, c, d)
 }
 
 func (l *label) getAuxResizeInfo(d *sizing) {

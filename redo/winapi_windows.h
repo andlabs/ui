@@ -41,8 +41,8 @@ extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_P
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 
-/* controls_windows.c */
-extern HWND newWidget(LPWSTR, DWORD, DWORD);
+/* [TODO rename] controls_windows.c */
+extern HWND newControl(LPWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);

@@ -10,23 +10,24 @@ import (
 import "C"
 
 type button struct {
-	*controlbase
-	clicked		*event
+	_hwnd	C.HWND
+	_textlen	C.LONG
+	clicked	*event
 }
 
 var buttonclass = toUTF16("BUTTON")
 
 func newButton(text string) *button {
-	c := newControl(buttonclass,
+	hwnd := C.newControl(buttonclass,
 		C.BS_PUSHBUTTON | C.WS_TABSTOP,
 		0)
-	c.setText(text)
-	C.controlSetControlFont(c.hwnd)
 	b := &button{
-		controlbase:	c,
-		clicked:		newEvent(),
+		_hwnd:	hwnd,
+		clicked:	newEvent(),
 	}
-	C.setButtonSubclass(b.hwnd, unsafe.Pointer(b))
+	b.SetText(text)
+	C.controlSetControlFont(b._hwnd)
+	C.setButtonSubclass(b._hwnd, unsafe.Pointer(b))
 	return b
 }
 
@@ -35,11 +36,11 @@ func (b *button) OnClicked(e func()) {
 }
 
 func (b *button) Text() string {
-	return b.text()
+	return baseText(b)
 }
 
 func (b *button) SetText(text string) {
-	b.setText(text)
+	baseSetText(b, text)
 }
 
 //export buttonClicked
@@ -49,16 +50,28 @@ func buttonClicked(data unsafe.Pointer) {
 	println("button clicked")
 }
 
+func (b *button) hwnd() C.HWND {
+	return b._hwnd
+}
+
+func (b *button) textlen() C.LONG {
+	return b._textlen
+}
+
+func (b *button) settextlen(len C.LONG) {
+	b._textlen = len
+}
+
 func (b *button) setParent(p *controlParent) {
-	basesetParent(b.controlbase, p)
+	basesetParent(b, p)
 }
 
 func (b *button) containerShow() {
-	basecontainerShow(b.controlbase)
+	basecontainerShow(b)
 }
 
 func (b *button) containerHide() {
-	basecontainerHide(b.controlbase)
+	basecontainerHide(b)
 }
 
 func (b *button) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -76,18 +89,18 @@ func (b *button) preferredSize(d *sizing) (width, height int) {
 
 	size.cx = 0		// explicitly ask for ideal size
 	size.cy = 0
-	if C.SendMessageW(b.hwnd, C.BCM_GETIDEALSIZE, 0, C.LPARAM(uintptr(unsafe.Pointer(&size)))) != C.FALSE {
+	if C.SendMessageW(b._hwnd, C.BCM_GETIDEALSIZE, 0, C.LPARAM(uintptr(unsafe.Pointer(&size)))) != C.FALSE {
 		return int(size.cx), int(size.cy)
 	}
 	// that failed, fall back
 println("message failed; falling back")
 	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
 	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
-	return xmargins + int(b.textlen), fromdlgunitsY(buttonHeight, d)
+	return xmargins + int(b._textlen), fromdlgunitsY(buttonHeight, d)
 }
 
 func (b *button) commitResize(a *allocation, d *sizing) {
-	basecommitResize(b.controlbase, a, d)
+	basecommitResize(b, a, d)
 }
 
 func (b *button) getAuxResizeInfo(d *sizing) {
