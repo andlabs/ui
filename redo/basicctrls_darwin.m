@@ -49,7 +49,7 @@ void setSmallControlFont(id control)
 
 - (IBAction)checkboxToggled:(id)sender
 {
-	checkboxChecked(self->gocontrol);
+	checkboxToggled(self->gocontrol);
 }
 
 @end
