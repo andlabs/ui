@@ -5,6 +5,11 @@ package ui
 // #include "winapi_windows.h"
 import "C"
 
+type controlPrivate interface {
+	// TODO
+	Control
+}
+
 type controlbase struct {
 	hwnd	C.HWND
 	parent	C.HWND		// for Tab and Group
@@ -43,7 +48,7 @@ func basecommitResize(c *controlbase, a *allocation, d *sizing) {
 	C.moveWindow(c.hwnd, C.int(a.x), C.int(a.y), C.int(a.width), C.int(a.height))
 }
 
-func basegetAuxResizeInfo(d *sizing) {
+func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
 	// do nothing
 }
 

@@ -116,5 +116,5 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 }
 
 func (t *tab) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(t, d)
 }

@@ -84,5 +84,5 @@ func (t *table) commitResize(a *allocation, d *sizing) {
 }
 
 func (t *table) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(t, d)
 }

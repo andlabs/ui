@@ -91,5 +91,5 @@ func (b *button) commitResize(a *allocation, d *sizing) {
 }
 
 func (b *button) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(d)
+	basegetAuxResizeInfo(b, d)
 }
