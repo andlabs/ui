@@ -30,6 +30,9 @@ func uiinit() error {
 	if err := makeWindowWindowClass(); err != nil {
 		return fmt.Errorf("error creating Window window class: %v", err)
 	}
+	if err := makeContainerWindowClass(); err != nil {
+		return fmt.Errorf("error creating container window class: %v", err)
+	}
 	return nil
 }
 

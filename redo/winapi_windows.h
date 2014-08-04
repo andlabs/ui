@@ -74,7 +74,7 @@ extern LONG controlTextLength(HWND, LPWSTR);
 
 /* window_windows.c */
 extern DWORD makeWindowWindowClass(char **);
-extern HWND newWindow(LPWSTR, int, int, BOOL, void *);
+extern HWND newWindow(LPWSTR, int, int, void *);
 extern void windowClose(HWND);
 
 /* common_windows.c */
@@ -97,5 +97,9 @@ extern void setTableSubclass(HWND, void *);
 extern void tableAppendColumn(HWND, int, LPWSTR);
 extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
+
+/* container_windows.c */
+extern DWORD makeContainerWindowClass(char **);
+extern HWND newContainer(void *);
 
 #endif

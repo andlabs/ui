@@ -3,9 +3,15 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-#define windowclass L"gouiwindow"
+/*
+This could all just be part of Window, but doing so just makes things complex.
+In this case, I chose to waste a window handle rather than keep things super complex.
+If this is seriously an issue in the future, I can roll it back.
+*/
 
-static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+#define containerclass L"gouicontainer"
+
+static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	void *data;
 	RECT r;
@@ -16,7 +22,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (uMsg == WM_NCCREATE) {
 			storelpParam(hwnd, lParam);
 			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-			storeWindowHWND(data, hwnd);
+			storeContainerHWND(data, hwnd);
 		}
 		/* act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway) */
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
@@ -30,55 +36,49 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
-		windowResize(data, &r);
-		return 0;
-	case WM_CLOSE:
-		windowClosing(data);
+		containerResize(data, &r);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
-	xmissedmsg("Window", "windowWinProc()", uMsg);
+	xmissedmsg("container", "containerWndProc()", uMsg);
 	return 0;		/* unreached */
 }
 
-DWORD makeWindowWindowClass(char **errmsg)
+DWORD makeContainerWindowClass(char **errmsg)
 {
 	WNDCLASSW wc;
 
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
-	wc.lpfnWndProc = windowWndProc;
+	wc.lpfnWndProc = containerWndProc;
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
-	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
-	wc.lpszClassName = windowclass;
+	wc.hbrBackground = (HBRUSH) GetStockObject(HOLLOW_BRUSH);
+	if (wc.hbrBackground == NULL) {
+		*errmsg = "error getting hollow brush for container window class";
+		return GetLastError();
+	}
+	wc.lpszClassName = containerclass;
 	if (RegisterClassW(&wc) == 0) {
-		*errmsg = "error registering Window window class";
+		*errmsg = "error registering container window class";
 		return GetLastError();
 	}
 	return 0;
 }
 
-HWND newWindow(LPWSTR title, int width, int height, void *data)
+HWND newContainer(void *data)
 {
 	HWND hwnd;
 
 	hwnd = CreateWindowExW(
 		0,
-		windowclass, title,
-		WS_OVERLAPPEDWINDOW,
+		containerclass, L"",
+		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		width, height,
-		NULL, NULL, hInstance, data);
+		100, 100,
+		msgwin, NULL, hInstance, data);
 	if (hwnd == NULL)
-		xpanic("Window creation failed", GetLastError());
-	calculateBaseUnits(hwnd);
+		xpanic("container creation failed", GetLastError());
 	return hwnd;
-}
-
-void windowClose(HWND hwnd)
-{
-	if (DestroyWindow(hwnd) == 0)
-		xpanic("error destroying window", GetLastError());
 }
