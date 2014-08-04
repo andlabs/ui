@@ -74,7 +74,7 @@ extern LONG controlTextLength(HWND, LPWSTR);
 
 /* window_windows.c */
 extern DWORD makeWindowWindowClass(char **);
-extern HWND newWindow(LPWSTR, int, int, void *);
+extern HWND newWindow(LPWSTR, int, int, BOOL, void *);
 extern void windowClose(HWND);
 
 /* common_windows.c */

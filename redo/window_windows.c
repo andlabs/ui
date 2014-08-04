@@ -60,20 +60,29 @@ DWORD makeWindowWindowClass(char **errmsg)
 	return 0;
 }
 
-HWND newWindow(LPWSTR title, int width, int height, void *data)
+HWND newWindow(LPWSTR title, int width, int height, BOOL child, void *data)
 {
 	HWND hwnd;
+	DWORD style;
+	HWND parent;
 
+	style = WS_OVERLAPPEDWINDOW;
+	parent = NULL;
+	if (child) {
+		style = WS_CHILD;
+		parent = msgwin;
+	}
 	hwnd = CreateWindowExW(
 		0,
 		windowclass, title,
-		WS_OVERLAPPEDWINDOW,
+		style,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		width, height,
-		NULL, NULL, hInstance, data);
+		parent, NULL, hInstance, data);
 	if (hwnd == NULL)
 		xpanic("Window creation failed", GetLastError());
-	calculateBaseUnits(hwnd);
+	if (!child)
+		calculateBaseUnits(hwnd);
 	return hwnd;
 }
 
