@@ -4,7 +4,6 @@ package ui
 
 import (
 	"unsafe"
-"fmt"
 )
 
 // #include "objc_darwin.h"

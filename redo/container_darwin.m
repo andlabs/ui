@@ -22,7 +22,6 @@
 
 - (void)setFrameSize:(NSSize)s
 {
-NSLog(@"setFrameSize %@", NSStringFromSize(s));
 	[super setFrameSize:s];
 	if (self->gocontainer != NULL)
 		containerResized(self->gocontainer, (intptr_t) s.width, (intptr_t) s.height);
