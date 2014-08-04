@@ -35,6 +35,10 @@ func newLayout(title string, width int, height int, child C.BOOL, control Contro
 	return l
 }
 
+func (l *layout) setParent(p *controlParent) {
+	C.controlSetParent(l.hwnd, p.hwnd)
+}
+
 //export storeWindowHWND
 func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 	l := (*layout)(data)

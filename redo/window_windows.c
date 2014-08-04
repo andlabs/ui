@@ -69,7 +69,7 @@ HWND newWindow(LPWSTR title, int width, int height, BOOL child, void *data)
 	style = WS_OVERLAPPEDWINDOW;
 	parent = NULL;
 	if (child) {
-		style = WS_CHILD;
+		style = WS_CHILD | WS_VISIBLE;
 		parent = msgwin;
 	}
 	hwnd = CreateWindowExW(

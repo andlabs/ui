@@ -4,8 +4,8 @@ package ui
 
 // Tab is a Control that contains multiple pages of tabs, each containing a single Control.
 // You can add and remove tabs from the Tab at any time.
-// TODO rename?
-// TODO implement containerShow()/containerHide() on this
+//
+// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
 type Tab interface {
 	Control
 

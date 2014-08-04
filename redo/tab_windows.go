@@ -12,15 +12,16 @@ import "C"
 /*
 On Windows, container controls are just regular controls; their children have to be children of the parent window, and changing the contents of a switching container (such as a tab control) must be done manually.
 
+We'll create a dummy window using the pre-existing Window window class for each tab page. This makes showing and hiding tabs a matter of showing and hiding one control, at the cost of having to do C.moveWindow() in tab.commitResize()... (TODO)
+
 TODO
 - make sure all tabs cannot be deselected (that is, make sure the current tab can never have index -1)
-- see if we can safely make the controls children of the tab control itself or if that would just screw our subclassing
 */
 
 type tab struct {
 	_hwnd	C.HWND
-	tabs		[]*sizer
-	parent	C.HWND
+	tabs		[]*layout
+	parent	*controlParent
 }
 
 func newTab() Tab {
@@ -36,15 +37,15 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	s := new(sizer)
-	t.tabs = append(t.tabs, s)
-	s.child = control
+	l := newLayout("", 0, 0, C.TRUE, control)
+	t.tabs = append(t.tabs, l)
 	if t.parent != nil {
-		s.child.setParent(&controlParent{t.parent})
+		l.setParent(t.parent)
 	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
-		s.child.containerHide()
+		// TODO move these calls to layout itself
+		C.ShowWindow(t.tabs[len(t.tabs) - 1].hwnd, C.SW_HIDE)
 	}
 	C.tabAppend(t._hwnd, toUTF16(name))
 }
@@ -52,13 +53,13 @@ func (t *tab) Append(name string, control Control) {
 //export tabChanging
 func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 	t := (*tab)(data)
-	t.tabs[int(current)].child.containerHide()
+	C.ShowWindow(t.tabs[int(current)].hwnd, C.SW_HIDE)
 }
 
 //export tabChanged
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
-	t.tabs[int(new)].child.containerShow()
+	C.ShowWindow(t.tabs[int(new)].hwnd, C.SW_SHOW)
 }
 
 func (t *tab) hwnd() C.HWND {
@@ -67,18 +68,18 @@ func (t *tab) hwnd() C.HWND {
 
 func (t *tab) setParent(p *controlParent) {
 	basesetParent(t, p)
-	for _, c := range t.tabs {
-		c.child.setParent(p)
+	for _, l := range t.tabs {
+		l.setParent(p)
 	}
-	t.parent = p.hwnd
+	t.parent = p
 }
 
-// TODO actually write this
+// TODO get rid of this
 func (t *tab) containerShow() {
 	basecontainerShow(t)
 }
 
-// TODO actually write this
+// TODO get rid of this
 func (t *tab) containerHide() {
 	basecontainerHide(t)
 }
@@ -113,9 +114,11 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	C.tabGetContentRect(t._hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
-	for _, s := range t.tabs {
+	for _, l := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
-		s.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
+		// we use moveWindow() rather than calling resize() directly
+		// TODO
+		C.moveWindow(l.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
 	}
 	// and now resize the tab control itself
 	basecommitResize(t, c, d)
