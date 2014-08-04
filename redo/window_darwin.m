@@ -20,6 +20,7 @@
 	return windowClosing(self->gowin);
 }
 
+// TODO there has to be a better way
 - (void)doWindowResize:(id)win
 {
 	NSWindow *w;
@@ -27,7 +28,7 @@
 
 	w = toNSWindow(win);
 	r = [[w contentView] frame];
-	windowResized(self->gowin, (uintptr_t) r.size.width, (uintptr_t) r.size.height);
+	[[w contentView] setFrameSize:r.size];
 }
 
 @end
