@@ -20,6 +20,16 @@ type container struct {
 	layout			*C.GtkLayout
 }
 
+type sizing struct {
+	sizingbase
+
+	// for size calculations
+	// gtk+ needs nothing
+
+	// for the actual resizing
+	shouldVAlignTop	bool
+}
+
 func newContainer(child Control) *container {
 	widget := C.gtk_layout_new(nil, nil)
 	c := &container{
@@ -41,22 +51,16 @@ func newContainer(child Control) *container {
 	return c
 }
 
+func (c *container) setParent(p *controlParent) {
+	C.gtk_container_add(p.c, c.layoutwidget)
+}
+
 //export containerResizing
 func containerResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
 	c := (*container)(unsafe.Pointer(data))
 	// the GtkLayout's coordinate system is localized, so the origin is (0, 0)
 	c.resize(0, 0, int(r.width), int(r.height))
 fmt.Printf("new size %d x %d\n", r.width, r.height)
-}
-
-type sizing struct {
-	sizingbase
-
-	// for size calculations
-	// gtk+ needs nothing
-
-	// for the actual resizing
-	shouldVAlignTop	bool
 }
 
 const (
