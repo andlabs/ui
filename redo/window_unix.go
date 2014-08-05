@@ -10,7 +10,6 @@ import (
 
 // #include "gtk_unix.h"
 // extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
-// extern void windowResizing(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type window struct {
@@ -21,7 +20,7 @@ type window struct {
 
 	closing	*event
 
-	*layout
+	*container
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
@@ -42,8 +41,9 @@ func newWindow(title string, width int, height int, control Control) *window {
 		C.GCallback(C.windowClosing),
 		C.gpointer(unsafe.Pointer(w)))
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
-	w.layout = newLayout(control)
-	C.gtk_container_add(w.wc, w.layout.layoutwidget)
+	w.container = newContainer(control)
+	// TODO make a method of container
+	C.gtk_container_add(w.wc, w.container.layoutwidget)
 	return w
 }
 
@@ -81,11 +81,4 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 		return C.GDK_EVENT_PROPAGATE		// will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
 	}
 	return C.GDK_EVENT_STOP				// keeps window alive
-}
-
-//export windowResizing
-func windowResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
-	w := (*window)(unsafe.Pointer(data))
-	// the origin of the window's content area is always (0, 0)
-	w.resize(0, 0, int(r.width), int(r.height))
 }

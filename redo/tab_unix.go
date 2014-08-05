@@ -15,7 +15,7 @@ type tab struct {
 	_widget		*C.GtkWidget
 	notebook		*C.GtkNotebook
 
-	tabs			[]*layout
+	tabs			[]*container
 }
 
 func newTab() Tab {
@@ -30,12 +30,13 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	tl := newLayout(control)
-	t.tabs = append(t.tabs, tl)
+	c := newContainer(control)
+	t.tabs = append(t.tabs, c)
 	cname := togstr(name)
 	defer freegstr(cname)
 	tab := C.gtk_notebook_append_page(t.notebook,
-		tl.layoutwidget,
+		// TODO figure out how to keep this private
+		c.layoutwidget,
 		C.gtk_label_new(cname))
 	if tab == -1 {
 		panic("gtk_notebook_append_page() failed")
