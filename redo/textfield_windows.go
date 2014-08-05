@@ -5,57 +5,57 @@ package ui
 // #include "winapi_windows.h"
 import "C"
 
-type textField struct {
+type textfield struct {
 	_hwnd	C.HWND
 	_textlen	C.LONG
 }
 
 var editclass = toUTF16("EDIT")
 
-func startNewTextField(style C.DWORD) *textField {
+func startNewTextField(style C.DWORD) *textfield {
 	hwnd := C.newControl(editclass,
 		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
-	t := &textField{
+	t := &textfield{
 		_hwnd:	hwnd,
 	}
 	C.controlSetControlFont(t._hwnd)
 	return t
 }
 
-func newTextField() *textField {
+func newTextField() *textfield {
 	return startNewTextField(0)
 }
 
-func newPasswordField() *textField {
+func newPasswordField() *textfield {
 	return startNewTextField(C.ES_PASSWORD)
 }
 
-func (t *textField) Text() string {
+func (t *textfield) Text() string {
 	return baseText(t)
 }
 
-func (t *textField) SetText(text string) {
+func (t *textfield) SetText(text string) {
 	baseSetText(t, text)
 }
 
-func (t *textField) hwnd() C.HWND {
+func (t *textfield) hwnd() C.HWND {
 	return t._hwnd
 }
 
-func (t *textField) textlen() C.LONG {
+func (t *textfield) textlen() C.LONG {
 	return t._textlen
 }
 
-func (t *textField) settextlen(len C.LONG) {
+func (t *textfield) settextlen(len C.LONG) {
 	t._textlen = len
 }
 
-func (t *textField) setParent(p *controlParent) {
+func (t *textfield) setParent(p *controlParent) {
 	basesetParent(t, p)
 }
 
-func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }
 
@@ -65,14 +65,14 @@ const (
 	textfieldHeight = 14
 )
 
-func (t *textField) preferredSize(d *sizing) (width, height int) {
+func (t *textfield) preferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }
 
-func (t *textField) commitResize(a *allocation, d *sizing) {
+func (t *textfield) commitResize(a *allocation, d *sizing) {
 	basecommitResize(t, a, d)
 }
 
-func (t *textField) getAuxResizeInfo(d *sizing) {
+func (t *textfield) getAuxResizeInfo(d *sizing) {
 	basegetAuxResizeInfo(t, d)
 }

@@ -13,59 +13,59 @@ import (
 // extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
-type textField struct {
+type textfield struct {
 	_widget		*C.GtkWidget
 	entry		*C.GtkEntry
 }
 
-func startNewTextField() *textField {
+func startNewTextField() *textfield {
 	widget := C.gtk_entry_new()
-	return &textField{
+	return &textfield{
 		_widget:		widget,
 		entry:		(*C.GtkEntry)(unsafe.Pointer(widget)),
 	}
 }
 
-func newTextField() *textField {
+func newTextField() *textfield {
 	return startNewTextField()
 }
 
-func newPasswordField() *textField {
+func newPasswordField() *textfield {
 	t := startNewTextField()
 	C.gtk_entry_set_visibility(t.entry, C.FALSE)
 	return t
 }
 
-func (t *textField) Text() string {
+func (t *textfield) Text() string {
 	return fromgstr(C.gtk_entry_get_text(t.entry))
 }
 
-func (t *textField) SetText(text string) {
+func (t *textfield) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_entry_set_text(t.entry, ctext)
 }
 
-func (t *textField) widget() *C.GtkWidget {
+func (t *textfield) widget() *C.GtkWidget {
 	return t._widget
 }
 
-func (t *textField) setParent(p *controlParent) {
+func (t *textfield) setParent(p *controlParent) {
 	basesetParent(t, p)
 }
 
-func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }
 
-func (t *textField) preferredSize(d *sizing) (width, height int) {
+func (t *textfield) preferredSize(d *sizing) (width, height int) {
 	return basepreferredSize(t, d)
 }
 
-func (t *textField) commitResize(a *allocation, d *sizing) {
+func (t *textfield) commitResize(a *allocation, d *sizing) {
 	basecommitResize(t, a, d)
 }
 
-func (t *textField) getAuxResizeInfo(d *sizing) {
+func (t *textfield) getAuxResizeInfo(d *sizing) {
 	basegetAuxResizeInfo(t, d)
 }

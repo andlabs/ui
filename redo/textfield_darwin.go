@@ -9,52 +9,52 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-type textField struct {
+type textfield struct {
 	_id	C.id
 }
 
-func newTextField() *textField {
-	return &textField{
+func newTextField() *textfield {
+	return &textfield{
 		_id:		C.newTextField(),
 	}
 }
 
-func newPasswordField() *textField {
-	return &textField{
+func newPasswordField() *textfield {
+	return &textfield{
 		_id:		C.newPasswordField(),
 	}
 }
 
-func (t *textField) Text() string {
+func (t *textfield) Text() string {
 	return C.GoString(C.textFieldText(t._id))
 }
 
-func (t *textField) SetText(text string) {
+func (t *textfield) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	C.textFieldSetText(t._id, ctext)
 }
 
-func (t *textField) id() C.id {
+func (t *textfield) id() C.id {
 	return t._id
 }
 
-func (t *textField) setParent(p *controlParent) {
+func (t *textfield) setParent(p *controlParent) {
 	basesetParent(t, p)
 }
 
-func (t *textField) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
 	return baseallocate(t, x, y, width, height, d)
 }
 
-func (t *textField) preferredSize(d *sizing) (width, height int) {
+func (t *textfield) preferredSize(d *sizing) (width, height int) {
 	return basepreferredSize(t, d)
 }
 
-func (t *textField) commitResize(a *allocation, d *sizing) {
+func (t *textfield) commitResize(a *allocation, d *sizing) {
 	basecommitResize(t, a, d)
 }
 
-func (t *textField) getAuxResizeInfo(d *sizing) {
+func (t *textfield) getAuxResizeInfo(d *sizing) {
 	basegetAuxResizeInfo(t, d)
 }
