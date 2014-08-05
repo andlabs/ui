@@ -12,7 +12,7 @@ import "C"
 /*
 On Windows, container controls are just regular controls; their children have to be children of the parent window, and changing the contents of a switching container (such as a tab control) must be done manually.
 
-We'll create a dummy window using the pre-existing Window window class for each tab page. This makes showing and hiding tabs a matter of showing and hiding one control, at the cost of having to do C.moveWindow() in tab.commitResize()... (TODO)
+We'll create a dummy window using the pre-existing Window window class for each tab page. This makes showing and hiding tabs a matter of showing and hiding one control.
 
 TODO
 - make sure all tabs cannot be deselected (that is, make sure the current tab can never have index -1)
