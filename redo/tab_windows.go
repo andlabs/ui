@@ -44,8 +44,7 @@ func (t *tab) Append(name string, control Control) {
 	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
-		// TODO move these calls to container itself
-		C.ShowWindow(t.tabs[len(t.tabs) - 1].hwnd, C.SW_HIDE)
+		t.tabs[len(t.tabs) - 1].hide()
 	}
 	C.tabAppend(t._hwnd, toUTF16(name))
 }
@@ -53,13 +52,13 @@ func (t *tab) Append(name string, control Control) {
 //export tabChanging
 func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 	t := (*tab)(data)
-	C.ShowWindow(t.tabs[int(current)].hwnd, C.SW_HIDE)
+	t.tabs[int(current)].hide()
 }
 
 //export tabChanged
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
-	C.ShowWindow(t.tabs[int(new)].hwnd, C.SW_SHOW)
+	t.tabs[int(new)].show()
 }
 
 func (t *tab) hwnd() C.HWND {

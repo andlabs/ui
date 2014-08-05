@@ -57,6 +57,14 @@ func (c *container) move(r *C.RECT) {
 	C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
 }
 
+func (c *container) show() {
+	C.ShowWindow(c.hwnd, C.SW_SHOW)
+}
+
+func (c *container) hide() {
+	C.ShowWindow(c.hwnd, C.SW_HIDE)
+}
+
 //export storeContainerHWND
 func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
 	c := (*container)(data)
