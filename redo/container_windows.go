@@ -52,6 +52,11 @@ func (c *container) setParent(p *controlParent) {
 	C.controlSetParent(c.hwnd, p.hwnd)
 }
 
+// this is needed because Windows won't move/resize a child window for us
+func (c *container) move(r *C.RECT) {
+	C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
+}
+
 //export storeContainerHWND
 func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
 	c := (*container)(data)

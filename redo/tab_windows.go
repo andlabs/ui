@@ -106,9 +106,7 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	// don't resize just the current tab; resize all tabs!
 	for _, c := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
-		// we use moveWindow() rather than calling resize() directly
-		// TODO
-		C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
+		c.move(&r)
 	}
 	// and now resize the tab control itself
 	basecommitResize(t, c, d)
