@@ -42,7 +42,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 		C.gpointer(unsafe.Pointer(w)))
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
 	w.container = newContainer(control)
-	// TODO make a method of container
+	// TODO make a method of container? because this would conflict with tabs...
 	C.gtk_container_add(w.wc, w.container.layoutwidget)
 	return w
 }
