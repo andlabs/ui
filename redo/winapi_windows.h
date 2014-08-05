@@ -26,6 +26,8 @@ enum {
 	msgRequest = WM_APP + 1,		/* + 1 just to be safe */
 	msgCOMMAND,				/* WM_COMMAND proxy; see forwardCommand() in controls_windows.go */
 	msgNOTIFY,					/* WM_NOTIFY proxy */
+	msgAreaSizeChanged,
+	msgAreaRepaintAll,
 };
 
 /* uitask_windows.c */
@@ -98,5 +100,10 @@ extern void tableAddExtendedStyles(HWND, LPARAM);
 /* container_windows.c */
 extern DWORD makeContainerWindowClass(char **);
 extern HWND newContainer(void *);
+
+/* area_window.c */
+extern LPWSTR areaWindowClass;
+extern void repaintArea(HWND);
+extern DWORD makeAreaWindowClass(char **);
 
 #endif
