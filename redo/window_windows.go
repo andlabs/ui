@@ -5,6 +5,7 @@ package ui
 import (
 	"fmt"
 	"syscall"
+	"unsafe"
 )
 
 // #include "winapi_windows.h"
@@ -16,7 +17,7 @@ type window struct {
 
 	closing		*event
 
-	*layout
+	*container
 }
 
 func makeWindowWindowClass() error {
@@ -33,10 +34,10 @@ func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		// hwnd set in WM_CREATE handler
 		closing:		newEvent(),
-		layout:		newLayout(control),
+		container:		newContainer(control),
 	}
 	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
-	if hwnd != l.hwnd {
+	if hwnd != w.hwnd {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in Window (%p) differ", hwnd, w.hwnd))
 	}
 	// TODO keep?
@@ -44,7 +45,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	if hresult != C.S_OK {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
 	}
-	w.layout.setParent(&controlParent{w.hwnd})
+	w.container.setParent(&controlParent{w.hwnd})
 	return w
 }
 
@@ -80,7 +81,7 @@ func (w *window) OnClosing(e func() bool) {
 
 //export storeWindowHWND
 func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
-	w := (*wiindow)(data)
+	w := (*window)(data)
 	w.hwnd = hwnd
 }
 
@@ -89,14 +90,14 @@ func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
 	// the origin of the window's content area is always (0, 0), but let's use the values from the RECT just to be safe
 	// TODO
-	C.moveWindow(w.layout.hwnd, int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
+	C.moveWindow(w.container.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
 }
 
 //export windowClosing
 func windowClosing(data unsafe.Pointer) {
-	l := (*layout)(data)
-	close := l.closing.fire()
+	w := (*window)(data)
+	close := w.closing.fire()
 	if close {
-		C.windowClose(l.hwnd)
+		C.windowClose(w.hwnd)
 	}
 }

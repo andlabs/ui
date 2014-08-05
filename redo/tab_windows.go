@@ -20,7 +20,7 @@ TODO
 
 type tab struct {
 	_hwnd	C.HWND
-	tabs		[]*layout
+	tabs		[]*container
 	parent	*controlParent
 }
 
@@ -37,14 +37,14 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	l := newLayout("", 0, 0, C.TRUE, control)
-	t.tabs = append(t.tabs, l)
+	c := newContainer(control)
+	t.tabs = append(t.tabs, c)
 	if t.parent != nil {
-		l.setParent(t.parent)
+		c.setParent(t.parent)
 	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
-		// TODO move these calls to layout itself
+		// TODO move these calls to container itself
 		C.ShowWindow(t.tabs[len(t.tabs) - 1].hwnd, C.SW_HIDE)
 	}
 	C.tabAppend(t._hwnd, toUTF16(name))
@@ -68,8 +68,8 @@ func (t *tab) hwnd() C.HWND {
 
 func (t *tab) setParent(p *controlParent) {
 	basesetParent(t, p)
-	for _, l := range t.tabs {
-		l.setParent(p)
+	for _, c := range t.tabs {
+		c.setParent(p)
 	}
 	t.parent = p
 }
@@ -104,11 +104,11 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	C.tabGetContentRect(t._hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
-	for _, l := range t.tabs {
+	for _, c := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
 		// we use moveWindow() rather than calling resize() directly
 		// TODO
-		C.moveWindow(l.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
+		C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
 	}
 	// and now resize the tab control itself
 	basecommitResize(t, c, d)

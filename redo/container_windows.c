@@ -54,11 +54,8 @@ DWORD makeContainerWindowClass(char **errmsg)
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
-	wc.hbrBackground = (HBRUSH) GetStockObject(HOLLOW_BRUSH);
-	if (wc.hbrBackground == NULL) {
-		*errmsg = "error getting hollow brush for container window class";
-		return GetLastError();
-	}
+	/* TODO won't this override our visual styles? */
+	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
 	wc.lpszClassName = containerclass;
 	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering container window class";
