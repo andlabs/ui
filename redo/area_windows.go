@@ -12,10 +12,43 @@ import (
 // #include "winapi_windows.h"
 import "C"
 
-const (
-	areastyle  = _WS_HSCROLL | _WS_VSCROLL | controlstyle
-	areaxstyle = 0 | controlxstyle
-)
+type area struct {
+	*areabase
+
+	_hwnd		C.HWND
+
+	clickCounter	*clickCounter
+}
+
+func registerAreaWndClass() (err error) {
+	var errmsg *C.char
+
+	err := C.makeWindowWindowClass(&errmsg)
+	if err != 0 || errmsg != nil {
+		return fmt.Errorf("%s: %v", C.GoString(errmsg), syscall.Errno(err))
+	}
+	return nil
+}
+
+func newArea(ab *areabase) Area {
+	a := &area{
+		areabase:		ab,
+		clickCounter:	new(clickCounter),
+	}
+	a._hwnd = C.newArea(unsafe.Pointer(a))
+	a.SetSize(width, height)
+	return a
+}
+
+func (a *area) SetSize(width, height int) {
+	a.width = width
+	a.height = height
+	C.SendMessageW(a._hwnd, C.msgAreaSizeChanged, 0, 0)
+}
+
+func (a *area) RepaintAll() {
+	C.SendMessageW(a._hwnd, C.msgAreaRepaintAll, 0, 0)
+}
 
 //export doPaint
 func doPaint(xrect *C.RECT, hscroll C.int, vscroll C.int, data unsafe.Pointer, dx *C.intptr_t, dy *C.intptr_t) unsafe.Pointer {
@@ -241,7 +274,11 @@ var modonlykeys = map[C.WPARAM]Modifiers{
 	C.VK_RWIN: Super,
 }
 
-// TODO storeAreaHWND
+//export storeAreaHWND
+func storeAreaHWND(data unsafe.Pointer, hwnd C.HWND) {
+	a := (*area)(data)
+	a._hwnd = hwnd
+}
 
 //export areaResetClickCounter
 func areaResetClickCounter(data unsafe.Pointer) {
@@ -249,12 +286,27 @@ func areaResetClickCounter(data unsafe.Pointer) {
 	a.clickCounter.reset()
 }
 
-func registerAreaWndClass() (err error) {
-	var errmsg *C.char
+func (a *area) hwnd() C.HWND {
+	return a._hwnd
+}
 
-	err := C.makeWindowWindowClass(&errmsg)
-	if err != 0 || errmsg != nil {
-		return fmt.Errorf("%s: %v", C.GoString(errmsg), syscall.Errno(err))
-	}
-	return nil
+func (a *area) setParent(p *controlParent) {
+	basesetParent(a, p)
+}
+
+func (a *area) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
+	return baseallocate(a, x, y, width, height, d)
+}
+
+func (a *area) preferredSize(d *sizing) (width, height int) {
+	// the preferred size of an Area is its size
+	return a.width, a.height
+}
+
+func (a *area) commitResize(a *allocation, d *sizing) {
+	basecommitResize(a, a, d)
+}
+
+func (a *area) getAuxResizeInfo(d *sizing) {
+	basegetAuxResizeInfo(a, d)
 }

@@ -5,7 +5,7 @@
 #include "winapi_windows.h"
 #include "_cgo_epxort.h"
 
-LPWSTR areaWindowClass = L"gouiarea";
+#define areaWindowClass L"gouiarea"
 
 static void getScrollPos(HWND hwnd, int *xpos, int *ypos)
 {
@@ -440,4 +440,20 @@ DWORD makeAreaWindowClass(char **errmsg)
 		return GetLastError();
 	}
 	return 0;
+}
+
+HWND newArea(void *data)
+{
+	HWND hwnd;
+
+	hwnd = CreateWindowExW(
+		0,
+		areaWindowClass, L"",
+		WS_HSCROLL | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		100, 100,
+		msgwin, NULL, hInstance, data);
+	if (hwnd == NULL)
+		xpanic("container creation failed", GetLastError());
+	return hwnd;
 }

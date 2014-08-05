@@ -102,8 +102,8 @@ extern DWORD makeContainerWindowClass(char **);
 extern HWND newContainer(void *);
 
 /* area_window.c */
-extern LPWSTR areaWindowClass;
 extern void repaintArea(HWND);
 extern DWORD makeAreaWindowClass(char **);
+extern HWND newArea(void *);
 
 #endif
