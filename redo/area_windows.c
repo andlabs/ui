@@ -3,7 +3,7 @@
 /* TODO either strip the // comments or find out if --std=c99 is safe for cgo */
 
 #include "winapi_windows.h"
-#include "_cgo_epxort.h"
+#include "_cgo_export.h"
 
 #define areaWindowClass L"gouiarea"
 
@@ -21,7 +21,7 @@ static void getScrollPos(HWND hwnd, int *xpos, int *ypos)
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
 	si.fMask = SIF_POS | SIF_TRACKPOS;
-	if (GetScrollInfo(hwnd, _SB_VERT, &si) == 0)
+	if (GetScrollInfo(hwnd, SB_VERT, &si) == 0)
 		xpanic("error getting vertical scroll position for Area", GetLastError());
 	*ypos = si.nPos;
 }
@@ -50,7 +50,7 @@ static void paintArea(HWND hwnd, void *data)
 	if (GetUpdateRect(hwnd, &xrect, TRUE) == 0)
 		return;		// no update rect; do nothing
 
-	getScrollPos(s.hwnd, &hscroll, &vscroll);
+	getScrollPos(hwnd, &hscroll, &vscroll);
 
 	i = doPaint(&xrect, hscroll, vscroll, data, &dx, &dy);
 	if (i == NULL)		// cliprect empty
@@ -91,8 +91,9 @@ static void paintArea(HWND hwnd, void *data)
 	// AlphaBlend(), however, sees it - see http://msdn.microsoft.com/en-us/library/windows/desktop/dd183352%28v=vs.85%29.aspx
 	ZeroMemory(&bi, sizeof (BITMAPINFO));
 	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = int32(i.Rect.Dx())
-	bi.bmiHeader.biHeight = -int32(i.Rect.Dy()) // negative height to force top-down drawing
+	// TODO check types
+	bi.bmiHeader.biWidth = dx;
+	bi.bmiHeader.biHeight = -dy;			// negative height to force top-down drawing;
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biCompression = BI_RGB;
@@ -108,7 +109,7 @@ static void paintArea(HWND hwnd, void *data)
 	// first, we need to load the bitmap memory, because Windows makes it for us
 	// the pixels are arranged in RGBA order, but GDI requires BGRA
 	// this turns out to be just ARGB in little endian; let's convert into this memory
-	dotoARGB(i, ppvBits);
+	dotoARGB(i, (void *) ppvBits);
 
 	// the second thing is... make a device context for the bitmap :|
 	// Ninjifox just makes another compatible DC; we'll do the same
@@ -118,7 +119,6 @@ static void paintArea(HWND hwnd, void *data)
 	previbitmap = (HBITMAP) SelectObject(idc, ibitmap);
 	if (previbitmap == NULL)
 		xpanic("error connecting HBITMAP for image returned by AreaHandler.Paint() to its HDC", GetLastError());
-	}
 
 	// AND FINALLY WE CAN DO THE ALPHA BLENDING!!!!!!111
 	blendfunc.BlendOp = AC_SRC_OVER;
@@ -167,7 +167,7 @@ static SIZE getAreaControlSize(HWND hwnd)
 
 static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 {
-	SCROLILNFO si;
+	SCROLLINFO si;
 	SIZE size;
 	LONG cwid, cht;
 	LONG pagesize, maxsize;
@@ -180,10 +180,10 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 	cht = size.cy;
 	if (which == SB_HORZ) {
 		pagesize = cwid;
-		maxsize = areaWidthLONG(data)
+		maxsize = areaWidthLONG(data);
 	} else if (which == SB_VERT) {
-		pagesize = cht
-		maxsize = areaHeightLONG(data)
+		pagesize = cht;
+		maxsize = areaHeightLONG(data);
 	} else
 		xpanic("invalid which sent to scrollArea()", 0);
 
@@ -231,12 +231,12 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 
 	// this would be where we would put a check to not scroll if the scroll position changed, but see the note about SB_THUMBPOSITION above: Raymond Chen's code always does the scrolling anyway in this case
 
-	delta = -(newpos - si.nPos) // negative because ScrollWindowEx() scrolls in the opposite direction
-	dx = delta
-	dy = 0
+	delta = -(newpos - si.nPos);		// negative because ScrollWindowEx() scrolls in the opposite direction
+	dx = delta;
+	dy = 0;
 	if (which == SB_VERT) {
-		dx = 0
-		dy = delta
+		dx = 0;
+		dy = delta;
 	}
 	if (ScrollWindowEx(hwnd,
 		dx, dy,		// TODO correct types
@@ -254,7 +254,7 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 	si.fMask = SIF_POS;
 	si.nPos = (int) newpos;
 	// TODO double-check that this doesn't return an error
-	SetScrollInfo(hwnd, which, &si);
+	SetScrollInfo(hwnd, which, &si, TRUE);		// redraw scrollbar
 
 	// NOW redraw it
 	if (UpdateWindow(hwnd) == 0)
@@ -316,10 +316,6 @@ void areaMouseEvent(HWND hwnd, void *data, DWORD button, BOOL up, LPARAM lParam)
 	finishAreaMouseEvent(data, button, up, xpos, ypos);
 }
 
-var (
-	_setFocus = user32.NewProc("SetFocus")
-)
-
 static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	void *data;
@@ -373,11 +369,11 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		areaMouseEvent(hwnd, data, 1, FALSE, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		areaMouseEvent(hwnd, data, 1, TRUE, lParam)
+		areaMouseEvent(hwnd, data, 1, TRUE, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
 		areaMouseEvent(hwnd, data, 2, FALSE, lParam);
-		return 0
+		return 0;
 	case WM_MBUTTONUP:
 		areaMouseEvent(hwnd, data, 2, TRUE, lParam);
 		return 0;
@@ -396,17 +392,17 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		which = (DWORD) GET_XBUTTON_WPARAM(wParam) + 3;
 		areaMouseEvent(hwnd, data, which, TRUE, lParam);
 		return TRUE;
-	case _WM_KEYDOWN:
+	case WM_KEYDOWN:
 		areaKeyEvent(data, FALSE, wParam, lParam);
 		return 0;
-	case _WM_KEYUP:
+	case WM_KEYUP:
 		areaKeyEvent(data, TRUE, wParam, lParam);
 		return 0;
 	// Alt+[anything] and F10 send these instead and require us to return to DefWindowProc() so global keystrokes such as Alt+Tab can be processed
-	case _WM_SYSKEYDOWN:
+	case WM_SYSKEYDOWN:
 		areaKeyEvent(data, FALSE, wParam, lParam);
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-	case _WM_SYSKEYUP:
+	case WM_SYSKEYUP:
 		areaKeyEvent(data, TRUE, wParam, lParam);
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	case msgAreaSizeChanged:

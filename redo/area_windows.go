@@ -68,7 +68,7 @@ func doPaint(xrect *C.RECT, hscroll C.int, vscroll C.int, data unsafe.Pointer, d
 }
 
 //export dotoARGB
-func dotoARGB(img unsafe.Pointer, ppvBIts *C.VOID) {
+func dotoARGB(img unsafe.Pointer, ppvBIts unsafe.Pointer) {
 	i := (*image.RGBA)(unsafe.Pointer(img))
 	// the bitmap Windows gives us has a stride == width
 	toARGB(i, unsafe.Pointer(ppvBits), i.Rect.Dx() * 4)
