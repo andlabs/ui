@@ -39,6 +39,12 @@ type Area interface {
 	RepaintAll()
 }
 
+type areabase struct {
+	width	int
+	height	int
+	handler	AreaHandler
+}
+
 // AreaHandler represents the events that an Area should respond to.
 // These methods are all executed on the main goroutine, not necessarily the same one that you created the AreaHandler in; you are responsible for the thread safety of any members of the actual type that implements ths interface.
 // (Having to use this interface does not strike me as being particularly Go-like, but the nature of Paint makes channel-based event handling a non-option; in practice, deadlocks occur.)
@@ -287,7 +293,11 @@ func NewArea(width int, height int, handler AreaHandler) Area {
 	if handler == nil {
 		panic("handler passed to NewArea() must not be nil")
 	}
-	return newArea(width, height, handler)
+	return newArea(&areabase{
+		width:	width,
+		height:	height,
+		handler:	handler,
+	})
 }
 
 // internal function, but shared by all system implementations: &img.Pix[0] is not necessarily the first pixel in the image

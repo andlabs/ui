@@ -88,9 +88,13 @@ func newScroller(widget *C.GtkWidget, native bool) *scroller {
 		scrollwindow:		(*C.GtkScrolledWindow)(unsafe.Pointer(scrollwidget)),
 	}
 	// give the scrolled window a border (thanks to jlindgren in irc.gimp.net/#gtk+)
+	// TODO not on Areas
 	C.gtk_scrolled_window_set_shadow_type(s.scrollwindow, C.GTK_SHADOW_IN)
-	// TODO use native here
-	C.gtk_container_add(s.scrollcontainer, widget)
+	if native {
+		C.gtk_container_add(s.scrollcontainer, widget)
+	} else {
+		C.gtk_scrolled_window_add_with_viewport(s.scrollwindow, widget)
+	}
 	return s
 }
 

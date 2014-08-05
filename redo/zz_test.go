@@ -9,6 +9,7 @@ import (
 	"flag"
 	"reflect"
 	"testing"
+	"image"
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
@@ -28,6 +29,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	a		Area
 	spw		*Stack
 	sph		*Stack
 	s		*Stack		// TODO make Stack
@@ -38,6 +40,13 @@ type testwin struct {
 	e		TextField
 	e2		TextField
 }
+
+type areaHandler struct{}
+func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
+	return image.NewRGBA(r)
+}
+func (a *areaHandler) Mouse(me MouseEvent) bool { return false }
+func (a *areaHandler) Key(ke KeyEvent) bool { return false }
 
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
@@ -51,6 +60,8 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.a = NewArea(200, 200, &areaHandler{})
+	tw.t.Append("Area", tw.a)
 	tw.spw = NewHorizontalStack(
 		NewButton("hello"),
 		NewCheckbox("hello"),
