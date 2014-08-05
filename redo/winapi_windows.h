@@ -65,6 +65,7 @@ extern HFONT titleFont;
 extern HFONT smallTitleFont;
 extern HFONT menubarFont;
 extern HFONT statusbarFont;
+extern HBRUSH hollowBrush;
 extern DWORD initWindows(char **);
 
 /* sizing_windows.c */

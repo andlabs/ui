@@ -14,6 +14,8 @@ HFONT smallTitleFont;
 HFONT menubarFont;
 HFONT statusbarFont;
 
+HBRUSH hollowBrush;
+
 DWORD initWindows(char **errmsg)
 {
 	STARTUPINFOW si;
@@ -60,6 +62,12 @@ DWORD initWindows(char **errmsg)
 	GETFONT(smallTitleFont, lfSmCaptionFont, "small title bar");
 	GETFONT(menubarFont, lfMenuFont, "menu bar");
 	GETFONT(statusbarFont, lfStatusFont, "status bar");
+
+	hollowBrush = GetStockObject(HOLLOW_BRUSH);
+	if (hollowBrush == NULL) {
+		*errmsg = "error getting hollow brush";
+		return GetLastError();
+	}
 
 	return 0;
 }
