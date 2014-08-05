@@ -53,7 +53,13 @@ func newArea(ab *areabase) Area {
 		scroller:		newScroller(widget, false),		// not natively scrollable,
 		clickCounter:	new(clickCounter),
 	}
-	// TODO connect signals
+	for _, c := range areaCallbacks {
+		g_signal_connect(
+			C.gpointer(unsafe.Pointer(a.drawingarea)),
+			c.name,
+			c.callback,
+			C.gpointer(unsafe.Pointer(a)))
+	}
 	a.SetSize(a.width, a.height)
 	return a
 }
@@ -66,6 +72,20 @@ func (a *area) SetSize(width, height int) {
 
 func (a *area) RepaintAll() {
 	C.gtk_widget_queue_draw(a._widget)
+}
+
+var areaCallbacks = []struct {
+	name	string
+	callback	C.GCallback
+}{
+	{ "draw",					area_draw_callback },
+	{ "button-press-event",		area_button_press_event_callback },
+	{ "button-release-event",		area_button_release_event_callback },
+	{ "motion-notify-event",		area_motion_notify_event_callback },
+	{ "enter-notify-event",		area_enterleave_notify_event_callback },
+	{ "leave-notify-event",		area_enterleave_notify_event_callback },
+	{ "key-press-event",			area_key_press_event_callback },
+	{ "key-release-event",		area_key_release_event_callback },
 }
 
 //export our_area_draw_callback

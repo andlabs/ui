@@ -10,6 +10,8 @@ import (
 	"reflect"
 	"testing"
 	"image"
+	"image/color"
+	"image/draw"
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
@@ -43,10 +45,12 @@ type testwin struct {
 
 type areaHandler struct{}
 func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
-	return image.NewRGBA(r)
+	i := image.NewRGBA(r)
+	draw.Draw(i, r, &image.Uniform{color.RGBA{128,0,128,255}}, image.ZP, draw.Src)
+	return i
 }
-func (a *areaHandler) Mouse(me MouseEvent) bool { return false }
-func (a *areaHandler) Key(ke KeyEvent) bool { return false }
+func (a *areaHandler) Mouse(me MouseEvent) bool { fmt.Printf("%#v\n", me); return false }
+func (a *areaHandler) Key(ke KeyEvent) bool { fmt.Printf("%#v\n", ke); return false }
 
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
