@@ -91,10 +91,13 @@ const (
 )
 
 func (c *container) beginResize() (d *sizing) {
+	var baseX, baseY C.int
+
 	d = new(sizing)
 
-	d.baseX = C.baseX
-	d.baseY = C.baseY
+	C.calculateBaseUnits(c.hwnd, &baseX, &baseY)
+	d.baseX = baseX
+	d.baseY = baseY
 
 	if spaced {
 		d.xmargin = fromdlgunitsX(marginDialogUnits, d)

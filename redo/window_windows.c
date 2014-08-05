@@ -73,7 +73,6 @@ HWND newWindow(LPWSTR title, int width, int height, void *data)
 		NULL, NULL, hInstance, data);
 	if (hwnd == NULL)
 		xpanic("Window creation failed", GetLastError());
-	calculateBaseUnits(hwnd);
 	return hwnd;
 }
 

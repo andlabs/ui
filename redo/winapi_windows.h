@@ -65,10 +65,7 @@ extern HFONT statusbarFont;
 extern DWORD initWindows(char **);
 
 /* sizing_windows.c */
-extern BOOL baseUnitsCalculated;
-extern int baseX;
-extern int baseY;
-extern void calculateBaseUnits(HWND);
+extern void calculateBaseUnits(HWND, int *, int *);
 extern void moveWindow(HWND, int, int, int, int);
 extern LONG controlTextLength(HWND, LPWSTR);
 
