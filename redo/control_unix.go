@@ -35,15 +35,6 @@ func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
 	// The difference? Minimum size takes into account things like truncation with ellipses: the minimum size of a label can allot just the ellipses!
 	// So we use the natural size instead.
 	// There is a warning about height-for-width controls, but in my tests this isn't an issue.
-	// For Areas, we manually save the Area size and use that, just to be safe.
-
-//TODO
-/*
-	if s.ctype == c_area {
-		return s.areawidth, s.areaheight
-	}
-*/
-
 	var r C.GtkRequisition
 
 	C.gtk_widget_get_preferred_size(c.widget(), nil, &r)
