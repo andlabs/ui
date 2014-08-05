@@ -20,10 +20,10 @@ type area struct {
 	clickCounter	*clickCounter
 }
 
-func registerAreaWndClass() (err error) {
+func makeAreaWindowClass() error {
 	var errmsg *C.char
 
-	err := C.makeWindowWindowClass(&errmsg)
+	err := C.makeAreaWindowClass(&errmsg)
 	if err != 0 || errmsg != nil {
 		return fmt.Errorf("%s: %v", C.GoString(errmsg), syscall.Errno(err))
 	}
@@ -36,7 +36,7 @@ func newArea(ab *areabase) Area {
 		clickCounter:	new(clickCounter),
 	}
 	a._hwnd = C.newArea(unsafe.Pointer(a))
-	a.SetSize(width, height)
+	a.SetSize(a.width, a.height)
 	return a
 }
 
@@ -57,7 +57,7 @@ func doPaint(xrect *C.RECT, hscroll C.int, vscroll C.int, data unsafe.Pointer, d
 	cliprect := image.Rect(int(xrect.left), int(xrect.top), int(xrect.right), int(xrect.bottom))
 	cliprect = cliprect.Add(image.Pt(int(hscroll), int(vscroll))) // adjust by scroll position
 	// make sure the cliprect doesn't fall outside the size of the Area
-	cliprect = cliprect.Intersect(image.Rect(0, 0, a.areawidth, a.areaheight))
+	cliprect = cliprect.Intersect(image.Rect(0, 0, a.width, a.height))
 	if !cliprect.Empty() { // we have an update rect
 		i := a.handler.Paint(cliprect)
 		*dx = C.intptr_t(i.Rect.Dx())
@@ -68,10 +68,10 @@ func doPaint(xrect *C.RECT, hscroll C.int, vscroll C.int, data unsafe.Pointer, d
 }
 
 //export dotoARGB
-func dotoARGB(img unsafe.Pointer, ppvBIts unsafe.Pointer) {
+func dotoARGB(img unsafe.Pointer, ppvBits unsafe.Pointer) {
 	i := (*image.RGBA)(unsafe.Pointer(img))
 	// the bitmap Windows gives us has a stride == width
-	toARGB(i, unsafe.Pointer(ppvBits), i.Rect.Dx() * 4)
+	toARGB(i, uintptr(ppvBits), i.Rect.Dx() * 4)
 }
 
 //export areaWidthLONG
@@ -108,13 +108,13 @@ func getModifiers() (m Modifiers) {
 }
 
 //export finishAreaMouseEvent
-func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, xpos C.int, ypos C.int) {
+func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, wParam C.WPARAM, xpos C.int, ypos C.int) {
 	var me MouseEvent
 
 	a := (*area)(data)
 	button := uint(cbutton)
 	me.Pos = image.Pt(int(xpos), int(ypos))
-	if !me.Pos.In(image.Rect(0, 0, s.areawidth, s.areaheight)) { // outside the actual Area; no event
+	if !me.Pos.In(image.Rect(0, 0, a.width, a.height)) { // outside the actual Area; no event
 		return
 	}
 	if up != C.FALSE {
@@ -127,30 +127,32 @@ func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, xpos 
 		maxTime := C.GetDoubleClickTime()
 		// ignore zero returns and errors; MSDN says zero will be returned on error but that GetLastError() is meaningless
 		xdist := C.GetSystemMetrics(C.SM_CXDOUBLECLK)
-		ydist, _, _ := C.GetSystemMetrics(C.SM_CYDOUBLECLK)
-		me.Count = s.clickCounter.click(button, me.Pos.X, me.Pos.Y,
-			time, maxTime, int(xdist/2), int(ydist/2))
+		ydist := C.GetSystemMetrics(C.SM_CYDOUBLECLK)
+		me.Count = a.clickCounter.click(button, me.Pos.X, me.Pos.Y,
+			uintptr(time), uintptr(maxTime), int(xdist/2), int(ydist/2))
 	}
 	// though wparam will contain control and shift state, let's use just one function to get modifiers for both keyboard and mouse events; it'll work the same anyway since we have to do this for alt and windows key (super)
 	me.Modifiers = getModifiers()
-	if button != 1 && (wparam&_MK_LBUTTON) != 0 {
+	// TODO make wParam unsigned
+	// TODO XBUTTONs use something different
+	if button != 1 && (wParam & C.MK_LBUTTON) != 0 {
 		me.Held = append(me.Held, 1)
 	}
-	if button != 2 && (wparam&_MK_MBUTTON) != 0 {
+	if button != 2 && (wParam & C.MK_MBUTTON) != 0 {
 		me.Held = append(me.Held, 2)
 	}
-	if button != 3 && (wparam&_MK_RBUTTON) != 0 {
+	if button != 3 && (wParam & C.MK_RBUTTON) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	if button != 4 && (wparam&_MK_XBUTTON1) != 0 {
+	if button != 4 && (wParam & C.MK_XBUTTON1) != 0 {
 		me.Held = append(me.Held, 4)
 	}
-	if button != 5 && (wparam&_MK_XBUTTON2) != 0 {
+	if button != 5 && (wParam & C.MK_XBUTTON2) != 0 {
 		me.Held = append(me.Held, 5)
 	}
 	repaint := a.handler.Mouse(me)
 	if repaint {
-		C.repaintArea(a.hwnd)
+		a.RepaintAll()
 	}
 }
 
@@ -185,10 +187,11 @@ func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPAR
 		// no key, extkey, or modifiers; do nothing
 		return
 	}
-	ke.Up = up
+	ke.Up = up != C.FALSE
+	// TODO repaint may no longer be needed
 	repaint := a.handler.Key(ke)
 	if repaint {
-		C.repaintArea(a)
+		a.RepaintAll()
 	}
 }
 
@@ -303,8 +306,8 @@ func (a *area) preferredSize(d *sizing) (width, height int) {
 	return a.width, a.height
 }
 
-func (a *area) commitResize(a *allocation, d *sizing) {
-	basecommitResize(a, a, d)
+func (a *area) commitResize(c *allocation, d *sizing) {
+	basecommitResize(a, c, d)
 }
 
 func (a *area) getAuxResizeInfo(d *sizing) {

@@ -8,7 +8,7 @@ import (
 	"unsafe"
 )
 
-// #cgo LDFLAGS: -luser32 -lkernel32 -lgdi32 -luxtheme
+// #cgo LDFLAGS: -luser32 -lkernel32 -lgdi32 -luxtheme -lmsimg32
 // #include "winapi_windows.h"
 import "C"
 

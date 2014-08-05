@@ -20,6 +20,7 @@
 #include <uxtheme.h>
 #include <string.h>
 #include <wchar.h>
+#include <windowsx.h>
 
 /* global messages unique to everything */
 enum {
