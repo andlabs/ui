@@ -98,11 +98,9 @@ event(flagsChanged, areaView_flagsChanged)
 
 @end
 
-Class areaClass;
-
-void initAreaClass(void)
+Class getAreaClass(void)
 {
-	areaClass = [areaView class];
+	return [areaView class];
 }
 
 id newArea(void *goarea)

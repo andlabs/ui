@@ -4,6 +4,46 @@
 #import "_cgo_export.h"
 #import <Cocoa/Cocoa.h>
 
+static Class areaClass;
+
+@interface goApplication : NSApplication
+@end
+
+@implementation goApplication
+
+// by default, NSApplication eats some key events
+// this prevents that from happening with Area
+// see http://stackoverflow.com/questions/24099063/how-do-i-detect-keyup-in-my-nsview-with-the-command-key-held and http://lists.apple.com/archives/cocoa-dev/2003/Oct/msg00442.html
+- (void)sendEvent:(NSEvent *)e
+{
+	NSEventType type;
+
+	type = [e type];
+	if (type == NSKeyDown || type == NSKeyUp || type == NSFlagsChanged) {
+		id focused;
+
+		focused = [[e window] firstResponder];
+		// TODO can focused be nil? the isKindOfClass: docs don't say if it handles nil receivers
+		if ([focused isKindOfClass:areaClass])
+			switch (type) {
+			case NSKeyDown:
+				[focused keyDown:e];
+				return;
+			case NSKeyUp:
+				[focused keyUp:e];
+				return;
+			case NSFlagsChanged:
+				[focused flagsChanged:e];
+				return;
+			}
+		// else fall through
+	}
+	// otherwise, let NSApplication do it
+	[super sendEvent:e];
+}
+
+@end
+
 @interface appDelegateClass : NSObject <NSApplicationDelegate>
 @end
 
@@ -19,8 +59,9 @@ id getAppDelegate(void)
 
 BOOL uiinit(void)
 {
+	areaClass = getAreaClass();
 	appDelegate = [appDelegateClass new];
-	[NSApplication sharedApplication];
+	[goApplication sharedApplication];
 	// don't check for a NO return; something (launch services?) causes running from application bundles to always return NO when asking to change activation policy, even if the change is to the same activation policy!
 	// see https://github.com/andlabs/ui/issues/6
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];

@@ -94,6 +94,7 @@ struct xpoint {
 	intptr_t x;
 	intptr_t y;
 };
+extern Class getAreaClass(void);
 extern id newArea(void *);
 extern void drawImage(void *, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);
 extern uintptr_t modifierFlags(id);
