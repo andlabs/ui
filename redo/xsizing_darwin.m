@@ -38,23 +38,6 @@ struct xsize tabPrefSize(id control)
 	return t;
 }
 
-// TODO use this, possibly update to not need scrollview
-/*
-struct xsize areaPrefSize(id scrollview)
-{
-	NSView *c;
-	NSRect r;
-	struct xsize s;
-
-	c = areaInScrollView(toNSScrollView(scrollview));
-	// don't size to fit; the frame size is already the size we want
-	r = [c frame];
-	s.width = (intptr_t) r.size.width;
-	s.height = (intptr_t) r.size.height;
-	return s;
-}
-*/
-
 struct xalignment alignmentInfo(id c, struct xrect newrect)
 {
 	NSView *v;

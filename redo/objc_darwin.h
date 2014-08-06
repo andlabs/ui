@@ -85,7 +85,6 @@ struct xalignment {
 };
 extern struct xsize controlPrefSize(id);
 extern struct xsize tabPrefSize(id);
-extern struct xsize areaPrefSize(id);
 extern struct xalignment alignmentInfo(id, struct xrect);
 extern struct xrect frame(id);
 
