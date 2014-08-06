@@ -13,9 +13,6 @@ import (
 // extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
-// TODOs:
-// - standalone label on its own: should it be centered or not?
-
 type label struct {
 	_widget		*C.GtkWidget
 	misc			*C.GtkMisc
@@ -41,7 +38,10 @@ func newLabel(text string) Label {
 }
 
 func newStandaloneLabel(text string) Label {
-	return finishNewLabel(text, true)
+	l := finishNewLabel(text, true)
+	// standalone labels are always at the top left
+	C.gtk_misc_set_alignment(l.misc, 0, 0)
+	return l
 }
 
 func (l *label) Text() string {
