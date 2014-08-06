@@ -116,6 +116,5 @@ func (t *table) commitResize(c *allocation, d *sizing) {
 
 func (t *table) getAuxResizeInfo(d *sizing) {
 	// a Label to the left of a Table should be vertically aligned to the top
-	// TODO do the same with Area
 	d.shouldVAlignTop = true
 }

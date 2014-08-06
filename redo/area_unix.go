@@ -406,5 +406,6 @@ func (a *area) commitResize(c *allocation, d *sizing) {
 }
 
 func (a *area) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(a, d)
+	// a Label to the left of an Area should be vertically aligned to the top
+	d.shouldVAlignTop = true
 }
