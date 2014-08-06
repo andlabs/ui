@@ -91,9 +91,8 @@ static void paintArea(HWND hwnd, void *data)
 	// AlphaBlend(), however, sees it - see http://msdn.microsoft.com/en-us/library/windows/desktop/dd183352%28v=vs.85%29.aspx
 	ZeroMemory(&bi, sizeof (BITMAPINFO));
 	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-	// TODO check types
-	bi.bmiHeader.biWidth = dx;
-	bi.bmiHeader.biHeight = -dy;			// negative height to force top-down drawing;
+	bi.bmiHeader.biWidth = (LONG) dx;
+	bi.bmiHeader.biHeight = -((LONG) dy);			// negative height to force top-down drawing;
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biCompression = BI_RGB;
@@ -239,10 +238,9 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 		dy = delta;
 	}
 	if (ScrollWindowEx(hwnd,
-		dx, dy,		// TODO correct types
+		(int) dx, (int) dy,
 		// these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
-		// TODO pointers?
-		0, 0, 0, 0,
+		NULL, NULL, NULL, NULL,
 		// mark the remaining rect as needing redraw and erase...
 		SW_INVALIDATE | SW_ERASE) == ERROR)
 			xpanic("error scrolling Area", GetLastError());
@@ -253,7 +251,7 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 	si.cbSize = sizeof (SCROLLINFO);
 	si.fMask = SIF_POS;
 	si.nPos = (int) newpos;
-	// TODO double-check that this doesn't return an error
+	// this is not expressly documented as returning an error so IDK what the error code is so assume there is none
 	SetScrollInfo(hwnd, which, &si, TRUE);		// redraw scrollbar
 
 	// NOW redraw it
@@ -297,9 +295,8 @@ static void adjustAreaScrollbars(HWND hwnd, void *data)
 
 void repaintArea(HWND hwnd)
 {
-	// TODO second argument pointer?
-	// 0 - the whole area; TRUE - have windows erase if possible
-	if (InvalidateRect(hwnd, 0, TRUE) == 0)
+	// NULL - the whole area; TRUE - have windows erase if possible
+	if (InvalidateRect(hwnd, NULL, TRUE) == 0)
 		xpanic("error flagging Area as needing repainting after event", GetLastError());
 	if (UpdateWindow(hwnd) == 0)
 		xpanic("error repainting Area after event", GetLastError());
