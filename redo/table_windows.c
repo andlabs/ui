@@ -20,6 +20,21 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	/* the autosize behavior is simple: always autosize until the user manually sizes, then never autosize again (this is my best guess as to how GTK+ behaves) */
+	case WM_NOTIFY:		/* from the contained header control */
+		if (nmhdr->code == HDN_BEGINTRACK)
+			tableStopColumnAutosize((void *) data);
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_SIZE:
+		if (tableAutosizeColumns((void *) data)) {
+			int i, nColumns;
+
+			nColumns = tableColumnCount((void *) data);
+			for (i = 0; i < nColumns; i++)
+				if (SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, (WPARAM) i, (LPARAM) LVSCW_AUTOSIZE_USEHEADER) == FALSE)
+					xpanic("error resizing columns of results list view", GetLastError());
+		}
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, tableSubProc, id) == FALSE)
 			xpanic("error removing Table subclass (which was for its own event handler)", GetLastError());

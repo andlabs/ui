@@ -14,6 +14,8 @@ import "C"
 type table struct {
 	*tablebase
 	_hwnd		C.HWND
+	noautosize	bool
+	colcount		C.int
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -30,6 +32,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t._hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
+	t.colcount = C.int(ty.NumField())
 	return t
 }
 
@@ -51,6 +54,27 @@ func tableGetCellText(data unsafe.Pointer, row C.int, col C.int, str *C.LPWSTR) 
 	datum := d.Index(int(row)).Field(int(col))
 	s := fmt.Sprintf("%v", datum)
 	*str = toUTF16(s)
+}
+
+//export tableStopColumnAutosize
+func tableStopColumnAutosize(data unsafe.Pointer) {
+	t := (*table)(data)
+	t.noautosize = true
+}
+
+//export tableAutosizeColumns
+func tableAutosizeColumns(data unsafe.Pointer) C.BOOL {
+	t := (*table)(data)
+	if t.noautosize {
+		return C.FALSE
+	}
+	return C.TRUE
+}
+
+//export tableColumnCount
+func tableColumnCount(data unsafe.Pointer) C.int {
+	t := (*table)(data)
+	return t.colcount
 }
 
 func (t *table) hwnd() C.HWND {
