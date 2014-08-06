@@ -26,6 +26,8 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			tableStopColumnAutosize((void *) data);
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_SIZE:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+		/* TODO this causes weird issues with regards to item positioning on Windows XP */
 		if (tableAutosizeColumns((void *) data)) {
 			int i, nColumns;
 
