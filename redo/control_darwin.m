@@ -10,7 +10,7 @@ id newScrollView(id content)
 {
 	NSScrollView *sv;
 
-	sv = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	sv = [[NSScrollView alloc] initWithFrame:NSZeroRect];
 	[sv setDocumentView:toNSView(content)];
 	[sv setHasHorizontalScroller:YES];
 	[sv setHasVerticalScroller:YES];

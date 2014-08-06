@@ -37,8 +37,7 @@ id newTable(void)
 {
 	NSTableView *t;
 
-	// TODO makerect
-	t = [[NSTableView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	t = [[NSTableView alloc] initWithFrame:NSZeroRect];
 	[t setAllowsColumnReordering:NO];
 	[t setAllowsColumnResizing:YES];
 	// TODO make this an option on all platforms

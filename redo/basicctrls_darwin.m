@@ -58,8 +58,7 @@ id newButton(void)
 {
 	NSButton *b;
 
-	// TODO cache the initial rect?
-	b = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	b = [[NSButton alloc] initWithFrame:NSZeroRect];
 	[b setButtonType:NSMomentaryPushInButton];
 	[b setBordered:YES];
 	[b setBezelStyle:NSRoundedBezelStyle];
@@ -91,7 +90,7 @@ id newCheckbox(void)
 {
 	NSButton *c;
 
-	c = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	c = [[NSButton alloc] initWithFrame:NSZeroRect];
 	[c setButtonType:NSSwitchButton];
 	[c setBordered:NO];
 	setStandardControlFont((id) c);
@@ -148,7 +147,7 @@ id newTextField(void)
 {
 	NSTextField *t;
 
-	t = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	t = [[NSTextField alloc] initWithFrame:NSZeroRect];
 	return finishNewTextField(t, YES);
 }
 
@@ -156,7 +155,7 @@ id newPasswordField(void)
 {
 	NSSecureTextField *t;
 
-	t = [[NSSecureTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	t = [[NSSecureTextField alloc] initWithFrame:NSZeroRect];
 	return finishNewTextField(toNSTextField(t), YES);
 }
 
@@ -176,7 +175,7 @@ id newLabel(void)
 {
 	NSTextField *l;
 
-	l = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	l = [[NSTextField alloc] initWithFrame:NSZeroRect];
 	[l setEditable:NO];
 	[l setSelectable:NO];
 	[l setDrawsBackground:NO];

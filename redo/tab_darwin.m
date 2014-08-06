@@ -11,7 +11,7 @@ id newTab(void)
 {
 	NSTabView *t;
 
-	t = [[NSTabView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	t = [[NSTabView alloc] initWithFrame:NSZeroRect];
 	setStandardControlFont((id) t);		// safe; same selector provided by NSTabView
 	return (id) t;
 }

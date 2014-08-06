@@ -34,7 +34,7 @@ id newContainerView(void *gocontainer)
 {
 	goContainerView *c;
 
-	c = [[goContainerView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
+	c = [[goContainerView alloc] initWithFrame:NSZeroRect];
 	c->gocontainer = gocontainer;
 	return (id) c;
 }
