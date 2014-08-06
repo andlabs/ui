@@ -137,7 +137,6 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sizing) (alloca
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
-// We don't consider the margins here, but will need to in container if Window.SizeToFit() is ever made a thing. TODO
 func (s *Stack) preferredSize(d *sizing) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {

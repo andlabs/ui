@@ -189,7 +189,6 @@ func (g *Grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 }
 
 // filling and stretchy are ignored for preferred size calculation
-// We don't consider the margins here, but will need to in container if Window.SizeToFit() is ever made a thing. TODO
 func (g *Grid) preferredSize(d *sysSizeData) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
