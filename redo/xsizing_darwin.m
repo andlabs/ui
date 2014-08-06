@@ -54,7 +54,9 @@ struct xalignment alignmentInfo(id c, struct xrect newrect)
 	a.rect.y = (intptr_t) r.origin.y;
 	a.rect.width = (intptr_t) r.size.width;
 	a.rect.height = (intptr_t) r.size.height;
-	// TODO set frame first?
+	// I'm not sure if we need to set the frame for -[NSView baselineOffsetFromBottom], but let's do it just to be safe
+	// TODO Areas
+	[v setFrame:r];
 	a.baseline = (intptr_t) [v baselineOffsetFromBottom];
 	return a;
 }
