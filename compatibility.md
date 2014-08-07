@@ -2,8 +2,28 @@
 
 ## Windows
 ### Windows Vista
+http://channel9.msdn.com/blogs/pdc2008/pc43 (end of video talks about passwords and LockSetForegroundWindow()?)
+
+- **buffered paintaing**
+- cross-fade animation functions
+- list view tiles
+- list view group expansions: **collapsible**, subtitles, footers, help links
+	- video has more group issues (I had some with winiconview..)
+- cue banners in combo boxes and list views ("empty markup")
+	- links for the latter
+- alpha-blended menu bitmaps
+- 256x256 icons and smoother icon scaling algorithms involving scaling down from a larger size instead of scaling up to a larger size
+	- `SHDefExtractIcon()` does this for you AND still works on XP
+- **TaskDialog**
+- **cue banners actually work properly regardless of East Asian language support**
 
 ### Windows 7
+http://channel9.msdn.com/blogs/pdc2008/pc43
+
+TODO look up PDC 2008 talk "new shell user interface"
+
+- new animation and text engine
+- ribbon control (didn't this have some additional license?)
 
 ### Windows 8
 
