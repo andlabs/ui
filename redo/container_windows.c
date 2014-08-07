@@ -38,6 +38,7 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 	case WM_NOTIFY:
 		return forwardNotify(hwnd, uMsg, wParam, lParam);
 	case WM_PAINT:
+#ifndef BROKEN
 		/* paint the parent's background in a flicker-free way */
 		dc = BeginPaint(hwnd, &ps);
 		if (dc == NULL)
@@ -57,6 +58,45 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 		SendMessageW(parent, WM_PRINTCLIENT, (WPARAM) dc, PRF_CLIENT);
 		EndPaint(hwnd, &ps);
 		return 0;
+#else
+		/* paint the parent's background in a flicker-free way */
+		dc = BeginPaint(hwnd, &ps);
+		if (dc == NULL)
+			abort();//TODO
+		parent = GetParent(hwnd);
+		if (parent == NULL)
+			abort();//TODO
+		if (GetWindowRect(hwnd, &r) == 0)
+			abort();//TODO
+		/* GetWindowRect() returns in screen coordinates; we want parent client */
+		client.x = r.left;
+		client.y = r.top;
+		if (ScreenToClient(parent, &client) == 0)
+			abort();//TODO
+		rdc = CreateCompatibleDC(dc);
+		if (rdc == NULL)
+			abort();//TODO
+		rbitmap = CreateCompatibleBitmap(dc, r.right - r.left, r.bottom - r.top);
+		if (rbitmap == NULL)
+			abort();//TODO
+		prevrbitmap = SelectObject(rdc, rbitmap);
+		if (prevrbitmap == NULL)
+			abort();//TODO
+		if (SetWindowOrgEx(rdc, client.x, client.y, NULL) == 0)
+			abort();//TODO
+		SendMessageW(parent, WM_PRINTCLIENT, (WPARAM) rdc, PRF_CLIENT);
+		if (BitBlt(dc, 0, 0, (int) (r.right - r.left), (int) (r.bottom - r.top),
+			rdc, 0, 0, SRCCOPY) == 0)
+			abort();//TODO
+		if (SelectObject(rdc, prevrbitmap) != rbitmap)
+			abort();//TODO
+		if (DeleteObject(rbitmap) == 0)
+			abort();//TODO
+		if (DeleteDC(rdc) == 0)
+			abort();//TODO
+		EndPaint(hwnd, &ps);
+		return 0;
+#endif
 	case WM_ERASEBKGND:
 		/* we paint our own background above */
 		return 1;
