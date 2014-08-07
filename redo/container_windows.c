@@ -15,6 +15,10 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 {
 	void *data;
 	RECT r;
+	HDC dc;
+	PAINTSTRUCT ps;
+	HWND parent;
+	POINT client;
 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
@@ -33,6 +37,29 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 		return forwardCommand(hwnd, uMsg, wParam, lParam);
 	case WM_NOTIFY:
 		return forwardNotify(hwnd, uMsg, wParam, lParam);
+	case WM_PAINT:
+		/* paint the parent's background in a flicker-free way */
+		dc = BeginPaint(hwnd, &ps);
+		if (dc == NULL)
+			abort();//TODO
+		parent = GetParent(hwnd);
+		if (parent == NULL)
+			abort();//TODO
+		if (GetWindowRect(hwnd, &r) == 0)
+			abort();//TODO
+		/* GetWindowRect() returns in screen coordinates; we want parent client */
+		client.x = r.left;
+		client.y = r.top;
+		if (ScreenToClient(parent, &client) == 0)
+			abort();//TODO
+		if (SetWindowOrgEx(dc, client.x, client.y, NULL) == 0)
+			abort();//TODO
+		SendMessageW(parent, WM_PRINTCLIENT, (WPARAM) dc, PRF_CLIENT);
+		EndPaint(hwnd, &ps);
+		return 0;
+	case WM_ERASEBKGND:
+		/* we paint our own background above */
+		return 1;
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
@@ -54,8 +81,7 @@ DWORD makeContainerWindowClass(char **errmsg)
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
-	/* TODO won't this override our visual styles? */
-	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
+	wc.hbrBackground = NULL;		/* we paint our own background */
 	wc.lpszClassName = containerclass;
 	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering container window class";
@@ -69,7 +95,7 @@ HWND newContainer(void *data)
 	HWND hwnd;
 
 	hwnd = CreateWindowExW(
-		0,
+		WS_EX_TRANSPARENT,
 		containerclass, L"",
 		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,

@@ -94,11 +94,9 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	r.top = C.LONG(0)
 	r.right = C.LONG(c.width)
 	r.bottom = C.LONG(c.height)
-println(r.left, r.top, r.right, r.bottom)
 	C.tabGetContentRect(t._hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
-println(r.left, r.top, r.right, r.bottom)
 	for _, c := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
 		c.move(&r)

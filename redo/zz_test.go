@@ -64,6 +64,7 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.t.Append("Space", Space())
 	tw.a = NewArea(200, 200, &areaHandler{})
 	tw.t.Append("Area", tw.a)
 	tw.spw = NewHorizontalStack(
