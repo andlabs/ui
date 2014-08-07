@@ -10,7 +10,7 @@ import (
 import "C"
 
 /*
-On Windows, container controls are just regular controls; their children have to be children of the parent window, and changing the contents of a switching container (such as a tab control) must be done manually.
+On Windows, container controls are just regular controls that notify their parent when the user wants to do things; changing the contents of a switching container (such as a tab control) must be done manually.
 
 We'll create a dummy window using the pre-existing Window window class for each tab page. This makes showing and hiding tabs a matter of showing and hiding one control.
 
@@ -21,7 +21,6 @@ TODO
 type tab struct {
 	_hwnd	C.HWND
 	tabs		[]*container
-	parent	*controlParent
 }
 
 func newTab() Tab {
@@ -38,10 +37,8 @@ func newTab() Tab {
 
 func (t *tab) Append(name string, control Control) {
 	c := newContainer(control)
+	c.setParent(&controlParent{t._hwnd})
 	t.tabs = append(t.tabs, c)
-	if t.parent != nil {
-		c.setParent(t.parent)
-	}
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
 		t.tabs[len(t.tabs) - 1].hide()
@@ -67,10 +64,6 @@ func (t *tab) hwnd() C.HWND {
 
 func (t *tab) setParent(p *controlParent) {
 	basesetParent(t, p)
-	for _, c := range t.tabs {
-		c.setParent(p)
-	}
-	t.parent = p
 }
 
 func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
@@ -96,13 +89,16 @@ func (t *tab) commitResize(c *allocation, d *sizing) {
 	var r C.RECT
 
 	// figure out what the rect for each child is...
-	r.left = C.LONG(c.x)				// load structure with the window's rect
-	r.top = C.LONG(c.y)
-	r.right = C.LONG(c.x + c.width)
-	r.bottom = C.LONG(c.y + c.height)
+	// the tab contents are children of the tab itself, so ignore c.x and c.y, which are relative to the window!
+	r.left = C.LONG(0)
+	r.top = C.LONG(0)
+	r.right = C.LONG(c.width)
+	r.bottom = C.LONG(c.height)
+println(r.left, r.top, r.right, r.bottom)
 	C.tabGetContentRect(t._hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
+println(r.left, r.top, r.right, r.bottom)
 	for _, c := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
 		c.move(&r)
