@@ -71,7 +71,7 @@ type scroller struct {
 	scrollwindow		*C.GtkScrolledWindow
 }
 
-func newScroller(widget *C.GtkWidget, native bool) *scroller {
+func newScroller(widget *C.GtkWidget, native bool, bordered bool) *scroller {
 	scrollwidget := C.gtk_scrolled_window_new(nil, nil)
 	s := &scroller{
 		scrollwidget:		scrollwidget,
@@ -79,8 +79,9 @@ func newScroller(widget *C.GtkWidget, native bool) *scroller {
 		scrollwindow:		(*C.GtkScrolledWindow)(unsafe.Pointer(scrollwidget)),
 	}
 	// give the scrolled window a border (thanks to jlindgren in irc.gimp.net/#gtk+)
-	// TODO not on Areas
-	C.gtk_scrolled_window_set_shadow_type(s.scrollwindow, C.GTK_SHADOW_IN)
+	if bordered {
+		C.gtk_scrolled_window_set_shadow_type(s.scrollwindow, C.GTK_SHADOW_IN)
+	}
 	if native {
 		C.gtk_container_add(s.scrollcontainer, widget)
 	} else {

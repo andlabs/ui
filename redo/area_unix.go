@@ -50,7 +50,7 @@ func newArea(ab *areabase) Area {
 		areabase:		ab,
 		_widget:		widget,
 		drawingarea:	(*C.GtkDrawingArea)(unsafe.Pointer(widget)),
-		scroller:		newScroller(widget, false),		// not natively scrollable,
+		scroller:		newScroller(widget, false, false),		// not natively scrollable, no border
 		clickCounter:	new(clickCounter),
 	}
 	for _, c := range areaCallbacks {

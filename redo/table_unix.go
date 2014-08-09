@@ -31,7 +31,7 @@ type table struct {
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
 	t := &table{
-		scroller:			newScroller(widget, true),
+		scroller:			newScroller(widget, true, true),			// natively scrollable; has a border
 		tablebase:			b,
 		_widget:			widget,
 		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
