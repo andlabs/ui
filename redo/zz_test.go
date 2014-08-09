@@ -50,8 +50,8 @@ func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 	draw.Draw(i, r, &image.Uniform{color.RGBA{128,0,128,255}}, image.ZP, draw.Src)
 	return i
 }
-func (a *areaHandler) Mouse(me MouseEvent) bool { fmt.Printf("%#v\n", me); return false }
-func (a *areaHandler) Key(ke KeyEvent) bool { fmt.Printf("%#v\n", ke); return false }
+func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
+func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v\n", ke) }
 
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()

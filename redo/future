@@ -17,6 +17,8 @@ Tab
 		// It panics if index is out of range.
 		// After Delete(), the effect of accessing the Control of the deleted tab or any of its children is undefned. [TODO reword?]
 	investigate close buttons (especially for LikeTab)
+Area
+	Repaint(rect image.Rectangle)
 
 so I don't forget, some TODOs:
 windows

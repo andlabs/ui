@@ -126,10 +126,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool, data unsafe.Pointer)
 		}
 		held >>= 1
 	}
-	repaint := a.handler.Mouse(me)
-	if repaint {
-		C.display(self)
-	}
+	a.handler.Mouse(me)
 }
 
 //export areaView_mouseMoved_mouseDragged
@@ -152,10 +149,7 @@ func areaView_mouseUp(self C.id, e C.id, data unsafe.Pointer) {
 
 func sendKeyEvent(self C.id, ke KeyEvent, data unsafe.Pointer) {
 	a := (*area)(data)
-	repaint := a.handler.Key(ke)
-	if repaint {
-		C.display(self)
-	}
+	a.handler.Key(ke)
 }
 
 func areaKeyEvent(self C.id, e C.id, up bool, data unsafe.Pointer) {

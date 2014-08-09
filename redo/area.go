@@ -68,16 +68,14 @@ type AreaHandler interface {
 	// Mouse is called when the Area receives a mouse event.
 	// You are allowed to do nothing in this handler (to ignore mouse events).
 	// See MouseEvent for details.
-	// If repaint is true, the Area is marked as needing to be redrawn.
 	// After handling the mouse event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global mouse events this way).
-	Mouse(e MouseEvent) (repaint bool)
+	Mouse(e MouseEvent)
 
 	// Key is called when the Area receives a keyboard event.
 	// You are allowed to do nothing in this handler (to ignore keyboard events).
 	// See KeyEvent for details.
-	// If repaint is true, the Area is marked as needing to be redrawn.
 	// After handling the key event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global key events, such as Alt-Tab, this way).
-	Key(e KeyEvent) (repaint bool)
+	Key(e KeyEvent)
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.

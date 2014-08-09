@@ -190,10 +190,7 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	if me.Up >= 8 {
 		me.Up -= 4
 	}
-	repaint := a.handler.Mouse(me)
-	if repaint {
-		C.gtk_widget_queue_draw(widget)
-	}
+	a.handler.Mouse(me)
 }
 
 // convenience name to make our intent clear
@@ -298,10 +295,7 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 		return
 	}
 	ke.Up = up
-	repaint := a.handler.Key(ke)
-	if repaint {
-		C.gtk_widget_queue_draw(widget)
-	}
+	a.handler.Key(ke)
 }
 
 //export our_area_key_press_event_callback

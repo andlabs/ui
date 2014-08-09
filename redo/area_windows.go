@@ -150,10 +150,7 @@ func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, wPara
 	if button != 5 && (wParam & C.MK_XBUTTON2) != 0 {
 		me.Held = append(me.Held, 5)
 	}
-	repaint := a.handler.Mouse(me)
-	if repaint {
-		a.RepaintAll()
-	}
+	a.handler.Mouse(me)
 }
 
 //export areaKeyEvent
@@ -188,11 +185,7 @@ func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPAR
 		return
 	}
 	ke.Up = up != C.FALSE
-	// TODO repaint may no longer be needed
-	repaint := a.handler.Key(ke)
-	if repaint {
-		a.RepaintAll()
-	}
+	a.handler.Key(ke)
 }
 
 // all mappings come from GLFW - https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152
