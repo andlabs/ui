@@ -6,7 +6,6 @@ package ui
 // All Controls have event handlers that take a single argument (the Doer active during the event) and return nothing.
 type Control interface {
 	setParent(p *controlParent)	// controlParent defined per-platform
-	// TODO enable/disable (public)
 	controlSizing
 }
 

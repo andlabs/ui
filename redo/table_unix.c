@@ -59,7 +59,6 @@ static GtkTreeModelFlags goTableModel_get_flags(GtkTreeModel *model)
 
 static GType goTableModel_get_column_type(GtkTreeModel *model, gint column)
 {
-	/* TODO change when we get more column types */
 	return G_TYPE_STRING;
 }
 
@@ -99,7 +98,6 @@ static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint 
 	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
 	str = goTableModel_do_get_value(t->gotable, (gint) iter->user_data, column);
 	/* value is uninitialized */
-	/* TODO add support for multiple types */
 	g_value_init(value, G_TYPE_STRING);
 	g_value_set_string(value, str);
 	free(str);

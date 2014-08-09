@@ -40,14 +40,12 @@ id newTable(void)
 	t = [[NSTableView alloc] initWithFrame:NSZeroRect];
 	[t setAllowsColumnReordering:NO];
 	[t setAllowsColumnResizing:YES];
-	// TODO make this an option on all platforms
 	[t setAllowsMultipleSelection:NO];
 	[t setAllowsEmptySelection:YES];
 	[t setAllowsColumnSelection:NO];
 	return (id) t;
 }
 
-// TODO other types
 void tableAppendColumn(id t, char *name)
 {
 	NSTableColumn *c;
