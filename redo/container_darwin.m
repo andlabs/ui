@@ -12,7 +12,6 @@
 // - NSTab resizing calls both -[setFrame:] and -[setFrameSIze:] on the current tab
 // - NSTab switching tabs calls both -[setFrame:] and -[setFrameSize:] on the new tab
 // so we just override setFrameSize:
-// (TODO NSBox)
 // thanks to mikeash and JtRip in irc.freenode.net/#macdev
 @interface goContainerView : NSView {
 @public

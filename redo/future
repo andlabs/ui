@@ -1,0 +1,4 @@
+Group
+	Mac OS X: NSBox
+		container.go: add Group to the list of controls in the description of container
+		container_darwin.m: figure out if our setFrameSize: thing applies to resizing the groupbox as well

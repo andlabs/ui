@@ -26,7 +26,7 @@ type controlSizing interface {
 }
 
 // A container hosts a Control and resizes that Control based on changes in size to the parent Window.
-// container is used by Window, Tab, and [TODO implement] Group to contain and control their respective Controls.
+// container is used by Window and Tab to contain and control their respective Controls.
 // Tab and Group use containers for their content; as such, their commitResize() functions should only change the size of the Tab and Group themselves, and have their containers do the real work.
 // All containers must embed containerbase.
 type containerbase struct {
