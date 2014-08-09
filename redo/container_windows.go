@@ -20,8 +20,9 @@ type sizing struct {
 	sizingbase
 
 	// for size calculations
-	baseX	C.int
-	baseY	C.int
+	baseX			C.int
+	baseY			C.int
+	internalLeading	C.LONG
 
 	// for the actual resizing
 	// possibly the HDWP
@@ -105,12 +106,14 @@ const (
 
 func (c *container) beginResize() (d *sizing) {
 	var baseX, baseY C.int
+	var internalLeading C.LONG
 
 	d = new(sizing)
 
-	C.calculateBaseUnits(c.hwnd, &baseX, &baseY)
+	C.calculateBaseUnits(c.hwnd, &baseX, &baseY, &internalLeading)
 	d.baseX = baseX
 	d.baseY = baseY
+	d.internalLeading = internalLeading
 
 	if spaced {
 		d.xmargin = fromdlgunitsX(marginDialogUnits, d)

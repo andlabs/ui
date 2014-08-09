@@ -87,15 +87,17 @@ func (tw *testwin) make(done chan struct{}) {
 		NewTextField(),
 		NewPasswordField(),
 		NewTable(reflect.TypeOf(struct{A,B,C int}{})),
-		NewStandaloneLabel("hello"))
+		NewStandaloneLabel("hello ÉÀÔ"))
 	tw.t.Append("Pref Height", tw.sph)
 	stack1 := NewHorizontalStack(NewLabel("Test"), NewTextField())
 	stack1.SetStretchy(1)
-	stack2 := NewHorizontalStack(NewLabel("Test 2"),
-		NewTable(reflect.TypeOf(struct{A,B,C int}{})))
+	stack2 := NewHorizontalStack(NewLabel("ÉÀÔ"), NewTextField())
 	stack2.SetStretchy(1)
-	tw.s = NewVerticalStack(stack1, stack2)
-	tw.s.SetStretchy(1)
+	stack3 := NewHorizontalStack(NewLabel("Test 2"),
+		NewTable(reflect.TypeOf(struct{A,B,C int}{})))
+	stack3.SetStretchy(1)
+	tw.s = NewVerticalStack(stack1, stack2, stack3)
+	tw.s.SetStretchy(2)
 	tw.t.Append("Stack", tw.s)
 	tw.l = NewStandaloneLabel("hello")
 	tw.t.Append("Label", tw.l)

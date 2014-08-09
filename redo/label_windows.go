@@ -81,6 +81,8 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 		c.y += yoff
 		c.height -= yoff
 	}
+	c.y -= int(d.internalLeading)
+	c.height += int(d.internalLeading)
 	basecommitResize(l, c, d)
 }
 

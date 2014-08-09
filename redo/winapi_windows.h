@@ -69,7 +69,7 @@ extern HBRUSH hollowBrush;
 extern DWORD initWindows(char **);
 
 /* sizing_windows.c */
-extern void calculateBaseUnits(HWND, int *, int *);
+extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 extern void moveWindow(HWND, int, int, int, int);
 extern LONG controlTextLength(HWND, LPWSTR);
 

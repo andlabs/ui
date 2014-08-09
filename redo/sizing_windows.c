@@ -5,7 +5,7 @@
 
 /* TODO figure out where these should go */
 
-void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY)
+void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY, LONG *internalLeading)
 {
 	HDC dc;
 	HFONT prevFont;
@@ -21,6 +21,7 @@ void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY)
 		xpanic("error getting text metrics for preferred size calculations", GetLastError());
 	*baseX = (int) tm.tmAveCharWidth;		/* TODO not optimal; third reference below has better way */
 	*baseY = (int) tm.tmHeight;
+	*internalLeading = tm.tmInternalLeading;
 	if (SelectObject(dc, prevFont) != controlFont)
 		xpanic("error restoring previous font into device context after preferred size calculations", GetLastError());
 	if (ReleaseDC(hwnd, dc) == 0)
