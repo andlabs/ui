@@ -44,12 +44,16 @@ extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_P
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 
-/* [TODO rename] controls_windows.c */
+/* control_windows.c */
 extern HWND newControl(LPWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
 extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
 extern LRESULT forwardNotify(HWND, UINT, WPARAM, LPARAM);
+extern void moveWindow(HWND, int, int, int, int);
+extern LONG controlTextLength(HWND, LPWSTR);
+
+/* basicctrls_windows.c */
 extern void setButtonSubclass(HWND, void *);
 extern void setCheckboxSubclass(HWND, void *);
 extern BOOL checkboxChecked(HWND);
@@ -68,11 +72,6 @@ extern HFONT statusbarFont;
 extern HBRUSH hollowBrush;
 extern DWORD initWindows(char **);
 
-/* sizing_windows.c */
-extern void calculateBaseUnits(HWND, int *, int *, LONG *);
-extern void moveWindow(HWND, int, int, int, int);
-extern LONG controlTextLength(HWND, LPWSTR);
-
 /* window_windows.c */
 extern DWORD makeWindowWindowClass(char **);
 extern HWND newWindow(LPWSTR, int, int, void *);
@@ -85,7 +84,7 @@ extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
 extern void storelpParam(HWND, LPARAM);
 
-/* containers_windows.go */
+/* tab_windows.go */
 extern LPWSTR xWC_TABCONTROL;
 extern void setTabSubclass(HWND, void *);
 extern void tabAppend(HWND, LPWSTR);
@@ -102,6 +101,7 @@ extern void tableAddExtendedStyles(HWND, LPARAM);
 /* container_windows.c */
 extern DWORD makeContainerWindowClass(char **);
 extern HWND newContainer(void *);
+extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 /* area_window.c */
 extern void repaintArea(HWND);
