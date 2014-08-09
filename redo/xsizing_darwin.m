@@ -38,6 +38,7 @@ struct xsize tabPrefSize(id control)
 	return t;
 }
 
+// this function is safe to call on Areas; it'll just return the frame and a baseline of 0 since it uses the default NSView implementations
 struct xalignment alignmentInfo(id c, struct xrect newrect)
 {
 	NSView *v;
@@ -55,7 +56,6 @@ struct xalignment alignmentInfo(id c, struct xrect newrect)
 	a.rect.width = (intptr_t) r.size.width;
 	a.rect.height = (intptr_t) r.size.height;
 	// I'm not sure if we need to set the frame for -[NSView baselineOffsetFromBottom], but let's do it just to be safe
-	// TODO Areas
 	[v setFrame:r];
 	a.baseline = (intptr_t) [v baselineOffsetFromBottom];
 	return a;
