@@ -10,6 +10,13 @@ Table
 		table_darwin.m: constructor
 		table_unix.c: goTableModel_get_column_type(), goTableModel_get_value()
 	multiple selection
+Tab
+	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
+	Delete()
+		// Delete removes the given tab.
+		// It panics if index is out of range.
+		// After Delete(), the effect of accessing the Control of the deleted tab or any of its children is undefned. [TODO reword?]
+	investigate close buttons (especially for LikeTab)
 
 so I don't forget, some TODOs:
 windows

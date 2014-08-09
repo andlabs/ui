@@ -70,7 +70,7 @@ LONG tabGetTabHeight(HWND hwnd)
 	LONG tallest;
 
 	n = SendMessageW(hwnd, TCM_GETITEMCOUNT, 0, 0);
-	/* if there are no tabs, then the control just draws a box over the full window rect, reserving no space for tabs (TODO check on windows xp and 7); this is handled here */
+	/* if there are no tabs, then the control just draws a box over the full window rect, reserving no space for tabs; this is handled with the next line */
 	tallest = 0;
 	for (i = 0; i < n; i++) {
 		if (SendMessageW(hwnd, TCM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r)) == FALSE)

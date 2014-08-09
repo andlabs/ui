@@ -31,6 +31,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	nt		Tab
 	a		Area
 	spw		*Stack
 	sph		*Stack
@@ -64,6 +65,11 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.t.Append("Blank Tab", NewTab())
+	tw.nt = NewTab()
+	tw.nt.Append("Tab 1", Space())
+	tw.nt.Append("Tab 2", Space())
+	tw.t.Append("Tab", tw.nt)
 	tw.t.Append("Space", Space())
 	tw.a = NewArea(200, 200, &areaHandler{})
 	tw.t.Append("Area", tw.a)
