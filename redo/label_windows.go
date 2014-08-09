@@ -68,7 +68,6 @@ const (
 	// via http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	labelHeight = 8
 	labelYOffset = 3
-	// TODO the label is offset slightly by default...
 )
 
 func (l *label) preferredSize(d *sizing) (width, height int) {
@@ -80,9 +79,13 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 		yoff := fromdlgunitsY(labelYOffset, d)
 		c.y += yoff
 		c.height -= yoff
+		// by default, labels are drawn offset by the internal leading (the space reserved for accents on uppercase letters)
+		// the above calculation assumes otherwise, so account for the difference
+		// there will be enough space left over for the internal leading anyway (at least on the standard fonts)
+		// don't do this to standalone labels, otherwise those accents get cut off!
+		c.y -= int(d.internalLeading)
+		c.height += int(d.internalLeading)
 	}
-	c.y -= int(d.internalLeading)
-	c.height += int(d.internalLeading)
 	basecommitResize(l, c, d)
 }
 

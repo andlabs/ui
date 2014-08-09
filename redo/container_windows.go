@@ -22,7 +22,7 @@ type sizing struct {
 	// for size calculations
 	baseX			C.int
 	baseY			C.int
-	internalLeading	C.LONG
+	internalLeading	C.LONG		// for Label; see Label.commitResize() for details
 
 	// for the actual resizing
 	// possibly the HDWP
