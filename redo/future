@@ -20,7 +20,7 @@ Tab
 Area
 	Repaint(rect image.Rectangle)
 Tree
-	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree
+	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
 
 so I don't forget, some TODOs:
 windows
