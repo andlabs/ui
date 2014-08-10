@@ -72,3 +72,34 @@ void tableMakeDataSource(id table, void *gotable)
 	model->gotable = gotable;
 	[toNSTableView(table) setDataSource:model];
 }
+
+// -[NSTableView sizeToFit] does not actually size to fit
+// -[NSTableColumn sizeToFit] is just for the header
+// -[NSTableColumn sizeToFit] can work for guessing but overrides user settings
+// -[[NSTableColumn headerCell] cellSize] does NOT (despite being documented as returning the minimum needed size)
+// Let's write our own to prefer:
+// - width of the sum of all columns's current widths
+// - height of 5 rows (arbitrary count; seems reasonable) + header view height
+// Hopefully this is reasonable.
+struct xsize tablePreferredSize(id control)
+{
+	NSTableView *t;
+	NSArray *columns;
+	struct xsize s;
+	NSUInteger i, n;
+	NSTableColumn *c;
+
+	t = toNSTableView(control);
+	columns = [t tableColumns];
+	n = [columns count];
+	s.width = 0;
+	for (i = 0; i < n; i++) {
+		CGFloat width;
+
+		c = (NSTableColumn *) [columns objectAtIndex:i];
+		s.width += (intptr_t) [c width];
+	}
+	s.height = 5 * (intptr_t) [t rowHeight];
+	s.height += (intptr_t) [[t headerView] frame].size.height;
+	return s;
+}

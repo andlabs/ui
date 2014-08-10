@@ -76,7 +76,8 @@ func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allo
 }
 
 func (t *table) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(t, d)
+	s := C.tablePreferredSize(t._id)
+	return int(s.width), int(s.height)
 }
 
 func (t *table) commitResize(c *allocation, d *sizing) {

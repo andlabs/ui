@@ -84,6 +84,7 @@ extern id newTable(void);
 extern void tableAppendColumn(id, char *);
 extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
+extern struct xsize tablePreferredSize(id);
 
 /* control_darwin.m */
 extern void parent(id, id);
