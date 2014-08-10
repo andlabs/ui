@@ -43,9 +43,7 @@ struct xsize controlPreferredSize(id control)
 	return s;
 }
 
-// TODO verify this when we add more scrolling controls
-// TODO no borders on Area
-id newScrollView(id content)
+id newScrollView(id content, BOOL bordered)
 {
 	NSScrollView *sv;
 
@@ -54,6 +52,9 @@ id newScrollView(id content)
 	[sv setHasHorizontalScroller:YES];
 	[sv setHasVerticalScroller:YES];
 	[sv setAutohidesScrollers:YES];
-	[sv setBorderType:NSBezelBorder];
+	if (bordered)
+		[sv setBorderType:NSBezelBorder];
+	else
+		[sv setBorderType:NSNoBorder];
 	return (id) sv;
 }

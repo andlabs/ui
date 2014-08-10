@@ -22,7 +22,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	id := C.newTable()
 	t := &table{
 		_id:			id,
-		scroller:		newScroller(id),
+		scroller:		newScroller(id, true),		// border on Table
 		tablebase:		b,
 	}
 	C.tableMakeDataSource(t._id, unsafe.Pointer(t))

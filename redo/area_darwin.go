@@ -23,7 +23,7 @@ func newArea(ab *areabase) Area {
 		areabase:		ab,
 	}
 	a._id = C.newArea(unsafe.Pointer(a))
-	a.scroller = newScroller(a._id)
+	a.scroller = newScroller(a._id, false)			// no border on Area
 	a.SetSize(a.width, a.height)
 	return a
 }

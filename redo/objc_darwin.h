@@ -91,7 +91,7 @@ extern void controlSetHidden(id, BOOL);
 extern void setStandardControlFont(id);
 extern void setSmallControlFont(id);
 extern struct xsize controlPreferredSize(id);
-extern id newScrollView(id);
+extern id newScrollView(id, BOOL);
 
 /* xsizing_darwin.m */
 extern struct xalignment alignmentInfo(id, struct xrect);

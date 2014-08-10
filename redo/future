@@ -19,6 +19,8 @@ Tab
 	investigate close buttons (especially for LikeTab)
 Area
 	Repaint(rect image.Rectangle)
+Tree
+	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree
 
 so I don't forget, some TODOs:
 windows

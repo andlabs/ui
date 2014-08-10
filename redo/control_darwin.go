@@ -42,8 +42,8 @@ type scroller struct {
 	id	C.id
 }
 
-func newScroller(child C.id) *scroller {
-	id := C.newScrollView(child)
+func newScroller(child C.id, bordered bool) *scroller {
+	id := C.newScrollView(child, toBOOL(bordered))
 	s := &scroller{
 		id:	id,
 	}
