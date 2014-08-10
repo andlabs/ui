@@ -21,7 +21,7 @@ func basesetParent(c controlPrivate, p *controlParent) {
 }
 
 func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
-	s := C.controlPrefSize(c.id())
+	s := C.controlPreferredSize(c.id())
 	return int(s.width), int(s.height)
 }
 

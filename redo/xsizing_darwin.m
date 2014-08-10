@@ -11,7 +11,7 @@
 // TODO merge into control_darwin.m or sizing_darwin.m? really need to figure out what to do about the Go-side container struct...
 
 // also good for NSTableView (TODO might not do what we want) and NSProgressIndicator
-struct xsize controlPrefSize(id control)
+struct xsize controlPreferredSize(id control)
 {
 	NSControl *c;
 	NSRect r;
@@ -25,7 +25,7 @@ struct xsize controlPrefSize(id control)
 	return s;
 }
 
-struct xsize tabPrefSize(id control)
+struct xsize tabPreferredSize(id control)
 {
 	NSTabView *tv;
 	NSSize s;

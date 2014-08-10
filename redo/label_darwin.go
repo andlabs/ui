@@ -63,7 +63,7 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 		if d.neighborAlign.baseline != 0 {		// no adjustment needed if the given control has no baseline
 			// in order for the baseline value to be correct, the label MUST BE AT THE HEIGHT THAT OS X WANTS IT TO BE!
 			// otherwise, the baseline calculation will be relative to the bottom of the control, and everything will be wrong
-			origsize := C.controlPrefSize(l._id)
+			origsize := C.controlPreferredSize(l._id)
 			c.height = int(origsize.height)
 			newrect := C.struct_xrect{
 				x:		C.intptr_t(c.x),

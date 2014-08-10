@@ -41,7 +41,7 @@ func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*alloca
 }
 
 func (t *tab) preferredSize(d *sizing) (width, height int) {
-	s := C.tabPrefSize(t._id)
+	s := C.tabPreferredSize(t._id)
 	return int(s.width), int(s.height)
 }
 

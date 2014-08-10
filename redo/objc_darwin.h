@@ -83,8 +83,8 @@ struct xalignment {
 	struct xrect rect;
 	intptr_t baseline;
 };
-extern struct xsize controlPrefSize(id);
-extern struct xsize tabPrefSize(id);
+extern struct xsize controlPreferredSize(id);
+extern struct xsize tabPreferredSize(id);
 extern struct xalignment alignmentInfo(id, struct xrect);
 extern struct xrect frame(id);
 
