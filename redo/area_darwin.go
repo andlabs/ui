@@ -31,12 +31,12 @@ func newArea(ab *areabase) Area {
 func (a *area) SetSize(width, height int) {
 	a.width = width
 	a.height = height
-	// TODO different?
+	// set the frame size to set the area's effective size on the Cocoa side
 	C.moveControl(a._id, 0, 0, C.intptr_t(a.width), C.intptr_t(a.height))
 }
 
 func (a *area) RepaintAll() {
-	C.display(a._id)
+	C.areaRepaintAll(a._id)
 }
 
 //export areaView_drawRect

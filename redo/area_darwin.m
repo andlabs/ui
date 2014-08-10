@@ -176,8 +176,8 @@ uintptr_t keyCode(id e)
 	return (uintptr_t) ([toNSEvent(e) keyCode]);
 }
 
-// TODO move to common_darwin.m?
-void display(id view)
+// TODO is this the best way? see if we can mark a rect for repaint
+void areaRepaintAll(id view)
 {
 	[toNSView(view) display];
 }

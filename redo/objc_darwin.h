@@ -102,6 +102,6 @@ extern intptr_t buttonNumber(id);
 extern intptr_t clickCount(id);
 extern uintptr_t pressedMouseButtons(void);
 extern uintptr_t keyCode(id);
-extern void display(id);
+extern void areaRepaintAll(id);
 
 #endif
