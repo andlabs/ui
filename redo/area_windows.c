@@ -194,7 +194,7 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 
 	newpos = (LONG) si.nPos;
 	switch (LOWORD(wParam)) {
-	case SB_LEFT:			// also SB_TOP (TODO will C let me?)
+	case SB_LEFT:			// also SB_TOP; C won't let me have both (C89 §6.6.4.2; C99 §6.8.4.2)
 		newpos = 0;
 		break;
 	case SB_RIGHT:		// also SB_BOTTOM
