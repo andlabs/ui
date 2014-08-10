@@ -23,8 +23,7 @@ static Class areaClass;
 		id focused;
 
 		focused = [[e window] firstResponder];
-		// TODO can focused be nil? the isKindOfClass: docs don't say if it handles nil receivers
-		if ([focused isKindOfClass:areaClass])
+		if (focused != nil && [focused isKindOfClass:areaClass])
 			switch (type) {
 			case NSKeyDown:
 				[focused keyDown:e];
