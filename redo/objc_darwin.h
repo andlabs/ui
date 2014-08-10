@@ -13,6 +13,29 @@
 #include <objc/objc.h>
 #include <objc/runtime.h>
 
+/* Objective-C -> Go types for max safety */
+struct xsize {
+	intptr_t width;
+	intptr_t height;
+};
+
+struct xrect {
+	intptr_t x;
+	intptr_t y;
+	intptr_t width;
+	intptr_t height;
+};
+
+struct xalignment {
+	struct xrect rect;
+	intptr_t baseline;
+};
+
+struct xpoint {
+	intptr_t x;
+	intptr_t y;
+};
+
 /* uitask_darwin.m */
 extern id getAppDelegate(void);	/* used by the other .m files */
 extern BOOL uiinit(void);
@@ -58,6 +81,7 @@ extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
 /* tab_darwin.m */
 extern id newTab(void);
 extern void tabAppend(id, char *, id);
+extern struct xsize tabPreferredSize(id);
 
 /* table_darwin.m */
 extern id newTable(void);
@@ -66,33 +90,14 @@ extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 
 /* control_darwin.m */
+extern struct xsize controlPreferredSize(id);
 extern id newScrollView(id);
 
 /* xsizing_darwin.m */
-struct xsize {
-	intptr_t width;
-	intptr_t height;
-};
-struct xrect {
-	intptr_t x;
-	intptr_t y;
-	intptr_t width;
-	intptr_t height;
-};
-struct xalignment {
-	struct xrect rect;
-	intptr_t baseline;
-};
-extern struct xsize controlPreferredSize(id);
-extern struct xsize tabPreferredSize(id);
 extern struct xalignment alignmentInfo(id, struct xrect);
 extern struct xrect frame(id);
 
 /* area_darwin.h */
-struct xpoint {
-	intptr_t x;
-	intptr_t y;
-};
 extern Class getAreaClass(void);
 extern id newArea(void *);
 extern void drawImage(void *, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);

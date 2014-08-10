@@ -25,3 +25,16 @@ void tabAppend(id t, char *name, id view)
 	[i setView:toNSView(view)];
 	[toNSTabView(t) addTabViewItem:i];
 }
+
+struct xsize tabPreferredSize(id control)
+{
+	NSTabView *tv;
+	NSSize s;
+	struct xsize t;
+
+	tv = toNSTabView(control);
+	s = [tv minimumSize];
+	t.width = (intptr_t) s.width;
+	t.height = (intptr_t) s.height;
+	return t;
+}

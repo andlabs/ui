@@ -8,35 +8,7 @@
 #define toNSScrollView(x) ((NSScrollView *) (x))
 #define toNSView(x) ((NSView *) (x))
 
-// TODO merge into control_darwin.m or sizing_darwin.m? really need to figure out what to do about the Go-side container struct...
-
-// also good for NSTableView (TODO might not do what we want) and NSProgressIndicator
-struct xsize controlPreferredSize(id control)
-{
-	NSControl *c;
-	NSRect r;
-	struct xsize s;
-
-	c = toNSControl(control);
-	[c sizeToFit];
-	r = [c frame];
-	s.width = (intptr_t) r.size.width;
-	s.height = (intptr_t) r.size.height;
-	return s;
-}
-
-struct xsize tabPreferredSize(id control)
-{
-	NSTabView *tv;
-	NSSize s;
-	struct xsize t;
-
-	tv = toNSTabView(control);
-	s = [tv minimumSize];
-	t.width = (intptr_t) s.width;
-	t.height = (intptr_t) s.height;
-	return t;
-}
+// TODO figure out where these should go
 
 // this function is safe to call on Areas; it'll just return the frame and a baseline of 0 since it uses the default NSView implementations
 struct xalignment alignmentInfo(id c, struct xrect newrect)
@@ -61,6 +33,7 @@ struct xalignment alignmentInfo(id c, struct xrect newrect)
 	return a;
 }
 
+// TODO remove?
 struct xrect frame(id c)
 {
 	NSRect r;
