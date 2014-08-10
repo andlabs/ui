@@ -103,9 +103,10 @@ static id finishNewTextField(NSTextField *t, BOOL bordered)
 	// same for text fields, password fields, and labels
 	setStandardControlFont((id) t);
 	// these three are the same across text fields, password fields, and labels; the only difference is the setBezeled: value, and it's only different on labels
+	// THE ORDER OF THESE CALLS IS IMPORTANT; CHANGE IT AND THE BORDERS WILL DISAPPEAR
+	[t setBordered:NO];
 	[t setBezelStyle:NSTextFieldSquareBezel];
 	[t setBezeled:bordered];
-	[t setBordered:NO];
 	// smart quotes and other autocorrect features are handled by the window; see newWindow() in window_darwin.m for details
 	// Interface Builder does this to make the text box behave properly
 	// this disables both word wrap AND ellipsizing in one fell swoop
