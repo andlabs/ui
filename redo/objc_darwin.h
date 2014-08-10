@@ -56,10 +56,6 @@ extern id windowContentView(id);
 extern void windowRedraw(id);
 
 /* basicctrls_darwin.m */
-extern void parent(id, id);
-extern void controlSetHidden(id, BOOL);
-extern void setStandardControlFont(id);
-extern void setSmallControlFont(id);
 extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);
@@ -90,6 +86,10 @@ extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 
 /* control_darwin.m */
+extern void parent(id, id);
+extern void controlSetHidden(id, BOOL);
+extern void setStandardControlFont(id);
+extern void setSmallControlFont(id);
 extern struct xsize controlPreferredSize(id);
 extern id newScrollView(id);
 

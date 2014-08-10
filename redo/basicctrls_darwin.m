@@ -4,35 +4,8 @@
 #import "_cgo_export.h"
 #import <Cocoa/Cocoa.h>
 
-#define toNSView(x) ((NSView *) (x))
-#define toNSWindow(x) ((NSWindow *) (x))
-#define toNSControl(x) ((NSControl *) (x))
 #define toNSButton(x) ((NSButton *) (x))
 #define toNSTextField(x) ((NSTextField *) (x))
-
-// TODO move to control_darwin.m
-
-void parent(id control, id parentid)
-{
-	[toNSView(parentid) addSubview:toNSView(control)];
-}
-
-void controlSetHidden(id control, BOOL hidden)
-{
-	[toNSView(control) setHidden:hidden];
-}
-
-// also fine for NSCells
-void setStandardControlFont(id control)
-{
-	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]]];
-}
-
-// also fine for NSCells
-void setSmallControlFont(id control)
-{
-	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSSmallControlSize]]];
-}
 
 @interface goControlDelegate : NSObject {
 @public

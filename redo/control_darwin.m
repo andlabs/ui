@@ -3,8 +3,30 @@
 #import "objc_darwin.h"
 #import <Cocoa/Cocoa.h>
 
-#define toNSControl(x) ((NSControl *) (x))
 #define toNSView(x) ((NSView *) (x))
+#define toNSControl(x) ((NSControl *) (x))
+
+void parent(id control, id parentid)
+{
+	[toNSView(parentid) addSubview:toNSView(control)];
+}
+
+void controlSetHidden(id control, BOOL hidden)
+{
+	[toNSView(control) setHidden:hidden];
+}
+
+// also fine for NSCells
+void setStandardControlFont(id control)
+{
+	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]]];
+}
+
+// also fine for NSCells
+void setSmallControlFont(id control)
+{
+	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSSmallControlSize]]];
+}
 
 // also good for NSTableView (TODO might not do what we want) and NSProgressIndicator
 struct xsize controlPreferredSize(id control)
