@@ -100,7 +100,7 @@ extern struct xrect frame(id);
 /* area_darwin.h */
 extern Class getAreaClass(void);
 extern id newArea(void *);
-extern void drawImage(void *, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);
+extern BOOL drawImage(void *, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);
 extern uintptr_t modifierFlags(id);
 extern struct xpoint getTranslatedEventPoint(id, id);
 extern intptr_t buttonNumber(id);

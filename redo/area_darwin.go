@@ -51,9 +51,12 @@ func areaView_drawRect(self C.id, rect C.struct_xrect, data unsafe.Pointer) {
 		return
 	}
 	i := a.handler.Paint(cliprect)
-	C.drawImage(
+	success := C.drawImage(
 		unsafe.Pointer(pixelData(i)), C.intptr_t(i.Rect.Dx()), C.intptr_t(i.Rect.Dy()), C.intptr_t(i.Stride),
 		C.intptr_t(cliprect.Min.X), C.intptr_t(cliprect.Min.Y))
+	if success == C.NO {
+		panic("error drawing into Area (exactly what is unknown)")
+	}
 }
 
 func parseModifiers(e C.id) (m Modifiers) {
