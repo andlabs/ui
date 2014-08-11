@@ -38,11 +38,15 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 
 func (t *table) Unlock() {
 	t.unlock()
-	// TODO RACE CONDITION HERE
-	// I think there's a way to set the item count without causing a refetch of data that works around this...
-	t.RLock()
-	defer t.RUnlock()
-	C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+	// there's a possibility that user actions can happen at this point, before the view is updated
+	// alas, this is something we have to deal with, because Unlock() can be called from any thread
+	go func() {
+		Do(func() {
+			t.RLock()
+			defer t.RUnlock()
+			C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+		})
+	}()
 }
 
 //export tableGetCellText
