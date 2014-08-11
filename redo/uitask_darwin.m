@@ -56,7 +56,7 @@ id getAppDelegate(void)
 	return appDelegate;
 }
 
-BOOL uiinit(void)
+void uiinit(char **errmsg)
 {
 	areaClass = getAreaClass();
 	appDelegate = [appDelegateClass new];
@@ -66,7 +66,6 @@ BOOL uiinit(void)
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	[NSApp activateIgnoringOtherApps:YES];		// TODO rsc does this; finder says NO?
 	[NSApp setDelegate:appDelegate];
-	return YES;
 }
 
 void uimsgloop(void)

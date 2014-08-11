@@ -38,7 +38,7 @@ struct xpoint {
 
 /* uitask_darwin.m */
 extern id getAppDelegate(void);	/* used by the other .m files */
-extern BOOL uiinit(void);
+extern void uiinit(char **);
 extern void uimsgloop(void);
 extern void uistop(void);
 extern void issue(void *);

@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -12,8 +13,13 @@ import (
 import "C"
 
 func uiinit() error {
-	// TODO check error
-	C.uiinit()
+	var errmsg *C.char
+
+	errmsg = nil
+	C.uiinit(&errmsg)
+	if errmsg != nil {
+		return fmt.Errorf("package ui initialization failed: %s", C.GoString(errmsg))
+	}
 	return nil
 }
 
