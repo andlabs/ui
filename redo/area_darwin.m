@@ -5,8 +5,6 @@
 #import <Cocoa/Cocoa.h>
 
 #define toNSEvent(x) ((NSEvent *) (x))
-// TODO rename to goAreaView
-#define toAreaView(x) ((areaView *) (x))
 #define toNSView(x) ((NSView *) (x))
 
 #define toNSInteger(x) ((NSInteger) (x))
@@ -14,14 +12,14 @@
 #define toNSUInteger(x) ((NSUInteger) (x))
 #define fromNSUInteger(x) ((uintptr_t) (x))
 
-@interface areaView : NSView {
+@interface goAreaView : NSView {
 @public
 	void *goarea;
 	NSTrackingArea *trackingArea;
 }
 @end
 
-@implementation areaView
+@implementation goAreaView
 
 - (id)initWithFrame:(NSRect)r
 {
@@ -100,14 +98,14 @@ event(flagsChanged, areaView_flagsChanged)
 
 Class getAreaClass(void)
 {
-	return [areaView class];
+	return [goAreaView class];
 }
 
 id newArea(void *goarea)
 {
-	areaView *a;
+	goAreaView *a;
 
-	a = [[areaView alloc] initWithFrame:NSZeroRect];
+	a = [[goAreaView alloc] initWithFrame:NSZeroRect];
 	a->goarea = goarea;
 	return (id) a;
 }
@@ -153,7 +151,7 @@ struct xpoint getTranslatedEventPoint(id area, id e)
 	NSPoint p;
 	struct xpoint q;
 
-	p = [toAreaView(area) convertPoint:[toNSEvent(e) locationInWindow] fromView:nil];
+	p = [toNSView(area) convertPoint:[toNSEvent(e) locationInWindow] fromView:nil];
 	q.x = (intptr_t) p.x;
 	q.y = (intptr_t) p.y;
 	return q;
