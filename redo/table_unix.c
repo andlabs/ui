@@ -85,7 +85,7 @@ bad:
 static GtkTreePath *goTableModel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
 {
 	if (iter->stamp != GOOD_STAMP)
-		return NULL;		/* TODO is this right? */
+		return NULL;		/* this is what both GtkListStore and GtkTreeStore do */
 	return gtk_tree_path_new_from_indices((gint) iter->user_data, -1);
 }
 
@@ -94,7 +94,8 @@ static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint 
 	goTableModel *t = (goTableModel *) model;
 	gchar *str;
 
-	/* TODO what if iter is invalid? */
+	if (iter->stamp != GOOD_STAMP)
+		return;			/* this is what both GtkListStore and GtkTreeStore do */
 	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
 	str = goTableModel_do_get_value(t->gotable, (gint) iter->user_data, column);
 	/* value is uninitialized */
@@ -109,7 +110,7 @@ static gboolean goTableModel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
 	gint index;
 
 	if (iter->stamp != GOOD_STAMP)
-		return FALSE;		/* TODO correct? */
+		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
 	index = (gint) iter->user_data;
 	index++;
 	iter->user_data = (gpointer) index;
@@ -126,7 +127,7 @@ static gboolean goTableModel_iter_previous(GtkTreeModel *model, GtkTreeIter *ite
 	gint index;
 
 	if (iter->stamp != GOOD_STAMP)
-		return FALSE;		/* TODO correct? */
+		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
 	index = (gint) iter->user_data;
 	index--;
 	iter->user_data = (gpointer) index;
