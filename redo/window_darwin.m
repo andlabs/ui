@@ -47,13 +47,7 @@ id newWindow(intptr_t width, intptr_t height)
 	// so we have to turn them off here
 	// thanks akempgen in irc.freenode.net/#macdev
 	// for some reason, this selector returns NSText but is documented to return NSTextView...
-	// TODO isolate into its own function when (if?) we add TextArea
-	tv = (NSTextView *) [w fieldEditor:YES forObject:nil];
-	[tv setEnabledTextCheckingTypes:0];
-	[tv setAutomaticDashSubstitutionEnabled:NO];
-	// don't worry about automatic data detection; it won't change stringValue (thanks pretty_function in irc.freenode.net/#macdev)
-	[tv setAutomaticSpellingCorrectionEnabled:NO];
-	[tv setAutomaticTextReplacementEnabled:NO];
+	disableAutocorrect((id) [w fieldEditor:YES forObject:nil]);
 	return w;
 }
 

@@ -110,4 +110,7 @@ extern uintptr_t pressedMouseButtons(void);
 extern uintptr_t keyCode(id);
 extern void areaRepaintAll(id);
 
+/* common_darwin.m */
+extern void disableAutocorrect(id);
+
 #endif
