@@ -26,7 +26,6 @@
 	self = [super initWithFrame:r];
 	if (self)
 		[self retrack];
-	// TODO other properties?
 	return self;
 }
 
