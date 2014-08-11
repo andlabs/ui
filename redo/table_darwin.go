@@ -36,15 +36,11 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 
 func (t *table) Unlock() {
 	t.unlock()
-	// there's a possibility that user actions can happen at this point, before the view is updated
-	// alas, this is something we have to deal with, because Unlock() can be called from any thread
-	go func() {
-		Do(func() {
-			t.RLock()
-			defer t.RUnlock()
-			C.tableUpdate(t._id)
-		})
-	}()
+	// TODO RACE CONDITION HERE
+	// not sure about this one...
+	t.RLock()
+	defer t.RUnlock()
+	C.tableUpdate(t._id)
 }
 
 //export goTableDataSource_getValue

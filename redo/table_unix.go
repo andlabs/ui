@@ -58,17 +58,13 @@ func (t *table) Lock() {
 
 func (t *table) Unlock() {
 	t.unlock()
-	// there's a possibility that user actions can happen at this point, before the view is updated
-	// alas, this is something we have to deal with, because Unlock() can be called from any thread
-	go func() {
-		Do(func() {
-			t.RLock()
-			defer t.RUnlock()
-			d := reflect.Indirect(reflect.ValueOf(t.data))
-			new := C.gint(d.Len())
-			C.tableUpdate(t.model, t.old, new)
-		})
-	}()
+	// TODO RACE CONDITION HERE
+	// not sure about this one...
+	t.RLock()
+	defer t.RUnlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	new := C.gint(d.Len())
+	C.tableUpdate(t.model, t.old, new)
 }
 
 //export goTableModel_get_n_columns
