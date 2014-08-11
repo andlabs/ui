@@ -15,6 +15,7 @@ import (
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
+var smallWindow = flag.Bool("small", false, "open a small window (test Mac OS X initial control sizing)")
 
 type dtype struct {
 	Name	string
@@ -42,6 +43,8 @@ type testwin struct {
 	c		Checkbox
 	e		TextField
 	e2		TextField
+
+	wsmall	Window
 }
 
 type areaHandler struct{}
@@ -131,6 +134,14 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.e2 = NewPasswordField()
 	tw.t.Append("Password Field", tw.e2)
 	tw.w.Show()
+	if *smallWindow {
+		tw.wsmall = NewWindow("Small", 80, 80,
+			NewVerticalStack(
+				NewButton("Small"),
+				NewButton("Small"),
+				NewArea(200, 200, &areaHandler{})))
+		tw.wsmall.Show()
+	}
 }
 
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
