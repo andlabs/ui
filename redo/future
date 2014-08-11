@@ -35,3 +35,5 @@ windows
 	- backgrounds are not transparent
 mac os x
 	- applicationShouldTerminate: not handled
+general
+	- changing tabs from a tab with an area seems to be broken now...??
