@@ -34,8 +34,7 @@ func dobasecommitResize(id C.id, c *allocation, d *sizing) {
 }
 
 func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
-	id := c.id()
-	d.neighborAlign = C.alignmentInfo(id, C.frame(id))
+	d.neighborAlign = C.alignmentInfoFrame(c.id())
 }
 
 type scroller struct {

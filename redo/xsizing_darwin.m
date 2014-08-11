@@ -8,20 +8,14 @@
 #define toNSScrollView(x) ((NSScrollView *) (x))
 #define toNSView(x) ((NSView *) (x))
 
-// TODO figure out where these should go
+// TODO figure out where this should go
 
-// this function is safe to call on Areas; it'll just return the frame and a baseline of 0 since it uses the default NSView implementations
-struct xalignment alignmentInfo(id c, struct xrect newrect)
+// these function are safe to call on Areas; they'll just return the frame and a baseline of 0 since they use the default NSView implementations
+
+static struct xalignment doAlignmentInfo(NSView *v, NSRect r)
 {
-	NSView *v;
 	struct xalignment a;
-	NSRect r;
 
-	v = toNSView(c);
-	r = NSMakeRect((CGFloat) newrect.x,
-		(CGFloat) newrect.y,
-		(CGFloat) newrect.width,
-		(CGFloat) newrect.height);
 	r = [v alignmentRectForFrame:r];
 	a.rect.x = (intptr_t) r.origin.x;
 	a.rect.y = (intptr_t) r.origin.y;
@@ -33,16 +27,23 @@ struct xalignment alignmentInfo(id c, struct xrect newrect)
 	return a;
 }
 
-// TODO remove?
-struct xrect frame(id c)
+struct xalignment alignmentInfo(id c, struct xrect newrect)
 {
+	NSView *v;
 	NSRect r;
-	struct xrect s;
 
-	r = [toNSView(c) frame];
-	s.x = (intptr_t) r.origin.x;
-	s.y = (intptr_t) r.origin.y;
-	s.width = (intptr_t) r.size.width;
-	s.height = (intptr_t) r.size.height;
-	return s;
+	v = toNSView(c);
+	r = NSMakeRect((CGFloat) newrect.x,
+		(CGFloat) newrect.y,
+		(CGFloat) newrect.width,
+		(CGFloat) newrect.height);
+	return doAlignmentInfo(v, r);
+}
+
+struct xalignment alignmentInfoFrame(id c)
+{
+	NSView *v;
+
+	v = toNSView(c);
+	return doAlignmentInfo(v, [v frame]);
 }

@@ -96,7 +96,7 @@ extern id newScrollView(id, BOOL);
 
 /* xsizing_darwin.m */
 extern struct xalignment alignmentInfo(id, struct xrect);
-extern struct xrect frame(id);
+extern struct xalignment alignmentInfoFrame(id);
 
 /* area_darwin.h */
 extern Class getAreaClass(void);
