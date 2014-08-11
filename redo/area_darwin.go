@@ -60,25 +60,17 @@ func areaView_drawRect(self C.id, rect C.struct_xrect, data unsafe.Pointer) {
 }
 
 func parseModifiers(e C.id) (m Modifiers) {
-	const (
-		// TODO define these on the Objective-C side
-		_NSShiftKeyMask     = 1 << 17
-		_NSControlKeyMask   = 1 << 18
-		_NSAlternateKeyMask = 1 << 19
-		_NSCommandKeyMask   = 1 << 20
-	)
-
-	mods := uintptr(C.modifierFlags(e))
-	if (mods & _NSControlKeyMask) != 0 {
+	mods := C.modifierFlags(e)
+	if (mods & C.cNSControlKeyMask) != 0 {
 		m |= Ctrl
 	}
-	if (mods & _NSAlternateKeyMask) != 0 {
+	if (mods & C.cNSAlternateKeyMask) != 0 {
 		m |= Alt
 	}
-	if (mods & _NSShiftKeyMask) != 0 {
+	if (mods & C.cNSShiftKeyMask) != 0 {
 		m |= Shift
 	}
-	if (mods & _NSCommandKeyMask) != 0 {
+	if (mods & C.cNSCommandKeyMask) != 0 {
 		m |= Super
 	}
 	return m

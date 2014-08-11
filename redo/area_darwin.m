@@ -140,6 +140,12 @@ BOOL drawImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride, i
 	return success;
 }
 
+// can't include the header file with these from the Go side since it's an Objective-C header file; keep them here to be safe
+const uintptr_t cNSShiftKeyMask = (uintptr_t) NSShiftKeyMask;
+const uintptr_t cNSControlKeyMask = (uintptr_t) NSControlKeyMask;
+const uintptr_t cNSAlternateKeyMask = (uintptr_t) NSAlternateKeyMask;
+const uintptr_t cNSCommandKeyMask = (uintptr_t) NSCommandKeyMask;
+
 uintptr_t modifierFlags(id e)
 {
 	return fromNSUInteger([toNSEvent(e) modifierFlags]);
