@@ -23,6 +23,11 @@ Tree
 	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
 TextArea
 	Mac OS X: be sure to call disableAutocorrect()
+Mac OS X
+	label alignment
+		// in the other case, the most correct thing would be for Label to be aligned to the alignment rect, but I can't get this working, and it looks fine as it is anyway
+	other controls
+		same rules? checkboxes seem damning...
 
 so I don't forget, some TODOs:
 windows

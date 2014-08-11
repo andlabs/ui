@@ -81,7 +81,7 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 			// and we just add that
 			c.y += int(yoff)
 		}
-		// TODO if there's no baseline, the alignment should be to the top /of the alignment rect/, not the frame
+		// in the other case, the most correct thing would be for Label to be aligned to the alignment rect, but I can't get this working, and it looks fine as it is anyway
 	}
 	basecommitResize(l, c, d)
 }
