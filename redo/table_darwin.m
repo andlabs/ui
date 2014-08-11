@@ -68,7 +68,13 @@ void tableAppendColumn(id t, intptr_t colnum, char *name)
 	[[c headerCell] setStringValue:[NSString stringWithUTF8String:name]];
 	setSmallControlFont((id) [c headerCell]);
 	setStandardControlFont((id) [c dataCell]);
-	// TODO text layout options
+	// the following are according to Interface Builder
+	// TODO header cell
+	[[c dataCell] setScrollable:NO];
+	[[c dataCell] setWraps:NO];
+	[[c dataCell] setLineBreakMode:NSLineBreakByTruncatingTail];
+	[[c dataCell] setUsesSingleLineMode:NO];
+	[[c dataCell] setTruncatesLastVisibleLine:NO];
 	[toNSTableView(t) addTableColumn:c];
 }
 
