@@ -10,6 +10,7 @@ Table
 		table_darwin.m: constructor
 		table_unix.c: goTableModel_get_column_type(), goTableModel_get_value()
 	multiple selection
+	figure out if we can safely refresh view during Unlock() regardless of calling goroutine
 Tab
 	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
 	Delete()
