@@ -6,6 +6,17 @@
 
 #define toNSTableView(x) ((NSTableView *) (x))
 
+// NSTableColumn provides no provision to store an integer data
+// it does provide an identifier tag, but that's a NSString, and I'd rather not risk the conversion overhead
+@interface goTableColumn : NSTableColumn {
+@public
+	intptr_t gocolnum;
+}
+@end
+
+@implementation goTableColumn
+@end
+
 @interface goTableDataSource : NSObject <NSTableViewDataSource> {
 @public
 	void *gotable;
@@ -23,9 +34,10 @@
 {
 	char *str;
 	NSString *s;
+	intptr_t colnum;
 
-	// TODO there has to be a better way to get the column index
-	str = goTableDataSource_getValue(self->gotable, (intptr_t) row, (intptr_t) [[view tableColumns] indexOfObject:col]);
+	colnum = ((goTableColumn *) col)->gocolnum;
+	str = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum);
 	s = [NSString stringWithUTF8String:str];
 	free(str);		// allocated with C.CString() on the Go side
 	return s;
@@ -46,11 +58,12 @@ id newTable(void)
 	return (id) t;
 }
 
-void tableAppendColumn(id t, char *name)
+void tableAppendColumn(id t, intptr_t colnum, char *name)
 {
-	NSTableColumn *c;
+	goTableColumn *c;
 
-	c = [[NSTableColumn alloc] initWithIdentifier:nil];
+	c = [[goTableColumn alloc] initWithIdentifier:nil];
+	c->gocolnum = colnum;
 	[c setEditable:NO];
 	[[c headerCell] setStringValue:[NSString stringWithUTF8String:name]];
 	setSmallControlFont((id) [c headerCell]);

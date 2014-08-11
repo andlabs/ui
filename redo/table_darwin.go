@@ -28,7 +28,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
-		C.tableAppendColumn(t._id, cname)
+		C.tableAppendColumn(t._id, C.intptr_t(i), cname)
 		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
 	}
 	return t

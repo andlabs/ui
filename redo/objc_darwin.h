@@ -81,7 +81,7 @@ extern struct xsize tabPreferredSize(id);
 
 /* table_darwin.m */
 extern id newTable(void);
-extern void tableAppendColumn(id, char *);
+extern void tableAppendColumn(id, intptr_t, char *);
 extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 extern struct xsize tablePreferredSize(id);
