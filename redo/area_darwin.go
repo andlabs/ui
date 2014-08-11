@@ -45,8 +45,7 @@ func areaView_drawRect(self C.id, rect C.struct_xrect, data unsafe.Pointer) {
 	// no need to clear the clip rect; the NSScrollView does that for us (see the setDrawsBackground: call in objc_darwin.m)
 	// rectangles in Cocoa are origin/size, not point0/point1; if we don't watch for this, weird things will happen when scrolling
 	cliprect := image.Rect(int(rect.x), int(rect.y), int(rect.x+rect.width), int(rect.y+rect.height))
-	max := C.frame(self)
-	cliprect = image.Rect(0, 0, int(max.width), int(max.height)).Intersect(cliprect)
+	cliprect = image.Rect(0, 0, int(a.width), int(a.height)).Intersect(cliprect)
 	if cliprect.Empty() { // no intersection; nothing to paint
 		return
 	}
@@ -83,8 +82,7 @@ func areaMouseEvent(self C.id, e C.id, click bool, up bool, data unsafe.Pointer)
 	xp := C.getTranslatedEventPoint(self, e)
 	me.Pos = image.Pt(int(xp.x), int(xp.y))
 	// for the most part, Cocoa won't geenerate an event outside the Area... except when dragging outside the Area, so check for this
-	max := C.frame(self)
-	if !me.Pos.In(image.Rect(0, 0, int(max.width), int(max.height))) {
+	if !me.Pos.In(image.Rect(0, 0, int(a.width), int(a.height))) {
 		return
 	}
 	me.Modifiers = parseModifiers(e)
