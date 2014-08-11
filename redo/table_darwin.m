@@ -69,7 +69,12 @@ void tableAppendColumn(id t, intptr_t colnum, char *name)
 	setSmallControlFont((id) [c headerCell]);
 	setStandardControlFont((id) [c dataCell]);
 	// the following are according to Interface Builder
-	// TODO header cell
+	// for the header cell, a stub program had to be written because Interface Builder doesn't support editing header cells directly
+	[[c headerCell] setScrollable:NO];
+	[[c headerCell] setWraps:NO];
+	[[c headerCell] setLineBreakMode:NSLineBreakByTruncatingTail];
+	[[c headerCell] setUsesSingleLineMode:NO];
+	[[c headerCell] setTruncatesLastVisibleLine:NO];
 	[[c dataCell] setScrollable:NO];
 	[[c dataCell] setWraps:NO];
 	[[c dataCell] setLineBreakMode:NSLineBreakByTruncatingTail];
