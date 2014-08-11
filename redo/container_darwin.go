@@ -11,8 +11,7 @@ import "C"
 
 type container struct {
 	containerbase
-	// TODO rename to id
-	view			C.id
+	id			C.id
 }
 
 type sizing struct {
@@ -27,9 +26,9 @@ type sizing struct {
 
 func newContainer(child Control) *container {
 	c := new(container)
-	c.view = C.newContainerView(unsafe.Pointer(c))
+	c.id = C.newContainerView(unsafe.Pointer(c))
 	c.child = child
-	c.child.setParent(&controlParent{c.view})
+	c.child.setParent(&controlParent{c.id})
 	return c
 }
 

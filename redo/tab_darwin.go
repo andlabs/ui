@@ -25,7 +25,7 @@ func (t *tab) Append(name string, control Control) {
 	t.tabs = append(t.tabs, c)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	C.tabAppend(t._id, cname, c.view)
+	C.tabAppend(t._id, cname, c.id)
 }
 
 func (t *tab) id() C.id {

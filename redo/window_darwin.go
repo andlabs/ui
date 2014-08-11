@@ -28,7 +28,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 		container:		newContainer(control),
 	}
 	C.windowSetDelegate(w.id, unsafe.Pointer(w))
-	C.windowSetContentView(w.id, w.container.view)
+	C.windowSetContentView(w.id, w.container.id)
 	return w
 }
 
