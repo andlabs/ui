@@ -35,6 +35,8 @@ TextField
 	add events (figure out which of the following are appropriate: changed, enter pressed)
 	provide some facility to mark invalid values
 	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know
+Stack, Grid
+	method calls should trigger re-layout of windows
 
 so I don't forget, some TODOs:
 windows
