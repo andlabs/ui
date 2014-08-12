@@ -72,7 +72,7 @@ HWND newContainer(void *data)
 	HWND hwnd;
 
 	hwnd = CreateWindowExW(
-		0,
+		WS_EX_CONTROLPARENT,
 		containerclass, L"",
 		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,

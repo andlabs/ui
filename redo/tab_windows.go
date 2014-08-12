@@ -23,7 +23,7 @@ type tab struct {
 func newTab() Tab {
 	hwnd := C.newControl(C.xWC_TABCONTROL,
 		C.TCS_TOOLTIPS | C.WS_TABSTOP,
-		0)
+		C.WS_EX_CONTROLPARENT)
 	t := &tab{
 		_hwnd:	hwnd,
 	}
