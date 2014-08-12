@@ -65,7 +65,8 @@ type event struct {
 	lock		sync.Mutex
 }
 
-// do should never be nil; TODO should we make setters panic instead?
+// do should never be nil
+// TODO when writing doc.go, document that setting nil to an event handler ignores the event; if it returns a boolean value, false is returned
 
 func newEvent() *event {
 	return &event{
