@@ -108,7 +108,7 @@ func getModifiers() (m Modifiers) {
 }
 
 //export finishAreaMouseEvent
-func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, wParam C.WPARAM, xpos C.int, ypos C.int) {
+func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, heldButtons C.uintptr_t, xpos C.int, ypos C.int) {
 	var me MouseEvent
 
 	a := (*area)(data)
@@ -133,21 +133,19 @@ func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, wPara
 	}
 	// though wparam will contain control and shift state, let's use just one function to get modifiers for both keyboard and mouse events; it'll work the same anyway since we have to do this for alt and windows key (super)
 	me.Modifiers = getModifiers()
-	// TODO make wParam unsigned
-	// TODO XBUTTONs use something different
-	if button != 1 && (wParam & C.MK_LBUTTON) != 0 {
+	if button != 1 && (heldButtons & C.MK_LBUTTON) != 0 {
 		me.Held = append(me.Held, 1)
 	}
-	if button != 2 && (wParam & C.MK_MBUTTON) != 0 {
+	if button != 2 && (heldButtons & C.MK_MBUTTON) != 0 {
 		me.Held = append(me.Held, 2)
 	}
-	if button != 3 && (wParam & C.MK_RBUTTON) != 0 {
+	if button != 3 && (heldButtons & C.MK_RBUTTON) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	if button != 4 && (wParam & C.MK_XBUTTON1) != 0 {
+	if button != 4 && (heldButtons & C.MK_XBUTTON1) != 0 {
 		me.Held = append(me.Held, 4)
 	}
-	if button != 5 && (wParam & C.MK_XBUTTON2) != 0 {
+	if button != 5 && (heldButtons & C.MK_XBUTTON2) != 0 {
 		me.Held = append(me.Held, 5)
 	}
 	a.handler.Mouse(me)

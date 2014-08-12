@@ -302,7 +302,7 @@ void repaintArea(HWND hwnd)
 		xpanic("error repainting Area after event", GetLastError());
 }
 
-void areaMouseEvent(HWND hwnd, void *data, DWORD button, BOOL up, WPARAM wParam, LPARAM lParam)
+void areaMouseEvent(HWND hwnd, void *data, DWORD button, BOOL up, uintptr_t heldButtons, LPARAM lParam)
 {
 	int xpos, ypos;
 
@@ -310,13 +310,14 @@ void areaMouseEvent(HWND hwnd, void *data, DWORD button, BOOL up, WPARAM wParam,
 	getScrollPos(hwnd, &xpos, &ypos);
 	xpos += GET_X_LPARAM(lParam);
 	ypos += GET_Y_LPARAM(lParam);
-	finishAreaMouseEvent(data, button, up, wParam, xpos, ypos);
+	finishAreaMouseEvent(data, button, up, heldButtons, xpos, ypos);
 }
 
 static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	void *data;
 	DWORD which;
+	uintptr_t heldButtons = (uintptr_t) wParam;
 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
@@ -360,34 +361,36 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// and don't eat the click, as we want to handle clicks that switch into Windows with Areas from other windows
 		return MA_ACTIVATE;
 	case WM_MOUSEMOVE:
-		areaMouseEvent(hwnd, data, 0, FALSE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 0, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_LBUTTONDOWN:
-		areaMouseEvent(hwnd, data, 1, FALSE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 1, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		areaMouseEvent(hwnd, data, 1, TRUE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 1, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		areaMouseEvent(hwnd, data, 2, FALSE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 2, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONUP:
-		areaMouseEvent(hwnd, data, 2, TRUE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 2, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		areaMouseEvent(hwnd, data, 3, FALSE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 3, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONUP:
-		areaMouseEvent(hwnd, data, 3, TRUE, wParam, lParam);
+		areaMouseEvent(hwnd, data, 3, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
 		// values start at 1; we want them to start at 4
 		which = (DWORD) GET_XBUTTON_WPARAM(wParam) + 3;
-		areaMouseEvent(hwnd, data, which, FALSE, wParam, lParam);
+		heldButtons = (uintptr_t) GET_KEYSTATE_WPARAM(wParam);
+		areaMouseEvent(hwnd, data, which, FALSE, heldButtons, lParam);
 		return TRUE;		// XBUTTON messages are different!
 	case WM_XBUTTONUP:
 		which = (DWORD) GET_XBUTTON_WPARAM(wParam) + 3;
-		areaMouseEvent(hwnd, data, which, TRUE, wParam, lParam);
+		heldButtons = (uintptr_t) GET_KEYSTATE_WPARAM(wParam);
+		areaMouseEvent(hwnd, data, which, TRUE, heldButtons, lParam);
 		return TRUE;
 	case WM_KEYDOWN:
 		areaKeyEvent(data, FALSE, wParam, lParam);
