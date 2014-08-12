@@ -22,7 +22,6 @@ type Stack interface {
 	Control
 
 	// SetStretchy marks a control in a Stack as stretchy.
-	// This cannot be called once the Window containing the Stack has been created. [TODO might actually be safe to call anytime now]
 	// It panics if index is out of range.
 	SetStretchy(index int)
 }
