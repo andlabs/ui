@@ -88,6 +88,7 @@ void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY, LONG *internalLeading
 	HDC dc;
 	HFONT prevFont;
 	TEXTMETRICW tm;
+	SIZE size;
 
 	dc = GetDC(hwnd);
 	if (dc == NULL)
@@ -97,7 +98,9 @@ void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY, LONG *internalLeading
 		xpanic("error loading control font into device context for preferred size calculation", GetLastError());
 	if (GetTextMetricsW(dc, &tm) == 0)
 		xpanic("error getting text metrics for preferred size calculations", GetLastError());
-	*baseX = (int) tm.tmAveCharWidth;		/* TODO not optimal; third reference below has better way */
+	if (GetTextExtentPoint32W(dc, L"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52, &size) == 0)
+		xpanic("error getting text extent point for preferred size calculations", GetLastError());
+	*baseX = (int) ((size.cx / 26 + 1) / 2);
 	*baseY = (int) tm.tmHeight;
 	*internalLeading = tm.tmInternalLeading;
 	if (SelectObject(dc, prevFont) != controlFont)

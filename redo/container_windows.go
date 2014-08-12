@@ -86,6 +86,7 @@ func containerResize(data unsafe.Pointer, r *C.RECT) {
 // - http://msdn.microsoft.com/en-us/library/ms645502%28VS.85%29.aspx - the calculation needed
 // - http://support.microsoft.com/kb/125681 - to get the base X and Y
 // (thanks to http://stackoverflow.com/questions/58620/default-button-size)
+// In my tests (see https://github.com/andlabs/windlgunits), the GetTextExtentPoint32() option for getting the base X produces much more accurate results than the tmAveCharWidth option when tested against the sample values given in http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing, but can be off by a pixel in either direction (probably due to rounding errors).
 
 // note on MulDiv():
 // div will not be 0 in the usages below
