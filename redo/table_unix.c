@@ -23,10 +23,12 @@ void tableAppendColumn(GtkTreeView *table, gint index, gchar *name)
 how our GtkTreeIters are stored:
 	stamp: either GOOD_STAMP or BAD_STAMP
 	user_data: row index
-TODO verify range of gint
+Thanks to Company in irc.gimp.net/#gtk+ for suggesting the GSIZE_TO_POINTER() trick.
 */
 #define GOOD_STAMP 0x1234
 #define BAD_STAMP 0x5678
+#define FROM(x) ((gint) GPOINTER_TO_SIZE((x)))
+#define TO(x) GSIZE_TO_POINTER((gsize) (x))
 
 static void goTableModel_initGtkTreeModel(GtkTreeModelIface *);
 
@@ -75,7 +77,7 @@ static gboolean goTableModel_get_iter(GtkTreeModel *model, GtkTreeIter *iter, Gt
 	if (index >= goTableModel_getRowCount(t->gotable))
 		goto bad;
 	iter->stamp = GOOD_STAMP;
-	iter->user_data = (gpointer) index;
+	iter->user_data = TO(index);
 	return TRUE;
 bad:
 	iter->stamp = BAD_STAMP;
@@ -84,9 +86,10 @@ bad:
 
 static GtkTreePath *goTableModel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
 {
+	/* note: from this point forward, the GOOD_STAMP checks ensure that the index stored in iter is nonnegative */
 	if (iter->stamp != GOOD_STAMP)
 		return NULL;		/* this is what both GtkListStore and GtkTreeStore do */
-	return gtk_tree_path_new_from_indices((gint) iter->user_data, -1);
+	return gtk_tree_path_new_from_indices(FROM(iter->user_data), -1);
 }
 
 static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint column, GValue *value)
@@ -97,7 +100,7 @@ static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint 
 	if (iter->stamp != GOOD_STAMP)
 		return;			/* this is what both GtkListStore and GtkTreeStore do */
 	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
-	str = goTableModel_do_get_value(t->gotable, (gint) iter->user_data, column);
+	str = goTableModel_do_get_value(t->gotable, FROM(iter->user_data), column);
 	/* value is uninitialized */
 	g_value_init(value, G_TYPE_STRING);
 	g_value_set_string(value, str);
@@ -111,13 +114,13 @@ static gboolean goTableModel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
 
 	if (iter->stamp != GOOD_STAMP)
 		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
-	index = (gint) iter->user_data;
+	index = FROM(iter->user_data);
 	index++;
-	iter->user_data = (gpointer) index;
 	if (index >= goTableModel_getRowCount(t->gotable)) {
 		iter->stamp = BAD_STAMP;
 		return FALSE;
 	}
+	iter->user_data = TO(index);
 	return TRUE;
 }
 
@@ -128,13 +131,13 @@ static gboolean goTableModel_iter_previous(GtkTreeModel *model, GtkTreeIter *ite
 
 	if (iter->stamp != GOOD_STAMP)
 		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
-	index = (gint) iter->user_data;
-	index--;
-	iter->user_data = (gpointer) index;
-	if (index < 0) {
+	index = FROM(iter->user_data);
+	if (index <= 0) {
 		iter->stamp = BAD_STAMP;
 		return FALSE;
 	}
+	index--;
+	iter->user_data = TO(index);
 	return TRUE;
 }
 
@@ -171,7 +174,7 @@ static gboolean goTableModel_iter_nth_child(GtkTreeModel *model, GtkTreeIter *ch
 
 	if (parent == NULL && n >= 0 && n < goTableModel_getRowCount(t->gotable)) {
 		child->stamp = GOOD_STAMP;
-		child->user_data = (gpointer) n;
+		child->user_data = TO(n);
 		return TRUE;
 	}
 	child->stamp = BAD_STAMP;
@@ -257,7 +260,7 @@ void tableUpdate(goTableModel *t, gint old, gint new)
 	if (old < new) {
 		for (i = old; i < new; i++) {
 			path = gtk_tree_path_new_from_indices(i, -1);
-			iter.user_data = (gpointer) i;
+			iter.user_data = TO(i);
 			g_signal_emit_by_name(t, "row-inserted", path, &iter);
 		}
 		nUpdate = old;
@@ -266,7 +269,7 @@ void tableUpdate(goTableModel *t, gint old, gint new)
 	/* next, update existing items */
 	for (i = 0; i < nUpdate; i++) {
 		path = gtk_tree_path_new_from_indices(i, -1);
-		iter.user_data = (gpointer) i;
+		iter.user_data = TO(i);
 		g_signal_emit_by_name(t, "row-updated", path, &iter);
 	}
 	/* finally, remove deleted items */
