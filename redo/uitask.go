@@ -21,7 +21,8 @@ func Go() error {
 }
 
 // To ensure that Do() and Stop() only do things after Go() has been called, this channel accepts the requests to issue. The issuing is done by uiissueloop() below.
-var issuer = make(chan func())
+// Notice that this is a pointer ot a function. See Do() below for details.
+var issuer = make(chan *func())
 
 // Do performs f on the main loop, as if it were an event handler.
 // It waits for f to execute before returning.
@@ -29,10 +30,14 @@ var issuer = make(chan func())
 func Do(f func()) {
 	done := make(chan struct{})
 	defer close(done)
-	issuer <- func() {
+	// THIS MUST BE A POINTER.
+	// Previously, the pointer was constructed within issue().
+	// This meant that if the Do() was stalled, the garbage collector came in and reused the pointer value too soon!
+	call := func() {
 		f()
 		done <- struct{}{}
 	}
+	issuer <- &call
 	<-done
 }
 
@@ -42,7 +47,10 @@ func Do(f func()) {
 // Stop will not have an effect until any event handlers or dialog boxes presently active return.
 // (TODO make sure this is the case for dialog boxes)
 func Stop() {
-	issuer <- uistop
+	// can't send this directly across issuer
+	go func() {
+		Do(uistop)
+	}()
 }
 
 func uiissueloop() {

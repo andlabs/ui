@@ -31,8 +31,8 @@ func uistop() {
 	C.uistop()
 }
 
-func issue(f func()) {
-	C.issue(unsafe.Pointer(&f))
+func issue(f *func()) {
+	C.issue(unsafe.Pointer(f))
 }
 
 //export doissue

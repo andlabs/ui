@@ -34,8 +34,8 @@ func uistop() {
 	C.gtk_main_quit()
 }
 
-func issue(f func()) {
-	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(&f)))
+func issue(f *func()) {
+	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(f)))
 }
 
 //export doissue

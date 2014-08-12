@@ -47,8 +47,8 @@ func uistop() {
 	C.PostQuitMessage(0)
 }
 
-func issue(f func()) {
-	C.issue(unsafe.Pointer(&f))
+func issue(f *func()) {
+	C.issue(unsafe.Pointer(f))
 }
 
 func makemsgwin() error {
