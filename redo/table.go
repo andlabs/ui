@@ -11,7 +11,6 @@ import (
 // Table is a Control that displays a list of like-structured data in a grid where each row represents an item and each column represents a bit of data.
 // As such, a Table renders a []struct{...} where each field of the struct is rendered using package fmt's %v rule.
 // Tables maintain their own storage behind a sync.RWMutex-compatible sync.Locker; use Table.Lock()/Table.Unlock() to make changes and Table.RLock()/Table.RUnlock() to merely read values.
-// TODO headers
 type Table interface {
 	Control
 

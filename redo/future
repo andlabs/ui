@@ -11,6 +11,8 @@ Table
 		table_unix.c: goTableModel_get_column_type(), goTableModel_get_value()
 	multiple selection
 	figure out if we can safely refresh view during Unlock() regardless of calling goroutine
+	document header behavior in general comment
+	add functions for header manipulation
 Tab
 	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
 	Delete()
@@ -29,6 +31,10 @@ Mac OS X
 		// in the other case, the most correct thing would be for Label to be aligned to the alignment rect, but I can't get this working, and it looks fine as it is anyway
 	other controls
 		same rules? checkboxes seem damning...
+TextField
+	add events (figure out which of the following are appropriate: changed, enter pressed)
+	provide some facility to mark invalid values
+	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know
 
 so I don't forget, some TODOs:
 windows

@@ -45,8 +45,6 @@ func NewCheckbox(text string) Checkbox {
 type TextField interface {
 	Control
 
-	// TODO figure out what events are appropriate
-
 	// Text and SetText are Requests that get and set the TextField's text.
 	Text() string
 	SetText(text string)
