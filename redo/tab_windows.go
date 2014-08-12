@@ -13,9 +13,6 @@ import "C"
 On Windows, container controls are just regular controls that notify their parent when the user wants to do things; changing the contents of a switching container (such as a tab control) must be done manually.
 
 We'll create a dummy window using the pre-existing Window window class for each tab page. This makes showing and hiding tabs a matter of showing and hiding one control.
-
-TODO
-- make sure all tabs cannot be deselected (that is, make sure the current tab can never have index -1)
 */
 
 type tab struct {
