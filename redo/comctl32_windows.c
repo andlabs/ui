@@ -56,7 +56,7 @@ DWORD initCommonControls(char **errmsg)
 		*errmsg = "error creating manifest file";
 		return GetLastError();
 	}
-	nExpected = strlen(manifest);		/* TODO make static */
+	nExpected = (sizeof manifest / sizeof manifest[0]) - 1;		/* - 1 to omit the terminating null character)
 	SetLastError(0);		/* catch errorless short writes */
 	if (WriteFile(file, manifest, nExpected, &nGot, NULL) == 0) {
 		*errmsg = "error writing manifest file";
