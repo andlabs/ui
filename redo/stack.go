@@ -18,7 +18,16 @@ const (
 // A vertical Stack gives all controls the same width and their preferred heights.
 // Any extra space at the end of a Stack is left blank.
 // Some controls may be marked as "stretchy": when the Window they are in changes size, stretchy controls resize to take up the remaining space after non-stretchy controls are laid out. If multiple controls are marked stretchy, they are alloted equal distribution of the remaining space.
-type Stack struct {
+type Stack interface {
+	Control
+
+	// SetStretchy marks a control in a Stack as stretchy.
+	// This cannot be called once the Window containing the Stack has been created. [TODO might actually be safe to call anytime now]
+	// It panics if index is out of range.
+	SetStretchy(index int)
+}
+
+type stack struct {
 	created       bool
 	orientation   orientation
 	controls      []Control
@@ -26,8 +35,8 @@ type Stack struct {
 	width, height []int // caches to avoid reallocating these each time
 }
 
-func newStack(o orientation, controls ...Control) *Stack {
-	return &Stack{
+func newStack(o orientation, controls ...Control) Stack {
+	return &stack{
 		orientation: o,
 		controls:    controls,
 		stretchy:    make([]bool, len(controls)),
@@ -37,18 +46,16 @@ func newStack(o orientation, controls ...Control) *Stack {
 }
 
 // NewHorizontalStack creates a new Stack that arranges the given Controls horizontally.
-func NewHorizontalStack(controls ...Control) *Stack {
+func NewHorizontalStack(controls ...Control) Stack {
 	return newStack(horizontal, controls...)
 }
 
 // NewVerticalStack creates a new Stack that arranges the given Controls vertically.
-func NewVerticalStack(controls ...Control) *Stack {
+func NewVerticalStack(controls ...Control) Stack {
 	return newStack(vertical, controls...)
 }
 
-// SetStretchy marks a control in a Stack as stretchy. This cannot be called once the Window containing the Stack has been created.
-// It panics if index is out of range.
-func (s *Stack) SetStretchy(index int) {
+func (s *stack) SetStretchy(index int) {
 	if s.created {
 		panic("call to Stack.SetStretchy() after Stack has been created")
 	}
@@ -58,14 +65,14 @@ func (s *Stack) SetStretchy(index int) {
 	s.stretchy[index] = true
 }
 
-func (s *Stack) setParent(parent *controlParent) {
+func (s *stack) setParent(parent *controlParent) {
 	for _, c := range s.controls {
 		c.setParent(parent)
 	}
 	s.created = true
 }
 
-func (s *Stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
+func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	var stretchywid, stretchyht int
 	var current *allocation		// for neighboring
 
@@ -137,7 +144,7 @@ func (s *Stack) allocate(x int, y int, width int, height int, d *sizing) (alloca
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
-func (s *Stack) preferredSize(d *sizing) (width int, height int) {
+func (s *stack) preferredSize(d *sizing) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -183,11 +190,11 @@ func (s *Stack) preferredSize(d *sizing) (width int, height int) {
 	return
 }
 
-func (s *Stack) commitResize(c *allocation, d *sizing) {
+func (s *stack) commitResize(c *allocation, d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 
-func (s *Stack) getAuxResizeInfo(d *sizing) {
+func (s *stack) getAuxResizeInfo(d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 

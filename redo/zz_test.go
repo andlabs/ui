@@ -34,9 +34,9 @@ type testwin struct {
 	w		Window
 	nt		Tab
 	a		Area
-	spw		*Stack
-	sph		*Stack
-	s		*Stack		// TODO make Stack
+	spw		Stack
+	sph		Stack
+	s		Stack
 	l		Label
 	table		Table
 	b		Button
