@@ -7,6 +7,7 @@ void uimsgloop(void)
 {
 	MSG msg;
 	int res;
+	HWND active;
 
 	for (;;) {
 		SetLastError(0);
@@ -15,7 +16,9 @@ void uimsgloop(void)
 			xpanic("error calling GetMessage()", GetLastError());
 		if (res == 0)		/* WM_QUIT */
 			break;
-		/* TODO IsDialogMessage() */
+		active = GetActiveWindow();
+		if (active != NULL && IsDialogMessageW(active, &msg) != 0)
+			continue;
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
 	}

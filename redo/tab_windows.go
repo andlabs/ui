@@ -23,6 +23,8 @@ type tab struct {
 func newTab() Tab {
 	hwnd := C.newControl(C.xWC_TABCONTROL,
 		C.TCS_TOOLTIPS | C.WS_TABSTOP,
+		// this is needed to have the tab contents be tab stop
+		// TODO this seems to override WS_TABSTOP
 		C.WS_EX_CONTROLPARENT)
 	t := &tab{
 		_hwnd:	hwnd,
