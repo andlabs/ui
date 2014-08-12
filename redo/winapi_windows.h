@@ -38,7 +38,7 @@ extern HWND msgwin;
 extern DWORD makemsgwin(char **);
 
 /* comctl32_windows.c */
-extern DWORD initCommonControls(LPWSTR, char **);
+extern DWORD initCommonControls(char **);
 /* these are listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
 extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);

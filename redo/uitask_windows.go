@@ -21,8 +21,10 @@ func uiinit() error {
 	if errcode != 0 || errmsg != nil {
 		return fmt.Errorf("error initializing package ui on Windows: %s: %v", C.GoString(errmsg), syscall.Errno(errcode))
 	}
-	if err := initCommonControls(); err != nil {
-		return fmt.Errorf("error initializing comctl32.dll version 6: %v", err)
+	errmsg = nil
+	errcode = C.initCommonControls(&errmsg)
+	if errcode != 0 || errmsg != nil {
+		return fmt.Errorf("error initializing comctl32.dll: %s: %v", C.GoString(errmsg), syscall.Errno(errcode))
 	}
 	if err := makemsgwin(); err != nil {
 		return fmt.Errorf("error creating message-only window: %v", err)
