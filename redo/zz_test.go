@@ -137,6 +137,7 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.t.Append("Password Field", tw.e2)
 	tw.w.Show()
 	if *smallWindow {
+		// TODO windows - tab order wrong in wine?
 		tw.wsmall = NewWindow("Small", 80, 80,
 			NewVerticalStack(
 				NewButton("Small"),

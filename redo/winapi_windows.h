@@ -29,6 +29,7 @@ enum {
 	msgNOTIFY,					/* WM_NOTIFY proxy */
 	msgAreaSizeChanged,
 	msgAreaRepaintAll,
+	msgAreaDefocuses,
 };
 
 /* uitask_windows.c */
@@ -104,6 +105,7 @@ extern HWND newContainer(void *);
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 /* area_window.c */
+#define areaWindowClass L"gouiarea"
 extern void repaintArea(HWND);
 extern DWORD makeAreaWindowClass(char **);
 extern HWND newArea(void *);

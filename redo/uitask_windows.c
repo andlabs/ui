@@ -3,11 +3,16 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
+/* note that this includes the terminating '\0' */
+#define NAREACLASS (sizeof areaWindowClass / sizeof areaWindowClass[0])
+
 void uimsgloop(void)
 {
 	MSG msg;
 	int res;
 	HWND active;
+	WCHAR classchk[NAREACLASS];
+	BOOL dodlgmessage;
 
 	for (;;) {
 		SetLastError(0);
@@ -17,9 +22,24 @@ void uimsgloop(void)
 		if (res == 0)		/* WM_QUIT */
 			break;
 		active = GetActiveWindow();
-		// TODO this interferes with Area
-		if (active != NULL && IsDialogMessageW(active, &msg) != 0)
-			continue;
+		if (active != NULL) {
+			HWND focus;
+
+			dodlgmessage = TRUE;
+			focus = GetFocus();
+			if (focus != NULL) {
+				// theoretically we could use the class atom to avoid a wcscmp()
+				// however, raymond chen advises against this - TODO_get_URL
+				// while I have no idea what could deregister *my* window class from under *me*, better safe than sorry
+				// we could also theoretically just send msgAreaDefocuses directly, but what DefWindowProc() does to a WM_APP message is undocumented
+				if (GetClassNameW(focus, classchk, NAREACLASS) == 0)
+					xpanic("error getting name of focused window class for Area check", GetLastError());
+				if (wcscmp(classchk, areaWindowClass) == 0)
+					dodlgmessage = (BOOL) SendMessageW(focus, msgAreaDefocuses, 0, 0);
+			}
+			if (dodlgmessage && IsDialogMessageW(active, &msg) != 0)
+				continue;
+		}
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
 	}

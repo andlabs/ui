@@ -280,6 +280,15 @@ func areaResetClickCounter(data unsafe.Pointer) {
 	a.clickCounter.reset()
 }
 
+//export areaDefocuses
+func areaDefocuses(data unsafe.Pointer) C.BOOL {
+	a := (*area)(data)
+	if a.handler.Defocuses() {
+		return C.TRUE
+	}
+	return C.FALSE
+}
+
 func (a *area) hwnd() C.HWND {
 	return a._hwnd
 }

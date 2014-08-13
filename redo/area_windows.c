@@ -5,8 +5,6 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-#define areaWindowClass L"gouiarea"
-
 static void getScrollPos(HWND hwnd, int *xpos, int *ypos)
 {
 	SCROLLINFO si;
@@ -412,6 +410,8 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case msgAreaRepaintAll:
 		repaintArea(hwnd);
 		return 0;
+	case msgAreaDefocuses:
+		return (LRESULT) areaDefocuses(data);
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
@@ -445,7 +445,7 @@ HWND newArea(void *data)
 	hwnd = CreateWindowExW(
 		0,
 		areaWindowClass, L"",
-		WS_HSCROLL | WS_VSCROLL | WS_CHILD | WS_VISIBLE,
+		WS_HSCROLL | WS_VSCROLL | WS_CHILD | WS_VISIBLE | WS_TABSTOP,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		100, 100,
 		msgwin, NULL, hInstance, data);
