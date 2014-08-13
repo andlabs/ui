@@ -93,6 +93,12 @@ event(keyDown, areaView_keyDown)
 event(keyUp, areaView_keyUp)
 event(flagsChanged, areaView_flagsChanged)
 
+- (BOOL)resignFirstResponder
+{
+	// TODO the custom NSApplication sendEvent: means this will never happen
+	return areaView_defocuses(self->goarea);
+}
+
 @end
 
 Class getAreaClass(void)

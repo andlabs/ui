@@ -142,6 +142,7 @@ func (tw *testwin) make(done chan struct{}) {
 			NewVerticalStack(
 				NewButton("Small"),
 				NewButton("Small"),
+				NewTextField(),
 				NewArea(200, 200, &areaHandler{*defocuses})))
 		tw.wsmall.Show()
 	}
