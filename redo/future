@@ -37,6 +37,8 @@ TextField
 	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know
 Stack, Grid
 	method calls should trigger re-layout of windows
+default buttons
+	figure out how they interact with Areas (especially on GTK+, where GtkEntry somehow has special handling for this)
 
 so I don't forget, some TODOs:
 windows

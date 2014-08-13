@@ -18,6 +18,7 @@ import (
 // extern gboolean our_area_enterleave_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
+// extern gboolean our_area_focus_callback(GtkWidget *, GtkDirectionType, gpointer);
 // /* because cgo doesn't like ... */
 // static inline void gtkGetDoubleClickSettings(GtkSettings *settings, gint *maxTime, gint *maxDistance)
 // {
@@ -86,6 +87,7 @@ var areaCallbacks = []struct {
 	{ "leave-notify-event",		area_enterleave_notify_event_callback },
 	{ "key-press-event",			area_key_press_event_callback },
 	{ "key-release-event",		area_key_release_event_callback },
+	{ "focus",					area_focus_callback },
 }
 
 //export our_area_draw_callback
@@ -195,6 +197,7 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 
 // convenience name to make our intent clear
 const continueEventChain C.gboolean = C.FALSE
+const stopEventChain C.gboolean = C.TRUE
 
 // checking for a mouse click that makes the program/window active is meaningless on GTK+: it's a property of the window manager/X11, and it's the WM that decides if the program should become active or not
 // however, one thing is certain: the click event will ALWAYS be sent (to the window that the X11 decides to send it to)
@@ -377,6 +380,22 @@ var modonlykeys = map[C.guint]Modifiers{
 	C.GDK_KEY_Super_L:   Super,
 	C.GDK_KEY_Super_R:   Super,
 }
+
+//export our_area_focus_callback
+func our_area_focus_callback(widget *C.GtkWidget, direction C.GtkDirectionType, data C.gpointer) C.gboolean {
+	// TODO figure out how this callback affects keyboard scrolling
+	if C.gtk_widget_is_focus(widget) == C.FALSE {
+		// this event indicates entering focus; always allow it
+		return continueEventChain
+	}
+	a := (*area)(unsafe.Pointer(data))
+	if a.handler.Defocuses() {
+		return continueEventChain
+	}
+	return stopEventChain
+}
+
+var area_focus_callback = C.GCallback(C.our_area_focus_callback)
 
 func (a *area) widget() *C.GtkWidget {
 	return a._widget
