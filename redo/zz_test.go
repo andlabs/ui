@@ -146,12 +146,16 @@ func (tw *testwin) make(done chan struct{}) {
 	}
 }
 
+// this must be on the heap thanks to moving stacks
+// soon even this won't be enough...
+var tw *testwin
+
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
 	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
 	flag.Parse()
 	go func() {
-		tw := new(testwin)
+		tw = new(testwin)
 		done := make(chan struct{})
 		Do(func() { tw.make(done) })
 		<-done
