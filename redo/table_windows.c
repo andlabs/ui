@@ -15,7 +15,6 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	case msgNOTIFY:
 		switch (nmhdr->code) {
 		case LVN_GETDISPINFO:
-			/* TODO we could probably copy into the buffer provided by the list view control instead... see LVITEM's docs */
 			tableGetCellText((void *) data, fill->item.iItem, fill->item.iSubItem, &(fill->item.pszText));
 			return 0;
 		}
