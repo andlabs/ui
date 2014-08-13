@@ -94,7 +94,8 @@ func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allo
 }
 
 const (
-	// from C++ Template 05 in http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx as this is the best I can do for now... (TODO see if I can reliably get item width/height from text size)
+	// from C++ Template 05 in http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx as this is the best I can do for now
+	// there IS a message LVM_APPROXIMATEVIEWRECT that can do calculations, but it doesn't seem to work right when asked to base its calculations on the current width/height on Windows and wine...
 	tableWidth = 183
 	tableHeight = 50
 )
