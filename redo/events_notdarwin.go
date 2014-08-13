@@ -86,8 +86,8 @@ var scancodeKeys = map[uintptr]byte{
 	0x0B: '0',
 	0x0C: '-',
 	0x0D: '=',
-	0x0E: '\b', // seems to be safe on GTK+; TODO safe on windows?
-	0x0F: '\t', // seems to be safe on GTK+; TODO safe on windows?
+	0x0E: '\b',
+	0x0F: '\t',
 	0x10: 'q',
 	0x11: 'w',
 	0x12: 'e',
@@ -100,7 +100,7 @@ var scancodeKeys = map[uintptr]byte{
 	0x19: 'p',
 	0x1A: '[',
 	0x1B: ']',
-	0x1C: '\n', // seems to be safe on GTK+; TODO safe on windows?
+	0x1C: '\n',
 	0x1E: 'a',
 	0x1F: 's',
 	0x20: 'd',

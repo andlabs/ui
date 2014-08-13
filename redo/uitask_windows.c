@@ -17,6 +17,7 @@ void uimsgloop(void)
 		if (res == 0)		/* WM_QUIT */
 			break;
 		active = GetActiveWindow();
+		// TODO this interferes with Area
 		if (active != NULL && IsDialogMessageW(active, &msg) != 0)
 			continue;
 		TranslateMessage(&msg);

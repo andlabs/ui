@@ -54,7 +54,7 @@ func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 	return i
 }
 func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
-func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v\n", ke) }
+func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v %q\n", ke, ke.Key) }
 
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
