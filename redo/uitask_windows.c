@@ -29,7 +29,7 @@ void uimsgloop(void)
 			focus = GetFocus();
 			if (focus != NULL) {
 				// theoretically we could use the class atom to avoid a wcscmp()
-				// however, raymond chen advises against this - TODO_get_URL
+				// however, raymond chen advises against this - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx
 				// while I have no idea what could deregister *my* window class from under *me*, better safe than sorry
 				// we could also theoretically just send msgAreaDefocuses directly, but what DefWindowProc() does to a WM_APP message is undocumented
 				if (GetClassNameW(focus, classchk, NAREACLASS) == 0)
