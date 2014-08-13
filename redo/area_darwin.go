@@ -189,12 +189,6 @@ func areaView_flagsChanged(self C.id, e C.id, data unsafe.Pointer) {
 	sendKeyEvent(self, ke, data)
 }
 
-//export areaView_defocuses
-func areaView_defocuses(data unsafe.Pointer) C.BOOL {
-	a := (*area)(data)
-	return toBOOL(a.handler.Defocuses())
-}
-
 func (a *area) id() C.id {
 	return a._id
 }

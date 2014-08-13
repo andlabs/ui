@@ -388,10 +388,6 @@ func our_area_focus_callback(widget *C.GtkWidget, direction C.GtkDirectionType, 
 		// this event indicates entering focus; always allow it
 		return continueEventChain
 	}
-	a := (*area)(unsafe.Pointer(data))
-	if a.handler.Defocuses() {
-		return continueEventChain
-	}
 	return stopEventChain
 }
 

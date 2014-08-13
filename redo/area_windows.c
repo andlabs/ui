@@ -410,8 +410,6 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case msgAreaRepaintAll:
 		repaintArea(hwnd);
 		return 0;
-	case msgAreaDefocuses:
-		return (LRESULT) areaDefocuses(data);
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}

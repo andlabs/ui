@@ -29,7 +29,6 @@ enum {
 	msgNOTIFY,					/* WM_NOTIFY proxy */
 	msgAreaSizeChanged,
 	msgAreaRepaintAll,
-	msgAreaDefocuses,
 };
 
 /* uitask_windows.c */

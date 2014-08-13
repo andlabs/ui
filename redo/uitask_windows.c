@@ -35,7 +35,7 @@ void uimsgloop(void)
 				if (GetClassNameW(focus, classchk, NAREACLASS) == 0)
 					xpanic("error getting name of focused window class for Area check", GetLastError());
 				if (wcscmp(classchk, areaWindowClass) == 0)
-					dodlgmessage = (BOOL) SendMessageW(focus, msgAreaDefocuses, 0, 0);
+					dodlgmessage = FALSE;
 			}
 			if (dodlgmessage && IsDialogMessageW(active, &msg) != 0)
 				continue;

@@ -45,5 +45,6 @@ in general
 so I don't forget, some TODOs:
 windows
 	- backgrounds are not transparent
+	- tab order is backwards
 mac os x
 	- applicationShouldTerminate: not handled
