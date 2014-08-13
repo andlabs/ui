@@ -19,6 +19,8 @@ import (
 // To handle events to the Area, an Area must be paired with an AreaHandler.
 // See AreaHandler for details.
 //
+// Area will accept keyboard focus if tabbed into, but will refuse to relinquish keyboard focus if tabbed out.
+//
 // Do not use an Area if you intend to read text.
 // Area reads keys based on their position on a standard
 // 101-key keyboard, and does no character processing.

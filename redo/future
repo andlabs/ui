@@ -48,3 +48,5 @@ windows
 	- tab order is backwards
 mac os x
 	- applicationShouldTerminate: not handled
+gtk+, mac os x
+	- default buttons, escape
