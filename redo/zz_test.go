@@ -16,6 +16,7 @@ import (
 
 var closeOnClick = flag.Bool("close", false, "close on click")
 var smallWindow = flag.Bool("small", false, "open a small window (test Mac OS X initial control sizing)")
+var defocuses = flag.Bool("defocuses", false, "if the Area in the small window (see -small) should defocus")
 
 type dtype struct {
 	Name	string
@@ -47,7 +48,7 @@ type testwin struct {
 	wsmall	Window
 }
 
-type areaHandler struct{}
+type areaHandler struct{defocuses bool}
 func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 	i := image.NewRGBA(r)
 	draw.Draw(i, r, &image.Uniform{color.RGBA{128,0,128,255}}, image.ZP, draw.Src)
@@ -55,6 +56,7 @@ func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 }
 func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
 func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v %q\n", ke, ke.Key) }
+func (a *areaHandler) Defocuses() bool { return a.defocuses }
 
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
@@ -139,7 +141,7 @@ func (tw *testwin) make(done chan struct{}) {
 			NewVerticalStack(
 				NewButton("Small"),
 				NewButton("Small"),
-				NewArea(200, 200, &areaHandler{})))
+				NewArea(200, 200, &areaHandler{*defocuses})))
 		tw.wsmall.Show()
 	}
 }

@@ -76,6 +76,10 @@ type AreaHandler interface {
 	// See KeyEvent for details.
 	// After handling the key event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global key events, such as Alt-Tab, this way).
 	Key(e KeyEvent)
+
+	// Defocuses is called when package ui needs to tell the OS if the Area should stop accepting focus.
+	// When and how often Defocuses is called is implementation-defined.
+	Defocuses() bool
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
