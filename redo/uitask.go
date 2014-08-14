@@ -8,8 +8,10 @@ import (
 	"unsafe"
 )
 
-// Go initializes package ui.
-// TODO write this bit
+// Go initializes and runs package ui.
+// It returns a non-nil error if initialization fails.
+// Otherwise, it will run the event loop and not return until Stop is called.
+// Due to platform-specific issues, it must be called from the main OS thread; in general, do not call Go() from anywhere except main() (including any goroutines).
 func Go() error {
 	runtime.LockOSThread()
 	if err := uiinit(); err != nil {

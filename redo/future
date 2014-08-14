@@ -53,4 +53,6 @@ windows
 mac os x
 	- applicationShouldTerminate: not handled
 gtk+, mac os x
-	- default buttons, escape
+	- Area: default buttons, escape
+all
+	- make spaced settable somehow
