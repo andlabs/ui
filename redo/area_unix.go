@@ -146,7 +146,10 @@ func makeModifiers(state C.guint) (m Modifiers) {
 	if (state & C.GDK_CONTROL_MASK) != 0 {
 		m |= Ctrl
 	}
-	if (state & C.GDK_META_MASK) != 0 { // TODO get equivalent for Alt
+	if (state & C.GDK_META_MASK) != 0 {
+		m |= Alt
+	}
+	if (state & C.GDK_MOD1_MASK) != 0 {	// GTK+ itself requires this to be Alt (just read through gtkaccelgroup.c)
 		m |= Alt
 	}
 	if (state & C.GDK_SHIFT_MASK) != 0 {
