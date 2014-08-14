@@ -1,65 +1,71 @@
-// 13 august 2014
-#include <gtk/gtk.h>
+/* 13 august 2014 */
 
-#define CUSTOM_CONTAINER_TYPE (customContainer_get_type())
-#define CUSTOM_CONTAINER(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), CUSTOM_CONTAINER_TYPE, CustomContainer))
-#define IS_CUSTOM_CONTAINER(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), CUSTOM_CONTAINER_TYPE))
-#define CUSTOM_CONTAINER_CLASS(class) (G_TYPE_CHECK_CLASS_CAST((class), CUSTOM_CONTAINER_TYPE, CustomContainerClass))
-#define IS_CUSTOM_CONTAINER_CLASS(class) (G_TYPE_CHECK_CLASS_TYPE((class), CUSTOM_CONTAINER_TYPE))
-#define CUSTOM_CONTAINER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), CUSTOM_CONTAINER_TYPE, CustomContainerClass))
+#include "gtk_unix.h"
+#include "_cgo_export.h"
 
-typedef struct CustomContainer CustomContainer;
-typedef struct CustomContainerClass CustomContainerClass;
+#define GOCONTAINER_TYPE (goContainer_get_type())
+#define GOCONTAINER(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), GOCONTAINER_TYPE, goContainer))
+#define IS_GOCONTAINER(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), GOCONTAINER_TYPE))
+#define GOCONTAINER_CLASS(class) (G_TYPE_CHECK_CLASS_CAST((class), GOCONTAINER_TYPE, goContainerClass))
+#define IS_GOCONTAINER_CLASS(class) (G_TYPE_CHECK_CLASS_TYPE((class), GOCONTAINER_TYPE))
+#define GOCONTAINER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS((obj), GOCONTAINER_TYPE, goContainerClass))
 
-struct CustomContainer {
+typedef struct goContainer goContainer;
+typedef struct goContainerClass goContainerClass;
+
+struct goContainer {
 	GtkContainer parent_instance;
-	GtkWidget *child;
+	void *gocontainer;
+	GPtrArray *children;		/* for forall() */
 };
 
-struct CustomContainerClass {
+struct goContainerClass {
 	GtkContainerClass parent_class;
 };
 
-G_DEFINE_TYPE(CustomContainer, customContainer, GTK_TYPE_CONTAINER)
+G_DEFINE_TYPE(goContainer, goContainer, GTK_TYPE_CONTAINER)
 
-static void customContainer_init(CustomContainer *c)
+static void goContainer_init(goContainer *c)
 {
+	c->children = g_ptr_array_new();
 	gtk_widget_set_has_window(GTK_WIDGET(c), FALSE);
 }
 
-static void customContainer_dispose(GObject *obj)
+static void goContainer_dispose(GObject *obj)
 {
-	G_OBJECT_CLASS(customContainer_parent_class)->dispose(obj);
+	g_ptr_array_unref(c->children);
+	G_OBJECT_CLASS(goContainer_parent_class)->dispose(obj);
 }
 
-static void customContainer_finalize(GObject *obj)
+static void goContainer_finalize(GObject *obj)
 {
-	G_OBJECT_CLASS(customContainer_parent_class)->finalize(obj);
+	G_OBJECT_CLASS(goContainer_parent_class)->finalize(obj);
 }
 
-static void customContainer_add(GtkContainer *container, GtkWidget *widget)
+static void goContainer_add(GtkContainer *container, GtkWidget *widget)
 {
 	gtk_widget_set_parent(widget, GTK_WIDGET(container));
-	CUSTOM_CONTAINER(container)->child = widget;
+	g_ptr_array_add(GOCONTAINER(container)->children, widget);
 }
 
-static void customContainer_remove(GtkContainer *container, GtkWidget *widget)
+static void goContainer_remove(GtkContainer *container, GtkWidget *widget)
 {
 	gtk_widget_unparent(widget);
-	CUSTOM_CONTAINER(container)->child = NULL;
+	/* TODO this won't guarantee order preservation; important if we ever actually use this */
+	g_ptr_array_remove(GOCONTAINER(container)->children, widget);
 }
 
-static void customContainer_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
+static void goContainer_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
 	gtk_widget_set_allocation(widget, allocation);
-	if (CUSTOM_CONTAINER(widget)->child != NULL)
-		gtk_widget_size_allocate(CUSTOM_CONTAINER(widget)->child, allocation);
+	containerResized(GOCONTAINER(widget)->gocontainer, allocation);
 }
 
-static void customContainer_get_preferred_width(GtkWidget *widget, gint *min, gint *nat)
+/*
+static void goContainer_get_preferred_width(GtkWidget *widget, gint *min, gint *nat)
 {
-	if (CUSTOM_CONTAINER(widget)->child != NULL) {
-		gtk_widget_get_preferred_width(CUSTOM_CONTAINER(widget)->child, min, nat);
+	if (GOCONTAINER(widget)->child != NULL) {
+		gtk_widget_get_preferred_width(GOCONTAINER(widget)->child, min, nat);
 		return;
 	}
 	if (min != NULL)
@@ -68,10 +74,10 @@ static void customContainer_get_preferred_width(GtkWidget *widget, gint *min, gi
 		*nat = 0;
 }
 
-static void customContainer_get_preferred_height(GtkWidget *widget, gint *min, gint *nat)
+static void goContainer_get_preferred_height(GtkWidget *widget, gint *min, gint *nat)
 {
-	if (CUSTOM_CONTAINER(widget)->child != NULL) {
-		gtk_widget_get_preferred_height(CUSTOM_CONTAINER(widget)->child, min, nat);
+	if (GOCONTAINER(widget)->child != NULL) {
+		gtk_widget_get_preferred_height(GOCONTAINER(widget)->child, min, nat);
 		return;
 	}
 	if (min != NULL)
@@ -79,33 +85,31 @@ static void customContainer_get_preferred_height(GtkWidget *widget, gint *min, g
 	if (nat != NULL)
 		*nat = 0;
 }
+*/
 
-static void customContainer_forall(GtkContainer *container, gboolean includeInternals, GtkCallback callback, gpointer data)
+static void goContainer_forall(GtkContainer *container, gboolean includeInternals, GtkCallback callback, gpointer data)
 {
-	if (CUSTOM_CONTAINER(container)->child != NULL)
-		(*callback)(CUSTOM_CONTAINER(container)->child, data);
+	/* TODO is this safe? */
+	g_ptr_array_foreach(GOCONTAINER(container)->children, callback, data);
 }
 
-static void customContainer_class_init(CustomContainerClass *class)
+static void goContainer_class_init(goContainerClass *class)
 {
-	G_OBJECT_CLASS(class)->dispose = customContainer_dispose;
-	G_OBJECT_CLASS(class)->finalize = customContainer_finalize;
-	GTK_WIDGET_CLASS(class)->size_allocate = customContainer_size_allocate;
-//	GTK_WIDGET_CLASS(class)->get_preferred_width = customContainer_get_preferred_width;
-//	GTK_WIDGET_CLASS(class)->get_preferred_height = customContainer_get_preferred_height;
-	GTK_CONTAINER_CLASS(class)->add = customContainer_add;
-	GTK_CONTAINER_CLASS(class)->remove = customContainer_remove;
-	GTK_CONTAINER_CLASS(class)->forall = customContainer_forall;
+	G_OBJECT_CLASS(class)->dispose = goContainer_dispose;
+	G_OBJECT_CLASS(class)->finalize = goContainer_finalize;
+	GTK_WIDGET_CLASS(class)->size_allocate = goContainer_size_allocate;
+//	GTK_WIDGET_CLASS(class)->get_preferred_width = goContainer_get_preferred_width;
+//	GTK_WIDGET_CLASS(class)->get_preferred_height = goContainer_get_preferred_height;
+	GTK_CONTAINER_CLASS(class)->add = goContainer_add;
+	GTK_CONTAINER_CLASS(class)->remove = goContainer_remove;
+	GTK_CONTAINER_CLASS(class)->forall = goContainer_forall;
 }
 
-int main(void)
+GtkWidget *newContainer(void *gocontianer)
 {
-	gtk_init(NULL, NULL);
-	GtkWidget *mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	GtkWidget *cc = g_object_new(CUSTOM_CONTAINER_TYPE, NULL);
-	gtk_container_add(GTK_CONTAINER(cc), gtk_button_new_with_label("Test"));
-	gtk_container_add(GTK_CONTAINER(mainwin), cc);
-	gtk_widget_show_all(mainwin);
-	gtk_main();
-	return 0;
+	GoContainer *c;
+
+	c = (goContainer *) g_object_new(GOCONTAINER_TYPE, NULL);
+	c->gocontainer = gocontainer;
+	return GTK_WIDGET(c);
 }

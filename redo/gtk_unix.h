@@ -36,4 +36,7 @@ struct goTableModelClass {
 extern goTableModel *newTableModel(void *);
 extern void tableUpdate(goTableModel *, gint, gint);
 
+/* container_unix.c */
+extern GtkWidget *newContainer(void *);
+
 #endif
