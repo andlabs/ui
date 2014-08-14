@@ -80,7 +80,7 @@ func NewTab() Tab {
 // Label shows one line of text; any text that does not fit is truncated.
 // A Label can either have smart vertical alignment relative to the control to its right or just be vertically aligned to the top (standalone).
 // The effect of placing a non-standalone Label in any context other than to the immediate left of a Control is undefined.
-// Both types of labels currently are left-aligned (TODO).
+// Both types of labels are left-aligned. [FUTURE PLANS: For platform-specific horizontal alignment rules, use a Form.]
 type Label interface {
 	Control
 

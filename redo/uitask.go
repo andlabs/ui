@@ -44,8 +44,7 @@ func Do(f func()) {
 // Stop informs package ui that it should stop.
 // Stop then returns immediately.
 // Some time after this request is received, Go() will return without performing any final cleanup.
-// Stop will not have an effect until any event handlers or dialog boxes presently active return.
-// (TODO make sure this is the case for dialog boxes)
+// Stop will not have an effect until any event handlers return.
 func Stop() {
 	// can't send this directly across issuer
 	go func() {
@@ -64,9 +63,6 @@ type event struct {
 	do		func() bool
 	lock		sync.Mutex
 }
-
-// do should never be nil
-// TODO when writing doc.go, document that setting nil to an event handler ignores the event; if it returns a boolean value, false is returned
 
 func newEvent() *event {
 	return &event{

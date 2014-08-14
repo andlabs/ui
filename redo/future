@@ -22,6 +22,8 @@ Tab
 	investigate close buttons (especially for LikeTab)
 Area
 	Repaint(rect image.Rectangle)
+	keyboard scrolling
+		GTK+ port: our_area_focus_callback() has something to do with it
 Tree
 	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
 TextArea
@@ -41,6 +43,8 @@ default buttons
 	figure out how they interact with Areas (especially on GTK+, where GtkEntry somehow has special handling for this)
 in general
 	new moving stack and future moving heap make package ui a pain in general
+dialog boxes
+	find out if Stop has an effect before a dialog box function returns
 
 so I don't forget, some TODOs:
 windows

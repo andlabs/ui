@@ -383,7 +383,6 @@ var modonlykeys = map[C.guint]Modifiers{
 
 //export our_area_focus_callback
 func our_area_focus_callback(widget *C.GtkWidget, direction C.GtkDirectionType, data C.gpointer) C.gboolean {
-	// TODO figure out how this callback affects keyboard scrolling
 	if C.gtk_widget_is_focus(widget) == C.FALSE {
 		// this event indicates entering focus; always allow it
 		return continueEventChain
