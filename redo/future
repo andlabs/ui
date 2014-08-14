@@ -57,6 +57,8 @@ so I don't forget, some TODOs:
 windows
 	- backgrounds are not transparent
 	- tab order is backwards
+	- flicker ahoy
+	- not all controls are transparent
 mac os x
 	- applicationShouldTerminate: not handled
 gtk+, mac os x
