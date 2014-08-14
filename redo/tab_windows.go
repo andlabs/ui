@@ -70,7 +70,6 @@ func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*alloca
 }
 
 func (t *tab) preferredSize(d *sizing) (width, height int) {
-	// TODO only consider the size of the current tab?
 	for _, s := range t.tabs {
 		w, h := s.child.preferredSize(d)
 		if width < w {
