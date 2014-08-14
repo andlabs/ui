@@ -91,7 +91,6 @@ type Label interface {
 
 // NewLabel creates a new Label with the given text.
 // The Label will smartly vertically position itself relative to the control to its immediate right.
-// TODO Grids on GTK+ will not respect this unless SetFilling()
 func NewLabel(text string) Label {
 	return newLabel(text)
 }

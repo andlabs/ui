@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+// TODO Grids on GTK+ will not respect non-standalone Labels unless SetFilling()
+
 // A Grid arranges Controls in a two-dimensional grid.
 // The height of each row and the width of each column is the maximum preferred height and width (respectively) of all the controls in that row or column (respectively).
 // Controls are aligned to the top left corner of each cell.
