@@ -86,10 +86,25 @@ static void goContainer_get_preferred_height(GtkWidget *widget, gint *min, gint 
 }
 */
 
+struct forall {
+	GtkCallback callback;
+	gpointer data;
+};
+
+static void doforall(gpointer obj, gpointer data)
+{
+	struct forall *s = (struct forall *) data;
+
+	(*(s->callback))(GTK_WIDGET(obj), s->data);
+}
+
 static void goContainer_forall(GtkContainer *container, gboolean includeInternals, GtkCallback callback, gpointer data)
 {
-	/* TODO is this safe? */
-	g_ptr_array_foreach(GOCONTAINER(container)->children, callback, data);
+	struct forall s;
+
+	s.callback = callback;
+	s.data = data;
+	g_ptr_array_foreach(GOCONTAINER(container)->children, doforall, &s);
 }
 
 static void goContainer_class_init(goContainerClass *class)
