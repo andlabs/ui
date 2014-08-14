@@ -114,7 +114,6 @@ func (tw *testwin) make(done chan struct{}) {
 	if *closeOnClick {
 		tw.b.SetText("Click to Close")
 	}
-	// GTK+ TODO: this is causing a resize event to happen afterward?!
 	tw.b.OnClicked(func() {
 		println("in OnClicked()")
 		if *closeOnClick {
