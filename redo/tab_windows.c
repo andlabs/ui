@@ -1,9 +1,9 @@
-/* 25 july 2014 */
+// 25 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-/* provided for cgo's benefit */
+// provided for cgo's benefit
 LPWSTR xWC_TABCONTROL = WC_TABCONTROL;
 
 static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
@@ -16,10 +16,10 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		switch (nmhdr->code) {
 		case TCN_SELCHANGING:
 			r = SendMessageW(hwnd, TCM_GETCURSEL, 0, 0);
-			if (r == (LRESULT) -1)	/* no tab currently selected */
+			if (r == (LRESULT) -1)	// no tab currently selected
 				return FALSE;
 			tabChanging((void *) data, r);
-			return FALSE;			/* allow change */
+			return FALSE;			// allow change
 		case TCN_SELCHANGE:
 			tabChanged((void *) data, SendMessageW(hwnd, TCM_GETCURSEL, 0, 0));
 			return 0;
@@ -33,7 +33,7 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Tab", "tabSubProc()", uMsg);
-	return 0;		/* unreached */
+	return 0;		// unreached
 }
 
 void setTabSubclass(HWND hwnd, void *data)
@@ -50,7 +50,7 @@ void tabAppend(HWND hwnd, LPWSTR name)
 	ZeroMemory(&item, sizeof (TCITEM));
 	item.mask = TCIF_TEXT;
 	item.pszText = name;
-	/* MSDN's example code uses the first invalid index directly for this */
+	// MSDN's example code uses the first invalid index directly for this
 	n = SendMessageW(hwnd, TCM_GETITEMCOUNT, 0, 0);
 	if (SendMessageW(hwnd, TCM_INSERTITEM, (WPARAM) n, (LPARAM) (&item)) == (LRESULT) -1)
 		xpanic("error adding tab to Tab", GetLastError());
@@ -58,11 +58,11 @@ void tabAppend(HWND hwnd, LPWSTR name)
 
 void tabGetContentRect(HWND hwnd, RECT *r)
 {
-	/* not &r; already a pointer (thanks MindChild in irc.efnet.net/#winprog for spotting my failure) */
+	// not &r; already a pointer (thanks MindChild in irc.efnet.net/#winprog for spotting my failure)
 	SendMessageW(hwnd, TCM_ADJUSTRECT, FALSE, (LPARAM) r);
 }
 
-/* theoretically we don't need to iterate over every tab for this, but let's do it just to be safe */
+// theoretically we don't need to iterate over every tab for this, but let's do it just to be safe
 LONG tabGetTabHeight(HWND hwnd)
 {
 	RECT r;
@@ -70,7 +70,7 @@ LONG tabGetTabHeight(HWND hwnd)
 	LONG tallest;
 
 	n = SendMessageW(hwnd, TCM_GETITEMCOUNT, 0, 0);
-	/* if there are no tabs, then the control just draws a box over the full window rect, reserving no space for tabs; this is handled with the next line */
+	// if there are no tabs, then the control just draws a box over the full window rect, reserving no space for tabs; this is handled with the next line
 	tallest = 0;
 	for (i = 0; i < n; i++) {
 		if (SendMessageW(hwnd, TCM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r)) == FALSE)

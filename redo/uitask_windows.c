@@ -1,9 +1,9 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-/* note that this includes the terminating '\0' */
+// note that this includes the terminating '\0'
 #define NAREACLASS (sizeof areaWindowClass / sizeof areaWindowClass[0])
 
 void uimsgloop(void)
@@ -19,7 +19,7 @@ void uimsgloop(void)
 		res = GetMessageW(&msg, NULL, 0, 0);
 		if (res < 0)
 			xpanic("error calling GetMessage()", GetLastError());
-		if (res == 0)		/* WM_QUIT */
+		if (res == 0)		// WM_QUIT
 			break;
 		active = GetActiveWindow();
 		if (active != NULL) {
@@ -70,7 +70,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("message-only", "msgwinproc()", uMsg);
-	return 0;		/* unreachable */
+	return 0;		// unreachable
 }
 
 DWORD makemsgwin(char **errmsg)

@@ -1,4 +1,4 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
@@ -20,7 +20,7 @@ static LRESULT CALLBACK buttonSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Button", "buttonSubProc()", uMsg);
-	return 0;		/* unreached */
+	return 0;		// unreached
 }
 
 void setButtonSubclass(HWND hwnd, void *data)
@@ -36,7 +36,7 @@ static LRESULT CALLBACK checkboxSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 		if (HIWORD(wParam) == BN_CLICKED) {
 			WPARAM check;
 
-			/* we didn't use BS_AUTOCHECKBOX (see controls_windows.go) so we have to manage the check state ourselves */
+			// we didn't use BS_AUTOCHECKBOX (see controls_windows.go) so we have to manage the check state ourselves
 			check = BST_CHECKED;
 			if (SendMessage(hwnd, BM_GETCHECK, 0, 0) == BST_CHECKED)
 				check = BST_UNCHECKED;
@@ -53,7 +53,7 @@ static LRESULT CALLBACK checkboxSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Checkbox", "checkboxSubProc()", uMsg);
-	return 0;		/* unreached */
+	return 0;		// unreached
 }
 
 void setCheckboxSubclass(HWND hwnd, void *data)

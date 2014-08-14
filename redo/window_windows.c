@@ -1,4 +1,4 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
@@ -12,13 +12,13 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
-		/* the lpParam is available during WM_NCCREATE and WM_CREATE */
+		// the lpParam is available during WM_NCCREATE and WM_CREATE
 		if (uMsg == WM_NCCREATE) {
 			storelpParam(hwnd, lParam);
 			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 			storeWindowHWND(data, hwnd);
 		}
-		/* act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway) */
+		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 
@@ -39,7 +39,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Window", "windowWinProc()", uMsg);
-	return 0;		/* unreached */
+	return 0;		// unreached
 }
 
 DWORD makeWindowWindowClass(char **errmsg)

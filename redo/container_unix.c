@@ -1,6 +1,6 @@
 // +build !windows,!darwin
 
-/* 13 august 2014 */
+// 13 august 2014
 
 #include "gtk_unix.h"
 #include "_cgo_export.h"
@@ -18,7 +18,7 @@ typedef struct goContainerClass goContainerClass;
 struct goContainer {
 	GtkContainer parent_instance;
 	void *gocontainer;
-	GPtrArray *children;		/* for forall() */
+	GPtrArray *children;		// for forall()
 };
 
 struct goContainerClass {

@@ -1,4 +1,4 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
@@ -13,12 +13,10 @@ HWND newControl(LPWSTR class, DWORD style, DWORD extstyle)
 		style | WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		/*
-		the following has the consequence of making the control message-only at first
-		this shouldn't cause any problems... hopefully not
-		but see the msgwndproc() for caveat info
-		also don't use low control IDs as they will conflict with dialog boxes (IDCANCEL, etc.)
-		*/
+		// the following has the consequence of making the control message-only at first
+		// this shouldn't cause any problems... hopefully not
+		// but see the msgwndproc() for caveat info
+		// also don't use low control IDs as they will conflict with dialog boxes (IDCANCEL, etc.)
 		msgwin, (HMENU) 100, hInstance, NULL);
 	if (hwnd == NULL)
 		xpanic("error creating control", GetLastError());
@@ -44,7 +42,7 @@ LRESULT forwardCommand(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	HWND control = (HWND) lParam;
 
-	/* don't generate an event if the control (if there is one) is unparented (a child of the message-only window) */
+	// don't generate an event if the control (if there is one) is unparented (a child of the message-only window)
 	if (control != NULL && IsChild(msgwin, control) == 0)
 		return SendMessageW(control, msgCOMMAND, wParam, lParam);
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
@@ -55,7 +53,7 @@ LRESULT forwardNotify(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	NMHDR *nmhdr = (NMHDR *) lParam;
 	HWND control = nmhdr->hwndFrom;
 
-	/* don't generate an event if the control (if there is one) is unparented (a child of the message-only window) */
+	// don't generate an event if the control (if there is one) is unparented (a child of the message-only window)
 	if (control != NULL && IsChild(msgwin, control) == 0)
 		return SendMessageW(control, msgNOTIFY, wParam, lParam);
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);

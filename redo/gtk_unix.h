@@ -1,4 +1,4 @@
-/* 16 march 2014 */
+// 16 march 2014
 
 #ifndef __GO_UI_GTK_UNIX_H__
 #define __GO_UI_GTK_UNIX_H__
@@ -9,20 +9,20 @@ MAX_ALLOWED signals that programs will not use features introduced in newer vers
 Thanks to desrt in irc.gimp.net/#gtk+
 */
 
-/* GLib/GObject */
+// GLib/GObject
 #define GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_32
 #define GLIB_VERSION_MAX_ALLOWED GLIB_VERSION_2_32
 
-/* GDK/GTK+ */
+// GDK/GTK+
 #define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
 #define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 
-/* cairo has no such macros (thanks Company in irc.gimp.net/#gtk+) */
+// cairo has no such macros (thanks Company in irc.gimp.net/#gtk+)
 
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-/* table_unix.c */
+// table_unix.c
 extern void tableAppendColumn(GtkTreeView *, gint, gchar *);
 typedef struct goTableModel goTableModel;
 typedef struct goTableModelClass goTableModelClass;
@@ -36,7 +36,7 @@ struct goTableModelClass {
 extern goTableModel *newTableModel(void *);
 extern void tableUpdate(goTableModel *, gint, gint);
 
-/* container_unix.c */
+// container_unix.c
 extern GtkWidget *newContainer(void *);
 
 #endif

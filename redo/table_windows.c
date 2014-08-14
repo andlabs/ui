@@ -1,9 +1,9 @@
-/* 28 july 2014 */
+// 28 july 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-/* provided for cgo's benefit */
+// provided for cgo's benefit
 LPWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
@@ -19,8 +19,8 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-	/* see table.autoresize() in table_windows.go for the column autosize policy */
-	case WM_NOTIFY:		/* from the contained header control */
+	// see table.autoresize() in table_windows.go for the column autosize policy
+	case WM_NOTIFY:		// from the contained header control
 		if (nmhdr->code == HDN_BEGINTRACK)
 			tableStopColumnAutosize((void *) data);
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
@@ -32,7 +32,7 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Button", "tableSubProc()", uMsg);
-	return 0;		/* unreached */
+	return 0;		// unreached
 }
 
 void setTableSubclass(HWND hwnd, void *data)
@@ -63,7 +63,7 @@ void tableUpdate(HWND hwnd, int nItems)
 
 void tableAddExtendedStyles(HWND hwnd, LPARAM styles)
 {
-	/* the bits of WPARAM specify which bits of LPARAM to look for; having WPARAM == LPARAM ensures that only the bits we want to add are affected */
+	// the bits of WPARAM specify which bits of LPARAM to look for; having WPARAM == LPARAM ensures that only the bits we want to add are affected
 	SendMessageW(hwnd, LVM_SETEXTENDEDLISTVIEWSTYLE, (WPARAM) styles, styles);
 }
 

@@ -1,4 +1,4 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 
@@ -21,7 +21,7 @@ DWORD initWindows(char **errmsg)
 	STARTUPINFOW si;
 	NONCLIENTMETRICSW ncm;
 
-	/* WinMain() parameters */
+	// WinMain() parameters
 	hInstance = GetModuleHandleW(NULL);
 	if (hInstance == NULL) {
 		*errmsg = "error getting hInstance";
@@ -32,7 +32,7 @@ DWORD initWindows(char **errmsg)
 	if ((si.dwFlags & STARTF_USESHOWWINDOW) != 0)
 		nCmdShow = si.wShowWindow;
 
-	/* icons and cursors */
+	// icons and cursors
 	hDefaultIcon = LoadIconW(NULL, IDI_APPLICATION);
 	if (hDefaultIcon == NULL) {
 		*errmsg = "error loading default icon";
@@ -44,7 +44,7 @@ DWORD initWindows(char **errmsg)
 		return GetLastError();
 	}
 
-	/* standard fonts */
+	// standard fonts
 #define GETFONT(l, f, n) l = CreateFontIndirectW(&ncm.f); \
 	if (l == NULL) { \
 		*errmsg = "error loading " n " font"; \

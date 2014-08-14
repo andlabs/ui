@@ -1,11 +1,11 @@
-/* 17 july 2014 */
+// 17 july 2014
 
 #include "winapi_windows.h"
 
 static ULONG_PTR comctlManifestCookie;
 static HMODULE comctl32;
 
-/* these are listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
+// these are listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason
 BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
@@ -16,7 +16,7 @@ LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 	ICC_LISTVIEW_CLASSES |		/* list views */			\
 	0)
 
-/* note that this is an 8-bit character string we're writing; see the encoding clause */
+// note that this is an 8-bit character string we're writing; see the encoding clause
 static const char manifest[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<assembly xmlns=\"urn:schemas-microsoft-com:asm.v1\" manifestVersion=\"1.0\">\n<assemblyIdentity\n    version=\"1.0.0.0\"\n    processorArchitecture=\"*\"\n    name=\"CompanyName.ProductName.YourApplication\"\n    type=\"win32\"\n/>\n<description>Your application description here.</description>\n<dependency>\n    <dependentAssembly>\n        <assemblyIdentity\n            type=\"win32\"\n            name=\"Microsoft.Windows.Common-Controls\"\n            version=\"6.0.0.0\"\n            processorArchitecture=\"*\"\n            publicKeyToken=\"6595b64144ccf1df\"\n            language=\"*\"\n        />\n    </dependentAssembly>\n</dependency>\n</assembly>\n";
 
 /*
@@ -38,7 +38,7 @@ DWORD initCommonControls(char **errmsg)
 	HANDLE ac;
 	INITCOMMONCONTROLSEX icc;
 	FARPROC f;
-	/* this is listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason */
+	// this is listed as WINAPI in both Microsoft's and MinGW's headers, but not on MSDN for some reason
 	BOOL (*WINAPI ficc)(const LPINITCOMMONCONTROLSEX);
 
 	if (GetTempPathW(MAX_PATH + 1, temppath) == 0) {
@@ -50,14 +50,14 @@ DWORD initCommonControls(char **errmsg)
 		return GetLastError();
 	}
 	file = CreateFileW(filename, GENERIC_WRITE,
-		0,			/* don't share while writing */
+		0,			// don't share while writing
 		NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (file == NULL) {
 		*errmsg = "error creating manifest file";
 		return GetLastError();
 	}
-	nExpected = (sizeof manifest / sizeof manifest[0]) - 1;		/* - 1 to omit the terminating null character)
-	SetLastError(0);		/* catch errorless short writes */
+	nExpected = (sizeof manifest / sizeof manifest[0]) - 1;		// - 1 to omit the terminating null character)
+	SetLastError(0);		// catch errorless short writes
 	if (WriteFile(file, manifest, nExpected, &nGot, NULL) == 0) {
 		*errmsg = "error writing manifest file";
 		return GetLastError();
@@ -100,7 +100,7 @@ DWORD initCommonControls(char **errmsg)
 		return GetLastError();
 	}
 
-	/* GetProcAddress() only takes a multibyte string */
+	// GetProcAddress() only takes a multibyte string
 #define LOAD(fn) f = GetProcAddress(comctl32, fn); \
 	if (f == NULL) { \
 		*errmsg = "error loading " fn "()"; \

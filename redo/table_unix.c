@@ -1,6 +1,6 @@
 // +build !windows,!darwin
 
-/* 29 july 2014 */
+// 29 july 2014
 
 #include "gtk_unix.h"
 #include "_cgo_export.h"
@@ -14,7 +14,7 @@ void tableAppendColumn(GtkTreeView *table, gint index, gchar *name)
 	col = gtk_tree_view_column_new_with_attributes(name, renderer,
 		"text", index,
 		NULL);
-	/* allow columns to be resized */
+	// allow columns to be resized
 	gtk_tree_view_column_set_resizable(col, TRUE);
 	gtk_tree_view_append_column(table, col);
 }
@@ -37,7 +37,7 @@ G_DEFINE_TYPE_WITH_CODE(goTableModel, goTableModel, G_TYPE_OBJECT,
 
 static void goTableModel_init(goTableModel *t)
 {
-	/* do nothing */
+	// do nothing
 }
 
 static void goTableModel_dispose(GObject *obj)
@@ -50,14 +50,14 @@ static void goTableModel_finalize(GObject *obj)
 	G_OBJECT_CLASS(goTableModel_parent_class)->finalize(obj);
 }
 
-/* and now for the interface function definitions */
+// and now for the interface function definitions
 
 static GtkTreeModelFlags goTableModel_get_flags(GtkTreeModel *model)
 {
 	return GTK_TREE_MODEL_LIST_ONLY;
 }
 
-/* get_n_columns in Go */
+// get_n_columns in Go
 
 static GType goTableModel_get_column_type(GtkTreeModel *model, gint column)
 {
@@ -86,9 +86,9 @@ bad:
 
 static GtkTreePath *goTableModel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
 {
-	/* note: from this point forward, the GOOD_STAMP checks ensure that the index stored in iter is nonnegative */
+	// note: from this point forward, the GOOD_STAMP checks ensure that the index stored in iter is nonnegative
 	if (iter->stamp != GOOD_STAMP)
-		return NULL;		/* this is what both GtkListStore and GtkTreeStore do */
+		return NULL;		// this is what both GtkListStore and GtkTreeStore do
 	return gtk_tree_path_new_from_indices(FROM(iter->user_data), -1);
 }
 
@@ -98,10 +98,10 @@ static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint 
 	gchar *str;
 
 	if (iter->stamp != GOOD_STAMP)
-		return;			/* this is what both GtkListStore and GtkTreeStore do */
-	/* we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe */
+		return;			// this is what both GtkListStore and GtkTreeStore do
+	// we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe
 	str = goTableModel_do_get_value(t->gotable, FROM(iter->user_data), column);
-	/* value is uninitialized */
+	// value is uninitialized
 	g_value_init(value, G_TYPE_STRING);
 	g_value_set_string(value, str);
 	free(str);
@@ -113,7 +113,7 @@ static gboolean goTableModel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
 	gint index;
 
 	if (iter->stamp != GOOD_STAMP)
-		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
+		return FALSE;		// this is what both GtkListStore and GtkTreeStore do
 	index = FROM(iter->user_data);
 	index++;
 	if (index >= goTableModel_getRowCount(t->gotable)) {
@@ -130,7 +130,7 @@ static gboolean goTableModel_iter_previous(GtkTreeModel *model, GtkTreeIter *ite
 	gint index;
 
 	if (iter->stamp != GOOD_STAMP)
-		return FALSE;		/* this is what both GtkListStore and GtkTreeStore do */
+		return FALSE;		// this is what both GtkListStore and GtkTreeStore do
 	index = FROM(iter->user_data);
 	if (index <= 0) {
 		iter->stamp = BAD_STAMP;
@@ -187,11 +187,11 @@ static gboolean goTableModel_iter_parent(GtkTreeModel *model, GtkTreeIter *paren
 	return FALSE;
 }
 
-/* end of interface definitions */
+// end of interface definitions
 
 static void goTableModel_initGtkTreeModel(GtkTreeModelIface *interface)
 {
-	/* don't chain; we have nothing to chain to */
+	// don't chain; we have nothing to chain to
 #define DEF(x) interface->x = goTableModel_ ## x;
 	DEF(get_flags)
 	DEF(get_n_columns)
@@ -206,7 +206,7 @@ static void goTableModel_initGtkTreeModel(GtkTreeModelIface *interface)
 	DEF(iter_n_children)
 	DEF(iter_nth_child)
 	DEF(iter_parent)
-	/* no need for ref_node and unref_node */
+	// no need for ref_node and unref_node
 }
 
 static GParamSpec *goTableModelProperties[2];
@@ -247,7 +247,7 @@ goTableModel *newTableModel(void *gotable)
 	return (goTableModel *) g_object_new(goTableModel_get_type(), "gotable", (gpointer) gotable, NULL);
 }
 
-/* somewhat naive, but the only alternatives seem to be unloading/reloading the model (or the view!), which is bleh */
+// somewhat naive, but the only alternatives seem to be unloading/reloading the model (or the view!), which is bleh
 void tableUpdate(goTableModel *t, gint old, gint new)
 {
 	gint i;
@@ -256,7 +256,7 @@ void tableUpdate(goTableModel *t, gint old, gint new)
 	GtkTreeIter iter;
 
 	iter.stamp = GOOD_STAMP;
-	/* first, append extra items */
+	// first, append extra items
 	if (old < new) {
 		for (i = old; i < new; i++) {
 			path = gtk_tree_path_new_from_indices(i, -1);
@@ -266,18 +266,18 @@ void tableUpdate(goTableModel *t, gint old, gint new)
 		nUpdate = old;
 	} else
 		nUpdate = new;
-	/* next, update existing items */
+	// next, update existing items
 	for (i = 0; i < nUpdate; i++) {
 		path = gtk_tree_path_new_from_indices(i, -1);
 		iter.user_data = TO(i);
 		g_signal_emit_by_name(t, "row-updated", path, &iter);
 	}
-	/* finally, remove deleted items */
+	// finally, remove deleted items
 	if (old > new)
 		for (i = new; i < old; i++) {
-			/* note that we repeatedly remove the row at index new, as that changes with each removal; NOT i */
+			// note that we repeatedly remove the row at index new, as that changes with each removal; NOT i
 			path = gtk_tree_path_new_from_indices(new, -1);
-			/* row-deleted has no iter */
+			// row-deleted has no iter
 			g_signal_emit_by_name(t, "row-deleted", path);
 		}
 }

@@ -1,6 +1,4 @@
-/* 24 march 2014 */
-
-/* TODO either strip the // comments or find out if --std=c99 is safe for cgo */
+// 24 march 2014
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
@@ -319,13 +317,13 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
-		/* the lpParam is available during WM_NCCREATE and WM_CREATE */
+		// the lpParam is available during WM_NCCREATE and WM_CREATE
 		if (uMsg == WM_NCCREATE) {
 			storelpParam(hwnd, lParam);
 			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 			storeAreaHWND(data, hwnd);
 		}
-		/* act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway) */
+		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 
@@ -414,7 +412,7 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	xmissedmsg("Area", "areaWndProc()", uMsg);
-	return 0;			/* unreached */
+	return 0;			// unreached
 }
 
 DWORD makeAreaWindowClass(char **errmsg)
