@@ -33,7 +33,14 @@ Mac OS X
 		// in the other case, the most correct thing would be for Label to be aligned to the alignment rect, but I can't get this working, and it looks fine as it is anyway
 	other controls
 		same rules? checkboxes seem damning...
+	ok in general
+		spacing applies to alignment rects
+			will conflict with Stack/Grid precalculation
+			unless we resize the control and move it around to suit
+		Tabs seem to have differnt margin rules
+			need to check padding rules within Tabs
 TextField
+		text alignment (think labels and checkboxes) may be a perpetual problem though
 	add events (figure out which of the following are appropriate: changed, enter pressed)
 	provide some facility to mark invalid values
 	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know

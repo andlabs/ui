@@ -39,13 +39,12 @@ func containerResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) 
 	c.resize(0, 0, int(width), int(height))
 }
 
-// THIS IS A GUESS. TODO.
-// The only indication that this is remotely correct is the Auto Layout Guide implying that 12 pixels is the "Aqua space".
+// These are based on measurements from Interface Builder.
 const (
-	macXMargin = 12
-	macYMargin = 12
-	macXPadding = 12
-	macYPadding = 12
+	macXMargin = 20
+	macYMargin = 20
+	macXPadding = 8
+	macYPadding = 8
 )
 
 func (c *container) beginResize() (d *sizing) {
