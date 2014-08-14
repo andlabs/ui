@@ -11,7 +11,7 @@ LRESULT getWindowTextLen(HWND hwnd)
 void getWindowText(HWND hwnd, WPARAM n, LPWSTR buf)
 {
 	SetLastError(0);
-	if (SendMessageW(hwnd, WM_GETTEXT, n + 1, (LPARAM) buf) != n)
+	if (SendMessageW(hwnd, WM_GETTEXT, n + 1, (LPARAM) buf) != (LRESULT) n)
 		xpanic("WM_GETTEXT did not copy the correct number of characters out", GetLastError());
 }
 

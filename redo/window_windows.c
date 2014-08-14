@@ -28,7 +28,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
-	xmissedmsg("Window", "windowWinProc()", uMsg);
+	xmissedmsg("Window", "windowWndProc()", uMsg);
 	return 0;		// unreached
 }
 

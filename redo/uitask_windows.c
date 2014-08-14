@@ -91,7 +91,6 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 DWORD makemsgwin(char **errmsg)
 {
 	WNDCLASSW wc;
-	HWND hwnd;
 
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpfnWndProc = msgwinproc;
