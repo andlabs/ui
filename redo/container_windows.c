@@ -58,7 +58,7 @@ DWORD makeContainerWindowClass(char **errmsg)
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
-	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
+	wc.hbrBackground = NULL;//(HBRUSH) (COLOR_BTNFACE + 1);
 	wc.lpszClassName = containerclass;
 	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering container window class";
@@ -72,7 +72,7 @@ HWND newContainer(void *data)
 	HWND hwnd;
 
 	hwnd = CreateWindowExW(
-		WS_EX_CONTROLPARENT,
+		WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT,
 		containerclass, L"",
 		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
