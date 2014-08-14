@@ -90,6 +90,8 @@ extern void setTabSubclass(HWND, void *);
 extern void tabAppend(HWND, LPWSTR);
 extern void tabGetContentRect(HWND, RECT *);
 extern LONG tabGetTabHeight(HWND);
+extern void tabEnterChildren(HWND);
+extern void tabLeaveChildren(HWND);
 
 // table_windows.go
 extern LPWSTR xWC_LISTVIEW;

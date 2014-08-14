@@ -80,3 +80,27 @@ LONG tabGetTabHeight(HWND hwnd)
 	}
 	return tallest;
 }
+
+void tabEnterChildren(HWND hwnd)
+{
+	DWORD style, xstyle;
+
+	style = (DWORD) GetWindowLongPtrW(hwnd, GWL_STYLE);
+	xstyle = (DWORD) GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+	style &= ~((DWORD) WS_TABSTOP);
+	xstyle |= WS_EX_CONTROLPARENT;
+	SetWindowLongPtrW(hwnd, GWL_STYLE, (LONG_PTR) style);
+	SetWindowLongPtrW(hwnd, GWL_EXSTYLE, (LONG_PTR) xstyle);
+}
+
+void tabLeaveChildren(HWND hwnd)
+{
+	DWORD style, xstyle;
+
+	style = (DWORD) GetWindowLongPtrW(hwnd, GWL_STYLE);
+	xstyle = (DWORD) GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+	style |= WS_TABSTOP;
+	xstyle &= ~((DWORD) WS_EX_CONTROLPARENT);
+	SetWindowLongPtrW(hwnd, GWL_STYLE, (LONG_PTR) style);
+	SetWindowLongPtrW(hwnd, GWL_EXSTYLE, (LONG_PTR) xstyle);
+}

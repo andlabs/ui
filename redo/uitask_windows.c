@@ -4,15 +4,18 @@
 #include "_cgo_export.h"
 
 // note that this includes the terminating '\0'
-#define NAREACLASS (sizeof areaWindowClass / sizeof areaWindowClass[0])
+// this also assumes WC_TABCONTROL is longer than areaWindowClass
+#define NCLASSNAME (sizeof WC_TABCONTROL / sizeof WC_TABCONTROL[0])
 
 void uimsgloop(void)
 {
 	MSG msg;
 	int res;
-	HWND active;
-	WCHAR classchk[NAREACLASS];
+	HWND active, focus;
+	WCHAR classchk[NCLASSNAME];
 	BOOL dodlgmessage;
+	BOOL istab;
+	BOOL idm;
 
 	for (;;) {
 		SetLastError(0);
@@ -23,21 +26,31 @@ void uimsgloop(void)
 			break;
 		active = GetActiveWindow();
 		if (active != NULL) {
-			HWND focus;
-
+			// bit of logic involved here:
+			// we don't want dialog messages passed into Areas, so we don't call IsDialogMessageW() there
+			// as for Tabs, we can't have both WS_TABSTOP and WS_EX_CONTROLPARENT set at the same time, so we hotswap the two styles to get the behavior we want
+			// theoretically we could use the class atom to avoid a wcscmp()
+			// however, raymond chen advises against this - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx (and we're not in control of the Tab class, before you say anything)
+			// we could also theoretically just send msgAreaDefocuses directly, but what DefWindowProc() does to a WM_APP message is undocumented
 			dodlgmessage = TRUE;
+			istab = FALSE;
 			focus = GetFocus();
 			if (focus != NULL) {
-				// theoretically we could use the class atom to avoid a wcscmp()
-				// however, raymond chen advises against this - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx
-				// while I have no idea what could deregister *my* window class from under *me*, better safe than sorry
-				// we could also theoretically just send msgAreaDefocuses directly, but what DefWindowProc() does to a WM_APP message is undocumented
-				if (GetClassNameW(focus, classchk, NAREACLASS) == 0)
+				if (GetClassNameW(focus, classchk, NCLASSNAME) == 0)
 					xpanic("error getting name of focused window class for Area check", GetLastError());
 				if (wcscmp(classchk, areaWindowClass) == 0)
 					dodlgmessage = FALSE;
+				else if (wcscmp(classchk, WC_TABCONTROL) == 0)
+					istab = TRUE;
 			}
-			if (dodlgmessage && IsDialogMessageW(active, &msg) != 0)
+			if (istab)
+				tabEnterChildren(focus);
+			// TODO this goes into an infinite loop on a blank tab
+			if (dodlgmessage)
+				idm = IsDialogMessageW(active, &msg);
+			if (istab)
+				tabLeaveChildren(focus);
+			if (idm != 0)
 				continue;
 		}
 		TranslateMessage(&msg);

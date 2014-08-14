@@ -23,9 +23,7 @@ type tab struct {
 func newTab() Tab {
 	hwnd := C.newControl(C.xWC_TABCONTROL,
 		C.TCS_TOOLTIPS | C.WS_TABSTOP,
-		// this is needed to have the tab contents be tab stop
-		// TODO this seems to override WS_TABSTOP; it seems I have to undo making the containers children - http://stackoverflow.com/questions/1153981/tab-order-in-tab-control-with-nested-dialogs-ws-ex-controlparent
-		C.WS_EX_CONTROLPARENT)
+		0)		// don't set WS_EX_CONTROLPARENT here; see uitask_windows.c
 	t := &tab{
 		_hwnd:	hwnd,
 	}
