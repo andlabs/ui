@@ -51,7 +51,6 @@ static void goContainer_add(GtkContainer *container, GtkWidget *widget)
 static void goContainer_remove(GtkContainer *container, GtkWidget *widget)
 {
 	gtk_widget_unparent(widget);
-	/* TODO this won't guarantee order preservation; important if we ever actually use this */
 	g_ptr_array_remove(GOCONTAINER(container)->children, widget);
 }
 
