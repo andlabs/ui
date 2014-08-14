@@ -10,14 +10,12 @@ import (
 )
 
 // #include "gtk_unix.h"
-// extern void containerResizing(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type container struct {
 	containerbase
 	layoutwidget		*C.GtkWidget
 	layoutcontainer	*C.GtkContainer
-	layout			*C.GtkLayout
 }
 
 type sizing struct {
@@ -31,23 +29,12 @@ type sizing struct {
 }
 
 func newContainer(child Control) *container {
-	widget := C.gtk_layout_new(nil, nil)
-	c := &container{
-		layoutwidget:		widget,
-		layoutcontainer:	(*C.GtkContainer)(unsafe.Pointer(widget)),
-		layout:			(*C.GtkLayout)(unsafe.Pointer(widget)),
-	}
+	c := new(container)
+	widget := C.newContainer(unsafe.Pointer(c))
+	c.layoutwidget = widget
+	c.layoutcontainer = (*C.GtkContainer)(unsafe.Pointer(widget))
 	c.child = child
 	c.child.setParent(&controlParent{c.layoutcontainer})
-	// we connect to the layout's size-allocate, not to the window's configure-event
-	// this allows us to handle client-side decoration-based configurations (such as GTK+ on Wayland) properly
-	// also see basecommitResize() in control_unix.go for additional notes
-	// thanks to many people in irc.gimp.net/#gtk+ for help (including tristan for suggesting g_signal_connect_after())
-	g_signal_connect_after(
-		C.gpointer(unsafe.Pointer(c.layout)),
-		"size-allocate",
-		C.GCallback(C.containerResizing),
-		C.gpointer(unsafe.Pointer(c)))
 	return c
 }
 
@@ -56,10 +43,9 @@ func (c *container) setParent(p *controlParent) {
 }
 
 //export containerResizing
-func containerResizing(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
-	c := (*container)(unsafe.Pointer(data))
-	// the GtkLayout's coordinate system is localized, so the origin is (0, 0)
-	c.resize(0, 0, int(r.width), int(r.height))
+func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
+	c := (*container)(data)
+	c.resize(int(r.x), int(r.y), int(r.width), int(r.height))
 fmt.Printf("new size %d x %d\n", r.width, r.height)
 }
 

@@ -33,7 +33,7 @@ static void goContainer_init(goContainer *c)
 
 static void goContainer_dispose(GObject *obj)
 {
-	g_ptr_array_unref(c->children);
+	g_ptr_array_unref(GOCONTAINER(obj)->children);
 	G_OBJECT_CLASS(goContainer_parent_class)->dispose(obj);
 }
 
@@ -58,7 +58,7 @@ static void goContainer_remove(GtkContainer *container, GtkWidget *widget)
 static void goContainer_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
 	gtk_widget_set_allocation(widget, allocation);
-	containerResized(GOCONTAINER(widget)->gocontainer, allocation);
+	containerResizing(GOCONTAINER(widget)->gocontainer, allocation);
 }
 
 /*
@@ -105,9 +105,9 @@ static void goContainer_class_init(goContainerClass *class)
 	GTK_CONTAINER_CLASS(class)->forall = goContainer_forall;
 }
 
-GtkWidget *newContainer(void *gocontianer)
+GtkWidget *newContainer(void *gocontainer)
 {
-	GoContainer *c;
+	goContainer *c;
 
 	c = (goContainer *) g_object_new(GOCONTAINER_TYPE, NULL);
 	c->gocontainer = gocontainer;
