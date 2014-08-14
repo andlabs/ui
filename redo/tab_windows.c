@@ -25,6 +25,8 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case msgTabCurrentTabHasChildren:
+		return (LRESULT) tabTabHasChildren((void *) data, SendMessageW(hwnd, TCM_GETCURSEL, 0, 0));
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, tabSubProc, id) == FALSE)
 			xpanic("error removing Tab subclass (which was for its own event handler)", GetLastError());

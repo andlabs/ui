@@ -57,7 +57,8 @@ func (l *label) settextlen(len C.LONG) {
 }
 
 func (l *label) setParent(p *controlParent) {
-	basesetParent(l, p)
+	C.controlSetParent(l.hwnd(), p.c.hwnd)
+	// don't increment p.c.nchildren here because Labels aren't tab stops
 }
 
 func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {

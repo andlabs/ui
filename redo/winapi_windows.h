@@ -29,6 +29,7 @@ enum {
 	msgNOTIFY,					// WM_NOTIFY proxy
 	msgAreaSizeChanged,
 	msgAreaRepaintAll,
+	msgTabCurrentTabHasChildren,
 };
 
 // uitask_windows.c

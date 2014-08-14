@@ -34,7 +34,7 @@ func newTab() Tab {
 
 func (t *tab) Append(name string, control Control) {
 	c := newContainer(control)
-	c.setParent(&controlParent{t._hwnd})
+	c.setParent(t._hwnd)
 	t.tabs = append(t.tabs, c)
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
@@ -53,6 +53,15 @@ func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
 	t.tabs[int(new)].show()
+}
+
+//export tabTabHasChildren
+func tabTabHasChildren(data unsafe.Pointer, which C.LRESULT) C.BOOL {
+	t := (*tab)(data)
+	if t.tabs[int(which)].nchildren > 0 {
+		return C.TRUE
+	}
+	return C.FALSE
 }
 
 func (t *tab) hwnd() C.HWND {

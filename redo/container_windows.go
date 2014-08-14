@@ -14,6 +14,7 @@ import "C"
 type container struct {
 	containerbase
 	hwnd		C.HWND
+	nchildren		int
 }
 
 type sizing struct {
@@ -45,12 +46,12 @@ func newContainer(control Control) *container {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in container (%p) differ", hwnd, c.hwnd))
 	}
 	c.child = control
-	c.child.setParent(&controlParent{c.hwnd})
+	c.child.setParent(&controlParent{c})
 	return c
 }
 
-func (c *container) setParent(p *controlParent) {
-	C.controlSetParent(c.hwnd, p.hwnd)
+func (c *container) setParent(hwnd C.HWND) {
+	C.controlSetParent(c.hwnd, hwnd)
 }
 
 // this is needed because Windows won't move/resize a child window for us

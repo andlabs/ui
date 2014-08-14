@@ -44,7 +44,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	if hresult != C.S_OK {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
 	}
-	w.container.setParent(&controlParent{w.hwnd})
+	w.container.setParent(w.hwnd)
 	return w
 }
 

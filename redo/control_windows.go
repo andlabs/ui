@@ -11,11 +11,12 @@ type controlPrivate interface {
 }
 
 type controlParent struct {
-	hwnd	C.HWND
+	c	*container
 }
 
 func basesetParent(c controlPrivate, p *controlParent) {
-	C.controlSetParent(c.hwnd(), p.hwnd)
+	C.controlSetParent(c.hwnd(), p.c.hwnd)
+	p.c.nchildren++
 }
 
 // don't specify basepreferredSize; it is custom on ALL controls

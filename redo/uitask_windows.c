@@ -41,17 +41,19 @@ void uimsgloop(void)
 				if (wcscmp(classchk, areaWindowClass) == 0)
 					dodlgmessage = FALSE;
 				else if (wcscmp(classchk, WC_TABCONTROL) == 0)
-					istab = TRUE;
+					// THIS BIT IS IMPORTANT
+					// if the current tab has no children, then there will be no children left in the dialog to tab to, and IsDialogMessageW() will loop forever
+					istab = (BOOL) SendMessageW(focus, msgTabCurrentTabHasChildren, 0, 0);
 			}
-			if (istab)
-				tabEnterChildren(focus);
-			// TODO this goes into an infinite loop on a blank tab
-			if (dodlgmessage)
+			if (dodlgmessage) {
+				if (istab)
+					tabEnterChildren(focus);
 				idm = IsDialogMessageW(active, &msg);
-			if (istab)
-				tabLeaveChildren(focus);
-			if (idm != 0)
-				continue;
+				if (istab)
+					tabLeaveChildren(focus);
+				if (idm != 0)
+					continue;
+			}
 		}
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
