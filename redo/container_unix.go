@@ -46,7 +46,7 @@ func (c *container) setParent(p *controlParent) {
 func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
 	c := (*container)(data)
 	c.resize(int(r.x), int(r.y), int(r.width), int(r.height))
-fmt.Printf("new size %d x %d\n", r.width, r.height)
+fmt.Printf("%p new size %d x %d\n", c, r.width, r.height)
 }
 
 const (
