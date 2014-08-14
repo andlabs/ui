@@ -9,6 +9,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 {
 	void *data;
 	RECT r;
+	LRESULT shared;
 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
@@ -21,12 +22,9 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
-
+	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &shared))
+		return shared;
 	switch (uMsg) {
-	case WM_COMMAND:
-		return forwardCommand(hwnd, uMsg, wParam, lParam);
-	case WM_NOTIFY:
-		return forwardNotify(hwnd, uMsg, wParam, lParam);
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());

@@ -49,8 +49,6 @@ extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 extern HWND newControl(LPWSTR, DWORD, DWORD);
 extern void controlSetParent(HWND, HWND);
 extern void controlSetControlFont(HWND);
-extern LRESULT forwardCommand(HWND, UINT, WPARAM, LPARAM);
-extern LRESULT forwardNotify(HWND, UINT, WPARAM, LPARAM);
 extern void moveWindow(HWND, int, int, int, int);
 extern LONG controlTextLength(HWND, LPWSTR);
 
@@ -84,6 +82,7 @@ extern void getWindowText(HWND, WPARAM, LPWSTR);
 extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
 extern void storelpParam(HWND, LPARAM);
+extern BOOL sharedWndProc(HWND, UINT, WPARAM, LPARAM, LRESULT *);
 
 // tab_windows.go
 extern LPWSTR xWC_TABCONTROL;

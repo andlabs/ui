@@ -34,31 +34,6 @@ void controlSetControlFont(HWND which)
 	SendMessageW(which, WM_SETFONT, (WPARAM) controlFont, TRUE);
 }
 
-/*
-all controls that have events receive the events themselves through subclasses
-to do this, all windows (including the message-only window; see http://support.microsoft.com/default.aspx?scid=KB;EN-US;Q104069) forward WM_COMMAND to each control with this function
-*/
-LRESULT forwardCommand(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	HWND control = (HWND) lParam;
-
-	// don't generate an event if the control (if there is one) is unparented (a child of the message-only window)
-	if (control != NULL && IsChild(msgwin, control) == 0)
-		return SendMessageW(control, msgCOMMAND, wParam, lParam);
-	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-}
-
-LRESULT forwardNotify(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	NMHDR *nmhdr = (NMHDR *) lParam;
-	HWND control = nmhdr->hwndFrom;
-
-	// don't generate an event if the control (if there is one) is unparented (a child of the message-only window)
-	if (control != NULL && IsChild(msgwin, control) == 0)
-		return SendMessageW(control, msgNOTIFY, wParam, lParam);
-	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-}
-
 void moveWindow(HWND hwnd, int x, int y, int width, int height)
 {
 	if (MoveWindow(hwnd, x, y, width, height, TRUE) == 0)
