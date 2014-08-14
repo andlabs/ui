@@ -21,7 +21,7 @@ type table struct {
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	t := &table{
 		_hwnd:		C.newControl(C.xWC_LISTVIEW,
-			C.LVS_REPORT | C.LVS_OWNERDATA | C.LVS_NOSORTHEADER | C.LVS_SHOWSELALWAYS | C.WS_HSCROLL | C.WS_VSCROLL,
+			C.LVS_REPORT | C.LVS_OWNERDATA | C.LVS_NOSORTHEADER | C.LVS_SHOWSELALWAYS | C.WS_HSCROLL | C.WS_VSCROLL | C.WS_TABSTOP,
 			C.WS_EX_CLIENTEDGE),		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 		tablebase:		b,
 	}
