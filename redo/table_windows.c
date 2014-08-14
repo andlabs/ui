@@ -19,22 +19,10 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-	/* the autosize behavior is simple: always autosize until the user manually sizes, then never autosize again (this is my best guess as to how GTK+ behaves) */
+	/* see table.autoresize() in table_windows.go for the column autosize policy */
 	case WM_NOTIFY:		/* from the contained header control */
 		if (nmhdr->code == HDN_BEGINTRACK)
 			tableStopColumnAutosize((void *) data);
-		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-	case WM_SIZE:
-		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-		/* TODO this causes weird issues with regards to item positioning on Windows XP */
-		if (tableAutosizeColumns((void *) data)) {
-			int i, nColumns;
-
-			nColumns = tableColumnCount((void *) data);
-			for (i = 0; i < nColumns; i++)
-				if (SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, (WPARAM) i, (LPARAM) LVSCW_AUTOSIZE_USEHEADER) == FALSE)
-					xpanic("error resizing columns of results list view", GetLastError());
-		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, tableSubProc, id) == FALSE)
@@ -77,4 +65,13 @@ void tableAddExtendedStyles(HWND hwnd, LPARAM styles)
 {
 	/* the bits of WPARAM specify which bits of LPARAM to look for; having WPARAM == LPARAM ensures that only the bits we want to add are affected */
 	SendMessageW(hwnd, LVM_SETEXTENDEDLISTVIEWSTYLE, (WPARAM) styles, styles);
+}
+
+void tableAutosizeColumns(HWND hwnd, int nColumns)
+{
+	int i;
+
+	for (i = 0; i < nColumns; i++)
+		if (SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, (WPARAM) i, (LPARAM) LVSCW_AUTOSIZE_USEHEADER) == FALSE)
+			xpanic("error resizing columns of results list view", GetLastError());
 }

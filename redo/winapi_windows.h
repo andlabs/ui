@@ -97,6 +97,7 @@ extern void setTableSubclass(HWND, void *);
 extern void tableAppendColumn(HWND, int, LPWSTR);
 extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
+extern void tableAutosizeColumns(HWND, int);
 
 /* container_windows.c */
 extern DWORD makeContainerWindowClass(char **);

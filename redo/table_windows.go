@@ -60,19 +60,20 @@ func tableGetCellText(data unsafe.Pointer, row C.int, col C.int, str *C.LPWSTR) 
 	*str = toUTF16(s)
 }
 
+// the column autoresize policy is simple:
+// on every table.commitResize() call, if the columns have not been resized by the user, autoresize
+func (t *table) autoresize() {
+	t.RLock()
+	defer t.RUnlock()
+	if !t.noautosize {
+		C.tableAutosizeColumns(t._hwnd, t.colcount)
+	}
+}
+
 //export tableStopColumnAutosize
 func tableStopColumnAutosize(data unsafe.Pointer) {
 	t := (*table)(data)
 	t.noautosize = true
-}
-
-//export tableAutosizeColumns
-func tableAutosizeColumns(data unsafe.Pointer) C.BOOL {
-	t := (*table)(data)
-	if t.noautosize {
-		return C.FALSE
-	}
-	return C.TRUE
 }
 
 //export tableColumnCount
@@ -106,6 +107,9 @@ func (t *table) preferredSize(d *sizing) (width, height int) {
 
 func (t *table) commitResize(a *allocation, d *sizing) {
 	basecommitResize(t, a, d)
+	t.RLock()
+	defer t.RUnlock()
+	t.autoresize()
 }
 
 func (t *table) getAuxResizeInfo(d *sizing) {

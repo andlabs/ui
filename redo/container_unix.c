@@ -1,3 +1,5 @@
+// +build !windows,!darwin
+
 /* 13 august 2014 */
 
 #include "gtk_unix.h"
