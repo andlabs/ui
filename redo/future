@@ -39,6 +39,8 @@ Mac OS X
 			unless we resize the control and move it around to suit
 		Tabs seem to have differnt margin rules
 			need to check padding rules within Tabs
+	activateIgnoringOtherApps: and command line programs: evaluate just how much it will matter
+		http://stackoverflow.com/a/25318870/3408572
 TextField
 		text alignment (think labels and checkboxes) may be a perpetual problem though
 	add events (figure out which of the following are appropriate: changed, enter pressed)
