@@ -80,6 +80,8 @@ static LRESULT forwardNotify(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 // TODO give this a better name
 BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult)
 {
+	DWORD exstyle;
+
 	switch (uMsg) {
 	case WM_COMMAND:
 		*lResult = forwardCommand(hwnd, uMsg, wParam, lParam);
@@ -87,6 +89,15 @@ BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *
 	case WM_NOTIFY:
 		*lResult = forwardNotify(hwnd, uMsg, wParam, lParam);
 		return TRUE;
+	case WM_CTLCOLORSTATIC:
+		exstyle = (DWORD) GetWindowLongPtrW((HWND) lParam, GWL_EXSTYLE);
+		if ((exstyle & WS_EX_TRANSPARENT) != 0) {
+			if (SetBkMode((HDC) wParam, TRANSPARENT) == 0)
+				xpanic("error setting transparent background mode to Labels", GetLastError());
+			*lResult = (LRESULT) hollowBrush;
+			return TRUE;
+		}
+		return FALSE;
 	}
 	return FALSE;
 }

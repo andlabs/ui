@@ -18,7 +18,7 @@ func finishNewLabel(text string, standalone bool) *label {
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
 		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
-		0)
+		C.WS_EX_TRANSPARENT)
 	l := &label{
 		_hwnd:		hwnd,
 		standalone:	standalone,
