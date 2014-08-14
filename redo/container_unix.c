@@ -60,32 +60,6 @@ static void goContainer_size_allocate(GtkWidget *widget, GtkAllocation *allocati
 	containerResizing(GOCONTAINER(widget)->gocontainer, allocation);
 }
 
-/*
-static void goContainer_get_preferred_width(GtkWidget *widget, gint *min, gint *nat)
-{
-	if (GOCONTAINER(widget)->child != NULL) {
-		gtk_widget_get_preferred_width(GOCONTAINER(widget)->child, min, nat);
-		return;
-	}
-	if (min != NULL)
-		*min = 0;
-	if (nat != NULL)
-		*nat = 0;
-}
-
-static void goContainer_get_preferred_height(GtkWidget *widget, gint *min, gint *nat)
-{
-	if (GOCONTAINER(widget)->child != NULL) {
-		gtk_widget_get_preferred_height(GOCONTAINER(widget)->child, min, nat);
-		return;
-	}
-	if (min != NULL)
-		*min = 0;
-	if (nat != NULL)
-		*nat = 0;
-}
-*/
-
 struct forall {
 	GtkCallback callback;
 	gpointer data;
@@ -112,8 +86,6 @@ static void goContainer_class_init(goContainerClass *class)
 	G_OBJECT_CLASS(class)->dispose = goContainer_dispose;
 	G_OBJECT_CLASS(class)->finalize = goContainer_finalize;
 	GTK_WIDGET_CLASS(class)->size_allocate = goContainer_size_allocate;
-//	GTK_WIDGET_CLASS(class)->get_preferred_width = goContainer_get_preferred_width;
-//	GTK_WIDGET_CLASS(class)->get_preferred_height = goContainer_get_preferred_height;
 	GTK_CONTAINER_CLASS(class)->add = goContainer_add;
 	GTK_CONTAINER_CLASS(class)->remove = goContainer_remove;
 	GTK_CONTAINER_CLASS(class)->forall = goContainer_forall;
