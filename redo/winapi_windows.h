@@ -81,7 +81,7 @@ extern LRESULT getWindowTextLen(HWND);
 extern void getWindowText(HWND, WPARAM, LPWSTR);
 extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
-extern void storelpParam(HWND, LPARAM);
+extern void *getWindowData(HWND, UINT, WPARAM, LPARAM, LRESULT *, void (*)(void *, HWND));
 extern BOOL sharedWndProc(HWND, UINT, WPARAM, LPARAM, LRESULT *);
 
 // tab_windows.go

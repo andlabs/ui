@@ -314,19 +314,11 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	void *data;
 	DWORD which;
 	uintptr_t heldButtons = (uintptr_t) wParam;
+	LRESULT lResult;
 
-	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-	if (data == NULL) {
-		// the lpParam is available during WM_NCCREATE and WM_CREATE
-		if (uMsg == WM_NCCREATE) {
-			storelpParam(hwnd, lParam);
-			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-			storeAreaHWND(data, hwnd);
-		}
-		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
-		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-	}
-
+	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult, storeAreaHWND);
+	if (data == NULL)
+		return lResult;
 	switch (uMsg) {
 	case WM_PAINT:
 		paintArea(hwnd, data);

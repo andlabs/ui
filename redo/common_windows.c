@@ -29,11 +29,23 @@ void updateWindow(HWND hwnd)
 		xpanic("error calling UpdateWindow()", GetLastError());
 }
 
-void storelpParam(HWND hwnd, LPARAM lParam)
+void *getWindowData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult, void (*storeHWND)(void *, HWND))
 {
 	CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
+	void *data;
 
-	SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) (cs->lpCreateParams));
+	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+	if (data == NULL) {
+		// the lpParam is available during WM_NCCREATE and WM_CREATE
+		if (uMsg == WM_NCCREATE) {
+			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) (cs->lpCreateParams));
+			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+			(*storeHWND)(data, hwnd);
+		}
+		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
+		*lResult = DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	}
+	return data;
 }
 
 /*

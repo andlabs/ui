@@ -15,21 +15,13 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 {
 	void *data;
 	RECT r;
-	LRESULT shared;
+	LRESULT lResult;
 
-	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-	if (data == NULL) {
-		// the lpParam is available during WM_NCCREATE and WM_CREATE
-		if (uMsg == WM_NCCREATE) {
-			storelpParam(hwnd, lParam);
-			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-			storeContainerHWND(data, hwnd);
-		}
-		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
-		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-	}
-	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &shared))
-		return shared;
+	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult, storeContainerHWND);
+	if (data == NULL)
+		return lResult;
+	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
+		return lResult;
 	switch (uMsg) {
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
