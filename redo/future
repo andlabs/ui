@@ -63,7 +63,7 @@ windows
 	- not all controls are transparent
 mac os x
 	- applicationShouldTerminate: not handled
-gtk+, mac os x
+gtk+
 	- Area: default buttons, escape
 all
 	- make spaced settable somehow
