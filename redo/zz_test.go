@@ -137,7 +137,7 @@ func (tw *testwin) make(done chan struct{}) {
 		tw.wsmall = NewWindow("Small", 80, 80,
 			NewVerticalStack(
 				NewButton("Small"),
-				NewButton("Small"),
+				NewButton("Small 2"),
 				NewArea(200, 200, &areaHandler{})))
 		tw.wsmall.Show()
 	}
