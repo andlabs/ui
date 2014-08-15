@@ -41,6 +41,10 @@ func (l *label) SetText(text string) {
 	C.textFieldSetText(l._id, ctext)
 }
 
+func (l *label) isStandalone() bool {
+	return l.standalone
+}
+
 func (l *label) id() C.id {
 	return l._id
 }

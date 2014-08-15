@@ -44,6 +44,10 @@ func (l *label) SetText(text string) {
 	baseSetText(l, text)
 }
 
+func (l *label) isStandalone() bool {
+	return l.standalone
+}
+
 func (l *label) hwnd() C.HWND {
 	return l._hwnd
 }

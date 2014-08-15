@@ -87,6 +87,8 @@ type Label interface {
 	// Text and SetText get and set the Label's text.
 	Text() string
 	SetText(text string)
+
+	isStandalone() bool
 }
 
 // NewLabel creates a new Label with the given text.

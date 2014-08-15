@@ -54,6 +54,10 @@ func (l *label) SetText(text string) {
 	C.gtk_label_set_text(l.label, ctext)
 }
 
+func (l *label) isStandalone() bool {
+	return l.standalone
+}
+
 func (l *label) widget() *C.GtkWidget {
 	return l._widget
 }
