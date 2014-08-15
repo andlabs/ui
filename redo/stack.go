@@ -27,7 +27,6 @@ type Stack interface {
 }
 
 type stack struct {
-	created       bool
 	orientation   orientation
 	controls      []Control
 	stretchy      []bool
@@ -55,9 +54,6 @@ func NewVerticalStack(controls ...Control) Stack {
 }
 
 func (s *stack) SetStretchy(index int) {
-	if s.created {
-		panic("call to Stack.SetStretchy() after Stack has been created")
-	}
 	if index < 0 || index > len(s.stretchy) {
 		panic(fmt.Errorf("index %d out of range in Stack.SetStretchy()", index))
 	}
@@ -68,7 +64,6 @@ func (s *stack) setParent(parent *controlParent) {
 	for _, c := range s.controls {
 		c.setParent(parent)
 	}
-	s.created = true
 }
 
 func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
