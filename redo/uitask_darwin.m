@@ -4,6 +4,8 @@
 #import "_cgo_export.h"
 #import <Cocoa/Cocoa.h>
 
+#define toNSWindow(x) ((NSWindow *) (x))
+
 static Class areaClass;
 
 @interface goApplication : NSApplication
@@ -41,6 +43,15 @@ static Class areaClass;
 	[super sendEvent:e];
 }
 
+// ok AppKit, wanna play hardball? let's play hardball.
+// because I can neither break out of the special version of the NSModalPanelRunLoopMode that the regular terminate: puts us in nor avoid the exit(0); call included, I'm taking control
+// note that this is called AFTER applicationShouldTerminate:
+- (void)terminate:(id)sender
+{
+	// DO ABSOLUTELY NOTHING
+	// the magic is [NSApp run] will just... stop.
+}
+
 @end
 
 @interface appDelegateClass : NSObject <NSApplicationDelegate>
@@ -64,9 +75,8 @@ static Class areaClass;
 			return NSTerminateCancel;
 	}
 	// all windows closed; stop gracefully for Go
-	uistop();
-	// TODO can't use NSTerminateLater here as the run loop is different (???)
-	return NSTerminateCancel;
+	// note that this is designed for our special terminate: above
+	return NSTerminateNow;
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
@@ -97,6 +107,7 @@ void uiinit(char **errmsg)
 void uimsgloop(void)
 {
 	[NSApp run];
+//	NSLog(@"you shouldn't see this under normal circumstances, but screw the rules, I have SUBCLASSING");
 }
 
 // don't use [NSApp terminate:]; that quits the program
