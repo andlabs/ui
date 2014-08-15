@@ -32,6 +32,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	grid		Grid
 	nt		Tab
 	a		Area
 	spw		Stack
@@ -68,6 +69,14 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.grid = NewGrid(3,
+		NewLabel("0,0"), NewTextField(), NewLabel("0,2"),
+		NewButton("1,0"), NewButton("1,1"), NewButton("1,2"),
+		NewLabel("2,0"), NewTextField(), NewStandaloneLabel("2,2"))
+	tw.grid.SetFilling(2, 1)
+	tw.grid.SetFilling(1, 2)
+	tw.grid.SetStretchy(1, 1)
+	tw.t.Append("Grid", tw.grid)
 	tw.t.Append("Blank Tab", NewTab())
 	tw.nt = NewTab()
 	tw.nt.Append("Tab 1", Space())

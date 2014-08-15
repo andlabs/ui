@@ -25,7 +25,7 @@ type Grid interface {
 
 	// SetStretchy marks the given Control of the Grid as stretchy.
 	// Stretchy implies filling.
-	// Only one control can be stretchy per Grid; calling SetStretchy multiple times merely changes which control is stretchy.
+	// Only one control can be stretchy per Grid; calling SetStretchy multiple times merely changes which control is stretchy (preserving the previous filling value).
 	// It panics if the given coordinate is invalid.
 	SetStretchy(row int, column int)
 }
@@ -34,6 +34,7 @@ type grid struct {
 	controls                 [][]Control
 	filling                  [][]bool
 	stretchyrow, stretchycol int
+	stretchyfill	bool
 	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
 }
@@ -92,20 +93,24 @@ func (g *grid) SetStretchy(row int, column int) {
 	if row < 0 || column < 0 || row > len(g.filling) || column > len(g.filling[row]) {
 		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetStretchy()", row, column))
 	}
+	if g.stretchyrow != -1 || g.stretchycol != -1 {
+		g.filling[g.stretchyrow][g.stretchycol] = g.stretchyfill
+	}
 	g.stretchyrow = row
 	g.stretchycol = column
-	// don't set filling here in case we call SetStretchy() multiple times; the filling is committed in make() below
+	g.stretchyfill = g.filling[g.stretchyrow][g.stretchycol]		// save previous value in case it changes later
+	g.filling[g.stretchyrow][g.stretchycol] = true
 }
 
 func (g *grid) setParent(parent *controlParent) {
-	for _, col := range s.controls {
+	for _, col := range g.controls {
 		for _, c := range col {
 			c.setParent(parent)
 		}
 	}
 }
 
-func (g *grid) allocate(x int, y int, width int, height int, d *sysSizeData) (allocations []*allocation) {
+func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -115,7 +120,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 
 	var current *allocation		// for neighboring
 
-	if len(controls) == 0 {
+	if len(g.controls) == 0 {
 		return nil
 	}
 	// 0) inset the available rect by the needed padding
@@ -183,7 +188,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sysSizeData) (al
 }
 
 // filling and stretchy are ignored for preferred size calculation
-func (g *grid) preferredSize(d *sysSizeData) (width int, height int) {
+func (g *grid) preferredSize(d *sizing) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -220,10 +225,10 @@ func (g *grid) preferredSize(d *sysSizeData) (width int, height int) {
 	return width, height
 }
 
-func (g *grid) commitResize(c *allocation, d *sysSizeData) {
+func (g *grid) commitResize(c *allocation, d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 
-func (g *grid) getAuxResizeInfo(d *sysSizeData) {
+func (g *grid) getAuxResizeInfo(d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
