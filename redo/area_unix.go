@@ -182,7 +182,8 @@ func finishMouseEvent(widget *C.GtkWidget, data C.gpointer, me MouseEvent, mb ui
 	if mb != 3 && (state&C.GDK_BUTTON3_MASK) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	// don't check GDK_BUTTON4_MASK or GDK_BUTTON5_MASK because those are for the scrolling buttons mentioned above; there doesn't seem to be a way to detect higher buttons... (TODO)
+	// don't check GDK_BUTTON4_MASK or GDK_BUTTON5_MASK because those are for the scrolling buttons mentioned above
+	// GDK expressly does not support any more buttons in the GdkModifierType; see https://git.gnome.org/browse/gtk+/tree/gdk/x11/gdkdevice-xi2.c#n763 (thanks mclasen in irc.gimp.net/#gtk+)
 	me.Pos = image.Pt(int(x), int(y))
 	C.gtk_widget_get_size_request(widget, &areawidth, &areaheight)
 	if !me.Pos.In(image.Rect(0, 0, int(areawidth), int(areaheight))) { // outside the actual Area; no event
