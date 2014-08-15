@@ -62,6 +62,6 @@ windows
 	- flicker ahoy
 	- not all controls are transparent
 gtk+
-	- Area: default buttons, escape
+	- Area: figure out how Enter is processed in Entry
 all
 	- make spaced settable somehow
