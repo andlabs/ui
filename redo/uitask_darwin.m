@@ -47,6 +47,33 @@ static Class areaClass;
 @end
 
 @implementation appDelegateClass
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)app
+{
+	NSArray *windows;
+	NSUInteger i, n;
+
+	windows = [NSApp windows];
+	n = [windows count];
+	for (i = 0; i < n; i++) {
+		NSWindow *w;
+
+		w = toNSWindow([windows objectAtIndex:i]);
+		if (![[w delegate] windowShouldClose:w])
+			// stop at the first rejection; thanks Lyle42 in irc.freenode.net/#macdev
+			return NSTerminateCancel;
+	}
+	// all windows closed; stop gracefully for Go
+	uistop();
+	// TODO can't use NSTerminateLater here as the run loop is different (???)
+	return NSTerminateCancel;
+}
+
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
+{
+	return NO;
+}
+
 @end
 
 appDelegateClass *appDelegate;

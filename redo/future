@@ -61,8 +61,6 @@ windows
 	- tab order is backwards
 	- flicker ahoy
 	- not all controls are transparent
-mac os x
-	- applicationShouldTerminate: not handled
 gtk+
 	- Area: default buttons, escape
 all
