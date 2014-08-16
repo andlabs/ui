@@ -24,6 +24,7 @@ Area
 	Repaint(rect image.Rectangle)
 	keyboard scrolling
 		GTK+ port: our_area_focus_callback() has something to do with it
+	OpenTextFieldAt() and OpenTextAreaAt() to allow editing of text from within Areas
 Tree
 	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
 TextArea
@@ -64,5 +65,8 @@ windows
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
+gtk+, mac os x
+	- figure out how dialogs and Areas work together
+		- once that is done, document the behavior of Areas
 all
 	- make spaced settable somehow
