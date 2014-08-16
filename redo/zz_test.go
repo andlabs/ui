@@ -32,6 +32,8 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	icons	[]icon
+	il		ImageList
 	group2	Group
 	group	Group
 	grid		Grid
@@ -71,6 +73,7 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.icons, tw.il = readIcons()
 	tw.group2 = NewGroup("Group", NewButton("Button in Group"))
 	tw.t.Append("Filled Group", tw.group2)
 	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))
