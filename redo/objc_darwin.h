@@ -69,6 +69,9 @@ extern id newPasswordField(void);
 extern const char *textFieldText(id);
 extern void textFieldSetText(id, char *);
 extern id newLabel(void);
+extern id newGroup(id);
+extern const char *groupText(id);
+extern void groupSetText(id, char *);
 
 /* container_darwin.m */
 extern id newContainerView(void *);

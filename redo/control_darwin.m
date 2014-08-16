@@ -28,7 +28,7 @@ void setSmallControlFont(id control)
 	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSSmallControlSize]]];
 }
 
-// also good for NSProgressIndicator
+// also good for NSBox and NSProgressIndicator
 struct xsize controlPreferredSize(id control)
 {
 	NSControl *c;

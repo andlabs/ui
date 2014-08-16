@@ -6,6 +6,8 @@
 
 #define toNSButton(x) ((NSButton *) (x))
 #define toNSTextField(x) ((NSTextField *) (x))
+#define toNSView(x) ((NSView *) (x))
+#define toNSBox(x) ((NSBox *) (x))
 
 @interface goControlDelegate : NSObject {
 @public
@@ -155,4 +157,29 @@ id newLabel(void)
 	[l setSelectable:NO];
 	[l setDrawsBackground:NO];
 	return finishNewTextField(l, NO);
+}
+
+id newGroup(id container)
+{
+	NSBox *group;
+
+	group = [[NSBox alloc] initWithFrame:NSZeroRect];
+	[group setBorderType:NSLineBorder];
+	[group setBoxType:NSBoxPrimary];
+	[group setTransparent:NO];
+	// can't use setSmallControlFont() here because the selector is different
+	[group setTitleFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSSmallControlSize]]];
+	[group setTitlePosition:NSAtTop];
+	[group setContentView:toNSView(container)];
+	return (id) group;
+}
+
+const char *groupText(id group)
+{
+	return [[toNSBox(group) title] UTF8String];
+}
+
+void groupSetText(id group, char *text)
+{
+	[toNSBox(group) setTitle:[NSString stringWithUTF8String:text]];
 }
