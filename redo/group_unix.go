@@ -43,7 +43,7 @@ func newGroup(text string, control Control) Group {
 	boldlist := C.pango_attr_list_new()
 	C.pango_attr_list_insert(boldlist, bold)
 	C.gtk_label_set_attributes(label, boldlist)
-	// TODO free either bold or boldlist?
+	C.pango_attr_list_unref(boldlist)		// thanks baedert in irc.gimp.net/#gtk+
 
 	g.container = newContainer(control)
 	g.container.setParent(&controlParent{g.gcontainer})
