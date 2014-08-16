@@ -15,6 +15,7 @@ type container struct {
 	containerbase
 	hwnd		C.HWND
 	nchildren		int
+	isGroup		bool
 }
 
 type sizing struct {
@@ -104,6 +105,11 @@ func fromdlgunitsY(du int, d *sizing) int {
 const (
 	marginDialogUnits = 7
 	paddingDialogUnits = 4
+
+	groupXMargin = 6
+	// TODO
+	groupYMarginTop = 11		// note this value /includes the groupbox label/
+	groupYMarginBottom = 7
 )
 
 func (c *container) beginResize() (d *sizing) {
@@ -122,6 +128,13 @@ func (c *container) beginResize() (d *sizing) {
 		d.ymargin = fromdlgunitsY(marginDialogUnits, d)
 		d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
 		d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
+	}
+	if c.isGroup {
+		// note that these values apply regardless of whether or not spaced is set
+		// this is because Windows groupboxes have the client rect spanning the entire size of the control, not just the active work area
+		// the measurements Microsoft give us are for spaced margining; let's just use them
+		d.xmargin = fromdlgunitsX(groupXMargin, d)
+		d.ymargin = fromdlgunitsY(groupYMarginTop, d)
 	}
 
 	return d
