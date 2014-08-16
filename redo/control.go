@@ -3,7 +3,6 @@
 package ui
 
 // Control represents a control.
-// All Controls have event handlers that take a single argument (the Doer active during the event) and return nothing.
 type Control interface {
 	setParent(p *controlParent)	// controlParent defined per-platform
 	controlSizing
