@@ -67,6 +67,8 @@ void addImage(HIMAGELIST il, HWND hwnd, HBITMAP bitmap, int origwid, int oright,
 	prevscaled = SelectObject(scaledDC, scaled);
 	if (prevscaled == NULL)
 		xpanic("error selecting scaled ImageList bitmap into DC", GetLastError());
+	if (SetStretchBltMode(scaledDC, COLORONCOLOR) == 0)
+		xpanic("error setting scaling mode", GetLastError());
 	if (StretchBlt(scaledDC, 0, 0, width, height,
 		origDC, 0, 0, origwid, oright,
 		SRCCOPY) == 0)
