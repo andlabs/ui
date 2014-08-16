@@ -60,14 +60,11 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
+	// TODO figure out why changing item.mask causes crashes or why "it just works"
 	switch d := datum.Interface().(type) {
 	case ImageIndex:
-		item.mask |= C.LVIF_IMAGE
-		item.mask &^= C.LVIF_TEXT
 		item.iImage = C.int(d)
 	default:
-		item.mask |= C.LVIF_TEXT
-		item.mask &^= C.LVIF_IMAGE
 		s := fmt.Sprintf("%v", datum)
 		item.pszText = toUTF16(s)
 	}
