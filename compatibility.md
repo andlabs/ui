@@ -24,6 +24,7 @@ TODO look up PDC 2008 talk "new shell user interface"
 
 - new animation and text engine
 - ribbon control (didn't this have some additional license?)
+- LVITEM.piColFmt
 
 ### Windows 8
 
