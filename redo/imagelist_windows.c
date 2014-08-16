@@ -93,6 +93,6 @@ noscale:
 void applyImageList(HWND hwnd, UINT uMsg, WPARAM wParam, HIMAGELIST il)
 {
 	if (SendMessageW(hwnd, uMsg, wParam, (LPARAM) il) == (LRESULT) NULL)
-;//		xpanic("error setting image list", GetLastError());
+;//TODO		xpanic("error setting image list", GetLastError());
 	// TODO free old one here if any
 }
