@@ -32,6 +32,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	group	Group
 	grid		Grid
 	nt		Tab
 	a		Area
@@ -69,6 +70,8 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))
+	tw.t.Append("Group", tw.group)
 	tw.grid = NewGrid(3,
 		NewLabel("0,0"), NewTextField(), NewLabel("0,2"),
 		NewButton("1,0"), NewButton("1,1"), NewButton("1,2"),

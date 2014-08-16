@@ -102,3 +102,19 @@ func NewLabel(text string) Label {
 func NewStandaloneLabel(text string) Label {
 	return newStandaloneLabel(text)
 }
+
+// Group is a Control that holds a single Control; if that Control also contains other Controls, then the Controls will appear visually grouped together.
+// The appearance of a Group varies from system to system; for the most part a Group consists of a thin frame.
+// All Groups have a text label indicating what the Group is for.
+type Group interface {
+	Control
+
+	// Text and SetText get and set the Group's label text.
+	Text() string
+	SetText(text string)
+}
+
+// NewGroup creates a new Group with the given text label and child Control.
+func NewGroup(text string, control Control) Group {
+	return newGroup(text, control)
+}
