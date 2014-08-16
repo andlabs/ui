@@ -36,10 +36,10 @@ HIMAGELIST newImageList(int width, int height)
 	return il;
 }
 
-void addImage(HIMAGELIST il, HBITMAP bitmap, int origwid, int oright, int width, int height)
+void addImage(HIMAGELIST il, HWND hwnd, HBITMAP bitmap, int origwid, int oright, int width, int height)
 {
 	BOOL wasScaled = FALSE;
-	HDC scaledDC, origDC;
+	HDC winDC, scaledDC, origDC;
 	HBITMAP scaled;
 	HBITMAP prevscaled, prevorig;
 
@@ -49,33 +49,38 @@ void addImage(HIMAGELIST il, HBITMAP bitmap, int origwid, int oright, int width,
 		goto noscale;
 	}
 	wasScaled = TRUE;
-	scaledDC = GetDC(NULL);
+	winDC = GetDC(hwnd);
+	if (winDC == NULL)
+		xpanic("error getting DC for window", GetLastError());
+	origDC = CreateCompatibleDC(winDC);
+	if (winDC == NULL)
+		xpanic("error getting DC for original ImageList bitmap", GetLastError());
+	prevorig = SelectObject(origDC, bitmap);
+	if (prevorig == NULL)
+		xpanic("error selecting original ImageList bitmap into DC", GetLastError());
+	scaledDC = CreateCompatibleDC(origDC);
 	if (scaledDC == NULL)
-		xpanic("error getting screen DC for scaled ImageList bitmap", GetLastError());
-	scaled = CreateCompatibleBitmap(scaledDC, width, height);
+		xpanic("error getting DC for scaled ImageList bitmap", GetLastError());
+	scaled = CreateCompatibleBitmap(origDC, width, height);
 	if (scaled == NULL)
 		xpanic("error creating scaled ImageList bitmap", GetLastError());
 	prevscaled = SelectObject(scaledDC, scaled);
 	if (prevscaled == NULL)
-		xpanic("error selecting scaled ImageList bitmap into screen DC", GetLastError());
-	origDC = GetDC(NULL);
-	if (origDC == NULL)
-		xpanic("error getting screen DC for original ImageList bitmap", GetLastError());
-	prevorig = SelectObject(origDC, bitmap);
-	if (prevorig == NULL)
-		xpanic("error selecting original ImageList bitmap into screen DC", GetLastError());
+		xpanic("error selecting scaled ImageList bitmap into DC", GetLastError());
 	if (StretchBlt(scaledDC, 0, 0, width, height,
 		origDC, 0, 0, origwid, oright,
 		SRCCOPY) == 0)
 		xpanic("error scaling ImageList bitmap down", GetLastError());
 	if (SelectObject(origDC, prevorig) != bitmap)
-		xpanic("error selecting previous bitmap into original image's screen DC", GetLastError());
+		xpanic("error selecting previous bitmap into original image's DC", GetLastError());
 	if (DeleteDC(origDC) == 0)
-		xpanic("error deleting original image's screen DC", GetLastError());
+		xpanic("error deleting original image's DC", GetLastError());
 	if (SelectObject(scaledDC, prevscaled) != scaled)
-		xpanic("error selecting previous bitmap into scaled image's screen DC", GetLastError());
+		xpanic("error selecting previous bitmap into scaled image's DC", GetLastError());
 	if (DeleteDC(scaledDC) == 0)
-		xpanic("error deleting scaled image's screen DC", GetLastError());
+		xpanic("error deleting scaled image's DC", GetLastError());
+	if (DeleteDC(winDC) == 0)
+		xpanic("error deleting window DC", GetLastError());
 
 noscale:
 	if ((*fv_ImageList_Add)(il, scaled, NULL) == -1)
@@ -83,4 +88,11 @@ noscale:
 	if (wasScaled)		// clean up
 		if (DeleteObject(scaled) == 0)
 			xpanic("error deleting scaled bitmap", GetLastError());
+}
+
+void applyImageList(HWND hwnd, UINT uMsg, WPARAM wParam, HIMAGELIST il)
+{
+	if (SendMessageW(hwnd, uMsg, wParam, (LPARAM) il) == (LRESULT) NULL)
+;//		xpanic("error setting image list", GetLastError());
+	// TODO free old one here if any
 }

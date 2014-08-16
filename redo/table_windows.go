@@ -49,15 +49,28 @@ func (t *table) Unlock() {
 	}()
 }
 
-//export tableGetCellText
-func tableGetCellText(data unsafe.Pointer, row C.int, col C.int, str *C.LPWSTR) {
+func (t *table) LoadImageList(il ImageList) {
+	il.apply(t._hwnd, C.LVM_SETIMAGELIST, C.LVSIL_SMALL)
+}
+
+//export tableGetCell
+func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
-	datum := d.Index(int(row)).Field(int(col))
-	s := fmt.Sprintf("%v", datum)
-	*str = toUTF16(s)
+	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
+	switch d := datum.Interface().(type) {
+	case ImageIndex:
+		item.mask |= C.LVIF_IMAGE
+		item.mask &^= C.LVIF_TEXT
+		item.iImage = C.int(d)
+	default:
+		item.mask |= C.LVIF_TEXT
+		item.mask &^= C.LVIF_IMAGE
+		s := fmt.Sprintf("%v", datum)
+		item.pszText = toUTF16(s)
+	}
 }
 
 // the column autoresize policy is simple:

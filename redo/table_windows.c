@@ -15,7 +15,7 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	case msgNOTIFY:
 		switch (nmhdr->code) {
 		case LVN_GETDISPINFO:
-			tableGetCellText((void *) data, fill->item.iItem, fill->item.iSubItem, &(fill->item.pszText));
+			tableGetCell((void *) data, &(fill->item));
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);

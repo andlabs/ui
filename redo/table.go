@@ -27,6 +27,10 @@ type Table interface {
 	// The returned value will contain an object of type pointer to slice of some structure; use a type assertion to get the properly typed object out.
 	// Do not call this outside a Lock()..Unlock() or RLock()..RUnlock() pair.
 	Data() interface{}
+
+	// LoadImageList loads the given ImageList into the Table.
+	// This function copies; changes to the ImageList made later will not be reflected by the Table.
+	LoadImageList(ImageList)
 }
 
 type tablebase struct {

@@ -31,15 +31,15 @@ func (i *imagelist) Len() ImageIndex {
 }
 
 type imageListApply interface {
-	apply()
+	apply(C.HWND, C.UINT, C.WPARAM)
 }
 
-func (i *imagelist) apply() {
+func (i *imagelist) apply(hwnd C.HWND, uMsg C.UINT, wParam C.WPARAM) {
 	width := C.GetSystemMetrics(C.SM_CXSMICON)
 	height := C.GetSystemMetrics(C.SM_CYSMICON)
 	il := C.newImageList(width, height)
 	for index := range i.list {
-		C.addImage(il, i.list[index], C.int(i.width[index]), C.int(i.height[index]), width, height)
+		C.addImage(il, hwnd, i.list[index], C.int(i.width[index]), C.int(i.height[index]), width, height)
 	}
-	// TODO do stuff
+	C.applyImageList(hwnd, uMsg, wParam, il)
 }

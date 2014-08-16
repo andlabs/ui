@@ -34,6 +34,7 @@ type testwin struct {
 	w		Window
 	icons	[]icon
 	il		ImageList
+	icontbl	Table
 	group2	Group
 	group	Group
 	grid		Grid
@@ -74,6 +75,13 @@ func (tw *testwin) make(done chan struct{}) {
 		return true
 	})
 	tw.icons, tw.il = readIcons()
+	tw.icontbl = NewTable(reflect.TypeOf(icon{}))
+	tw.icontbl.Lock()
+	idq := tw.icontbl.Data().(*[]icon)
+	*idq = tw.icons
+	tw.icontbl.Unlock()
+	tw.icontbl.LoadImageList(tw.il)
+	tw.t.Append("Image List Table", tw.icontbl)
 	tw.group2 = NewGroup("Group", NewButton("Button in Group"))
 	tw.t.Append("Filled Group", tw.group2)
 	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))

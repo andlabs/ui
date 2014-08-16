@@ -117,6 +117,7 @@ extern HWND newArea(void *);
 // imagelist_windows.c
 extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
 extern HIMAGELIST newImageList(int, int);
-extern void addImage(HIMAGELIST, HBITMAP, int, int, int, int);
+extern void addImage(HIMAGELIST, HWND, HBITMAP, int, int, int, int);
+extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST);
 
 #endif
