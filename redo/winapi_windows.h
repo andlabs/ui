@@ -44,6 +44,8 @@ extern DWORD initCommonControls(char **);
 extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
+extern HIMAGELIST (*WINAPI fv_ImageList_Create)(int, int, UINT, int, int);
+extern int (*WINAPI fv_ImageList_Add)(HIMAGELIST, HBITMAP, HBITMAP);
 
 // control_windows.c
 extern HWND newControl(LPWSTR, DWORD, DWORD);
@@ -111,5 +113,10 @@ extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 extern void repaintArea(HWND);
 extern DWORD makeAreaWindowClass(char **);
 extern HWND newArea(void *);
+
+// imagelist_windows.c
+extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
+extern HIMAGELIST newImageList(int, int);
+extern void addImage(HIMAGELIST, HBITMAP, int, int, int, int);
 
 #endif
