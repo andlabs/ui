@@ -14,10 +14,13 @@ static void handleMouseMove(HWND hwnd, WPARAM wParam, LPARAM lParam, void *data)
 	ZeroMemory(&ht, sizeof (LVHITTESTINFO));
 	ht.pt.x = GET_X_LPARAM(lParam);
 	ht.pt.y = GET_Y_LPARAM(lParam);
-	ht.flags = LVHT_ONITEMSTATEICON;
 	if (SendMessageW(hwnd, LVM_SUBITEMHITTEST, 0, (LPARAM) (&ht)) == (LRESULT) -1) {
 		tableSetHot(data, -1, -1);
 		return;		// no item
+	}
+	if (ht.flags != LVHT_ONITEMSTATEICON) {
+		tableSetHot(data, -1, -1);
+		return;
 	}
 	tableSetHot(data, ht.iItem, ht.iSubItem);
 }
