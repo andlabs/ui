@@ -126,6 +126,23 @@ func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
 	}
 }
 
+//export tableToggled
+func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
+	t := (*table)(data)
+	if row == -1 || col == -1 {		// discard extras sent by handle() in table_windows.c
+		return
+	}
+	t.Lock()
+	defer t.Unlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	datum := d.Index(int(row)).Field(int(col))
+	if datum.Kind() == reflect.Bool {
+		datum.SetBool(!datum.Bool())
+		return
+	}
+	panic(fmt.Errorf("tableSetHot() on non-checkbox at (%d, %d)", row, col))
+}
+
 func (t *table) hwnd() C.HWND {
 	return t._hwnd
 }

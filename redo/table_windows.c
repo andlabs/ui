@@ -6,7 +6,7 @@
 // provided for cgo's benefit
 LPWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
-static void handleMouseMove(HWND hwnd, WPARAM wParam, LPARAM lParam, void *data)
+static void handle(HWND hwnd, WPARAM wParam, LPARAM lParam, void (*handler)(void *, int, int), void *data)
 {
 	LVHITTESTINFO ht;
 
@@ -15,14 +15,14 @@ static void handleMouseMove(HWND hwnd, WPARAM wParam, LPARAM lParam, void *data)
 	ht.pt.x = GET_X_LPARAM(lParam);
 	ht.pt.y = GET_Y_LPARAM(lParam);
 	if (SendMessageW(hwnd, LVM_SUBITEMHITTEST, 0, (LPARAM) (&ht)) == (LRESULT) -1) {
-		tableSetHot(data, -1, -1);
+		(*handler)(data, -1, -1);
 		return;		// no item
 	}
 	if (ht.flags != LVHT_ONITEMSTATEICON) {
-		tableSetHot(data, -1, -1);
-		return;
+		(*handler)(data, -1, -1);
+		return;		// not on a checkbox
 	}
-	tableSetHot(data, ht.iItem, ht.iSubItem);
+	(*handler)(data, ht.iItem, ht.iSubItem);
 }
 
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
@@ -39,7 +39,11 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSEMOVE:
-		handleMouseMove(hwnd, wParam, lParam, (void *) data);
+		handle(hwnd, wParam, lParam, tableSetHot, (void *) data);
+		// and let the list view do its thing
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_LBUTTONUP:
+		handle(hwnd, wParam, lParam, tableToggled, (void *) data);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	// see table.autoresize() in table_windows.go for the column autosize policy
