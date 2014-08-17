@@ -41,6 +41,5 @@ func (i *imagelist) apply(hwnd C.HWND, uMsg C.UINT, wParam C.WPARAM) {
 	for index := range i.list {
 		C.addImage(il, hwnd, i.list[index], C.int(i.width[index]), C.int(i.height[index]), width, height)
 	}
-//	C.applyImageList(hwnd, uMsg, wParam, il)
-	C.applyImageList(hwnd, uMsg, wParam, C.checkboxImageList)
+	C.applyImageList(hwnd, uMsg, wParam, il)
 }

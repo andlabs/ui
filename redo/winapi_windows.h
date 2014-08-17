@@ -104,6 +104,7 @@ extern void tableAppendColumn(HWND, int, LPWSTR);
 extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
 extern void tableAutosizeColumns(HWND, int);
+extern void tableSetCheckboxImageList(HWND);
 
 // container_windows.c
 extern DWORD makeContainerWindowClass(char **);

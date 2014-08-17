@@ -82,6 +82,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		// initial
 		makeCheckboxImageList(hwnd);
 		return 0;
+	// TODO respond to WM_THEMECHANGED
 	case msgRequest:
 		doissue((void *) lParam);
 		return 0;

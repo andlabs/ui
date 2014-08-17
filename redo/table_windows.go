@@ -29,6 +29,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
 	C.tableAddExtendedStyles(t._hwnd, C.LVS_EX_FULLROWSELECT | C.LVS_EX_SUBITEMIMAGES)
+	C.tableSetCheckboxImageList(t._hwnd)
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t._hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
@@ -61,9 +62,22 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
 	// TODO figure out why changing item.mask causes crashes or why "it just works"
-	switch d := datum.Interface().(type) {
-	case ImageIndex:
-		item.iImage = C.int(d)
+	switch {
+	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
+		item.iImage = C.int(datum.Interface().(ImageIndex))
+	case datum.Kind() == reflect.Bool:
+		item.stateMask = C.LVIS_STATEIMAGEMASK
+		// state image index is 1-based
+		curstate := ((item.state & C.LVIS_STATEIMAGEMASK) >> 12)
+		if curstate > 0 {
+			curstate--
+		}
+		if datum.Bool() == true {
+			curstate |= C.checkboxStateChecked
+		} else {
+			curstate &^= C.checkboxStateChecked
+		}
+		item.state = (curstate + 1) << 12
 	default:
 		s := fmt.Sprintf("%v", datum)
 		item.pszText = toUTF16(s)

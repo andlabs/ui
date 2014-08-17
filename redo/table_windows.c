@@ -75,3 +75,10 @@ void tableAutosizeColumns(HWND hwnd, int nColumns)
 		if (SendMessageW(hwnd, LVM_SETCOLUMNWIDTH, (WPARAM) i, (LPARAM) LVSCW_AUTOSIZE_USEHEADER) == FALSE)
 			xpanic("error resizing columns of results list view", GetLastError());
 }
+
+void tableSetCheckboxImageList(HWND hwnd)
+{
+	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) checkboxImageList) == (LRESULT) NULL)
+;//TODO		xpanic("error setting image list", GetLastError());
+	// TODO free old one here if any/different
+}
