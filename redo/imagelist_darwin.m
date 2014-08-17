@@ -5,17 +5,14 @@
 
 #define toNSInteger(x) ((NSInteger) (x))
 
-// TODO top two pixels of 16x16 images are green?
-
 id toImageListImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride)
 {
-	unsigned char *planes[1];			// NSBitmapImageRep wants an array of planes; we have one plane
 	NSBitmapImageRep *bitmap;
 	NSImage *image;
 
-	planes[0] = (unsigned char *) pixels;
+	// we can't just hand it pixels; we need to make a copy
 	bitmap = [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes:planes
+		initWithBitmapDataPlanes:NULL
 		pixelsWide:toNSInteger(width)
 		pixelsHigh:toNSInteger(height)
 		bitsPerSample:8
@@ -26,6 +23,7 @@ id toImageListImage(void *pixels, intptr_t width, intptr_t height, intptr_t stri
 		bitmapFormat:0
 		bytesPerRow:toNSInteger(stride)
 		bitsPerPixel:32];
+	memcpy((void *) [bitmap bitmapData], pixels, [bitmap bytesPerPlane]);
 	image = [[NSImage alloc] initWithSize:NSMakeSize((CGFloat) width, (CGFloat) height)];
 	[image addRepresentation:bitmap];
 	return (id) image;
