@@ -43,6 +43,7 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDBLCLK:			// listviews have CS_DBLCICKS; check this to better mimic the behavior of a real checkbox
 		handle(hwnd, wParam, lParam, tablePushed, (void *) data);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
