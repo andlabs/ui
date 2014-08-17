@@ -78,6 +78,10 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &shared))
 		return shared;
 	switch (uMsg) {
+	case WM_CREATE:
+		// initial
+		makeCheckboxImageList(hwnd);
+		return 0;
 	case msgRequest:
 		doissue((void *) lParam);
 		return 0;

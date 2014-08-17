@@ -21,6 +21,8 @@
 #include <string.h>
 #include <wchar.h>
 #include <windowsx.h>
+#include <vsstyle.h>
+#include <vssym32.h>
 
 // global messages unique to everything
 enum {
@@ -119,5 +121,13 @@ extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
 extern HIMAGELIST newImageList(int, int);
 extern void addImage(HIMAGELIST, HWND, HBITMAP, int, int, int, int);
 extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST);
+enum {
+	checkboxStateChecked = 1 << 0,
+	checkboxStateHot = 1 << 1,
+	checkboxStatePushed = 1 << 2,
+	checkboxnStates = 1 << 3,
+};
+extern HIMAGELIST checkboxImageList;
+extern void makeCheckboxImageList(HWND);
 
 #endif
