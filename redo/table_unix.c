@@ -5,14 +5,12 @@
 #include "gtk_unix.h"
 #include "_cgo_export.h"
 
-void tableAppendColumn(GtkTreeView *table, gint index, gchar *name)
+void tableAppendColumn(GtkTreeView *table, gint index, gchar *name, GtkCellRenderer *renderer, gchar *attribute)
 {
 	GtkTreeViewColumn *col;
-	GtkCellRenderer *renderer;
 
-	renderer = gtk_cell_renderer_text_new();
 	col = gtk_tree_view_column_new_with_attributes(name, renderer,
-		"text", index,
+		attribute, index,
 		NULL);
 	// allow columns to be resized
 	gtk_tree_view_column_set_resizable(col, TRUE);
@@ -57,12 +55,7 @@ static GtkTreeModelFlags goTableModel_get_flags(GtkTreeModel *model)
 	return GTK_TREE_MODEL_LIST_ONLY;
 }
 
-// get_n_columns in Go
-
-static GType goTableModel_get_column_type(GtkTreeModel *model, gint column)
-{
-	return G_TYPE_STRING;
-}
+// get_n_columns and get_column_type in Go
 
 static gboolean goTableModel_get_iter(GtkTreeModel *model, GtkTreeIter *iter, GtkTreePath *path)
 {
@@ -95,16 +88,10 @@ static GtkTreePath *goTableModel_get_path(GtkTreeModel *model, GtkTreeIter *iter
 static void goTableModel_get_value(GtkTreeModel *model, GtkTreeIter *iter, gint column, GValue *value)
 {
 	goTableModel *t = (goTableModel *) model;
-	gchar *str;
 
 	if (iter->stamp != GOOD_STAMP)
 		return;			// this is what both GtkListStore and GtkTreeStore do
-	// we (actually cgo) allocated str with malloc(), not g_malloc(), so let's free it explicitly and give the GValue a copy to be safe
-	str = goTableModel_do_get_value(t->gotable, FROM(iter->user_data), column);
-	// value is uninitialized
-	g_value_init(value, G_TYPE_STRING);
-	g_value_set_string(value, str);
-	free(str);
+	goTableModel_do_get_value(t->gotable, FROM(iter->user_data), column, value);
 }
 
 static gboolean goTableModel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)

@@ -23,10 +23,18 @@ type table struct {
 	model		*C.goTableModel
 	modelgtk		*C.GtkTreeModel
 
+	pixbufs		[]*C.GdkPixbuf
+
 	// stuff required by GtkTreeModel
 	nColumns		C.gint
 	old			C.gint
+	types		[]C.GType
 }
+
+var (
+	attribText = togstr("text")
+	attribPixbuf = togstr("pixbuf")
+)
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
@@ -42,7 +50,17 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	C.gtk_tree_view_set_model(t.treeview, t.modelgtk)
 	for i := 0; i < ty.NumField(); i++ {
 		cname := togstr(ty.Field(i).Name)
-		C.tableAppendColumn(t.treeview, C.gint(i), cname)
+		switch ty.Field(i).Type {
+		case reflect.TypeOf(ImageIndex(0)):
+			// can't use GDK_TYPE_PIXBUF here because it's a macro that expands to a function and cgo hates that
+			t.types = append(t.types, C.gdk_pixbuf_get_type())
+			C.tableAppendColumn(t.treeview, C.gint(i), cname,
+				C.gtk_cell_renderer_pixbuf_new(), attribPixbuf)
+		default:
+			t.types = append(t.types, C.G_TYPE_STRING)
+			C.tableAppendColumn(t.treeview, C.gint(i), cname,
+				C.gtk_cell_renderer_text_new(), attribText)
+		}
 		freegstr(cname)		// free now (not deferred) to conserve memory
 	}
 	// and for some GtkTreeModel boilerplate
@@ -71,6 +89,10 @@ func (t *table) Unlock() {
 	}()
 }
 
+func (t *table) LoadImageList(i ImageList) {
+	i.apply(&t.pixbufs)
+}
+
 //export goTableModel_get_n_columns
 func goTableModel_get_n_columns(model *C.GtkTreeModel) C.gint {
 	tm := (*C.goTableModel)(unsafe.Pointer(model))
@@ -78,15 +100,31 @@ func goTableModel_get_n_columns(model *C.GtkTreeModel) C.gint {
 	return t.nColumns
 }
 
+//export goTableModel_get_column_type
+func goTableModel_get_column_type(model *C.GtkTreeModel, column C.gint) C.GType {
+	tm := (*C.goTableModel)(unsafe.Pointer(model))
+	t := (*table)(tm.gotable)
+	return t.types[column]
+}
+
 //export goTableModel_do_get_value
-func goTableModel_do_get_value(data unsafe.Pointer, row C.gint, col C.gint) *C.gchar {
+func goTableModel_do_get_value(data unsafe.Pointer, row C.gint, col C.gint, value *C.GValue) {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
-	s := fmt.Sprintf("%v", datum)
-	return togstr(s)
+	switch d := datum.Interface().(type) {
+	case ImageIndex:
+		C.g_value_init(value, C.gdk_pixbuf_get_type())
+		C.g_value_set_object(value, C.gpointer(unsafe.Pointer(t.pixbufs[d])))
+	default:
+		s := fmt.Sprintf("%v", datum)
+		str := togstr(s)
+		defer freegstr(str)
+		C.g_value_init(value, C.G_TYPE_STRING)
+		C.g_value_set_string(value, str)
+	}
 }
 
 //export goTableModel_getRowCount

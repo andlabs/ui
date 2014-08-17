@@ -23,7 +23,7 @@ Thanks to desrt in irc.gimp.net/#gtk+
 #include <gtk/gtk.h>
 
 // table_unix.c
-extern void tableAppendColumn(GtkTreeView *, gint, gchar *);
+extern void tableAppendColumn(GtkTreeView *, gint, gchar *, GtkCellRenderer *, gchar *);
 typedef struct goTableModel goTableModel;
 typedef struct goTableModelClass goTableModelClass;
 struct goTableModel {
