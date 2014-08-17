@@ -4,6 +4,7 @@
 #include "_cgo_export.h"
 
 // TODO eliminate duplicate code
+// TODO top left pixel of checkbox state 0 not drawn?
 
 HBITMAP unscaledBitmap(void *i, intptr_t dx, intptr_t dy)
 {
