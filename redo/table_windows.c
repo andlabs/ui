@@ -117,4 +117,7 @@ void tableSetCheckboxImageList(HWND hwnd)
 	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) checkboxImageList) == (LRESULT) NULL)
 ;//TODO		xpanic("error setting image list", GetLastError());
 	// TODO free old one here if any/different
+	// thanks to Jonathan Potter (http://stackoverflow.com/questions/25354448/why-do-my-owner-data-list-view-state-images-come-up-as-blank-on-windows-xp)
+	if (SendMessageW(hwnd, LVM_SETCALLBACKMASK, LVIS_STATEIMAGEMASK, 0) == FALSE)
+		xpanic("error marking state image list as application-managed", GetLastError());
 }
