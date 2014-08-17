@@ -32,15 +32,20 @@
 
 - (id)tableView:(NSTableView *)view objectValueForTableColumn:(NSTableColumn *)col row:(NSInteger)row
 {
-	char *str;
+	void *ret;
 	NSString *s;
 	intptr_t colnum;
+	char *str;
+	BOOL isObject = FALSE;
 
 	colnum = ((goTableColumn *) col)->gocolnum;
-	str = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum);
+	ret = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum, &isObject);
+	if (isObject)
+		return (id) ret;
+	str = (char *) ret;
 	s = [NSString stringWithUTF8String:str];
 	free(str);		// allocated with C.CString() on the Go side
-	return s;
+	return (id) s;
 }
 
 @end
@@ -58,12 +63,25 @@ id newTable(void)
 	return (id) t;
 }
 
-void tableAppendColumn(id t, intptr_t colnum, char *name)
+void tableAppendColumn(id t, intptr_t colnum, char *name, int type)
 {
 	goTableColumn *c;
+	NSImageCell *ic;
 
 	c = [[goTableColumn alloc] initWithIdentifier:nil];
 	c->gocolnum = colnum;
+	switch (type) {
+	case colTypeImage:
+		ic = [[NSImageCell alloc] initImageCell:nil];
+		// this is the behavior we want, which differs from the Interface Builder default of proportionally down
+		[ic setImageScaling:NSImageScaleProportionallyUpOrDown];
+		// these two, however, ARE Interface Builder defaults
+		[ic setImageFrameStyle:NSImageFrameNone];
+		[ic setImageAlignment:NSImageAlignCenter];
+		[c setDataCell:ic];
+		break;
+	}
+	// otherwise just use the current cell
 	[c setEditable:NO];
 	[[c headerCell] setStringValue:[NSString stringWithUTF8String:name]];
 	setSmallControlFont((id) [c headerCell]);

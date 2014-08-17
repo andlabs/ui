@@ -83,8 +83,12 @@ extern void tabAppend(id, char *, id);
 extern struct xsize tabPreferredSize(id);
 
 /* table_darwin.m */
+enum {
+	colTypeText,
+	colTypeImage,
+};
 extern id newTable(void);
-extern void tableAppendColumn(id, intptr_t, char *);
+extern void tableAppendColumn(id, intptr_t, char *, int);
 extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 extern struct xsize tablePreferredSize(id);
@@ -117,5 +121,8 @@ extern void areaRepaintAll(id);
 
 /* common_darwin.m */
 extern void disableAutocorrect(id);
+
+/* imagerep_darwin.m */
+extern id toImageListImage(void *, intptr_t, intptr_t, intptr_t);
 
 #endif

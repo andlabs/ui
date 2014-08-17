@@ -1,4 +1,4 @@
-
+// +build !windows,!darwin
 
 // 16 august 2014
 

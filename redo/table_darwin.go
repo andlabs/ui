@@ -16,6 +16,8 @@ type table struct {
 
 	_id			C.id
 	scroller		*scroller
+
+	images		[]C.id
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -28,7 +30,12 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
-		C.tableAppendColumn(t._id, C.intptr_t(i), cname)
+		coltype := C.colTypeText
+		switch ty.Field(i).Type {
+		case reflect.TypeOf(ImageIndex(0)):
+			coltype = C.colTypeImage
+		}
+		C.tableAppendColumn(t._id, C.intptr_t(i), cname, C.int(coltype))
 		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
 	}
 	return t
@@ -47,15 +54,25 @@ func (t *table) Unlock() {
 	}()
 }
 
+func (t *table) LoadImageList(i ImageList) {
+	i.apply(&t.images)
+}
+
 //export goTableDataSource_getValue
-func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t) *C.char {
+func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, isObject *C.BOOL) unsafe.Pointer {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
-	s := fmt.Sprintf("%v", datum)
-	return C.CString(s)
+	switch d := datum.Interface().(type) {
+	case ImageIndex:
+		*isObject = C.YES
+		return unsafe.Pointer(t.images[d])
+	default:
+		s := fmt.Sprintf("%v", datum)
+		return unsafe.Pointer(C.CString(s))
+	}
 }
 
 //export goTableDataSource_getRowCount
