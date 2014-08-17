@@ -9,7 +9,16 @@ import (
 )
 
 // Table is a Control that displays a list of like-structured data in a grid where each row represents an item and each column represents a bit of data.
-// As such, a Table renders a []struct{...} where each field of the struct is rendered using package fmt's %v rule.
+// Tables store and render a slice of struct values.
+// Each field of the struct of type ImageIndex is rendered as an icon from the Table's ImageList.
+// Each field whose type is bool or equivalent to bool is rendered as a checkbox.
+// All other fields are rendered as strings formatted with package fmt's %v format specifier.
+//
+// Tables are read-only by default, except for checkboxes, which are user-settable.
+//
+// Tables have headers on top of all columns.
+// Currently the name of the header is the same as the name of the field.
+//
 // Tables maintain their own storage behind a sync.RWMutex-compatible sync.Locker; use Table.Lock()/Table.Unlock() to make changes and Table.RLock()/Table.RUnlock() to merely read values.
 type Table interface {
 	Control
