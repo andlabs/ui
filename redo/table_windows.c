@@ -6,6 +6,22 @@
 // provided for cgo's benefit
 LPWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
+static void handleMouseMove(HWND hwnd, WPARAM wParam, LPARAM lParam, void *data)
+{
+	LVHITTESTINFO ht;
+
+	// TODO use wParam
+	ZeroMemory(&ht, sizeof (LVHITTESTINFO));
+	ht.pt.x = GET_X_LPARAM(lParam);
+	ht.pt.y = GET_Y_LPARAM(lParam);
+	ht.flags = LVHT_ONITEMSTATEICON;
+	if (SendMessageW(hwnd, LVM_SUBITEMHITTEST, 0, (LPARAM) (&ht)) == (LRESULT) -1) {
+		tableSetHot(data, -1, -1);
+		return;		// no item
+	}
+	tableSetHot(data, ht.iItem, ht.iSubItem);
+}
+
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
@@ -18,6 +34,10 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			tableGetCell((void *) data, &(fill->item));
 			return 0;
 		}
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_MOUSEMOVE:
+		handleMouseMove(hwnd, wParam, lParam, (void *) data);
+		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	// see table.autoresize() in table_windows.go for the column autosize policy
 	case WM_NOTIFY:		// from the contained header control

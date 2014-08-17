@@ -16,6 +16,8 @@ type table struct {
 	_hwnd		C.HWND
 	noautosize	bool
 	colcount		C.int
+	hotrow		C.int
+	hotcol		C.int
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -24,6 +26,8 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 			C.LVS_REPORT | C.LVS_OWNERDATA | C.LVS_NOSORTHEADER | C.LVS_SHOWSELALWAYS | C.WS_HSCROLL | C.WS_VSCROLL | C.WS_TABSTOP,
 			C.WS_EX_CLIENTEDGE),		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 		tablebase:		b,
+		hotrow:		-1,
+		hotcol:		-1,
 	}
 	C.setTableSubclass(t._hwnd, unsafe.Pointer(t))
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
@@ -77,6 +81,11 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 		} else {
 			curstate &^= C.checkboxStateChecked
 		}
+		if item.iItem == t.hotrow && item.iSubItem == t.hotcol {
+			curstate |= C.checkboxStateHot
+		} else {
+			curstate &^= C.checkboxStateHot
+		}
 		item.state = (curstate + 1) << 12
 	default:
 		s := fmt.Sprintf("%v", datum)
@@ -104,6 +113,17 @@ func tableStopColumnAutosize(data unsafe.Pointer) {
 func tableColumnCount(data unsafe.Pointer) C.int {
 	t := (*table)(data)
 	return t.colcount
+}
+
+//export tableSetHot
+func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
+	t := (*table)(data)
+	redraw := (row != t.hotrow || col != t.hotcol)
+	t.hotrow = row
+	t.hotcol = col
+	if redraw {
+		C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+	}
 }
 
 func (t *table) hwnd() C.HWND {
