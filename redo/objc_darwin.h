@@ -86,9 +86,10 @@ extern struct xsize tabPreferredSize(id);
 enum {
 	colTypeText,
 	colTypeImage,
+	colTypeCheckbox,
 };
 extern id newTable(void);
-extern void tableAppendColumn(id, intptr_t, char *, int);
+extern void tableAppendColumn(id, intptr_t, char *, int, BOOL);
 extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 extern struct xsize tablePreferredSize(id);

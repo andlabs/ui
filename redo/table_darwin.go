@@ -31,11 +31,15 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
 		coltype := C.colTypeText
-		switch ty.Field(i).Type {
-		case reflect.TypeOf(ImageIndex(0)):
+		editable := false
+		switch {
+		case ty.Field(i).Type == reflect.TypeOf(ImageIndex(0)):
 			coltype = C.colTypeImage
+		case ty.Field(i).Type.Kind() == reflect.Bool:
+			coltype = C.colTypeCheckbox
+			editable = true
 		}
-		C.tableAppendColumn(t._id, C.intptr_t(i), cname, C.int(coltype))
+		C.tableAppendColumn(t._id, C.intptr_t(i), cname, C.int(coltype), toBOOL(editable))
 		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
 	}
 	return t
@@ -59,16 +63,25 @@ func (t *table) LoadImageList(i ImageList) {
 }
 
 //export goTableDataSource_getValue
-func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, isObject *C.BOOL) unsafe.Pointer {
+func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, outtype *C.int) unsafe.Pointer {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
-	switch d := datum.Interface().(type) {
-	case ImageIndex:
-		*isObject = C.YES
+	switch {
+	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
+		*outtype = C.colTypeImage
+		d := datum.Interface().(ImageIndex)
 		return unsafe.Pointer(t.images[d])
+	case datum.Kind() == reflect.Bool:
+		*outtype = C.colTypeCheckbox
+		if datum.Bool() == true {
+			// return a non-nil pointer
+			// outtype isn't Go-side so it'll work
+			return unsafe.Pointer(outtype)
+		}
+		return nil
 	default:
 		s := fmt.Sprintf("%v", datum)
 		return unsafe.Pointer(C.CString(s))
@@ -82,6 +95,16 @@ func goTableDataSource_getRowCount(data unsafe.Pointer) C.intptr_t {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	return C.intptr_t(d.Len())
+}
+
+//export goTableDataSource_toggled
+func goTableDataSource_toggled(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, checked C.BOOL) {
+	t := (*table)(data)
+	t.Lock()
+	defer t.Unlock()
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	datum := d.Index(int(row)).Field(int(col))
+	datum.SetBool(fromBOOL(checked))
 }
 
 func (t *table) id() C.id {

@@ -36,16 +36,31 @@
 	NSString *s;
 	intptr_t colnum;
 	char *str;
-	BOOL isObject = FALSE;
+	int type = colTypeText;
 
 	colnum = ((goTableColumn *) col)->gocolnum;
-	ret = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum, &isObject);
-	if (isObject)
+	ret = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum, &type);
+	switch (type) {
+	case colTypeImage:
 		return (id) ret;
+	case colTypeCheckbox:
+		if (ret == NULL)
+			return nil;
+		return (id) [NSNumber numberWithInt:1];
+	}
 	str = (char *) ret;
 	s = [NSString stringWithUTF8String:str];
 	free(str);		// allocated with C.CString() on the Go side
 	return (id) s;
+}
+
+- (void)tableView:(NSTableView *)view setObjectValue:(id)value forTableColumn:(NSTableColumn *)col row:(NSInteger)row
+{
+	intptr_t colnum;
+
+	colnum = ((goTableColumn *) col)->gocolnum;
+	// TODO verify type of value
+	goTableDataSource_toggled(self->gotable, (intptr_t) row, colnum, [value boolValue]);
 }
 
 @end
@@ -63,10 +78,12 @@ id newTable(void)
 	return (id) t;
 }
 
-void tableAppendColumn(id t, intptr_t colnum, char *name, int type)
+void tableAppendColumn(id t, intptr_t colnum, char *name, int type, BOOL editable)
 {
 	goTableColumn *c;
 	NSImageCell *ic;
+	NSButtonCell *bc;
+	NSLineBreakMode lbm = NSLineBreakByTruncatingTail;		// default for most types
 
 	c = [[goTableColumn alloc] initWithIdentifier:nil];
 	c->gocolnum = colnum;
@@ -80,9 +97,20 @@ void tableAppendColumn(id t, intptr_t colnum, char *name, int type)
 		[ic setImageAlignment:NSImageAlignCenter];
 		[c setDataCell:ic];
 		break;
+	case colTypeCheckbox:
+		bc = [[NSButtonCell alloc] init];
+		[bc setBezelStyle:NSRegularSquareBezelStyle];		// not explicitly stated as such in Interface Builder; extracted with a test program
+		[bc setButtonType:NSSwitchButton];
+		[bc setBordered:NO];
+		[bc setTransparent:NO];
+		[bc setAllowsMixedState:NO];
+		[bc setTitle:@""];						// no label
+		lbm = NSLineBreakByWordWrapping;		// Interface Builder sets this mode for this type
+		[c setDataCell:bc];
+		break;
 	}
 	// otherwise just use the current cell
-	[c setEditable:NO];
+	[c setEditable:editable];
 	[[c headerCell] setStringValue:[NSString stringWithUTF8String:name]];
 	setSmallControlFont((id) [c headerCell]);
 	setStandardControlFont((id) [c dataCell]);
@@ -95,7 +123,7 @@ void tableAppendColumn(id t, intptr_t colnum, char *name, int type)
 	[[c headerCell] setTruncatesLastVisibleLine:NO];
 	[[c dataCell] setScrollable:NO];
 	[[c dataCell] setWraps:NO];
-	[[c dataCell] setLineBreakMode:NSLineBreakByTruncatingTail];
+	[[c dataCell] setLineBreakMode:lbm];
 	[[c dataCell] setUsesSingleLineMode:NO];
 	[[c dataCell] setTruncatesLastVisibleLine:NO];
 	[toNSTableView(t) addTableColumn:c];
