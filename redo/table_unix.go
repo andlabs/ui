@@ -11,6 +11,7 @@ import (
 )
 
 // #include "gtk_unix.h"
+// extern void goTableModel_toggled(GtkCellRendererToggle *, gchar *, gpointer);
 import "C"
 
 type table struct {
@@ -29,11 +30,13 @@ type table struct {
 	nColumns		C.gint
 	old			C.gint
 	types		[]C.GType
+	crtocol		map[*C.GtkCellRendererToggle]int
 }
 
 var (
 	attribText = togstr("text")
 	attribPixbuf = togstr("pixbuf")
+	attribActive = togstr("active")
 )
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -43,6 +46,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		tablebase:			b,
 		_widget:			widget,
 		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
+		crtocol:			make(map[*C.GtkCellRendererToggle]int),
 	}
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
@@ -50,12 +54,23 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	C.gtk_tree_view_set_model(t.treeview, t.modelgtk)
 	for i := 0; i < ty.NumField(); i++ {
 		cname := togstr(ty.Field(i).Name)
-		switch ty.Field(i).Type {
-		case reflect.TypeOf(ImageIndex(0)):
+		switch {
+		case ty.Field(i).Type == reflect.TypeOf(ImageIndex(0)):
 			// can't use GDK_TYPE_PIXBUF here because it's a macro that expands to a function and cgo hates that
 			t.types = append(t.types, C.gdk_pixbuf_get_type())
 			C.tableAppendColumn(t.treeview, C.gint(i), cname,
 				C.gtk_cell_renderer_pixbuf_new(), attribPixbuf)
+		case ty.Field(i).Type.Kind() == reflect.Bool:
+			t.types = append(t.types, C.G_TYPE_BOOLEAN)
+			cr := C.gtk_cell_renderer_toggle_new()
+			crt := (*C.GtkCellRendererToggle)(unsafe.Pointer(cr))
+			t.crtocol[crt] = i
+			g_signal_connect(C.gpointer(unsafe.Pointer(cr)),
+				"toggled",
+				C.GCallback(C.goTableModel_toggled),
+				C.gpointer(unsafe.Pointer(t)))
+			C.tableAppendColumn(t.treeview, C.gint(i), cname,
+				cr, attribActive)
 		default:
 			t.types = append(t.types, C.G_TYPE_STRING)
 			C.tableAppendColumn(t.treeview, C.gint(i), cname,
@@ -114,10 +129,15 @@ func goTableModel_do_get_value(data unsafe.Pointer, row C.gint, col C.gint, valu
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
-	switch d := datum.Interface().(type) {
-	case ImageIndex:
+	switch {
+	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
+		d := datum.Interface().(ImageIndex)
 		C.g_value_init(value, C.gdk_pixbuf_get_type())
 		C.g_value_set_object(value, C.gpointer(unsafe.Pointer(t.pixbufs[d])))
+	case datum.Kind() == reflect.Bool:
+		d := datum.Interface().(bool)
+		C.g_value_init(value, C.G_TYPE_BOOLEAN)
+		C.g_value_set_boolean(value, togbool(d))
 	default:
 		s := fmt.Sprintf("%v", datum)
 		str := togstr(s)
@@ -134,6 +154,23 @@ func goTableModel_getRowCount(data unsafe.Pointer) C.gint {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	return C.gint(d.Len())
+}
+
+//export goTableModel_toggled
+func goTableModel_toggled(cr *C.GtkCellRendererToggle, pathstr *C.gchar, data C.gpointer) {
+	t := (*table)(unsafe.Pointer(data))
+	t.Lock()
+	defer t.Unlock()
+	path := C.gtk_tree_path_new_from_string(pathstr)
+	if len := C.gtk_tree_path_get_depth(path); len != 1 {
+		panic(fmt.Errorf("invalid path of depth %d given to goTableModel_toggled()", len))
+	}
+	// dereference return value to get our sole member
+	row := *C.gtk_tree_path_get_indices(path)
+	col := t.crtocol[cr]
+	d := reflect.Indirect(reflect.ValueOf(t.data))
+	datum := d.Index(int(row)).Field(int(col))
+	datum.SetBool(!datum.Bool())
 }
 
 func (t *table) widget() *C.GtkWidget {

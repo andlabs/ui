@@ -11,6 +11,7 @@ import (
 )
 
 type icon struct {
+	Bool		bool
 	Icon		ImageIndex
 	Name	string
 }
