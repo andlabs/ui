@@ -42,8 +42,17 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		handle(hwnd, wParam, lParam, tableSetHot, (void *) data);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_LBUTTONDOWN:
+		handle(hwnd, wParam, lParam, tablePushed, (void *) data);
+		// and let the list view do its thing
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONUP:
 		handle(hwnd, wParam, lParam, tableToggled, (void *) data);
+		// and let the list view do its thing
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_MOUSELEAVE:
+		// TODO doesn't work
+		tablePushed((void *) data, -1, -1);			// in case button held as drag out
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	// see table.autoresize() in table_windows.go for the column autosize policy

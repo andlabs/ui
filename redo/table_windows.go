@@ -18,6 +18,8 @@ type table struct {
 	colcount		C.int
 	hotrow		C.int
 	hotcol		C.int
+	pushedrow	C.int
+	pushedcol	C.int
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -28,6 +30,8 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		tablebase:		b,
 		hotrow:		-1,
 		hotcol:		-1,
+		pushedrow:	-1,
+		pushedcol:	-1,
 	}
 	C.setTableSubclass(t._hwnd, unsafe.Pointer(t))
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
@@ -86,6 +90,11 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 		} else {
 			curstate &^= C.checkboxStateHot
 		}
+		if item.iItem == t.pushedrow && item.iSubItem == t.pushedcol {
+			curstate |= C.checkboxStatePushed
+		} else {
+			curstate &^= C.checkboxStatePushed
+		}
 		item.state = (curstate + 1) << 12
 	default:
 		s := fmt.Sprintf("%v", datum)
@@ -126,14 +135,31 @@ func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
 	}
 }
 
+//export tablePushed
+func tablePushed(data unsafe.Pointer, row C.int, col C.int) {
+	t := (*table)(data)
+	t.pushedrow = row
+	t.pushedcol = col
+	C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+}
+
 //export tableToggled
 func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
 	t := (*table)(data)
+	t.Lock()
+	defer func() {
+		// reset for next time
+		t.pushedrow = -1
+		t.pushedcol = -1
+		// and THEN unlock so the reset takes effect
+		t.Unlock()
+	}()
 	if row == -1 || col == -1 {		// discard extras sent by handle() in table_windows.c
 		return
 	}
-	t.Lock()
-	defer t.Unlock()
+	if row != t.pushedrow || col != t.pushedcol {				// mouse moved out
+		return
+	}
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	if datum.Kind() == reflect.Bool {
