@@ -12,6 +12,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"time"
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
@@ -32,6 +33,11 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	fe		*ForeignEvent
+	festack	Stack
+	festart	Button
+	felabel	Label
+	festop	Button
 	icons	[]icon
 	il		ImageList
 	icontbl	Table
@@ -62,6 +68,31 @@ func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
 func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v %q\n", ke, ke.Key) }
 
+func (tw *testwin) addfe() {
+	tw.festart = NewButton("Start")
+	tw.festart.OnClicked(func() {
+		if tw.fe != nil {
+			tw.fe.Stop()
+		}
+		ticker := time.NewTicker(1 * time.Second)
+		tw.fe = NewForeignEvent(ticker.C, func(d interface{}) {
+			t := d.(time.Time)
+			tw.felabel.SetText(t.String())
+		})
+	})
+	tw.felabel = NewStandaloneLabel("<stopped>")
+	tw.festop = NewButton("Stop")
+	tw.festop.OnClicked(func() {
+		if tw.fe != nil {
+			tw.fe.Stop()
+			tw.felabel.SetText("<stopped>")
+			tw.fe = nil
+		}
+	})
+	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop)
+	tw.t.Append("Foreign Events", tw.festack)
+}
+
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
 	tw.w = NewWindow("Hello", 320, 240, tw.t)
@@ -74,6 +105,7 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.addfe()
 	tw.icons, tw.il = readIcons()
 	tw.icontbl = NewTable(reflect.TypeOf(icon{}))
 	tw.icontbl.Lock()
