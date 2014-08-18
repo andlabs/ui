@@ -146,8 +146,6 @@ func NewForeignEvent(channel interface{}, handler func(data interface{})) *Forei
 }
 
 func (fe *ForeignEvent) do() {
-	wait := make(chan struct{})
-	defer close(wait)
 	for {
 		v, ok := fe.c.Recv()
 		if !ok {
@@ -156,9 +154,7 @@ func (fe *ForeignEvent) do() {
 		fe.d = v.Interface()
 		Do(func() {
 			fe.e.fire()
-			wait <- struct{}{}
 		})
-		<-wait
 	}
 }
 
