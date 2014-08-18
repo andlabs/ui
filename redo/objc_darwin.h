@@ -93,6 +93,8 @@ extern void tableAppendColumn(id, intptr_t, char *, int, BOOL);
 extern void tableUpdate(id);
 extern void tableMakeDataSource(id, void *);
 extern struct xsize tablePreferredSize(id);
+extern intptr_t tableSelected(id);
+extern void tableSelect(id, intptr_t);
 
 /* control_darwin.m */
 extern void parent(id, id);

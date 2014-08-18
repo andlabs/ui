@@ -62,6 +62,18 @@ func (t *table) LoadImageList(i ImageList) {
 	i.apply(&t.images)
 }
 
+func (t *table) Selected() int {
+	t.RLock()
+	defer t.RUnlock()
+	return int(C.tableSelected(t._id))
+}
+
+func (t *table) Select(index int) {
+	t.RLock()
+	defer t.RUnlock()
+	C.tableSelect(t._id, C.intptr_t(index))
+}
+
 //export goTableDataSource_getValue
 func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, outtype *C.int) unsafe.Pointer {
 	t := (*table)(data)

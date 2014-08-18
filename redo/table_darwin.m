@@ -173,3 +173,15 @@ struct xsize tablePreferredSize(id control)
 	s.height += (intptr_t) [[t headerView] frame].size.height;
 	return s;
 }
+
+intptr_t tableSelected(id table)
+{
+	return (intptr_t) [toNSTableView(table) selectedRow];
+}
+
+void tableSelect(id table, intptr_t row)
+{
+	[toNSTableView(table) deselectAll:table];
+	if (row != -1)
+		[toNSTableView(table) selectRowIndexes:[NSIndexSet indexSetWithIndex:((NSUInteger) row)] byExtendingSelection:NO];
+}

@@ -68,3 +68,4 @@ gtk+, mac os x
 		- once that is done, document the behavior of Areas
 all
 	- make spaced settable somehow
+	- rename Selected to Selection?
