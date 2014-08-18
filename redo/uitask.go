@@ -6,6 +6,7 @@ import (
 	"runtime"
 	"sync"
 	"unsafe"
+	"reflect"
 )
 
 // Go initializes and runs package ui.
@@ -114,4 +115,54 @@ func (e *event) fire() bool {
 func perform(fp unsafe.Pointer) {
 	f := (*func())(fp)
 	(*f)()
+}
+
+// ForeignEvent wraps a channel in such a way that it can be used safely with package ui.
+type ForeignEvent struct {
+	c	reflect.Value
+	e	*event
+	d	interface{}
+}
+
+// NewForeignEvent creates a new ForeignEvent with the specified channel.
+// It panics if the argument is not a receivable channel.
+// The returned ForeignEvent assumes ownership of the channel.
+// Each time a value is received on the channel, the returned function is invoked on the main thread.
+func NewForeignEvent(channel interface{}, handler func(data interface{})) *ForeignEvent {
+	c := reflect.ValueOf(channel)
+	t := c.Type()
+	if t.Kind() != reflect.Chan || (t.ChanDir() & reflect.RecvDir) == 0 {
+		panic("non-channel or non-receivable channel passed to NewForeignEvent()")
+	}
+	fe := &ForeignEvent{
+		c:		c,
+		e:		newEvent(),
+	}
+	fe.e.set(func() {
+		handler(fe.d)
+	})
+	go fe.do()
+	return fe
+}
+
+func (fe *ForeignEvent) do() {
+	wait := make(chan struct{})
+	defer close(wait)
+	for {
+		v, ok := fe.c.Recv()
+		if !ok {
+			break
+		}
+		fe.d = v.Interface()
+		Do(func() {
+			fe.e.fire()
+			wait <- struct{}{}
+		})
+		<-wait
+	}
+}
+
+// Stop ceases all future invocations of the handler passed to NewForeignEvent() on fe; the values read from the channel are merely discarded.
+func (fe *ForeignEvent) Stop() {
+	fe.e.set(nil)
 }
