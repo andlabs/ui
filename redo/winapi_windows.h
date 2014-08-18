@@ -133,4 +133,7 @@ enum {
 extern HIMAGELIST checkboxImageList;
 extern void makeCheckboxImageList(HWND);
 
+// dialog_windows.c
+extern WCHAR *openFile(void);
+
 #endif

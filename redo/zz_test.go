@@ -38,6 +38,8 @@ type testwin struct {
 	festart	Button
 	felabel	Label
 	festop	Button
+	openbtn	Button
+	fnlabel	Label
 	icons	[]icon
 	il		ImageList
 	icontbl	Table
@@ -89,7 +91,19 @@ func (tw *testwin) addfe() {
 			tw.fe = nil
 		}
 	})
-	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop)
+	tw.openbtn = NewButton("Open")
+	tw.openbtn.OnClicked(func() {
+		fn := OpenFile()
+		if fn == "" {
+			fn = "<no file selected>"
+		}
+		tw.fnlabel.SetText(fn)
+	})
+	tw.fnlabel = NewStandaloneLabel("<no file selected>")
+	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop,
+		Space(),
+		tw.openbtn, tw.fnlabel)
+	tw.festack.SetStretchy(3)
 	tw.t.Append("Foreign Events", tw.festack)
 }
 

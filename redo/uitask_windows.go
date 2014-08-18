@@ -9,7 +9,7 @@ import (
 )
 
 // #cgo CFLAGS: --std=c99
-// #cgo LDFLAGS: -luser32 -lkernel32 -lgdi32 -luxtheme -lmsimg32
+// #cgo LDFLAGS: -luser32 -lkernel32 -lgdi32 -luxtheme -lmsimg32 -lcomdlg32
 // #include "winapi_windows.h"
 import "C"
 
