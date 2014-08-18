@@ -62,6 +62,18 @@ func (t *table) LoadImageList(il ImageList) {
 	il.apply(t._hwnd, C.LVM_SETIMAGELIST, C.LVSIL_SMALL)
 }
 
+func (t *table) Selected() int {
+	t.RLock()
+	defer t.RUnlock()
+	return int(C.tableSelectedItem(t._hwnd))
+}
+
+func (t *table) Select(index int) {
+	t.RLock()
+	defer t.RUnlock()
+	C.tableSelectItem(t._hwnd, C.intptr_t(index))
+}
+
 //export tableGetCell
 func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	t := (*table)(data)

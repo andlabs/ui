@@ -105,6 +105,8 @@ extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
 extern void tableAutosizeColumns(HWND, int);
 extern void tableSetCheckboxImageList(HWND);
+extern intptr_t tableSelectedItem(HWND);
+extern void tableSelectItem(HWND, intptr_t);
 
 // container_windows.c
 extern DWORD makeContainerWindowClass(char **);

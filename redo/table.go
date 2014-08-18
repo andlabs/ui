@@ -39,7 +39,13 @@ type Table interface {
 
 	// LoadImageList loads the given ImageList into the Table.
 	// This function copies; changes to the ImageList made later will not be reflected by the Table.
-	LoadImageList(ImageList)
+	LoadImageList(imagelist ImageList)
+
+	// Selected and Select get and set the currently selected item in the Table.
+	// Selected returns -1 if no item is selected.
+	// Pass -1 to Select to deselect all items.
+	Selected() int
+	Select(index int)
 }
 
 type tablebase struct {
