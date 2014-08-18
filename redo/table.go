@@ -44,6 +44,7 @@ type Table interface {
 	// Selected and Select get and set the currently selected item in the Table.
 	// Selected returns -1 if no item is selected.
 	// Pass -1 to Select to deselect all items.
+	// TODO bounds checking
 	Selected() int
 	Select(index int)
 }

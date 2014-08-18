@@ -23,6 +23,7 @@ type table struct {
 
 	model		*C.goTableModel
 	modelgtk		*C.GtkTreeModel
+	selection		*C.GtkTreeSelection
 
 	pixbufs		[]*C.GdkPixbuf
 
@@ -51,6 +52,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
 	t.modelgtk = (*C.GtkTreeModel)(unsafe.Pointer(model))
+	t.selection = C.gtk_tree_view_get_selection(t.treeview)
 	C.gtk_tree_view_set_model(t.treeview, t.modelgtk)
 	for i := 0; i < ty.NumField(); i++ {
 		cname := togstr(ty.Field(i).Name)
@@ -106,6 +108,35 @@ func (t *table) Unlock() {
 
 func (t *table) LoadImageList(i ImageList) {
 	i.apply(&t.pixbufs)
+}
+
+func (t *table) Selected() int {
+	var iter C.GtkTreeIter
+
+	t.RLock()
+	defer t.RUnlock()
+	if C.gtk_tree_selection_get_selected(t.selection, nil, &iter) == C.FALSE {
+		return -1
+	}
+	path := C.gtk_tree_model_get_path(t.modelgtk, &iter)
+	if path == nil {
+		panic(fmt.Errorf("invalid iter in Table.Selected()"))
+	}
+	defer C.gtk_tree_path_free(path)
+	return int(*C.gtk_tree_path_get_indices(path))
+}
+
+func (t *table) Select(index int) {
+	t.RLock()
+	defer t.RUnlock()
+	C.gtk_tree_selection_unselect_all(t.selection)
+	if index == -1 {
+		return
+	}
+	path := C.gtk_tree_path_new()
+	defer C.gtk_tree_path_free(path)
+	C.gtk_tree_path_append_index(path, C.gint(index))
+	C.gtk_tree_selection_select_path(t.selection, path)
 }
 
 //export goTableModel_get_n_columns

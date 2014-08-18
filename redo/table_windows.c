@@ -145,6 +145,8 @@ void tableSelectItem(HWND hwnd, intptr_t index)
 		if (SendMessageW(hwnd, LVM_SETITEMSTATE, (WPARAM) current, (LPARAM) (&item)) == FALSE)
 			xpanic("error deselecting current Table item", GetLastError());
 	}
+	if (index == -1)			// select nothing
+		return;
 	ZeroMemory(&item, sizeof (LVITEMW));
 	item.mask = LVIF_STATE;
 	item.state = LVIS_FOCUSED | LVIS_SELECTED;
