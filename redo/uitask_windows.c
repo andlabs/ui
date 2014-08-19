@@ -116,7 +116,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	// TODO respond to WM_THEMECHANGED
 	case msgRequest:
 		// in modal?
-		if (GetWindowLongPtrW(hwnd, GWLP_USERDATA) != 0) {
+		if (mq->inmodal) {
 			mq->modals[mq->len] = (void *) lParam;
 			mq->len++;
 			if (mq->len >= mq->cap) {
@@ -125,6 +125,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 				if (mq->modals == NULL)
 					xpanic("error growing modal queue", GetLastError());
 			}
+			return;
 		}
 		// nope, we can run now
 		doissue((void *) lParam);
