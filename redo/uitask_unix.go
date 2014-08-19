@@ -39,6 +39,7 @@ func issue(f *func()) {
 	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(f)))
 }
 
+// TODO this is not order-safe!
 var inmodal = false
 
 //export doissue
