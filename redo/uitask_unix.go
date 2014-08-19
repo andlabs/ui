@@ -39,8 +39,13 @@ func issue(f *func()) {
 	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(f)))
 }
 
+var inmodal = false
+
 //export doissue
 func doissue(data C.gpointer) C.gboolean {
+	if inmodal {
+		return C.TRUE		// wait for modal dialog to finish
+	}
 	perform(unsafe.Pointer(data))
-	return C.FALSE		// don't repeat
+	return C.FALSE			// don't repeat
 }
