@@ -71,6 +71,13 @@ HWND msgwin;
 
 #define msgwinclass L"gouimsgwin"
 
+static BOOL CALLBACK beginEndModalAll(HWND hwnd, LPARAM lParam)
+{
+	if (hwnd != msgwin)
+		SendMessageW(hwnd, (UINT) lParam, 0, 0);
+	return TRUE;
+}
+
 static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT shared;
@@ -84,7 +91,23 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return 0;
 	// TODO respond to WM_THEMECHANGED
 	case msgRequest:
+		// in modal?
+		if (GetWindowLongPtrW(hwnd, GWLP_USERDATA) != 0) {
+			// post again later
+			// TODO this chokes the message queue!
+			issue((void *) lParam);
+			return 0;
+		}
+		// nope, we can run now
 		doissue((void *) lParam);
+		return 0;
+	case msgBeginModal:
+		SetWindowLongPtrW(hwnd, GWLP_USERDATA, 1);
+		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgBeginModal);
+		return 0;
+	case msgEndModal:
+		SetWindowLongPtrW(hwnd, GWLP_USERDATA, 0);
+		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgEndModal);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
