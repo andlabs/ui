@@ -12,7 +12,8 @@ import (
 // #cgo pkg-config: gtk+-3.0
 // #cgo CFLAGS: --std=c99
 // #include "gtk_unix.h"
-// extern gboolean doissue(gpointer data);
+// #include "modalqueue.h"
+// extern gboolean xdoissue(gpointer data);
 import "C"
 
 func uiinit() error {
@@ -36,17 +37,19 @@ func uistop() {
 }
 
 func issue(f *func()) {
-	C.gdk_threads_add_idle(C.GSourceFunc(C.doissue), C.gpointer(unsafe.Pointer(f)))
+	if C.queueIfModal(unsafe.Pointer(f)) == 0 {
+		C.gdk_threads_add_idle(C.GSourceFunc(C.xdoissue), C.gpointer(unsafe.Pointer(f)))
+	}
 }
 
-// TODO this is not order-safe!
-var inmodal = false
-
-//export doissue
-func doissue(data C.gpointer) C.gboolean {
-	if inmodal {
-		return C.TRUE		// wait for modal dialog to finish
-	}
+//export xdoissue
+func xdoissue(data C.gpointer) C.gboolean {
 	perform(unsafe.Pointer(data))
 	return C.FALSE			// don't repeat
+}
+
+//export doissue
+func doissue(data unsafe.Pointer) {
+	// for the modal queue functions
+	perform(data)
 }

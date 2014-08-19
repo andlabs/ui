@@ -9,6 +9,7 @@ import (
 )
 
 // #include "gtk_unix.h"
+// #include "modalqueue.h"
 // /* because cgo doesn't like ... */
 // GtkWidget *newOpenFileDialog(void)
 // {
@@ -29,9 +30,9 @@ func openFile() string {
 	C.gtk_file_chooser_set_local_only(fc, C.FALSE)
 	C.gtk_file_chooser_set_select_multiple(fc, C.FALSE)
 	C.gtk_file_chooser_set_show_hidden(fc, C.TRUE)
-	inmodal = true
+	C.beginModal()
 	response := C.gtk_dialog_run(dialog)
-	inmodal = false
+	C.endModal()
 	if response != C.GTK_RESPONSE_ACCEPT {
 		return ""
 	}
