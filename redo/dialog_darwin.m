@@ -18,11 +18,9 @@ char *openFile(void)
 	[op setExtensionHidden:NO];
 	[op setAllowsOtherFileTypes:YES];
 	[op setTreatsFilePackagesAsDirectories:YES];
-	// disable custom events
-	// TODO doesn't seem to work
-	dispatch_suspend(dispatch_get_main_queue());
+	beginModal();
 	ret = [op runModal];
-	dispatch_resume(dispatch_get_main_queue());
+	endModal();
 	if (ret != NSFileHandlingPanelOKButton)
 		return NULL;
 	// string freed on the Go side

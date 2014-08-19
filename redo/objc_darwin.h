@@ -41,6 +41,8 @@ extern id getAppDelegate(void);	/* used by the other .m files */
 extern void uiinit(char **);
 extern void uimsgloop(void);
 extern void uistop(void);
+extern void beginModal(void);
+extern void endModal(void);
 extern void issue(void *);
 
 /* window_darwin.m */
