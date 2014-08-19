@@ -25,5 +25,6 @@ char *openFile(void)
 	dispatch_resume(dispatch_get_main_queue());
 	if (ret != NSFileHandlingPanelOKButton)
 		return NULL;
+	// string freed on the Go side
 	return strdup([[[op URL] path] UTF8String]);
 }
