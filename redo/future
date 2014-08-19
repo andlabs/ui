@@ -60,6 +60,8 @@ windows
 	- flicker ahoy
 	- not all controls are transparent
 	- extra space on first column of all Tables on real Windows
+	- OpenFile() not modal
+	- OpenFile() won't stop Do()
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
