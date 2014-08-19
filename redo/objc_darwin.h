@@ -128,4 +128,7 @@ extern void disableAutocorrect(id);
 /* imagerep_darwin.m */
 extern id toImageListImage(void *, intptr_t, intptr_t, intptr_t);
 
+/* dialog_darwin.m */
+extern char *openFile(void);
+
 #endif
