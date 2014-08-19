@@ -14,6 +14,7 @@ import "C"
 type window struct {
 	hwnd		C.HWND
 	shownbefore	bool
+	modallevel	int
 
 	closing		*event
 
@@ -97,5 +98,23 @@ func windowClosing(data unsafe.Pointer) {
 	close := w.closing.fire()
 	if close {
 		C.windowClose(w.hwnd)
+	}
+}
+
+//export windowBeginModal
+func windowBeginModal(data unsafe.Pointer) {
+	w := (*window)(data)
+	C.EnableWindow(w.hwnd, C.FALSE)
+	w.modallevel++
+}
+
+//export windowEndModal
+func windowEndModal(data unsafe.Pointer) {
+	w := (*window)(data)
+	w.modallevel--
+	if w.modallevel == 0 {
+		C.EnableWindow(w.hwnd, C.TRUE)
+	} else if w.modallevel < 0 {
+		panic("window begin/end modal mismatch")
 	}
 }

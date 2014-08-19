@@ -32,6 +32,8 @@ enum {
 	msgAreaSizeChanged,
 	msgAreaRepaintAll,
 	msgTabCurrentTabHasChildren,
+	msgBeginModal,
+	msgEndModal,
 };
 
 // uitask_windows.c
