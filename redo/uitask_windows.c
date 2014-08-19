@@ -2,6 +2,7 @@
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
+#include "modalqueue.h"
 
 // note that this includes the terminating '\0'
 // this also assumes WC_TABCONTROL is longer than areaWindowClass
@@ -71,13 +72,6 @@ HWND msgwin;
 
 #define msgwinclass L"gouimsgwin"
 
-struct modalqueue {
-	BOOL inmodal;
-	void **modals;
-	size_t len;
-	size_t cap;
-};
-
 static BOOL CALLBACK beginEndModalAll(HWND hwnd, LPARAM lParam)
 {
 	if (hwnd != msgwin)
@@ -88,23 +82,7 @@ static BOOL CALLBACK beginEndModalAll(HWND hwnd, LPARAM lParam)
 static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT shared;
-	struct modalqueue *mq;
 	size_t i;
-
-	mq = (struct modalqueue *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-	if (mq == NULL) {
-		mq = (struct modalqueue *) malloc(sizeof (struct modalqueue));
-		if (mq == NULL)
-			xpanic("error allocating modal queue structure", GetLastError());
-		ZeroMemory(mq, sizeof (struct modalqueue));
-		mq->inmodal = FALSE;
-		mq->len = 0;
-		mq->cap = 128;
-		mq->modals = (void **) malloc(mq->cap * sizeof (void *));
-		if (mq->modals == NULL)
-			xpanic("error allocating modal quque", GetLastError());
-		SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) mq);
-	}
 
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &shared))
 		return shared;
@@ -116,29 +94,16 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	// TODO respond to WM_THEMECHANGED
 	case msgRequest:
 		// in modal?
-		if (mq->inmodal) {
-			mq->modals[mq->len] = (void *) lParam;
-			mq->len++;
-			if (mq->len >= mq->cap) {
-				mq->cap *= 2;
-				mq->modals = (void **) realloc(mq->modals, mq->cap * sizeof (void *));
-				if (mq->modals == NULL)
-					xpanic("error growing modal queue", GetLastError());
-			}
-			return;
-		}
-		// nope, we can run now
-		doissue((void *) lParam);
+		if (!queueIfModal((void *) lParam))
+			// nope, we can run now
+			doissue((void *) lParam);
 		return 0;
 	case msgBeginModal:
-		mq->inmodal = TRUE;
+		beginModal();
 		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgBeginModal);
 		return 0;
 	case msgEndModal:
-		mq->inmodal = FALSE;
-		for (i = 0; i < mq->len; i++)
-			doissue(mq->modals[i]);
-		mq->len = 0;
+		endModal();
 		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgEndModal);
 		return 0;
 	default:

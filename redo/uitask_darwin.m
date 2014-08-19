@@ -2,6 +2,7 @@
 
 #import "objc_darwin.h"
 #import "_cgo_export.h"
+#import "modalqueue.h"
 #import <Cocoa/Cocoa.h>
 
 #define toNSWindow(x) ((NSWindow *) (x))
@@ -129,48 +130,13 @@ void uistop(void)
 	[NSApp postEvent:e atStart:NO];		// let pending events take priority
 }
 
-// because dispatch_suspend()/dispatch_resume() can't be used with the main queue
-static BOOL inmodal = NO;
-static void **modalqueue = NULL;
-static size_t mqlen = 0;
-static size_t mqcap = 0;
-
-void beginModal(void)
-{
-	inmodal = YES;
-	if (modalqueue == NULL) {
-		mqcap = 128;
-		modalqueue = (void **) malloc(mqcap * sizeof (void *));
-		if (modalqueue == NULL)
-			abort();//TODO
-		mqlen = 0;
-	}
-}
-
-void endModal(void)
-{
-	size_t i;
-
-	inmodal = NO;
-	for (i = 0; i < mqlen; i++)
-		doissue(modalqueue[i]);
-	mqlen = 0;
-}
+// we use the modal queue because dispatch_suspend()/dispatch_resume() can't be used with the main queue
 
 // thanks to mikeash in irc.freenode.net/#macdev for suggesting the use of Grand Central Dispatch and blocks for this
 void issue(void *what)
 {
-	if (inmodal) {
-		modalqueue[mqlen] = what;
-		mqlen++;
-		if (mqlen >= mqcap) {
-			mqcap *= 2;
-			modalqueue = (void **) realloc(modalqueue, mqcap * sizeof (void *));
-			if (modalqueue == NULL)
-				abort();//TODO
-		}
+	if (queueIfModal(what))
 		return;
-	}
 	dispatch_async(dispatch_get_main_queue(), ^{
 		doissue(what);
 	});
