@@ -10,13 +10,17 @@ import (
 import "C"
 
 type textfield struct {
-	_id	C.id
+	_id		C.id
+	changed	*event
 }
 
 func newTextField() *textfield {
-	return &textfield{
-		_id:		C.newTextField(),
+	t := &textfield{
+		_id:			C.newTextField(),
+		changed:		newEvent(),
 	}
+	C.textfieldSetDelegate(t._id, unsafe.Pointer(t))
+	return t
 }
 
 func newPasswordField() *textfield {
@@ -33,6 +37,21 @@ func (t *textfield) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	C.textFieldSetText(t._id, ctext)
+}
+
+func (t *textfield) OnChanged(f func()) {
+	t.changed.set(f)
+}
+
+func (t *textfield) Invalid(reason string) {
+	// TODO
+}
+
+//export textfieldChanged
+func textfieldChanged(data unsafe.Pointer) {
+	t := (*textfield)(data)
+println("changed")
+	t.changed.fire()
 }
 
 func (t *textfield) id() C.id {

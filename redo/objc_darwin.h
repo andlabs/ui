@@ -68,6 +68,7 @@ extern BOOL checkboxChecked(id);
 extern void checkboxSetChecked(id, BOOL);
 extern id newTextField(void);
 extern id newPasswordField(void);
+extern void textfieldSetDelegate(id, void *);
 extern const char *textFieldText(id);
 extern void textFieldSetText(id, char *);
 extern id newLabel(void);

@@ -9,7 +9,7 @@
 #define toNSView(x) ((NSView *) (x))
 #define toNSBox(x) ((NSBox *) (x))
 
-@interface goControlDelegate : NSObject {
+@interface goControlDelegate : NSObject <NSTextFieldDelegate> {
 @public
 	void *gocontrol;
 }
@@ -25,6 +25,11 @@
 - (IBAction)checkboxToggled:(id)sender
 {
 	checkboxToggled(self->gocontrol);
+}
+
+- (void)controlTextDidChange:(NSNotification *)note
+{
+	textfieldChanged(self->gocontrol);
 }
 
 @end
@@ -134,6 +139,15 @@ id newPasswordField(void)
 
 	t = [[NSSecureTextField alloc] initWithFrame:NSZeroRect];
 	return finishNewTextField(toNSTextField(t), YES);
+}
+
+void textfieldSetDelegate(id textfield, void *t)
+{
+	goControlDelegate *d;
+
+	d = [goControlDelegate new];
+	d->gocontrol = t;
+	[toNSTextField(textfield) setDelegate:d];
 }
 
 // also good for labels
