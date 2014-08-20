@@ -49,6 +49,7 @@ func (t *textfield) OnChanged(f func()) {
 func (t *textfield) Invalid(reason string) {
 	// TODO disable animations if reason is still valid
 	// TODO don't steal focus
+	// TODO beep
 	if t.invalid != nil {
 		C.textfieldCloseInvalidPopover(t.invalid)
 		t.invalid = nil
