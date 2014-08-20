@@ -14,19 +14,21 @@ type textfield struct {
 	changed	*event
 }
 
-func newTextField() *textfield {
+func finishNewTextField(id C.id) *textfield {
 	t := &textfield{
-		_id:			C.newTextField(),
+		_id:			id,
 		changed:		newEvent(),
 	}
 	C.textfieldSetDelegate(t._id, unsafe.Pointer(t))
 	return t
 }
 
+func newTextField() *textfield {
+	return finishNewTextField(C.newTextField()
+}
+
 func newPasswordField() *textfield {
-	return &textfield{
-		_id:		C.newPasswordField(),
-	}
+	return finishNewTextField(C.newPasswordField())
 }
 
 func (t *textfield) Text() string {
