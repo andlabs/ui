@@ -13,6 +13,7 @@ import (
 	"image/color"
 	"image/draw"
 	"time"
+	"strings"
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
@@ -38,6 +39,7 @@ type testwin struct {
 	festart	Button
 	felabel	Label
 	festop	Button
+	vedit		TextField
 	openbtn	Button
 	fnlabel	Label
 	icons	[]icon
@@ -91,6 +93,14 @@ func (tw *testwin) addfe() {
 			tw.fe = nil
 		}
 	})
+	tw.vedit = NewTextField()
+	tw.vedit.OnChanged(func() {
+		if strings.Contains(tw.vedit.Text(), "bad") {
+			tw.vedit.Invalid("bad entered")
+		} else {
+			tw.vedit.Invalid("")
+		}
+	})
 	tw.openbtn = NewButton("Open")
 	tw.openbtn.OnClicked(func() {
 		fn := OpenFile()
@@ -102,8 +112,11 @@ func (tw *testwin) addfe() {
 	tw.fnlabel = NewStandaloneLabel("<no file selected>")
 	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop,
 		Space(),
+		tw.vedit,
+		Space(),
 		tw.openbtn, tw.fnlabel)
 	tw.festack.SetStretchy(3)
+	tw.festack.SetStretchy(5)
 	tw.t.Append("Foreign Events", tw.festack)
 }
 

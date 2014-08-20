@@ -10,6 +10,11 @@ import (
 
 // #include "gtk_unix.h"
 // extern void textfieldChanged(GtkEditable *, gpointer);
+// /* because cgo doesn't like GTK_STOCK_DIALOG_ERROR */
+// static inline void setErrorIcon(GtkEntry *entry)
+// {
+// 	gtk_entry_set_icon_from_stock(entry, GTK_ENTRY_ICON_SECONDARY, GTK_STOCK_DIALOG_ERROR);
+// }
 import "C"
 
 type textfield struct {
@@ -58,7 +63,14 @@ func (t *textfield) OnChanged(f func()) {
 }
 
 func (t *textfield) Invalid(reason string) {
-	// TODO
+	if reason == "" {
+		C.gtk_entry_set_icon_from_stock(t.entry, C.GTK_ENTRY_ICON_SECONDARY, nil)
+		return
+	}
+	C.setErrorIcon(t.entry)
+	creason := togstr(reason)
+	defer freegstr(creason)
+	C.gtk_entry_set_icon_tooltip_text(t.entry, C.GTK_ENTRY_ICON_SECONDARY, creason)
 }
 
 //export textfieldChanged
