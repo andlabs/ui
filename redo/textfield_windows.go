@@ -51,7 +51,11 @@ func (t *textfield) OnChanged(f func()) {
 }
 
 func (t *textfield) Invalid(reason string) {
-	// TODO
+	if reason == "" {
+		C.textfieldHideInvalidBalloonTip(t._hwnd)
+		return
+	}
+	C.textfieldSetAndShowInvalidBalloonTip(t._hwnd, toUTF16(reason))
 }
 
 //export textfieldChanged

@@ -104,3 +104,23 @@ void setTextFieldSubclass(HWND hwnd, void *data)
 	if ((*fv_SetWindowSubclass)(hwnd, textfieldSubProc, 0, (DWORD_PTR) data) == FALSE)
 		xpanic("error subclassing TextField to give it its own event handler", GetLastError());
 }
+
+void textfieldSetAndShowInvalidBalloonTip(HWND hwnd, WCHAR *text)
+{
+	EDITBALLOONTIP ti;
+
+	ZeroMemory(&ti, sizeof (EDITBALLOONTIP));
+	ti.cbStruct = sizeof (EDITBALLOONTIP);
+	ti.pszTitle = L"Invalid Input";		// TODO verify
+	ti.pszText = text;
+	ti.ttiIcon = TTI_ERROR;
+	if (SendMessageW(hwnd, EM_SHOWBALLOONTIP, 0, (LPARAM) (&ti)) == FALSE)
+		xpanic("error showing TextField.Invalid() balloon tip", GetLastError());
+	MessageBeep(0xFFFFFFFF);		// TODO can this return an error?
+}
+
+void textfieldHideInvalidBalloonTip(HWND hwnd)
+{
+	if (SendMessageW(hwnd, EM_HIDEBALLOONTIP, 0, 0) == FALSE)
+		xpanic("error hiding TextField.Invalid() balloon tip", GetLastError());
+}

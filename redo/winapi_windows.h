@@ -64,6 +64,8 @@ extern void setCheckboxSubclass(HWND, void *);
 extern BOOL checkboxChecked(HWND);
 extern void checkboxSetChecked(HWND, BOOL);
 extern void setTextFieldSubclass(HWND, void *);
+extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
+extern void textfieldHideInvalidBalloonTip(HWND);
 
 // init_windows.c
 extern HINSTANCE hInstance;
