@@ -12,6 +12,7 @@ import "C"
 type textfield struct {
 	_id		C.id
 	changed	*event
+	invalid	C.id
 }
 
 func finishNewTextField(id C.id) *textfield {
@@ -24,7 +25,7 @@ func finishNewTextField(id C.id) *textfield {
 }
 
 func newTextField() *textfield {
-	return finishNewTextField(C.newTextField()
+	return finishNewTextField(C.newTextField())
 }
 
 func newPasswordField() *textfield {
@@ -46,7 +47,18 @@ func (t *textfield) OnChanged(f func()) {
 }
 
 func (t *textfield) Invalid(reason string) {
-	// TODO
+	// TODO disable animations if reason is still valid
+	// TODO don't steal focus
+	if t.invalid != nil {
+		C.textfieldCloseInvalidPopover(t.invalid)
+		t.invalid = nil
+	}
+	if reason == "" {
+		return
+	}
+	creason := C.CString(reason)
+	defer C.free(unsafe.Pointer(creason))
+	t.invalid = C.textfieldOpenInvalidPopover(t._id, creason)
 }
 
 //export textfieldChanged

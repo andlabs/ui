@@ -71,6 +71,8 @@ extern id newPasswordField(void);
 extern void textfieldSetDelegate(id, void *);
 extern const char *textFieldText(id);
 extern void textFieldSetText(id, char *);
+extern id textfieldOpenInvalidPopover(id, char *);
+extern void textfieldCloseInvalidPopover(id);
 extern id newLabel(void);
 extern id newGroup(id);
 extern const char *groupText(id);
