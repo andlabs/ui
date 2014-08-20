@@ -48,6 +48,15 @@ type TextField interface {
 	// Text and SetText are Requests that get and set the TextField's text.
 	Text() string
 	SetText(text string)
+
+	// OnChanged is triggered when the text in a TextField is changed somehow.
+	// Do not bother trying to figure out how the text was changed; instead, perform your validation and use Invalid to inform the user that the entered text is invalid instead.
+	OnChanged(func())
+
+	// Invalid throws a non-modal alert (whose nature is system-defined) on or near the TextField that alerts the user that input is invalid.
+	// The string passed to Invalid will be displayed to the user to inform them of what specifically is wrong with the input.
+	// Pass an empty string to remove the warning.
+	Invalid(reason string)
 }
 
 // NewTextField creates a new TextField.

@@ -9,21 +9,28 @@ import (
 )
 
 // #include "gtk_unix.h"
-// extern void buttonClicked(GtkButton *, gpointer);
-// extern void checkboxToggled(GtkToggleButton *, gpointer);
+// extern void textfieldChanged(GtkEditable *, gpointer);
 import "C"
 
 type textfield struct {
 	_widget		*C.GtkWidget
 	entry		*C.GtkEntry
+	changed		*event
 }
 
 func startNewTextField() *textfield {
 	widget := C.gtk_entry_new()
-	return &textfield{
+	t := &textfield{
 		_widget:		widget,
 		entry:		(*C.GtkEntry)(unsafe.Pointer(widget)),
+		changed:		newEvent(),
 	}
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(t._widget)),
+		"changed",
+		C.GCallback(C.textfieldChanged),
+		C.gpointer(unsafe.Pointer(t)))
+	return t
 }
 
 func newTextField() *textfield {
@@ -44,6 +51,21 @@ func (t *textfield) SetText(text string) {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	C.gtk_entry_set_text(t.entry, ctext)
+}
+
+func (t *textfield) OnChanged(f func()) {
+	t.changed.set(f)
+}
+
+func (t *textfield) Invalid(reason string) {
+	// TODO
+}
+
+//export textfieldChanged
+func textfieldChanged(editable *C.GtkEditable, data C.gpointer) {
+	t := (*textfield)(unsafe.Pointer(data))
+println("changed")
+	t.changed.fire()
 }
 
 func (t *textfield) widget() *C.GtkWidget {
