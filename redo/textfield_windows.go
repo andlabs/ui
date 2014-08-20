@@ -2,12 +2,17 @@
 
 package ui
 
+import (
+	"unsafe"
+)
+
 // #include "winapi_windows.h"
 import "C"
 
 type textfield struct {
 	_hwnd	C.HWND
 	_textlen	C.LONG
+	changed	*event
 }
 
 var editclass = toUTF16("EDIT")
@@ -17,9 +22,11 @@ func startNewTextField(style C.DWORD) *textfield {
 		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &textfield{
-		_hwnd:	hwnd,
+		_hwnd:		hwnd,
+		changed:		newEvent(),
 	}
 	C.controlSetControlFont(t._hwnd)
+	C.setTextFieldSubclass(t._hwnd, unsafe.Pointer(t))
 	return t
 }
 
@@ -37,6 +44,21 @@ func (t *textfield) Text() string {
 
 func (t *textfield) SetText(text string) {
 	baseSetText(t, text)
+}
+
+func (t *textfield) OnChanged(f func()) {
+	t.changed.set(f)
+}
+
+func (t *textfield) Invalid(reason string) {
+	// TODO
+}
+
+//export textfieldChanged
+func textfieldChanged(data unsafe.Pointer) {
+	t := (*textfield)(data)
+println("changed")
+	t.changed.fire()
 }
 
 func (t *textfield) hwnd() C.HWND {

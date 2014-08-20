@@ -78,3 +78,29 @@ void checkboxSetChecked(HWND hwnd, BOOL c)
 		check = BST_UNCHECKED;
 	SendMessage(hwnd, BM_SETCHECK, check, 0);
 }
+
+static LRESULT CALLBACK textfieldSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	switch (uMsg) {
+	case msgCOMMAND:
+		if (HIWORD(wParam) == EN_CHANGE) {
+			textfieldChanged((void *) data);
+			return 0;
+		}
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, textfieldSubProc, id) == FALSE)
+			xpanic("error removing TextField subclass (which was for its own event handler)", GetLastError());
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	default:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	}
+	xmissedmsg("TextField", "textfieldSubProc()", uMsg);
+	return 0;		// unreached
+}
+
+void setTextFieldSubclass(HWND hwnd, void *data)
+{
+	if ((*fv_SetWindowSubclass)(hwnd, textfieldSubProc, 0, (DWORD_PTR) data) == FALSE)
+		xpanic("error subclassing TextField to give it its own event handler", GetLastError());
+}

@@ -63,6 +63,7 @@ extern void setButtonSubclass(HWND, void *);
 extern void setCheckboxSubclass(HWND, void *);
 extern BOOL checkboxChecked(HWND);
 extern void checkboxSetChecked(HWND, BOOL);
+extern void setTextFieldSubclass(HWND, void *);
 
 // init_windows.c
 extern HINSTANCE hInstance;
