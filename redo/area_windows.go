@@ -46,6 +46,23 @@ func (a *area) SetSize(width, height int) {
 	C.SendMessageW(a._hwnd, C.msgAreaSizeChanged, 0, 0)
 }
 
+func (a *area) Repaint(r image.Rectangle) {
+	var hscroll, vscroll C.int
+	var rect C.RECT
+
+	C.SendMessageW(a._hwnd, C.msgAreaGetScroll, C.WPARAM(uintptr(unsafe.Pointer(&hscroll))), C.LPARAM(uintptr(unsafe.Pointer(&vscroll))))
+	r = r.Add(image.Pt(int(hscroll), int(vscroll))) // adjust by scroll position
+	r = image.Rect(0, 0, a.width, a.height).Intersect(r)
+	if r.Empty() {
+		return
+	}
+	rect.left = C.LONG(r.Min.X)
+	rect.top = C.LONG(r.Min.Y)
+	rect.right = C.LONG(r.Max.X)
+	rect.bottom = C.LONG(r.Max.Y)
+	C.SendMessageW(a._hwnd, C.msgAreaRepaint, 0, C.LPARAM(uintptr(unsafe.Pointer(&rect))))
+}
+
 func (a *area) RepaintAll() {
 	C.SendMessageW(a._hwnd, C.msgAreaRepaintAll, 0, 0)
 }

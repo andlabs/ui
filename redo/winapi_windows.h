@@ -30,6 +30,8 @@ enum {
 	msgCOMMAND,				// WM_COMMAND proxy; see forwardCommand() in controls_windows.go
 	msgNOTIFY,					// WM_NOTIFY proxy
 	msgAreaSizeChanged,
+	msgAreaGetScroll,
+	msgAreaRepaint,
 	msgAreaRepaintAll,
 	msgTabCurrentTabHasChildren,
 	msgBeginModal,
@@ -122,7 +124,7 @@ extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 // area_window.c
 #define areaWindowClass L"gouiarea"
-extern void repaintArea(HWND);
+extern void repaintArea(HWND, RECT *);
 extern DWORD makeAreaWindowClass(char **);
 extern HWND newArea(void *);
 

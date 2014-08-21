@@ -289,10 +289,10 @@ static void adjustAreaScrollbars(HWND hwnd, void *data)
 	SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
 }
 
-void repaintArea(HWND hwnd)
+void repaintArea(HWND hwnd, RECT *r)
 {
 	// NULL - the whole area; TRUE - have windows erase if possible
-	if (InvalidateRect(hwnd, NULL, TRUE) == 0)
+	if (InvalidateRect(hwnd, r, TRUE) == 0)
 		xpanic("error flagging Area as needing repainting after event", GetLastError());
 	if (UpdateWindow(hwnd) == 0)
 		xpanic("error repainting Area after event", GetLastError());
@@ -386,10 +386,16 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return (LRESULT) areaKeyEvent(data, TRUE, wParam, lParam);
 	case msgAreaSizeChanged:
 		adjustAreaScrollbars(hwnd, data);
-		repaintArea(hwnd);		// this calls for an update
+		repaintArea(hwnd, NULL);		// this calls for an update
+		return 0;
+	case msgAreaGetScroll:
+		getScrollPos(hwnd, (int *) wParam, (int *) lParam);
+		return 0;
+	case msgAreaRepaint:
+		repaintArea(hwnd, (RECT *) lParam);
 		return 0;
 	case msgAreaRepaintAll:
-		repaintArea(hwnd);
+		repaintArea(hwnd, NULL);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
