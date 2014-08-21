@@ -17,9 +17,7 @@ Tab
 		// After Delete(), the effect of accessing the Control of the deleted tab or any of its children is undefned. [TODO reword?]
 	investigate close buttons (especially for LikeTab)
 Area
-	Repaint(rect image.Rectangle)
 	keyboard scrolling
-		GTK+ port: our_area_focus_callback() has something to do with it
 	OpenTextFieldAt() and OpenTextAreaAt() to allow editing of text from within Areas
 Tree
 	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
