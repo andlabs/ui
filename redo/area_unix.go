@@ -18,7 +18,6 @@ import (
 // extern gboolean our_area_enterleave_notify_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_key_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
-// extern gboolean our_area_focus_callback(GtkWidget *, GtkDirectionType, gpointer);
 // /* because cgo doesn't like ... */
 // static inline void gtkGetDoubleClickSettings(GtkSettings *settings, gint *maxTime, gint *maxDistance)
 // {
@@ -87,7 +86,6 @@ var areaCallbacks = []struct {
 	{ "leave-notify-event",		area_enterleave_notify_event_callback },
 	{ "key-press-event",			area_key_press_event_callback },
 	{ "key-release-event",		area_key_release_event_callback },
-	{ "focus",					area_focus_callback },
 }
 
 //export our_area_draw_callback
@@ -278,7 +276,7 @@ func our_area_enterleave_notify_event_callback(widget *C.GtkWidget, event *C.Gdk
 var area_enterleave_notify_event_callback = C.GCallback(C.our_area_enterleave_notify_event_callback)
 
 // shared code for doing a key event
-func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) {
+func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool) bool {
 	var ke KeyEvent
 
 	e := (*C.GdkEventKey)(unsafe.Pointer(event))
@@ -299,15 +297,17 @@ func doKeyEvent(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer, up bool
 		ke.Key = xke.Key
 		ke.ExtKey = xke.ExtKey
 	} else { // no match
-		return
+		return false
 	}
 	ke.Up = up
-	a.handler.Key(ke)
+	return a.handler.Key(ke)
 }
 
 //export our_area_key_press_event_callback
 func our_area_key_press_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
-	doKeyEvent(widget, event, data, false)
+	if doKeyEvent(widget, event, data, false) == true {
+		return stopEventChain
+	}
 	return continueEventChain
 }
 
@@ -315,7 +315,9 @@ var area_key_press_event_callback = C.GCallback(C.our_area_key_press_event_callb
 
 //export our_area_key_release_event_callback
 func our_area_key_release_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
-	doKeyEvent(widget, event, data, true)
+	if doKeyEvent(widget, event, data, true) == true {
+		return stopEventChain
+	}
 	return continueEventChain
 }
 
@@ -384,17 +386,6 @@ var modonlykeys = map[C.guint]Modifiers{
 	C.GDK_KEY_Super_L:   Super,
 	C.GDK_KEY_Super_R:   Super,
 }
-
-//export our_area_focus_callback
-func our_area_focus_callback(widget *C.GtkWidget, direction C.GtkDirectionType, data C.gpointer) C.gboolean {
-	if C.gtk_widget_is_focus(widget) == C.FALSE {
-		// this event indicates entering focus; always allow it
-		return continueEventChain
-	}
-	return stopEventChain
-}
-
-var area_focus_callback = C.GCallback(C.our_area_focus_callback)
 
 func (a *area) widget() *C.GtkWidget {
 	return a._widget
