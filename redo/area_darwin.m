@@ -89,9 +89,15 @@ event(otherMouseDown, areaView_mouseDown)
 event(mouseUp, areaView_mouseUp)
 event(rightMouseUp, areaView_mouseUp)
 event(otherMouseUp, areaView_mouseUp)
-event(keyDown, areaView_keyDown)
-event(keyUp, areaView_keyUp)
-event(flagsChanged, areaView_flagsChanged)
+
+#define retevent(m, f) \
+	- (BOOL)m:(NSEvent *)e \
+	{ \
+		return f(self, e, self->goarea); \
+	}
+retevent(doKeyDown, areaView_keyDown)
+retevent(doKeyUp, areaView_keyUp)
+retevent(doFlagsChanged, areaView_flagsChanged)
 
 @end
 

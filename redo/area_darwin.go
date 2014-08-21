@@ -140,38 +140,39 @@ func areaView_mouseUp(self C.id, e C.id, data unsafe.Pointer) {
 	areaMouseEvent(self, e, true, true, data)
 }
 
-func sendKeyEvent(self C.id, ke KeyEvent, data unsafe.Pointer) {
+func sendKeyEvent(self C.id, ke KeyEvent, data unsafe.Pointer) C.BOOL {
 	a := (*area)(data)
-	a.handler.Key(ke)
+	handled := a.handler.Key(ke)
+	return toBOOL(handled)
 }
 
-func areaKeyEvent(self C.id, e C.id, up bool, data unsafe.Pointer) {
+func areaKeyEvent(self C.id, e C.id, up bool, data unsafe.Pointer) C.BOOL {
 	var ke KeyEvent
 
 	keyCode := uintptr(C.keyCode(e))
 	ke, ok := fromKeycode(keyCode)
 	if !ok {
 		// no such key; modifiers by themselves are handled by -[self flagsChanged:]
-		return
+		return C.NO
 	}
 	// either ke.Key or ke.ExtKey will be set at this point
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = up
-	sendKeyEvent(self, ke, data)
+	return sendKeyEvent(self, ke, data)
 }
 
 //export areaView_keyDown
-func areaView_keyDown(self C.id, e C.id, data unsafe.Pointer) {
-	areaKeyEvent(self, e, false, data)
+func areaView_keyDown(self C.id, e C.id, data unsafe.Pointer) C.BOOL {
+	return areaKeyEvent(self, e, false, data)
 }
 
 //export areaView_keyUp
-func areaView_keyUp(self C.id, e C.id, data unsafe.Pointer) {
-	areaKeyEvent(self, e, true, data)
+func areaView_keyUp(self C.id, e C.id, data unsafe.Pointer) C.BOOL {
+	return areaKeyEvent(self, e, true, data)
 }
 
 //export areaView_flagsChanged
-func areaView_flagsChanged(self C.id, e C.id, data unsafe.Pointer) {
+func areaView_flagsChanged(self C.id, e C.id, data unsafe.Pointer) C.BOOL {
 	var ke KeyEvent
 
 	// Mac OS X sends this event on both key up and key down.
@@ -179,14 +180,14 @@ func areaView_flagsChanged(self C.id, e C.id, data unsafe.Pointer) {
 	keyCode := uintptr(C.keyCode(e))
 	mod, ok := keycodeModifiers[keyCode] // comma-ok form to avoid adding entries
 	if !ok {                             // unknown modifier; ignore
-		return
+		return C.NO
 	}
 	ke.Modifiers = parseModifiers(e)
 	ke.Up = (ke.Modifiers & mod) == 0
 	ke.Modifier = mod
 	// don't include the modifier in ke.Modifiers
 	ke.Modifiers &^= mod
-	sendKeyEvent(self, ke, data)
+	return sendKeyEvent(self, ke, data)
 }
 
 func (a *area) id() C.id {

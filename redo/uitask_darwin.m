@@ -20,6 +20,7 @@ static Class areaClass;
 - (void)sendEvent:(NSEvent *)e
 {
 	NSEventType type;
+	BOOL handled = NO;
 
 	type = [e type];
 	if (type == NSKeyDown || type == NSKeyUp || type == NSFlagsChanged) {
@@ -29,19 +30,18 @@ static Class areaClass;
 		if (focused != nil && [focused isKindOfClass:areaClass])
 			switch (type) {
 			case NSKeyDown:
-				[focused keyDown:e];
-				return;
+				handled = [focused doKeyDown:e];
+				break;
 			case NSKeyUp:
-				[focused keyUp:e];
-				return;
+				handled = [focused doKeyUp:e];
+				break;
 			case NSFlagsChanged:
-				[focused flagsChanged:e];
-				return;
+				handled = [focused doFlagsChanged:e];
+				break;
 			}
-		// else fall through
 	}
-	// otherwise, let NSApplication do it
-	[super sendEvent:e];
+	if (!handled)
+		[super sendEvent:e];
 }
 
 // ok AppKit, wanna play hardball? let's play hardball.
