@@ -34,6 +34,8 @@ enum {
 	msgTabCurrentTabHasChildren,
 	msgBeginModal,
 	msgEndModal,
+	msgAreaKeyDown,
+	msgAreaKeyUp,
 };
 
 // uitask_windows.c

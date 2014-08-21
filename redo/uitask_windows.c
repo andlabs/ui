@@ -8,9 +8,31 @@
 // this also assumes WC_TABCONTROL is longer than areaWindowClass
 #define NCLASSNAME (sizeof WC_TABCONTROL / sizeof WC_TABCONTROL[0])
 
-void uimsgloop_area(MSG *msg)
+void uimsgloop_area(HWND active, HWND focus, MSG *msg)
 {
+	MSG copy;
+
+	copy = *msg;
+	switch (copy.message) {
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:			// Alt+[anything] and F10 send these instead
+		copy.message = msgAreaKeyDown;
+		break;
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		copy.message = msgAreaKeyUp;
+		break;
+	default:
+		goto notkey;
+	}
+	// if we handled the key, don't do the default behavior
 	// don't call TranslateMessage(); we do our own keyboard handling
+	if (DispatchMessage(&copy) != FALSE)
+		return;
+	// TODO move this under notkey?
+	if (IsDialogMessage(active, msg) != 0)
+		return;
+notkey:
 	DispatchMessage(msg);
 }
 
@@ -70,7 +92,7 @@ void uimsgloop(void)
 			if (GetClassNameW(focus, classchk, NCLASSNAME) == 0)
 				xpanic("error getting name of focused window class for Area check", GetLastError());
 			if (wcscmp(classchk, areaWindowClass) == 0) {
-				uimsgloop_area(&msg);
+				uimsgloop_area(active, focus, &msg);
 				continue;
 			} else if (wcscmp(classchk, WC_TABCONTROL) == 0) {
 				uimsgloop_tab(active, focus, &msg);

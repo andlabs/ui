@@ -152,7 +152,7 @@ func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, heldB
 }
 
 //export areaKeyEvent
-func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPARAM) {
+func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPARAM) C.BOOL {
 	var ke KeyEvent
 
 	a := (*area)(data)
@@ -180,10 +180,14 @@ func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPAR
 		ke.ExtKey = xke.ExtKey
 	} else if ke.Modifiers == 0 {
 		// no key, extkey, or modifiers; do nothing
-		return
+		return C.FALSE
 	}
 	ke.Up = up != C.FALSE
-	a.handler.Key(ke)
+	handled := a.handler.Key(ke)
+	if handled {
+		return C.TRUE
+	}
+	return C.FALSE
 }
 
 // all mappings come from GLFW - https://github.com/glfw/glfw/blob/master/src/win32_window.c#L152

@@ -63,14 +63,16 @@ type testwin struct {
 	wsmall	Window
 }
 
-type areaHandler struct{}
+type areaHandler struct {
+	handled	bool
+}
 func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 	i := image.NewRGBA(r)
 	draw.Draw(i, r, &image.Uniform{color.RGBA{128,0,128,255}}, image.ZP, draw.Src)
 	return i
 }
 func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
-func (a *areaHandler) Key(ke KeyEvent) { fmt.Printf("%#v %q\n", ke, ke.Key) }
+func (a *areaHandler) Key(ke KeyEvent) bool { fmt.Printf("%#v %q\n", ke, ke.Key); return a.handled }
 
 func (tw *testwin) addfe() {
 	tw.festart = NewButton("Start")
@@ -169,7 +171,7 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.nt.Append("Tab 2", Space())
 	tw.t.Append("Tab", tw.nt)
 	tw.t.Append("Space", Space())
-	tw.a = NewArea(200, 200, &areaHandler{})
+	tw.a = NewArea(200, 200, &areaHandler{false})
 	tw.t.Append("Area", tw.a)
 	tw.spw = NewHorizontalStack(
 		NewButton("hello"),
@@ -233,7 +235,7 @@ func (tw *testwin) make(done chan struct{}) {
 			NewVerticalStack(
 				NewButton("Small"),
 				NewButton("Small 2"),
-				NewArea(200, 200, &areaHandler{})))
+				NewArea(200, 200, &areaHandler{true})))
 		tw.wsmall.Show()
 	}
 }

@@ -380,19 +380,10 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		heldButtons = (uintptr_t) GET_KEYSTATE_WPARAM(wParam);
 		areaMouseEvent(hwnd, data, which, TRUE, heldButtons, lParam);
 		return TRUE;
-	case WM_KEYDOWN:
-		areaKeyEvent(data, FALSE, wParam, lParam);
-		return 0;
-	case WM_KEYUP:
-		areaKeyEvent(data, TRUE, wParam, lParam);
-		return 0;
-	// Alt+[anything] and F10 send these instead and require us to return to DefWindowProc() so global keystrokes such as Alt+Tab can be processed
-	case WM_SYSKEYDOWN:
-		areaKeyEvent(data, FALSE, wParam, lParam);
-		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-	case WM_SYSKEYUP:
-		areaKeyEvent(data, TRUE, wParam, lParam);
-		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	case msgAreaKeyDown:
+		return (LRESULT) areaKeyEvent(data, FALSE, wParam, lParam);
+	case msgAreaKeyUp:
+		return (LRESULT) areaKeyEvent(data, TRUE, wParam, lParam);
 	case msgAreaSizeChanged:
 		adjustAreaScrollbars(hwnd, data);
 		repaintArea(hwnd);		// this calls for an update

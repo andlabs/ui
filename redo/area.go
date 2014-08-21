@@ -74,10 +74,10 @@ type AreaHandler interface {
 	Mouse(e MouseEvent)
 
 	// Key is called when the Area receives a keyboard event.
-	// You are allowed to do nothing in this handler (to ignore keyboard events).
+	// Return true to indicate that you handled the event; return false to indicate that you did not and let the system handle the event.
+	// You are allowed to do nothing in this handler (to ignore keyboard events); in this case, return false.
 	// See KeyEvent for details.
-	// After handling the key event, package ui will decide whether to perform platform-dependent event chain continuation based on that platform's designated action (so it is not possible to override global key events, such as Alt-Tab, this way).
-	Key(e KeyEvent)
+	Key(e KeyEvent) (handled bool)
 }
 
 // MouseEvent contains all the information for a mous event sent by Area.Mouse.
@@ -140,7 +140,7 @@ func (e MouseEvent) HeldBits() (h uintptr) {
 // on US English QWERTY keyboards; see Key for details.
 //
 // If a key is pressed that is not supported by Key, ExtKey,
-// or Modifiers, no KeyEvent will be produced.
+// or Modifiers, no KeyEvent will be produced and package ui will behave as if false was returned from the event handler.
 type KeyEvent struct {
 	// Key is a byte representing a character pressed
 	// in the typewriter section of the keyboard.
