@@ -187,8 +187,8 @@ func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
 	panic(fmt.Errorf("tableSetHot() on non-checkbox at (%d, %d)", row, col))
 }
 
-//export tableOnSelected
-func tableOnSelected(data unsafe.Pointer) {
+//export tableSelectionChanged
+func tableSelectionChanged(data unsafe.Pointer) {
 	t := (*table)(data)
 	t.selected.fire()
 }

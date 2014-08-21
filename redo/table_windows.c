@@ -43,7 +43,7 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			// if both old and new states have the same value for the selected bit, then the selection state did not change, regardless of selected or deselected
 			if ((nlv->uOldState & LVIS_SELECTED) == (nlv->uNewState & LVIS_SELECTED))
 				break;
-			tableOnSelected((void *) data);
+			tableSelectionChanged((void *) data);
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
