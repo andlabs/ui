@@ -16,6 +16,8 @@ type icon struct {
 	Name	string
 }
 
+var firstimg *image.RGBA
+
 func readIcons() ([]icon, ImageList) {
 	out := make([]icon, len(icons))
 	outil := NewImageList()
@@ -27,11 +29,29 @@ func readIcons() ([]icon, ImageList) {
 		}
 		img := image.NewRGBA(png.Bounds())
 		draw.Draw(img, img.Rect, png, image.ZP, draw.Src)
+		if firstimg == nil {
+			firstimg = img
+		}
 		out[i].Icon = ImageIndex(i)
 		out[i].Name = icons[i].name
 		outil.Append(img)
 	}
 	return out, outil
+}
+
+func tileImage(times int) *image.RGBA {
+	dx := firstimg.Rect.Dx()
+	dy := firstimg.Rect.Dy()
+	res := image.NewRGBA(image.Rect(0, 0, times * dx, times * dy))
+	r := image.Rect(0, 0, dx, dy)
+	for y := 0; y < times; y++ {
+		rr := r.Add(image.Pt(0, y * dy))
+		for x := 0; x < times; x++ {
+			draw.Draw(res, rr, firstimg, image.ZP, draw.Src)
+			rr = rr.Add(image.Pt(dx, 0))
+		}
+	}
+	return res
 }
 
 var icons = []struct {

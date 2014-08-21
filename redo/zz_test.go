@@ -34,6 +34,7 @@ var ddata = []dtype{
 type testwin struct {
 	t		Tab
 	w		Window
+	repainter	*repainter
 	fe		*ForeignEvent
 	festack	Stack
 	festart	Button
@@ -134,8 +135,10 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.icons, tw.il = readIcons()		// repainter uses these
+	tw.repainter = newRepainter(15)
+	tw.t.Append("Repaint", tw.repainter.stack)
 	tw.addfe()
-	tw.icons, tw.il = readIcons()
 	tw.icontbl = NewTable(reflect.TypeOf(icon{}))
 	tw.icontbl.Lock()
 	idq := tw.icontbl.Data().(*[]icon)
