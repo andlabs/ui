@@ -70,6 +70,14 @@ func (a *area) SetSize(width, height int) {
 	C.gtk_widget_set_size_request(a._widget, C.gint(a.width), C.gint(a.height))
 }
 
+func (a *area) Repaint(r image.Rectangle) {
+	r = image.Rect(0, 0, a.width, a.height).Intersect(r)
+	if r.Empty() {
+		return
+	}
+	C.gtk_widget_queue_draw_area(a._widget, C.gint(r.Min.X), C.gint(r.Max.Y), C.gint(r.Dx()), C.gint(r.Dy()))
+}
+
 func (a *area) RepaintAll() {
 	C.gtk_widget_queue_draw(a._widget)
 }

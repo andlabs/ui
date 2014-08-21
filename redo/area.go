@@ -37,6 +37,11 @@ type Area interface {
 	// It panics if width or height is zero or negative.
 	SetSize(width int, height int)
 
+	// Repaint marks the given rectangle of the Area as needing to be redrawn.
+	// The given rectangle is clipped to the Area's size.
+	// If, after clipping, the rectangle is empty, Repaint does nothing.
+	Repaint(r image.Rectangle)
+
 	// RepaintAll marks the entirety of the Area as needing to be redrawn.
 	RepaintAll()
 }
