@@ -35,6 +35,20 @@ func (a *area) SetSize(width, height int) {
 	C.moveControl(a._id, 0, 0, C.intptr_t(a.width), C.intptr_t(a.height))
 }
 
+func (a *area) Repaint(r image.Rectangle) {
+	var s C.struct_xrect
+
+	r = image.Rect(0, 0, a.width, a.height).Intersect(r)
+	if r.Empty() {
+		return
+	}
+	s.x = C.intptr_t(r.Min.X)
+	s.y = C.intptr_t(r.Min.Y)
+	s.width = C.intptr_t(r.Dx())
+	s.height = C.intptr_t(r.Dy())
+	C.areaRepaint(a._id, s)
+}
+
 func (a *area) RepaintAll() {
 	C.areaRepaintAll(a._id)
 }

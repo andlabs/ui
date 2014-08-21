@@ -188,6 +188,17 @@ uintptr_t keyCode(id e)
 	return (uintptr_t) ([toNSEvent(e) keyCode]);
 }
 
+void areaRepaint(id view, struct xrect r)
+{
+	NSRect s;
+
+	s.origin.x = (CGFloat) r.x;
+	s.origin.y = (CGFloat) r.y;
+	s.size.width = (CGFloat) r.width;
+	s.size.height = (CGFloat) r.height;
+	[toNSView(view) displayRect:s];
+}
+
 void areaRepaintAll(id view)
 {
 	[toNSView(view) display];
