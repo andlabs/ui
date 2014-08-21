@@ -18,6 +18,7 @@ type table struct {
 	scroller		*scroller
 
 	images		[]C.id
+	selected		*event
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -26,7 +27,9 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		_id:			id,
 		scroller:		newScroller(id, true),		// border on Table
 		tablebase:		b,
+		selected:		newEvent(),
 	}
+	// also sets the delegate
 	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
@@ -74,6 +77,10 @@ func (t *table) Select(index int) {
 	C.tableSelect(t._id, C.intptr_t(index))
 }
 
+func (t *table) OnSelected(f func()) {
+	t.selected.set(f)
+}
+
 //export goTableDataSource_getValue
 func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intptr_t, outtype *C.int) unsafe.Pointer {
 	t := (*table)(data)
@@ -117,6 +124,12 @@ func goTableDataSource_toggled(data unsafe.Pointer, row C.intptr_t, col C.intptr
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	datum.SetBool(fromBOOL(checked))
+}
+
+//export tableSelectionChanged
+func tableSelectionChanged(data unsafe.Pointer) {
+	t := (*table)(data)
+	t.selected.fire()
 }
 
 func (t *table) id() C.id {

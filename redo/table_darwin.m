@@ -17,7 +17,7 @@
 @implementation goTableColumn
 @end
 
-@interface goTableDataSource : NSObject <NSTableViewDataSource> {
+@interface goTableDataSource : NSObject <NSTableViewDataSource, NSTableViewDelegate> {
 @public
 	void *gotable;
 }
@@ -61,6 +61,11 @@
 	colnum = ((goTableColumn *) col)->gocolnum;
 	// TODO verify type of value
 	goTableDataSource_toggled(self->gotable, (intptr_t) row, colnum, [value boolValue]);
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification *)note
+{
+	tableSelectionChanged(self->gotable);
 }
 
 @end
@@ -134,6 +139,7 @@ void tableUpdate(id t)
 	[toNSTableView(t) reloadData];
 }
 
+// also sets the delegate
 void tableMakeDataSource(id table, void *gotable)
 {
 	goTableDataSource *model;
@@ -141,6 +147,7 @@ void tableMakeDataSource(id table, void *gotable)
 	model = [goTableDataSource new];
 	model->gotable = gotable;
 	[toNSTableView(table) setDataSource:model];
+	[toNSTableView(table) setDelegate:model];
 }
 
 // -[NSTableView sizeToFit] does not actually size to fit
