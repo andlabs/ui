@@ -12,6 +12,7 @@ import (
 
 // #include "gtk_unix.h"
 // extern void goTableModel_toggled(GtkCellRendererToggle *, gchar *, gpointer);
+// extern void tableSelectionChanged(GtkTreeSelection *, gpointer);
 import "C"
 
 type table struct {
@@ -26,6 +27,8 @@ type table struct {
 	selection		*C.GtkTreeSelection
 
 	pixbufs		[]*C.GdkPixbuf
+
+	selected		*event
 
 	// stuff required by GtkTreeModel
 	nColumns		C.gint
@@ -48,11 +51,17 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		_widget:			widget,
 		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
 		crtocol:			make(map[*C.GtkCellRendererToggle]int),
+		selected:			newEvent(),
 	}
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
 	t.modelgtk = (*C.GtkTreeModel)(unsafe.Pointer(model))
 	t.selection = C.gtk_tree_view_get_selection(t.treeview)
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(t.selection)),
+		"changed",
+		C.GCallback(C.tableSelectionChanged),
+		C.gpointer(unsafe.Pointer(t)))
 	C.gtk_tree_view_set_model(t.treeview, t.modelgtk)
 	for i := 0; i < ty.NumField(); i++ {
 		cname := togstr(ty.Field(i).Name)
@@ -139,6 +148,10 @@ func (t *table) Select(index int) {
 	C.gtk_tree_selection_select_path(t.selection, path)
 }
 
+func (t *table) OnSelected(f func()) {
+	t.selected.set(f)
+}
+
 //export goTableModel_get_n_columns
 func goTableModel_get_n_columns(model *C.GtkTreeModel) C.gint {
 	tm := (*C.goTableModel)(unsafe.Pointer(model))
@@ -202,6 +215,12 @@ func goTableModel_toggled(cr *C.GtkCellRendererToggle, pathstr *C.gchar, data C.
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	datum.SetBool(!datum.Bool())
+}
+
+//export tableSelectionChanged
+func tableSelectionChanged(sel *C.GtkTreeSelection, data C.gpointer) {
+	t := (*table)(unsafe.Pointer(data))
+	t.selected.fire()
 }
 
 func (t *table) widget() *C.GtkWidget {
