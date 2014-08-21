@@ -20,6 +20,7 @@ type table struct {
 	hotcol		C.int
 	pushedrow	C.int
 	pushedcol	C.int
+	selected		*event
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -32,6 +33,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		hotcol:		-1,
 		pushedrow:	-1,
 		pushedcol:	-1,
+		selected:		newEvent(),
 	}
 	C.setTableSubclass(t._hwnd, unsafe.Pointer(t))
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
@@ -72,6 +74,10 @@ func (t *table) Select(index int) {
 	t.RLock()
 	defer t.RUnlock()
 	C.tableSelectItem(t._hwnd, C.intptr_t(index))
+}
+
+func (t *table) OnSelected(f func()) {
+	t.selected.set(f)
 }
 
 //export tableGetCell
@@ -179,6 +185,12 @@ func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
 		return
 	}
 	panic(fmt.Errorf("tableSetHot() on non-checkbox at (%d, %d)", row, col))
+}
+
+//export tableOnSelected
+func tableOnSelected(data unsafe.Pointer) {
+	t := (*table)(data)
+	t.selected.fire()
 }
 
 func (t *table) hwnd() C.HWND {

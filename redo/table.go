@@ -47,6 +47,9 @@ type Table interface {
 	// TODO bounds checking
 	Selected() int
 	Select(index int)
+
+	// OnSelected is an event that gets triggered after the selection in the Table changes in whatever way (item selected or item deselected).
+	OnSelected(func())
 }
 
 type tablebase struct {

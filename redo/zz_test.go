@@ -140,6 +140,16 @@ func (tw *testwin) make(done chan struct{}) {
 	*idq = tw.icons
 	tw.icontbl.Unlock()
 	tw.icontbl.LoadImageList(tw.il)
+	tw.icontbl.OnSelected(func() {
+		s := fmt.Sprintf("%d ", tw.icontbl.Selected())
+		tw.icontbl.RLock()
+		defer tw.icontbl.RUnlock()
+		idq := tw.icontbl.Data().(*[]icon)
+		for _, v := range *idq {
+			s += strings.ToUpper(fmt.Sprintf("%v", v.Bool)[0:1]) + " "
+		}
+		tw.w.SetTitle(s)
+	})
 	tw.t.Append("Image List Table", tw.icontbl)
 	tw.group2 = NewGroup("Group", NewButton("Button in Group"))
 	tw.t.Append("Filled Group", tw.group2)

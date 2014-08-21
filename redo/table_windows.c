@@ -25,39 +25,11 @@ static void handle(HWND hwnd, WPARAM wParam, LPARAM lParam, void (*handler)(void
 	(*handler)(data, ht.iItem, ht.iSubItem);
 }
 
-static struct {int code; char *name;} lvnnames[] = {
-{ LVN_ITEMCHANGING, "LVN_ITEMCHANGING" },
-{ LVN_ITEMCHANGED, "LVN_ITEMCHANGED" },
-{ LVN_INSERTITEM, "LVN_INSERTITEM" },
-{ LVN_DELETEITEM, "LVN_DELETEITEM" },
-{ LVN_DELETEALLITEMS, "LVN_DELETEALLITEMS" },
-{ LVN_BEGINLABELEDITA, "LVN_BEGINLABELEDITA" },
-{ LVN_BEGINLABELEDITW, "LVN_BEGINLABELEDITW" },
-{ LVN_ENDLABELEDITA, "LVN_ENDLABELEDITA" },
-{ LVN_ENDLABELEDITW, "LVN_ENDLABELEDITW" },
-{ LVN_COLUMNCLICK, "LVN_COLUMNCLICK" },
-{ LVN_BEGINDRAG, "LVN_BEGINDRAG" },
-{ LVN_BEGINRDRAG, "LVN_BEGINRDRAG" },
-//{ LVN_ODCACHEHINT, "LVN_ODCACHEHINT" },
-{ LVN_ODFINDITEMA, "LVN_ODFINDITEMA" },
-{ LVN_ODFINDITEMW, "LVN_ODFINDITEMW" },
-{ LVN_ITEMACTIVATE, "LVN_ITEMACTIVATE" },
-{ LVN_ODSTATECHANGED, "LVN_ODSTATECHANGED" },
-{ LVN_SETDISPINFOA, "LVN_SETDISPINFOA" },
-{ LVN_SETDISPINFOW, "LVN_SETDISPINFOW" },
-//{ LVN_KEYDOWN, "LVN_KEYDOWN" },
-{ LVN_MARQUEEBEGIN, "LVN_MARQUEEBEGIN" },
-{ LVN_GETINFOTIPA, "LVN_GETINFOTIPA" },
-{ LVN_GETINFOTIPW, "LVN_GETINFOTIPW" },
-{ LVN_BEGINSCROLL, "LVN_BEGINSCROLL" },
-{ LVN_ENDSCROLL, "LVN_ENDSCROLL" },
-{ 0, NULL },
-};
-
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
 	NMLVDISPINFOW *fill = (NMLVDISPINFO *) lParam;
+	NMLISTVIEW *nlv = (NMLISTVIEW *) lParam;
 
 	switch (uMsg) {
 	case msgNOTIFY:
@@ -65,8 +37,15 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		case LVN_GETDISPINFO:
 			tableGetCell((void *) data, &(fill->item));
 			return 0;
+		case LVN_ITEMCHANGED:
+			if ((nlv->uChanged & LVIF_STATE) == 0)
+				break;
+			// if both old and new states have the same value for the selected bit, then the selection state did not change, regardless of selected or deselected
+			if ((nlv->uOldState & LVIS_SELECTED) == (nlv->uNewState & LVIS_SELECTED))
+				break;
+			tableOnSelected((void *) data);
+			return 0;
 		}
-for(int i=0;lvnnames[i].code!=0;i++)if(lvnnames[i].code==nmhdr->code)printf("%s\n",lvnnames[i].name);
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSEMOVE:
 		handle(hwnd, wParam, lParam, tableSetHot, (void *) data);
