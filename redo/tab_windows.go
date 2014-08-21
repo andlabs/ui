@@ -58,6 +58,9 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 //export tabTabHasChildren
 func tabTabHasChildren(data unsafe.Pointer, which C.LRESULT) C.BOOL {
 	t := (*tab)(data)
+	if len(t.tabs) == 0 {		// currently no tabs
+		return C.FALSE
+	}
 	if t.tabs[int(which)].nchildren > 0 {
 		return C.TRUE
 	}
