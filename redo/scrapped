@@ -1,3 +1,4 @@
 Window.SetSize()
 Window.Center() (only really effective on Mac OS X)
 Control.Show()/Control.Hide() (too much effort to get right)
+Multiple selection Tables (Windows event handling is some wacky dumb thing; will reconsider if I can write a good replacement)

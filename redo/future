@@ -5,7 +5,6 @@ Control
 	Enable()
 	Disable()
 Table
-	multiple selection
 	figure out if we can safely refresh view during Unlock() regardless of calling goroutine
 	refresh only selected columns of view to avoid flicker (especially on Windows)
 	document header behavior in general comment
