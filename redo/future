@@ -66,6 +66,7 @@ windows
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
+	- Table: figure out how to allow empty selection by clicking in an empty area
 gtk+, mac os x
 	- figure out how dialogs and Areas work together
 		- once that is done, document the behavior of Areas
