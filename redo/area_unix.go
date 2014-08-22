@@ -12,6 +12,7 @@ import (
 
 // #include "gtk_unix.h"
 // extern gboolean our_area_get_child_position_callback(GtkOverlay *, GtkWidget *, GdkRectangle *, gpointer);
+// extern void our_area_textfield_populate_popup_callback(GtkEntry *, GtkMenu *, gpointer);
 // extern gboolean our_area_textfield_focus_out_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
@@ -44,6 +45,7 @@ type area struct {
 	textfieldx		int
 	textfieldy		int
 	textfielddone	*event
+	inmenu		bool
 }
 
 func newArea(ab *areabase) Area {
@@ -79,7 +81,16 @@ func newArea(ab *areabase) Area {
 		"get-child-position",
 		area_get_child_position_callback,
 		C.gpointer(unsafe.Pointer(a)))
+	// this part is important
+	// entering the context menu is considered focusing out
+	// so we connect to populate-popup to mark that we're entering the context menu (thanks slaf in irc.gimp.net/#gtk+)
+	// and we have to connect_after to focus-out-event so that it runs after the populate-popup
 	g_signal_connect(
+		C.gpointer(unsafe.Pointer(a.textfield)),
+		"populate-popup",
+		area_textfield_populate_popup_callback,
+		C.gpointer(unsafe.Pointer(a)))
+	g_signal_connect_after(
 		C.gpointer(unsafe.Pointer(a.textfield)),
 		"focus-out-event",
 		area_textfield_focus_out_event_callback,
@@ -114,6 +125,7 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	}
 	a.textfieldx = x
 	a.textfieldy = y
+	a.inmenu = false		// to start
 	// we disabled this for the initial Area show; we don't need to anymore
 	C.gtk_widget_set_no_show_all(a.textfieldw, C.FALSE)
 	C.gtk_widget_show_all(a.textfieldw)
@@ -149,11 +161,22 @@ func our_area_get_child_position_callback(overlay *C.GtkOverlay, widget *C.GtkWi
 
 var area_get_child_position_callback = C.GCallback(C.our_area_get_child_position_callback)
 
+//export our_area_textfield_populate_popup_callback
+func our_area_textfield_populate_popup_callback(entry *C.GtkEntry, menu *C.GtkMenu, data C.gpointer) {
+	a := (*area)(unsafe.Pointer(data))
+	a.inmenu = true
+}
+
+var area_textfield_populate_popup_callback = C.GCallback(C.our_area_textfield_populate_popup_callback)
+
 //export our_area_textfield_focus_out_event_callback
 func our_area_textfield_focus_out_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	a := (*area)(unsafe.Pointer(data))
-	C.gtk_widget_hide(a.textfieldw)
-	a.textfielddone.fire()
+	if !a.inmenu {
+		C.gtk_widget_hide(a.textfieldw)
+		a.textfielddone.fire()
+	}
+	a.inmenu = false		// for next time
 	return continueEventChain
 }
 
