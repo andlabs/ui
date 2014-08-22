@@ -47,7 +47,7 @@ type Area interface {
 
 	// OpenTextFieldAt opens a TextField with the top-left corner at the given coordinates of the Area.
 	// It panics if the coordinates fall outside the Area.
-	// Any text previously in the TextField is removed.
+	// Any text previously in the TextField (be it by the user or by a call to SetTextFieldText()) is retained.
 	// The TextField receives the input focus so the user can type things; when the TextField loses the input focus, it hides itself and signals the event set by OnTextFieldDismissed.
 	// TODO escape key
 	OpenTextFieldAt(x int, y int)

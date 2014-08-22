@@ -114,7 +114,6 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	}
 	a.textfieldx = x
 	a.textfieldy = y
-	a.SetTextFieldText("")
 	// we disabled this for the initial Area show; we don't need to anymore
 	C.gtk_widget_set_no_show_all(a.textfieldw, C.FALSE)
 	C.gtk_widget_show_all(a.textfieldw)
