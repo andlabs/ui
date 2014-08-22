@@ -128,7 +128,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	C.cairo_surface_mark_dirty(surface)
 	C.cairo_set_source_surface(cr,
 		surface,
-		0, 0) // origin of the surface
+		x0, y0)			// point on cairo_t where we want to draw (thanks Company in irc.gimp.net/#gtk+)
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
 	C.cairo_rectangle(cr, x0, y0, x1, y1) // breaking the norm here since we have the coordinates as a C double already
