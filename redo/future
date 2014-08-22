@@ -77,6 +77,8 @@ gtk+
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
 	- Table: figure out how to allow empty selection by clicking in an empty area
 	- After applying the AreaHandler.Key() change, -small crashes in 3.10/distribution but not 3.14/jhbuild
+	- right-clicking on the GtkEntry in an Area to open the context menu is considered focus-out
+		slaf in irc.gimp.net/#gtk+ had some suggestions...
 gtk+, windows
 	- Area: keyboard scrolling
 gtk+, mac os x
