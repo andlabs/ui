@@ -85,7 +85,7 @@ func newArea(ab *areabase) Area {
 		area_textfield_focus_out_event_callback,
 		C.gpointer(unsafe.Pointer(a)))
 	// the widget shows up initially
-	C.gtk_widget_hide(a.textfieldw)
+	C.gtk_widget_set_no_show_all(a.textfieldw, C.TRUE)
 	return a
 }
 
@@ -115,6 +115,8 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	a.textfieldx = x
 	a.textfieldy = y
 	a.SetTextFieldText("")
+	// we disabled this for the initial Area show; we don't need to anymore
+	C.gtk_widget_set_no_show_all(a.textfieldw, C.FALSE)
 	C.gtk_widget_show_all(a.textfieldw)
 	C.gtk_widget_grab_focus(a.textfieldw)
 }
@@ -152,6 +154,7 @@ var area_get_child_position_callback = C.GCallback(C.our_area_get_child_position
 func our_area_textfield_focus_out_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
 	a := (*area)(unsafe.Pointer(data))
 	C.gtk_widget_hide(a.textfieldw)
+	a.textfielddone.fire()
 	return continueEventChain
 }
 

@@ -30,6 +30,7 @@ func newRepainter(times int) *repainter {
 	r := new(repainter)
 	r.img = tileImage(times)
 	r.area = NewArea(r.img.Rect.Dx(), r.img.Rect.Dy(), r)
+	r.area.OnTextFieldDismissed(r.tfdone)
 	r.x = NewTextField()
 	r.x.OnChanged(r.setx)
 	r.y = NewTextField()
