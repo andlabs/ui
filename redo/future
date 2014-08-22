@@ -1,14 +1,15 @@
 Group
 	Mac OS X: NSBox
 		container_darwin.m: figure out if our setFrameSize: thing applies to resizing the groupbox as well
+
 Control
 	Enable()
 	Disable()
+
 Table
-	figure out if we can safely refresh view during Unlock() regardless of calling goroutine
-	refresh only selected columns of view to avoid flicker (especially on Windows)
-	document header behavior in general comment
+	refresh only selected rows of view to avoid flicker (especially on Windows)
 	add functions for header manipulation
+
 Tab
 	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
 	Delete()
@@ -16,13 +17,18 @@ Tab
 		// It panics if index is out of range.
 		// After Delete(), the effect of accessing the Control of the deleted tab or any of its children is undefned. [TODO reword?]
 	investigate close buttons (especially for LikeTab)
+		LikeArea is probably going to have to be a custom control
+
 Area
 	keyboard scrolling
 	OpenTextFieldAt() and OpenTextAreaAt() to allow editing of text from within Areas
+
 Tree
-	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both + its own no border)
+	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both)
+
 TextArea
 	Mac OS X: be sure to call disableAutocorrect()
+
 Mac OS X
 	label alignment
 		// in the other case, the most correct thing would be for Label to be aligned to the alignment rect, but I can't get this working, and it looks fine as it is anyway
@@ -34,21 +40,28 @@ Mac OS X
 			unless we resize the control and move it around to suit
 		Tabs seem to have differnt margin rules
 			need to check padding rules within Tabs
+		text alignment (think labels and checkboxes) may be a perpetual problem though
 	activateIgnoringOtherApps: and command line programs: evaluate just how much it will matter
 		http://stackoverflow.com/a/25318870/3408572
+	use the undocumented _CFRunLoopSetCurrent() API to drop the stupid "must run on the man thread" restriction
+
 TextField
-		text alignment (think labels and checkboxes) may be a perpetual problem though
-	add events (figure out which of the following are appropriate: changed, enter pressed)
-	provide some facility to mark invalid values
 	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know
+		will likely just use Invalid()
+
 Stack, Grid
 	method calls should trigger re-layout of windows
 default buttons
 	figure out how they interact with Areas (especially on GTK+, where GtkEntry somehow has special handling for this)
+
 in general
 	new moving stack and future moving heap make package ui a pain in general
+		issue 8310: watch for changes
+
 dialog boxes
 	find out if Stop has an effect before a dialog box function returns
+	our solution for common dialogs is rather heavyweight and doesn't work for user-created dialogs
+		foreign events are a problem
 
 so I don't forget, some TODOs:
 windows
@@ -57,8 +70,6 @@ windows
 	- flicker ahoy
 	- not all controls are transparent
 	- extra space on first column of all Tables on real Windows
-	- OpenFile() not modal
-	- OpenFile() won't stop Do()
 	- labels draw over themselves
 	- fine-tune Table checkbox behavior (especially with regards to selection)
 gtk+
