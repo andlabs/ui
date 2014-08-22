@@ -50,7 +50,7 @@ func newArea(ab *areabase) Area {
 		areabase:		ab,
 		_widget:		widget,
 		drawingarea:	(*C.GtkDrawingArea)(unsafe.Pointer(widget)),
-		scroller:		newScroller(widget, false, false),		// not natively scrollable, no border
+		scroller:		newScroller(widget, false, false, true),		// not natively scrollable; no border; have an overlay for OpenTextFieldAt()
 		clickCounter:	new(clickCounter),
 	}
 	for _, c := range areaCallbacks {

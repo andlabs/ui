@@ -69,14 +69,28 @@ type scroller struct {
 	scrollwidget		*C.GtkWidget
 	scrollcontainer		*C.GtkContainer
 	scrollwindow		*C.GtkScrolledWindow
+
+	overlaywidget		*C.GtkWidget
+	overlaycontainer	*C.GtkContainer
+	overlay			*C.GtkOverlay
+
+	addShowWhich		*C.GtkWidget
 }
 
-func newScroller(widget *C.GtkWidget, native bool, bordered bool) *scroller {
+func newScroller(widget *C.GtkWidget, native bool, bordered bool, overlay bool) *scroller {
+	var o *C.GtkWidget
+
 	scrollwidget := C.gtk_scrolled_window_new(nil, nil)
+	if overlay {
+		o = C.gtk_overlay_new()
+	}
 	s := &scroller{
 		scrollwidget:		scrollwidget,
 		scrollcontainer:	(*C.GtkContainer)(unsafe.Pointer(scrollwidget)),
 		scrollwindow:		(*C.GtkScrolledWindow)(unsafe.Pointer(scrollwidget)),
+		overlaywidget:		o,
+		overlaycontainer:	(*C.GtkContainer)(unsafe.Pointer(o)),
+		overlay:			(*C.GtkOverlay)(unsafe.Pointer(o)),
 	}
 	// give the scrolled window a border (thanks to jlindgren in irc.gimp.net/#gtk+)
 	if bordered {
@@ -87,15 +101,20 @@ func newScroller(widget *C.GtkWidget, native bool, bordered bool) *scroller {
 	} else {
 		C.gtk_scrolled_window_add_with_viewport(s.scrollwindow, widget)
 	}
+	s.addShowWhich = s.scrollwidget
+	if overlay {
+		C.gtk_container_add(s.overlaycontainer, s.scrollwidget)
+		s.addShowWhich = s.overlaywidget
+	}
 	return s
 }
 
 func (s *scroller) setParent(p *controlParent) {
-	C.gtk_container_add(p.c, s.scrollwidget)
+	C.gtk_container_add(p.c, s.addShowWhich)
 	// see basesetParent() above for why we call gtk_widget_show_all()
-	C.gtk_widget_show_all(s.scrollwidget)
+	C.gtk_widget_show_all(s.addShowWhich)
 }
 
 func (s *scroller) commitResize(c *allocation, d *sizing) {
-	dobasecommitResize(s.scrollwidget, c, d)
+	dobasecommitResize(s.addShowWhich, c, d)
 }

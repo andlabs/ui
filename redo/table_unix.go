@@ -46,7 +46,7 @@ var (
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
 	t := &table{
-		scroller:			newScroller(widget, true, true),			// natively scrollable; has a border
+		scroller:			newScroller(widget, true, true, false),			// natively scrollable; has a border; no overlay
 		tablebase:			b,
 		_widget:			widget,
 		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
