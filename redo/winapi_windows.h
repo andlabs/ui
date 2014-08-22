@@ -67,6 +67,8 @@ extern void setButtonSubclass(HWND, void *);
 extern void setCheckboxSubclass(HWND, void *);
 extern BOOL checkboxChecked(HWND);
 extern void checkboxSetChecked(HWND, BOOL);
+#define textfieldStyle (ES_AUTOHSCROLL | ES_LEFT | ES_NOHIDESEL | WS_TABSTOP)
+#define textfieldExtStyle (WS_EX_CLIENTEDGE)
 extern void setTextFieldSubclass(HWND, void *);
 extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
 extern void textfieldHideInvalidBalloonTip(HWND);
@@ -127,6 +129,7 @@ extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 extern void repaintArea(HWND, RECT *);
 extern DWORD makeAreaWindowClass(char **);
 extern HWND newArea(void *);
+extern HWND newAreaTextField(HWND);
 
 // imagelist_windows.c
 extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);

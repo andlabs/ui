@@ -438,3 +438,37 @@ HWND newArea(void *data)
 		xpanic("container creation failed", GetLastError());
 	return hwnd;
 }
+
+static LRESULT CALLBACK areaTextFieldSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	switch (uMsg) {
+	case WM_KILLFOCUS:
+		ShowWindow(hwnd, SW_HIDE);
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, areaTextFieldSubProc, id) == FALSE)
+			xpanic("error removing Area TextField subclass (which was for handling WM_KILLFOCUS)", GetLastError());
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	default:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	}
+	xmissedmsg("Area TextField", "areaTextFieldSubProc()", uMsg);
+	return 0;		// unreached
+}
+
+HWND newAreaTextField(HWND area)
+{
+	HWND tf;
+
+	tf = CreateWindowExW(textfieldExtStyle | WS_EX_TOOLWINDOW,
+		L"edit", L"",
+		textfieldStyle | WS_POPUP,
+		0, 0, 0, 0,
+		area,			// owner window
+		NULL, hInstance, NULL);
+	if (tf == NULL)
+		xpanic("error making Area TextField", GetLastError());
+	if ((*fv_SetWindowSubclass)(tf, areaTextFieldSubProc, 0, (DWORD_PTR) NULL) == FALSE)
+		xpanic("error subclassing Area TextField to give it its own WM_KILLFOCUS handler", GetLastError());
+	return tf;
+}

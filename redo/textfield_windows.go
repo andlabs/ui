@@ -19,8 +19,8 @@ var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textfield {
 	hwnd := C.newControl(editclass,
-		style | C.ES_AUTOHSCROLL | C.ES_LEFT | C.ES_NOHIDESEL | C.WS_TABSTOP,
-		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
+		style | C.textfieldStyle,
+		C.textfieldExtStyle)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &textfield{
 		_hwnd:		hwnd,
 		changed:		newEvent(),

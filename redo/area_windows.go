@@ -18,6 +18,8 @@ type area struct {
 	_hwnd		C.HWND
 
 	clickCounter	*clickCounter
+
+	textfield		C.HWND
 }
 
 func makeAreaWindowClass() error {
@@ -37,6 +39,8 @@ func newArea(ab *areabase) Area {
 	}
 	a._hwnd = C.newArea(unsafe.Pointer(a))
 	a.SetSize(a.width, a.height)
+	a.textfield = C.newAreaTextField(a._hwnd)
+	C.controlSetControlFont(a.textfield)
 	return a
 }
 
@@ -65,6 +69,31 @@ func (a *area) Repaint(r image.Rectangle) {
 
 func (a *area) RepaintAll() {
 	C.SendMessageW(a._hwnd, C.msgAreaRepaintAll, 0, 0)
+}
+
+// TODO somehow use textfield.preferredSIze() here
+func (a *area) OpenTextFieldAt(x, y int) {
+	if x < 0 || x >= a.width || y < 0 || y >= a.height {
+		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
+	}
+	C.moveWindow(a.textfield, C.int(x), C.int(y), C.int(200), C.int(20))
+	C.ShowWindow(a.textfield, C.SW_SHOW)
+	// TODO SetFocus
+}
+
+func (a *area) TextFieldText() string {
+	return getWindowText(a.textfield)
+}
+
+func (a *area) SetTextFieldText(text string) {
+	t := toUTF16(text)
+	C.setWindowText(a.textfield, t)
+	// TODO
+//	c.settextlen(C.controlTextLength(hwnd, t))
+}
+
+func (a *area) OnTextFieldDismissed(f func()) {
+	// TODO
 }
 
 //export doPaint
