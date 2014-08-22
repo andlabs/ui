@@ -27,7 +27,7 @@ import (
 // Character processing methods differ across operating
 // systems; trying ot recreate these yourself is only going
 // to lead to trouble.
-// [FOR FUTURE PLANNING Use TextArea instead, providing a TextAreaHandler.]
+// If you absolutely need to enter text somehow, use OpenTextFieldAt() and its related methods.
 type Area interface {
 	Control
 
@@ -44,6 +44,20 @@ type Area interface {
 
 	// RepaintAll marks the entirety of the Area as needing to be redrawn.
 	RepaintAll()
+
+	// OpenTextFieldAt opens a TextField with the top-left corner at the given coordinates of the Area.
+	// It panics if the coordinates fall outside the Area.
+	// Any text previously in the TextField is removed.
+	// The TextField receives the input focus so the user can type things; when the TextField loses the input focus, it hides itself and signals the event set by OnTextFieldDismissed.
+	// TODO escape key
+	OpenTextFieldAt(x int, y int)
+
+	// TextFieldText and TextFieldSetText get and set the OpenTextFieldAt TextField's text, respectively.
+	TextFieldText() string
+	SetTextFieldText(text string)
+
+	// OnTextFieldDismissed is an event that is fired when the OpenTextFieldAt TextField is dismissed.
+	OnTextFieldDismissed(f func())
 }
 
 type areabase struct {

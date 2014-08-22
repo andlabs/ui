@@ -56,7 +56,16 @@ func  (r *repainter) Paint(rect image.Rectangle) *image.RGBA {
 	return r.img.SubImage(rect).(*image.RGBA)
 }
 
-func (r *repainter) Mouse(me MouseEvent) {}
+func (r *repainter) Mouse(me MouseEvent) {
+	if me.Up == 1 {
+		r.area.OpenTextFieldAt(me.Pos.X, me.Pos.Y)
+	}
+}
+
+func (r *repainter) tfdone() {
+	println(r.area.TextFieldText())
+}
+
 func (r *repainter) Key(ke KeyEvent) bool { return false }
 
 func (r *repainter) setx() {

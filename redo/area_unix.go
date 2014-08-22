@@ -11,6 +11,8 @@ import (
 )
 
 // #include "gtk_unix.h"
+// extern gboolean our_area_get_child_position_callback(GtkOverlay *, GtkWidget *, GdkRectangle *, gpointer);
+// extern gboolean our_area_textfield_focus_out_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_draw_callback(GtkWidget *, cairo_t *, gpointer);
 // extern gboolean our_area_button_press_event_callback(GtkWidget *, GdkEvent *, gpointer);
 // extern gboolean our_area_button_release_event_callback(GtkWidget *, GdkEvent *, gpointer);
@@ -36,6 +38,12 @@ type area struct {
 	scroller		*scroller
 
 	clickCounter	*clickCounter
+
+	textfieldw		*C.GtkWidget
+	textfield		*C.GtkEntry
+	textfieldx		int
+	textfieldy		int
+	textfielddone	*event
 }
 
 func newArea(ab *areabase) Area {
@@ -46,12 +54,16 @@ func newArea(ab *areabase) Area {
 		C.GDK_BUTTON_PRESS_MASK|C.GDK_BUTTON_RELEASE_MASK|C.GDK_POINTER_MOTION_MASK|C.GDK_BUTTON_MOTION_MASK|C.GDK_ENTER_NOTIFY_MASK|C.GDK_LEAVE_NOTIFY_MASK)
 	// and we need to allow focusing on a GtkDrawingArea to enable keyboard events
 	C.gtk_widget_set_can_focus(widget, C.TRUE)
+	textfieldw := C.gtk_entry_new()
 	a := &area{
 		areabase:		ab,
 		_widget:		widget,
 		drawingarea:	(*C.GtkDrawingArea)(unsafe.Pointer(widget)),
 		scroller:		newScroller(widget, false, false, true),		// not natively scrollable; no border; have an overlay for OpenTextFieldAt()
 		clickCounter:	new(clickCounter),
+		textfieldw:	textfieldw,
+		textfield:		(*C.GtkEntry)(unsafe.Pointer(textfieldw)),
+		textfielddone:	newEvent(),
 	}
 	for _, c := range areaCallbacks {
 		g_signal_connect(
@@ -61,6 +73,19 @@ func newArea(ab *areabase) Area {
 			C.gpointer(unsafe.Pointer(a)))
 	}
 	a.SetSize(a.width, a.height)
+	C.gtk_overlay_add_overlay(a.scroller.overlay, a.textfieldw)
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(a.scroller.overlay)),
+		"get-child-position",
+		area_get_child_position_callback,
+		C.gpointer(unsafe.Pointer(a)))
+	g_signal_connect(
+		C.gpointer(unsafe.Pointer(a.textfield)),
+		"focus-out-event",
+		area_textfield_focus_out_event_callback,
+		C.gpointer(unsafe.Pointer(a)))
+	// the widget shows up initially
+	C.gtk_widget_hide(a.textfieldw)
 	return a
 }
 
@@ -82,6 +107,55 @@ println(a._widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy
 func (a *area) RepaintAll() {
 	C.gtk_widget_queue_draw(a._widget)
 }
+
+func (a *area) OpenTextFieldAt(x, y int) {
+	if x < 0 || x >= a.width || y < 0 || y >= a.height {
+		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
+	}
+	a.textfieldx = x
+	a.textfieldy = y
+	a.SetTextFieldText("")
+	C.gtk_widget_show_all(a.textfieldw)
+	C.gtk_widget_grab_focus(a.textfieldw)
+}
+
+func (a *area) TextFieldText() string {
+	return fromgstr(C.gtk_entry_get_text(a.textfield))
+}
+
+func (a *area) SetTextFieldText(text string) {
+	ctext := togstr(text)
+	defer freegstr(ctext)
+	C.gtk_entry_set_text(a.textfield, ctext)
+}
+
+func (a *area) OnTextFieldDismissed(f func()) {
+	a.textfielddone.set(f)
+}
+
+//export our_area_get_child_position_callback
+func our_area_get_child_position_callback(overlay *C.GtkOverlay, widget *C.GtkWidget, rect *C.GdkRectangle, data C.gpointer) C.gboolean {
+	var nat C.GtkRequisition
+
+	a := (*area)(unsafe.Pointer(data))
+	rect.x = C.int(a.textfieldx)
+	rect.y = C.int(a.textfieldy)
+	C.gtk_widget_get_preferred_size(a.textfieldw, nil, &nat)
+	rect.width = C.int(nat.width)
+	rect.height = C.int(nat.height)
+	return C.TRUE
+}
+
+var area_get_child_position_callback = C.GCallback(C.our_area_get_child_position_callback)
+
+//export our_area_textfield_focus_out_event_callback
+func our_area_textfield_focus_out_event_callback(widget *C.GtkWidget, event *C.GdkEvent, data C.gpointer) C.gboolean {
+	a := (*area)(unsafe.Pointer(data))
+	C.gtk_widget_hide(a.textfieldw)
+	return continueEventChain
+}
+
+var area_textfield_focus_out_event_callback = C.GCallback(C.our_area_textfield_focus_out_event_callback)
 
 var areaCallbacks = []struct {
 	name	string
