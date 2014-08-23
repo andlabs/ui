@@ -340,36 +340,32 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// don't keep the double-click timer running if the user switched programs in between clicks
 		areaResetClickCounter(data);
 		return 0;
-	case WM_MOUSEACTIVATE:
-		// this happens on every mouse click (apparently), so DON'T reset the click counter, otherwise it will always be reset (not an issue, as MSDN says WM_ACTIVATE is sent alongside WM_MOUSEACTIVATE when necessary)
-		// transfer keyboard focus to our Area on an activating click
-		// (see http://www.catch22.net/tuts/custom-controls)
-		// don't bother checking SetFocus()'s error; see http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see/24074912#24074912
-		SetFocus(hwnd);
-		// and don't eat the click, as we want to handle clicks that switch into Windows with Areas from other windows
-		return MA_ACTIVATE;
 	case WM_MOUSEMOVE:
 		areaMouseEvent(hwnd, data, 0, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_LBUTTONDOWN:
+		SetFocus(hwnd);
 		areaMouseEvent(hwnd, data, 1, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_LBUTTONUP:
 		areaMouseEvent(hwnd, data, 1, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
+		SetFocus(hwnd);		// TODO correct?
 		areaMouseEvent(hwnd, data, 2, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONUP:
 		areaMouseEvent(hwnd, data, 2, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
+		SetFocus(hwnd);		// TODO correct?
 		areaMouseEvent(hwnd, data, 3, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONUP:
 		areaMouseEvent(hwnd, data, 3, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
+		SetFocus(hwnd);		// TODO correct?
 		// values start at 1; we want them to start at 4
 		which = (DWORD) GET_XBUTTON_WPARAM(wParam) + 3;
 		heldButtons = (uintptr_t) GET_KEYSTATE_WPARAM(wParam);
@@ -460,9 +456,9 @@ HWND newAreaTextField(HWND area)
 {
 	HWND tf;
 
-	tf = CreateWindowExW(textfieldExtStyle | WS_EX_TOOLWINDOW,
+	tf = CreateWindowExW(textfieldExtStyle,
 		L"edit", L"",
-		textfieldStyle | WS_POPUP,
+		textfieldStyle | WS_CHILD,
 		0, 0, 0, 0,
 		area,			// owner window
 		NULL, hInstance, NULL);
