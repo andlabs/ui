@@ -29,7 +29,8 @@ func newArea(ab *areabase) Area {
 	a._id = C.newArea(unsafe.Pointer(a))
 	a.scroller = newScroller(a._id, false)			// no border on Area
 	a.SetSize(a.width, a.height)
-	a.textfield = C.newAreaTextField(a._id, unsafe.Pointer(a))
+	a.textfield = C.newTextField()
+	C.areaSetTextField(a._id, a.textfield)
 	return a
 }
 
@@ -62,7 +63,7 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	if x < 0 || x >= a.width || y < 0 || y >= a.height {
 		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
 	}
-	C.areaTextFieldOpen(a.textfield, C.intptr_t(x), C.intptr_t(y))
+	C.areaTextFieldOpen(a._id, a.textfield, C.intptr_t(x), C.intptr_t(y))
 }
 
 func (a *area) TextFieldText() string {
@@ -82,6 +83,8 @@ func (a *area) OnTextFieldDismissed(f func()) {
 //export areaTextFieldDismissed
 func areaTextFieldDismissed(data unsafe.Pointer) {
 	a := (*area)(unsafe.Pointer(data))
+	// TODO does not work?
+	C.controlSetHidden(a.textfield, C.YES)
 	a.textfielddone.fire()
 }
 

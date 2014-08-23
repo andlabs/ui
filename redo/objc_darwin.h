@@ -128,8 +128,10 @@ extern uintptr_t pressedMouseButtons(void);
 extern uintptr_t keyCode(id);
 extern void areaRepaint(id, struct xrect);
 extern void areaRepaintAll(id);
-extern id newAreaTextField(id, void *);
-extern void areaTextFieldOpen(id, intptr_t, intptr_t);
+extern void areaTextFieldOpen(id, id, intptr_t, intptr_t);
+extern void areaSetTextField(id, id);
+extern void areaEndTextFieldEditing(id, id);
+
 
 /* common_darwin.m */
 extern void disableAutocorrect(id);

@@ -13,7 +13,7 @@
 #define toNSUInteger(x) ((NSUInteger) (x))
 #define fromNSUInteger(x) ((uintptr_t) (x))
 
-@interface goAreaView : NSView {
+@interface goAreaView : NSView <NSTextFieldDelegate> {
 @public
 	void *goarea;
 	NSTrackingArea *trackingArea;
@@ -99,6 +99,12 @@ event(otherMouseUp, areaView_mouseUp)
 retevent(doKeyDown, areaView_keyDown)
 retevent(doKeyUp, areaView_keyUp)
 retevent(doFlagsChanged, areaView_flagsChanged)
+
+- (BOOL)control:(NSControl *)c textShouldEndEditing:(NSText *)t
+{
+	areaTextFieldDismissed(self->goarea);
+	return YES;
+}
 
 @end
 
@@ -205,42 +211,23 @@ void areaRepaintAll(id view)
 	[toNSView(view) display];
 }
 
-@interface goAreaTextField : NSTextField {
-@public
-	void *goarea;
-}
-@end
-
-@implementation goAreaTextField
-/*
-- (BOOL)resignFirstResponder
+void areaSetTextField(id area, id textfield)
 {
-	[self setHidden:YES];
-	areaTextFieldDismissed(self->goarea);
-	return [super resignFirstResponder];
-}
-*/
-@end
+	goAreaView *a = (goAreaView *) area;
+	NSTextField *tf = toNSTextField(textfield);
 
-id newAreaTextField(id area, void *goarea)
-{
-	goAreaTextField *tf;
-
-	tf = [[goAreaTextField alloc] initWithFrame:NSZeroRect];
-	finishNewTextField((id) tf, YES);
-	[toNSView(area) addSubview:tf];
-	[tf setHidden:YES];
-	tf->goarea = goarea;
-	return (id) tf;
+	[tf setDelegate:a];
+	[a addSubview:tf];
 }
 
-void areaTextFieldOpen(id textfield, intptr_t x, intptr_t y)
+void areaTextFieldOpen(id area, id textfield, intptr_t x, intptr_t y)
 {
+	goAreaView *a = (goAreaView *) area;
 	NSTextField *tf = toNSTextField(textfield);
 
 	[tf sizeToFit];
 	// TODO
-	[tf setFrameSize:NSMakeSize(150, 20)];
+	[tf setFrameSize:NSMakeSize(150, [tf frame].size.height)];
 	[tf setFrameOrigin:NSMakePoint((CGFloat) x, (CGFloat) y)];
 	[tf setHidden:NO];
 	[[tf window] makeFirstResponder:tf];
