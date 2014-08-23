@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"fmt"
 	"image"
 	"unsafe"
 )
@@ -14,17 +15,21 @@ import "C"
 type area struct {
 	*areabase
 
-	_id		C.id
-	scroller	*scroller
+	_id			C.id
+	scroller		*scroller
+	textfield		C.id
+	textfielddone	*event
 }
 
 func newArea(ab *areabase) Area {
 	a := &area{
 		areabase:		ab,
+		textfielddone:	newEvent(),
 	}
 	a._id = C.newArea(unsafe.Pointer(a))
 	a.scroller = newScroller(a._id, false)			// no border on Area
 	a.SetSize(a.width, a.height)
+	a.textfield = C.newAreaTextField(a._id, unsafe.Pointer(a))
 	return a
 }
 
@@ -51,6 +56,33 @@ func (a *area) Repaint(r image.Rectangle) {
 
 func (a *area) RepaintAll() {
 	C.areaRepaintAll(a._id)
+}
+
+func (a *area) OpenTextFieldAt(x, y int) {
+	if x < 0 || x >= a.width || y < 0 || y >= a.height {
+		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
+	}
+	C.areaTextFieldOpen(a.textfield, C.intptr_t(x), C.intptr_t(y))
+}
+
+func (a *area) TextFieldText() string {
+	return C.GoString(C.textFieldText(a.textfield))
+}
+
+func (a *area) SetTextFieldText(text string) {
+	ctext := C.CString(text)
+	defer C.free(unsafe.Pointer(ctext))
+	C.textFieldSetText(a.textfield, ctext)
+}
+
+func (a *area) OnTextFieldDismissed(f func()) {
+	a.textfielddone.set(f)
+}
+
+//export areaTextFieldDismissed
+func areaTextFieldDismissed(data unsafe.Pointer) {
+	a := (*area)(unsafe.Pointer(data))
+	a.textfielddone.fire()
 }
 
 //export areaView_drawRect

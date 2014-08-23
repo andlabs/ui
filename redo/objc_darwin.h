@@ -66,6 +66,7 @@ extern id newCheckbox(void);
 extern void checkboxSetDelegate(id, void *);
 extern BOOL checkboxChecked(id);
 extern void checkboxSetChecked(id, BOOL);
+extern id finishNewTextField(id, BOOL);
 extern id newTextField(void);
 extern id newPasswordField(void);
 extern void textfieldSetDelegate(id, void *);
@@ -127,6 +128,8 @@ extern uintptr_t pressedMouseButtons(void);
 extern uintptr_t keyCode(id);
 extern void areaRepaint(id, struct xrect);
 extern void areaRepaintAll(id);
+extern id newAreaTextField(id, void *);
+extern void areaTextFieldOpen(id, intptr_t, intptr_t);
 
 /* common_darwin.m */
 extern void disableAutocorrect(id);

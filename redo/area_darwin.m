@@ -6,6 +6,7 @@
 
 #define toNSEvent(x) ((NSEvent *) (x))
 #define toNSView(x) ((NSView *) (x))
+#define toNSTextField(x) ((NSTextField *) (x))
 
 #define toNSInteger(x) ((NSInteger) (x))
 #define fromNSInteger(x) ((intptr_t) (x))
@@ -202,4 +203,45 @@ void areaRepaint(id view, struct xrect r)
 void areaRepaintAll(id view)
 {
 	[toNSView(view) display];
+}
+
+@interface goAreaTextField : NSTextField {
+@public
+	void *goarea;
+}
+@end
+
+@implementation goAreaTextField
+/*
+- (BOOL)resignFirstResponder
+{
+	[self setHidden:YES];
+	areaTextFieldDismissed(self->goarea);
+	return [super resignFirstResponder];
+}
+*/
+@end
+
+id newAreaTextField(id area, void *goarea)
+{
+	goAreaTextField *tf;
+
+	tf = [[goAreaTextField alloc] initWithFrame:NSZeroRect];
+	finishNewTextField((id) tf, YES);
+	[toNSView(area) addSubview:tf];
+	[tf setHidden:YES];
+	tf->goarea = goarea;
+	return (id) tf;
+}
+
+void areaTextFieldOpen(id textfield, intptr_t x, intptr_t y)
+{
+	NSTextField *tf = toNSTextField(textfield);
+
+	[tf sizeToFit];
+	// TODO
+	[tf setFrameSize:NSMakeSize(150, 20)];
+	[tf setFrameOrigin:NSMakePoint((CGFloat) x, (CGFloat) y)];
+	[tf setHidden:NO];
+	[[tf window] makeFirstResponder:tf];
 }

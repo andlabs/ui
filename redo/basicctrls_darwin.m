@@ -106,8 +106,11 @@ void checkboxSetChecked(id c, BOOL checked)
 }
 
 // also good for labels
-static id finishNewTextField(NSTextField *t, BOOL bordered)
+// not static because area_darwin.m uses it
+id finishNewTextField(id _t, BOOL bordered)
 {
+	NSTextField *t = toNSTextField(_t);
+
 	// same for text fields, password fields, and labels
 	setStandardControlFont((id) t);
 	// these three are the same across text fields, password fields, and labels; the only difference is the setBezeled: value, and it's only different on labels
@@ -131,7 +134,7 @@ id newTextField(void)
 	NSTextField *t;
 
 	t = [[NSTextField alloc] initWithFrame:NSZeroRect];
-	return finishNewTextField(t, YES);
+	return finishNewTextField((id) t, YES);
 }
 
 id newPasswordField(void)
@@ -139,7 +142,7 @@ id newPasswordField(void)
 	NSSecureTextField *t;
 
 	t = [[NSSecureTextField alloc] initWithFrame:NSZeroRect];
-	return finishNewTextField(toNSTextField(t), YES);
+	return finishNewTextField((id) t, YES);
 }
 
 void textfieldSetDelegate(id textfield, void *t)
@@ -219,7 +222,7 @@ id newLabel(void)
 	[l setEditable:NO];
 	[l setSelectable:NO];
 	[l setDrawsBackground:NO];
-	return finishNewTextField(l, NO);
+	return finishNewTextField((id) l, NO);
 }
 
 id newGroup(id container)
