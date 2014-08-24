@@ -71,7 +71,7 @@ func (t *textfield) Invalid(reason string) {
 	creason := togstr(reason)
 	defer freegstr(creason)
 	C.gtk_entry_set_icon_tooltip_text(t.entry, C.GTK_ENTRY_ICON_SECONDARY, creason)
-	// TODO beep
+	C.gtk_widget_error_bell(t._widget)
 }
 
 //export textfieldChanged
