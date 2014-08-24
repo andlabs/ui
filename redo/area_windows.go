@@ -20,6 +20,7 @@ type area struct {
 	clickCounter	*clickCounter
 
 	textfield		C.HWND
+	textfielddone	*event
 }
 
 func makeAreaWindowClass() error {
@@ -36,10 +37,11 @@ func newArea(ab *areabase) Area {
 	a := &area{
 		areabase:		ab,
 		clickCounter:	new(clickCounter),
+		textfielddone:	newEvent(),
 	}
 	a._hwnd = C.newArea(unsafe.Pointer(a))
 	a.SetSize(a.width, a.height)
-	a.textfield = C.newAreaTextField(a._hwnd)
+	a.textfield = C.newAreaTextField(a._hwnd, unsafe.Pointer(a))
 	C.controlSetControlFont(a.textfield)
 	return a
 }
@@ -76,9 +78,7 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	if x < 0 || x >= a.width || y < 0 || y >= a.height {
 		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
 	}
-	C.moveWindow(a.textfield, C.int(x), C.int(y), C.int(200), C.int(20))
-	C.ShowWindow(a.textfield, C.SW_SHOW)
-	// TODO SetFocus
+	C.areaOpenTextField(a._hwnd, a.textfield, C.int(x), C.int(y), textfieldWidth, textfieldHeight)
 }
 
 func (a *area) TextFieldText() string {
@@ -88,12 +88,17 @@ func (a *area) TextFieldText() string {
 func (a *area) SetTextFieldText(text string) {
 	t := toUTF16(text)
 	C.setWindowText(a.textfield, t)
-	// TODO
-//	c.settextlen(C.controlTextLength(hwnd, t))
 }
 
 func (a *area) OnTextFieldDismissed(f func()) {
-	// TODO
+	a.textfielddone.set(f)
+}
+
+//export areaTextFieldDone
+func areaTextFieldDone(data unsafe.Pointer) {
+	a := (*area)(data)
+	C.areaMarkTextFieldDone(a._hwnd)
+	a.textfielddone.fire()
 }
 
 //export doPaint

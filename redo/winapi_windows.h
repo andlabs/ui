@@ -124,12 +124,14 @@ extern DWORD makeContainerWindowClass(char **);
 extern HWND newContainer(void *);
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
-// area_window.c
+// area_windows.c
 #define areaWindowClass L"gouiarea"
 extern void repaintArea(HWND, RECT *);
 extern DWORD makeAreaWindowClass(char **);
 extern HWND newArea(void *);
-extern HWND newAreaTextField(HWND);
+extern HWND newAreaTextField(HWND, void *);
+extern void areaOpenTextField(HWND, HWND, int, int, int, int);
+extern void areaMarkTextFieldDone(HWND);
 
 // imagelist_windows.c
 extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);

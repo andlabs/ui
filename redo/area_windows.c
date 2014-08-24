@@ -233,6 +233,26 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 		dx = 0;
 		dy = delta;
 	}
+
+	// first move the edit control, if any, to avoid artifacting
+	if ((HWND) GetWindowLongPtrW(hwnd, 0) != NULL) {
+		HWND edit;
+		int x, y;
+
+		edit = (HWND) GetWindowLongPtrW(hwnd, 0);
+		x = (int) GetWindowLongPtrW(hwnd, sizeof (LONG_PTR));
+		y = (int) GetWindowLongPtrW(hwnd, 2 * sizeof (LONG_PTR));
+		x += dx;
+		y += dy;
+		if (SetWindowPos(edit, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER) == 0)
+			xpanic("error moving Area TextField in response to scroll", GetLastError());
+		SetWindowLongPtrW(hwnd, sizeof (LONG_PTR), (LONG_PTR) x);
+		SetWindowLongPtrW(hwnd, 2 * sizeof (LONG_PTR), (LONG_PTR) y);
+		// TODO doesn't work?
+		if (InvalidateRect(edit, NULL, TRUE) == 0)
+			xpanic("error marking Area TextField as needing redraw", GetLastError());
+	}
+
 	if (ScrollWindowEx(hwnd,
 		(int) dx, (int) dy,
 		// these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
@@ -253,6 +273,9 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 	// NOW redraw it
 	if (UpdateWindow(hwnd) == 0)
 		xpanic("error updating Area after scrolling", GetLastError());
+	if ((HWND) GetWindowLongPtrW(hwnd, 0) != NULL)
+		if (UpdateWindow((HWND) GetWindowLongPtrW(hwnd, 0)) == 0)
+			xpanic("error updating Area TextField after scrolling", GetLastError());
 }
 
 static void adjustAreaScrollbars(HWND hwnd, void *data)
@@ -411,7 +434,8 @@ DWORD makeAreaWindowClass(char **errmsg)
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor,
-	wc.hbrBackground = NULL;		// no brush; we handle WM_ERASEBKGND
+	wc.hbrBackground = NULL;				// no brush; we handle WM_ERASEBKGND
+	wc.cbWndExtra = 3 * sizeof (LONG_PTR);		// text field handle, text field current x, text field current y
 	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering Area window class";
 		return GetLastError();
@@ -440,6 +464,7 @@ static LRESULT CALLBACK areaTextFieldSubProc(HWND hwnd, UINT uMsg, WPARAM wParam
 	switch (uMsg) {
 	case WM_KILLFOCUS:
 		ShowWindow(hwnd, SW_HIDE);
+		areaTextFieldDone((void *) data);
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, areaTextFieldSubProc, id) == FALSE)
@@ -452,7 +477,7 @@ static LRESULT CALLBACK areaTextFieldSubProc(HWND hwnd, UINT uMsg, WPARAM wParam
 	return 0;		// unreached
 }
 
-HWND newAreaTextField(HWND area)
+HWND newAreaTextField(HWND area, void *goarea)
 {
 	HWND tf;
 
@@ -460,11 +485,34 @@ HWND newAreaTextField(HWND area)
 		L"edit", L"",
 		textfieldStyle | WS_CHILD,
 		0, 0, 0, 0,
-		area,			// owner window
-		NULL, hInstance, NULL);
+		area, NULL, hInstance, NULL);
 	if (tf == NULL)
 		xpanic("error making Area TextField", GetLastError());
-	if ((*fv_SetWindowSubclass)(tf, areaTextFieldSubProc, 0, (DWORD_PTR) NULL) == FALSE)
+	if ((*fv_SetWindowSubclass)(tf, areaTextFieldSubProc, 0, (DWORD_PTR) goarea) == FALSE)
 		xpanic("error subclassing Area TextField to give it its own WM_KILLFOCUS handler", GetLastError());
 	return tf;
+}
+
+void areaOpenTextField(HWND area, HWND textfield, int x, int y, int width, int height)
+{
+	int sx, sy;
+	int baseX, baseY;
+	LONG unused;
+
+	getScrollPos(area, &sx, &sy);
+	x += sx;
+	y += sy;
+	calculateBaseUnits(textfield, &baseX, &baseY, &unused);
+	width = MulDiv(width, baseX, 4);
+	height = MulDiv(height, baseY, 8);
+	if (MoveWindow(textfield, x, y, width, height, TRUE) == 0)
+		xpanic("error moving Area TextField in Area.OpenTextFieldAt()", GetLastError());
+	ShowWindow(textfield, SW_SHOW);
+	if (SetFocus(textfield) == NULL)
+		xpanic("error giving Area TextField focus", GetLastError());
+}
+
+void areaMarkTextFieldDone(HWND area)
+{
+	SetWindowLongPtrW(area, 0, (LONG_PTR) NULL);
 }
