@@ -82,6 +82,7 @@ gtk+, windows
 gtk+, mac os x
 	- figure out how dialogs and Areas work together
 		- once that is done, document the behavior of Areas
+	- test beep in TextField.Invalid()
 all
 	- make spaced settable somehow
 	- rename Selected to Selection?
