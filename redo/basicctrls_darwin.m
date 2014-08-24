@@ -205,6 +205,9 @@ id textfieldOpenInvalidPopover(id textfield, char *reason)
 	// NSMaxYEdge is the bottom edge when looking (maximum edge in window coordinates)
 	[popover showRelativeToRect:NSZeroRect ofView:toNSView(textfield) preferredEdge:NSMaxYEdge];
 
+	// and beep
+	NSBeep();
+
 	return (id) popover;
 }
 
