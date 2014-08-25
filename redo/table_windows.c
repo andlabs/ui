@@ -36,7 +36,7 @@ static void tableSetCheckboxImageList(HWND hwnd, struct tableData *t)
 	HIMAGELIST old;
 
 	old = t->checkboxImageList;
-	t->checkboxImageList = makeCheckboxImageList(hwnd);
+	t->checkboxImageList = makeCheckboxImageList(hwnd, &t->theme);
 	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) (t->checkboxImageList)) == (LRESULT) NULL)
 ;//TODO		xpanic("error setting image list", GetLastError());
 	// TODO free old one here if any
