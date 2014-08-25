@@ -47,7 +47,7 @@ WCHAR *openFile(void)
 		err = CommDlgExtendedError();
 		if (err == 0)				// user cancelled
 			return NULL;
-		xpanic("error running open file dialog", GetLastError());
+		xpaniccomdlg("error running open file dialog", err);
 	}
 	return filenameBuffer;
 }

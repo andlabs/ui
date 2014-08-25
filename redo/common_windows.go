@@ -21,6 +21,11 @@ func xpanichresult(msg *C.char, hresult C.HRESULT) {
 	panic(fmt.Errorf("%s; HRESULT: 0x%X", C.GoString(msg), hresult))
 }
 
+//export xpaniccomdlg
+func xpaniccomdlg(msg *C.char, err C.DWORD) {
+	panic(fmt.Errorf("%s; comdlg32.dll extended error: 0x%X", C.GoString(msg), err))
+}
+
 //export xmissedmsg
 func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
 	panic(fmt.Errorf("%s window procedure message %d does not return a value (bug in %s)", C.GoString(purpose), uMsg, C.GoString(f)))
