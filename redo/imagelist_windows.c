@@ -3,7 +3,6 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-// TODO eliminate duplicate code
 // TODO top left pixel of checkbox state 0 not drawn?
 
 HBITMAP unscaledBitmap(void *i, intptr_t dx, intptr_t dy)
@@ -116,77 +115,18 @@ static UINT dfcState(int cbstate)
 	return ret;
 }
 
-static HBITMAP dfcImage(HDC dc, int width, int height, int cbState)
+static void dfcImage(HDC dc, RECT *r, int cbState)
 {
-	BITMAPINFO bi;
-	VOID *ppvBits;
-	HBITMAP bitmap;
-	RECT r;
-	HDC drawDC;
-	HBITMAP prevbitmap;
-
-	r.left = 0;
-	r.top = 0;
-	r.right = width;
-	r.bottom = height;
-	ZeroMemory(&bi, sizeof (BITMAPINFO));
-	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = (LONG) width;
-	bi.bmiHeader.biHeight = -((LONG) height);			// negative height to force top-down drawing;
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biCompression = BI_RGB;
-	bi.bmiHeader.biSizeImage = (DWORD) (width * height * 4);
-	bitmap = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &ppvBits, 0, 0);
-	if (bitmap == NULL)
-		xpanic("error creating HBITMAP for unscaled ImageList image copy", GetLastError());
-
-	drawDC = CreateCompatibleDC(dc);
-	if (drawDC == NULL)
-		xpanic("error getting DC for checkbox image list bitmap", GetLastError());
-	prevbitmap = SelectObject(drawDC, bitmap);
-	if (prevbitmap == NULL)
-		xpanic("error selecting checkbox image list bitmap into DC", GetLastError());
-	if (DrawFrameControl(drawDC, &r, DFC_BUTTON, dfcState(cbState)) == 0)
+	if (DrawFrameControl(dc, r, DFC_BUTTON, dfcState(cbState)) == 0)
 		xpanic("error drawing checkbox image", GetLastError());
-	if (SelectObject(drawDC, prevbitmap) != bitmap)
-		xpanic("error selecting previous bitmap into checkbox image's DC", GetLastError());
-	if (DeleteDC(drawDC) == 0)
-		xpanic("error deleting checkbox image's DC", GetLastError());
-
-	return bitmap;
 }
 
-HIMAGELIST checkboxImageList = NULL;
-
-void makeCheckboxImageList_DFC(HWND hwnddc)
+static void dfcSize(HDC dc, int *width, int *height)
 {
-	int width, height;
-	int cbState;
-	HDC dc;
-	HIMAGELIST il;
-
 	// there's no real metric around
 	// let's use SM_CX/YSMICON and hope for the best
-	width = GetSystemMetrics(SM_CXSMICON);
-	height = GetSystemMetrics(SM_CYSMICON);
-	dc = GetDC(hwnddc);
-	if (dc == NULL)
-		xpanic("error getting DC for making the checkbox image list", GetLastError());
-	checkboxImageList = (*fv_ImageList_Create)(width, height, ILC_COLOR32, 20, 20);		// should be reasonable
-	if (checkboxImageList == NULL)
-		xpanic("error creating checkbox image list", GetLastError());
-	for (cbState = 0; cbState < checkboxnStates; cbState++) {
-		HBITMAP bitmap;
-
-		bitmap = dfcImage(dc, width, height, cbState);
-		if ((*fv_ImageList_Add)(checkboxImageList, bitmap, NULL) == -1)
-			xpanic("error adding checkbox image to image list", GetLastError());
-		if (DeleteObject(bitmap) == 0)
-			xpanic("error deleting checkbox bitmap", GetLastError());
-	}
-	if (ReleaseDC(hwnddc, dc) == 0)
-		xpanic("error deleting checkbox image list DC", GetLastError());
+	*width = GetSystemMetrics(SM_CXSMICON);
+	*height = GetSystemMetrics(SM_CYSMICON);
 }
 
 static HTHEME theme = NULL;
@@ -226,7 +166,33 @@ static SIZE getStateSize(HDC dc, int cbState)
 	return s;
 }
 
-static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
+static void themeImage(HDC dc, RECT *r, int cbState)
+{
+	HRESULT res;
+
+	res = DrawThemeBackground(theme, dc, BP_CHECKBOX, themestates[cbState], r, NULL);
+	if (res != S_OK)
+		xpanichresult("error drawing checkbox image", res);
+}
+
+static void themeSize(HDC dc, int *width, int *height)
+{
+	SIZE size;
+	int cbState;
+
+	size = getStateSize(dc, 0);
+	for (cbState = 1; cbState < checkboxnStates; cbState++) {
+		SIZE against;
+
+		against = getStateSize(dc, cbState);
+		if (size.cx != against.cx || size.cy != against.cy)
+			xpanic("size mismatch in checkbox states", GetLastError());
+	}
+	*width = (int) size.cx;
+	*height = (int) size.cy;
+}
+
+static HBITMAP makeCheckboxImageListEntry(HDC dc, int width, int height, int cbState, void (*drawfunc)(HDC, RECT *, int))
 {
 	BITMAPINFO bi;
 	VOID *ppvBits;
@@ -234,7 +200,6 @@ static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
 	RECT r;
 	HDC drawDC;
 	HBITMAP prevbitmap;
-	HRESULT res;
 
 	r.left = 0;
 	r.top = 0;
@@ -258,9 +223,7 @@ static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
 	prevbitmap = SelectObject(drawDC, bitmap);
 	if (prevbitmap == NULL)
 		xpanic("error selecting checkbox image list bitmap into DC", GetLastError());
-	res = DrawThemeBackground(theme, drawDC, BP_CHECKBOX, themestates[cbState], &r, NULL);
-	if (res != S_OK)
-		xpanichresult("error drawing checkbox image", res);
+	(*drawfunc)(drawDC, &r, cbState);
 	if (SelectObject(drawDC, prevbitmap) != bitmap)
 		xpanic("error selecting previous bitmap into checkbox image's DC", GetLastError());
 	if (DeleteDC(drawDC) == 0)
@@ -269,54 +232,44 @@ static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
 	return bitmap;
 }
 
-
-void makeCheckboxImageList_theme(HWND hwnddc)
+static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *, int *), void (*drawfunc)(HDC, RECT *, int))
 {
 	int width, height;
 	int cbState;
-	SIZE size;
 	HDC dc;
+	HIMAGELIST il;
 
-	// first, make sure that all things have the same size
 	dc = GetDC(hwnddc);
 	if (dc == NULL)
 		xpanic("error getting DC for making the checkbox image list", GetLastError());
-	size = getStateSize(dc, 0);
-	for (cbState = 1; cbState < checkboxnStates; cbState++) {
-		SIZE against;
-
-		against = getStateSize(dc, cbState);
-		if (size.cx != against.cx || size.cy != against.cy)
-			xpanic("size mismatch in checkbox states", GetLastError());
-	}
-	width = (int) size.cx;
-	height = (int) size.cy;
-
-	// NOW draw
-	checkboxImageList = (*fv_ImageList_Create)(width, height, ILC_COLOR32, 20, 20);		// should be reasonable
-	if (checkboxImageList == NULL)
+	(*sizefunc)(dc, &width, &height);
+	il = (*fv_ImageList_Create)(width, height, ILC_COLOR32, 20, 20);		// should be reasonable
+	if (il == NULL)
 		xpanic("error creating checkbox image list", GetLastError());
 	for (cbState = 0; cbState < checkboxnStates; cbState++) {
 		HBITMAP bitmap;
 
-		bitmap = drawThemeImage(dc, width, height, cbState);
-		if ((*fv_ImageList_Add)(checkboxImageList, bitmap, NULL) == -1)
+		bitmap = makeCheckboxImageListEntry(dc, width, height, cbState, drawfunc);
+		if ((*fv_ImageList_Add)(il, bitmap, NULL) == -1)
 			xpanic("error adding checkbox image to image list", GetLastError());
 		if (DeleteObject(bitmap) == 0)
 			xpanic("error deleting checkbox bitmap", GetLastError());
 	}
 	if (ReleaseDC(hwnddc, dc) == 0)
 		xpanic("error deleting checkbox image list DC", GetLastError());
+	return il;
 }
+
+HIMAGELIST checkboxImageList = NULL;
 
 void makeCheckboxImageList(HWND hwnddc)
 {
 	if (theme == NULL)		// try to open the theme
 		openTheme(hwnddc);
 	if (theme != NULL) {		// use the theme
-		makeCheckboxImageList_theme(hwnddc);
+		checkboxImageList = newCheckboxImageList(hwnddc, themeSize, themeImage);
 		return;
 	}
 	// couldn't open; fall back
-	makeCheckboxImageList_DFC(hwnddc);
+	checkboxImageList = newCheckboxImageList(hwnddc, dfcSize, dfcImage);
 }
