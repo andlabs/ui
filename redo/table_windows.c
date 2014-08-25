@@ -109,7 +109,7 @@ void setTableSubclass(HWND hwnd, void *data)
 {
 	struct tableData *t;
 
-	t = (struct tableData *) malloc(sizeof (struct tableData *));
+	t = (struct tableData *) malloc(sizeof (struct tableData));
 	if (t == NULL)
 		xpanic("error allocating structure for Table extra data", GetLastError());
 	ZeroMemory(t, sizeof (struct tableData));
