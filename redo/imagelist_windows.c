@@ -193,10 +193,13 @@ static HTHEME theme = NULL;
 
 static void openTheme(HWND hwnd)
 {
-	if (theme != NULL)
-		// TODO save HRESULT
-		if (CloseThemeData(theme) != S_OK)
-			xpanic("error closing theme", GetLastError());
+	HRESULT res;
+
+	if (theme != NULL) {
+		res = CloseThemeData(theme);
+		if (res != S_OK)
+			xpanichresult("error closing theme", res);
+	}
 	// ignore error; if it can't be done, we can fall back to DrawFrameControl()
 	theme = OpenThemeData(hwnd, L"button");
 }
@@ -215,10 +218,11 @@ static int themestates[checkboxnStates] = {
 static SIZE getStateSize(HDC dc, int cbState)
 {
 	SIZE s;
+	HRESULT res;
 
-	// TODO use HRESULT
-	if (GetThemePartSize(theme, dc, BP_CHECKBOX, themestates[cbState], NULL, TS_DRAW, &s) != S_OK)
-		xpanic("error getting theme part size", GetLastError());
+	res = GetThemePartSize(theme, dc, BP_CHECKBOX, themestates[cbState], NULL, TS_DRAW, &s);
+	if (res != S_OK)
+		xpanichresult("error getting theme part size", res);
 	return s;
 }
 
@@ -230,6 +234,7 @@ static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
 	RECT r;
 	HDC drawDC;
 	HBITMAP prevbitmap;
+	HRESULT res;
 
 	r.left = 0;
 	r.top = 0;
@@ -253,9 +258,9 @@ static HBITMAP drawThemeImage(HDC dc, int width, int height, int cbState)
 	prevbitmap = SelectObject(drawDC, bitmap);
 	if (prevbitmap == NULL)
 		xpanic("error selecting checkbox image list bitmap into DC", GetLastError());
-	// TODO get HRESULT
-	if (DrawThemeBackground(theme, drawDC, BP_CHECKBOX, themestates[cbState], &r, NULL) != S_OK)
-		xpanic("error drawing checkbox image", GetLastError());
+	res = DrawThemeBackground(theme, drawDC, BP_CHECKBOX, themestates[cbState], &r, NULL);
+	if (res != S_OK)
+		xpanichresult("error drawing checkbox image", res);
 	if (SelectObject(drawDC, prevbitmap) != bitmap)
 		xpanic("error selecting previous bitmap into checkbox image's DC", GetLastError());
 	if (DeleteDC(drawDC) == 0)

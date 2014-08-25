@@ -16,6 +16,11 @@ func xpanic(msg *C.char, lasterr C.DWORD) {
 	panic(fmt.Errorf("%s: %s", C.GoString(msg), syscall.Errno(lasterr)))
 }
 
+//export xpanichresult
+func xpanichresult(msg *C.char, hresult C.HRESULT) {
+	panic(fmt.Errorf("%s; HRESULT: 0x%X", C.GoString(msg), hresult))
+}
+
 //export xmissedmsg
 func xmissedmsg(purpose *C.char, f *C.char, uMsg C.UINT) {
 	panic(fmt.Errorf("%s window procedure message %d does not return a value (bug in %s)", C.GoString(purpose), uMsg, C.GoString(f)))
