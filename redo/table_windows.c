@@ -25,17 +25,24 @@ static void handle(HWND hwnd, WPARAM wParam, LPARAM lParam, void (*handler)(void
 	(*handler)(data, ht.iItem, ht.iSubItem);
 }
 
+struct tableData {
+	void *gotable;
+	HTHEME theme;
+	HIMAGELIST checkboxImageList;
+};
+
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
 	NMLVDISPINFOW *fill = (NMLVDISPINFO *) lParam;
 	NMLISTVIEW *nlv = (NMLISTVIEW *) lParam;
+	struct tableData *t = (struct tableData *) data;
 
 	switch (uMsg) {
 	case msgNOTIFY:
 		switch (nmhdr->code) {
 		case LVN_GETDISPINFO:
-			tableGetCell((void *) data, &(fill->item));
+			tableGetCell(t->gotable, &(fill->item));
 			return 0;
 		case LVN_ITEMCHANGED:
 			if ((nlv->uChanged & LVIF_STATE) == 0)
@@ -43,34 +50,35 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			// if both old and new states have the same value for the selected bit, then the selection state did not change, regardless of selected or deselected
 			if ((nlv->uOldState & LVIS_SELECTED) == (nlv->uNewState & LVIS_SELECTED))
 				break;
-			tableSelectionChanged((void *) data);
+			tableSelectionChanged(t->gotable);
 			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSEMOVE:
-		handle(hwnd, wParam, lParam, tableSetHot, (void *) data);
+		handle(hwnd, wParam, lParam, tableSetHot, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:			// listviews have CS_DBLCICKS; check this to better mimic the behavior of a real checkbox
-		handle(hwnd, wParam, lParam, tablePushed, (void *) data);
+		handle(hwnd, wParam, lParam, tablePushed, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONUP:
-		handle(hwnd, wParam, lParam, tableToggled, (void *) data);
+		handle(hwnd, wParam, lParam, tableToggled, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSELEAVE:
 		// TODO doesn't work
-		tablePushed((void *) data, -1, -1);			// in case button held as drag out
+		tablePushed(t->gotable, -1, -1);			// in case button held as drag out
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	// see table.autoresize() in table_windows.go for the column autosize policy
 	case WM_NOTIFY:		// from the contained header control
 		if (nmhdr->code == HDN_BEGINTRACK)
-			tableStopColumnAutosize((void *) data);
+			tableStopColumnAutosize(t->gotable);
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
+		free(t);
 		if ((*fv_RemoveWindowSubclass)(hwnd, tableSubProc, id) == FALSE)
 			xpanic("error removing Table subclass (which was for its own event handler)", GetLastError());
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
@@ -83,7 +91,14 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
 void setTableSubclass(HWND hwnd, void *data)
 {
-	if ((*fv_SetWindowSubclass)(hwnd, tableSubProc, 0, (DWORD_PTR) data) == FALSE)
+	struct tableData *t;
+
+	t = (struct tableData *) malloc(sizeof (struct tableData *));
+	if (t == NULL)
+		xpanic("error allocating structure for Table extra data", GetLastError());
+	ZeroMemory(t, sizeof (struct tableData));
+	t->gotable = data;
+	if ((*fv_SetWindowSubclass)(hwnd, tableSubProc, 0, (DWORD_PTR) t) == FALSE)
 		xpanic("error subclassing Table to give it its own event handler", GetLastError());
 }
 
