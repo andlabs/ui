@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"syscall"
 	"unsafe"
+	"reflect"
 )
 
 // #include "winapi_windows.h"

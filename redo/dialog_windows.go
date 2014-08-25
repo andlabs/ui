@@ -3,9 +3,7 @@
 package ui
 
 import (
-	"syscall"
 	"unsafe"
-	"reflect"
 )
 
 // #include "winapi_windows.h"
