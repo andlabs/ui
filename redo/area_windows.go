@@ -73,7 +73,6 @@ func (a *area) RepaintAll() {
 	C.SendMessageW(a._hwnd, C.msgAreaRepaintAll, 0, 0)
 }
 
-// TODO somehow use textfield.preferredSIze() here
 func (a *area) OpenTextFieldAt(x, y int) {
 	if x < 0 || x >= a.width || y < 0 || y >= a.height {
 		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
