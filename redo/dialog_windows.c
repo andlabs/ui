@@ -38,7 +38,6 @@ WCHAR *openFile(void)
 	ofn.lpstrInitialDir = NULL;			// let system decide
 	ofn.lpstrTitle = NULL;			// let system decide
 	// TODO OFN_SHAREAWARE?
-	// TODO remove OFN_NODEREFERENCELINKS? or does no filters ensure that anyway?
 	ofn.Flags = OFN_ENABLEHOOK | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_FORCESHOWHIDDEN | OFN_HIDEREADONLY | OFN_LONGNAMES | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS | OFN_NOTESTFILECREATE | OFN_PATHMUSTEXIST;
 	ofn.lpfnHook = openSaveFileHook;
 	SendMessageW(msgwin, msgBeginModal, 0, 0);
