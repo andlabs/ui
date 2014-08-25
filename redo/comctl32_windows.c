@@ -11,6 +11,7 @@ BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 HIMAGELIST (*WINAPI fv_ImageList_Create)(int, int, UINT, int, int);
 int (*WINAPI fv_ImageList_Add)(HIMAGELIST, HBITMAP, HBITMAP);
+BOOL (*WINAPI fv_ImageList_Destroy)(HIMAGELIST);
 
 #define wantedICCClasses ( \
 	ICC_PROGRESS_CLASS |		/* progress bars */		\
@@ -121,7 +122,8 @@ DWORD initCommonControls(char **errmsg)
 	fv_ImageList_Create = (HIMAGELIST (*WINAPI)(int, int, UINT, int, int)) f;
 	LOAD("ImageList_Add");
 	fv_ImageList_Add = (int (*WINAPI)(HIMAGELIST, HBITMAP, HBITMAP)) f;
-
+	LOAD("ImageList_Destroy");
+	fv_ImageList_Destroy = (BOOL (*WINAPI)(HIMAGELIST)) f;
 
 	if ((*ficc)(&icc) == FALSE) {
 		*errmsg = "error initializing Common Controls (comctl32.dll)";

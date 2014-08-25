@@ -38,7 +38,8 @@ enum {
 	msgEndModal,
 	msgAreaKeyDown,
 	msgAreaKeyUp,
-	msgTableMakeInitialImageList,
+	msgLoadImageList,
+	msgTableMakeInitialCheckboxImageList,
 };
 
 // uitask_windows.c
@@ -55,6 +56,7 @@ extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
 extern HIMAGELIST (*WINAPI fv_ImageList_Create)(int, int, UINT, int, int);
 extern int (*WINAPI fv_ImageList_Add)(HIMAGELIST, HBITMAP, HBITMAP);
+extern BOOL (*WINAPI fv_ImageList_Destroy)(HIMAGELIST);
 
 // control_windows.c
 extern HWND newControl(LPWSTR, DWORD, DWORD);
@@ -137,7 +139,7 @@ extern void areaMarkTextFieldDone(HWND);
 extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
 extern HIMAGELIST newImageList(int, int);
 extern void addImage(HIMAGELIST, HWND, HBITMAP, int, int, int, int);
-extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST);
+extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST, HIMAGELIST);
 enum {
 	checkboxStateChecked = 1 << 0,
 	checkboxStateHot = 1 << 1,

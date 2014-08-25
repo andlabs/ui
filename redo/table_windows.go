@@ -40,7 +40,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
 	C.tableAddExtendedStyles(t._hwnd, C.LVS_EX_FULLROWSELECT | C.LVS_EX_SUBITEMIMAGES)
 	// this must come after the subclass because it uses one of our private messages
-	C.SendMessageW(t._hwnd, C.msgTableMakeInitialImageList, 0, 0)
+	C.SendMessageW(t._hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t._hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
@@ -62,7 +62,7 @@ func (t *table) Unlock() {
 }
 
 func (t *table) LoadImageList(il ImageList) {
-	il.apply(t._hwnd, C.LVM_SETIMAGELIST, C.LVSIL_SMALL)
+	il.apply(t._hwnd, C.msgLoadImageList)
 }
 
 func (t *table) Selected() int {

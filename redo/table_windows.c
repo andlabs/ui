@@ -27,9 +27,19 @@ static void handle(HWND hwnd, WPARAM wParam, LPARAM lParam, void (*handler)(void
 
 struct tableData {
 	void *gotable;
+	HIMAGELIST imagelist;
 	HTHEME theme;
 	HIMAGELIST checkboxImageList;
 };
+
+static void tableLoadImageList(HWND hwnd, struct tableData *t, HIMAGELIST new)
+{
+	HIMAGELIST old;
+
+	old = t->imagelist;
+	t->imagelist = new;
+	applyImageList(hwnd, LVM_SETIMAGELIST, LVSIL_SMALL, t->imagelist, old);
+}
 
 static void tableSetCheckboxImageList(HWND hwnd, struct tableData *t)
 {
@@ -37,9 +47,7 @@ static void tableSetCheckboxImageList(HWND hwnd, struct tableData *t)
 
 	old = t->checkboxImageList;
 	t->checkboxImageList = makeCheckboxImageList(hwnd, &t->theme);
-	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) (t->checkboxImageList)) == (LRESULT) NULL)
-;//TODO		xpanic("error setting image list", GetLastError());
-	// TODO free old one here if any
+	applyImageList(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, t->checkboxImageList, old);
 	// thanks to Jonathan Potter (http://stackoverflow.com/questions/25354448/why-do-my-owner-data-list-view-state-images-come-up-as-blank-on-windows-xp)
 	if (SendMessageW(hwnd, LVM_SETCALLBACKMASK, LVIS_STATEIMAGEMASK, 0) == FALSE)
 		xpanic("error marking state image list as application-managed", GetLastError());
@@ -86,7 +94,10 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		tablePushed(t->gotable, -1, -1);			// in case button held as drag out
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-	case msgTableMakeInitialImageList:
+	case msgLoadImageList:
+		tableLoadImageList(hwnd, t, (HIMAGELIST) lParam);
+		return 0;
+	case msgTableMakeInitialCheckboxImageList:
 		tableSetCheckboxImageList(hwnd, t);
 		return 0;
 	case WM_THEMECHANGED:

@@ -94,11 +94,13 @@ noscale:
 			xpanic("error deleting scaled bitmap", GetLastError());
 }
 
-void applyImageList(HWND hwnd, UINT uMsg, WPARAM wParam, HIMAGELIST il)
+void applyImageList(HWND hwnd, UINT uMsg, WPARAM wParam, HIMAGELIST il, HIMAGELIST old)
 {
-	if (SendMessageW(hwnd, uMsg, wParam, (LPARAM) il) == (LRESULT) NULL)
-;//TODO		xpanic("error setting image list", GetLastError());
-	// TODO free old one here if any
+	if (SendMessageW(hwnd, uMsg, wParam, (LPARAM) il) != (LRESULT) old)
+		xpanic("error setting image list", GetLastError());
+	if (old != NULL && (*fv_ImageList_Destroy)(old) == 0)
+		xpanic("error freeing old checkbox image list", GetLastError());
+
 }
 
 static UINT dfcState(int cbstate)
