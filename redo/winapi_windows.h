@@ -144,8 +144,7 @@ enum {
 	checkboxStatePushed = 1 << 2,
 	checkboxnStates = 1 << 3,
 };
-extern HIMAGELIST checkboxImageList;
-extern void makeCheckboxImageList(HWND);
+extern HIMAGELIST makeCheckboxImageList(HWND);
 
 // dialog_windows.c
 extern WCHAR *openFile(void);

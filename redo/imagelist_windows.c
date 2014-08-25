@@ -260,16 +260,14 @@ static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *,
 	return il;
 }
 
-HIMAGELIST checkboxImageList = NULL;
-
-void makeCheckboxImageList(HWND hwnddc)
+HIMAGELIST makeCheckboxImageList(HWND hwnddc)
 {
 	if (theme == NULL)		// try to open the theme
 		openTheme(hwnddc);
 	if (theme != NULL) {		// use the theme
-		checkboxImageList = newCheckboxImageList(hwnddc, themeSize, themeImage);
+		return newCheckboxImageList(hwnddc, themeSize, themeImage);
 		return;
 	}
 	// couldn't open; fall back
-	checkboxImageList = newCheckboxImageList(hwnddc, dfcSize, dfcImage);
+	return newCheckboxImageList(hwnddc, dfcSize, dfcImage);
 }

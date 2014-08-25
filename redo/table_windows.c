@@ -139,6 +139,9 @@ void tableAutosizeColumns(HWND hwnd, int nColumns)
 
 void tableSetCheckboxImageList(HWND hwnd)
 {
+	HIMAGELIST checkboxImageList;
+
+	checkboxImageList = makeCheckboxImageList(hwnd);
 	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) checkboxImageList) == (LRESULT) NULL)
 ;//TODO		xpanic("error setting image list", GetLastError());
 	// TODO free old one here if any/different

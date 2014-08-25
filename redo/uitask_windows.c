@@ -133,11 +133,6 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &shared))
 		return shared;
 	switch (uMsg) {
-	case WM_CREATE:
-		// initial
-		makeCheckboxImageList(hwnd);
-		return 0;
-	// TODO respond to WM_THEMECHANGED
 	case msgRequest:
 		// in modal?
 		if (!queueIfModal((void *) lParam))
