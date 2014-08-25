@@ -57,10 +57,10 @@
 - (void)tableView:(NSTableView *)view setObjectValue:(id)value forTableColumn:(NSTableColumn *)col row:(NSInteger)row
 {
 	intptr_t colnum;
+	NSNumber *number = (NSNumber *) value;	// thanks to mikeash in irc.freenode.net/#macdev
 
 	colnum = ((goTableColumn *) col)->gocolnum;
-	// TODO verify type of value
-	goTableDataSource_toggled(self->gotable, (intptr_t) row, colnum, [value boolValue]);
+	goTableDataSource_toggled(self->gotable, (intptr_t) row, colnum, [number boolValue]);
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)note
