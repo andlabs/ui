@@ -107,7 +107,6 @@ const (
 	paddingDialogUnits = 4
 
 	groupXMargin = 6
-	// TODO
 	groupYMarginTop = 11		// note this value /includes the groupbox label/
 	groupYMarginBottom = 7
 )
@@ -125,7 +124,8 @@ func (c *container) beginResize() (d *sizing) {
 
 	if spaced {
 		d.xmargin = fromdlgunitsX(marginDialogUnits, d)
-		d.ymargin = fromdlgunitsY(marginDialogUnits, d)
+		d.ymargintop = fromdlgunitsY(marginDialogUnits, d)
+		d.ymarginbottom = d.ymargintop
 		d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
 		d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
 	}
@@ -134,7 +134,9 @@ func (c *container) beginResize() (d *sizing) {
 		// this is because Windows groupboxes have the client rect spanning the entire size of the control, not just the active work area
 		// the measurements Microsoft give us are for spaced margining; let's just use them
 		d.xmargin = fromdlgunitsX(groupXMargin, d)
-		d.ymargin = fromdlgunitsY(groupYMarginTop, d)
+		d.ymargintop = fromdlgunitsY(groupYMarginTop, d)
+		d.ymarginbottom = fromdlgunitsY(groupYMarginBottom, d)
+
 	}
 
 	return d

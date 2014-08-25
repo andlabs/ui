@@ -58,7 +58,8 @@ func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
 	if spaced {
 		d.xmargin = gtkXMargin
-		d.ymargin = gtkYMargin
+		d.ymargintop = gtkYMargin
+		d.ymarginbottom = d.ymargintop
 		d.xpadding = gtkXPadding
 		d.ypadding = gtkYPadding
 	}

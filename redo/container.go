@@ -12,10 +12,11 @@ type allocation struct {
 }
 
 type sizingbase struct {
-	xmargin		int
-	ymargin		int
-	xpadding		int
-	ypadding		int
+	xmargin			int
+	ymargintop		int
+	ymarginbottom	int
+	xpadding			int
+	ypadding			int
 }
 
 type controlSizing interface {
@@ -41,7 +42,8 @@ func (c *container) resize(x, y, width, height int) {
 		return
 	}
 	d := c.beginResize()
-	allocations := c.child.allocate(x + d.xmargin, y + d.ymargin, width - (2 * d.xmargin), height - (2 * d.ymargin), d)
+	allocations := c.child.allocate(x + d.xmargin, y + d.ymargintop,
+		width - (2 * d.xmargin), height - d.ymargintop - d.ymarginbottom, d)
 	c.translateAllocationCoords(allocations, width, height)
 	// move in reverse so as to approximate right->left order so neighbors make sense
 	for i := len(allocations) - 1; i >= 0; i-- {

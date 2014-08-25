@@ -51,7 +51,8 @@ func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
 	if spaced {
 		d.xmargin = macXMargin
-		d.ymargin = macYMargin
+		d.ymargintop = macYMargin
+		d.ymarginbottom = d.ymargintop
 		d.xpadding = macXPadding
 		d.ypadding = macYPadding
 	}
