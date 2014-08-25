@@ -116,7 +116,8 @@ void textfieldSetAndShowInvalidBalloonTip(HWND hwnd, WCHAR *text)
 	ti.ttiIcon = TTI_ERROR;
 	if (SendMessageW(hwnd, EM_SHOWBALLOONTIP, 0, (LPARAM) (&ti)) == FALSE)
 		xpanic("error showing TextField.Invalid() balloon tip", GetLastError());
-	MessageBeep(0xFFFFFFFF);		// TODO can this return an error?
+	if (MessageBeep(0xFFFFFFFF) == 0)
+		xpanic("error beeping in response to TextField.Invalid()", GetLastError());
 }
 
 void textfieldHideInvalidBalloonTip(HWND hwnd)
