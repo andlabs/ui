@@ -44,3 +44,14 @@ func getWindowText(hwnd C.HWND) string {
 		C.LPWSTR(unsafe.Pointer(&buf[0])))
 	return syscall.UTF16ToString(buf)
 }
+
+func wstrToString(wstr *C.WCHAR) string {
+	n := C.wcslen((*C.wchar_t)(unsafe.Pointer(wstr)))
+	xbuf := &reflect.SliceHeader{
+		Data:	uintptr(unsafe.Pointer(wstr)),
+		Len:		int(n + 1),
+		Cap:		int(n + 1),
+	}
+	buf := (*[]uint16)(unsafe.Pointer(xbuf))
+	return syscall.UTF16ToString(*buf)
+}
