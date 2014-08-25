@@ -38,6 +38,7 @@ enum {
 	msgEndModal,
 	msgAreaKeyDown,
 	msgAreaKeyUp,
+	msgTableMakeInitialImageList,
 };
 
 // uitask_windows.c
@@ -115,7 +116,6 @@ extern void tableAppendColumn(HWND, int, LPWSTR);
 extern void tableUpdate(HWND, int);
 extern void tableAddExtendedStyles(HWND, LPARAM);
 extern void tableAutosizeColumns(HWND, int);
-extern void tableSetCheckboxImageList(HWND);
 extern intptr_t tableSelectedItem(HWND);
 extern void tableSelectItem(HWND, intptr_t);
 

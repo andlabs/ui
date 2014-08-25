@@ -39,7 +39,8 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
 	C.tableAddExtendedStyles(t._hwnd, C.LVS_EX_FULLROWSELECT | C.LVS_EX_SUBITEMIMAGES)
-	C.tableSetCheckboxImageList(t._hwnd)
+	// this must come after the subclass because it uses one of our private messages
+	C.SendMessageW(t._hwnd, C.msgTableMakeInitialImageList, 0, 0)
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t._hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
