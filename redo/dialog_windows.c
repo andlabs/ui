@@ -42,7 +42,6 @@ WCHAR *openFile(void)
 	ofn.lpfnHook = openSaveFileHook;
 	SendMessageW(msgwin, msgBeginModal, 0, 0);
 	if (GetOpenFileNameW(&ofn) == FALSE) {
-		// TODO stringify
 		err = CommDlgExtendedError();
 		if (err == 0)				// user cancelled
 			return NULL;
