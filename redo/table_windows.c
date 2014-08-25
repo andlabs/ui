@@ -33,12 +33,13 @@ struct tableData {
 
 static void tableSetCheckboxImageList(HWND hwnd, struct tableData *t)
 {
-	HIMAGELIST checkboxImageList;
+	HIMAGELIST old;
 
-	checkboxImageList = makeCheckboxImageList(hwnd);
-	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) (checkboxImageList)) == (LRESULT) NULL)
+	old = t->checkboxImageList;
+	t->checkboxImageList = makeCheckboxImageList(hwnd);
+	if (SendMessageW(hwnd, LVM_SETIMAGELIST, LVSIL_STATE, (LPARAM) (t->checkboxImageList)) == (LRESULT) NULL)
 ;//TODO		xpanic("error setting image list", GetLastError());
-	// TODO free old one here if any/different
+	// TODO free old one here if any
 	// thanks to Jonathan Potter (http://stackoverflow.com/questions/25354448/why-do-my-owner-data-list-view-state-images-come-up-as-blank-on-windows-xp)
 	if (SendMessageW(hwnd, LVM_SETCALLBACKMASK, LVIS_STATEIMAGEMASK, 0) == FALSE)
 		xpanic("error marking state image list as application-managed", GetLastError());
@@ -88,6 +89,9 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	case msgTableMakeInitialImageList:
 		tableSetCheckboxImageList(hwnd, t);
 		return 0;
+	case WM_THEMECHANGED:
+		tableSetCheckboxImageList(hwnd, t);
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	// see table.autoresize() in table_windows.go for the column autosize policy
 	case WM_NOTIFY:		// from the contained header control
 		if (nmhdr->code == HDN_BEGINTRACK)
