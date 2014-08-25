@@ -81,7 +81,9 @@ func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*
 }
 
 func (t *textfield) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(t, d)
+	_, height = basepreferredSize(t, d)
+	// the returned width is based on the contents; use this instead
+	return C.textfieldWidth, height
 }
 
 func (t *textfield) commitResize(a *allocation, d *sizing) {

@@ -58,6 +58,7 @@ extern id windowContentView(id);
 extern void windowRedraw(id);
 
 /* basicctrls_darwin.m */
+#define textfieldWidth (96)		/* according to Interface Builder */
 extern id newButton(void);
 extern void buttonSetDelegate(id, void *);
 extern const char *buttonText(id);

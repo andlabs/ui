@@ -225,9 +225,9 @@ void areaTextFieldOpen(id area, id textfield, intptr_t x, intptr_t y)
 	goAreaView *a = (goAreaView *) area;
 	NSTextField *tf = toNSTextField(textfield);
 
+	// see TextField.preferredSize() in textfield_darwin.go
 	[tf sizeToFit];
-	// TODO
-	[tf setFrameSize:NSMakeSize(150, [tf frame].size.height)];
+	[tf setFrameSize:NSMakeSize(textfieldWidth, [tf frame].size.height)];
 	[tf setFrameOrigin:NSMakePoint((CGFloat) x, (CGFloat) y)];
 	[tf setHidden:NO];
 	[[tf window] makeFirstResponder:tf];
