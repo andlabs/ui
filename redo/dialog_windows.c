@@ -8,6 +8,7 @@ static LRESULT CALLBACK dialogSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	switch (uMsg) {
 	case WM_COMMAND:
 		// we must re-enable other windows in the right order (see http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx)
+		// see http://stackoverflow.com/questions/25494914/is-there-something-like-cdn-filecancel-analogous-to-cdn-fileok-for-getting-when
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDCANCEL)
 				SendMessageW(msgwin, msgEndModal, 0, 0);
 		break;		// let the dialog handle it now

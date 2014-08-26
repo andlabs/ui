@@ -111,7 +111,7 @@ void textfieldSetAndShowInvalidBalloonTip(HWND hwnd, WCHAR *text)
 
 	ZeroMemory(&ti, sizeof (EDITBALLOONTIP));
 	ti.cbStruct = sizeof (EDITBALLOONTIP);
-	ti.pszTitle = L"Invalid Input";		// TODO verify
+	ti.pszTitle = L"Invalid Input";		// TODO this is necessary for the icon to show up; figure out some language-neutral thing
 	ti.pszText = text;
 	ti.ttiIcon = TTI_ERROR;
 	if (SendMessageW(hwnd, EM_SHOWBALLOONTIP, 0, (LPARAM) (&ti)) == FALSE)

@@ -374,21 +374,21 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		areaMouseEvent(hwnd, data, 1, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		SetFocus(hwnd);		// TODO correct?
+		SetFocus(hwnd);
 		areaMouseEvent(hwnd, data, 2, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_MBUTTONUP:
 		areaMouseEvent(hwnd, data, 2, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		SetFocus(hwnd);		// TODO correct?
+		SetFocus(hwnd);
 		areaMouseEvent(hwnd, data, 3, FALSE, heldButtons, lParam);
 		return 0;
 	case WM_RBUTTONUP:
 		areaMouseEvent(hwnd, data, 3, TRUE, heldButtons, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
-		SetFocus(hwnd);		// TODO correct?
+		SetFocus(hwnd);
 		// values start at 1; we want them to start at 4
 		which = (DWORD) GET_XBUTTON_WPARAM(wParam) + 3;
 		heldButtons = (uintptr_t) GET_KEYSTATE_WPARAM(wParam);
