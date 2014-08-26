@@ -3,17 +3,40 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
+static LRESULT CALLBACK dialogSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	switch (uMsg) {
+	case WM_COMMAND:
+		// we must re-enable other windows in the right order (see http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx)
+		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDCANCEL)
+				SendMessageW(msgwin, msgEndModal, 0, 0);
+		break;		// let the dialog handle it now
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, dialogSubProc, id) == FALSE)
+			xpanic("error removing dialog subclass (which was for its own event handler)", GetLastError());
+	}
+	return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+}
+
 // this should be reasonable
 #define NFILENAME 4096
 
 static UINT_PTR CALLBACK openSaveFileHook(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	// the hook procedure is documented as being the dialog procedure for a special child dialog box, not the main one
-	// as such, the WM_DESTROY here is for that child dialog box, not for the main one
-	// I /think/ this would be perfect for re-enabling other windows in the right order (see http://blogs.msdn.com/b/oldnewthing/archive/2004/02/27/81155.aspx)
-	// TODO THIS DOES NOT WORK
-	if (uMsg == WM_DESTROY)
-		SendMessageW(msgwin, msgEndModal, 0, 0);
+	if (uMsg == WM_INITDIALOG) {
+		HWND parent;
+
+		parent = GetParent(hwnd);
+		if (parent == NULL)
+			xpanic("error gettign parent of OpenFile() dialog for event handling", GetLastError());
+		if ((*fv_SetWindowSubclass)(parent, dialogSubProc, 0, (DWORD_PTR) NULL) == FALSE)
+			xpanic("error subclassing OpenFile() dialog to give it its own event handler", GetLastError());
+	} else if (uMsg == WM_NOTIFY) {
+		OFNOTIFY *of = (OFNOTIFY *) lParam;
+
+		if (of->hdr.code == CDN_FILEOK)
+			SendMessageW(msgwin, msgEndModal, 0, 0);
+	}
 	return 0;
 }
 
