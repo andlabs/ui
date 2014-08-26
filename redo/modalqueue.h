@@ -6,3 +6,4 @@ extern int queueIfModal(void *);
 
 /* needed by the above */
 extern void doissue(void *);
+extern void modalPanic(char *, char *);

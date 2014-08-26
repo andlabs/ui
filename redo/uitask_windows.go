@@ -68,3 +68,8 @@ func makemsgwin() error {
 func doissue(fp unsafe.Pointer) {
 	perform(fp)
 }
+
+//export modalPanic
+func modalPanic(reason *C.char, strerror *C.char) {
+	panic(fmt.Errorf("%s: %s", C.GoString(reason), C.GoString(strerror)))
+}

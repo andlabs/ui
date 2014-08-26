@@ -1,6 +1,8 @@
 // 19 august 2014
 
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 #include "modalqueue.h"
 
 static struct {
@@ -17,7 +19,7 @@ void beginModal(void)
 		mq.cap = 128;
 		mq.queue = (void **) malloc(mq.cap * sizeof (void *));
 		if (mq.queue == NULL)
-			abort();//TODO
+			modalPanic("error allocating modal queue", strerror(errno));
 		mq.len = 0;
 	}
 }
@@ -42,7 +44,7 @@ int queueIfModal(void *what)
 		mq.cap *= 2;
 		mq.queue = (void **) realloc(mq.queue, mq.cap * sizeof (void *));
 		if (mq.queue == NULL)
-			abort();//TODO
+			modalPanic("error growing modal queue", strerror(errno));
 	}
 	return 1;
 }
