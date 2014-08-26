@@ -9,7 +9,6 @@ import (
 )
 
 // #include "gtk_unix.h"
-// #include "modalqueue.h"
 // extern void our_openfile_response_callback(GtkDialog *, gint, gpointer);
 // /* because cgo doesn't like ... */
 // static inline GtkWidget *newOpenFileDialog(GtkWindow *parent)

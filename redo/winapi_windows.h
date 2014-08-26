@@ -34,8 +34,6 @@ enum {
 	msgAreaRepaint,
 	msgAreaRepaintAll,
 	msgTabCurrentTabHasChildren,
-	msgBeginModal,
-	msgEndModal,
 	msgAreaKeyDown,
 	msgAreaKeyUp,
 	msgLoadImageList,

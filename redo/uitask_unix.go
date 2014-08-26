@@ -12,7 +12,6 @@ import (
 // #cgo pkg-config: gtk+-3.0
 // #cgo CFLAGS: --std=c99
 // #include "gtk_unix.h"
-// #include "modalqueue.h"
 // extern gboolean xdoissue(gpointer data);
 import "C"
 
@@ -37,9 +36,7 @@ func uistop() {
 }
 
 func issue(f *func()) {
-	if C.queueIfModal(unsafe.Pointer(f)) == 0 {
-		C.gdk_threads_add_idle(C.GSourceFunc(C.xdoissue), C.gpointer(unsafe.Pointer(f)))
-	}
+	C.gdk_threads_add_idle(C.GSourceFunc(C.xdoissue), C.gpointer(unsafe.Pointer(f)))
 }
 
 //export xdoissue
@@ -52,9 +49,4 @@ func xdoissue(data C.gpointer) C.gboolean {
 func doissue(data unsafe.Pointer) {
 	// for the modal queue functions
 	perform(data)
-}
-
-//export modalPanic
-func modalPanic(reason *C.char, strerror *C.char) {
-	panic(fmt.Errorf("%s: %s", C.GoString(reason), C.GoString(strerror)))
 }

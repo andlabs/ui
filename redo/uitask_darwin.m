@@ -2,7 +2,6 @@
 
 #import "objc_darwin.h"
 #import "_cgo_export.h"
-#import "modalqueue.h"
 #import <Cocoa/Cocoa.h>
 
 #define toNSWindow(x) ((NSWindow *) (x))
@@ -130,13 +129,9 @@ void uistop(void)
 	[NSApp postEvent:e atStart:NO];		// let pending events take priority
 }
 
-// we use the modal queue because dispatch_suspend()/dispatch_resume() can't be used with the main queue
-
 // thanks to mikeash in irc.freenode.net/#macdev for suggesting the use of Grand Central Dispatch and blocks for this
 void issue(void *what)
 {
-	if (queueIfModal(what))
-		return;
 	dispatch_async(dispatch_get_main_queue(), ^{
 		doissue(what);
 	});

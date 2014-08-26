@@ -2,7 +2,6 @@
 
 #include "winapi_windows.h"
 #include "_cgo_export.h"
-#include "modalqueue.h"
 
 // note that this includes the terminating '\0'
 // this also assumes WC_TABCONTROL is longer than areaWindowClass
@@ -117,13 +116,6 @@ HWND msgwin;
 
 #define msgwinclass L"gouimsgwin"
 
-static BOOL CALLBACK beginEndModalAll(HWND hwnd, LPARAM lParam)
-{
-	if (hwnd != msgwin)
-		SendMessageW(hwnd, (UINT) lParam, 0, 0);
-	return TRUE;
-}
-
 static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT shared;
@@ -133,18 +125,7 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return shared;
 	switch (uMsg) {
 	case msgRequest:
-		// in modal?
-		if (!queueIfModal((void *) lParam))
-			// nope, we can run now
-			doissue((void *) lParam);
-		return 0;
-	case msgBeginModal:
-		beginModal();
-		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgBeginModal);
-		return 0;
-	case msgEndModal:
-		endModal();
-		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgEndModal);
+		doissue((void *) lParam);
 		return 0;
 	case msgOpenFileDone:
 		finishOpenFile((WCHAR *) wParam, (void *) lParam);

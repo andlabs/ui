@@ -17,12 +17,6 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
-	case msgBeginModal:
-		windowBeginModal(data);
-		return 0;
-	case msgEndModal:
-		windowEndModal(data);
-		return 0;
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
