@@ -72,6 +72,7 @@ windows
 	- extra space on first column of all Tables on real Windows
 	- labels draw over themselves
 	- fine-tune Table checkbox behavior (especially with regards to selection)
+	- open dialog, resize small window, hscroll size area, double click file -> stack points in no man's land (yay attached threads?)
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
