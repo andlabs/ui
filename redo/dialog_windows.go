@@ -9,11 +9,17 @@ import (
 // #include "winapi_windows.h"
 import "C"
 
-func openFile() string {
-	name := C.openFile()
+func (w *window) openFile(f func(filename string)) {
+	C.openFile(w.hwnd, unsafe.Pointer(&f))
+}
+
+//export finishOpenFile
+func finishOpenFile(name *C.WCHAR, fp unsafe.Pointer) {
+	f := (*func(string))(fp)
 	if name == nil {
-		return ""
+		(*f)("")
+		return
 	}
 	defer C.free(unsafe.Pointer(name))
-	return wstrToString(name)
+	(*f)(wstrToString(name))
 }

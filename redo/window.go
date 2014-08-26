@@ -25,6 +25,8 @@ type Window interface {
 	// If this handler returns true, the Window is closed as defined by Close above.
 	// If this handler returns false, the Window is not closed.
 	OnClosing(func() bool)
+
+	windowDialog
 }
 
 // NewWindow creates a new Window with the given title text, size, and control.

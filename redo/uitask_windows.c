@@ -146,6 +146,9 @@ static LRESULT CALLBACK msgwinproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		endModal();
 		EnumThreadWindows(GetCurrentThreadId(), beginEndModalAll, msgEndModal);
 		return 0;
+	case msgOpenFileDone:
+		finishOpenFile((WCHAR *) wParam, (void *) lParam);
+		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}

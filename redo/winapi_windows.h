@@ -40,6 +40,7 @@ enum {
 	msgAreaKeyUp,
 	msgLoadImageList,
 	msgTableMakeInitialCheckboxImageList,
+	msgOpenFileDone,
 };
 
 // uitask_windows.c
@@ -149,6 +150,6 @@ enum {
 extern HIMAGELIST makeCheckboxImageList(HWND, HTHEME *);
 
 // dialog_windows.c
-extern WCHAR *openFile(void);
+extern void openFile(HWND, void *);
 
 #endif

@@ -75,6 +75,13 @@ func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
 func (a *areaHandler) Key(ke KeyEvent) bool { fmt.Printf("%#v %q\n", ke, ke.Key); return a.handled }
 
+func (tw *testwin) openFile(fn string) {
+	if fn == "" {
+		fn = "<no file selected>"
+	}
+	tw.fnlabel.SetText(fn)
+}
+
 func (tw *testwin) addfe() {
 	tw.festart = NewButton("Start")
 	tw.festart.OnClicked(func() {
@@ -106,11 +113,7 @@ func (tw *testwin) addfe() {
 	})
 	tw.openbtn = NewButton("Open")
 	tw.openbtn.OnClicked(func() {
-		fn := OpenFile()
-		if fn == "" {
-			fn = "<no file selected>"
-		}
-		tw.fnlabel.SetText(fn)
+		OpenFile(tw.w, tw.openFile)
 	})
 	tw.fnlabel = NewStandaloneLabel("<no file selected>")
 	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop,
