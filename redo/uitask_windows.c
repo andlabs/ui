@@ -29,10 +29,9 @@ void uimsgloop_area(HWND active, HWND focus, MSG *msg)
 	// don't call TranslateMessage(); we do our own keyboard handling
 	if (DispatchMessage(&copy) != FALSE)
 		return;
-	// TODO move this under notkey?
+notkey:
 	if (IsDialogMessage(active, msg) != 0)
 		return;
-notkey:
 	DispatchMessage(msg);
 }
 
