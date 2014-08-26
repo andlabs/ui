@@ -3,10 +3,11 @@
 #import "objc_darwin.h"
 #import <Cocoa/Cocoa.h>
 
-char *openFile(void)
+#define toNSWindow(x) ((NSWindow *) (x))
+
+void openFile(id parent, void *data)
 {
 	NSOpenPanel *op;
-	NSInteger ret;
 
 	op = [NSOpenPanel openPanel];
 	[op setCanChooseFiles:YES];
@@ -18,11 +19,12 @@ char *openFile(void)
 	[op setExtensionHidden:NO];
 	[op setAllowsOtherFileTypes:YES];
 	[op setTreatsFilePackagesAsDirectories:YES];
-	beginModal();
-	ret = [op runModal];
-	endModal();
-	if (ret != NSFileHandlingPanelOKButton)
-		return NULL;
-	// string freed on the Go side
-	return strdup([[[op URL] path] UTF8String]);
+	[op beginSheetModalForWindow:toNSWindow(parent) completionHandler:^(NSInteger ret){
+		if (ret != NSFileHandlingPanelOKButton) {
+			finishOpenFile(NULL, data);
+			return;
+		}
+		// string freed on the Go side
+		finishOpenFile(strdup([[[op URL] path] UTF8String]), data);
+	}];
 }

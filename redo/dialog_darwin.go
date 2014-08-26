@@ -9,11 +9,17 @@ import (
 // #include "objc_darwin.h"
 import "C"
 
-func openFile() string {
-	fname := C.openFile()
+func (w *window) openFile(f func(filename string)) {
+	C.openFile(w.id, unsafe.Pointer(&f))
+}
+
+//export finishOpenFile
+func finishOpenFile(fname *C.char, data unsafe.Pointer) {
+	f := (*func(string))(data)
 	if fname == nil {
-		return ""
+		(*f)("")
+		return
 	}
 	defer C.free(unsafe.Pointer(fname))
-	return C.GoString(fname)
+	(*f)(C.GoString(fname))
 }
