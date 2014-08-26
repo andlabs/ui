@@ -18,6 +18,8 @@ type window struct {
 	bin		*C.GtkBin
 	window	*C.GtkWindow
 
+	group	*C.GtkWindowGroup
+
 	closing	*event
 
 	*container
@@ -43,6 +45,9 @@ func newWindow(title string, width int, height int, control Control) *window {
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
 	w.container = newContainer(control)
 	w.container.setParent(&controlParent{w.wc})
+	// for dialogs; otherwise, they will be modal to all windows, not just this one
+	w.group = C.gtk_window_group_new()
+	C.gtk_window_group_add_window(w.group, w.window)
 	return w
 }
 
