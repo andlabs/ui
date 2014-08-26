@@ -12,6 +12,7 @@ type windowDialog interface {
 // filename is the selected filename, or an empty string if no file was chosen.
 // OpenFile does not ensure that f remains alive; the programmer is responsible for this.
 // If possible on a given system, OpenFile() will not dereference links; it will return the link file itself.
+// Hidden files will not be hidden by OpenFile().
 func OpenFile(win Window, f func(filename string)) {
 	if win == nil {
 		panic("Window passed to OpenFile() cannot be nil")
