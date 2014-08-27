@@ -168,46 +168,11 @@ void textFieldSetText(id t, char *text)
 
 id textfieldOpenInvalidPopover(id textfield, char *reason)
 {
-	// step 1: set up the display
-	NSTextField *label;
-	NSTextAttachmentCell *cell;
-	NSTextAttachment *attachment;
-	NSAttributedString *strImage;
-	NSAttributedString *strText;
-	NSFont *font;
-	NSMutableAttributedString *str;
-
-	// method thanks to Anne in http://stackoverflow.com/a/5303517/3408572
-	// TODO improve appearance
-	label = toNSTextField(newLabel());
-	cell = [[NSTextAttachmentCell alloc] initImageCell:[NSImage imageNamed:NSImageNameCaution]];
-	attachment = [NSTextAttachment new];
-	[attachment setAttachmentCell:cell];
-	strImage = [NSAttributedString attributedStringWithAttachment:attachment];
-	font = [NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]];
-	strText = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:reason] attributes:[[font fontDescriptor] fontAttributes]];
-	str = [[NSMutableAttributedString alloc] initWithAttributedString:strImage];
-	[str appendAttributedString:strText];
-	[label setAttributedStringValue:str];
-
-	// step 2: set up the popover
 	NSPopover *popover;
-	NSViewController *vc;
 
-	vc = [NSViewController new];
-	[vc setView:label];
-	popover = [NSPopover new];
-	[popover setContentViewController:vc];
-	[label sizeToFit];
-	[popover setContentSize:[label frame].size];
-
-	// step 3: show the popover
-	// NSMaxYEdge is the bottom edge when looking (maximum edge in window coordinates)
+	popover = (NSPopover *) newWarningPopover(reason);
 	[popover showRelativeToRect:NSZeroRect ofView:toNSView(textfield) preferredEdge:NSMaxYEdge];
-
-	// and beep
 	NSBeep();
-
 	return (id) popover;
 }
 

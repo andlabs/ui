@@ -143,4 +143,7 @@ extern id toImageListImage(void *, intptr_t, intptr_t, intptr_t);
 /* dialog_darwin.m */
 extern void openFile(id, void *);
 
+/* warningpopover_darwin.m */
+extern id newWarningPopover(char *);
+
 #endif
