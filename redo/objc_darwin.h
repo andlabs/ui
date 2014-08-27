@@ -145,5 +145,6 @@ extern void openFile(id, void *);
 
 /* warningpopover_darwin.m */
 extern id newWarningPopover(char *);
+extern void warningPopoverShow(id, id);
 
 #endif

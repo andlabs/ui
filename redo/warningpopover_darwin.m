@@ -3,6 +3,48 @@
 #include "objc_darwin.h"
 #include <Cocoa/Cocoa.h>
 
+// We would be able to just use plain old NSPopover here, but alas that steals focus.
+// NSPopovers are intended for interactive content, and Apple seems to be diligent in enforcing this rule, as the known techniques for preventing a NSPopover from stealing focus no longer work in 10.9.
+// Let's just fake it with a window.
+
+// TODO
+// - doesn't get hidden properly when asked to order out
+// - doesn't get hidden when changing first responders
+// - doesn't get hidden when switching between programs/shown again
+// - doesn't animate or have a transparent background; probably should
+
+@interface goWarningPopover : NSWindow
+@end
+
+@implementation goWarningPopover
+
+- (id)init
+{
+	self = [super initWithContentRect:NSZeroRect
+		styleMask:NSBorderlessWindowMask
+		backing:NSBackingStoreBuffered
+		defer:YES];
+	[self setOpaque:NO];
+//	[self setAlphaValue:0.1];
+	[self setHasShadow:YES];
+	[self setExcludedFromWindowsMenu:YES];
+	[self setMovableByWindowBackground:NO];
+	[self setLevel:NSPopUpMenuWindowLevel];
+	return self;
+}
+
+- (BOOL)canBecomeKeyWindow
+{
+	return NO;
+}
+
+- (BOOL)canBecomeMainWindow
+{
+	return NO;
+}
+
+@end
+
 @interface goWarningView : NSView {
 @public
 	NSImageView *icon;
@@ -65,14 +107,24 @@ id newWarningPopover(char *text)
 	[wv addSubview:wv->label];
 	[wv sizeToFitAndArrange];
 
-	NSPopover *popover;
-	NSViewController *vc;
+	goWarningPopover *popover;
 
-	vc = [NSViewController new];
-	[vc setView:wv];
-	popover = [NSPopover new];
-	[popover setContentViewController:vc];
+	popover = [[goWarningPopover alloc] init];		// explicitly use our initializer
+	[[popover contentView] addSubview:wv];
 	[popover setContentSize:[wv frame].size];
 
 	return (id) popover;
+}
+
+void warningPopoverShow(id popover, id control)
+{
+	goWarningPopover *p = (goWarningPopover *) popover;
+	NSView *v = (NSView *) control;
+	NSRect vr;
+	NSPoint vo;
+
+	vr = [v convertRect:[v frame] toView:nil];
+	vo = [[v window] convertRectToScreen:vr].origin;
+	[p setFrameOrigin:NSMakePoint(vo.x, vo.y - [p frame].size.height)];
+	[p orderFront:p];
 }

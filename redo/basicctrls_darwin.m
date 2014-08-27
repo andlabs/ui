@@ -7,7 +7,7 @@
 #define toNSButton(x) ((NSButton *) (x))
 #define toNSTextField(x) ((NSTextField *) (x))
 #define toNSView(x) ((NSView *) (x))
-#define toNSPopover(x) ((NSPopover *) (x))
+#define toNSWindow(x) ((NSWindow *) (x))
 #define toNSBox(x) ((NSBox *) (x))
 
 @interface goControlDelegate : NSObject <NSTextFieldDelegate> {
@@ -168,18 +168,18 @@ void textFieldSetText(id t, char *text)
 
 id textfieldOpenInvalidPopover(id textfield, char *reason)
 {
-	NSPopover *popover;
+	id popover;
 
-	popover = (NSPopover *) newWarningPopover(reason);
-	[popover showRelativeToRect:NSZeroRect ofView:toNSView(textfield) preferredEdge:NSMaxYEdge];
+	popover = newWarningPopover(reason);
+	warningPopoverShow(popover, textfield);
 	NSBeep();
 	return (id) popover;
 }
 
 void textfieldCloseInvalidPopover(id popover)
 {
-	[toNSPopover(popover) close];
-	[toNSPopover(popover) release];
+	[toNSWindow(popover) orderOut:toNSWindow(popover)];
+	[toNSWindow(popover) release];
 }
 
 id newLabel(void)
