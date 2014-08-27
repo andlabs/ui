@@ -25,7 +25,7 @@ static DWORD WINAPI doOpenFile(LPVOID data)
 	ofn.hInstance = hInstance;
 	ofn.lpstrFilter = NULL;			// no filters
 	ofn.lpstrFile = o->filenameBuffer;
-	ofn.nMaxFile = NFILENAME + 1;	// TODO include + 1?
+	ofn.nMaxFile = NFILENAME + 1;	// seems to include null terminator according to docs
 	ofn.lpstrInitialDir = NULL;			// let system decide
 	ofn.lpstrTitle = NULL;			// let system decide
 	// TODO OFN_SHAREAWARE?
