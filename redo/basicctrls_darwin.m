@@ -178,8 +178,8 @@ id textfieldOpenInvalidPopover(id textfield, char *reason)
 
 void textfieldCloseInvalidPopover(id popover)
 {
-	[toNSWindow(popover) orderOut:toNSWindow(popover)];
-	[toNSWindow(popover) release];
+	[toNSWindow(popover) close];
+	// don't release; close does that already
 }
 
 id newLabel(void)

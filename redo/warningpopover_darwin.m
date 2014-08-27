@@ -7,13 +7,11 @@
 // NSPopovers are intended for interactive content, and Apple seems to be diligent in enforcing this rule, as the known techniques for preventing a NSPopover from stealing focus no longer work in 10.9.
 // Let's just fake it with a window.
 
-// TODO
-// - doesn't get hidden properly when asked to order out
-// - doesn't get hidden when changing first responders
-// - doesn't get hidden when switching between programs/shown again
-// - doesn't animate or have a transparent background; probably should
-
-@interface goWarningPopover : NSWindow
+@interface goWarningPopover : NSWindow {
+@public
+	id onBegin;
+	id onEnd;
+}
 @end
 
 @implementation goWarningPopover
@@ -30,7 +28,24 @@
 	[self setExcludedFromWindowsMenu:YES];
 	[self setMovableByWindowBackground:NO];
 	[self setLevel:NSPopUpMenuWindowLevel];
+	[self setHidesOnDeactivate:YES];
+	self->onBegin = nil;
+	self->onEnd = nil;
 	return self;
+}
+
+- (void)close
+{
+	NSLog(@"disposing");
+	if (self->onBegin != nil) {
+		[[NSNotificationCenter defaultCenter] removeObserver:self->onBegin];
+		self->onBegin = nil;
+	}
+	if (self->onEnd != nil) {
+		[[NSNotificationCenter defaultCenter] removeObserver:self->onEnd];
+		self->onEnd = nil;
+	}
+	[super close];
 }
 
 - (BOOL)canBecomeKeyWindow
@@ -122,8 +137,24 @@ void warningPopoverShow(id popover, id control)
 	NSRect vr;
 	NSPoint vo;
 
-	vr = [v convertRect:[v frame] toView:nil];
+	// note that the frame is a rect of the superview
+	vr = [[v superview] convertRect:[v frame] toView:nil];
 	vo = [[v window] convertRectToScreen:vr].origin;
 	[p setFrameOrigin:NSMakePoint(vo.x, vo.y - [p frame].size.height)];
 	[p orderFront:p];
+
+	// auto-show/hide when control gains/loses focus
+	// TODO this notification is only sent when a character is pressed
+	p->onBegin = [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidBeginEditingNotification
+		object:v
+		queue:nil
+		usingBlock:^(NSNotification *note){
+			[p orderFront:p];
+		}];
+	p->onEnd = [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidEndEditingNotification
+		object:v
+		queue:nil
+		usingBlock:^(NSNotification *note){
+			[p orderOut:p];
+		}];
 }
