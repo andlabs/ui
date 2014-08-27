@@ -99,8 +99,7 @@ id newWarningPopover(char *text)
 	[wv->icon setRefusesFirstResponder:YES];
 
 	wv->label = (NSTextField *) newLabel();
-	// TODO rename to textfieldSetText
-	textFieldSetText((id) wv->label, text);
+	textfieldSetText((id) wv->label, text);
 	[wv->label setRefusesFirstResponder:YES];
 
 	[wv addSubview:wv->icon];

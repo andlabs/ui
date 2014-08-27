@@ -32,13 +32,13 @@ func newStandaloneLabel(text string) Label {
 }
 
 func (l *label) Text() string {
-	return C.GoString(C.textFieldText(l._id))
+	return C.GoString(C.textfieldText(l._id))
 }
 
 func (l *label) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textFieldSetText(l._id, ctext)
+	C.textfieldSetText(l._id, ctext)
 }
 
 func (l *label) isStandalone() bool {

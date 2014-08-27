@@ -155,13 +155,13 @@ void textfieldSetDelegate(id textfield, void *t)
 }
 
 // also good for labels
-const char *textFieldText(id t)
+const char *textfieldText(id t)
 {
 	return [[toNSTextField(t) stringValue] UTF8String];
 }
 
 // also good for labels
-void textFieldSetText(id t, char *text)
+void textfieldSetText(id t, char *text)
 {
 	[toNSTextField(t) setStringValue:[NSString stringWithUTF8String:text]];
 }

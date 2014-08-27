@@ -33,13 +33,13 @@ func newPasswordField() *textfield {
 }
 
 func (t *textfield) Text() string {
-	return C.GoString(C.textFieldText(t._id))
+	return C.GoString(C.textfieldText(t._id))
 }
 
 func (t *textfield) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textFieldSetText(t._id, ctext)
+	C.textfieldSetText(t._id, ctext)
 }
 
 func (t *textfield) OnChanged(f func()) {

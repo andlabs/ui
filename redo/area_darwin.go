@@ -67,13 +67,13 @@ func (a *area) OpenTextFieldAt(x, y int) {
 }
 
 func (a *area) TextFieldText() string {
-	return C.GoString(C.textFieldText(a.textfield))
+	return C.GoString(C.textfieldText(a.textfield))
 }
 
 func (a *area) SetTextFieldText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textFieldSetText(a.textfield, ctext)
+	C.textfieldSetText(a.textfield, ctext)
 }
 
 func (a *area) OnTextFieldDismissed(f func()) {
