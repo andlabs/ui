@@ -6,11 +6,10 @@
 // provided for cgo's benefit
 LPWSTR xWC_LISTVIEW = WC_LISTVIEW;
 
-static void handle(HWND hwnd, WPARAM wParam, LPARAM lParam, void (*handler)(void *, int, int), void *data)
+static void handle(HWND hwnd, LPARAM lParam, void (*handler)(void *, int, int), void *data)
 {
 	LVHITTESTINFO ht;
 
-	// TODO use wParam
 	ZeroMemory(&ht, sizeof (LVHITTESTINFO));
 	ht.pt.x = GET_X_LPARAM(lParam);
 	ht.pt.y = GET_Y_LPARAM(lParam);
@@ -77,16 +76,16 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSEMOVE:
-		handle(hwnd, wParam, lParam, tableSetHot, t->gotable);
+		handle(hwnd, lParam, tableSetHot, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:			// listviews have CS_DBLCICKS; check this to better mimic the behavior of a real checkbox
-		handle(hwnd, wParam, lParam, tablePushed, t->gotable);
+		handle(hwnd, lParam, tablePushed, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_LBUTTONUP:
-		handle(hwnd, wParam, lParam, tableToggled, t->gotable);
+		handle(hwnd, lParam, tableToggled, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_MOUSELEAVE:
