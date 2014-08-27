@@ -110,7 +110,6 @@ id newWarningPopover(char *text)
 	[wv->icon setEditable:NO];
 	[wv->icon setAnimates:NO];
 	[wv->icon setAllowsCutCopyPaste:NO];
-	// TODO check other controls's values for this
 	[wv->icon setRefusesFirstResponder:YES];
 
 	wv->label = (NSTextField *) newLabel();
