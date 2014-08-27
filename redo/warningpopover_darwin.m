@@ -23,7 +23,6 @@
 		backing:NSBackingStoreBuffered
 		defer:YES];
 	[self setOpaque:NO];
-//	[self setAlphaValue:0.1];
 	[self setHasShadow:YES];
 	[self setExcludedFromWindowsMenu:YES];
 	[self setMovableByWindowBackground:NO];
@@ -103,9 +102,8 @@ id newWarningPopover(char *text)
 
 	wv->icon = [[NSImageView alloc] initWithFrame:NSZeroRect];
 	[wv->icon setImage:[NSImage imageNamed:NSImageNameCaution]];
-	// TODO verify against Interface Builder
 	[wv->icon setImageFrameStyle:NSImageFrameNone];
-//	[wv->icon setImageAlignment:xxx];
+	[wv->icon setImageAlignment:NSImageAlignCenter];
 	[wv->icon setImageScaling:NSImageScaleProportionallyUpOrDown];
 	[wv->icon setEditable:NO];
 	[wv->icon setAnimates:NO];
