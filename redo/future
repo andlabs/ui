@@ -65,6 +65,8 @@ dialog boxes
 
 so I don't forget, some TODOs:
 windows
+	- Area isn't transparent
+		- hard: has to be excluded from scrolling
 	- tab order is backwards
 	- extra space on first column of all Tables on real Windows
 	- fine-tune Table checkbox behavior (especially with regards to selection)
