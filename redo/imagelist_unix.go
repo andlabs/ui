@@ -21,7 +21,8 @@ func newImageList() ImageList {
 	return new(imagelist)
 }
 
-// this seems to be best (TODO see what other programs use)
+// this is what GtkFileChooserWidget uses
+// technically it uses max(width from that, height from that) if the call below fails and 16x16 otherwise, but we won't worry about that here (yet?)
 const scaleTo = C.GTK_ICON_SIZE_MENU
 
 func (i *imagelist) Append(img *image.RGBA) {
