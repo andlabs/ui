@@ -167,6 +167,7 @@ func (tw *testwin) make(done chan struct{}) {
 	})
 	tw.t.Append("Image List Table", tw.icontbl)
 	tw.group2 = NewGroup("Group", NewButton("Button in Group"))
+	tw.t.Append("Empty Group", NewGroup("Group", Space()))
 	tw.t.Append("Filled Group", tw.group2)
 	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))
 	tw.t.Append("Group", tw.group)
