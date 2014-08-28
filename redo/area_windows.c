@@ -42,18 +42,11 @@ static void paintArea(HWND hwnd, void *data)
 	intptr_t dx, dy;
 	int hscroll, vscroll;
 
-	// TRUE here indicates a
-	if (GetUpdateRect(hwnd, &xrect, TRUE) == 0)
+	// FALSE here indicates don't send WM_ERASEBKGND
+	if (GetUpdateRect(hwnd, &xrect, FALSE) == 0)
 		return;		// no update rect; do nothing
 
 	getScrollPos(hwnd, &hscroll, &vscroll);
-
-	i = doPaint(&xrect, hscroll, vscroll, data, &dx, &dy);
-	if (i == NULL)		// cliprect empty
-		return;
-	// don't convert to BRGA just yet; see below
-
-	// TODO don't do the above, but always draw the background color?
 
 	hdc = BeginPaint(hwnd, &ps);
 	if (hdc == NULL)
@@ -81,6 +74,10 @@ static void paintArea(HWND hwnd, void *data)
 	rrect.bottom = xrect.bottom - xrect.top;
 	if (FillRect(rdc, &rrect, areaBackgroundBrush) == 0)
 		xpanic("error filling off-screen rendering bitmap with the system background color", GetLastError());
+
+	i = doPaint(&xrect, hscroll, vscroll, data, &dx, &dy);
+	if (i == NULL)			// cliprect empty
+		goto nobitmap;		// we need to blit the background no matter what
 
 	// now we need to shove realbits into a bitmap
 	// technically bitmaps don't know about alpha; they just ignore the alpha byte
@@ -125,6 +122,15 @@ static void paintArea(HWND hwnd, void *data)
 		blendfunc) == FALSE)
 		xpanic("error alpha-blending image returned by AreaHandler.Paint() onto background", GetLastError());
 
+	// clean up after idc/ibitmap here because of the goto nobitmap
+	if (SelectObject(idc, previbitmap) != ibitmap)
+		xpanic("error reverting HDC for image returned by AreaHandler.Paint() to original HBITMAP", GetLastError());
+	if (DeleteObject(ibitmap) == 0)
+		xpanic("error deleting HBITMAP for image returned by AreaHandler.Paint()", GetLastError());
+	if (DeleteDC(idc) == 0)
+		xpanic("error deleting HDC for image returned by AreaHandler.Paint()", GetLastError());
+
+nobitmap:
 	// and finally we can just blit that into the window
 	if (BitBlt(hdc, xrect.left, xrect.top, xrect.right - xrect.left, xrect.bottom - xrect.top,
 		rdc, 0, 0,			// from the rdc's origin
@@ -132,16 +138,10 @@ static void paintArea(HWND hwnd, void *data)
 		xpanic("error blitting Area image to Area", GetLastError());
 
 	// now to clean up
-	if (SelectObject(idc, previbitmap) != ibitmap)
-		xpanic("error reverting HDC for image returned by AreaHandler.Paint() to original HBITMAP", GetLastError());
 	if (SelectObject(rdc, prevrbitmap) != rbitmap)
 		xpanic("error reverting HDC for off-screen rendering to original HBITMAP", GetLastError());
-	if (DeleteObject(ibitmap) == 0)
-		xpanic("error deleting HBITMAP for image returned by AreaHandler.Paint()", GetLastError());
 	if (DeleteObject(rbitmap) == 0)
 		xpanic("error deleting HBITMAP for off-screen rendering", GetLastError());
-	if (DeleteDC(idc) == 0)
-		xpanic("error deleting HDC for image returned by AreaHandler.Paint()", GetLastError());
 	if (DeleteDC(rdc) == 0)
 		xpanic("error deleting HDC for off-screen rendering", GetLastError());
 
