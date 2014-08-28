@@ -74,6 +74,7 @@ windows
 		- uitask pointer bug again?
 	- tabbing on an empty group infinite loops (same bug as with tabs)
 	- groupbox line behind groupbox text
+	- scrolling edit controls in Areas back into view don't cause redraw
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
