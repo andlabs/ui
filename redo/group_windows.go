@@ -15,7 +15,7 @@ type group struct {
 func newGroup(text string, control Control) Group {
 	hwnd := C.newControl(buttonclass,
 		C.BS_GROUPBOX,
-		0)
+		C.WS_EX_CONTROLPARENT)
 	g := &group{
 		_hwnd:		hwnd,
 		container:		newContainer(control),
