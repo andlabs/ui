@@ -89,10 +89,10 @@ void uimsgloop(void)
 		if (focus != NULL) {
 			if (GetClassNameW(focus, classchk, NCLASSNAME) == 0)
 				xpanic("error getting name of focused window class for Area check", GetLastError());
-			if (wcscmp(classchk, areaWindowClass) == 0) {
+			if (_wcsicmp(classchk, areaWindowClass) == 0) {
 				uimsgloop_area(active, focus, &msg);
 				continue;
-			} else if (wcscmp(classchk, WC_TABCONTROL) == 0) {
+			} else if (_wcsicmp(classchk, WC_TABCONTROL) == 0) {
 				uimsgloop_tab(active, focus, &msg);
 				continue;
 			}
