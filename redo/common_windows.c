@@ -110,15 +110,20 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	RECT r;
 	POINT p;
 	int saved;
+	WCHAR classname[128] = L"";		// more than enough to avoid collisions
 
-	// TODO traverse deeper if a groupbox
 	// TODO implement WM_PRINTCLIENT in window_windows.c
-	parent = GetParent(hwnd);
-	if (parent == NULL)
-		xpanic("error getting parent container of control in paintControlBackground()", GetLastError());
-	parent = GetParent(parent);
-	if (parent == NULL)
-		xpanic("error getting parent control of control in paintControlBackground()", GetLastError());
+	parent = hwnd;
+	do {
+		parent = GetParent(parent);
+		if (parent == NULL)
+			xpanic("error getting parent container of control in paintControlBackground()", GetLastError());
+		parent = GetParent(parent);
+		if (parent == NULL)
+			xpanic("error getting parent control of control in paintControlBackground()", GetLastError());
+		if (GetClassNameW(parent, classname, 128) == 0)
+			xpanic("error getting name of focused window class in paintControlBackground()", GetLastError());
+	} while (_wcsicmp(classname, L"button") == 0);		// skip groupboxes
 	if (GetWindowRect(hwnd, &r) == 0)
 		xpanic("error getting control's window rect in paintControlBackground()", GetLastError());
 	// the above is a window rect; convert to client rect
