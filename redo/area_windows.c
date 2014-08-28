@@ -234,25 +234,7 @@ static void scrollArea(HWND hwnd, void *data, WPARAM wParam, int which)
 		dy = delta;
 	}
 
-	// first move the edit control, if any, to avoid artifacting
-	if ((HWND) GetWindowLongPtrW(hwnd, 0) != NULL) {
-		HWND edit;
-		int x, y;
-
-		edit = (HWND) GetWindowLongPtrW(hwnd, 0);
-		x = (int) GetWindowLongPtrW(hwnd, sizeof (LONG_PTR));
-		y = (int) GetWindowLongPtrW(hwnd, 2 * sizeof (LONG_PTR));
-		x += dx;
-		y += dy;
-		if (SetWindowPos(edit, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER) == 0)
-			xpanic("error moving Area TextField in response to scroll", GetLastError());
-		SetWindowLongPtrW(hwnd, sizeof (LONG_PTR), (LONG_PTR) x);
-		SetWindowLongPtrW(hwnd, 2 * sizeof (LONG_PTR), (LONG_PTR) y);
-		// TODO doesn't work?
-		if (InvalidateRect(edit, NULL, TRUE) == 0)
-			xpanic("error marking Area TextField as needing redraw", GetLastError());
-	}
-
+	// this automatically scrolls the edit control, if any
 	if (ScrollWindowEx(hwnd,
 		(int) dx, (int) dy,
 		// these four change what is scrolled and record info about the scroll; we're scrolling the whole client area and don't care about the returned information here
