@@ -75,11 +75,13 @@ windows
 	- tabbing on an empty group infinite loops (same bug as with tabs)
 	- groupbox line behind groupbox text
 	- scrolling edit controls in Areas back into view don't cause redraw
+	- need to figure out the WM_MOUSELEAVE tango (see mergeback/table_mouseleave_windows.c)
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
 	- Table: figure out how to allow empty selection by clicking in an empty area
 	- After applying the AreaHandler.Key() change, -small crashes in 3.10/distribution but not 3.14/jhbuild
+		- will need to install 14.04 somewhere for this
 gtk+, windows
 	- Area: keyboard scrolling
 gtk+, mac os x

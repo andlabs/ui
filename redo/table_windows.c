@@ -88,11 +88,6 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		handle(hwnd, lParam, tableToggled, t->gotable);
 		// and let the list view do its thing
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
-	case WM_MOUSELEAVE:
-		// TODO doesn't work
-		tablePushed(t->gotable, -1, -1);			// in case button held as drag out
-		// and let the list view do its thing
-		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case msgLoadImageList:
 		tableLoadImageList(hwnd, t, (HIMAGELIST) lParam);
 		return 0;
