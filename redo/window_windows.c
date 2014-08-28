@@ -5,6 +5,8 @@
 
 #define windowclass L"gouiwindow"
 
+#define windowBackground ((HBRUSH) (COLOR_BTNFACE + 1))
+
 static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	void *data;
@@ -17,6 +19,15 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
+	case WM_PRINTCLIENT:
+		// the return value of this message is not documented
+		// just to be safe, do this first, returning its value later
+		lResult = DefWindowProcW(hwnd, uMsg, wParam, lParam);
+		if (GetClientRect(hwnd, &r) == 0)
+			xpanic("error getting client rect for Window in WM_PRINTCLIENT", GetLastError());
+		if (FillRect((HDC) wParam, &r, windowBackground) == 0)
+			xpanic("error filling WM_PRINTCLIENT DC with window background color", GetLastError());
+		return lResult;
 	case WM_SIZE:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
@@ -41,7 +52,7 @@ DWORD makeWindowWindowClass(char **errmsg)
 	wc.hInstance = hInstance;
 	wc.hIcon = hDefaultIcon;
 	wc.hCursor = hArrowCursor;
-	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
+	wc.hbrBackground = windowBackground;
 	wc.lpszClassName = windowclass;
 	if (RegisterClassW(&wc) == 0) {
 		*errmsg = "error registering Window window class";

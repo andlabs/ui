@@ -79,8 +79,6 @@ static LRESULT forwardNotify(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult)
 {
-	DWORD exstyle;
-
 	switch (uMsg) {
 	case WM_COMMAND:
 		*lResult = forwardCommand(hwnd, uMsg, wParam, lParam);
@@ -90,16 +88,11 @@ BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *
 		return TRUE;
 	case WM_CTLCOLORSTATIC:
 	case WM_CTLCOLORBTN:
-		exstyle = (DWORD) GetWindowLongPtrW((HWND) lParam, GWL_EXSTYLE);
-		// TODO clean this up
-{//		if ((exstyle & WS_EX_TRANSPARENT) != 0) {
-			if (SetBkMode((HDC) wParam, TRANSPARENT) == 0)
-				xpanic("error setting transparent background mode to Labels", GetLastError());
-			paintControlBackground((HWND) lParam, (HDC) wParam);
-			*lResult = (LRESULT) hollowBrush;
-			return TRUE;
-		}
-		return FALSE;
+		if (SetBkMode((HDC) wParam, TRANSPARENT) == 0)
+			xpanic("error setting transparent background mode to Labels", GetLastError());
+		paintControlBackground((HWND) lParam, (HDC) wParam);
+		*lResult = (LRESULT) hollowBrush;
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -112,7 +105,6 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	int saved;
 	WCHAR classname[128] = L"";		// more than enough to avoid collisions
 
-	// TODO implement WM_PRINTCLIENT in window_windows.c
 	parent = hwnd;
 	do {
 		parent = GetParent(parent);
