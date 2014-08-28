@@ -89,14 +89,49 @@ BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *
 		*lResult = forwardNotify(hwnd, uMsg, wParam, lParam);
 		return TRUE;
 	case WM_CTLCOLORSTATIC:
+	case WM_CTLCOLORBTN:
 		exstyle = (DWORD) GetWindowLongPtrW((HWND) lParam, GWL_EXSTYLE);
-		if ((exstyle & WS_EX_TRANSPARENT) != 0) {
+		// TODO clean this up
+{//		if ((exstyle & WS_EX_TRANSPARENT) != 0) {
 			if (SetBkMode((HDC) wParam, TRANSPARENT) == 0)
 				xpanic("error setting transparent background mode to Labels", GetLastError());
+			paintControlBackground((HWND) lParam, (HDC) wParam);
 			*lResult = (LRESULT) hollowBrush;
 			return TRUE;
 		}
 		return FALSE;
 	}
 	return FALSE;
+}
+
+void paintControlBackground(HWND hwnd, HDC dc)
+{
+	HWND parent;
+	RECT r;
+	POINT p;
+	int saved;
+
+	// TODO traverse deeper if a groupbox
+	// TODO implement WM_PRINTCLIENT in window_windows.c
+	parent = GetParent(hwnd);
+	if (parent == NULL)
+		xpanic("error getting parent container of control in paintControlBackground()", GetLastError());
+	parent = GetParent(parent);
+	if (parent == NULL)
+		xpanic("error getting parent control of control in paintControlBackground()", GetLastError());
+	if (GetWindowRect(hwnd, &r) == 0)
+		xpanic("error getting control's window rect in paintControlBackground()", GetLastError());
+	// the above is a window rect; convert to client rect
+	p.x = r.left;
+	p.y = r.top;
+	if (ScreenToClient(parent, &p) == 0)
+		xpanic("error getting client origin of control in paintControlBackground()", GetLastError());
+	saved = SaveDC(dc);
+	if (saved == 0)
+		xpanic("error saving DC info in paintControlBackground()", GetLastError());
+	if (SetWindowOrgEx(dc, p.x, p.y, NULL) == 0)
+		xpanic("error moving window origin in paintControlBackground()", GetLastError());
+	SendMessageW(parent, WM_PRINTCLIENT, (WPARAM) dc, PRF_CLIENT);
+	if (RestoreDC(dc, saved) == 0)
+		xpanic("error restoring DC info in paintControlBackground()", GetLastError());
 }

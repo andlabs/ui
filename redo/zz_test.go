@@ -116,13 +116,20 @@ func (tw *testwin) addfe() {
 		OpenFile(tw.w, tw.openFile)
 	})
 	tw.fnlabel = NewStandaloneLabel("<no file selected>")
-	tw.festack = NewVerticalStack(tw.festart, tw.felabel, tw.festop,
+	tw.festack = NewVerticalStack(tw.festart,
+		tw.felabel,
+		tw.festop,
+		NewCheckbox("This is a checkbox test"),
 		Space(),
 		tw.vedit,
 		Space(),
+		NewCheckbox("This is a checkbox test"),
 		tw.openbtn, tw.fnlabel)
-	tw.festack.SetStretchy(3)
-	tw.festack.SetStretchy(5)
+	tw.festack.SetStretchy(4)
+	tw.festack.SetStretchy(6)
+	tw.festack = NewHorizontalStack(tw.festack, Space())
+	tw.festack.SetStretchy(0)
+	tw.festack.SetStretchy(1)
 	tw.t.Append("Foreign Events", tw.festack)
 }
 

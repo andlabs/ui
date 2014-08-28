@@ -100,6 +100,7 @@ extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
 extern void *getWindowData(HWND, UINT, WPARAM, LPARAM, LRESULT *, void (*)(void *, HWND));
 extern BOOL sharedWndProc(HWND, UINT, WPARAM, LPARAM, LRESULT *);
+extern void paintControlBackground(HWND, HDC);
 
 // tab_windows.go
 extern LPWSTR xWC_TABCONTROL;
