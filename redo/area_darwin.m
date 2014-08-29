@@ -6,6 +6,7 @@
 
 #define toNSEvent(x) ((NSEvent *) (x))
 #define toNSView(x) ((NSView *) (x))
+#define toNSObject(x) ((NSObject *) (x))
 #define toNSTextField(x) ((NSTextField *) (x))
 
 #define toNSInteger(x) ((NSInteger) (x))
@@ -100,10 +101,10 @@ retevent(doKeyDown, areaView_keyDown)
 retevent(doKeyUp, areaView_keyUp)
 retevent(doFlagsChanged, areaView_flagsChanged)
 
-- (BOOL)control:(NSControl *)c textShouldEndEditing:(NSText *)t
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
 	areaTextFieldDismissed(self->goarea);
-	return YES;
+	[toNSObject(object) removeObserver:self forKeyPath:@"firstResponder"];
 }
 
 @end
@@ -216,7 +217,6 @@ void areaSetTextField(id area, id textfield)
 	goAreaView *a = (goAreaView *) area;
 	NSTextField *tf = toNSTextField(textfield);
 
-	[tf setDelegate:a];
 	[a addSubview:tf];
 }
 
@@ -231,4 +231,5 @@ void areaTextFieldOpen(id area, id textfield, intptr_t x, intptr_t y)
 	[tf setFrameOrigin:NSMakePoint((CGFloat) x, (CGFloat) y)];
 	[tf setHidden:NO];
 	[[tf window] makeFirstResponder:tf];
+	[[tf window] addObserver:a forKeyPath:@"firstResponder" options:NSKeyValueObservingOptionNew context:NULL];
 }

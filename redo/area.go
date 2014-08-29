@@ -49,7 +49,7 @@ type Area interface {
 	// It panics if the coordinates fall outside the Area.
 	// Any text previously in the TextField (be it by the user or by a call to SetTextFieldText()) is retained.
 	// The TextField receives the input focus so the user can type things; when the TextField loses the input focus, it hides itself and signals the event set by OnTextFieldDismissed.
-	// TODO escape key
+	// The TextField will also dismiss itself on some platforms when the user "completes editing"; the exact meaning of this is platform-specific.
 	OpenTextFieldAt(x int, y int)
 
 	// TextFieldText and TextFieldSetText get and set the OpenTextFieldAt TextField's text, respectively.
