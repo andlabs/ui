@@ -101,6 +101,7 @@ retevent(doKeyDown, areaView_keyDown)
 retevent(doKeyUp, areaView_keyUp)
 retevent(doFlagsChanged, areaView_flagsChanged)
 
+// seems to be triggered when the user would have finished editing the NSTextField anyway according to the system's rules on that (at least on Mountain Lion)
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
 	areaTextFieldDismissed(self->goarea);
