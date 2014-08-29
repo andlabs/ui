@@ -38,7 +38,8 @@ func newGroup(text string, control Control) Group {
 	C.gtk_frame_set_label_align(g.frame, 0, yalign)
 	C.gtk_frame_set_shadow_type(g.frame, C.GTK_SHADOW_NONE)
 	label := (*C.GtkLabel)(unsafe.Pointer(C.gtk_frame_get_label_widget(g.frame)))
-	// TODO confirm this boldness level against Glade
+	// this is the boldness level used by GtkPrintUnixDialog
+	// (it technically uses "bold" but see pango's pango-enum-types.c for the name conversion; GType is weird)
 	bold := C.pango_attr_weight_new(C.PANGO_WEIGHT_BOLD)
 	boldlist := C.pango_attr_list_new()
 	C.pango_attr_list_insert(boldlist, bold)
