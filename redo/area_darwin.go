@@ -83,7 +83,6 @@ func (a *area) OnTextFieldDismissed(f func()) {
 //export areaTextFieldDismissed
 func areaTextFieldDismissed(data unsafe.Pointer) {
 	a := (*area)(unsafe.Pointer(data))
-	// TODO does not work?
 	C.controlSetHidden(a.textfield, C.YES)
 	a.textfielddone.fire()
 }
