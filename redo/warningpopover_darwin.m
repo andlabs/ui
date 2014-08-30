@@ -11,8 +11,8 @@
 @public
 	id onBegin;
 	id onEnd;
-	NSWindow *parent;
 	id textfield;
+	NSTextView *tv;
 }
 @end
 
@@ -45,8 +45,8 @@
 		[[NSNotificationCenter defaultCenter] removeObserver:self->onEnd];
 		self->onEnd = nil;
 	}
-	if (self->parent != nil)
-		[self->parent removeObserver:self forKeyPath:@"firstResponder"];
+	if (self->tv != nil)
+		[self->tv removeObserver:self forKeyPath:@"delegate"];
 	[super close];
 }
 
@@ -62,21 +62,10 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-	// see https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/EventOverview/EventHandlingBasics/EventHandlingBasics.html#//apple_ref/doc/uid/10000060i-CH5-SW23 and http://stackoverflow.com/a/25562783/3408572
-	if ([[self->parent firstResponder] isKindOfClass:[NSTextView class]] &&
-		[self->parent fieldEditor:NO forObject:nil] != nil) {
-		id tf;
-
-		tf = [[self->parent firstResponder] delegate];
-NSLog(@"%p %p", [[self->parent fieldEditor:NO forObject:nil] delegate], self->textfield);
-		if (tf == self->textfield) {
-			NSLog(@"orderFront:");
-			[self orderFront:self];
-			return;
-		}
-		// else fall through
-	}
-	[self orderOut:self];
+	if ([self->tv delegate] == self->textfield)
+		[self orderFront:self];
+	else
+		[self orderOut:self];
 }
 
 @end
@@ -160,8 +149,9 @@ void warningPopoverShow(id popover, id control)
 	vr = [[v superview] convertRect:[v frame] toView:nil];
 	vo = [[v window] convertRectToScreen:vr].origin;
 	[p setFrameOrigin:NSMakePoint(vo.x, vo.y - [p frame].size.height)];
-	p->parent = [v window];
 	p->textfield = control;
-	[p->parent addObserver:p forKeyPath:@"firstResponder" options:NSKeyValueObservingOptionNew context:NULL];
+	p->tv = (NSTextView *) [[v window] fieldEditor:NO forObject:nil];
+	// thanks to http://stackoverflow.com/a/25562783/3408572 for suggesting KVO here
+	[p->tv addObserver:p forKeyPath:@"delegate" options:NSKeyValueObservingOptionNew context:NULL];
 	[p orderFront:p];
 }
