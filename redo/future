@@ -83,6 +83,8 @@ gtk+
 	- Table: figure out how to allow empty selection by clicking in an empty area
 	- After applying the AreaHandler.Key() change, -small crashes in 3.10/distribution but not 3.14/jhbuild
 		- will need to install 14.04 somewhere for this
+mac os x
+	- http://stackoverflow.com/questions/25558728/how-can-i-be-notified-when-a-control-becomes-key-i-want-t-o-have-my-custom-warn/25562783?noredirect=1#comment39949908_25562783
 gtk+, windows
 	- Area: keyboard scrolling
 gtk+, mac os x
