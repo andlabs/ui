@@ -104,35 +104,53 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
 printMask(item)
-	switch {
-	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
-		item.iImage = C.int(datum.Interface().(ImageIndex))
-	case datum.Kind() == reflect.Bool:
-		item.stateMask = C.LVIS_STATEIMAGEMASK
-		// state image index is 1-based
-		curstate := ((item.state & C.LVIS_STATEIMAGEMASK) >> 12)
-		if curstate > 0 {
-			curstate--
+	isText := true
+	if item.mask & C.LVIF_IMAGE != 0 {
+		if datum.Type() == reflect.TypeOf(ImageIndex(0)) {
+			item.iImage = C.int(datum.Interface().(ImageIndex))
+			isText = false
 		}
-		if datum.Bool() == true {
-			curstate |= C.checkboxStateChecked
-		} else {
-			curstate &^= C.checkboxStateChecked
+		// else let the default behavior work
+	}
+	if item.mask & C.LVIF_INDENT != 0 {
+		// always have an indent of zero
+		item.iIndent = 0
+	}
+	if item.mask & C.LVIF_STATE != 0 {
+		// start by not changing any state
+		item.stateMask = 0
+		if datum.Kind() == reflect.Bool {
+			item.stateMask = C.LVIS_STATEIMAGEMASK
+			// state image index is 1-based
+			curstate := ((item.state & C.LVIS_STATEIMAGEMASK) >> 12)
+			if curstate > 0 {
+				curstate--
+			}
+			if datum.Bool() == true {
+				curstate |= C.checkboxStateChecked
+			} else {
+				curstate &^= C.checkboxStateChecked
+			}
+			if item.iItem == t.hotrow && item.iSubItem == t.hotcol {
+				curstate |= C.checkboxStateHot
+			} else {
+				curstate &^= C.checkboxStateHot
+			}
+			if item.iItem == t.pushedrow && item.iSubItem == t.pushedcol {
+				curstate |= C.checkboxStatePushed
+			} else {
+				curstate &^= C.checkboxStatePushed
+			}
+			item.state = (curstate + 1) << 12
+			isText = false
 		}
-		if item.iItem == t.hotrow && item.iSubItem == t.hotcol {
-			curstate |= C.checkboxStateHot
-		} else {
-			curstate &^= C.checkboxStateHot
+	}
+	if item.mask & C.LVIF_TEXT != 0 {
+		if isText {
+			s := fmt.Sprintf("%v", datum)
+			item.pszText = toUTF16(s)
 		}
-		if item.iItem == t.pushedrow && item.iSubItem == t.pushedcol {
-			curstate |= C.checkboxStatePushed
-		} else {
-			curstate &^= C.checkboxStatePushed
-		}
-		item.state = (curstate + 1) << 12
-	default:
-		s := fmt.Sprintf("%v", datum)
-		item.pszText = toUTF16(s)
+		// else let the default handler work
 	}
 }
 
