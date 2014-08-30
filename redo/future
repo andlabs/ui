@@ -23,6 +23,7 @@ Area
 	keyboard scrolling
 	OpenTextAreaAt() to allow editing of text blocks from within Areas (only after I add TextArea; it will use TextAreas themselves, rather than providing its own)
 	OpenTextFieldAt(): more platform-specific finished editing options; escape key for cancelling too?
+	bounds checking in Select()
 
 Tree
 	Mac OS X: make sure newScrollView() has the correct parameters for Table and Tree (and that Area has the appropriate ones from both)
