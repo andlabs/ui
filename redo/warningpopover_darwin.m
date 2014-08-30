@@ -11,6 +11,8 @@
 @public
 	id onBegin;
 	id onEnd;
+	NSWindow *parent;
+	id textfield;
 }
 @end
 
@@ -35,7 +37,6 @@
 
 - (void)close
 {
-	NSLog(@"disposing");
 	if (self->onBegin != nil) {
 		[[NSNotificationCenter defaultCenter] removeObserver:self->onBegin];
 		self->onBegin = nil;
@@ -44,6 +45,8 @@
 		[[NSNotificationCenter defaultCenter] removeObserver:self->onEnd];
 		self->onEnd = nil;
 	}
+	if (self->parent != nil)
+		[self->parent removeObserver:self forKeyPath:@"firstResponder"];
 	[super close];
 }
 
@@ -55,6 +58,25 @@
 - (BOOL)canBecomeMainWindow
 {
 	return NO;
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+	// see https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/EventOverview/EventHandlingBasics/EventHandlingBasics.html#//apple_ref/doc/uid/10000060i-CH5-SW23 and http://stackoverflow.com/a/25562783/3408572
+	if ([[self->parent firstResponder] isKindOfClass:[NSTextView class]] &&
+		[self->parent fieldEditor:NO forObject:nil] != nil) {
+		id tf;
+
+		tf = [[self->parent firstResponder] delegate];
+NSLog(@"%p %p", [[self->parent fieldEditor:NO forObject:nil] delegate], self->textfield);
+		if (tf == self->textfield) {
+			NSLog(@"orderFront:");
+			[self orderFront:self];
+			return;
+		}
+		// else fall through
+	}
+	[self orderOut:self];
 }
 
 @end
@@ -138,20 +160,8 @@ void warningPopoverShow(id popover, id control)
 	vr = [[v superview] convertRect:[v frame] toView:nil];
 	vo = [[v window] convertRectToScreen:vr].origin;
 	[p setFrameOrigin:NSMakePoint(vo.x, vo.y - [p frame].size.height)];
+	p->parent = [v window];
+	p->textfield = control;
+	[p->parent addObserver:p forKeyPath:@"firstResponder" options:NSKeyValueObservingOptionNew context:NULL];
 	[p orderFront:p];
-
-	// auto-show/hide when control gains/loses focus
-	// TODO this notification is only sent when a character is pressed
-	p->onBegin = [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidBeginEditingNotification
-		object:v
-		queue:nil
-		usingBlock:^(NSNotification *note){
-			[p orderFront:p];
-		}];
-	p->onEnd = [[NSNotificationCenter defaultCenter] addObserverForName:NSControlTextDidEndEditingNotification
-		object:v
-		queue:nil
-		usingBlock:^(NSNotification *note){
-			[p orderOut:p];
-		}];
 }
