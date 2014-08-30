@@ -491,6 +491,10 @@ func (s *sysData) repaintAll() {
 		uintptr(0))
 }
 
+var (
+	_getSystemMetrics = user32.NewProc("GetSystemMetrics")
+)
+
 func (s *sysData) center() {
 	var ws _RECT
 

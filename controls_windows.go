@@ -26,7 +26,6 @@ func CheckRadioButton(hDlg HWND, nIDFirstButton int, nIDLastButton int, nIDCheck
 */
 
 var (
-	_getScrollInfo  = user32.NewProc("GetScrollInfo")
 	_setScrollInfo  = user32.NewProc("SetScrollInfo")
 	_scrollWindowEx = user32.NewProc("ScrollWindowEx")
 )
