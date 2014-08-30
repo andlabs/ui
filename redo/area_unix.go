@@ -223,7 +223,7 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	// the flush and mark_dirty calls are required; see the cairo docs and https://git.gnome.org/browse/gtk+/tree/gdk/gdkcairo.c#n232 (thanks desrt in irc.gimp.net/#gtk+)
 	C.cairo_surface_flush(surface)
 	toARGB(i, uintptr(unsafe.Pointer(C.cairo_image_surface_get_data(surface))),
-		int(C.cairo_image_surface_get_stride(surface)))
+		int(C.cairo_image_surface_get_stride(surface)), false)		// not NRGBA
 	C.cairo_surface_mark_dirty(surface)
 	C.cairo_set_source_surface(cr,
 		surface,

@@ -5,6 +5,7 @@ package ui
 import (
 	"fmt"
 	"image"
+	"image/draw"
 	"reflect"
 	"unsafe"
 )
@@ -331,7 +332,7 @@ func pixelData(img *image.RGBA) *uint8 {
 // some platforms require pixels in ARGB order in their native endianness (because they treat the pixel array as an array of uint32s)
 // this does the conversion
 // you need to convert somewhere (Windows and cairo give us memory to use; Windows has stride==width but cairo might not)
-func toARGB(i *image.RGBA, memory uintptr, memstride int) {
+func toARGB(i *image.RGBA, memory uintptr, memstride int, toNRGBA bool) {
 	var realbits []byte
 
 	rbs := (*reflect.SliceHeader)(unsafe.Pointer(&realbits))
@@ -340,14 +341,20 @@ func toARGB(i *image.RGBA, memory uintptr, memstride int) {
 	rbs.Cap = rbs.Len
 	p := pixelDataPos(i)
 	q := 0
+	iPix := i.Pix
+	if toNRGBA {		// for Windows image lists
+		j := image.NewNRGBA(i.Rect)
+		draw.Draw(j, j.Rect, i, i.Rect.Min, draw.Src)
+		iPix = j.Pix
+	}
 	for y := i.Rect.Min.Y; y < i.Rect.Max.Y; y++ {
 		nextp := p + i.Stride
 		nextq := q + memstride
 		for x := i.Rect.Min.X; x < i.Rect.Max.X; x++ {
-			argb := uint32(i.Pix[p+3]) << 24 // A
-			argb |= uint32(i.Pix[p+0]) << 16 // R
-			argb |= uint32(i.Pix[p+1]) << 8  // G
-			argb |= uint32(i.Pix[p+2])       // B
+			argb := uint32(iPix[p+3]) << 24 // A
+			argb |= uint32(iPix[p+0]) << 16 // R
+			argb |= uint32(iPix[p+1]) << 8  // G
+			argb |= uint32(iPix[p+2])       // B
 			// the magic of conversion
 			native := (*[4]byte)(unsafe.Pointer(&argb))
 			realbits[q+0] = native[0]

@@ -101,7 +101,7 @@ static void paintArea(HWND hwnd, void *data)
 	// first, we need to load the bitmap memory, because Windows makes it for us
 	// the pixels are arranged in RGBA order, but GDI requires BGRA
 	// this turns out to be just ARGB in little endian; let's convert into this memory
-	dotoARGB(i, (void *) ppvBits);
+	dotoARGB(i, (void *) ppvBits, FALSE);		// FALSE = not NRGBA
 
 	// the second thing is... make a device context for the bitmap :|
 	// Ninjifox just makes another compatible DC; we'll do the same

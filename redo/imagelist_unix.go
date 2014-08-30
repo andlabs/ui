@@ -37,7 +37,7 @@ func (i *imagelist) Append(img *image.RGBA) {
 	}
 	C.cairo_surface_flush(surface)
 	toARGB(img, uintptr(unsafe.Pointer(C.cairo_image_surface_get_data(surface))),
-		int(C.cairo_image_surface_get_stride(surface)))
+		int(C.cairo_image_surface_get_stride(surface)), false)		// not NRGBA
 	C.cairo_surface_mark_dirty(surface)
 	basepixbuf := C.gdk_pixbuf_get_from_surface(surface, 0, 0, C.gint(img.Rect.Dx()), C.gint(img.Rect.Dy()))
 	if basepixbuf == nil {

@@ -22,7 +22,9 @@ HBITMAP unscaledBitmap(void *i, intptr_t dx, intptr_t dy)
 	bitmap = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &ppvBits, 0, 0);
 	if (bitmap == NULL)
 		xpanic("error creating HBITMAP for unscaled ImageList image copy", GetLastError());
-	dotoARGB(i, (void *) ppvBits);
+	// image lists use non-premultiplied RGBA - see http://stackoverflow.com/a/25578789/3408572
+	// the TRUE here does the conversion
+	dotoARGB(i, (void *) ppvBits, TRUE);
 	return bitmap;
 }
 
