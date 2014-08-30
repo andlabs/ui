@@ -30,8 +30,8 @@ HIMAGELIST newImageList(int width, int height)
 {
 	HIMAGELIST il;
 
-	// TODO does this strip alpha?
-	// sinni800 in irc.freenode.net/#go-nuts suggests our use of *image.RGBA makes this not so much of an issue
+	// this handles alpha properly; see https://web.archive.org/web/20100512144953/http://msdn.microsoft.com/en-us/library/ms997646.aspx#xptheming_topic13 and http://stackoverflow.com/a/2640897/3408572
+	// TODO alpha-premultiplied? http://stackoverflow.com/a/641836/3408572 implies it is, http://trac.wxwidgets.org/ticket/9050#comment:1 implies it isn't
 	il = (*fv_ImageList_Create)(width, height, ILC_COLOR32, 20, 20);		// should be reasonable
 	if (il == NULL)
 		xpanic("error creating image list", GetLastError());
