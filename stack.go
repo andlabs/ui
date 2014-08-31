@@ -200,10 +200,8 @@ func (s *stack) getAuxResizeInfo(d *sizing) {
 //
 // For a SimpleGrid, Space can be used to have an empty cell. A stretchy Grid cell with a Space can be used to anchor the perimeter of a Grid to the respective Window edges without making one of the other controls stretchy instead (leaving empty space in the Window otherwise). Otherwise, you do not need to do anything special for the Space to work (though remember that an entire row or column of Spaces will appear as having height or width zero, respectively, unless one is marked as stretchy).
 //
-// The value returned from Space() may or may not be unique.
+// The value returned from Space() is guaranteed to be unique.
 func Space() Control {
-	return space
+	// Grid's rules require this to be unique on every call
+	return newStack(horizontal)
 }
-
-// As above, a Stack with no controls draws nothing and reports no errors; its parent will still size it properly if made stretchy.
-var space Control = newStack(horizontal)
