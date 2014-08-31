@@ -48,7 +48,7 @@ type testwin struct {
 	icontbl	Table
 	group2	Group
 	group	Group
-	grid		Grid
+	simpleGrid		SimpleGrid
 	nt		Tab
 	a		Area
 	spw		Stack
@@ -171,14 +171,14 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.t.Append("Filled Group", tw.group2)
 	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))
 	tw.t.Append("Group", tw.group)
-	tw.grid = NewGrid(3,
+	tw.simpleGrid = NewSimpleGrid(3,
 		NewLabel("0,0"), NewTextField(), NewLabel("0,2"),
 		NewButton("1,0"), NewButton("1,1"), NewButton("1,2"),
 		NewLabel("2,0"), NewTextField(), NewStandaloneLabel("2,2"))
-	tw.grid.SetFilling(2, 1)
-	tw.grid.SetFilling(1, 2)
-	tw.grid.SetStretchy(1, 1)
-	tw.t.Append("Grid", tw.grid)
+	tw.simpleGrid.SetFilling(2, 1)
+	tw.simpleGrid.SetFilling(1, 2)
+	tw.simpleGrid.SetStretchy(1, 1)
+	tw.t.Append("Simple Grid", tw.simpleGrid)
 	tw.t.Append("Blank Tab", NewTab())
 	tw.nt = NewTab()
 	tw.nt.Append("Tab 1", Space())

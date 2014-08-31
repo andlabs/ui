@@ -51,7 +51,7 @@ TextField
 	figure out numerics because you CAN paste into numeric boxes on Windows and GTK+ has no built-in number validator as far as I know
 		will likely just use Invalid()
 
-Stack, Grid
+Stack, SimpleGrid, Grid
 	method calls should trigger re-layout of windows
 default buttons
 	figure out how they interact with Areas (especially on GTK+, where GtkEntry somehow has special handling for this)

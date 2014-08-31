@@ -12,6 +12,10 @@ Go 1.3 is required. Note that vanilla 1.3 has a bug in Mac OS X cgo; the next re
 
 prevlib.tar contains the previous version of the library as it stood when I restarted; don't bother using it.
 
+# Updates
+
+**31 August 2014**<br>Grid is now renamed SimpleGrid in preparation for implementing a more [GtkGrid](https://developer.gnome.org/gtk3/unstable/GtkGrid.html)-like Grid. Mind the change.
+
 # Screenshots
 The example widget gallery on GTK+ in the Adwaita theme (3.13/master):
 

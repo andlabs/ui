@@ -3,7 +3,7 @@
 package ui
 
 // Window represents a top-level window on screen that contains other Controls.
-// Windows in package ui can only contain one control; the Stack and Grid layout Controls allow you to pack multiple Controls in a Window.
+// Windows in package ui can only contain one control; the Stack, Grid, and SimpleGrid layout Controls allow you to pack multiple Controls in a Window.
 // Note that a Window is not itself a Control.
 type Window interface {
 	// Title and SetTitle get and set the Window's title, respectively.

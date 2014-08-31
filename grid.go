@@ -6,31 +6,31 @@ import (
 	"fmt"
 )
 
-// A Grid arranges Controls in a two-dimensional grid.
+// A SimpleGrid arranges Controls in a two-dimensional grid.
 // The height of each row and the width of each column is the maximum preferred height and width (respectively) of all the controls in that row or column (respectively).
 // Controls are aligned to the top left corner of each cell.
-// All Controls in a Grid maintain their preferred sizes by default; if a Control is marked as being "filling", it will be sized to fill its cell.
+// All Controls in a SimpleGrid maintain their preferred sizes by default; if a Control is marked as being "filling", it will be sized to fill its cell.
 // Even if a Control is marked as filling, its preferred size is used to calculate cell sizes.
-// One Control can be marked as "stretchy": when the Window containing the Grid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
+// One Control can be marked as "stretchy": when the Window containing the SimpleGrid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
 // A stretchy Control implicitly fills its cell.
-// All cooridnates in a Grid are given in (row,column) form with (0,0) being the top-left cell.
+// All cooridnates in a SimpleGrid are given in (row,column) form with (0,0) being the top-left cell.
 // 
 // As a special rule, to ensure proper appearance, non-standalone Labels are automatically made filling.
-type Grid interface {
+type SimpleGrid interface {
 	Control
 
-	// SetFilling marks the given Control of the Grid as filling its cell instead of staying at its preferred size.
+	// SetFilling marks the given Control of the SimpleGrid as filling its cell instead of staying at its preferred size.
 	// It panics if the given coordinate is invalid.
 	SetFilling(row int, column int)
 
-	// SetStretchy marks the given Control of the Grid as stretchy.
+	// SetStretchy marks the given Control of the SimpleGrid as stretchy.
 	// Stretchy implies filling.
-	// Only one control can be stretchy per Grid; calling SetStretchy multiple times merely changes which control is stretchy (preserving the previous filling value).
+	// Only one control can be stretchy per SimpleGrid; calling SetStretchy multiple times merely changes which control is stretchy (preserving the previous filling value).
 	// It panics if the given coordinate is invalid.
 	SetStretchy(row int, column int)
 }
 
-type grid struct {
+type simpleGrid struct {
 	controls                 [][]Control
 	filling                  [][]bool
 	stretchyrow, stretchycol int
@@ -39,17 +39,17 @@ type grid struct {
 	rowheights, colwidths    []int
 }
 
-// NewGrid creates a new Grid with the given Controls.
-// NewGrid needs to know the number of Controls in a row (alternatively, the number of columns); it will determine the number in a column from the number of Controls given.
-// NewGrid panics if not given a full grid of Controls.
+// NewSimpleGrid creates a new SimpleGrid with the given Controls.
+// NewSimpleGrid needs to know the number of Controls in a row (alternatively, the number of columns); it will determine the number in a column from the number of Controls given.
+// NewSimpleGrid panics if not given a full grid of Controls.
 // Example:
-// 	grid := NewGrid(3,
+// 	grid := NewSimpleGrid(3,
 // 		control00, control01, control02,
 // 		control10, control11, control12,
 // 		control20, control21, control22)
-func NewGrid(nPerRow int, controls ...Control) Grid {
+func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 	if len(controls)%nPerRow != 0 {
-		panic(fmt.Errorf("incomplete grid given to NewGrid() (not enough controls to evenly divide %d controls into rows of %d controls each)", len(controls), nPerRow))
+		panic(fmt.Errorf("incomplete simpleGrid given to NewSimpleGrid() (not enough controls to evenly divide %d controls into rows of %d controls each)", len(controls), nPerRow))
 	}
 	nRows := len(controls) / nPerRow
 	cc := make([][]Control, nRows)
@@ -70,7 +70,7 @@ func NewGrid(nPerRow int, controls ...Control) Grid {
 			i++
 		}
 	}
-	return &grid{
+	return &simpleGrid{
 		controls:    cc,
 		filling:     cf,
 		stretchyrow: -1,
@@ -82,16 +82,16 @@ func NewGrid(nPerRow int, controls ...Control) Grid {
 	}
 }
 
-func (g *grid) SetFilling(row int, column int) {
+func (g *simpleGrid) SetFilling(row int, column int) {
 	if row < 0 || column < 0 || row > len(g.filling) || column > len(g.filling[row]) {
-		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetFilling()", row, column))
+		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to SimpleGrid.SetFilling()", row, column))
 	}
 	g.filling[row][column] = true
 }
 
-func (g *grid) SetStretchy(row int, column int) {
+func (g *simpleGrid) SetStretchy(row int, column int) {
 	if row < 0 || column < 0 || row > len(g.filling) || column > len(g.filling[row]) {
-		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to Grid.SetStretchy()", row, column))
+		panic(fmt.Errorf("coordinate (%d,%d) out of range passed to SimpleGrid.SetStretchy()", row, column))
 	}
 	if g.stretchyrow != -1 || g.stretchycol != -1 {
 		g.filling[g.stretchyrow][g.stretchycol] = g.stretchyfill
@@ -102,7 +102,7 @@ func (g *grid) SetStretchy(row int, column int) {
 	g.filling[g.stretchyrow][g.stretchycol] = true
 }
 
-func (g *grid) setParent(parent *controlParent) {
+func (g *simpleGrid) setParent(parent *controlParent) {
 	for _, col := range g.controls {
 		for _, c := range col {
 			c.setParent(parent)
@@ -110,7 +110,7 @@ func (g *grid) setParent(parent *controlParent) {
 	}
 }
 
-func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
+func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -188,7 +188,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 }
 
 // filling and stretchy are ignored for preferred size calculation
-func (g *grid) preferredSize(d *sizing) (width int, height int) {
+func (g *simpleGrid) preferredSize(d *sizing) (width int, height int) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -225,10 +225,10 @@ func (g *grid) preferredSize(d *sizing) (width int, height int) {
 	return width, height
 }
 
-func (g *grid) commitResize(c *allocation, d *sizing) {
+func (g *simpleGrid) commitResize(c *allocation, d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
 
-func (g *grid) getAuxResizeInfo(d *sizing) {
+func (g *simpleGrid) getAuxResizeInfo(d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
