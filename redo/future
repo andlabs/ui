@@ -78,6 +78,7 @@ windows
 	- groupbox line behind groupbox text
 	- scrolling edit controls in Areas back into view don't cause redraw
 	- need to figure out the WM_MOUSELEAVE tango (see mergeback/table_mouseleave_windows.c)
+	- tell wine that WM_CTLCOLOR*** doesn't get sent early ?????
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
