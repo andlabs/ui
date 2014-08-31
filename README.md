@@ -15,4 +15,4 @@ prevlib.tar contains the previous version of the library as it stood when I rest
 # Screenshots
 The example widget gallery on GTK+ in the Adwaita theme (3.13/master):
 
-https://raw.githubusercontent.com/andlabs/ui/master/examples/widgetgallery/widgetgallery.png
+!(https://raw.githubusercontent.com/andlabs/ui/master/examples/widgetgallery/widgetgallery.png)
