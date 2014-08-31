@@ -1,2 +1,0 @@
-# use this script to build 32-bit darwin binaries
-GOARCH=386 CGO_ENABLED=1 "$@"
