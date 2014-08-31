@@ -29,6 +29,7 @@ static DWORD WINAPI doOpenFile(LPVOID data)
 	ofn.lpstrInitialDir = NULL;			// let system decide
 	ofn.lpstrTitle = NULL;			// let system decide
 	// TODO OFN_SHAREAWARE?
+	// better question: TODO keep networking?
 	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_FORCESHOWHIDDEN | OFN_HIDEREADONLY | OFN_LONGNAMES | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS | OFN_NOTESTFILECREATE | OFN_PATHMUSTEXIST;
 	if (GetOpenFileNameW(&ofn) == FALSE) {
 		err = CommDlgExtendedError();

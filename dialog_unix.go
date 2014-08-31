@@ -27,7 +27,8 @@ func (w *window) openFile(f func(filename string)) {
 	window := (*C.GtkWindow)(unsafe.Pointer(widget))
 	dialog  := (*C.GtkDialog)(unsafe.Pointer(widget))
 	fc := (*C.GtkFileChooser)(unsafe.Pointer(widget))
-	C.gtk_file_chooser_set_local_only(fc, C.FALSE)
+	// non-local filenames are relevant mainly to GIO where we can open *anything*, not to Go os.File; see https://twitter.com/braket/status/506142849654870016
+	C.gtk_file_chooser_set_local_only(fc, C.TRUE)
 	C.gtk_file_chooser_set_select_multiple(fc, C.FALSE)
 	C.gtk_file_chooser_set_show_hidden(fc, C.TRUE)
 	C.gtk_window_set_modal(window, C.TRUE)
@@ -49,7 +50,7 @@ func our_openfile_response_callback(dialog *C.GtkDialog, response C.gint, data C
 	}
 	filename := C.gtk_file_chooser_get_filename((*C.GtkFileChooser)(unsafe.Pointer(dialog)))
 	if filename == nil {
-		panic("[DEBUG TODO] chosen filename NULL")
+		panic("chosen filename NULL in OpenFile()")
 	}
 	realfilename := fromgstr(filename)
 	C.g_free(C.gpointer(unsafe.Pointer(filename)))
