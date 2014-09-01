@@ -7,8 +7,15 @@ import (
 )
 
 // Grid is a Control that arranges other Controls in a grid.
-// Grid is a very powerful container: it can position and size each Control in several ways and can (and must) have Controls added to it at any time.
+// Grid is a very powerful container: it can position and size each Control in several ways and can (and must) have Controls added to it at any time, in any direction.
 // [TODO it can also have Controls spanning multiple rows and columns.]
+// 
+// Each Control in a Grid has associated "expansion" and "alignment" values in both the X and Y direction.
+// Expansion determines whether all cells in the same row/column are given whatever space is left over after figuring how big the rest of the Grid should be.
+// Alignment determines the position of a Control relative to its cell after computing the above.
+// The special alignment Fill can be used to grow a Control to fit its cell.
+// Note that expansion and alignment are independent variables.
+// For more information on expansion and alignment, read https://developer.gnome.org/gtk3/unstable/ch28s02.html.
 type Grid interface {
 	Control
 
