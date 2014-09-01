@@ -22,7 +22,7 @@ type Grid interface {
 	// Add adds a Control to the Grid.
 	// If this is the first Control in the Grid, it is merely added; nextTo should be nil.
 	// Otherwise, it is placed relative to nextTo.
-	// If nextTo is nil, it is placed next to the previously added Control,
+	// If nextTo is nil, it is placed next to the previously added Control.
 	// The effect of adding the same Control multiple times is undefined, as is the effect of adding a Control next to one not present in the Grid.
 	Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align)
 }
