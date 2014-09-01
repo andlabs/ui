@@ -31,6 +31,9 @@ func newRepainter(times int) *repainter {
 	r.img = tileImage(times)
 	r.area = NewArea(r.img.Rect.Dx(), r.img.Rect.Dy(), r)
 	r.area.OnTextFieldDismissed(r.tfdone)
+	grid2 := NewGrid()
+	grid2.Add(r.area, nil, South, true, Fill, true, Fill)
+	grid2.Add(NewButton("X"), nil, East, false, LeftTop, true, Center)
 	r.x = NewTextField()
 	r.x.OnChanged(r.setx)
 	r.y = NewTextField()
@@ -50,7 +53,7 @@ func newRepainter(times int) *repainter {
 	grid.Add(r.width, r.x, South, true, Fill, false, LeftTop)
 	grid.Add(r.height, nil, East, true, Fill, false, LeftTop)
 	grid.Add(r.all, nil, East, false, Center, false, LeftTop)
-	r.stack = NewVerticalStack(r.area, grid)
+	r.stack = NewVerticalStack(grid2, grid)
 	r.stack.SetStretchy(0)
 	return r
 }

@@ -259,12 +259,14 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		default:
 			panic(fmt.Errorf("invalid xalign %d in Grid.allocate()", cell.xalign))
 		}
+		cell.yoff = 0
 		switch cell.yalign {
 		case LeftTop:
 			// do nothing; this is the default
 		case Center:
+			cell.yoff = (rowheights[cell.gridy] - cell.height) / 2
 		case RightBottom:
-			// TODO
+			cell.yoff = rowheights[cell.gridy] - cell.height
 		case Fill:
 			cell.height = rowheights[cell.gridy]
 		default:
@@ -280,7 +282,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		current = nil
 		for col, c := range xcol {
 			cell := g.controls[c]
-			as := c.allocate(x + cell.xoff, y, cell.width, cell.height, d)
+			as := c.allocate(x + cell.xoff, y + cell.yoff, cell.width, cell.height, d)
 			if current != nil {			// connect first left to first right
 				current.neighbor = c
 			}
