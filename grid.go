@@ -288,17 +288,19 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 	for row, xcol := range g.grid {
 		current = nil
 		for col, c := range xcol {
-			cell := g.controls[c]
-			as := c.allocate(x + cell.xoff, y + cell.yoff, cell.width, cell.height, d)
-			if current != nil {			// connect first left to first right
-				current.neighbor = c
+			if c != nil {					// treat empty cells like spaces
+				cell := g.controls[c]
+				as := c.allocate(x + cell.xoff, y + cell.yoff, cell.width, cell.height, d)
+				if current != nil {		// connect first left to first right
+					current.neighbor = c
+				}
+				if len(as) != 0 {
+					current = as[0]		// next left is first subwidget
+				} else {
+					current = nil		// spaces don't have allocation data
+				}
+				allocations = append(allocations, as...)
 			}
-			if len(as) != 0 {
-				current = as[0]			// next left is first subwidget
-			} else {
-				current = nil			// spaces don't have allocation data
-			}
-			allocations = append(allocations, as...)
 			x += colwidths[col] + d.xpadding
 		}
 		x = startx
