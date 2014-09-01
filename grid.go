@@ -62,6 +62,8 @@ type gridCell struct {
 	// for allocate() and preferredSize()
 	gridx		int
 	gridy		int
+	xoff			int
+	yoff			int
 	width		int
 	height		int
 	visited		bool
@@ -244,31 +246,29 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 
 	// 4) handle alignment
 	for _, cell := range g.controls {
-		if cell.xexpand {
-			switch cell.xalign {
-			case LeftTop:
-				// do nothing; this is the default
-			case Center:
-			case RightBottom:
-				// TODO
-			case Fill:
-				cell.width = colwidths[cell.gridx]
-			default:
-				panic(fmt.Errorf("invalid xalign %d in Grid.allocate()", cell.xalign))
-			}
+		cell.xoff = 0
+		switch cell.xalign {
+		case LeftTop:
+			// do nothing; this is the default
+		case Center:
+			// TODO
+		case RightBottom:
+			cell.xoff = colwidths[cell.gridx] - cell.width
+		case Fill:
+			cell.width = colwidths[cell.gridx]
+		default:
+			panic(fmt.Errorf("invalid xalign %d in Grid.allocate()", cell.xalign))
 		}
-		if cell.yexpand {
-			switch cell.yalign {
-			case LeftTop:
-				// do nothing; this is the default
-			case Center:
-			case RightBottom:
-				// TODO
-			case Fill:
-				cell.height = rowheights[cell.gridy]
-			default:
-				panic(fmt.Errorf("invalid yalign %d in Grid.allocate()", cell.yalign))
-			}
+		switch cell.yalign {
+		case LeftTop:
+			// do nothing; this is the default
+		case Center:
+		case RightBottom:
+			// TODO
+		case Fill:
+			cell.height = rowheights[cell.gridy]
+		default:
+			panic(fmt.Errorf("invalid yalign %d in Grid.allocate()", cell.yalign))
 		}
 	}
 
@@ -280,7 +280,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		current = nil
 		for col, c := range xcol {
 			cell := g.controls[c]
-			as := c.allocate(x, y, cell.width, cell.height, d)
+			as := c.allocate(x + cell.xoff, y, cell.width, cell.height, d)
 			if current != nil {			// connect first left to first right
 				current.neighbor = c
 			}
