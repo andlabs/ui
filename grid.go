@@ -251,7 +251,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		case LeftTop:
 			// do nothing; this is the default
 		case Center:
-			// TODO
+			cell.xoff = (colwidths[cell.gridx] - cell.width) / 2
 		case RightBottom:
 			cell.xoff = colwidths[cell.gridx] - cell.width
 		case Fill:

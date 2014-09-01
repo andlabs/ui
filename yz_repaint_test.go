@@ -49,7 +49,7 @@ func newRepainter(times int) *repainter {
 	grid.Add(r.repaint, nil, East, false, 0, false, LeftTop)
 	grid.Add(r.width, r.x, South, true, Fill, false, LeftTop)
 	grid.Add(r.height, nil, East, true, Fill, false, LeftTop)
-	grid.Add(r.all, nil, East, false, RightBottom, false, LeftTop)
+	grid.Add(r.all, nil, East, false, Center, false, LeftTop)
 	r.stack = NewVerticalStack(r.area, grid)
 	r.stack.SetStretchy(0)
 	return r
