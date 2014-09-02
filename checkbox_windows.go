@@ -59,7 +59,6 @@ func (c *checkbox) SetChecked(checked bool) {
 func checkboxToggled(data unsafe.Pointer) {
 	c := (*checkbox)(data)
 	c.toggled.fire()
-	println("checkbox toggled")
 }
 
 func (c *checkbox) hwnd() C.HWND {

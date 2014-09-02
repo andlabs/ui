@@ -47,7 +47,6 @@ func (b *button) SetText(text string) {
 func buttonClicked(data unsafe.Pointer) {
 	b := (*button)(data)
 	b.clicked.fire()
-	println("button clicked")
 }
 
 func (b *button) hwnd() C.HWND {

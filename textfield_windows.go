@@ -61,7 +61,6 @@ func (t *textfield) Invalid(reason string) {
 //export textfieldChanged
 func textfieldChanged(data unsafe.Pointer) {
 	t := (*textfield)(data)
-println("changed")
 	t.changed.fire()
 }
 

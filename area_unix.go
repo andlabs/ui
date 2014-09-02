@@ -111,7 +111,6 @@ func (a *area) Repaint(r image.Rectangle) {
 	if r.Empty() {
 		return
 	}
-println(a._widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
 	C.gtk_widget_queue_draw_area(a._widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
 }
 

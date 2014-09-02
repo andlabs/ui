@@ -44,7 +44,6 @@ func (b *button) SetText(text string) {
 func buttonClicked(xb unsafe.Pointer) {
 	b := (*button)(unsafe.Pointer(xb))
 	b.clicked.fire()
-	println("button clicked")
 }
 
 func (b *button) id() C.id {

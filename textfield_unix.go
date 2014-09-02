@@ -77,7 +77,6 @@ func (t *textfield) Invalid(reason string) {
 //export textfieldChanged
 func textfieldChanged(editable *C.GtkEditable, data C.gpointer) {
 	t := (*textfield)(unsafe.Pointer(data))
-println("changed")
 	t.changed.fire()
 }
 

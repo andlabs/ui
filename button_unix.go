@@ -54,7 +54,6 @@ func (b *button) SetText(text string) {
 func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
 	b := (*button)(unsafe.Pointer(data))
 	b.clicked.fire()
-	println("button clicked")
 }
 
 func (b *button) widget() *C.GtkWidget {
