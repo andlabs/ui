@@ -81,21 +81,6 @@ func (t *table) OnSelected(f func()) {
 	t.selected.set(f)
 }
 
-func printMask(item *C.LVITEMW) {
-fmt.Printf("%d %d ", item.iItem, item.iSubItem)
-x := item.mask
-if x&C.LVIF_COLUMNS != 0{ fmt.Print("LVIF_COLUMNS ") }
-if x&C.LVIF_DI_SETITEM != 0{ fmt.Print("LVIF_DI_SETITEM ") }
-if x&C.LVIF_GROUPID != 0{ fmt.Print("LVIF_GROUPID ") }
-if x&C.LVIF_IMAGE != 0{ fmt.Print("LVIF_IMAGE ") }
-if x&C.LVIF_INDENT != 0{ fmt.Print("LVIF_INDENT ") }
-if x&C.LVIF_NORECOMPUTE != 0{ fmt.Print("LVIF_NORECOMPUTE ") }
-if x&C.LVIF_PARAM != 0{ fmt.Print("LVIF_PARAM ") }
-if x&C.LVIF_STATE != 0{ fmt.Print("LVIF_STATE ") }
-if x&C.LVIF_TEXT != 0{ fmt.Print("LVIF_TEXT ") }
-fmt.Print("\n")
-}
-
 //export tableGetCell
 func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	t := (*table)(data)
@@ -103,7 +88,6 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
-printMask(item)
 	isText := true
 	if item.mask & C.LVIF_IMAGE != 0 {
 		if datum.Type() == reflect.TypeOf(ImageIndex(0)) {
