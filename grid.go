@@ -8,7 +8,7 @@ import (
 
 // Grid is a Control that arranges other Controls in a grid.
 // Grid is a very powerful container: it can position and size each Control in several ways and can (and must) have Controls added to it at any time, in any direction.
-// [TODO it can also have Controls spanning multiple rows and columns.]
+// it can also have Controls spanning multiple rows and columns.
 // 
 // Each Control in a Grid has associated "expansion" and "alignment" values in both the X and Y direction.
 // Expansion determines whether all cells in the same row/column are given whatever space is left over after figuring out how big the rest of the Grid should be.
@@ -24,7 +24,9 @@ type Grid interface {
 	// Otherwise, it is placed relative to nextTo.
 	// If nextTo is nil, it is placed next to the previously added Control.
 	// The effect of adding the same Control multiple times is undefined, as is the effect of adding a Control next to one not present in the Grid.
-	Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align)
+	// The effect of overlapping spanning Controls is also undefined.
+	// Add panics if either xspan or yspan are zero or negative.
+	Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align, xspan int, yspan int)
 }
 
 // Align represents the alignment of a Control in its cell of a Grid.
@@ -112,15 +114,18 @@ func (g *grid) reorigin() {
 	}
 }
 
-func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align) {
+func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align, xspan int, yspan int) {
+	if xspan <= 0 || yspan <= 0 {
+		panic(fmt.Errorf("invalid span %dx%d given to Grid.Add()", xspan, yspan))
+	}
 	cell := gridCell{
 		control:		control,
 		xexpand:		xexpand,
 		xalign:		xalign,
 		yexpand:		yexpand,
 		yalign:		yalign,
-		xspan:		1,
-		yspan:		1,
+		xspan:		xspan,
+		yspan:		yspan,
 	}
 	if g.parent != nil {
 		control.setParent(g.parent)
