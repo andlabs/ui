@@ -39,8 +39,6 @@ const (
 // Side represents a side of a Control to add other Controls to a Grid to.
 type Side uint
 const (
-	// this arrangement is important
-	// it makes finding the opposite side as easy as ^ 1
 	West Side = iota
 	East
 	North
@@ -49,136 +47,137 @@ const (
 )
 
 type grid struct {
-	controls		map[Control]*gridCell
-	prev			Control
+	controls		[]gridCell
+	indexof		map[Control]int
+	prev			int
 	parent		*controlParent
 
-	// for allocate() and preferredSize()
-	xoff, yoff		int
-	xmax, ymax	int
-	grid			[][]Control
+	xmax		int
+	ymax		int
 }
 
 type gridCell struct {
+	control		Control
 	xexpand		bool
 	xalign		Align
 	yexpand		bool
 	yalign		Align
-	neighbors		[nSides]Control
+	xspan		int
+	yspan		int
 
-	// for allocate() and preferredSize()
-	gridx		int
-	gridy		int
-	xoff			int
-	yoff			int
-	width		int
-	height		int
-	visited		bool
-	allocations	[]*allocation
+	x			int
+	y			int
+
+	finalx		int
+	finaly		int
+	finalwidth		int
+	finalheight	int
+	prefwidth		int
+	prefheight	int
 }
 
 // NewGrid creates a new Grid with no Controls.
 func NewGrid() Grid {
 	return &grid{
-		controls:		map[Control]*gridCell{},
+		indexof:		map[Control]int{},
+	}
+}
+
+// ensures that all (x, y) pairs are 0-based
+// also computes g.xmax/g.ymax
+func (g *grid) reorigin() {
+	xmin := 0
+	ymin := 0
+	for i := range g.controls {
+		if g.controls[i].x < xmin {
+			xmin = g.controls[i].x
+		}
+		if g.controls[i].y < ymin {
+			ymin = g.controls[i].y
+		}
+	}
+	xmin = -xmin
+	ymin = -ymin
+	g.xmax = 0
+	g.ymax = 0
+	for i := range g.controls {
+		g.controls[i].x += xmin
+		g.controls[i].y += ymin
+		if g.xmax < g.controls[i].x + g.controls[i].xspan {
+			g.xmax = g.controls[i].x + g.controls[i].xspan
+		}
+		if g.ymax < g.controls[i].y + g.controls[i].yspan {
+			g.ymax = g.controls[i].y + g.controls[i].yspan
+		}
 	}
 }
 
 func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align) {
-	cell := &gridCell{
+	cell := gridCell{
+		control:		control,
 		xexpand:		xexpand,
 		xalign:		xalign,
 		yexpand:		yexpand,
 		yalign:		yalign,
+		xspan:		1,
+		yspan:		1,
 	}
-	// if this is the first control, just add it in directly
-	if len(g.controls) != 0 {
-		if nextTo == nil {
-			nextTo = g.prev
-		}
-		next := g.controls[nextTo]
-		// squeeze any control previously on the same side out of the way
-		temp := next.neighbors[side]
-		next.neighbors[side] = control
-		cell.neighbors[side] = temp
-		cell.neighbors[side ^ 1] = nextTo		// doubly-link
-	}
-	g.controls[control] = cell
-	g.prev = control
 	if g.parent != nil {
 		control.setParent(g.parent)
 	}
+	// if this is the first control, just add it in directly
+	if len(g.controls) != 0 {
+		next := g.prev
+		if nextTo != nil {
+			next = g.indexof[nextTo]
+		}
+		switch side {
+		case West:
+			cell.x = g.controls[next].x - cell.xspan
+			cell.y = g.controls[next].y
+		case North:
+			cell.x = g.controls[next].x
+			cell.y = g.controls[next].y - cell.yspan
+		case East:
+			cell.x = g.controls[next].x + g.controls[next].xspan
+			cell.y = g.controls[next].y
+		case South:
+			cell.x = g.controls[next].x
+			cell.y = g.controls[next].y + g.controls[next].yspan
+		default:
+			panic(fmt.Errorf("invalid side %d in Grid.Add()", side))
+		}
+	}
+	g.controls = append(g.controls, cell)
+	g.prev = len(g.controls) - 1
+	g.indexof[control] = g.prev
+	g.reorigin()
 }
 
 func (g *grid) setParent(p *controlParent) {
 	g.parent = p
-	for c, _ := range g.controls {
-		c.setParent(g.parent)
+	for i := range g.controls {
+		g.controls[i].control.setParent(g.parent)
 	}
 }
 
-func (g *grid) trasverse(c Control, x int, y int) {
-	cell := g.controls[c]
-	if cell.visited {
-		return
-	}
-	cell.visited = true
-	cell.gridx = x
-	cell.gridy = y
-	if x < g.xoff {
-		g.xoff = x
-	}
-	if y < g.yoff {
-		g.yoff = y
-	}
-	if cell.neighbors[West] != nil {
-		g.trasverse(cell.neighbors[West], x - 1, y)
-	}
-	if cell.neighbors[North] != nil {
-		g.trasverse(cell.neighbors[North], x, y - 1)
-	}
-	if cell.neighbors[East] != nil {
-		g.trasverse(cell.neighbors[East], x + 1, y)
-	}
-	if cell.neighbors[South] != nil {
-		g.trasverse(cell.neighbors[South], x, y + 1)
-	}
-}
-
-func (g *grid) buildGrid() {
-	// thanks to http://programmers.stackexchange.com/a/254968/147812
-	// before we do anything, reset the visited bits
-	for _, cell := range g.controls {
-		cell.visited = false
-	}
-	// we first mark the previous control as the origin...
-	g.xoff = 0
-	g.yoff = 0
-	g.trasverse(g.prev, 0, 0)		// start at the last control added
-	// now we need to make all offsets zero-based
-	g.xoff = -g.xoff
-	g.yoff = -g.yoff
-	g.xmax = 0
-	g.ymax = 0
-	for _, cell := range g.controls {
-		cell.gridx += g.xoff
-		cell.gridy += g.yoff
-		if cell.gridx > g.xmax {
-			g.xmax = cell.gridx
-		}
-		if cell.gridy > g.ymax {
-			g.ymax = cell.gridy
-		}
-	}
-	// g.xmax and g.ymax are the last valid index; make them one over to make everything work
-	g.xmax++
-	g.ymax++
-	// and finally build the matrix
-	g.grid = make([][]Control, g.ymax)
+// builds the topological cell grid; also makes colwidths and rowheights
+func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
+	gg = make([][]int, g.ymax)
 	for y := 0; y < g.ymax; y++ {
-		g.grid[y] = make([]Control, g.xmax)
-		// the elements are assigned below for efficiency
+		gg[y] = make([]int, g.xmax)
+		for x := 0; x < g.xmax; x++ {
+			gg[y][x] = -1
+		}
 	}
+	for i := range g.controls {
+		for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
+			for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+				gg[y][x] = i
+			}
+		}
+	}
+	return gg, make([]int, g.xmax), make([]int, g.ymax)
 }
 
 func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
@@ -187,131 +186,159 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		return nil
 	}
 
-	// 1) compute the resultant grid
-	g.buildGrid()
-	width -= d.xpadding * g.xmax
-	height -= d.ypadding * g.ymax
+	// -1) discount padding from width/height
+	width -= (g.xmax - 1) * d.xpadding
+	height -= (g.ymax - 1) * d.ypadding
 
-	// 2) for every control, set the width of each cell of its column/height of each cell of its row to the largest such
-	colwidths := make([]int, g.xmax)
-	rowheights := make([]int, g.ymax)
-	colxexpand := make([]bool, g.xmax)
-	rowyexpand := make([]bool, g.ymax)
-	for c, cell := range g.controls {
-		width, height := c.preferredSize(d)
-		cell.width = width
-		cell.height = height
-		if colwidths[cell.gridx] < width {
-			colwidths[cell.gridx] = width
+	// 0) build necessary data structures
+	gg, colwidths, rowheights := g.mkgrid()
+	xexpand := make([]bool, g.xmax)
+	yexpand := make([]bool, g.ymax)
+
+	// 1) compute colwidths and rowheights before handling expansion
+	for y := 0; y < len(gg); y++ {
+		for x := 0; x < len(gg[y]); x++ {
+			i := gg[y][x]
+			if i == -1 {
+				continue
+			}
+			w, h := g.controls[i].control.preferredSize(d)
+			// allot equal space in the presence of spanning to keep things sane
+			if colwidths[x] < w / g.controls[i].xspan {
+				colwidths[x] = w / g.controls[i].xspan
+			}
+			if rowheights[y] < h / g.controls[i].yspan {
+				rowheights[y] = h / g.controls[i].yspan
+			}
+			// save these for step 6
+			g.controls[i].prefwidth = w
+			g.controls[i].prefheight = h
 		}
-		if rowheights[cell.gridy] < height {
-			rowheights[cell.gridy] = height
-		}
-		if cell.xexpand {
-			colxexpand[cell.gridx] = true
-		}
-		if cell.yexpand {
-			rowyexpand[cell.gridy] = true
-		}
-		g.grid[cell.gridy][cell.gridx] = c
 	}
 
-	// 3) distribute the remaining space equally to expanding cells, adjusting widths and heights as needed
-	nexpand := 0
-	for x, expand := range colxexpand {
-		if expand {
-			nexpand++
-		} else {		// column width known; subtract it
+	// 2) figure out which columns expand
+	// we only mark the first row/column of a spanning cell as expanding to prevent unexpected behavior
+	nxexpand := 0
+	nyexpand := 0
+	for i := range g.controls {
+		if g.controls[i].xexpand {
+			xexpand[g.controls[i].x] = true
+			nxexpand++
+		}
+		if g.controls[i].yexpand {
+			yexpand[g.controls[i].y] = true
+			nyexpand++
+		}
+	}
+
+	// 3) assign expanded widths/heights
+	for x, expand := range xexpand {
+		if !expand {
 			width -= colwidths[x]
 		}
 	}
-	if nexpand > 0 {
-		w := width / nexpand
-		for x, expand := range colxexpand {
-			if expand {
-				colwidths[x] = w
-			}
-		}
-	}
-	nexpand = 0
-	for y, expand := range rowyexpand {
-		if expand {
-			nexpand++
-		} else {		// row height known; subtract it
+	for y, expand := range yexpand {
+		if !expand {
 			height -= rowheights[y]
 		}
 	}
-	if nexpand > 0 {
-		h := height / nexpand
-		for y, expand := range rowyexpand {
-			if expand {
-				rowheights[y] = h
+/*	for x, expand := range xexpand {
+		if expand {
+			colwidths[x] = width / nxexpand
+		}
+	}
+	for y, expand := range yexpand {
+		if expand {
+			rowheights[y] = height / nyexpand
+		}
+	}
+*/
+	// 4) reset the final coordinates for the next step
+	for i := range g.controls {
+		g.controls[i].finalx = 0
+		g.controls[i].finaly = 0
+		g.controls[i].finalwidth = 0
+		g.controls[i].finalheight = 0
+	}
+
+	// 5) compute cell positions and widths
+	for y := 0; y < g.ymax; y++ {
+		curx := 0
+		prev := -1
+		for x := 0; x < g.xmax; x++ {
+			i := gg[y][x]
+			if i != -1 {
+				if i != prev {
+					g.controls[i].finalx = curx
+				} else {
+					g.controls[i].finalwidth += d.xpadding
+				}
+				g.controls[i].finalwidth += colwidths[x]
 			}
+			curx += colwidths[x] + d.xpadding
+			prev = i
+		}
+	}
+	for x := 0; x < g.xmax; x++ {
+		cury := 0
+		prev := -1
+		for y := 0; y < g.ymax; y++ {
+			i := gg[y][x]
+			if i != -1 {
+				if i != prev {
+					g.controls[i].finaly = cury
+				} else {
+					g.controls[i].finalheight += d.ypadding
+				}
+				g.controls[i].finalheight += rowheights[y]
+			}
+			cury += rowheights[y] + d.ypadding
+			prev = i
 		}
 	}
 
-	// all right, now we have the size of each cell
-
-	// 4) handle alignment
-	for _, cell := range g.controls {
-		cell.xoff = 0
-		switch cell.xalign {
-		case LeftTop:
-			// do nothing; this is the default
-		case Center:
-			cell.xoff = (colwidths[cell.gridx] - cell.width) / 2
-		case RightBottom:
-			cell.xoff = colwidths[cell.gridx] - cell.width
-		case Fill:
-			cell.width = colwidths[cell.gridx]
-		default:
-			panic(fmt.Errorf("invalid xalign %d in Grid.allocate()", cell.xalign))
+	// 6) everything as it stands now is set for xalign == Fill yalign == Fill; set the correct alignments
+	// this is why we saved prefwidth/prefheight above
+	for i := range g.controls {
+		if g.controls[i].xalign != Fill {
+			switch g.controls[i].xalign {
+			case RightBottom:
+				g.controls[i].finalx += g.controls[i].finalwidth - g.controls[i].prefwidth
+			case Center:
+				g.controls[i].finalx += (g.controls[i].finalwidth - g.controls[i].prefwidth) / 2
+			}
+			g.controls[i].finalwidth = g.controls[i].prefwidth	// for all three
 		}
-		cell.yoff = 0
-		switch cell.yalign {
-		case LeftTop:
-			// do nothing; this is the default
-		case Center:
-			cell.yoff = (rowheights[cell.gridy] - cell.height) / 2
-		case RightBottom:
-			cell.yoff = rowheights[cell.gridy] - cell.height
-		case Fill:
-			cell.height = rowheights[cell.gridy]
-		default:
-			panic(fmt.Errorf("invalid yalign %d in Grid.allocate()", cell.yalign))
+		if g.controls[i].yalign != Fill {
+			switch g.controls[i].yalign {
+			case RightBottom:
+				g.controls[i].finaly += g.controls[i].finalheight - g.controls[i].prefheight
+			case Center:
+				g.controls[i].finaly += (g.controls[i].finalheight - g.controls[i].prefheight) / 2
+			}
+			g.controls[i].finalheight = g.controls[i].prefheight	// for all three
 		}
 	}
 
-	// 5) position everything
-	for c, cell := range g.controls {
-		cx := x
-		cy := y
-		for i := 0; i < cell.gridx; i++ {
-			cx += colwidths[i] + d.xpadding
-		}
-		for i := 0; i < cell.gridy; i++ {
-			cy += rowheights[i] + d.ypadding
-		}
-		cell.allocations = c.allocate(cx + cell.xoff, cy + cell.yoff, cell.width, cell.height, d)
-	}
-
-	// 6) handle neighbors and build final allocation array
+	// 7) and FINALLY we draw
 	var current *allocation
 
-	for _, xcol := range g.grid {
+	for _, ycol := range gg {
 		current = nil
-		for _, c := range xcol {
-			if c != nil {								// treat empty cells like spaces
-				cell := g.controls[c]
-				if current != nil {					// connect first left to first right
-					current.neighbor = c
+		for _, i := range ycol {
+			if i != -1 {						// treat empty cells like spaces
+				as := g.controls[i].control.allocate(
+					g.controls[i].finalx + x, g.controls[i].finaly + y,
+					g.controls[i].finalwidth, g.controls[i].finalheight, d)
+				if current != nil {			// connect first left to first right
+					current.neighbor = g.controls[i].control
 				}
-				if len(cell.allocations) != 0 {
-					current = cell.allocations[0]		// next left is first subwidget
+				if len(as) != 0 {
+					current = as[0]			// next left is first subwidget
 				} else {
-					current = nil					// spaces don't have allocation data
+					current = nil			// spaces don't have allocation data
 				}
-				allocations = append(allocations, cell.allocations...)
+				allocations = append(allocations, as...)
 			}
 		}
 	}
@@ -325,37 +352,44 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 		return 0, 0
 	}
 
-	// 1) compute the resultant grid
-	g.buildGrid()
+	// 0) build necessary data structures
+	gg, colwidths, rowheights := g.mkgrid()
 
-	// 2) for every control (including those that don't expand), set the width of each cell of its column/height of each cell of its row to the largest such
-	colwidths := make([]int, g.xmax)
-	rowheights := make([]int, g.ymax)
-	for c, cell := range g.controls {
-		width, height := c.preferredSize(d)
-		cell.width = width
-		cell.height = height
-		if colwidths[cell.gridx] < width {
-			colwidths[cell.gridx] = width
+	// 1) compute colwidths and rowheights before handling expansion
+	// TODO put this in its own function
+	for y := 0; y < len(gg); y++ {
+		for x := 0; x < len(gg[y]); x++ {
+			i := gg[y][x]
+			if i == -1 {
+				continue
+			}
+			w, h := g.controls[i].control.preferredSize(d)
+			// allot equal space in the presence of spanning to keep things sane
+			if colwidths[x] < w / g.controls[i].xspan {
+				colwidths[x] = w / g.controls[i].xspan
+			}
+			if rowheights[y] < h / g.controls[i].yspan {
+				rowheights[y] = h / g.controls[i].yspan
+			}
+			// save these for step 6
+			g.controls[i].prefwidth = w
+			g.controls[i].prefheight = h
 		}
-		if rowheights[cell.gridy] < height {
-			rowheights[cell.gridy] = height
-		}
 	}
 
-	// 3) and sum the widths and heights
-	maxx := 0
-	for _, x := range colwidths {
-		maxx += x
+	// 2) compute total column width/row height
+	colwidth := 0
+	rowheight := 0
+	for _, w := range colwidths {
+		colwidth += w
 	}
-	maxy := 0
-	for _, y := range rowheights {
-		maxy += y
+	for _, h := range rowheights {
+		rowheight += h
 	}
 
-	// and that's it really; just discount the padding
-	return maxx + (g.xmax - 1) * d.xpadding,
-		maxy + (g.ymax - 1) * d.ypadding
+	// and that's it; just account for padding
+	return colwidth + (g.xmax - 1) * d.xpadding,
+		rowheight + (g.ymax - 1) * d.ypadding
 }
 
 func (g *grid) commitResize(a *allocation, d *sizing) {
