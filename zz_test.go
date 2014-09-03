@@ -147,7 +147,7 @@ func (tw *testwin) make(done chan struct{}) {
 	})
 	tw.icons, tw.il = readIcons()		// repainter uses these
 	tw.repainter = newRepainter(15)
-	tw.t.Append("Repaint", tw.repainter.stack)
+	tw.t.Append("Repaint", tw.repainter.grid)
 	tw.addfe()
 	tw.icontbl = NewTable(reflect.TypeOf(icon{}))
 	tw.icontbl.Lock()

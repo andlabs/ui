@@ -18,7 +18,7 @@ type repainter struct {
 	height	TextField
 	repaint	Button
 	all		Button
-	stack	Stack
+	grid		Grid
 
 	xv		int
 	yv		int
@@ -31,9 +31,6 @@ func newRepainter(times int) *repainter {
 	r.img = tileImage(times)
 	r.area = NewArea(r.img.Rect.Dx(), r.img.Rect.Dy(), r)
 	r.area.OnTextFieldDismissed(r.tfdone)
-	grid2 := NewGrid()
-	grid2.Add(r.area, nil, South, true, Fill, true, Fill, 1, 1)
-	grid2.Add(NewButton("X"), nil, East, false, LeftTop, true, Center, 1, 1)
 	r.x = NewTextField()
 	r.x.OnChanged(r.setx)
 	r.y = NewTextField()
@@ -47,14 +44,14 @@ func newRepainter(times int) *repainter {
 	r.all = NewButton("All")
 	r.all.OnClicked(r.doall)
 	grid := NewGrid()
-	grid.Add(r.x, nil, North, true, Fill, false, LeftTop, 1, 1)
-	grid.Add(r.y, r.x, East, true, Fill, false, LeftTop, 1, 1)
-	grid.Add(r.repaint, nil, East, false, 0, false, LeftTop, 1, 1)
-	grid.Add(r.width, r.x, South, true, Fill, false, LeftTop, 1, 1)
-	grid.Add(r.height, nil, East, true, Fill, false, LeftTop, 1, 1)
-	grid.Add(r.all, nil, East, false, Center, false, LeftTop, 1, 1)
-	r.stack = NewVerticalStack(grid2, grid)
-	r.stack.SetStretchy(0)
+	grid.Add(r.area, nil, South, true, Fill, true, Fill, 3, 6)
+	grid.Add(r.x, nil, East, true, Fill, false, LeftTop, 1, 1)
+	grid.Add(r.y, nil, South, true, Fill, false, LeftTop, 1, 1)
+	grid.Add(r.width, nil, South, true, Fill, false, LeftTop, 1, 1)
+	grid.Add(r.height, nil, South, true, Fill, false, LeftTop, 1, 1)
+	grid.Add(r.repaint, nil, South, true, Fill, true, Fill, 1, 1)
+	grid.Add(r.all, nil, South, true, Center, false, LeftTop, 1, 1)
+	r.grid = grid
 	return r
 }
 
