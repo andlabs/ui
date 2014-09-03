@@ -218,27 +218,29 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 
 	// 2) figure out which columns expand
 	// we only mark the first row/column of a spanning cell as expanding to prevent unexpected behavior
-	nxexpand := 0
-	nyexpand := 0
 	for i := range g.controls {
 		if g.controls[i].xexpand {
 			xexpand[g.controls[i].x] = true
-			nxexpand++
 		}
 		if g.controls[i].yexpand {
 			yexpand[g.controls[i].y] = true
-			nyexpand++
 		}
 	}
 
-	// 3) assign expanded widths/heights
+	// 3) compute and assign expanded widths/heights
+	nxexpand := 0
+	nyexpand := 0
 	for x, expand := range xexpand {
-		if !expand {
+		if expand {
+			nxexpand++
+		} else {
 			width -= colwidths[x]
 		}
 	}
 	for y, expand := range yexpand {
-		if !expand {
+		if expand {
+			nyexpand++
+		} else {
 			height -= rowheights[y]
 		}
 	}
