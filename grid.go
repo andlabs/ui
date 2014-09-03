@@ -242,7 +242,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 			height -= rowheights[y]
 		}
 	}
-/*	for x, expand := range xexpand {
+	for x, expand := range xexpand {
 		if expand {
 			colwidths[x] = width / nxexpand
 		}
@@ -252,7 +252,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 			rowheights[y] = height / nyexpand
 		}
 	}
-*/
+
 	// 4) reset the final coordinates for the next step
 	for i := range g.controls {
 		g.controls[i].finalx = 0
