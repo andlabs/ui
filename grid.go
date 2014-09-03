@@ -74,6 +74,7 @@ type gridCell struct {
 	width		int
 	height		int
 	visited		bool
+	allocations	[]*allocation
 }
 
 // NewGrid creates a new Grid with no Controls.
@@ -281,30 +282,38 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 5) draw
+	// 5) position everything
+	for c, cell := range g.controls {
+		cx := x
+		cy := y
+		for i := 0; i < cell.gridx; i++ {
+			cx += colwidths[i] + d.xpadding
+		}
+		for i := 0; i < cell.gridy; i++ {
+			cy += rowheights[i] + d.ypadding
+		}
+		cell.allocations = c.allocate(cx + cell.xoff, cy + cell.yoff, cell.width, cell.height, d)
+	}
+
+	// 6) handle neighbors and build final allocation array
 	var current *allocation
 
-	startx := x
-	for row, xcol := range g.grid {
+	for _, xcol := range g.grid {
 		current = nil
-		for col, c := range xcol {
-			if c != nil {					// treat empty cells like spaces
+		for _, c := range xcol {
+			if c != nil {								// treat empty cells like spaces
 				cell := g.controls[c]
-				as := c.allocate(x + cell.xoff, y + cell.yoff, cell.width, cell.height, d)
-				if current != nil {		// connect first left to first right
+				if current != nil {					// connect first left to first right
 					current.neighbor = c
 				}
-				if len(as) != 0 {
-					current = as[0]		// next left is first subwidget
+				if len(cell.allocations) != 0 {
+					current = cell.allocations[0]		// next left is first subwidget
 				} else {
-					current = nil		// spaces don't have allocation data
+					current = nil					// spaces don't have allocation data
 				}
-				allocations = append(allocations, as...)
+				allocations = append(allocations, cell.allocations...)
 			}
-			x += colwidths[col] + d.xpadding
 		}
-		x = startx
-		y += rowheights[row] + d.ypadding
 	}
 
 	return allocations
