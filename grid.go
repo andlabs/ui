@@ -269,7 +269,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 3) compute and assign expanded widths/heights
+	// 4) compute and assign expanded widths/heights
 	nxexpand := 0
 	nyexpand := 0
 	for x, expand := range xexpand {
@@ -297,7 +297,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 4) reset the final coordinates for the next step
+	// 5) reset the final coordinates for the next step
 	for i := range g.controls {
 		g.controls[i].finalx = 0
 		g.controls[i].finaly = 0
@@ -305,7 +305,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		g.controls[i].finalheight = 0
 	}
 
-	// 5) compute cell positions and widths
+	// 6) compute cell positions and sizes
 	for y := 0; y < g.ymax; y++ {
 		curx := 0
 		prev := -1
@@ -341,7 +341,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 6) everything as it stands now is set for xalign == Fill yalign == Fill; set the correct alignments
+	// 7) everything as it stands now is set for xalign == Fill yalign == Fill; set the correct alignments
 	// this is why we saved prefwidth/prefheight above
 	for i := range g.controls {
 		if g.controls[i].xalign != Fill {
@@ -364,7 +364,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 7) and FINALLY we draw
+	// 8) and FINALLY we draw
 	var current *allocation
 
 	for _, ycol := range gg {
