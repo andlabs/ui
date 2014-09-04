@@ -14,6 +14,8 @@ prevlib.tar contains the previous version of the library as it stood when I rest
 
 # Updates
 
+**3 September 2014**<br>The new GtkGrid-style Grid is now implemented! See its documentation for more details. Also, debugging spew has been removed.
+
 **31 August 2014**<br>Grid is now renamed SimpleGrid in preparation for implementing a more [GtkGrid](https://developer.gnome.org/gtk3/unstable/GtkGrid.html)-like Grid. Mind the change.
 
 # Screenshots

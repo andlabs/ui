@@ -95,3 +95,4 @@ gtk+, mac os x
 all
 	- make spaced settable somehow
 	- rename Selected to Selection?
+	- Grid test (Repainter tab) has no scrollbars on area
