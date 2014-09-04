@@ -311,7 +311,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		prev := -1
 		for x := 0; x < g.xmax; x++ {
 			i := gg[y][x]
-			if i != -1 {
+			if i != -1 && y == g.controls[i].y {		// don't repeat this step if the control spans vertically
 				if i != prev {
 					g.controls[i].finalx = curx
 				} else {
@@ -328,7 +328,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		prev := -1
 		for y := 0; y < g.ymax; y++ {
 			i := gg[y][x]
-			if i != -1 {
+			if i != -1 && x == g.controls[i].x {		// don't repeat this step if the control spans horizontally
 				if i != prev {
 					g.controls[i].finaly = cury
 				} else {
@@ -400,7 +400,7 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 	gg, colwidths, rowheights := g.mkgrid()
 
 	// 1) compute colwidths and rowheights before handling expansion
-	// TODO put this in its own function
+	// TODO put this in its own function (but careful about the spanning calculation in allocate())
 	for y := 0; y < len(gg); y++ {
 		for x := 0; x < len(gg[y]); x++ {
 			i := gg[y][x]
