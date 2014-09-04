@@ -201,6 +201,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 	yexpand := make([]bool, g.ymax)
 
 	// 1) compute colwidths and rowheights before handling expansion
+	// we only count non-spanning controls to avoid weirdness
 	for y := 0; y < len(gg); y++ {
 		for x := 0; x < len(gg[y]); x++ {
 			i := gg[y][x]
@@ -208,12 +209,15 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 				continue
 			}
 			w, h := g.controls[i].control.preferredSize(d)
-			// allot equal space in the presence of spanning to keep things sane
-			if colwidths[x] < w / g.controls[i].xspan {
-				colwidths[x] = w / g.controls[i].xspan
+			if g.controls[i].xspan == 1 {
+				if colwidths[x] < w {
+					colwidths[x] = w
+				}
 			}
-			if rowheights[y] < h / g.controls[i].yspan {
-				rowheights[y] = h / g.controls[i].yspan
+			if g.controls[i].yspan == 1 {
+				if rowheights[y] < h {
+					rowheights[y] = h
+				}
 			}
 			// save these for step 6
 			g.controls[i].prefwidth = w
@@ -221,14 +225,47 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		}
 	}
 
-	// 2) figure out which columns expand
-	// we only mark the first row/column of a spanning cell as expanding to prevent unexpected behavior
+	// 2) figure out which rows/columns expand but not span
+	// we need to know which expanding rows/columns don't span before we can handle the ones that do
 	for i := range g.controls {
-		if g.controls[i].xexpand {
+		if g.controls[i].xexpand && g.controls[i].xspan == 1 {
 			xexpand[g.controls[i].x] = true
 		}
-		if g.controls[i].yexpand {
+		if g.controls[i].yexpand && g.controls[i].yspan == 1 {
 			yexpand[g.controls[i].y] = true
+		}
+	}
+
+	// 2) figure out which rows/columns expand that do span
+	// the way we handle this is simple: if none of the spanned rows/columns expand, make all rows/columns expand
+	for i := range g.controls {
+		if g.controls[i].xexpand && g.controls[i].xspan != 1 {
+			do := true
+			for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+				if xexpand[x] {
+					do = false
+					break
+				}
+			}
+			if do {
+				for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+					xexpand[x] = true
+				}
+			}
+		}
+		if g.controls[i].yexpand && g.controls[i].yspan != 1 {
+			do := true
+			for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
+				if yexpand[y] {
+					do = false
+					break
+				}
+			}
+			if do {
+				for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
+					yexpand[y] = true
+				}
+			}
 		}
 	}
 
