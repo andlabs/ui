@@ -85,7 +85,7 @@ static void paintArea(HWND hwnd, void *data)
 	ZeroMemory(&bi, sizeof (BITMAPINFO));
 	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
 	bi.bmiHeader.biWidth = (LONG) dx;
-	bi.bmiHeader.biHeight = -((LONG) dy);			// negative height to force top-down drawing;
+	bi.bmiHeader.biHeight = -((LONG) dy);			// negative height to force top-down drawing
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biCompression = BI_RGB;
