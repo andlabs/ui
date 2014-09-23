@@ -7,6 +7,8 @@
 // NSPopovers are intended for interactive content, and Apple seems to be diligent in enforcing this rule, as the known techniques for preventing a NSPopover from stealing focus no longer work in 10.9.
 // Let's just fake it with a window.
 
+// TODO better would be to use NSImageNameInvalidDataFreestandingTemplate somehow
+
 @interface goWarningPopover : NSWindow {
 @public
 	id onBegin;
