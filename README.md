@@ -16,6 +16,10 @@ Be sure to have at least each outermost Window escaping to the heap until a good
 
 prevlib.tar contains the previous version of the library as it stood when I restarted; don't bother using it.
 
+# Documentation
+
+The in-code documentation needs improvement. I have written a tutorial in the Wiki at right; page Getting Started.
+
 # Updates
 
 **3 September 2014**<br>The new GtkGrid-style Grid is now implemented! See its documentation for more details. Also, debugging spew has been removed.
