@@ -4,9 +4,10 @@
 
 This is a library that aims to provide simple GUI software development in Go. It runs on/requires:
 
-* Windows: cgo, mingw-w64 (regular MinGW won't work!), Windows XP and newer
-* Mac OS X: cgo, Mac OS X 10.7 and newer
-* other Unixes: cgo, GTK+ 3.4 and newer
+- Windows: cgo, MinGW-w64 (see note below), Windows XP and newer
+	- **Note**: Notice I specifically said [MinGW-w64](http://mingw-w64.sourceforge.net/) here. This is important: regular MinGW is missing various recent header files which package ui uses, and thus won't build with it. Make sure your MinGW is that version instead. If you're running on Windows and are not sure what to download, get the mingw-builds distribution.
+- Mac OS X: cgo, Mac OS X 10.7 and newer
+- other Unixes: cgo, GTK+ 3.4 and newer
 
 Go 1.3 is required. Note that vanilla 1.3 has a bug in Mac OS X cgo; the next release will fix it.
 
