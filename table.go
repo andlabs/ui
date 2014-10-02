@@ -52,8 +52,8 @@ type Table interface {
 }
 
 type tablebase struct {
-	lock		sync.RWMutex
-	data		interface{}
+	lock sync.RWMutex
+	data interface{}
 }
 
 // NewTable creates a new Table.

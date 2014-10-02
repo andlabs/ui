@@ -13,14 +13,14 @@ import (
 import "C"
 
 type window struct {
-	widget	*C.GtkWidget
-	wc		*C.GtkContainer
-	bin		*C.GtkBin
-	window	*C.GtkWindow
+	widget *C.GtkWidget
+	wc     *C.GtkContainer
+	bin    *C.GtkBin
+	window *C.GtkWindow
 
-	group	*C.GtkWindowGroup
+	group *C.GtkWindowGroup
 
-	closing	*event
+	closing *event
 
 	*container
 }
@@ -30,11 +30,11 @@ func newWindow(title string, width int, height int, control Control) *window {
 	ctitle := togstr(title)
 	defer freegstr(ctitle)
 	w := &window{
-		widget:		widget,
-		wc:			(*C.GtkContainer)(unsafe.Pointer(widget)),
-		bin:			(*C.GtkBin)(unsafe.Pointer(widget)),
-		window:		(*C.GtkWindow)(unsafe.Pointer(widget)),
-		closing:		newEvent(),
+		widget:  widget,
+		wc:      (*C.GtkContainer)(unsafe.Pointer(widget)),
+		bin:     (*C.GtkBin)(unsafe.Pointer(widget)),
+		window:  (*C.GtkWindow)(unsafe.Pointer(widget)),
+		closing: newEvent(),
 	}
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
@@ -82,7 +82,7 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 	w := (*window)(unsafe.Pointer(data))
 	close := w.closing.fire()
 	if close {
-		return C.GDK_EVENT_PROPAGATE		// will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
+		return C.GDK_EVENT_PROPAGATE // will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
 	}
-	return C.GDK_EVENT_STOP				// keeps window alive
+	return C.GDK_EVENT_STOP // keeps window alive
 }

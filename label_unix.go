@@ -14,10 +14,10 @@ import (
 import "C"
 
 type label struct {
-	_widget		*C.GtkWidget
-	misc			*C.GtkMisc
-	label			*C.GtkLabel
-	standalone	bool
+	_widget    *C.GtkWidget
+	misc       *C.GtkMisc
+	label      *C.GtkLabel
+	standalone bool
 }
 
 func finishNewLabel(text string, standalone bool) *label {
@@ -25,10 +25,10 @@ func finishNewLabel(text string, standalone bool) *label {
 	defer freegstr(ctext)
 	widget := C.gtk_label_new(ctext)
 	l := &label{
-		_widget:		widget,
-		misc:		(*C.GtkMisc)(unsafe.Pointer(widget)),
-		label:		(*C.GtkLabel)(unsafe.Pointer(widget)),
-		standalone:	standalone,
+		_widget:    widget,
+		misc:       (*C.GtkMisc)(unsafe.Pointer(widget)),
+		label:      (*C.GtkLabel)(unsafe.Pointer(widget)),
+		standalone: standalone,
 	}
 	return l
 }

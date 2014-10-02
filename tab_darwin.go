@@ -10,13 +10,13 @@ import (
 import "C"
 
 type tab struct {
-	_id		C.id
-	tabs		[]*container
+	_id  C.id
+	tabs []*container
 }
 
 func newTab() Tab {
 	return &tab{
-		_id:		C.newTab(),
+		_id: C.newTab(),
 	}
 }
 

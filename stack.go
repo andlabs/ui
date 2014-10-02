@@ -68,7 +68,7 @@ func (s *stack) setParent(parent *controlParent) {
 
 func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
 	var stretchywid, stretchyht int
-	var current *allocation		// for neighboring
+	var current *allocation // for neighboring
 
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
 		return nil
@@ -117,14 +117,14 @@ func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (alloca
 	// 3) now actually place controls
 	for i, c := range s.controls {
 		as := c.allocate(x, y, s.width[i], s.height[i], d)
-		if s.orientation == horizontal {		// no vertical neighbors
-			if current != nil {			// connect first left to first right
+		if s.orientation == horizontal { // no vertical neighbors
+			if current != nil { // connect first left to first right
 				current.neighbor = c
 			}
 			if len(as) != 0 {
-				current = as[0]			// next left is first subwidget
+				current = as[0] // next left is first subwidget
 			} else {
-				current = nil			// spaces don't have allocation data
+				current = nil // spaces don't have allocation data
 			}
 		}
 		allocations = append(allocations, as...)
@@ -191,7 +191,6 @@ func (s *stack) commitResize(c *allocation, d *sizing) {
 func (s *stack) getAuxResizeInfo(d *sizing) {
 	// this is to satisfy Control; nothing to do here
 }
-
 
 // Space returns a null Control intended for padding layouts with blank space.
 // It appears to its owner as a Control of 0x0 size.

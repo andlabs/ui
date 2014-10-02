@@ -13,11 +13,11 @@ import (
 import "C"
 
 type checkbox struct {
-	_widget		*C.GtkWidget
-	button		*C.GtkButton
-	toggle		*C.GtkToggleButton
-	checkbox		*C.GtkCheckButton
-	toggled		*event
+	_widget  *C.GtkWidget
+	button   *C.GtkButton
+	toggle   *C.GtkToggleButton
+	checkbox *C.GtkCheckButton
+	toggled  *event
 }
 
 func newCheckbox(text string) *checkbox {
@@ -25,11 +25,11 @@ func newCheckbox(text string) *checkbox {
 	defer freegstr(ctext)
 	widget := C.gtk_check_button_new_with_label(ctext)
 	c := &checkbox{
-		_widget:		widget,
-		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
-		toggle:		(*C.GtkToggleButton)(unsafe.Pointer(widget)),
-		checkbox:	(*C.GtkCheckButton)(unsafe.Pointer(widget)),
-		toggled:		newEvent(),
+		_widget:  widget,
+		button:   (*C.GtkButton)(unsafe.Pointer(widget)),
+		toggle:   (*C.GtkToggleButton)(unsafe.Pointer(widget)),
+		checkbox: (*C.GtkCheckButton)(unsafe.Pointer(widget)),
+		toggled:  newEvent(),
 	}
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(c.checkbox)),

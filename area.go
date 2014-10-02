@@ -62,9 +62,9 @@ type Area interface {
 }
 
 type areabase struct {
-	width	int
-	height	int
-	handler	AreaHandler
+	width   int
+	height  int
+	handler AreaHandler
 }
 
 // AreaHandler represents the events that an Area should respond to.
@@ -314,9 +314,9 @@ func NewArea(width int, height int, handler AreaHandler) Area {
 		panic("handler passed to NewArea() must not be nil")
 	}
 	return newArea(&areabase{
-		width:	width,
-		height:	height,
-		handler:	handler,
+		width:   width,
+		height:  height,
+		handler: handler,
 	})
 }
 
@@ -342,7 +342,7 @@ func toARGB(i *image.RGBA, memory uintptr, memstride int, toNRGBA bool) {
 	p := pixelDataPos(i)
 	q := 0
 	iPix := i.Pix
-	if toNRGBA {		// for Windows image lists
+	if toNRGBA { // for Windows image lists
 		j := image.NewNRGBA(i.Rect)
 		draw.Draw(j, j.Rect, i, i.Rect.Min, draw.Src)
 		iPix = j.Pix

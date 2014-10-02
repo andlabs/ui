@@ -14,7 +14,7 @@ import (
 // One Control can be marked as "stretchy": when the Window containing the SimpleGrid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a SimpleGrid are given in (row,column) form with (0,0) being the top-left cell.
-// 
+//
 // As a special rule, to ensure proper appearance, non-standalone Labels are automatically made filling.
 type SimpleGrid interface {
 	Control
@@ -34,7 +34,7 @@ type simpleGrid struct {
 	controls                 [][]Control
 	filling                  [][]bool
 	stretchyrow, stretchycol int
-	stretchyfill	bool
+	stretchyfill             bool
 	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
 }
@@ -98,7 +98,7 @@ func (g *simpleGrid) SetStretchy(row int, column int) {
 	}
 	g.stretchyrow = row
 	g.stretchycol = column
-	g.stretchyfill = g.filling[g.stretchyrow][g.stretchycol]		// save previous value in case it changes later
+	g.stretchyfill = g.filling[g.stretchyrow][g.stretchycol] // save previous value in case it changes later
 	g.filling[g.stretchyrow][g.stretchycol] = true
 }
 
@@ -118,7 +118,7 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 		return b
 	}
 
-	var current *allocation		// for neighboring
+	var current *allocation // for neighboring
 
 	if len(g.controls) == 0 {
 		return nil
@@ -161,7 +161,7 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
-		current = nil		// reset on new columns
+		current = nil // reset on new columns
 		for col, c := range xcol {
 			w := g.widths[row][col]
 			h := g.heights[row][col]
@@ -170,13 +170,13 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 				h = g.rowheights[row]
 			}
 			as := c.allocate(x, y, w, h, d)
-			if current != nil {			// connect first left to first right
+			if current != nil { // connect first left to first right
 				current.neighbor = c
 			}
 			if len(as) != 0 {
-				current = as[0]			// next left is first subwidget
+				current = as[0] // next left is first subwidget
 			} else {
-				current = nil			// spaces don't have allocation data
+				current = nil // spaces don't have allocation data
 			}
 			allocations = append(allocations, as...)
 			x += g.colwidths[col] + d.xpadding

@@ -10,16 +10,16 @@ import (
 import "C"
 
 type checkbox struct {
-	_id		C.id
-	toggled	*event
+	_id     C.id
+	toggled *event
 }
 
 func newCheckbox(text string) *checkbox {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	c := &checkbox{
-		_id:			C.newCheckbox(),
-		toggled:		newEvent(),
+		_id:     C.newCheckbox(),
+		toggled: newEvent(),
 	}
 	C.buttonSetText(c._id, ctext)
 	C.checkboxSetDelegate(c._id, unsafe.Pointer(c))

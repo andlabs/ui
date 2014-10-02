@@ -12,10 +12,10 @@ import (
 import "C"
 
 type window struct {
-	hwnd		C.HWND
-	shownbefore	bool
+	hwnd        C.HWND
+	shownbefore bool
 
-	closing		*event
+	closing *event
 
 	*container
 }
@@ -33,14 +33,14 @@ func makeWindowWindowClass() error {
 func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
 		// hwnd set in WM_CREATE handler
-		closing:		newEvent(),
-		container:		newContainer(control),
+		closing:   newEvent(),
+		container: newContainer(control),
 	}
 	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	if hwnd != w.hwnd {
 		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in Window (%p) differ", hwnd, w.hwnd))
 	}
-	hresult := C.EnableThemeDialogTexture(w.hwnd, C.ETDT_ENABLE | C.ETDT_USETABTEXTURE)
+	hresult := C.EnableThemeDialogTexture(w.hwnd, C.ETDT_ENABLE|C.ETDT_USETABTEXTURE)
 	if hresult != C.S_OK {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
 	}

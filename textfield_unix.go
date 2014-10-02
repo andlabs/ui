@@ -18,17 +18,17 @@ import (
 import "C"
 
 type textfield struct {
-	_widget		*C.GtkWidget
-	entry		*C.GtkEntry
-	changed		*event
+	_widget *C.GtkWidget
+	entry   *C.GtkEntry
+	changed *event
 }
 
 func startNewTextField() *textfield {
 	widget := C.gtk_entry_new()
 	t := &textfield{
-		_widget:		widget,
-		entry:		(*C.GtkEntry)(unsafe.Pointer(widget)),
-		changed:		newEvent(),
+		_widget: widget,
+		entry:   (*C.GtkEntry)(unsafe.Pointer(widget)),
+		changed: newEvent(),
 	}
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(t._widget)),

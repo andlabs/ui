@@ -13,8 +13,8 @@ import "C"
 
 type container struct {
 	containerbase
-	layoutwidget		*C.GtkWidget
-	layoutcontainer	*C.GtkContainer
+	layoutwidget    *C.GtkWidget
+	layoutcontainer *C.GtkContainer
 }
 
 type sizing struct {
@@ -24,7 +24,7 @@ type sizing struct {
 	// gtk+ needs nothing
 
 	// for the actual resizing
-	shouldVAlignTop	bool
+	shouldVAlignTop bool
 }
 
 func newContainer(child Control) *container {
@@ -48,8 +48,8 @@ func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
 }
 
 const (
-	gtkXMargin = 12
-	gtkYMargin = 12
+	gtkXMargin  = 12
+	gtkYMargin  = 12
 	gtkXPadding = 12
 	gtkYPadding = 6
 )

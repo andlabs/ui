@@ -9,7 +9,7 @@ import (
 // Grid is a Control that arranges other Controls in a grid.
 // Grid is a very powerful container: it can position and size each Control in several ways and can (and must) have Controls added to it at any time, in any direction.
 // it can also have Controls spanning multiple rows and columns.
-// 
+//
 // Each Control in a Grid has associated "expansion" and "alignment" values in both the X and Y direction.
 // Expansion determines whether all cells in the same row/column are given whatever space is left over after figuring out how big the rest of the Grid should be.
 // Alignment determines the position of a Control relative to its cell after computing the above.
@@ -31,6 +31,7 @@ type Grid interface {
 
 // Align represents the alignment of a Control in its cell of a Grid.
 type Align uint
+
 const (
 	LeftTop Align = iota
 	Center
@@ -40,6 +41,7 @@ const (
 
 // Side represents a side of a Control to add other Controls to a Grid to.
 type Side uint
+
 const (
 	West Side = iota
 	East
@@ -49,39 +51,39 @@ const (
 )
 
 type grid struct {
-	controls		[]gridCell
-	indexof		map[Control]int
-	prev			int
-	parent		*controlParent
+	controls []gridCell
+	indexof  map[Control]int
+	prev     int
+	parent   *controlParent
 
-	xmax		int
-	ymax		int
+	xmax int
+	ymax int
 }
 
 type gridCell struct {
-	control		Control
-	xexpand		bool
-	xalign		Align
-	yexpand		bool
-	yalign		Align
-	xspan		int
-	yspan		int
+	control Control
+	xexpand bool
+	xalign  Align
+	yexpand bool
+	yalign  Align
+	xspan   int
+	yspan   int
 
-	x			int
-	y			int
+	x int
+	y int
 
-	finalx		int
-	finaly		int
-	finalwidth		int
-	finalheight	int
-	prefwidth		int
-	prefheight	int
+	finalx      int
+	finaly      int
+	finalwidth  int
+	finalheight int
+	prefwidth   int
+	prefheight  int
 }
 
 // NewGrid creates a new Grid with no Controls.
 func NewGrid() Grid {
 	return &grid{
-		indexof:		map[Control]int{},
+		indexof: map[Control]int{},
 	}
 }
 
@@ -105,10 +107,10 @@ func (g *grid) reorigin() {
 	for i := range g.controls {
 		g.controls[i].x += xmin
 		g.controls[i].y += ymin
-		if g.xmax < g.controls[i].x + g.controls[i].xspan {
+		if g.xmax < g.controls[i].x+g.controls[i].xspan {
 			g.xmax = g.controls[i].x + g.controls[i].xspan
 		}
-		if g.ymax < g.controls[i].y + g.controls[i].yspan {
+		if g.ymax < g.controls[i].y+g.controls[i].yspan {
 			g.ymax = g.controls[i].y + g.controls[i].yspan
 		}
 	}
@@ -119,13 +121,13 @@ func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xal
 		panic(fmt.Errorf("invalid span %dx%d given to Grid.Add()", xspan, yspan))
 	}
 	cell := gridCell{
-		control:		control,
-		xexpand:		xexpand,
-		xalign:		xalign,
-		yexpand:		yexpand,
-		yalign:		yalign,
-		xspan:		xspan,
-		yspan:		yspan,
+		control: control,
+		xexpand: xexpand,
+		xalign:  xalign,
+		yexpand: yexpand,
+		yalign:  yalign,
+		xspan:   xspan,
+		yspan:   yspan,
 	}
 	if g.parent != nil {
 		control.setParent(g.parent)
@@ -176,8 +178,8 @@ func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
 		}
 	}
 	for i := range g.controls {
-		for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
-			for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+		for y := g.controls[i].y; y < g.controls[i].y+g.controls[i].yspan; y++ {
+			for x := g.controls[i].x; x < g.controls[i].x+g.controls[i].xspan; x++ {
 				gg[y][x] = i
 			}
 		}
@@ -241,28 +243,28 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 	for i := range g.controls {
 		if g.controls[i].xexpand && g.controls[i].xspan != 1 {
 			do := true
-			for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+			for x := g.controls[i].x; x < g.controls[i].x+g.controls[i].xspan; x++ {
 				if xexpand[x] {
 					do = false
 					break
 				}
 			}
 			if do {
-				for x := g.controls[i].x; x < g.controls[i].x + g.controls[i].xspan; x++ {
+				for x := g.controls[i].x; x < g.controls[i].x+g.controls[i].xspan; x++ {
 					xexpand[x] = true
 				}
 			}
 		}
 		if g.controls[i].yexpand && g.controls[i].yspan != 1 {
 			do := true
-			for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
+			for y := g.controls[i].y; y < g.controls[i].y+g.controls[i].yspan; y++ {
 				if yexpand[y] {
 					do = false
 					break
 				}
 			}
 			if do {
-				for y := g.controls[i].y; y < g.controls[i].y + g.controls[i].yspan; y++ {
+				for y := g.controls[i].y; y < g.controls[i].y+g.controls[i].yspan; y++ {
 					yexpand[y] = true
 				}
 			}
@@ -311,7 +313,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		prev := -1
 		for x := 0; x < g.xmax; x++ {
 			i := gg[y][x]
-			if i != -1 && y == g.controls[i].y {		// don't repeat this step if the control spans vertically
+			if i != -1 && y == g.controls[i].y { // don't repeat this step if the control spans vertically
 				if i != prev {
 					g.controls[i].finalx = curx
 				} else {
@@ -328,7 +330,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 		prev := -1
 		for y := 0; y < g.ymax; y++ {
 			i := gg[y][x]
-			if i != -1 && x == g.controls[i].x {		// don't repeat this step if the control spans horizontally
+			if i != -1 && x == g.controls[i].x { // don't repeat this step if the control spans horizontally
 				if i != prev {
 					g.controls[i].finaly = cury
 				} else {
@@ -351,7 +353,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 			case Center:
 				g.controls[i].finalx += (g.controls[i].finalwidth - g.controls[i].prefwidth) / 2
 			}
-			g.controls[i].finalwidth = g.controls[i].prefwidth	// for all three
+			g.controls[i].finalwidth = g.controls[i].prefwidth // for all three
 		}
 		if g.controls[i].yalign != Fill {
 			switch g.controls[i].yalign {
@@ -360,7 +362,7 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 			case Center:
 				g.controls[i].finaly += (g.controls[i].finalheight - g.controls[i].prefheight) / 2
 			}
-			g.controls[i].finalheight = g.controls[i].prefheight	// for all three
+			g.controls[i].finalheight = g.controls[i].prefheight // for all three
 		}
 	}
 
@@ -370,17 +372,17 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 	for _, ycol := range gg {
 		current = nil
 		for _, i := range ycol {
-			if i != -1 {						// treat empty cells like spaces
+			if i != -1 { // treat empty cells like spaces
 				as := g.controls[i].control.allocate(
-					g.controls[i].finalx + x, g.controls[i].finaly + y,
+					g.controls[i].finalx+x, g.controls[i].finaly+y,
 					g.controls[i].finalwidth, g.controls[i].finalheight, d)
-				if current != nil {			// connect first left to first right
+				if current != nil { // connect first left to first right
 					current.neighbor = g.controls[i].control
 				}
 				if len(as) != 0 {
-					current = as[0]			// next left is first subwidget
+					current = as[0] // next left is first subwidget
 				} else {
-					current = nil			// spaces don't have allocation data
+					current = nil // spaces don't have allocation data
 				}
 				allocations = append(allocations, as...)
 			}
@@ -409,10 +411,10 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 			}
 			w, h := g.controls[i].control.preferredSize(d)
 			// allot equal space in the presence of spanning to keep things sane
-			if colwidths[x] < w / g.controls[i].xspan {
+			if colwidths[x] < w/g.controls[i].xspan {
 				colwidths[x] = w / g.controls[i].xspan
 			}
-			if rowheights[y] < h / g.controls[i].yspan {
+			if rowheights[y] < h/g.controls[i].yspan {
 				rowheights[y] = h / g.controls[i].yspan
 			}
 			// save these for step 6
@@ -432,8 +434,8 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 	}
 
 	// and that's it; just account for padding
-	return colwidth + (g.xmax - 1) * d.xpadding,
-		rowheight + (g.ymax - 1) * d.ypadding
+	return colwidth + (g.xmax-1)*d.xpadding,
+		rowheight + (g.ymax-1)*d.ypadding
 }
 
 func (g *grid) commitResize(a *allocation, d *sizing) {

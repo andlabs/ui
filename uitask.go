@@ -3,10 +3,10 @@
 package ui
 
 import (
+	"reflect"
 	"runtime"
 	"sync"
 	"unsafe"
-	"reflect"
 )
 
 // Go initializes and runs package ui.
@@ -63,13 +63,13 @@ func uiissueloop() {
 
 type event struct {
 	// All events internally return bool; those that don't will be wrapped around to return a dummy value.
-	do		func() bool
-	lock		sync.Mutex
+	do   func() bool
+	lock sync.Mutex
 }
 
 func newEvent() *event {
 	return &event{
-		do:	func() bool {
+		do: func() bool {
 			return false
 		},
 	}
@@ -119,9 +119,9 @@ func perform(fp unsafe.Pointer) {
 
 // ForeignEvent wraps a channel in such a way that it can be used safely with package ui.
 type ForeignEvent struct {
-	c	reflect.Value
-	e	*event
-	d	interface{}
+	c reflect.Value
+	e *event
+	d interface{}
 }
 
 // NewForeignEvent creates a new ForeignEvent with the specified channel.
@@ -131,12 +131,12 @@ type ForeignEvent struct {
 func NewForeignEvent(channel interface{}, handler func(data interface{})) *ForeignEvent {
 	c := reflect.ValueOf(channel)
 	t := c.Type()
-	if t.Kind() != reflect.Chan || (t.ChanDir() & reflect.RecvDir) == 0 {
+	if t.Kind() != reflect.Chan || (t.ChanDir()&reflect.RecvDir) == 0 {
 		panic("non-channel or non-receivable channel passed to NewForeignEvent()")
 	}
 	fe := &ForeignEvent{
-		c:		c,
-		e:		newEvent(),
+		c: c,
+		e: newEvent(),
 	}
 	fe.e.set(func() {
 		handler(fe.d)

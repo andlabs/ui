@@ -12,7 +12,7 @@ type controlPrivate interface {
 }
 
 type controlParent struct {
-	id	C.id
+	id C.id
 }
 
 func basesetParent(c controlPrivate, p *controlParent) {
@@ -38,13 +38,13 @@ func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
 }
 
 type scroller struct {
-	id	C.id
+	id C.id
 }
 
 func newScroller(child C.id, bordered bool) *scroller {
 	id := C.newScrollView(child, toBOOL(bordered))
 	s := &scroller{
-		id:	id,
+		id: id,
 	}
 	return s
 }

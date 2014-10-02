@@ -16,7 +16,7 @@ import (
 import "C"
 
 func uiinit() error {
-	var err *C.GError = nil		// redundant in Go, but let's explicitly assign it anyway
+	var err *C.GError = nil // redundant in Go, but let's explicitly assign it anyway
 
 	// gtk_init_with_args() gives us error info (thanks chpe in irc.gimp.net/#gtk+)
 	// don't worry about GTK+'s command-line arguments; they're also available as environment variables (thanks mclasen in irc.gimp.net/#gtk+)
@@ -42,7 +42,7 @@ func issue(f *func()) {
 //export xdoissue
 func xdoissue(data C.gpointer) C.gboolean {
 	perform(unsafe.Pointer(data))
-	return C.FALSE			// don't repeat
+	return C.FALSE // don't repeat
 }
 
 //export doissue

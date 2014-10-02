@@ -3,20 +3,20 @@
 package ui
 
 type allocation struct {
-	x		int
-	y		int
-	width	int
-	height	int
-	this		Control
-	neighbor	Control
+	x        int
+	y        int
+	width    int
+	height   int
+	this     Control
+	neighbor Control
 }
 
 type sizingbase struct {
-	xmargin			int
-	ymargintop		int
-	ymarginbottom	int
-	xpadding			int
-	ypadding			int
+	xmargin       int
+	ymargintop    int
+	ymarginbottom int
+	xpadding      int
+	ypadding      int
 }
 
 type controlSizing interface {
@@ -31,19 +31,19 @@ type controlSizing interface {
 // Tab and Group use containers for their content; as such, their commitResize() functions should only change the size of the Tab and Group themselves, and have their containers do the real work.
 // All containers must embed containerbase.
 type containerbase struct {
-	child		Control
+	child Control
 }
 
 // set to true to apply spacing to all windows
 var spaced bool = false
 
 func (c *container) resize(x, y, width, height int) {
-	if c.child == nil {		// no children; nothing to do
+	if c.child == nil { // no children; nothing to do
 		return
 	}
 	d := c.beginResize()
-	allocations := c.child.allocate(x + d.xmargin, y + d.ymargintop,
-		width - (2 * d.xmargin), height - d.ymargintop - d.ymarginbottom, d)
+	allocations := c.child.allocate(x+d.xmargin, y+d.ymargintop,
+		width-(2*d.xmargin), height-d.ymargintop-d.ymarginbottom, d)
 	c.translateAllocationCoords(allocations, width, height)
 	// move in reverse so as to approximate right->left order so neighbors make sense
 	for i := len(allocations) - 1; i >= 0; i-- {

@@ -5,74 +5,76 @@ package ui
 // This file is called zz_test.go to keep it separate from the other files in this package (and because go test won't accept just test.go)
 
 import (
-	"fmt"
 	"flag"
-	"reflect"
-	"testing"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
-	"time"
+	"reflect"
 	"strings"
+	"testing"
+	"time"
 )
 
 var closeOnClick = flag.Bool("close", false, "close on click")
 var smallWindow = flag.Bool("small", false, "open a small window (test Mac OS X initial control sizing)")
 
 type dtype struct {
-	Name	string
-	Address	string
+	Name    string
+	Address string
 }
+
 var ddata = []dtype{
-	{ "alpha", "beta" },
-	{ "gamma", "delta" },
-	{ "epsilon", "zeta" },
-	{ "eta", "theta" },
-	{ "iota", "kappa" },
+	{"alpha", "beta"},
+	{"gamma", "delta"},
+	{"epsilon", "zeta"},
+	{"eta", "theta"},
+	{"iota", "kappa"},
 }
 
 type testwin struct {
-	t		Tab
-	w		Window
-	repainter	*repainter
-	fe		*ForeignEvent
-	festack	Stack
-	festart	Button
-	felabel	Label
-	festop	Button
-	vedit		TextField
-	openbtn	Button
-	fnlabel	Label
-	icons	[]icon
-	il		ImageList
-	icontbl	Table
-	group2	Group
-	group	Group
-	simpleGrid		SimpleGrid
-	nt		Tab
-	a		Area
-	spw		Stack
-	sph		Stack
-	s		Stack
-	l		Label
-	table		Table
-	b		Button
-	c		Checkbox
-	e		TextField
-	e2		TextField
+	t          Tab
+	w          Window
+	repainter  *repainter
+	fe         *ForeignEvent
+	festack    Stack
+	festart    Button
+	felabel    Label
+	festop     Button
+	vedit      TextField
+	openbtn    Button
+	fnlabel    Label
+	icons      []icon
+	il         ImageList
+	icontbl    Table
+	group2     Group
+	group      Group
+	simpleGrid SimpleGrid
+	nt         Tab
+	a          Area
+	spw        Stack
+	sph        Stack
+	s          Stack
+	l          Label
+	table      Table
+	b          Button
+	c          Checkbox
+	e          TextField
+	e2         TextField
 
-	wsmall	Window
+	wsmall Window
 }
 
 type areaHandler struct {
-	handled	bool
+	handled bool
 }
+
 func (a *areaHandler) Paint(r image.Rectangle) *image.RGBA {
 	i := image.NewRGBA(r)
-	draw.Draw(i, r, &image.Uniform{color.RGBA{128,0,128,255}}, image.ZP, draw.Src)
+	draw.Draw(i, r, &image.Uniform{color.RGBA{128, 0, 128, 255}}, image.ZP, draw.Src)
 	return i
 }
-func (a *areaHandler) Mouse(me MouseEvent) { fmt.Printf("%#v\n", me) }
+func (a *areaHandler) Mouse(me MouseEvent)  { fmt.Printf("%#v\n", me) }
 func (a *areaHandler) Key(ke KeyEvent) bool { fmt.Printf("%#v %q\n", ke, ke.Key); return a.handled }
 
 func (tw *testwin) openFile(fn string) {
@@ -145,7 +147,7 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
-	tw.icons, tw.il = readIcons()		// repainter uses these
+	tw.icons, tw.il = readIcons() // repainter uses these
 	tw.repainter = newRepainter(15)
 	tw.t.Append("Repaint", tw.repainter.grid)
 	tw.addfe()
@@ -192,7 +194,7 @@ func (tw *testwin) make(done chan struct{}) {
 		NewCheckbox("hello"),
 		NewTextField(),
 		NewPasswordField(),
-		NewTable(reflect.TypeOf(struct{A,B,C int}{})),
+		NewTable(reflect.TypeOf(struct{ A, B, C int }{})),
 		NewStandaloneLabel("hello"))
 	tw.t.Append("Pref Width", tw.spw)
 	tw.sph = NewVerticalStack(
@@ -200,7 +202,7 @@ func (tw *testwin) make(done chan struct{}) {
 		NewCheckbox("hello"),
 		NewTextField(),
 		NewPasswordField(),
-		NewTable(reflect.TypeOf(struct{A,B,C int}{})),
+		NewTable(reflect.TypeOf(struct{ A, B, C int }{})),
 		NewStandaloneLabel("hello ÉÀÔ"))
 	tw.t.Append("Pref Height", tw.sph)
 	stack1 := NewHorizontalStack(NewLabel("Test"), NewTextField())
@@ -208,7 +210,7 @@ func (tw *testwin) make(done chan struct{}) {
 	stack2 := NewHorizontalStack(NewLabel("ÉÀÔ"), NewTextField())
 	stack2.SetStretchy(1)
 	stack3 := NewHorizontalStack(NewLabel("Test 2"),
-		NewTable(reflect.TypeOf(struct{A,B,C int}{})))
+		NewTable(reflect.TypeOf(struct{ A, B, C int }{})))
 	stack3.SetStretchy(1)
 	tw.s = NewVerticalStack(stack1, stack2, stack3)
 	tw.s.SetStretchy(2)

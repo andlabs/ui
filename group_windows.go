@@ -6,8 +6,8 @@ package ui
 import "C"
 
 type group struct {
-	_hwnd	C.HWND
-	_textlen	C.LONG
+	_hwnd    C.HWND
+	_textlen C.LONG
 
 	*container
 }
@@ -17,8 +17,8 @@ func newGroup(text string, control Control) Group {
 		C.BS_GROUPBOX,
 		C.WS_EX_CONTROLPARENT)
 	g := &group{
-		_hwnd:		hwnd,
-		container:		newContainer(control),
+		_hwnd:     hwnd,
+		container: newContainer(control),
 	}
 	g.SetText(text)
 	C.controlSetControlFont(g._hwnd)
@@ -57,7 +57,7 @@ func (g *group) allocate(x int, y int, width int, height int, d *sizing) []*allo
 
 func (g *group) preferredSize(d *sizing) (width, height int) {
 	width, height = g.child.preferredSize(d)
-	if width < int(g._textlen) {		// if the text is longer, try not to truncate
+	if width < int(g._textlen) { // if the text is longer, try not to truncate
 		width = int(g._textlen)
 	}
 	// the two margin constants come from container_windows.go

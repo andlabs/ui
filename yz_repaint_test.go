@@ -10,20 +10,20 @@ import (
 )
 
 type repainter struct {
-	img		*image.RGBA
-	area		Area
-	x		TextField
-	y		TextField
-	width	TextField
-	height	TextField
-	repaint	Button
-	all		Button
-	grid		Grid
+	img     *image.RGBA
+	area    Area
+	x       TextField
+	y       TextField
+	width   TextField
+	height  TextField
+	repaint Button
+	all     Button
+	grid    Grid
 
-	xv		int
-	yv		int
-	wv		int
-	hv		int
+	xv int
+	yv int
+	wv int
+	hv int
 }
 
 func newRepainter(times int) *repainter {
@@ -55,7 +55,7 @@ func newRepainter(times int) *repainter {
 	return r
 }
 
-func  (r *repainter) Paint(rect image.Rectangle) *image.RGBA {
+func (r *repainter) Paint(rect image.Rectangle) *image.RGBA {
 	return r.img.SubImage(rect).(*image.RGBA)
 }
 
@@ -116,7 +116,7 @@ func (r *repainter) alter(rect image.Rectangle, c color.Color) {
 }
 
 func (r *repainter) dorect() {
-	rect := image.Rect(r.xv, r.yv, r.xv + r.wv, r.yv + r.hv)
+	rect := image.Rect(r.xv, r.yv, r.xv+r.wv, r.yv+r.hv)
 	r.alter(rect, color.RGBA{255, 0, 255, 128})
 	r.area.Repaint(rect)
 }

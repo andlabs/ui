@@ -10,14 +10,14 @@ import (
 import "C"
 
 type label struct {
-	_id			C.id
-	standalone	bool
+	_id        C.id
+	standalone bool
 }
 
 func finishNewLabel(text string, standalone bool) *label {
 	l := &label{
-		_id:			C.newLabel(),
-		standalone:	standalone,
+		_id:        C.newLabel(),
+		standalone: standalone,
 	}
 	l.SetText(text)
 	return l
@@ -64,16 +64,16 @@ func (l *label) preferredSize(d *sizing) (width, height int) {
 func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
-		if d.neighborAlign.baseline != 0 {		// no adjustment needed if the given control has no baseline
+		if d.neighborAlign.baseline != 0 { // no adjustment needed if the given control has no baseline
 			// in order for the baseline value to be correct, the label MUST BE AT THE HEIGHT THAT OS X WANTS IT TO BE!
 			// otherwise, the baseline calculation will be relative to the bottom of the control, and everything will be wrong
 			origsize := C.controlPreferredSize(l._id)
 			c.height = int(origsize.height)
 			newrect := C.struct_xrect{
-				x:		C.intptr_t(c.x),
-				y:		C.intptr_t(c.y),
-				width:	C.intptr_t(c.width),
-				height:	C.intptr_t(c.height),
+				x:      C.intptr_t(c.x),
+				y:      C.intptr_t(c.y),
+				width:  C.intptr_t(c.width),
+				height: C.intptr_t(c.height),
 			}
 			ourAlign := C.alignmentInfo(l._id, newrect)
 			// we need to find the exact Y positions of the baselines

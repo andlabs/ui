@@ -10,16 +10,16 @@ import (
 import "C"
 
 type button struct {
-	_id		C.id
-	clicked	*event
+	_id     C.id
+	clicked *event
 }
 
 func newButton(text string) *button {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
 	b := &button{
-		_id:			C.newButton(),
-		clicked:		newEvent(),
+		_id:     C.newButton(),
+		clicked: newEvent(),
 	}
 	C.buttonSetText(b._id, ctext)
 	C.buttonSetDelegate(b._id, unsafe.Pointer(b))

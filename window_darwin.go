@@ -10,9 +10,9 @@ import (
 import "C"
 
 type window struct {
-	id		C.id
+	id C.id
 
-	closing	*event
+	closing *event
 
 	*container
 }
@@ -23,9 +23,9 @@ func newWindow(title string, width int, height int, control Control) *window {
 	defer C.free(unsafe.Pointer(ctitle))
 	C.windowSetTitle(id, ctitle)
 	w := &window{
-		id:			id,
-		closing:		newEvent(),
-		container:		newContainer(control),
+		id:        id,
+		closing:   newEvent(),
+		container: newContainer(control),
 	}
 	C.windowSetDelegate(w.id, unsafe.Pointer(w))
 	C.windowSetContentView(w.id, w.container.id)

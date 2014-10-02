@@ -10,20 +10,20 @@ import (
 import "C"
 
 type checkbox struct {
-	_hwnd	C.HWND
-	_textlen	C.LONG
-	toggled	*event
+	_hwnd    C.HWND
+	_textlen C.LONG
+	toggled  *event
 }
 
 func newCheckbox(text string) *checkbox {
 	// don't use BS_AUTOCHECKBOX here because it creates problems when refocusing (see http://blogs.msdn.com/b/oldnewthing/archive/2014/05/22/10527522.aspx)
 	// we'll handle actually toggling the check state ourselves (see controls_windows.c)
 	hwnd := C.newControl(buttonclass,
-		C.BS_CHECKBOX | C.WS_TABSTOP,
+		C.BS_CHECKBOX|C.WS_TABSTOP,
 		0)
 	c := &checkbox{
-		_hwnd:		hwnd,
-		toggled:		newEvent(),
+		_hwnd:   hwnd,
+		toggled: newEvent(),
 	}
 	c.SetText(text)
 	C.controlSetControlFont(c._hwnd)

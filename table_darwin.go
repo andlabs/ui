@@ -14,20 +14,20 @@ import "C"
 type table struct {
 	*tablebase
 
-	_id			C.id
-	scroller		*scroller
+	_id      C.id
+	scroller *scroller
 
-	images		[]C.id
-	selected		*event
+	images   []C.id
+	selected *event
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	id := C.newTable()
 	t := &table{
-		_id:			id,
-		scroller:		newScroller(id, true),		// border on Table
-		tablebase:		b,
-		selected:		newEvent(),
+		_id:       id,
+		scroller:  newScroller(id, true), // border on Table
+		tablebase: b,
+		selected:  newEvent(),
 	}
 	// also sets the delegate
 	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
@@ -43,7 +43,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 			editable = true
 		}
 		C.tableAppendColumn(t._id, C.intptr_t(i), cname, C.int(coltype), toBOOL(editable))
-		C.free(unsafe.Pointer(cname))		// free now (not deferred) to conserve memory
+		C.free(unsafe.Pointer(cname)) // free now (not deferred) to conserve memory
 	}
 	return t
 }

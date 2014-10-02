@@ -11,7 +11,7 @@ import (
 import "C"
 
 type imagelist struct {
-	list		[]C.id
+	list []C.id
 }
 
 func newImageList() ImageList {

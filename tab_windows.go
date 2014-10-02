@@ -16,16 +16,16 @@ We'll create a dummy window using the pre-existing Window window class for each 
 */
 
 type tab struct {
-	_hwnd	C.HWND
-	tabs		[]*container
+	_hwnd C.HWND
+	tabs  []*container
 }
 
 func newTab() Tab {
 	hwnd := C.newControl(C.xWC_TABCONTROL,
-		C.TCS_TOOLTIPS | C.WS_TABSTOP,
-		0)		// don't set WS_EX_CONTROLPARENT here; see uitask_windows.c
+		C.TCS_TOOLTIPS|C.WS_TABSTOP,
+		0) // don't set WS_EX_CONTROLPARENT here; see uitask_windows.c
 	t := &tab{
-		_hwnd:	hwnd,
+		_hwnd: hwnd,
 	}
 	C.controlSetControlFont(t._hwnd)
 	C.setTabSubclass(t._hwnd, unsafe.Pointer(t))
@@ -38,7 +38,7 @@ func (t *tab) Append(name string, control Control) {
 	t.tabs = append(t.tabs, c)
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
 	if len(t.tabs) != 1 {
-		t.tabs[len(t.tabs) - 1].hide()
+		t.tabs[len(t.tabs)-1].hide()
 	}
 	C.tabAppend(t._hwnd, toUTF16(name))
 }
@@ -58,7 +58,7 @@ func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 //export tabTabHasChildren
 func tabTabHasChildren(data unsafe.Pointer, which C.LRESULT) C.BOOL {
 	t := (*tab)(data)
-	if len(t.tabs) == 0 {		// currently no tabs
+	if len(t.tabs) == 0 { // currently no tabs
 		return C.FALSE
 	}
 	if t.tabs[int(which)].nchildren > 0 {

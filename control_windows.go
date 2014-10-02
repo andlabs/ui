@@ -11,7 +11,7 @@ type controlPrivate interface {
 }
 
 type controlParent struct {
-	c	*container
+	c *container
 }
 
 func basesetParent(c controlPrivate, p *controlParent) {

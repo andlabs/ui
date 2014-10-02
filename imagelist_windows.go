@@ -11,9 +11,9 @@ import (
 import "C"
 
 type imagelist struct {
-	list		[]C.HBITMAP
-	width	[]int
-	height	[]int
+	list   []C.HBITMAP
+	width  []int
+	height []int
 }
 
 func newImageList() ImageList {

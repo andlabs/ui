@@ -15,19 +15,19 @@ import "C"
 type area struct {
 	*areabase
 
-	_id			C.id
-	scroller		*scroller
-	textfield		C.id
-	textfielddone	*event
+	_id           C.id
+	scroller      *scroller
+	textfield     C.id
+	textfielddone *event
 }
 
 func newArea(ab *areabase) Area {
 	a := &area{
-		areabase:		ab,
-		textfielddone:	newEvent(),
+		areabase:      ab,
+		textfielddone: newEvent(),
 	}
 	a._id = C.newArea(unsafe.Pointer(a))
-	a.scroller = newScroller(a._id, false)			// no border on Area
+	a.scroller = newScroller(a._id, false) // no border on Area
 	a.SetSize(a.width, a.height)
 	a.textfield = C.newTextField()
 	C.areaSetTextField(a._id, a.textfield)

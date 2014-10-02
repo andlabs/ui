@@ -10,20 +10,20 @@ import (
 import "C"
 
 type textfield struct {
-	_hwnd	C.HWND
-	_textlen	C.LONG
-	changed	*event
+	_hwnd    C.HWND
+	_textlen C.LONG
+	changed  *event
 }
 
 var editclass = toUTF16("EDIT")
 
 func startNewTextField(style C.DWORD) *textfield {
 	hwnd := C.newControl(editclass,
-		style | C.textfieldStyle,
-		C.textfieldExtStyle)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
+		style|C.textfieldStyle,
+		C.textfieldExtStyle) // WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &textfield{
-		_hwnd:		hwnd,
-		changed:		newEvent(),
+		_hwnd:   hwnd,
+		changed: newEvent(),
 	}
 	C.controlSetControlFont(t._hwnd)
 	C.setTextFieldSubclass(t._hwnd, unsafe.Pointer(t))
@@ -86,7 +86,7 @@ func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*
 
 const (
 	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
-	textfieldWidth = 107		// this is actually the shorter progress bar width, but Microsoft only indicates as wide as necessary
+	textfieldWidth  = 107 // this is actually the shorter progress bar width, but Microsoft only indicates as wide as necessary
 	textfieldHeight = 14
 )
 

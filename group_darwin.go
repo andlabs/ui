@@ -10,7 +10,7 @@ import (
 import "C"
 
 type group struct {
-	_id		C.id
+	_id C.id
 
 	*container
 }

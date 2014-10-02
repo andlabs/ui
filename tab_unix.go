@@ -12,19 +12,19 @@ import (
 import "C"
 
 type tab struct {
-	_widget		*C.GtkWidget
-	container		*C.GtkContainer
-	notebook		*C.GtkNotebook
+	_widget   *C.GtkWidget
+	container *C.GtkContainer
+	notebook  *C.GtkNotebook
 
-	tabs			[]*container
+	tabs []*container
 }
 
 func newTab() Tab {
 	widget := C.gtk_notebook_new()
 	t := &tab{
-		_widget:		widget,
-		container:		(*C.GtkContainer)(unsafe.Pointer(widget)),
-		notebook:		(*C.GtkNotebook)(unsafe.Pointer(widget)),
+		_widget:   widget,
+		container: (*C.GtkContainer)(unsafe.Pointer(widget)),
+		notebook:  (*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
 	// there are no scrolling arrows by default; add them in case there are too many tabs
 	C.gtk_notebook_set_scrollable(t.notebook, C.TRUE)
@@ -40,7 +40,7 @@ func (t *tab) Append(name string, control Control) {
 	defer freegstr(cname)
 	C.gtk_notebook_set_tab_label_text(t.notebook,
 		// unfortunately there does not seem to be a gtk_notebook_set_nth_tab_label_text()
-		C.gtk_notebook_get_nth_page(t.notebook, C.gint(len(t.tabs) - 1)),
+		C.gtk_notebook_get_nth_page(t.notebook, C.gint(len(t.tabs)-1)),
 		cname)
 }
 

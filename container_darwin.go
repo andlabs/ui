@@ -11,7 +11,7 @@ import "C"
 
 type container struct {
 	containerbase
-	id			C.id
+	id C.id
 }
 
 type sizing struct {
@@ -21,7 +21,7 @@ type sizing struct {
 	// nothing for mac
 
 	// for the actual resizing
-	neighborAlign		C.struct_xalignment
+	neighborAlign C.struct_xalignment
 }
 
 func newContainer(child Control) *container {
@@ -41,8 +41,8 @@ func containerResized(data unsafe.Pointer, width C.intptr_t, height C.intptr_t) 
 
 // These are based on measurements from Interface Builder.
 const (
-	macXMargin = 20
-	macYMargin = 20
+	macXMargin  = 20
+	macYMargin  = 20
 	macXPadding = 8
 	macYPadding = 8
 )

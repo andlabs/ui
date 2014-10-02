@@ -34,18 +34,18 @@ import "C"
 type area struct {
 	*areabase
 
-	_widget		*C.GtkWidget
-	drawingarea	*C.GtkDrawingArea
-	scroller		*scroller
+	_widget     *C.GtkWidget
+	drawingarea *C.GtkDrawingArea
+	scroller    *scroller
 
-	clickCounter	*clickCounter
+	clickCounter *clickCounter
 
-	textfieldw		*C.GtkWidget
-	textfield		*C.GtkEntry
-	textfieldx		int
-	textfieldy		int
-	textfielddone	*event
-	inmenu		bool
+	textfieldw    *C.GtkWidget
+	textfield     *C.GtkEntry
+	textfieldx    int
+	textfieldy    int
+	textfielddone *event
+	inmenu        bool
 }
 
 func newArea(ab *areabase) Area {
@@ -58,14 +58,14 @@ func newArea(ab *areabase) Area {
 	C.gtk_widget_set_can_focus(widget, C.TRUE)
 	textfieldw := C.gtk_entry_new()
 	a := &area{
-		areabase:		ab,
-		_widget:		widget,
-		drawingarea:	(*C.GtkDrawingArea)(unsafe.Pointer(widget)),
-		scroller:		newScroller(widget, false, false, true),		// not natively scrollable; no border; have an overlay for OpenTextFieldAt()
-		clickCounter:	new(clickCounter),
-		textfieldw:	textfieldw,
-		textfield:		(*C.GtkEntry)(unsafe.Pointer(textfieldw)),
-		textfielddone:	newEvent(),
+		areabase:      ab,
+		_widget:       widget,
+		drawingarea:   (*C.GtkDrawingArea)(unsafe.Pointer(widget)),
+		scroller:      newScroller(widget, false, false, true), // not natively scrollable; no border; have an overlay for OpenTextFieldAt()
+		clickCounter:  new(clickCounter),
+		textfieldw:    textfieldw,
+		textfield:     (*C.GtkEntry)(unsafe.Pointer(textfieldw)),
+		textfielddone: newEvent(),
 	}
 	for _, c := range areaCallbacks {
 		g_signal_connect(
@@ -124,7 +124,7 @@ func (a *area) OpenTextFieldAt(x, y int) {
 	}
 	a.textfieldx = x
 	a.textfieldy = y
-	a.inmenu = false		// to start
+	a.inmenu = false // to start
 	// we disabled this for the initial Area show; we don't need to anymore
 	C.gtk_widget_set_no_show_all(a.textfieldw, C.FALSE)
 	C.gtk_widget_show_all(a.textfieldw)
@@ -175,24 +175,24 @@ func our_area_textfield_focus_out_event_callback(widget *C.GtkWidget, event *C.G
 		C.gtk_widget_hide(a.textfieldw)
 		a.textfielddone.fire()
 	}
-	a.inmenu = false		// for next time
+	a.inmenu = false // for next time
 	return continueEventChain
 }
 
 var area_textfield_focus_out_event_callback = C.GCallback(C.our_area_textfield_focus_out_event_callback)
 
 var areaCallbacks = []struct {
-	name	string
-	callback	C.GCallback
+	name     string
+	callback C.GCallback
 }{
-	{ "draw",					area_draw_callback },
-	{ "button-press-event",		area_button_press_event_callback },
-	{ "button-release-event",		area_button_release_event_callback },
-	{ "motion-notify-event",		area_motion_notify_event_callback },
-	{ "enter-notify-event",		area_enterleave_notify_event_callback },
-	{ "leave-notify-event",		area_enterleave_notify_event_callback },
-	{ "key-press-event",			area_key_press_event_callback },
-	{ "key-release-event",		area_key_release_event_callback },
+	{"draw", area_draw_callback},
+	{"button-press-event", area_button_press_event_callback},
+	{"button-release-event", area_button_release_event_callback},
+	{"motion-notify-event", area_motion_notify_event_callback},
+	{"enter-notify-event", area_enterleave_notify_event_callback},
+	{"leave-notify-event", area_enterleave_notify_event_callback},
+	{"key-press-event", area_key_press_event_callback},
+	{"key-release-event", area_key_release_event_callback},
 }
 
 //export our_area_draw_callback
@@ -222,11 +222,11 @@ func our_area_draw_callback(widget *C.GtkWidget, cr *C.cairo_t, data C.gpointer)
 	// the flush and mark_dirty calls are required; see the cairo docs and https://git.gnome.org/browse/gtk+/tree/gdk/gdkcairo.c#n232 (thanks desrt in irc.gimp.net/#gtk+)
 	C.cairo_surface_flush(surface)
 	toARGB(i, uintptr(unsafe.Pointer(C.cairo_image_surface_get_data(surface))),
-		int(C.cairo_image_surface_get_stride(surface)), false)		// not NRGBA
+		int(C.cairo_image_surface_get_stride(surface)), false) // not NRGBA
 	C.cairo_surface_mark_dirty(surface)
 	C.cairo_set_source_surface(cr,
 		surface,
-		x0, y0)			// point on cairo_t where we want to draw (thanks Company in irc.gimp.net/#gtk+)
+		x0, y0) // point on cairo_t where we want to draw (thanks Company in irc.gimp.net/#gtk+)
 	// that just set the brush that cairo uses: we have to actually draw now
 	// (via https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en)
 	C.cairo_rectangle(cr, x0, y0, x1, y1) // breaking the norm here since we have the coordinates as a C double already
@@ -252,7 +252,7 @@ func makeModifiers(state C.guint) (m Modifiers) {
 	if (state & C.GDK_META_MASK) != 0 {
 		m |= Alt
 	}
-	if (state & C.GDK_MOD1_MASK) != 0 {	// GTK+ itself requires this to be Alt (just read through gtkaccelgroup.c)
+	if (state & C.GDK_MOD1_MASK) != 0 { // GTK+ itself requires this to be Alt (just read through gtkaccelgroup.c)
 		m |= Alt
 	}
 	if (state & C.GDK_SHIFT_MASK) != 0 {

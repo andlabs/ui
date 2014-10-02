@@ -13,9 +13,9 @@ import (
 import "C"
 
 type button struct {
-	_widget		*C.GtkWidget
-	button		*C.GtkButton
-	clicked		*event
+	_widget *C.GtkWidget
+	button  *C.GtkButton
+	clicked *event
 }
 
 // shared code for setting up buttons, check boxes, etc.
@@ -24,9 +24,9 @@ func newButton(text string) *button {
 	defer freegstr(ctext)
 	widget := C.gtk_button_new_with_label(ctext)
 	b := &button{
-		_widget:		widget,
-		button:		(*C.GtkButton)(unsafe.Pointer(widget)),
-		clicked:		newEvent(),
+		_widget: widget,
+		button:  (*C.GtkButton)(unsafe.Pointer(widget)),
+		clicked: newEvent(),
 	}
 	g_signal_connect(
 		C.gpointer(unsafe.Pointer(b.button)),

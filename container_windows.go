@@ -13,18 +13,18 @@ import "C"
 
 type container struct {
 	containerbase
-	hwnd		C.HWND
-	nchildren		int
-	isGroup		bool
+	hwnd      C.HWND
+	nchildren int
+	isGroup   bool
 }
 
 type sizing struct {
 	sizingbase
 
 	// for size calculations
-	baseX			C.int
-	baseY			C.int
-	internalLeading	C.LONG		// for Label; see Label.commitResize() for details
+	baseX           C.int
+	baseY           C.int
+	internalLeading C.LONG // for Label; see Label.commitResize() for details
 
 	// for the actual resizing
 	// possibly the HDWP
@@ -57,7 +57,7 @@ func (c *container) setParent(hwnd C.HWND) {
 
 // this is needed because Windows won't move/resize a child window for us
 func (c *container) move(r *C.RECT) {
-	C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right - r.left), C.int(r.bottom - r.top))
+	C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right-r.left), C.int(r.bottom-r.top))
 }
 
 func (c *container) show() {
@@ -78,7 +78,7 @@ func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
 func containerResize(data unsafe.Pointer, r *C.RECT) {
 	c := (*container)(data)
 	// the origin of any window's content area is always (0, 0), but let's use the values from the RECT just to be safe
-	c.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top))
+	c.resize(int(r.left), int(r.top), int(r.right-r.left), int(r.bottom-r.top))
 }
 
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
@@ -103,11 +103,11 @@ func fromdlgunitsY(du int, d *sizing) int {
 }
 
 const (
-	marginDialogUnits = 7
+	marginDialogUnits  = 7
 	paddingDialogUnits = 4
 
-	groupXMargin = 6
-	groupYMarginTop = 11		// note this value /includes the groupbox label/
+	groupXMargin       = 6
+	groupYMarginTop    = 11 // note this value /includes the groupbox label/
 	groupYMarginBottom = 7
 )
 

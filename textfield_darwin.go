@@ -10,15 +10,15 @@ import (
 import "C"
 
 type textfield struct {
-	_id		C.id
-	changed	*event
-	invalid	C.id
+	_id     C.id
+	changed *event
+	invalid C.id
 }
 
 func finishNewTextField(id C.id) *textfield {
 	t := &textfield{
-		_id:			id,
-		changed:		newEvent(),
+		_id:     id,
+		changed: newEvent(),
 	}
 	C.textfieldSetDelegate(t._id, unsafe.Pointer(t))
 	return t

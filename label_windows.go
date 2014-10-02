@@ -6,9 +6,9 @@ package ui
 import "C"
 
 type label struct {
-	_hwnd		C.HWND
-	_textlen		C.LONG
-	standalone	bool
+	_hwnd      C.HWND
+	_textlen   C.LONG
+	standalone bool
 }
 
 var labelclass = toUTF16("STATIC")
@@ -17,11 +17,11 @@ func finishNewLabel(text string, standalone bool) *label {
 	hwnd := C.newControl(labelclass,
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)
-		C.SS_NOPREFIX | C.SS_LEFTNOWORDWRAP,
+		C.SS_NOPREFIX|C.SS_LEFTNOWORDWRAP,
 		C.WS_EX_TRANSPARENT)
 	l := &label{
-		_hwnd:		hwnd,
-		standalone:	standalone,
+		_hwnd:      hwnd,
+		standalone: standalone,
 	}
 	l.SetText(text)
 	C.controlSetControlFont(l._hwnd)
@@ -71,7 +71,7 @@ func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allo
 
 const (
 	// via http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
-	labelHeight = 8
+	labelHeight  = 8
 	labelYOffset = 3
 )
 

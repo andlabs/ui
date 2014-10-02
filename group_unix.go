@@ -12,9 +12,9 @@ import (
 import "C"
 
 type group struct {
-	_widget		*C.GtkWidget
-	gcontainer	*C.GtkContainer
-	frame		*C.GtkFrame
+	_widget    *C.GtkWidget
+	gcontainer *C.GtkContainer
+	frame      *C.GtkFrame
 
 	*container
 }
@@ -24,9 +24,9 @@ func newGroup(text string, control Control) Group {
 	defer freegstr(ctext)
 	widget := C.gtk_frame_new(ctext)
 	g := &group{
-		_widget:		widget,
-		gcontainer:	(*C.GtkContainer)(unsafe.Pointer(widget)),
-		frame:		(*C.GtkFrame)(unsafe.Pointer(widget)),
+		_widget:    widget,
+		gcontainer: (*C.GtkContainer)(unsafe.Pointer(widget)),
+		frame:      (*C.GtkFrame)(unsafe.Pointer(widget)),
 	}
 
 	// with GTK+, groupboxes by default have frames and slightly x-offset regular text
@@ -44,7 +44,7 @@ func newGroup(text string, control Control) Group {
 	boldlist := C.pango_attr_list_new()
 	C.pango_attr_list_insert(boldlist, bold)
 	C.gtk_label_set_attributes(label, boldlist)
-	C.pango_attr_list_unref(boldlist)		// thanks baedert in irc.gimp.net/#gtk+
+	C.pango_attr_list_unref(boldlist) // thanks baedert in irc.gimp.net/#gtk+
 
 	g.container = newContainer(control)
 	g.container.setParent(&controlParent{g.gcontainer})

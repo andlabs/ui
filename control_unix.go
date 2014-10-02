@@ -18,11 +18,11 @@ type controlPrivate interface {
 }
 
 type controlParent struct {
-	c	*C.GtkContainer
+	c *C.GtkContainer
 }
 
 func basesetParent(c controlPrivate, p *controlParent) {
-	widget := c.widget()		// avoid multiple interface lookups
+	widget := c.widget() // avoid multiple interface lookups
 	C.gtk_container_add(p.c, widget)
 	// make sure the new widget is shown if not explicitly hidden
 	C.gtk_widget_show_all(widget)
@@ -66,15 +66,15 @@ func basegetAuxResizeInfo(c Control, d *sizing) {
 }
 
 type scroller struct {
-	scrollwidget		*C.GtkWidget
-	scrollcontainer		*C.GtkContainer
-	scrollwindow		*C.GtkScrolledWindow
+	scrollwidget    *C.GtkWidget
+	scrollcontainer *C.GtkContainer
+	scrollwindow    *C.GtkScrolledWindow
 
-	overlaywidget		*C.GtkWidget
-	overlaycontainer	*C.GtkContainer
-	overlay			*C.GtkOverlay
+	overlaywidget    *C.GtkWidget
+	overlaycontainer *C.GtkContainer
+	overlay          *C.GtkOverlay
 
-	addShowWhich		*C.GtkWidget
+	addShowWhich *C.GtkWidget
 }
 
 func newScroller(widget *C.GtkWidget, native bool, bordered bool, overlay bool) *scroller {
@@ -85,12 +85,12 @@ func newScroller(widget *C.GtkWidget, native bool, bordered bool, overlay bool) 
 		o = C.gtk_overlay_new()
 	}
 	s := &scroller{
-		scrollwidget:		scrollwidget,
-		scrollcontainer:	(*C.GtkContainer)(unsafe.Pointer(scrollwidget)),
-		scrollwindow:		(*C.GtkScrolledWindow)(unsafe.Pointer(scrollwidget)),
-		overlaywidget:		o,
-		overlaycontainer:	(*C.GtkContainer)(unsafe.Pointer(o)),
-		overlay:			(*C.GtkOverlay)(unsafe.Pointer(o)),
+		scrollwidget:     scrollwidget,
+		scrollcontainer:  (*C.GtkContainer)(unsafe.Pointer(scrollwidget)),
+		scrollwindow:     (*C.GtkScrolledWindow)(unsafe.Pointer(scrollwidget)),
+		overlaywidget:    o,
+		overlaycontainer: (*C.GtkContainer)(unsafe.Pointer(o)),
+		overlay:          (*C.GtkOverlay)(unsafe.Pointer(o)),
 	}
 	// give the scrolled window a border (thanks to jlindgren in irc.gimp.net/#gtk+)
 	if bordered {

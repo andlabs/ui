@@ -10,20 +10,20 @@ import (
 import "C"
 
 type button struct {
-	_hwnd	C.HWND
-	_textlen	C.LONG
-	clicked	*event
+	_hwnd    C.HWND
+	_textlen C.LONG
+	clicked  *event
 }
 
 var buttonclass = toUTF16("BUTTON")
 
 func newButton(text string) *button {
 	hwnd := C.newControl(buttonclass,
-		C.BS_PUSHBUTTON | C.WS_TABSTOP,
+		C.BS_PUSHBUTTON|C.WS_TABSTOP,
 		0)
 	b := &button{
-		_hwnd:	hwnd,
-		clicked:	newEvent(),
+		_hwnd:   hwnd,
+		clicked: newEvent(),
 	}
 	b.SetText(text)
 	C.controlSetControlFont(b._hwnd)
@@ -78,13 +78,13 @@ func (b *button) preferredSize(d *sizing) (width, height int) {
 	// comctl32.dll version 6 thankfully provides a method to grab this...
 	var size C.SIZE
 
-	size.cx = 0		// explicitly ask for ideal size
+	size.cx = 0 // explicitly ask for ideal size
 	size.cy = 0
 	if C.SendMessageW(b._hwnd, C.BCM_GETIDEALSIZE, 0, C.LPARAM(uintptr(unsafe.Pointer(&size)))) != C.FALSE {
 		return int(size.cx), int(size.cy)
 	}
 	// that failed, fall back
-println("message failed; falling back")
+	println("message failed; falling back")
 	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
 	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
 	return xmargins + int(b._textlen), fromdlgunitsY(buttonHeight, d)

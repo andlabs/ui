@@ -18,27 +18,27 @@ import "C"
 type table struct {
 	*tablebase
 
-	_widget		*C.GtkWidget
-	treeview		*C.GtkTreeView
-	scroller		*scroller
+	_widget  *C.GtkWidget
+	treeview *C.GtkTreeView
+	scroller *scroller
 
-	model		*C.goTableModel
-	modelgtk		*C.GtkTreeModel
-	selection		*C.GtkTreeSelection
+	model     *C.goTableModel
+	modelgtk  *C.GtkTreeModel
+	selection *C.GtkTreeSelection
 
-	pixbufs		[]*C.GdkPixbuf
+	pixbufs []*C.GdkPixbuf
 
-	selected		*event
+	selected *event
 
 	// stuff required by GtkTreeModel
-	nColumns		C.gint
-	old			C.gint
-	types		[]C.GType
-	crtocol		map[*C.GtkCellRendererToggle]int
+	nColumns C.gint
+	old      C.gint
+	types    []C.GType
+	crtocol  map[*C.GtkCellRendererToggle]int
 }
 
 var (
-	attribText = togstr("text")
+	attribText   = togstr("text")
 	attribPixbuf = togstr("pixbuf")
 	attribActive = togstr("active")
 )
@@ -46,12 +46,12 @@ var (
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	widget := C.gtk_tree_view_new()
 	t := &table{
-		scroller:			newScroller(widget, true, true, false),			// natively scrollable; has a border; no overlay
-		tablebase:			b,
-		_widget:			widget,
-		treeview:			(*C.GtkTreeView)(unsafe.Pointer(widget)),
-		crtocol:			make(map[*C.GtkCellRendererToggle]int),
-		selected:			newEvent(),
+		scroller:  newScroller(widget, true, true, false), // natively scrollable; has a border; no overlay
+		tablebase: b,
+		_widget:   widget,
+		treeview:  (*C.GtkTreeView)(unsafe.Pointer(widget)),
+		crtocol:   make(map[*C.GtkCellRendererToggle]int),
+		selected:  newEvent(),
 	}
 	model := C.newTableModel(unsafe.Pointer(t))
 	t.model = model
@@ -87,7 +87,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 			C.tableAppendColumn(t.treeview, C.gint(i), cname,
 				C.gtk_cell_renderer_text_new(), attribText)
 		}
-		freegstr(cname)		// free now (not deferred) to conserve memory
+		freegstr(cname) // free now (not deferred) to conserve memory
 	}
 	// and for some GtkTreeModel boilerplate
 	t.nColumns = C.gint(ty.NumField())

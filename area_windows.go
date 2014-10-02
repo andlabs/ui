@@ -15,12 +15,12 @@ import "C"
 type area struct {
 	*areabase
 
-	_hwnd		C.HWND
+	_hwnd C.HWND
 
-	clickCounter	*clickCounter
+	clickCounter *clickCounter
 
-	textfield		C.HWND
-	textfielddone	*event
+	textfield     C.HWND
+	textfielddone *event
 }
 
 func makeAreaWindowClass() error {
@@ -35,9 +35,9 @@ func makeAreaWindowClass() error {
 
 func newArea(ab *areabase) Area {
 	a := &area{
-		areabase:		ab,
-		clickCounter:	new(clickCounter),
-		textfielddone:	newEvent(),
+		areabase:      ab,
+		clickCounter:  new(clickCounter),
+		textfielddone: newEvent(),
 	}
 	a._hwnd = C.newArea(unsafe.Pointer(a))
 	a.SetSize(a.width, a.height)
@@ -122,7 +122,7 @@ func dotoARGB(img unsafe.Pointer, ppvBits unsafe.Pointer, toNRGBA C.BOOL) {
 	i := (*image.RGBA)(unsafe.Pointer(img))
 	t := toNRGBA != C.FALSE
 	// the bitmap Windows gives us has a stride == width
-	toARGB(i, uintptr(ppvBits), i.Rect.Dx() * 4, t)
+	toARGB(i, uintptr(ppvBits), i.Rect.Dx()*4, t)
 }
 
 //export areaWidthLONG
@@ -184,19 +184,19 @@ func finishAreaMouseEvent(data unsafe.Pointer, cbutton C.DWORD, up C.BOOL, heldB
 	}
 	// though wparam will contain control and shift state, let's use just one function to get modifiers for both keyboard and mouse events; it'll work the same anyway since we have to do this for alt and windows key (super)
 	me.Modifiers = getModifiers()
-	if button != 1 && (heldButtons & C.MK_LBUTTON) != 0 {
+	if button != 1 && (heldButtons&C.MK_LBUTTON) != 0 {
 		me.Held = append(me.Held, 1)
 	}
-	if button != 2 && (heldButtons & C.MK_MBUTTON) != 0 {
+	if button != 2 && (heldButtons&C.MK_MBUTTON) != 0 {
 		me.Held = append(me.Held, 2)
 	}
-	if button != 3 && (heldButtons & C.MK_RBUTTON) != 0 {
+	if button != 3 && (heldButtons&C.MK_RBUTTON) != 0 {
 		me.Held = append(me.Held, 3)
 	}
-	if button != 4 && (heldButtons & C.MK_XBUTTON1) != 0 {
+	if button != 4 && (heldButtons&C.MK_XBUTTON1) != 0 {
 		me.Held = append(me.Held, 4)
 	}
-	if button != 5 && (heldButtons & C.MK_XBUTTON2) != 0 {
+	if button != 5 && (heldButtons&C.MK_XBUTTON2) != 0 {
 		me.Held = append(me.Held, 5)
 	}
 	a.handler.Mouse(me)
@@ -207,7 +207,7 @@ func areaKeyEvent(data unsafe.Pointer, up C.BOOL, wParam C.WPARAM, lParam C.LPAR
 	var ke KeyEvent
 
 	a := (*area)(data)
-	lp := uint32(lParam)		// to be safe
+	lp := uint32(lParam) // to be safe
 	// the numeric keypad keys when Num Lock is off are considered left-hand keys as the separate navigation buttons were added later
 	// the numeric keypad enter, however, is a right-hand key because it has the same virtual-key code as the typewriter enter
 	righthand := (lp & 0x01000000) != 0

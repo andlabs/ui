@@ -25,7 +25,7 @@ import "C"
 func (w *window) openFile(f func(filename string)) {
 	widget := C.newOpenFileDialog(w.window)
 	window := (*C.GtkWindow)(unsafe.Pointer(widget))
-	dialog  := (*C.GtkDialog)(unsafe.Pointer(widget))
+	dialog := (*C.GtkDialog)(unsafe.Pointer(widget))
 	fc := (*C.GtkFileChooser)(unsafe.Pointer(widget))
 	// non-local filenames are relevant mainly to GIO where we can open *anything*, not to Go os.File; see https://twitter.com/braket/status/506142849654870016
 	C.gtk_file_chooser_set_local_only(fc, C.TRUE)
