@@ -19,7 +19,7 @@ prevlib.tar contains the previous version of the library as it stood when I rest
 
 # Documentation
 
-The in-code documentation needs improvement. I have written a tutorial in the Wiki at right; page Getting Started.
+The in-code documentation needs improvement. I have written a [tutorial](https://github.com/andlabs/ui/wiki/Getting-Started) in the Wiki.
 
 # Updates
 
