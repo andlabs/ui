@@ -21,6 +21,54 @@
 
 HWND popover;
 
+// #qo LIBS: user32 kernel32 gdi32
+
+#define ARROWHEIGHT 6
+#define ARROWWIDTH 8
+
+LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	PAINTSTRUCT ps;
+	HDC dc;
+	HRGN region;
+	POINT pt;
+
+	switch (uMsg) {
+	case WM_PAINT:
+		dc = BeginPaint(hwnd, &ps);
+		if (dc == NULL) abort();
+		BeginPath(dc);
+		pt.x = 0;
+		pt.y = ARROWHEIGHT;
+		if (MoveToEx(dc, pt.x, pt.y, NULL) == 0) abort();
+		pt.y = 100;
+		if (LineTo(dc, pt.x, pt.y) == 0) abort();
+		pt.x = 100;
+		LineTo(dc, pt.x, pt.y);
+		pt.y = ARROWHEIGHT;
+		LineTo(dc, pt.x, pt.y);
+		pt.x = 50 + ARROWWIDTH;
+		LineTo(dc, pt.x, pt.y);
+		pt.x -= ARROWWIDTH;
+		pt.y -= ARROWHEIGHT;
+		LineTo(dc, pt.x, pt.y);
+		pt.x -= ARROWWIDTH;
+		pt.y += ARROWHEIGHT;
+		LineTo(dc, pt.x, pt.y);
+		pt.x = 0;
+		LineTo(dc, pt.x, pt.y);
+		EndPath(dc);
+		region = PathToRegion(dc);
+		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
+		SetWindowRgn(hwnd, region, TRUE);
+		EndPaint(hwnd, &ps);
+		return 0;
+	case WM_NCCALCSIZE:
+		break;
+	}
+	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+}
+
 LRESULT CALLBACK wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
@@ -47,14 +95,14 @@ int main(int argc, char *argv[])
 
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpszClassName = L"popover";
-	wc.lpfnWndProc = DefWindowProcW;
+	wc.lpfnWndProc = popoverproc;
 	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
 	wc.style = CS_DROPSHADOW | CS_NOCLOSE;
 	if (RegisterClassW(&wc) == 0)
 		abort();
 	popover = CreateWindowExW(WS_EX_TOPMOST,
 		L"popover", L"",
-		WS_POPUP | WS_BORDER,
+		WS_POPUP,
 		0, 0, 150, 100,
 		NULL, NULL, NULL, NULL);
 	if (popover == NULL)
