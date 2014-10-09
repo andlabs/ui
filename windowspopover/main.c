@@ -19,9 +19,16 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-HWND popover;
-
 // #qo LIBS: user32 kernel32 gdi32
+
+// TODO
+// - investigate visual styles
+// - put the client and non-client areas in the right place
+// - make sure redrawing is correct (especially for backgrounds)
+// - wine: BLACK_PEN draws a white line? (might change later so eh)
+// - should the parent window appear deactivated?
+
+HWND popover;
 
 #define ARROWHEIGHT 6
 #define ARROWWIDTH 8
