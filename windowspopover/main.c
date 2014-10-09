@@ -40,22 +40,28 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HRGN region;
 	POINT pt;
 	RECT r;
+	LONG width;
+	LONG height;
 
 	switch (uMsg) {
 	case WM_NCPAINT:
+		GetWindowRect(hwnd, &r);
+		width = r.right - r.left;
+		height = r.bottom - r.top;
 		dc = GetDCEx(hwnd, (HRGN) wParam, DCX_WINDOW | DCX_INTERSECTRGN);
 		if (dc == NULL) abort();
 		BeginPath(dc);
-		pt.x = 0;
-		pt.y = ARROWHEIGHT;
+		r.left = 0; r.top = 0;		// everything's in device coordinates
+		pt.x = r.left;
+		pt.y = r.top + ARROWHEIGHT;
 		if (MoveToEx(dc, pt.x, pt.y, NULL) == 0) abort();
-		pt.y = 100;
+		pt.y += height - ARROWHEIGHT;
 		if (LineTo(dc, pt.x, pt.y) == 0) abort();
-		pt.x = 100;
+		pt.x += width;
 		LineTo(dc, pt.x, pt.y);
-		pt.y = ARROWHEIGHT;
+		pt.y -= height - ARROWHEIGHT;
 		LineTo(dc, pt.x, pt.y);
-		pt.x = 50 + ARROWWIDTH;
+		pt.x -= (width / 2) - ARROWWIDTH;
 		LineTo(dc, pt.x, pt.y);
 		pt.x -= ARROWWIDTH;
 		pt.y -= ARROWHEIGHT;
@@ -66,19 +72,22 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		pt.x = 0;
 		LineTo(dc, pt.x, pt.y);
 		EndPath(dc);
+		SetDCBrushColor(dc, RGB(255, 0, 0));
 		region = PathToRegion(dc);
-		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
+		FrameRgn(dc, region, GetStockObject(DC_BRUSH), 1, 1);
 		SetWindowRgn(hwnd, region, TRUE);
 		ReleaseDC(hwnd, dc);
 		return 0;
 	case WM_NCCALCSIZE:
 		break;
+	case WM_ERASEBKGND:
+		return (LRESULT) NULL;
 	case WM_PAINT:
-		dc = BeginPaint(hwnd, &ps);
+/*		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
 		EndPaint(hwnd, &ps);
-		return 0;
+*/		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
