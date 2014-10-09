@@ -78,8 +78,6 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetWindowRgn(hwnd, region, TRUE);
 		ReleaseDC(hwnd, dc);
 		return 0;
-	case WM_NCCALCSIZE:
-		break;
 	case WM_ERASEBKGND:
 		return (LRESULT) NULL;
 	case WM_PAINT:
