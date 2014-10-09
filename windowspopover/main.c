@@ -39,10 +39,11 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	HDC dc;
 	HRGN region;
 	POINT pt;
+	RECT r;
 
 	switch (uMsg) {
-	case WM_PAINT:
-		dc = BeginPaint(hwnd, &ps);
+	case WM_NCPAINT:
+		dc = GetDCEx(hwnd, (HRGN) wParam, DCX_WINDOW | DCX_INTERSECTRGN);
 		if (dc == NULL) abort();
 		BeginPath(dc);
 		pt.x = 0;
@@ -68,10 +69,16 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		region = PathToRegion(dc);
 		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
 		SetWindowRgn(hwnd, region, TRUE);
-		EndPaint(hwnd, &ps);
+		ReleaseDC(hwnd, dc);
 		return 0;
 	case WM_NCCALCSIZE:
 		break;
+	case WM_PAINT:
+		dc = BeginPaint(hwnd, &ps);
+		GetClientRect(hwnd, &r);
+		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
+		EndPaint(hwnd, &ps);
+		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
