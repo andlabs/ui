@@ -78,14 +78,29 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SetWindowRgn(hwnd, region, TRUE);
 		ReleaseDC(hwnd, dc);
 		return 0;
+	case WM_NCCALCSIZE:
+		{
+			RECT *r = (RECT *) lParam;
+			NCCALCSIZE_PARAMS *np = (NCCALCSIZE_PARAMS *) lParam;
+
+			if (wParam != FALSE)
+				r = &np->rgrc[0];
+			printf("%d | %d %d %d %d\n", wParam, r->left, r->top, r->right, r->bottom);
+			r->left++;
+			r->top++;
+			r->right--;
+			r->bottom--;
+			r->top += ARROWHEIGHT;
+			return 0;
+		}
 	case WM_ERASEBKGND:
-		return (LRESULT) NULL;
+		return (LRESULT) GetStockObject(HOLLOW_BRUSH);
 	case WM_PAINT:
-/*		dc = BeginPaint(hwnd, &ps);
+		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
 		EndPaint(hwnd, &ps);
-*/		return 0;
+		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
