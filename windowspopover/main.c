@@ -30,8 +30,8 @@
 
 HWND popover;
 
-#define ARROWHEIGHT 6
-#define ARROWWIDTH 8
+#define ARROWHEIGHT 8
+#define ARROWWIDTH 8		/* should be the same for smooth lines */
 
 LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
