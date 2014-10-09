@@ -78,9 +78,10 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		height = r.bottom - r.top;
 		dc = GetWindowDC(hwnd);
 		if (dc == NULL) abort();
-		SetDCBrushColor(dc, RGB(255, 0, 0));
 		region = makePopoverRegion(dc, width, height);
-		FrameRgn(dc, region, GetStockObject(DC_BRUSH), 1, 1);
+		// TODO use the class brush here
+		FillRgn(dc, region, GetSysColorBrush(COLOR_BTNFACE));
+		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
 		DeleteObject(region);
 		ReleaseDC(hwnd, dc);
 		return 0;
@@ -111,15 +112,13 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			r->top += ARROWHEIGHT;
 			return 0;
 		}
-	case WM_ERASEBKGND:
-		return (LRESULT) GetStockObject(HOLLOW_BRUSH);
 	case WM_PAINT:
-		dc = BeginPaint(hwnd, &ps);
+/*		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
 		FrameRect(dc, &r, GetStockPen(WHITE_PEN));
 		EndPaint(hwnd, &ps);
-		return 0;
+*/		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
