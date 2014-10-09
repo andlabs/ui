@@ -33,51 +33,69 @@ HWND popover;
 #define ARROWHEIGHT 8
 #define ARROWWIDTH 8		/* should be the same for smooth lines */
 
+HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
+{
+	POINT pt;
+
+	BeginPath(dc);
+	pt.x = 0;
+	pt.y = ARROWHEIGHT;
+	MoveToEx(dc, pt.x, pt.y, NULL);
+	pt.y += height - ARROWHEIGHT;
+	LineTo(dc, pt.x, pt.y);
+	pt.x += width;
+	LineTo(dc, pt.x, pt.y);
+	pt.y -= height - ARROWHEIGHT;
+	LineTo(dc, pt.x, pt.y);
+	pt.x -= (width / 2) - ARROWWIDTH;
+	LineTo(dc, pt.x, pt.y);
+	pt.x -= ARROWWIDTH;
+	pt.y -= ARROWHEIGHT;
+	LineTo(dc, pt.x, pt.y);
+	pt.x -= ARROWWIDTH;
+	pt.y += ARROWHEIGHT;
+	LineTo(dc, pt.x, pt.y);
+	pt.x = 0;
+	LineTo(dc, pt.x, pt.y);
+	EndPath(dc);
+	return PathToRegion(dc);
+}
+
 LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC dc;
 	HRGN region;
-	POINT pt;
 	RECT r;
 	LONG width;
 	LONG height;
+	WINDOWPOS *wp;
 
 	switch (uMsg) {
 	case WM_NCPAINT:
 		GetWindowRect(hwnd, &r);
 		width = r.right - r.left;
 		height = r.bottom - r.top;
-		dc = GetDCEx(hwnd, (HRGN) wParam, DCX_WINDOW | DCX_INTERSECTRGN);
+		dc = GetWindowDC(hwnd);
 		if (dc == NULL) abort();
-		BeginPath(dc);
-		r.left = 0; r.top = 0;		// everything's in device coordinates
-		pt.x = r.left;
-		pt.y = r.top + ARROWHEIGHT;
-		if (MoveToEx(dc, pt.x, pt.y, NULL) == 0) abort();
-		pt.y += height - ARROWHEIGHT;
-		if (LineTo(dc, pt.x, pt.y) == 0) abort();
-		pt.x += width;
-		LineTo(dc, pt.x, pt.y);
-		pt.y -= height - ARROWHEIGHT;
-		LineTo(dc, pt.x, pt.y);
-		pt.x -= (width / 2) - ARROWWIDTH;
-		LineTo(dc, pt.x, pt.y);
-		pt.x -= ARROWWIDTH;
-		pt.y -= ARROWHEIGHT;
-		LineTo(dc, pt.x, pt.y);
-		pt.x -= ARROWWIDTH;
-		pt.y += ARROWHEIGHT;
-		LineTo(dc, pt.x, pt.y);
-		pt.x = 0;
-		LineTo(dc, pt.x, pt.y);
-		EndPath(dc);
 		SetDCBrushColor(dc, RGB(255, 0, 0));
-		region = PathToRegion(dc);
+		region = makePopoverRegion(dc, width, height);
 		FrameRgn(dc, region, GetStockObject(DC_BRUSH), 1, 1);
-		SetWindowRgn(hwnd, region, TRUE);
+		DeleteObject(region);
 		ReleaseDC(hwnd, dc);
 		return 0;
+	case WM_WINDOWPOSCHANGED:
+		// this must be here; if it's in WM_NCPAINT weird things happen (see http://stackoverflow.com/questions/26288303/why-is-my-client-rectangle-drawing-behaving-bizarrely-pictures-provided-if-i-t)
+		wp = (WINDOWPOS *) lParam;
+		if ((wp->flags & SWP_NOSIZE) == 0) {
+			dc = GetWindowDC(hwnd);
+			if (dc == NULL) abort();
+			region = makePopoverRegion(dc, wp->cx, wp->cy);
+			SetWindowRgn(hwnd, region, TRUE);
+			// don't delete the region; the window manager owns it now
+			ReleaseDC(hwnd, dc);
+		}
+		break;		// defer to DefWindowProc()
 	case WM_NCCALCSIZE:
 		{
 			RECT *r = (RECT *) lParam;
@@ -99,6 +117,7 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
+		FrameRect(dc, &r, GetStockPen(WHITE_PEN));
 		EndPaint(hwnd, &ps);
 		return 0;
 	}
