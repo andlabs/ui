@@ -27,8 +27,15 @@
 // - make sure redrawing is correct (especially for backgrounds)
 // - wine: BLACK_PEN draws a white line? (might change later so eh)
 // - should the parent window appear deactivated?
+// - switch to using Polyline()
 
 HWND popover;
+
+void xpanic(char *msg, DWORD err)
+{
+	printf("%d | %s\n", err, msg);
+	abort();
+}
 
 #define ARROWHEIGHT 8
 #define ARROWWIDTH 8		/* should be the same for smooth lines */
@@ -36,29 +43,41 @@ HWND popover;
 HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 {
 	POINT pt;
+	HRGN region;
 
-	BeginPath(dc);
+	if (BeginPath(dc) == 0)
+		xpanic("error beginning path for Popover shape", GetLastError());
 	pt.x = 0;
 	pt.y = ARROWHEIGHT;
-	MoveToEx(dc, pt.x, pt.y, NULL);
+	if (MoveToEx(dc, pt.x, pt.y, NULL) == 0)
+		xpanic("error moving to initial point in Popover shape", GetLastError());
 	pt.y += height - ARROWHEIGHT;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 1 in Popover shape", GetLastError());
 	pt.x += width;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 2 in Popover shape", GetLastError());
 	pt.y -= height - ARROWHEIGHT;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 3 in Popover shape", GetLastError());
 	pt.x -= (width / 2) - ARROWWIDTH;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 4 in Popover shape", GetLastError());
 	pt.x -= ARROWWIDTH;
 	pt.y -= ARROWHEIGHT;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 5 in Popover shape", GetLastError());
 	pt.x -= ARROWWIDTH;
 	pt.y += ARROWHEIGHT;
-	LineTo(dc, pt.x, pt.y);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 6 in Popover shape", GetLastError());
 	pt.x = 0;
-	LineTo(dc, pt.x, pt.y);
-	EndPath(dc);
-	return PathToRegion(dc);
+	if (LineTo(dc, pt.x, pt.y) == 0)
+		xpanic("error drawing line 7 in Popover shape", GetLastError());
+	if (EndPath(dc) == 0)
+		xpanic("error ending path for Popover shape", GetLastError());
+	region = PathToRegion(dc);
+	return region;
 }
 
 LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -73,13 +92,14 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	switch (uMsg) {
 	case WM_NCPAINT:
-		GetWindowRect(hwnd, &r);
+		if (GetWindowRect(hwnd, &r) == 0)
+			xpanic("error getting Popover window rect for shape redraw", GetLastError());
 		width = r.right - r.left;
 		height = r.bottom - r.top;
 		dc = GetWindowDC(hwnd);
-		if (dc == NULL) abort();
+		// TODO error
 		region = makePopoverRegion(dc, width, height);
-		// TODO use the class brush here
+		// TODO isolate the class brush to a constant
 		FillRgn(dc, region, GetSysColorBrush(COLOR_BTNFACE));
 		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
 		DeleteObject(region);
@@ -90,9 +110,10 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		wp = (WINDOWPOS *) lParam;
 		if ((wp->flags & SWP_NOSIZE) == 0) {
 			dc = GetWindowDC(hwnd);
-			if (dc == NULL) abort();
+			// TODO error
 			region = makePopoverRegion(dc, wp->cx, wp->cy);
-			SetWindowRgn(hwnd, region, TRUE);
+			if (SetWindowRgn(hwnd, region, TRUE) == 0)
+				xpanic("error setting Popover shape", GetLastError());
 			// don't delete the region; the window manager owns it now
 			ReleaseDC(hwnd, dc);
 		}
