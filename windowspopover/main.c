@@ -218,7 +218,14 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			r->top++;
 			r->right--;
 			r->bottom--;
-			r->top += ARROWHEIGHT;
+			if (p->arrowLeft >= 0)
+				r->left += ARROWWIDTH;
+			if (p->arrowRight >= 0)
+				r->right -= ARROWWIDTH;
+			if (p->arrowTop >= 0)
+				r->top += ARROWHEIGHT;
+			if (p->arrowBottom >= 0)
+				r->bottom -= ARROWHEIGHT;
 			return 0;
 		}
 	case WM_PAINT:
