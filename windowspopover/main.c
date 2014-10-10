@@ -27,7 +27,6 @@
 // - make sure redrawing is correct (especially for backgrounds)
 // - wine: BLACK_PEN draws a white line? (might change later so eh)
 // - should the parent window appear deactivated?
-// - switch to using Polyline()
 
 HWND popover;
 
@@ -42,38 +41,29 @@ void xpanic(char *msg, DWORD err)
 
 HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 {
-	POINT pt;
+	POINT pt[8];
 	HRGN region;
 
 	if (BeginPath(dc) == 0)
 		xpanic("error beginning path for Popover shape", GetLastError());
-	pt.x = 0;
-	pt.y = ARROWHEIGHT;
-	if (MoveToEx(dc, pt.x, pt.y, NULL) == 0)
-		xpanic("error moving to initial point in Popover shape", GetLastError());
-	pt.y += height - ARROWHEIGHT;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 1 in Popover shape", GetLastError());
-	pt.x += width;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 2 in Popover shape", GetLastError());
-	pt.y -= height - ARROWHEIGHT;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 3 in Popover shape", GetLastError());
-	pt.x -= (width / 2) - ARROWWIDTH;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 4 in Popover shape", GetLastError());
-	pt.x -= ARROWWIDTH;
-	pt.y -= ARROWHEIGHT;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 5 in Popover shape", GetLastError());
-	pt.x -= ARROWWIDTH;
-	pt.y += ARROWHEIGHT;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 6 in Popover shape", GetLastError());
-	pt.x = 0;
-	if (LineTo(dc, pt.x, pt.y) == 0)
-		xpanic("error drawing line 7 in Popover shape", GetLastError());
+	pt[0].x = 0;
+	pt[0].y = ARROWHEIGHT;
+	pt[1].x = pt[0].x;
+	pt[1].y = pt[0].y + (height - ARROWHEIGHT);
+	pt[2].x = pt[1].x + width;
+	pt[2].y = pt[1].y;
+	pt[3].x = pt[2].x;
+	pt[3].y = pt[2].y - (height - ARROWHEIGHT);
+	pt[4].x = pt[3].x - ((width / 2) - ARROWWIDTH);
+	pt[4].y = pt[3].y;
+	pt[5].x = pt[4].x - ARROWWIDTH;
+	pt[5].y = pt[4].y - ARROWHEIGHT;
+	pt[6].x = pt[5].x - ARROWWIDTH;
+	pt[6].y = pt[5].y + ARROWHEIGHT;
+	pt[7].x = pt[0].x;
+	pt[7].y = pt[0].y;
+	if (Polyline(dc, pt, 8) == 0)
+		xpanic("error drawing lines in Popover shape", GetLastError());
 	if (EndPath(dc) == 0)
 		xpanic("error ending path for Popover shape", GetLastError());
 	region = PathToRegion(dc);
