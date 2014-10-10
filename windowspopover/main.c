@@ -77,6 +77,8 @@ HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 	if (EndPath(dc) == 0)
 		xpanic("error ending path for Popover shape", GetLastError());
 	region = PathToRegion(dc);
+	if (region == NULL)
+		xpanic("error converting Popover shape path to region", GetLastError());
 	return region;
 }
 
@@ -97,25 +99,33 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		width = r.right - r.left;
 		height = r.bottom - r.top;
 		dc = GetWindowDC(hwnd);
-		// TODO error
+		if (dc == NULL)
+			xpanic("error getting Popover window DC for drawing border", GetLastError());
 		region = makePopoverRegion(dc, width, height);
 		// TODO isolate the class brush to a constant
-		FillRgn(dc, region, GetSysColorBrush(COLOR_BTNFACE));
-		FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1);
-		DeleteObject(region);
-		ReleaseDC(hwnd, dc);
+		// TODO object errors (or switch to path functions?)
+		if (FillRgn(dc, region, GetSysColorBrush(COLOR_BTNFACE)) == 0)
+			xpanic("error drawing Popover background", GetLastError());
+		if (FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1) == 0)
+			xpanic("error drawing Popover border", GetLastError());
+		if (DeleteObject(region) == 0)
+			xpanic("error deleting Popover shape region", GetLastError());
+		if (ReleaseDC(hwnd, dc) == 0)
+			xpanic("error releasing Popover window DC for shape drawing", GetLastError());
 		return 0;
 	case WM_WINDOWPOSCHANGED:
 		// this must be here; if it's in WM_NCPAINT weird things happen (see http://stackoverflow.com/questions/26288303/why-is-my-client-rectangle-drawing-behaving-bizarrely-pictures-provided-if-i-t)
 		wp = (WINDOWPOS *) lParam;
 		if ((wp->flags & SWP_NOSIZE) == 0) {
 			dc = GetWindowDC(hwnd);
-			// TODO error
+			if (dc == NULL)
+				xpanic("error getting Popover window DC for reshaping", GetLastError());
 			region = makePopoverRegion(dc, wp->cx, wp->cy);
 			if (SetWindowRgn(hwnd, region, TRUE) == 0)
 				xpanic("error setting Popover shape", GetLastError());
 			// don't delete the region; the window manager owns it now
-			ReleaseDC(hwnd, dc);
+			if (ReleaseDC(hwnd, dc) == 0)
+				xpanic("error releasing Popover window DC for reshaping", GetLastError());
 		}
 		break;		// defer to DefWindowProc()
 	case WM_NCCALCSIZE:
@@ -125,7 +135,6 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (wParam != FALSE)
 				r = &np->rgrc[0];
-			printf("%d | %d %d %d %d\n", wParam, r->left, r->top, r->right, r->bottom);
 			r->left++;
 			r->top++;
 			r->right--;
@@ -134,12 +143,12 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 	case WM_PAINT:
-/*		dc = BeginPaint(hwnd, &ps);
+		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
 		FrameRect(dc, &r, GetStockPen(WHITE_PEN));
 		EndPaint(hwnd, &ps);
-*/		return 0;
+		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
