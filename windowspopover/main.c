@@ -153,6 +153,9 @@ HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 	return region;
 }
 
+#define msgPopoverPrepareLeftRight (WM_APP+50)
+#define msgPopoverPrepareTopBottom (WM_APP+51)
+
 LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -235,16 +238,49 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		FrameRect(dc, &r, GetStockPen(WHITE_BRUSH));
 		EndPaint(hwnd, &ps);
 		return 0;
+	case msgPopoverPrepareLeftRight:
+	case msgPopoverPrepareTopBottom:
+		// TODO screen snapping
+		{
+			RECT r;
+			LONG x, y;
+			LONG width = 200, height = 200;
+
+			if (GetWindowRect((HWND) wParam, &r) == 0)
+				xpanic("error getting window rect of Popover target", GetLastError());
+			width += 2;
+			height += 2;
+			p->arrowLeft = -1;
+			p->arrowRight = -1;
+			p->arrowTop = -1;
+			p->arrowBottom = -1;
+			if (uMsg == msgPopoverPrepareLeftRight) {
+				width += ARROWWIDTH;
+				p->arrowLeft = height / 2 - ARROWHEIGHT;
+				x = r.right;
+				y = r.top - ((height - (r.bottom - r.top)) / 2);
+			} else {
+				height += ARROWHEIGHT;
+				p->arrowTop = width / 2 - ARROWWIDTH;
+				x = r.left - ((width - (r.right - r.left)) / 2);
+				y = r.bottom;
+			}
+			if (MoveWindow(hwnd, x, y, width, height, TRUE) == 0)
+				xpanic("error repositioning Popover", GetLastError());
+		}
+		return 0;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
+
+HWND button;
 
 LRESULT CALLBACK wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg) {
 	case WM_COMMAND:
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 100) {
-			MoveWindow(popover, 50, 50,  200, 200, TRUE);
+			SendMessageW(popover, msgPopoverPrepareLeftRight, (WPARAM) button, 0);
 			ShowWindow(popover, SW_SHOW);
 			UpdateWindow(popover);
 			return 0;
@@ -260,7 +296,7 @@ LRESULT CALLBACK wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int main(int argc, char *argv[])
 {
 	WNDCLASSW wc;
-	HWND mainwin, button;
+	HWND mainwin;
 	MSG msg;
 
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
