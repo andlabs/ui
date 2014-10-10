@@ -240,7 +240,8 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case msgPopoverPrepareLeftRight:
 	case msgPopoverPrepareTopBottom:
-		// TODO screen snapping
+		// TODO window edge detection
+		// TODO if window was partially offscreen and then moved onscreen, client rect gets fucked up
 		{
 			RECT r;
 			LONG x, y;
