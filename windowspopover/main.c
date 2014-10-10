@@ -25,7 +25,6 @@
 // - investigate visual styles
 // - put the client and non-client areas in the right place
 // - make sure redrawing is correct (especially for backgrounds)
-// - wine: BLACK_PEN draws a white line? (might change later so eh)
 // - should the parent window appear deactivated?
 
 HWND popover;
@@ -49,13 +48,14 @@ struct popover {
 	LONG arrowBottom;
 };
 
+struct popover _p = { NULL, -1, -1, 20, -1 };
+struct popover *p = &_p;
+
 HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 {
 	POINT pt[20];
 	int n;
 	HRGN region;
-	struct popover _p = { NULL, -1, -1, 20, -1 };
-	struct popover *p = &_p;
 	LONG xmax, ymax;
 
 	if (BeginPath(dc) == 0)
@@ -162,6 +162,7 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	LONG width;
 	LONG height;
 	WINDOWPOS *wp;
+	HBRUSH brush;
 
 	switch (uMsg) {
 	case WM_NCPAINT:
@@ -173,11 +174,18 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (dc == NULL)
 			xpanic("error getting Popover window DC for drawing border", GetLastError());
 		region = makePopoverRegion(dc, width, height);
-		// TODO isolate the class brush to a constant
-		// TODO object errors (or switch to path functions?)
-		if (FillRgn(dc, region, GetSysColorBrush(COLOR_BTNFACE)) == 0)
+		// TODO isolate the brush name to a constant
+		// unfortunately FillRgn() doesn't document the COLOR+1 trick as working there
+		brush = GetSysColorBrush(COLOR_BTNFACE);
+		if (brush == NULL)
+			xpanic("error getting Popover background brush", GetLastError());
+		if (FillRgn(dc, region, brush) == 0)
 			xpanic("error drawing Popover background", GetLastError());
-		if (FrameRgn(dc, region, GetStockObject(BLACK_PEN), 1, 1) == 0)
+		// TODO use a system color brush?
+		brush = (HBRUSH) GetStockObject(BLACK_BRUSH);
+		if (brush == NULL)
+			xpanic("error getting Popover border brush", GetLastError());
+		if (FrameRgn(dc, region, brush, 1, 1) == 0)
 			xpanic("error drawing Popover border", GetLastError());
 		if (DeleteObject(region) == 0)
 			xpanic("error deleting Popover shape region", GetLastError());
@@ -217,7 +225,7 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		dc = BeginPaint(hwnd, &ps);
 		GetClientRect(hwnd, &r);
 		FillRect(dc, &r, GetSysColorBrush(COLOR_ACTIVECAPTION));
-		FrameRect(dc, &r, GetStockPen(WHITE_PEN));
+		FrameRect(dc, &r, GetStockPen(WHITE_BRUSH));
 		EndPaint(hwnd, &ps);
 		return 0;
 	}
