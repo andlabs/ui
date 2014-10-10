@@ -39,30 +39,111 @@ void xpanic(char *msg, DWORD err)
 #define ARROWHEIGHT 8
 #define ARROWWIDTH 8		/* should be the same for smooth lines */
 
+struct popover {
+	void *gopopover;
+
+	// a nice consequence of this design is that it allows four arrowheads to jut out at once; in practice only one will ever be used, but hey — simple implementation!
+	LONG arrowLeft;
+	LONG arrowRight;
+	LONG arrowTop;
+	LONG arrowBottom;
+};
+
 HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 {
-	POINT pt[8];
+	POINT pt[20];
+	int n;
 	HRGN region;
+	struct popover _p = { NULL, -1, -1, 20, -1 };
+	struct popover *p = &_p;
+	LONG xmax, ymax;
 
 	if (BeginPath(dc) == 0)
 		xpanic("error beginning path for Popover shape", GetLastError());
-	pt[0].x = 0;
-	pt[0].y = ARROWHEIGHT;
-	pt[1].x = pt[0].x;
-	pt[1].y = pt[0].y + (height - ARROWHEIGHT);
-	pt[2].x = pt[1].x + width;
-	pt[2].y = pt[1].y;
-	pt[3].x = pt[2].x;
-	pt[3].y = pt[2].y - (height - ARROWHEIGHT);
-	pt[4].x = pt[3].x - ((width / 2) - ARROWWIDTH);
-	pt[4].y = pt[3].y;
-	pt[5].x = pt[4].x - ARROWWIDTH;
-	pt[5].y = pt[4].y - ARROWHEIGHT;
-	pt[6].x = pt[5].x - ARROWWIDTH;
-	pt[6].y = pt[5].y + ARROWHEIGHT;
-	pt[7].x = pt[0].x;
-	pt[7].y = pt[0].y;
-	if (Polyline(dc, pt, 8) == 0)
+	n = 0;
+
+	// figure out the xmax and ymax of the box
+	xmax = width;
+	if (p->arrowRight >= 0)
+		xmax -= ARROWWIDTH;
+	ymax = height;
+	if (p->arrowBottom >= 0)
+		ymax -= ARROWHEIGHT;
+
+	// the first point is either at (0,0), (0,arrowHeight), (arrowWidth,0), or (arrowWidth,arrowHeight)
+	pt[n].x = 0;
+	if (p->arrowLeft >= 0)
+		pt[n].x = ARROWWIDTH;
+	pt[n].y = 0;
+	if (p->arrowTop >= 0)
+		pt[n].y = ARROWHEIGHT;
+	n++;
+
+	// the left side
+	pt[n].x = pt[n - 1].x;
+	if (p->arrowLeft >= 0) {
+		pt[n].y = pt[n - 1].y + p->arrowLeft;
+		n++;
+		pt[n].x = pt[n - 1].x - ARROWWIDTH;
+		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x + ARROWWIDTH;
+		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x;
+	}
+	pt[n].y = ymax;
+	n++;
+
+	// the bottom side
+	pt[n].y = pt[n - 1].y;
+	if (p->arrowBottom >= 0) {
+		pt[n].x = pt[n - 1].x + p->arrowBottom;
+		n++;
+		pt[n].x = pt[n - 1].x + ARROWWIDTH;
+		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x + ARROWWIDTH;
+		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
+		n++;
+		pt[n].y = pt[n - 1].y;
+	}
+	pt[n].x = xmax;
+	n++;
+
+	// the right side
+	pt[n].x = pt[n - 1].x;
+	if (p->arrowRight >= 0) {
+		pt[n].y = pt[0].y + p->arrowRight + (ARROWHEIGHT * 2);
+		n++;
+		pt[n].x = pt[n - 1].x + ARROWWIDTH;
+		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x - ARROWWIDTH;
+		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x;
+	}
+	pt[n].y = pt[0].y;
+	n++;
+
+	// the top side
+	pt[n].y = pt[n - 1].y;
+	if (p->arrowTop >= 0) {
+		pt[n].x = pt[0].x + p->arrowTop + (ARROWWIDTH * 2);
+		n++;
+		pt[n].x = pt[n - 1].x - ARROWWIDTH;
+		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
+		n++;
+		pt[n].x = pt[n - 1].x - ARROWWIDTH;
+		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
+		n++;
+		pt[n].y = pt[n - 1].y;
+	}
+	pt[n].x = pt[0].x;
+	n++;
+
+	if (Polyline(dc, pt, n) == 0)
 		xpanic("error drawing lines in Popover shape", GetLastError());
 	if (EndPath(dc) == 0)
 		xpanic("error ending path for Popover shape", GetLastError());
