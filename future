@@ -66,6 +66,8 @@ default buttons
 in general
 	new moving stack and future moving heap make package ui a pain in general
 		issue 8310: watch for changes
+	Combobox/Listbox
+		Select() for selecting a row, like in Table
 
 dialog boxes
 	find out if Stop has an effect before a dialog box function returns
