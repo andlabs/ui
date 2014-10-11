@@ -23,7 +23,6 @@
 
 // TODO
 // - investigate visual styles
-// - put the client and non-client areas in the right place
 // - make sure redrawing is correct (especially for backgrounds)
 // - should the parent window appear deactivated?
 
