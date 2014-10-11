@@ -1,5 +1,9 @@
 // 10 october 2014
 // #qo pkg-config: gtk+-3.0
+#define GLIB_VERSION_MIN_REQUIRED GLIB_VERSION_2_32
+#define GLIB_VERSION_MAX_ALLOWED GLIB_VERSION_2_32
+#define GDK_VERSION_MIN_REQUIRED GDK_VERSION_3_4
+#define GDK_VERSION_MAX_ALLOWED GDK_VERSION_3_4
 #include <gtk/gtk.h>
 
 typedef gint LONG;
@@ -119,10 +123,11 @@ void makePopoverPath(cairo_t *cr, LONG width, LONG height)
 
 	int i;
 
-	// TODO bypass subpixel rendering
-	cairo_move_to(cr, pt[0].x, pt[0].y);
+	// TODO right and bottom edge
+	cairo_set_line_width(cr, 1);
+	cairo_move_to(cr, pt[0].x + 0.5, pt[0].y + 0.5);
 	for (i = 1; i < n; i++)
-		cairo_line_to(cr, pt[i].x, pt[i].y);
+		cairo_line_to(cr, pt[i].x + 0.5, pt[i].y + 0.5);
 }
 
 void drawPopoverFrame(GtkWidget *widget, cairo_t *cr, LONG width, LONG height, int forceAlpha)
@@ -133,6 +138,7 @@ void drawPopoverFrame(GtkWidget *widget, cairo_t *cr, LONG width, LONG height, i
 	// TODO see what GtkPopover itself does
 	// TODO drop shadow
 	context = gtk_widget_get_style_context(widget);
+	gtk_style_context_add_class(widget, GTK_STYLE_CLASS_BACKGROUND);
 	gtk_style_context_get_background_color(context, GTK_STATE_FLAG_NORMAL, &background);
 	gtk_style_context_get_border_color(context, GTK_STATE_FLAG_NORMAL, &border);
 	if (forceAlpha) {
@@ -185,8 +191,10 @@ int main(void)
 	gtk_window_set_decorated(GTK_WINDOW(w), FALSE);
 	gtk_widget_set_app_paintable(w, TRUE);
 	g_signal_connect(w, "draw", G_CALLBACK(popoverDraw), NULL);
+	gtk_widget_set_has_window(w, TRUE);
 	gtk_widget_realize(w);
 	popoverSetSize(w, 200, 200);
+	gtk_window_move(GTK_WINDOW(w), 50, 50);
 	gtk_widget_show_all(w);
 	gtk_main();
 	return 0;
