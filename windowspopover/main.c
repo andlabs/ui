@@ -18,15 +18,14 @@
 #include <windowsx.h>
 #include <vsstyle.h>
 #include <vssym32.h>
+#include "popover.h"
 
 // #qo LIBS: user32 kernel32 gdi32
 
 // TODO
-// - investigate visual styles
-// - make sure redrawing is correct (especially for backgrounds)
 // - should the parent window appear deactivated?
 
-HWND popover;
+HWND popoverWindow;
 
 void xpanic(char *msg, DWORD err)
 {
@@ -34,114 +33,23 @@ void xpanic(char *msg, DWORD err)
 	abort();
 }
 
-#define ARROWHEIGHT 8
-#define ARROWWIDTH 8		/* should be the same for smooth lines */
-
-struct popover {
-	void *gopopover;
-
-	// a nice consequence of this design is that it allows four arrowheads to jut out at once; in practice only one will ever be used, but hey — simple implementation!
-	LONG arrowLeft;
-	LONG arrowRight;
-	LONG arrowTop;
-	LONG arrowBottom;
-};
-
-struct popover _p = { NULL, -1, -1, 20, -1 };
-struct popover *p = &_p;
+popover *p;
 
 HRGN makePopoverRegion(HDC dc, LONG width, LONG height)
 {
+	popoverPoint ppt[20];
 	POINT pt[20];
-	int n;
+	int i, n;
 	HRGN region;
-	LONG xmax, ymax;
+
+	n = popoverMakeFramePoints(p, (intptr_t) width, (intptr_t) height, ppt);
+	for (i = 0; i < n; i++) {
+		pt[i].x = (LONG) (ppt[i].x);
+		pt[i].y = (LONG) (ppt[i].y);
+	}
 
 	if (BeginPath(dc) == 0)
 		xpanic("error beginning path for Popover shape", GetLastError());
-	n = 0;
-
-	// figure out the xmax and ymax of the box
-	xmax = width;
-	if (p->arrowRight >= 0)
-		xmax -= ARROWWIDTH;
-	ymax = height;
-	if (p->arrowBottom >= 0)
-		ymax -= ARROWHEIGHT;
-
-	// the first point is either at (0,0), (0,arrowHeight), (arrowWidth,0), or (arrowWidth,arrowHeight)
-	pt[n].x = 0;
-	if (p->arrowLeft >= 0)
-		pt[n].x = ARROWWIDTH;
-	pt[n].y = 0;
-	if (p->arrowTop >= 0)
-		pt[n].y = ARROWHEIGHT;
-	n++;
-
-	// the left side
-	pt[n].x = pt[n - 1].x;
-	if (p->arrowLeft >= 0) {
-		pt[n].y = pt[n - 1].y + p->arrowLeft;
-		n++;
-		pt[n].x = pt[n - 1].x - ARROWWIDTH;
-		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x + ARROWWIDTH;
-		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x;
-	}
-	pt[n].y = ymax;
-	n++;
-
-	// the bottom side
-	pt[n].y = pt[n - 1].y;
-	if (p->arrowBottom >= 0) {
-		pt[n].x = pt[n - 1].x + p->arrowBottom;
-		n++;
-		pt[n].x = pt[n - 1].x + ARROWWIDTH;
-		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x + ARROWWIDTH;
-		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
-		n++;
-		pt[n].y = pt[n - 1].y;
-	}
-	pt[n].x = xmax;
-	n++;
-
-	// the right side
-	pt[n].x = pt[n - 1].x;
-	if (p->arrowRight >= 0) {
-		pt[n].y = pt[0].y + p->arrowRight + (ARROWHEIGHT * 2);
-		n++;
-		pt[n].x = pt[n - 1].x + ARROWWIDTH;
-		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x - ARROWWIDTH;
-		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x;
-	}
-	pt[n].y = pt[0].y;
-	n++;
-
-	// the top side
-	pt[n].y = pt[n - 1].y;
-	if (p->arrowTop >= 0) {
-		pt[n].x = pt[0].x + p->arrowTop + (ARROWWIDTH * 2);
-		n++;
-		pt[n].x = pt[n - 1].x - ARROWWIDTH;
-		pt[n].y = pt[n - 1].y - ARROWHEIGHT;
-		n++;
-		pt[n].x = pt[n - 1].x - ARROWWIDTH;
-		pt[n].y = pt[n - 1].y + ARROWHEIGHT;
-		n++;
-		pt[n].y = pt[n - 1].y;
-	}
-	pt[n].x = pt[0].x;
-	n++;
-
 	if (Polyline(dc, pt, n) == 0)
 		xpanic("error drawing lines in Popover shape", GetLastError());
 	if (EndPath(dc) == 0)
@@ -207,21 +115,19 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			RECT *r = (RECT *) lParam;
 			NCCALCSIZE_PARAMS *np = (NCCALCSIZE_PARAMS *) lParam;
+			popoverRect pr;
 
 			if (wParam != FALSE)
 				r = &np->rgrc[0];
-			r->left++;
-			r->top++;
-			r->right--;
-			r->bottom--;
-			if (p->arrowLeft >= 0)
-				r->left += ARROWWIDTH;
-			if (p->arrowRight >= 0)
-				r->right -= ARROWWIDTH;
-			if (p->arrowTop >= 0)
-				r->top += ARROWHEIGHT;
-			if (p->arrowBottom >= 0)
-				r->bottom -= ARROWHEIGHT;
+			pr.left = (intptr_t) (r->left);
+			pr.top = (intptr_t) (r->top);
+			pr.right = (intptr_t) (r->right);
+			pr.bottom = (intptr_t) (r->bottom);
+			popoverWindowSizeToClientSize(p, &pr);
+			r->left = (LONG) (pr.left);
+			r->top = (LONG) (pr.top);
+			r->right = (LONG) (pr.right);
+			r->bottom = (LONG) (pr.bottom);
 			return 0;
 		}
 	case WM_PAINT:
@@ -236,29 +142,27 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// TODO window edge detection
 		{
 			RECT r;
-			LONG x, y;
 			LONG width = 200, height = 200;
+			popoverRect control;
+			uintptr_t side;
+			popoverRect out;
 
 			if (GetWindowRect((HWND) wParam, &r) == 0)
 				xpanic("error getting window rect of Popover target", GetLastError());
-			width += 2;
-			height += 2;
-			p->arrowLeft = -1;
-			p->arrowRight = -1;
-			p->arrowTop = -1;
-			p->arrowBottom = -1;
-			if (uMsg == msgPopoverPrepareLeftRight) {
-				width += ARROWWIDTH;
-				p->arrowLeft = height / 2 - ARROWHEIGHT;
-				x = r.right;
-				y = r.top - ((height - (r.bottom - r.top)) / 2);
-			} else {
-				height += ARROWHEIGHT;
-				p->arrowTop = width / 2 - ARROWWIDTH;
-				x = r.left - ((width - (r.right - r.left)) / 2);
-				y = r.bottom;
+			control.left = (intptr_t) (r.left);
+			control.top = (intptr_t) (r.top);
+			control.right = (intptr_t) (r.right);
+			control.bottom = (intptr_t) (r.bottom);
+			switch (uMsg) {
+			case msgPopoverPrepareLeftRight:
+				side = popoverPointLeft;
+				break;
+			case msgPopoverPrepareTopBottom:
+				side = popoverPointTop;
+				break;
 			}
-			if (MoveWindow(hwnd, x, y, width, height, TRUE) == 0)
+			out = popoverPointAt(p, control, (intptr_t) width, (intptr_t) height, side);
+			if (MoveWindow(hwnd, out.left, out.top, out.right - out.left, out.bottom - out.top, TRUE) == 0)
 				xpanic("error repositioning Popover", GetLastError());
 		}
 		return 0;
@@ -273,9 +177,9 @@ LRESULT CALLBACK wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg) {
 	case WM_COMMAND:
 		if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 100) {
-			SendMessageW(popover, msgPopoverPrepareLeftRight, (WPARAM) button, 0);
-			ShowWindow(popover, SW_SHOW);
-			UpdateWindow(popover);
+			SendMessageW(popoverWindow, msgPopoverPrepareLeftRight, (WPARAM) button, 0);
+			ShowWindow(popoverWindow, SW_SHOW);
+			UpdateWindow(popoverWindow);
 			return 0;
 		}
 		break;
@@ -292,6 +196,9 @@ int main(int argc, char *argv[])
 	HWND mainwin;
 	MSG msg;
 
+	p = popoverDataNew(NULL);
+	// TODO null check
+
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpszClassName = L"popover";
 	wc.lpfnWndProc = popoverproc;
@@ -299,12 +206,12 @@ int main(int argc, char *argv[])
 	wc.style = CS_DROPSHADOW | CS_NOCLOSE;
 	if (RegisterClassW(&wc) == 0)
 		abort();
-	popover = CreateWindowExW(WS_EX_TOPMOST,
+	popoverWindow = CreateWindowExW(WS_EX_TOPMOST,
 		L"popover", L"",
 		WS_POPUP,
 		0, 0, 150, 100,
 		NULL, NULL, NULL, NULL);
-	if (popover == NULL)
+	if (popoverWindow == NULL)
 		abort();
 
 	ZeroMemory(&wc, sizeof (WNDCLASSW));

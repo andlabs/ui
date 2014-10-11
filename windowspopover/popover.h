@@ -22,7 +22,7 @@ enum {
 	popoverPointRight,
 	popoverPointTop,
 	popoverPointBottom,
-}
+};
 
 popover *popoverDataNew(void *);
 int popoverMakeFramePoints(popover *, intptr_t, intptr_t, popoverPoint[20]);

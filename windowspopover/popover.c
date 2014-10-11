@@ -144,6 +144,7 @@ popoverRect popoverPointAt(popover *p, popoverRect control, intptr_t width, intp
 	intptr_t x, y;
 	popoverRect out;
 
+	// account for border
 	width += 2;
 	height += 2;
 	p->arrowLeft = -1;
