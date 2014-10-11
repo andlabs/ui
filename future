@@ -1,3 +1,9 @@
+more flexible sizing determination
+	spaced shouldn't be a private global
+	textfield should have a method that allows control over the preferred number of characters, for sizing purposes
+
+Multiline text fields and standalone labels
+
 Group
 	Mac OS X: NSBox
 		container_darwin.m: figure out if our setFrameSize: thing applies to resizing the groupbox as well
@@ -12,6 +18,7 @@ Table
 
 Tab
 	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
+		// probably not a good idea
 	Delete()
 		// Delete removes the given tab.
 		// It panics if index is out of range.
