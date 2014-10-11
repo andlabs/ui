@@ -177,14 +177,8 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (dc == NULL)
 			xpanic("error getting Popover window DC for drawing border", GetLastError());
 		region = makePopoverRegion(dc, width, height);
-		// TODO isolate the brush name to a constant
-		// unfortunately FillRgn() doesn't document the COLOR+1 trick as working there
-		brush = GetSysColorBrush(COLOR_BTNFACE);
-		if (brush == NULL)
-			xpanic("error getting Popover background brush", GetLastError());
-		if (FillRgn(dc, region, brush) == 0)
-			xpanic("error drawing Popover background", GetLastError());
-		// TODO use a system color brush?
+		// don't call FillRgn(); WM_ERASEBKGND seems to do this to the non-client area for us already :S (TODO confirm)
+		// TODO arrow is black in wine
 		brush = (HBRUSH) GetStockObject(BLACK_BRUSH);
 		if (brush == NULL)
 			xpanic("error getting Popover border brush", GetLastError());
@@ -241,7 +235,6 @@ LRESULT CALLBACK popoverproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case msgPopoverPrepareLeftRight:
 	case msgPopoverPrepareTopBottom:
 		// TODO window edge detection
-		// TODO if window was partially offscreen and then moved onscreen, client rect gets fucked up
 		{
 			RECT r;
 			LONG x, y;
