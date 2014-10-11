@@ -60,7 +60,7 @@ func (i *imagelist) Append(img *image.RGBA) {
 	}
 
 	i.list = append(i.list, pixbuf)
-	C.gdk_pixbuf_unref(basepixbuf)
+	C.g_object_unref(C.gpointer(unsafe.Pointer(basepixbuf)))
 	C.cairo_surface_destroy(surface)
 }
 
