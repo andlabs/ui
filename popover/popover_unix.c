@@ -46,13 +46,14 @@ static void goPopover_realize(GtkWidget *widget)
 
 	attr.x = 0;
 	attr.y = 0;
-	attr.width = 0;
-	attr.height = 0;
+	attr.width = 200;
+	attr.height = 200;
 	attr.wclass = GDK_INPUT_OUTPUT;
 	attr.event_mask = gtk_widget_get_events(GTK_WIDGET(p)) | GDK_POINTER_MOTION_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK;
 	attr.visual = gtk_widget_get_visual(GTK_WIDGET(p));
 	attr.window_type = GDK_WINDOW_CHILD;		// GtkPopover does this; TODO what does GtkWindow(GTK_WINDOW_POPUP) do?
-	p->gdkwin = gdk_window_new(NULL, &attr, GDK_WA_VISUAL);
+	p->gdkwin = gdk_window_new(gtk_widget_get_parent_window(GTK_WIDGET(p)),
+		&attr, GDK_WA_VISUAL);
 	gtk_widget_set_window(GTK_WIDGET(p), p->gdkwin);
 	gtk_widget_register_window(GTK_WIDGET(p), p->gdkwin);
 	gtk_widget_set_realized(GTK_WIDGET(p), TRUE);
@@ -61,11 +62,22 @@ static void goPopover_realize(GtkWidget *widget)
 static void goPopover_map(GtkWidget *widget)
 {
 	gdk_window_show(GOPOPOVER(widget)->gdkwin);
+	GTK_WIDGET_CLASS(goPopover_parent_class)->map(widget);
 }
 
 static void goPopover_unmap(GtkWidget *widget)
 {
 	gdk_window_hide(GOPOPOVER(widget)->gdkwin);
+	GTK_WIDGET_CLASS(goPopover_parent_class)->unmap(widget);
+}
+
+static gboolean goPopover_draw(GtkWidget *widget, cairo_t *cr)
+{
+	GtkStyleContext *context;
+
+	context = gtk_widget_get_style_context(widget);
+	gtk_render_background(context, cr, 0, 0, 200, 200);
+	return TRUE;
 }
 
 static void goPopover_class_init(goPopoverClass *class)
@@ -75,10 +87,16 @@ static void goPopover_class_init(goPopoverClass *class)
 	GTK_WIDGET_CLASS(class)->realize = goPopover_realize;
 	GTK_WIDGET_CLASS(class)->map = goPopover_map;
 	GTK_WIDGET_CLASS(class)->unmap = goPopover_unmap;
+	GTK_WIDGET_CLASS(class)->draw = goPopover_draw;
 }
 
 void buttonClicked(GtkWidget *button, gpointer data)
 {
+	GtkWidget *popover;
+
+	popover = g_object_new(GOPOPOVER_TYPE, NULL);
+	gtk_widget_set_parent(popover, gtk_widget_get_parent(button));
+	gtk_widget_show(popover);
 }
 
 int main(void)
