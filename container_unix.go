@@ -56,7 +56,7 @@ const (
 
 func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
-	if c.spaced {
+	if spaced {
 		d.xmargin = gtkXMargin
 		d.ymargintop = gtkYMargin
 		d.ymarginbottom = d.ymargintop

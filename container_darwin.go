@@ -49,7 +49,7 @@ const (
 
 func (c *container) beginResize() (d *sizing) {
 	d = new(sizing)
-	if c.spaced {
+	if spaced {
 		d.xmargin = macXMargin
 		d.ymargintop = macYMargin
 		d.ymarginbottom = d.ymargintop

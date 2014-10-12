@@ -18,7 +18,6 @@ import (
 
 var closeOnClick = flag.Bool("close", false, "close on click")
 var smallWindow = flag.Bool("small", false, "open a small window (test Mac OS X initial control sizing)")
-var spaced = flag.Bool("spaced", false, "enable spacing")
 
 type dtype struct {
 	Name    string
@@ -263,6 +262,7 @@ var tw *testwin
 
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
+	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
 	flag.Parse()
 	go func() {
 		tw = new(testwin)
