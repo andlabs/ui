@@ -122,7 +122,7 @@ func (c *container) beginResize() (d *sizing) {
 	d.baseY = baseY
 	d.internalLeading = internalLeading
 
-	if spaced {
+	if c.spaced {
 		d.xmargin = fromdlgunitsX(marginDialogUnits, d)
 		d.ymargintop = fromdlgunitsY(marginDialogUnits, d)
 		d.ymarginbottom = d.ymargintop

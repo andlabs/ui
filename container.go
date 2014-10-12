@@ -32,10 +32,8 @@ type controlSizing interface {
 // All containers must embed containerbase.
 type containerbase struct {
 	child Control
+	spaced bool
 }
-
-// set to true to apply spacing to all windows
-var spaced bool = false
 
 func (c *container) resize(x, y, width, height int) {
 	if c.child == nil { // no children; nothing to do
