@@ -17,7 +17,8 @@ type window struct {
 
 	closing *event
 
-	child		Control
+	child			Control
+	margined		bool
 }
 
 func makeWindowWindowClass() error {
@@ -78,6 +79,14 @@ func (w *window) OnClosing(e func() bool) {
 	w.closing.setbool(e)
 }
 
+func (w *window) Margined() bool {
+	return w.margined
+}
+
+func (w *window) SetMargined(margined bool) {
+	w.margined = margined
+}
+
 //export storeWindowHWND
 func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 	w := (*window)(data)
@@ -87,7 +96,10 @@ func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	TODO := &sizing{}
+	d := w.beginResize()
+	if w.margined {
+		marginRectDLU(r, marginDialogUnits, marginDialogUnits, marginDialogUnits, marginDialogUnits, d)
+	}
 	w.child.resize(int(r.left), int (r.top), int(r.right - r.left), int(r.bottom - r.top), TODO)
 }
 

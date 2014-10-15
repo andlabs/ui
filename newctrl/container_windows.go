@@ -85,7 +85,7 @@ func fromdlgunitsY(du int, d *sizing) int {
 }
 
 const (
-	// TODO figure out how to sort this more nicely
+	// shared by multiple containers
 	marginDialogUnits  = 7
 	paddingDialogUnits = 4
 
@@ -106,9 +106,6 @@ func (w *window) beginResize() (d *sizing) {
 	d.baseY = baseY
 	d.internalLeading = internalLeading
 
-	d.xmargin = fromdlgunitsX(marginDialogUnits, d)
-	d.ymargintop = fromdlgunitsY(marginDialogUnits, d)
-	d.ymarginbottom = d.ymargintop
 	d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
 	d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
 
@@ -125,4 +122,11 @@ func (w *window) beginResize() (d *sizing) {
 */
 
 	return d
+}
+
+func marginRectDLU(r *C.RECT, top int, bottom int, left int, right int, d *sizing) {
+	r.left += fromdlgunitsX(left, d)
+	r.top += fromdlgunitsY(top, d)
+	r.right -= fromdlgunitsX(right, d)
+	r.bottom -= fromdlgunitsY(bottom, d)
 }
