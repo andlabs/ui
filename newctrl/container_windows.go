@@ -88,11 +88,6 @@ const (
 	// shared by multiple containers
 	marginDialogUnits  = 7
 	paddingDialogUnits = 4
-
-	// TODO move to group
-	groupXMargin       = 6
-	groupYMarginTop    = 11 // note this value /includes the groupbox label/
-	groupYMarginBottom = 7
 )
 
 func (w *window) beginResize() (d *sizing) {
