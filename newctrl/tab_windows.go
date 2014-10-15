@@ -38,7 +38,7 @@ func newTab() Tab {
 // TODO margined
 func (t *tab) Append(name string, control Control) {
 	c := newContainer()
-	control.setParent(&containerParent{c.hwnd})
+	control.setParent(&controlParent{c.hwnd})
 	t.tabs = append(t.tabs, c)
 	t.children = append(t.children, control)
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
@@ -75,8 +75,8 @@ return C.TRUE/*TODO
 }
 
 func (t *tab) preferredSize(d *sizing) (width, height int) {
-	for _, s := range t.tabs {
-		w, h := s.child.preferredSize(d)
+	for _, c := range t.children {
+		w, h := c.preferredSize(d)
 		if width < w {
 			width = w
 		}
@@ -102,7 +102,7 @@ func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
 	r.top = C.LONG(0)
 	r.right = C.LONG(width)
 	r.bottom = C.LONG(height)
-	C.tabGetContentRect(t._hwnd, &r)
+	C.tabGetContentRect(t.hwnd, &r)
 	// and resize tabs
 	// don't resize just the current tab; resize all tabs!
 	for i, _ := range t.tabs {
@@ -110,6 +110,4 @@ func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
 		t.tabs[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 		t.children[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 	}
-	// and now resize the tab control itself
-	basecommitResize(t, c, d)
 }

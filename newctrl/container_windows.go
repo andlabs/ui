@@ -59,7 +59,7 @@ func (c *container) hide() {
 
 func (c *container) parent() *controlParent {
 	return &controlParent{c.hwnd}
-)
+}
 
 //export storeContainerHWND
 func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
@@ -100,7 +100,7 @@ func (w *window) beginResize() (d *sizing) {
 
 	d = new(sizing)
 
-	C.calculateBaseUnits(c.hwnd, &baseX, &baseY, &internalLeading)
+	C.calculateBaseUnits(w.hwnd, &baseX, &baseY, &internalLeading)
 	d.baseX = baseX
 	d.baseY = baseY
 	d.internalLeading = internalLeading
@@ -124,8 +124,8 @@ func (w *window) beginResize() (d *sizing) {
 }
 
 func marginRectDLU(r *C.RECT, top int, bottom int, left int, right int, d *sizing) {
-	r.left += fromdlgunitsX(left, d)
-	r.top += fromdlgunitsY(top, d)
-	r.right -= fromdlgunitsX(right, d)
-	r.bottom -= fromdlgunitsY(bottom, d)
+	r.left += C.LONG(fromdlgunitsX(left, d))
+	r.top += C.LONG(fromdlgunitsY(top, d))
+	r.right -= C.LONG(fromdlgunitsX(right, d))
+	r.bottom -= C.LONG(fromdlgunitsY(bottom, d))
 }

@@ -8,9 +8,6 @@ import "C"
 type controlParent struct {
 	hwnd	C.HWND
 }
-type sizing struct {
-	// TODO
-}
 
 // don't specify preferredSize in any of these; they're per-control
 

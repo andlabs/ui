@@ -47,6 +47,7 @@ func newStack(o orientation, controls ...Control) Stack {
 	for _, c := range s.controls {
 		c.setParent(p)
 	}
+	return s
 }
 
 // NewHorizontalStack creates a new Stack that arranges the given Controls horizontally.
@@ -122,7 +123,7 @@ func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		as := c.resize(x, y, s.width[i], s.height[i], d)
+		c.resize(x, y, s.width[i], s.height[i], d)
 		if s.orientation == horizontal {
 			x += s.width[i] + d.xpadding
 		} else {

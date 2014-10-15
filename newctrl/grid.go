@@ -364,7 +364,6 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 
 	// 8) and FINALLY we draw
 	for _, ycol := range gg {
-		current = nil
 		for _, i := range ycol {
 			if i != -1 { // treat empty cells like spaces
 				g.controls[i].control.resize(
@@ -374,7 +373,7 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 		}
 	}
 
-	return allocations
+	return
 }
 
 func (g *grid) preferredSize(d *sizing) (width, height int) {

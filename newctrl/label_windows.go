@@ -12,7 +12,7 @@ type label struct {
 
 var labelclass = toUTF16("STATIC")
 
-func newLabel(text string) {
+func newLabel(text string) Label {
 	hwnd := C.newControl(labelclass,
 		// SS_NOPREFIX avoids accelerator translation; SS_LEFTNOWORDWRAP clips text past the end
 		// controls are vertically aligned to the top by default (thanks Xeek in irc.freenode.net/#winapi)

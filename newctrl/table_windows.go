@@ -26,7 +26,7 @@ type table struct {
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	hwnd := C.newControl(C.xWC_LISTVIEW,
 		C.LVS_REPORT|C.LVS_OWNERDATA|C.LVS_NOSORTHEADER|C.LVS_SHOWSELALWAYS|C.LVS_SINGLESEL|C.WS_HSCROLL|C.WS_VSCROLL|C.WS_TABSTOP,
-		C.WS_EX_CLIENTEDGE), // WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
+		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &table{
 		controlSingleHWND:		newControlSingleHWND(hwnd),
 		tablebase: b,
@@ -43,7 +43,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
 	C.tableAddExtendedStyles(t.hwnd, C.LVS_EX_FULLROWSELECT|C.LVS_EX_SUBITEMIMAGES)
 	// this must come after the subclass because it uses one of our private messages
-	C.SendMessageW(t._hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
+	C.SendMessageW(t.hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
 	for i := 0; i < ty.NumField(); i++ {
 		C.tableAppendColumn(t.hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
@@ -147,7 +147,7 @@ func (t *table) autoresize() {
 	t.RLock()
 	defer t.RUnlock()
 	if !t.noautosize {
-		C.tableAutosizeColumns(t._hwnd, t.colcount)
+		C.tableAutosizeColumns(t.hwnd, t.colcount)
 	}
 }
 
@@ -170,7 +170,7 @@ func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
 	t.hotrow = row
 	t.hotcol = col
 	if redraw {
-		C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+		C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 	}
 }
 
@@ -179,7 +179,7 @@ func tablePushed(data unsafe.Pointer, row C.int, col C.int) {
 	t := (*table)(data)
 	t.pushedrow = row
 	t.pushedcol = col
-	C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+	C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 }
 
 //export tableToggled

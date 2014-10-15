@@ -17,7 +17,7 @@ func newGroup(text string, control Control) Group {
 		C.WS_EX_CONTROLPARENT)
 	g := &group{
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
-		child:		control
+		child:		control,
 	}
 	g.fpreferredSize = g.preferredSize
 	g.fresize = g.resize
@@ -46,7 +46,7 @@ func (g *group) preferredSize(d *sizing) (width, height int) {
 
 	width, height = g.child.preferredSize(d)
 	if width < int(g.textlen) { // if the text is longer, try not to truncate
-		width = int(g._textlen)
+		width = int(g.textlen)
 	}
 	r.left = 0
 	r.top = 0

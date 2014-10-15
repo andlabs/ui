@@ -100,7 +100,7 @@ func windowResize(data unsafe.Pointer, r *C.RECT) {
 	if w.margined {
 		marginRectDLU(r, marginDialogUnits, marginDialogUnits, marginDialogUnits, marginDialogUnits, d)
 	}
-	w.child.resize(int(r.left), int (r.top), int(r.right - r.left), int(r.bottom - r.top), TODO)
+	w.child.resize(int(r.left), int (r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 }
 
 //export windowClosing

@@ -14,8 +14,6 @@ import (
 // One Control can be marked as "stretchy": when the Window containing the SimpleGrid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a SimpleGrid are given in (row,column) form with (0,0) being the top-left cell.
-//
-// As a special rule, to ensure proper appearance, non-standalone Labels are automatically made filling.
 type SimpleGrid interface {
 	Control
 
@@ -65,9 +63,6 @@ func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 		ch[row] = make([]int, nPerRow)
 		for x := 0; x < nPerRow; x++ {
 			cc[row][x] = controls[i]
-			if l, ok := controls[i].(Label); ok && !l.isStandalone() {
-				cf[row][x] = true
-			}
 			i++
 		}
 	}
@@ -83,7 +78,7 @@ func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 		container:		newContainer(),
 	}
 	p := g.container.parent()
-	for _, cc := range g.cc {
+	for _, cc := range g.controls {
 		for _, c := range cc {
 			c.setParent(p)
 		}
@@ -166,7 +161,6 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
-		current = nil // reset on new columns
 		for col, c := range xcol {
 			w := g.widths[row][col]
 			h := g.heights[row][col]
