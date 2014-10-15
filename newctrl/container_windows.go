@@ -57,6 +57,10 @@ func (c *container) hide() {
 	C.ShowWindow(c.hwnd, C.SW_HIDE)
 }
 
+func (c *container) parent() *controlParent {
+	return &controlParent{c.hwnd}
+)
+
 //export storeContainerHWND
 func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
 	c := (*container)(data)
