@@ -324,12 +324,6 @@ var modonlykeys = map[C.WPARAM]Modifiers{
 	C.VK_RWIN: Super,
 }
 
-//export storeAreaHWND
-func storeAreaHWND(data unsafe.Pointer, hwnd C.HWND) {
-	a := (*area)(data)
-	a.hwnd = hwnd
-}
-
 //export areaResetClickCounter
 func areaResetClickCounter(data unsafe.Pointer) {
 	a := (*area)(data)

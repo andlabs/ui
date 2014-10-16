@@ -33,14 +33,10 @@ func makeWindowWindowClass() error {
 
 func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
-		// hwnd set in WM_CREATE handler
 		closing:   newEvent(),
 		child:	control,
 	}
-	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
-	if hwnd != w.hwnd {
-		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in Window (%p) differ", hwnd, w.hwnd))
-	}
+	w.hwnd = C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	hresult := C.EnableThemeDialogTexture(w.hwnd, C.ETDT_ENABLE|C.ETDT_USETABTEXTURE)
 	if hresult != C.S_OK {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
@@ -85,12 +81,6 @@ func (w *window) Margined() bool {
 
 func (w *window) SetMargined(margined bool) {
 	w.margined = margined
-}
-
-//export storeWindowHWND
-func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
-	w := (*window)(data)
-	w.hwnd = hwnd
 }
 
 //export windowResize

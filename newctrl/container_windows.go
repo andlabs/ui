@@ -39,10 +39,7 @@ func makeContainerWindowClass() error {
 
 func newContainer() *container {
 	c := new(container)
-	hwnd := C.newContainer(unsafe.Pointer(c))
-	if hwnd != c.hwnd {
-		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in container (%p) differ", hwnd, c.hwnd))
-	}
+	c.controlSingleHWND = newControlSingleHWND(C.newContainer(unsafe.Pointer(c)))
 	// don't set preferredSize(); it should never be called
 	return c
 }
@@ -59,12 +56,6 @@ func (c *container) hide() {
 
 func (c *container) parent() *controlParent {
 	return &controlParent{c.hwnd}
-}
-
-//export storeContainerHWND
-func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
-	c := (*container)(data)
-	c.hwnd = hwnd
 }
 
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
