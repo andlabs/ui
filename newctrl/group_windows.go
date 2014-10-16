@@ -57,10 +57,10 @@ func (g *group) preferredSize(d *sizing) (width, height int) {
 	if g.margined {
 		// unforutnately, as mentioned above, the size of a groupbox includes the label and border
 		// 1DLU on each side should be enough to make up for that; if not, we can change it
+		marginRectDLU(&r, -groupYMarginTop, -groupYMarginBottom, -groupXMargin, -groupXMargin, d)
+	} else {
 		// TODO make these named constants
 		marginRectDLU(&r, -1, -1, -1, -1, d)
-	} else {
-		marginRectDLU(&r, -groupYMarginTop, -groupYMarginBottom, -groupXMargin, -groupXMargin, d)
 	}
 	return int(r.right - r.left), int(r.bottom - r.top)
 }
@@ -81,9 +81,9 @@ func (g *group) resize(x int, y int, width int, height int, d *sizing) {
 	r.bottom = C.LONG(height)
 	if g.margined {
 		// see above
-		marginRectDLU(&r, 1, 1, 1, 1, d)
-	} else {
 		marginRectDLU(&r, groupYMarginTop, groupYMarginBottom, groupXMargin, groupXMargin, d)
+	} else {
+		marginRectDLU(&r, 1, 1, 1, 1, d)
 	}
 	g.child.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 }
