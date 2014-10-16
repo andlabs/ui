@@ -125,6 +125,7 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 	// 0) inset the available rect by the needed padding and reset x/y for children
 	width -= (len(g.colwidths) - 1) * d.xpadding
 	height -= (len(g.rowheights) - 1) * d.ypadding
+	// TODO get the correct client rect
 	x = 0
 	y = 0
 	// 1) clear data structures
