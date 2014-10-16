@@ -12,6 +12,7 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	LRESULT r;
 	LRESULT lResult;
 
+	// TODO add to Group
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
