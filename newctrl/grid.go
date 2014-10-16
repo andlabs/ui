@@ -423,3 +423,11 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 	return colwidth + (g.xmax-1)*d.xpadding,
 		rowheight + (g.ymax-1)*d.ypadding
 }
+
+func (g *grid) nTabStops() int {
+	n := 0
+	for _, c := range g.controls {
+		n += c.control.nTabStops()
+	}
+	return n
+}

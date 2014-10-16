@@ -21,6 +21,10 @@ func newControlSingleHWND(hwnd C.HWND) *controlSingleHWND {
 	c.controlbase = &controlbase{
 		fsetParent:	c.setParent,
 		fresize:		c.resize,
+		fnTabStops:	func() int {
+			// most controls count as one tab stop
+			return 1
+		},
 	}
 	c.hwnd = hwnd
 	return c

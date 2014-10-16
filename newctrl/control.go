@@ -8,12 +8,14 @@ type Control interface {
 //	nChildren() int		// TODO
 	preferredSize(d *sizing) (width, height int)
 	resize(x int, y int, width int, height int, d *sizing)
+	nTabStops() int
 }
 
 type controlbase struct {
 	fsetParent			func(p *controlParent)
 	fpreferredSize		func(d *sizing) (width, height int)
 	fresize			func(x int, y int, width int, height int, d *sizing)
+	fnTabStops		func() int
 }
 
 func (c *controlbase) setParent(p *controlParent) {
@@ -26,4 +28,8 @@ func (c *controlbase) preferredSize(d *sizing) (width, height int) {
 
 func (c *controlbase) resize(x int, y int, width int, height int, d *sizing) {
 	c.fresize(x, y, width, height, d)
+}
+
+func (c *controlbase) nTabStops() int {
+	return c.fnTabStops()
 }

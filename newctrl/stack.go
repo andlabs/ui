@@ -180,6 +180,14 @@ func (s *stack) preferredSize(d *sizing) (width int, height int) {
 	return
 }
 
+func (s *stack) nTabStops() int {
+	n := 0
+	for _, c := range s.controls {
+		n += c.nTabStops()
+	}
+	return n
+}
+
 // TODO the below needs to be changed
 
 // Space returns a null Control intended for padding layouts with blank space.

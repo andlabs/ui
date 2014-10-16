@@ -215,3 +215,13 @@ func (g *simpleGrid) preferredSize(d *sizing) (width int, height int) {
 	}
 	return width, height
 }
+
+func (g *simpleGrid) nTabStops() int {
+	n := 0
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			n += c.nTabStops()
+		}
+	}
+	return n
+}

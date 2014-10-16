@@ -30,6 +30,7 @@ func newTab() Tab {
 	}
 	t.fpreferredSize = t.preferredSize
 	t.fresize = t.resize
+	// count tabs as 1 tab stop; the actual number of tab stops varies
 	C.controlSetControlFont(t.hwnd)
 	C.setTabSubclass(t.hwnd, unsafe.Pointer(t))
 	return t
@@ -67,12 +68,10 @@ func tabTabHasChildren(data unsafe.Pointer, which C.LRESULT) C.BOOL {
 	if len(t.tabs) == 0 { // currently no tabs
 		return C.FALSE
 	}
-return C.TRUE/*TODO
-	if t.tabs[int(which)].nchildren > 0 {
+	if t.children[int(which)].nTabStops() > 0 {
 		return C.TRUE
 	}
 	return C.FALSE
-*/
 }
 
 func (t *tab) preferredSize(d *sizing) (width, height int) {

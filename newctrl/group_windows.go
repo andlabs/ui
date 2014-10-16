@@ -21,6 +21,7 @@ func newGroup(text string, control Control) Group {
 	}
 	g.fpreferredSize = g.preferredSize
 	g.fresize = g.resize
+	g.fnTabStops = control.nTabStops		// groupbox itself is not tabbable but the contents might be
 	g.SetText(text)
 	C.controlSetControlFont(g.hwnd)
 	control.setParent(&controlParent{g.hwnd})

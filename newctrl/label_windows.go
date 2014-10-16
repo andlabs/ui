@@ -22,6 +22,10 @@ func newLabel(text string) Label {
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 	}
 	l.fpreferredSize = l.preferredSize
+	l.fnTabStops = func() int {
+		// labels are not tab stops
+		return 0
+	}
 	l.SetText(text)
 	C.controlSetControlFont(l.hwnd)
 	return l
