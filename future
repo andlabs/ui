@@ -1,3 +1,8 @@
+new control stuff
+	Tab, Group
+		- should host Controls directly
+		- should have shareWndProc()
+
 more flexible sizing determination
 	spaced shouldn't be a private global
 	textfield should have a method that allows control over the preferred number of characters, for sizing purposes
