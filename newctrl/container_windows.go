@@ -5,7 +5,6 @@ package ui
 import (
 	"fmt"
 	"syscall"
-	"unsafe"
 )
 
 // #include "winapi_windows.h"
@@ -38,10 +37,10 @@ func makeContainerWindowClass() error {
 }
 
 func newContainer() *container {
-	c := new(container)
-	c.controlSingleHWND = newControlSingleHWND(C.newContainer(unsafe.Pointer(c)))
 	// don't set preferredSize(); it should never be called
-	return c
+	return &container{
+		controlSingleHWND:		newControlSingleHWND(C.newContainer()),
+	}
 }
 
 // TODO merge with controlSingleHWND

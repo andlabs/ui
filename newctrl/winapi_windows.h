@@ -123,7 +123,7 @@ extern void tableSelectItem(HWND, intptr_t);
 
 // container_windows.c
 extern DWORD makeContainerWindowClass(char **);
-extern HWND newContainer(void *);
+extern HWND newContainer();
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 // area_windows.c

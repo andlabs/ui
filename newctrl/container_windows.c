@@ -13,13 +13,8 @@ If this is seriously an issue in the future, I can roll it back.
 
 static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	void *data;
-	RECT r;
 	LRESULT lResult;
 
-	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult);
-	if (data == NULL)
-		return lResult;
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
@@ -48,7 +43,7 @@ DWORD makeContainerWindowClass(char **errmsg)
 	return 0;
 }
 
-HWND newContainer(void *data)
+HWND newContainer(void)
 {
 	HWND hwnd;
 
@@ -58,7 +53,7 @@ HWND newContainer(void *data)
 		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		100, 100,
-		msgwin, NULL, hInstance, data);
+		msgwin, NULL, hInstance, NULL);
 	if (hwnd == NULL)
 		xpanic("container creation failed", GetLastError());
 	return hwnd;
