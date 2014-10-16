@@ -109,6 +109,7 @@ func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
 	for i, _ := range t.tabs {
 		// because each widget is actually a child of the Window, the origin is the one we calculated above
 		t.tabs[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
-		t.children[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
+		// TODO get the actual client rect
+		t.children[i].resize(int(0), int(0), int(r.right - r.left), int(r.bottom - r.top), d)
 	}
 }
