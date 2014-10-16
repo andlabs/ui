@@ -23,11 +23,6 @@ static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LP
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
-	case WM_SIZE:
-		if (GetClientRect(hwnd, &r) == 0)
-			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
-		containerResize(data, &r);
-		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
