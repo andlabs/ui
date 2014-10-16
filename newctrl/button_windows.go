@@ -55,7 +55,6 @@ const (
 )
 
 func (b *button) preferredSize(d *sizing) (width, height int) {
-return 0,0/*TODO/*
 	// comctl32.dll version 6 thankfully provides a method to grab this...
 	var size C.SIZE
 
@@ -69,5 +68,4 @@ return 0,0/*TODO/*
 	// don't worry about the error return from GetSystemMetrics(); there's no way to tell (explicitly documented as such)
 	xmargins := 2 * int(C.GetSystemMetrics(C.SM_CXEDGE))
 	return xmargins + int(b.textlen), fromdlgunitsY(buttonHeight, d)
-*/
 }

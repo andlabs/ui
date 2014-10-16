@@ -42,7 +42,7 @@ const (
 )
 
 func (l *label) preferredSize(d *sizing) (width, height int) {
-return 0,0//TODO	return int(l._textlen), fromdlgunitsY(labelHeight, d)
+	return int(l.textlen), fromdlgunitsY(labelHeight, d)
 }
 
 /*TODO

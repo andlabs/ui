@@ -69,8 +69,6 @@ const (
 )
 
 func (c *checkbox) preferredSize(d *sizing) (width, height int) {
-return 0,0/*TODO
-	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c._textlen),
+	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c.textlen),
 		fromdlgunitsY(checkboxHeight, d)
-*/
 }

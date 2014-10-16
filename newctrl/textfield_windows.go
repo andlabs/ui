@@ -71,5 +71,5 @@ const (
 )
 
 func (t *textfield) preferredSize(d *sizing) (width, height int) {
-return 0,0//TODO	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
+	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }
