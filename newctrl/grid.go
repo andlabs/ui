@@ -184,6 +184,8 @@ func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
 }
 
 func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
+	g.container.resize(x, y, width, height, d)
+
 	if len(g.controls) == 0 {
 		// nothing to do
 		return

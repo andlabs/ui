@@ -118,6 +118,7 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 		return b
 	}
 
+	g.container.resize(x, y, width, height, d)
 	if len(g.controls) == 0 {
 		return
 	}
