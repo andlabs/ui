@@ -36,6 +36,14 @@ func (g *group) SetText(text string) {
 	g.setText(text)
 }
 
+func (g *group) Margined() bool {
+	return g.margined
+}
+
+func (g *group) SetMargined(margined bool) {
+	g.margined = margined
+}
+
 const (
 	groupXMargin       = 6
 	groupYMarginTop    = 11 // note this value /includes the groupbox label/
@@ -55,10 +63,10 @@ func (g *group) preferredSize(d *sizing) (width, height int) {
 	r.bottom = C.LONG(height)
 	// use negative numbers to increase the size of the rectangle
 	if g.margined {
-		// unforutnately, as mentioned above, the size of a groupbox includes the label and border
-		// 1DLU on each side should be enough to make up for that; if not, we can change it
 		marginRectDLU(&r, -groupYMarginTop, -groupYMarginBottom, -groupXMargin, -groupXMargin, d)
 	} else {
+		// unforutnately, as mentioned above, the size of a groupbox includes the label and border
+		// 1DLU on each side should be enough to make up for that; TODO is not, we can change it
 		// TODO make these named constants
 		marginRectDLU(&r, -1, -1, -1, -1, d)
 	}

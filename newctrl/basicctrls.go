@@ -110,6 +110,11 @@ type Group interface {
 	// Text and SetText get and set the Group's label text.
 	Text() string
 	SetText(text string)
+
+	// Margined and SetMargined get and set whether the contents of the Group have a margin around them.
+	// The size of the margin is platform-dependent.
+	Margined() bool
+	SetMargined(margined bool)
 }
 
 // NewGroup creates a new Group with the given text label and child Control.

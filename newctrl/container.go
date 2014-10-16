@@ -9,9 +9,6 @@ type sizingbase struct {
 
 // The container type, which is defined per-platform, is an internal Control that is only used to house other Controls from the underlying UI toolkit's point of view
 
-// set to true to apply spacing to all windows
-var spaced bool = false
-
 /* TODO
 func (c *container) resize(x, y, width, height int) {
 	if c.child == nil { // no children; nothing to do
