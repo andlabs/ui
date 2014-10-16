@@ -23,7 +23,7 @@ func newGroup(text string, control Control) Group {
 	g.fresize = g.resize
 	g.SetText(text)
 	C.controlSetControlFont(g.hwnd)
-	g.setParent(&controlParent{g.hwnd})
+	control.setParent(&controlParent{g.hwnd})
 	return g
 }
 
