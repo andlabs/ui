@@ -39,6 +39,7 @@ func newTab() Tab {
 func (t *tab) Append(name string, control Control) {
 	c := newContainer()
 	control.setParent(&controlParent{c.hwnd})
+	c.setParent(&controlParent{t.hwnd})
 	t.tabs = append(t.tabs, c)
 	t.children = append(t.children, control)
 	// initially hide tab 1..n controls; if we don't, they'll appear over other tabs, resulting in weird behavior
