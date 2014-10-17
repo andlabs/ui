@@ -5,10 +5,9 @@ package ui
 // Control represents a control.
 type Control interface {
 	setParent(p *controlParent) // controlParent defined per-platform
-//	nChildren() int		// TODO
 	preferredSize(d *sizing) (width, height int)
 	resize(x int, y int, width int, height int, d *sizing)
-	nTabStops() int
+	nTabStops() int		// used by the Windows backend
 }
 
 type controlbase struct {
