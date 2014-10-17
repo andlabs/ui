@@ -51,6 +51,7 @@ func newControlSingleHWNDWithText(h C.HWND) *controlSingleHWNDWithText {
 	}
 }
 
+// TODO export these instead of requiring dummy declarations in each implementation
 func (c *controlSingleHWNDWithText) text() string {
 	return getWindowText(c.hwnd)
 }

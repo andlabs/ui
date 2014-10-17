@@ -1,10 +1,11 @@
 new control stuff
 	Tab, Group
 		- should host Controls directly
-		- should have shareWndProc()
+		- should have sharedWndProc()
 
 more flexible sizing determination
-	spaced shouldn't be a private global
+	Tab needs a SetMargined(n), Margined(n)
+		so will Popover
 	textfield should have a method that allows control over the preferred number of characters, for sizing purposes
 
 Multiline text fields and standalone labels
@@ -20,6 +21,8 @@ Control
 Table
 	refresh only selected rows of view to avoid flicker (especially on Windows)
 	add functions for header manipulation
+	background color
+	row titles
 
 Tab
 	// [TODO if each tab of your Tab is going to have the same content Controls, then use LikeTab instead, to conserve resources]
@@ -79,6 +82,7 @@ dialog boxes
 	find out if Stop has an effect before a dialog box function returns
 	our solution for common dialogs is rather heavyweight and doesn't work for user-created dialogs
 		foreign events are a problem
+	do what raymond chen suggested
 
 so I don't forget, some TODOs:
 windows
@@ -92,7 +96,9 @@ windows
 	- groupbox line behind groupbox text
 	- scrolling edit controls in Areas back into view don't cause redraw
 	- need to figure out the WM_MOUSELEAVE tango (see mergeback/table_mouseleave_windows.c)
+		- won't be an issue once I rewrite Table completely
 	- tell wine that WM_CTLCOLOR*** doesn't get sent early ?????
+	- don't let empty Tabs be tab stops
 gtk+
 	- Area: figure out how Enter is processed in Entry
 		https://git.gnome.org/browse/gtk+/tree/gtk/gtkwindow.c#n1229
