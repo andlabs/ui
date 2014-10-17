@@ -26,6 +26,11 @@ type SimpleGrid interface {
 	// Only one control can be stretchy per SimpleGrid; calling SetStretchy multiple times merely changes which control is stretchy (preserving the previous filling value).
 	// It panics if the given coordinate is invalid.
 	SetStretchy(row int, column int)
+
+	// Padded and SetPadded get and set whether the controls of the SimpleGrid have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 type simpleGrid struct {
@@ -36,6 +41,7 @@ type simpleGrid struct {
 	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
 	container		*container
+	padded	bool
 }
 
 // NewSimpleGrid creates a new SimpleGrid with the given Controls.
@@ -106,6 +112,14 @@ func (g *simpleGrid) SetStretchy(row int, column int) {
 	g.filling[g.stretchyrow][g.stretchycol] = true
 }
 
+func (g *simpleGrid) Padded() bool {
+	return g.padded
+}
+
+func (g *simpleGrid) SetPadded(padded bool) {
+	g.padded = padded
+}
+
 func (g *simpleGrid) setParent(parent *controlParent) {
 	g.container.setParent(parent)
 }
@@ -122,9 +136,16 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 	if len(g.controls) == 0 {
 		return
 	}
+	// -1) get this SimpleGrid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
 	// 0) inset the available rect by the needed padding and reset x/y for children
-	width -= (len(g.colwidths) - 1) * d.xpadding
-	height -= (len(g.rowheights) - 1) * d.ypadding
+	width -= (len(g.colwidths) - 1) * xpadding
+	height -= (len(g.rowheights) - 1) * ypadding
 	// TODO get the correct client rect
 	x = 0
 	y = 0
@@ -171,10 +192,10 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 				h = g.rowheights[row]
 			}
 			c.resize(x, y, w, h, d)
-			x += g.colwidths[col] + d.xpadding
+			x += g.colwidths[col] + xpadding
 		}
 		x = startx
-		y += g.rowheights[row] + d.ypadding
+		y += g.rowheights[row] + ypadding
 	}
 }
 
@@ -187,8 +208,14 @@ func (g *simpleGrid) preferredSize(d *sizing) (width int, height int) {
 		return b
 	}
 
-	width -= (len(g.colwidths) - 1) * d.xpadding
-	height -= (len(g.rowheights) - 1) * d.ypadding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
+	width -= (len(g.colwidths) - 1) * xpadding
+	height -= (len(g.rowheights) - 1) * ypadding
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0

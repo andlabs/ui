@@ -32,6 +32,12 @@ func newVerticalStack(c ...Control) Stack {
 	return s
 }
 
+func newSimpleGrid(n int, c ...Control) SimpleGrid {
+	g := NewSimpleGrid(n, c...)
+	g.SetPadded(*spaced)
+	return g
+}
+
 type dtype struct {
 	Name    string
 	Address string
@@ -189,7 +195,7 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.group = NewGroup("Group", newVerticalStack(NewCheckbox("Checkbox in Group")))
 	tw.group.SetMargined(*spaced)
 	tw.t.Append("Group", tw.group)
-	tw.simpleGrid = NewSimpleGrid(3,
+	tw.simpleGrid = newSimpleGrid(3,
 		NewLabel("0,0"), NewTextField(), NewLabel("0,2"),
 		NewButton("1,0"), NewButton("1,1"), NewButton("1,2"),
 		NewLabel("2,0"), NewTextField(), NewLabel("2,2"))
