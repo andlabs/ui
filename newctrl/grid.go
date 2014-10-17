@@ -27,6 +27,11 @@ type Grid interface {
 	// The effect of overlapping spanning Controls is also undefined.
 	// Add panics if either xspan or yspan are zero or negative.
 	Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align, xspan int, yspan int)
+
+	// Padded and SetPadded get and set whether the controls of the Grid have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 // Align represents the alignment of a Control in its cell of a Grid.
@@ -55,6 +60,7 @@ type grid struct {
 	indexof  map[Control]int
 	prev     int
 	container		*container
+	padded	bool
 
 	xmax int
 	ymax int
@@ -160,6 +166,14 @@ func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xal
 	g.reorigin()
 }
 
+func (g *grid) Padded() bool {
+	return g.padded
+}
+
+func (g *grid) SetPadded(padded bool) {
+	g.padded = padded
+}
+
 func (g *grid) setParent(p *controlParent) {
 	g.container.setParent(p)
 }
@@ -191,9 +205,17 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 		return
 	}
 
+	// -2) get this Grid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
+
 	// -1) discount padding from width/height
-	width -= (g.xmax - 1) * d.xpadding
-	height -= (g.ymax - 1) * d.ypadding
+	width -= (g.xmax - 1) * xpadding
+	height -= (g.ymax - 1) * ypadding
 
 	// 0) build necessary data structures
 	gg, colwidths, rowheights := g.mkgrid()
@@ -315,11 +337,11 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 				if i != prev {
 					g.controls[i].finalx = curx
 				} else {
-					g.controls[i].finalwidth += d.xpadding
+					g.controls[i].finalwidth += xpadding
 				}
 				g.controls[i].finalwidth += colwidths[x]
 			}
-			curx += colwidths[x] + d.xpadding
+			curx += colwidths[x] + xpadding
 			prev = i
 		}
 	}
@@ -332,11 +354,11 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 				if i != prev {
 					g.controls[i].finaly = cury
 				} else {
-					g.controls[i].finalheight += d.ypadding
+					g.controls[i].finalheight += ypadding
 				}
 				g.controls[i].finalheight += rowheights[y]
 			}
-			cury += rowheights[y] + d.ypadding
+			cury += rowheights[y] + ypadding
 			prev = i
 		}
 	}
@@ -384,6 +406,14 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 		return 0, 0
 	}
 
+	// -1) get this Grid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
+
 	// 0) build necessary data structures
 	gg, colwidths, rowheights := g.mkgrid()
 
@@ -420,8 +450,8 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 	}
 
 	// and that's it; just account for padding
-	return colwidth + (g.xmax-1)*d.xpadding,
-		rowheight + (g.ymax-1)*d.ypadding
+	return colwidth + (g.xmax-1) * xpadding,
+		rowheight + (g.ymax-1) * ypadding
 }
 
 func (g *grid) nTabStops() int {
