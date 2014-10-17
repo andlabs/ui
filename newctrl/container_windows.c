@@ -9,8 +9,6 @@ In this case, I chose to waste a window handle rather than keep things super com
 If this is seriously an issue in the future, I can roll it back.
 */
 
-#define containerclass L"gouicontainer"
-
 static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	LRESULT lResult;
