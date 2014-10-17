@@ -24,6 +24,11 @@ type Stack interface {
 	// SetStretchy marks a control in a Stack as stretchy.
 	// It panics if index is out of range.
 	SetStretchy(index int)
+
+	// Padded and SetPadded get and set whether the controls of the Stack have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 type stack struct {
@@ -32,6 +37,7 @@ type stack struct {
 	stretchy      []bool
 	width, height []int // caches to avoid reallocating these each time
 	container		*container
+	padded	bool
 }
 
 func newStack(o orientation, controls ...Control) Stack {
@@ -67,6 +73,14 @@ func (s *stack) SetStretchy(index int) {
 	s.stretchy[index] = true
 }
 
+func (s *stack) Padded() bool {
+	return s.padded
+}
+
+func (s *stack) SetPadded(padded bool) {
+	s.padded = padded
+}
+
 func (s *stack) setParent(parent *controlParent) {
 	s.container.setParent(parent)
 }
@@ -78,11 +92,18 @@ func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
 		return
 	}
+	// -1) get this Stack's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !s.padded {
+		xpadding = 0
+		ypadding = 0
+	}
 	// 0) inset the available rect by the needed padding and reset the x/y coordinates for the children
 	if s.orientation == horizontal {
-		width -= (len(s.controls) - 1) * d.xpadding
+		width -= (len(s.controls) - 1) * xpadding
 	} else {
-		height -= (len(s.controls) - 1) * d.ypadding
+		height -= (len(s.controls) - 1) * ypadding
 	}
 	x = 0
 	y = 0
@@ -125,9 +146,9 @@ func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	for i, c := range s.controls {
 		c.resize(x, y, s.width[i], s.height[i], d)
 		if s.orientation == horizontal {
-			x += s.width[i] + d.xpadding
+			x += s.width[i] + xpadding
 		} else {
-			y += s.height[i] + d.ypadding
+			y += s.height[i] + ypadding
 		}
 	}
 	return
@@ -148,10 +169,16 @@ func (s *stack) preferredSize(d *sizing) (width int, height int) {
 	if len(s.controls) == 0 { // no controls, so return emptiness
 		return 0, 0
 	}
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !s.padded {
+		xpadding = 0
+		ypadding = 0
+	}
 	if s.orientation == horizontal {
-		width = (len(s.controls) - 1) * d.xpadding
+		width = (len(s.controls) - 1) * xpadding
 	} else {
-		height = (len(s.controls) - 1) * d.ypadding
+		height = (len(s.controls) - 1) * ypadding
 	}
 	for i, c := range s.controls {
 		w, h := c.preferredSize(d)
