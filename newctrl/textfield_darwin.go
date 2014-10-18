@@ -21,7 +21,7 @@ func finishNewTextField(id C.id) *textfield {
 		controlSingleObject:		newControlSingleObject(id),
 		changed: newEvent(),
 	}
-	C.textfieldSetDelegate(t._id, unsafe.Pointer(t))
+	C.textfieldSetDelegate(t.id, unsafe.Pointer(t))
 	t.chainpreferredSize = t.fpreferredSize
 	t.fpreferredSize = t.xpreferredSize
 	return t
@@ -36,13 +36,13 @@ func newPasswordField() *textfield {
 }
 
 func (t *textfield) Text() string {
-	return C.GoString(C.textfieldText(t._id))
+	return C.GoString(C.textfieldText(t.id))
 }
 
 func (t *textfield) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textfieldSetText(t._id, ctext)
+	C.textfieldSetText(t.id, ctext)
 }
 
 func (t *textfield) OnChanged(f func()) {
@@ -59,7 +59,7 @@ func (t *textfield) Invalid(reason string) {
 	}
 	creason := C.CString(reason)
 	defer C.free(unsafe.Pointer(creason))
-	t.invalid = C.textfieldOpenInvalidPopover(t._id, creason)
+	t.invalid = C.textfieldOpenInvalidPopover(t.id, creason)
 }
 
 //export textfieldChanged

@@ -21,8 +21,8 @@ func newButton(text string) *button {
 		controlSingleObject:		newControlSingleObject(C.newButton()),
 		clicked: newEvent(),
 	}
-	C.buttonSetText(b._id, ctext)
-	C.buttonSetDelegate(b._id, unsafe.Pointer(b))
+	C.buttonSetText(b.id, ctext)
+	C.buttonSetDelegate(b.id, unsafe.Pointer(b))
 	return b
 }
 
@@ -31,13 +31,13 @@ func (b *button) OnClicked(e func()) {
 }
 
 func (b *button) Text() string {
-	return C.GoString(C.buttonText(b._id))
+	return C.GoString(C.buttonText(b.id))
 }
 
 func (b *button) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.buttonSetText(b._id, ctext)
+	C.buttonSetText(b.id, ctext)
 }
 
 //export buttonClicked

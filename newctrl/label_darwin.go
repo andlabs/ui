@@ -22,21 +22,13 @@ func newLabel(text string) Label {
 }
 
 func (l *label) Text() string {
-	return C.GoString(C.textfieldText(l._id))
+	return C.GoString(C.textfieldText(l.id))
 }
 
 func (l *label) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textfieldSetText(l._id, ctext)
-}
-
-func (l *label) isStandalone() bool {
-	return l.standalone
-}
-
-func (l *label) id() C.id {
-	return l._id
+	C.textfieldSetText(l.id, ctext)
 }
 
 /*TODO

@@ -21,8 +21,8 @@ func newCheckbox(text string) *checkbox {
 		controlSingleObject:		newControlSingleObject(C.newCheckbox()),
 		toggled: newEvent(),
 	}
-	C.buttonSetText(c._id, ctext)
-	C.checkboxSetDelegate(c._id, unsafe.Pointer(c))
+	C.buttonSetText(c.id, ctext)
+	C.checkboxSetDelegate(c.id, unsafe.Pointer(c))
 	return c
 }
 
@@ -31,21 +31,21 @@ func (c *checkbox) OnToggled(e func()) {
 }
 
 func (c *checkbox) Text() string {
-	return C.GoString(C.buttonText(c._id))
+	return C.GoString(C.buttonText(c.id))
 }
 
 func (c *checkbox) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.buttonSetText(c._id, ctext)
+	C.buttonSetText(c.id, ctext)
 }
 
 func (c *checkbox) Checked() bool {
-	return fromBOOL(C.checkboxChecked(c._id))
+	return fromBOOL(C.checkboxChecked(c.id))
 }
 
 func (c *checkbox) SetChecked(checked bool) {
-	C.checkboxSetChecked(c._id, toBOOL(checked))
+	C.checkboxSetChecked(c.id, toBOOL(checked))
 }
 
 //export checkboxToggled
