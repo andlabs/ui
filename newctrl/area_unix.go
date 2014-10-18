@@ -34,9 +34,8 @@ import "C"
 type area struct {
 	*areabase
 
-	_widget     *C.GtkWidget
+	*scroller
 	drawingarea *C.GtkDrawingArea
-	scroller    *scroller
 
 	clickCounter *clickCounter
 
@@ -59,7 +58,6 @@ func newArea(ab *areabase) Area {
 	textfieldw := C.gtk_entry_new()
 	a := &area{
 		areabase:      ab,
-		_widget:       widget,
 		drawingarea:   (*C.GtkDrawingArea)(unsafe.Pointer(widget)),
 		scroller:      newScroller(widget, false, false, true), // not natively scrollable; no border; have an overlay for OpenTextFieldAt()
 		clickCounter:  new(clickCounter),
@@ -67,6 +65,7 @@ func newArea(ab *areabase) Area {
 		textfield:     (*C.GtkEntry)(unsafe.Pointer(textfieldw)),
 		textfielddone: newEvent(),
 	}
+	a.fpreferredSize = a.preferredSize
 	for _, c := range areaCallbacks {
 		g_signal_connect(
 			C.gpointer(unsafe.Pointer(a.drawingarea)),
@@ -492,28 +491,7 @@ var modonlykeys = map[C.guint]Modifiers{
 	C.GDK_KEY_Super_R:   Super,
 }
 
-func (a *area) widget() *C.GtkWidget {
-	return a._widget
-}
-
-func (a *area) setParent(p *controlParent) {
-	a.scroller.setParent(p)
-}
-
-func (a *area) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(a, x, y, width, height, d)
-}
-
 func (a *area) preferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
-}
-
-func (a *area) commitResize(c *allocation, d *sizing) {
-	a.scroller.commitResize(c, d)
-}
-
-func (a *area) getAuxResizeInfo(d *sizing) {
-	// a Label to the left of an Area should be vertically aligned to the top
-	d.shouldVAlignTop = true
 }
