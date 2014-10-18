@@ -37,6 +37,12 @@ func (c *container) parent() *controlParent {
 	return &controlParent{c.container}
 }
 
+//export containerResizing
+func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
+	c := (*container)(data)
+	c.resize(int(r.x), int(r.y), int(r.width), int(r.height))
+}
+
 const (
 	gtkXMargin  = 12
 	gtkYMargin  = 12
