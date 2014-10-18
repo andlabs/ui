@@ -13,14 +13,14 @@ type tab struct {
 	*controlSingleObject
 	tabs			[]*container
 	children		[]Control
-	chainresize	func(x int, y int, width int, height int
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
 	t := &tab{
 		controlSingleObject:		newControlSingleObject(C.newTab()),
 	}
-	t.fpreferredsize = t.xpreferredsize
+	t.fpreferredSize = t.xpreferredSize
 	t.chainresize = t.fresize
 	t.fresize = t.xresize
 	return t
