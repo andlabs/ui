@@ -28,7 +28,7 @@ func initGUI() {
 	tf.SetText("Text Field")
 	pf := ui.NewPasswordField()
 	pf.SetText("Password Field")
-	l := ui.NewStandaloneLabel("Label")
+	l := ui.NewLabel("Label")
 
 	t := ui.NewTab()
 	t.Append("Tab 1", ui.Space())

@@ -25,6 +25,8 @@ The in-code documentation needs improvement. I have written a [tutorial](https:/
 
 **18 October 2014**<br>The container system was rewritten entirely. You can now set a margin on Windows and Groups and spacing between controls ("padding") on Stacks, Grids, and SimpleGrids. Margins on Tabs will come soon. The work needed to change this will make future additions (like Popover and Spinbox) easier/more sensible. (The Mac OS X code is still glitchy; mind the dust.)
 
+As part of the change, standalone Labels have been removed. All Labels now behave like standalone labels. A new layout container, Form, will be introduced in the near future to allow proper layout of widgets with labels.
+
 **3 September 2014**<br>The new GtkGrid-style Grid is now implemented! See its documentation for more details. Also, debugging spew has been removed.
 
 **31 August 2014**<br>Grid is now renamed SimpleGrid in preparation for implementing a more [GtkGrid](https://developer.gnome.org/gtk3/unstable/GtkGrid.html)-like Grid. Mind the change.
