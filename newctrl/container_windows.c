@@ -57,6 +57,15 @@ HWND newContainer(void)
 	return hwnd;
 }
 
+RECT containerBounds(HWND hwnd)
+{
+	RECT r;
+
+	if (GetClientRect(hwnd, &r) == 0)
+		xpanic("error getting container client rect for container.bounds()", GetLastError());
+	return r;
+}
+
 void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY, LONG *internalLeading)
 {
 	HDC dc;

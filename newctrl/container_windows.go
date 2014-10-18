@@ -57,6 +57,11 @@ func (c *container) parent() *controlParent {
 	return &controlParent{c.hwnd}
 }
 
+func (c *container) bounds(d *sizing) (int, int, int, int) {
+	r := C.containerBounds(c.hwnd)
+	return int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top)
+}
+
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
 // These sizes are given in "dialog units", which are independent of the font in use.
 // We need to convert these into standard pixels, which requires we get the device context of the OS window.

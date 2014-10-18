@@ -125,6 +125,7 @@ extern void tableSelectItem(HWND, intptr_t);
 #define containerclass L"gouicontainer"
 extern DWORD makeContainerWindowClass(char **);
 extern HWND newContainer();
+extern RECT containerBounds(HWND);
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 // area_windows.c
