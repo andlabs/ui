@@ -1,7 +1,13 @@
+mac os x sizing is now completely broken
+	- need to catch window initial sizes
+	- need to catch tab changes
+	- rect should be based on the alignment rect, not the frame rect
+
 new control stuff
 	Tab, Group
-		- should host Controls directly
-		- should have sharedWndProc()
+		- should host Controls directly?
+			- should have sharedWndProc()
+		- Tab needs Margined
 
 more flexible sizing determination
 	Tab needs a SetMargined(n), Margined(n)

@@ -17,7 +17,7 @@ type sizing struct {
 	sizingbase
 
 	// for size calculations
-	// nothing for mac
+	// nothing on Mac OS X
 
 	// for the actual resizing
 	neighborAlign C.struct_xalignment

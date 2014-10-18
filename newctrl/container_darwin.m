@@ -34,7 +34,14 @@ id newContainerView(void *gocontainer)
 
 void moveControl(id c, intptr_t x, intptr_t y, intptr_t width, intptr_t height)
 {
-	[toNSView(c) setFrame:NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) width, (CGFloat) height)];
+	NSView *v;
+	NSRect frame;
+
+	frame = NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) width, (CGFloat) height);
+	// mac os x coordinate system has (0,0) in the lower-left
+	v = toNSView(c);
+	frame.origin.y = ([[v superview] bounds].size.height - frame.size.height) - frame.origin.y;
+	[v setFrame:frame];
 }
 
 struct xrect containerBounds(id view)

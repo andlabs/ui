@@ -34,6 +34,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	C.windowSetDelegate(w.id, unsafe.Pointer(w))
 	C.windowSetContentView(w.id, w.container.id)
 	w.child.setParent(w.container.parent())
+	// trigger an initial resize
 	return w
 }
 
@@ -49,6 +50,9 @@ func (w *window) SetTitle(title string) {
 
 func (w *window) Show() {
 	C.windowShow(w.id)
+	// trigger an initial resize
+	// TODO fine-tune this
+	windowResized(unsafe.Pointer(w))
 }
 
 func (w *window) Hide() {
