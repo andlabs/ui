@@ -110,7 +110,7 @@ func newScroller(widget *C.GtkWidget, native bool, bordered bool, overlay bool) 
 		// we now have to do all of the above again
 		s.overlaywidget = C.gtk_overlay_new()
 		s.overlaycontainer = (*C.GtkContainer)(unsafe.Pointer(s.overlaywidget))
-		s.overlayoverlay = (*C.GtkOverlay)(unsafe.Pointer(s.overlayoverlay))
+		s.overlayoverlay = (*C.GtkOverlay)(unsafe.Pointer(s.overlaywidget))
 		s.overlay = newControlSingleWidget(s.overlaywidget)
 		s.fsetParent = s.overlay.fsetParent
 		s.fresize = s.overlay.fresize
