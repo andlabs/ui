@@ -106,13 +106,8 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	for (;;) {
 		parent = GetParent(parent);
 		if (parent == NULL)
-			xpanic("error getting parent container of control in paintControlBackground()", GetLastError());
-		// wine sends these messages early, yay...
-		if (parent == msgwin)
-			return;
-		parent = GetParent(parent);
-		if (parent == NULL)
 			xpanic("error getting parent control of control in paintControlBackground()", GetLastError());
+		// wine sends these messages early, yay...
 		if (parent == msgwin)
 			return;
 		if (GetClassNameW(parent, classname, 128) == 0)
