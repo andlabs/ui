@@ -24,7 +24,7 @@ func startNewTextField(style C.DWORD) *textfield {
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		changed: newEvent(),
 	}
-	t.fpreferredSize = t.preferredSize
+	t.fpreferredSize = t.xpreferredSize
 	C.controlSetControlFont(t.hwnd)
 	C.setTextFieldSubclass(t.hwnd, unsafe.Pointer(t))
 	return t
@@ -70,6 +70,6 @@ const (
 	textfieldHeight = 14
 )
 
-func (t *textfield) preferredSize(d *sizing) (width, height int) {
+func (t *textfield) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }

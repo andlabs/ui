@@ -24,7 +24,7 @@ func newCheckbox(text string) *checkbox {
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		toggled: newEvent(),
 	}
-	c.fpreferredSize = c.preferredSize
+	c.fpreferredSize = c.xpreferredSize
 	c.SetText(text)
 	C.controlSetControlFont(c.hwnd)
 	C.setCheckboxSubclass(c.hwnd, unsafe.Pointer(c))
@@ -68,7 +68,7 @@ const (
 	checkboxXFromLeftOfBoxToLeftOfLabel = 12
 )
 
-func (c *checkbox) preferredSize(d *sizing) (width, height int) {
+func (c *checkbox) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c.textlen),
 		fromdlgunitsY(checkboxHeight, d)
 }

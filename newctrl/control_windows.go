@@ -19,8 +19,8 @@ type controlSingleHWND struct {
 func newControlSingleHWND(hwnd C.HWND) *controlSingleHWND {
 	c := new(controlSingleHWND)
 	c.controlbase = &controlbase{
-		fsetParent:	c.setParent,
-		fresize:		c.resize,
+		fsetParent:	c.xsetParent,
+		fresize:		c.xresize,
 		fnTabStops:	func() int {
 			// most controls count as one tab stop
 			return 1
@@ -30,11 +30,11 @@ func newControlSingleHWND(hwnd C.HWND) *controlSingleHWND {
 	return c
 }
 
-func (c *controlSingleHWND) setParent(p *controlParent) {
+func (c *controlSingleHWND) xsetParent(p *controlParent) {
 	C.controlSetParent(c.hwnd, p.hwnd)
 }
 
-func (c *controlSingleHWND) resize(x int, y int, width int, height int, d *sizing) {
+func (c *controlSingleHWND) xresize(x int, y int, width int, height int, d *sizing) {
 	C.moveWindow(c.hwnd, C.int(x), C.int(y), C.int(width), C.int(height))
 }
 

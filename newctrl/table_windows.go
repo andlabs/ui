@@ -21,6 +21,7 @@ type table struct {
 	pushedrow  C.int
 	pushedcol  C.int
 	selected   *event
+	chainresize		func(x int, y int, width int, height int, d *sizing)
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
@@ -36,8 +37,9 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		pushedcol: -1,
 		selected:  newEvent(),
 	}
-	t.fpreferredSize = t.preferredSize
-	t.fresize = t.resize
+	t.fpreferredSize = t.xpreferredSize
+	t.chainresize = t.fresize
+	t.fresize = t.xresize
 	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
@@ -221,13 +223,12 @@ const (
 	tableHeight = 50
 )
 
-func (t *table) preferredSize(d *sizing) (width, height int) {
+func (t *table) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(tableWidth, d), fromdlgunitsY(tableHeight, d)
 }
 
-func (t *table) commitResize(x int, y int, width int, height int, d *sizing) {
-	// TODO use a variable for this
-	t.controlSingleHWND.resize(x, y, width, height, d)
+func (t *table) xresize(x int, y int, width int, height int, d *sizing) {
+	t.chainresize(x, y, width, height, d)
 	t.RLock()
 	defer t.RUnlock()
 	t.autoresize()

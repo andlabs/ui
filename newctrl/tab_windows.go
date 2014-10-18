@@ -17,8 +17,9 @@ We'll create a dummy window using the container window class for each tab page. 
 
 type tab struct {
 	*controlSingleHWND
-	tabs		[]*container
-	children	[]Control
+	tabs			[]*container
+	children		[]Control
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
@@ -28,8 +29,9 @@ func newTab() Tab {
 	t := &tab{
 		controlSingleHWND:		newControlSingleHWND(hwnd),
 	}
-	t.fpreferredSize = t.preferredSize
-	t.fresize = t.resize
+	t.fpreferredSize = t.xpreferredSize
+	t.chainresize = t.fresize
+	t.fresize = t.xresize
 	// count tabs as 1 tab stop; the actual number of tab stops varies
 	C.controlSetControlFont(t.hwnd)
 	C.setTabSubclass(t.hwnd, unsafe.Pointer(t))
@@ -74,7 +76,7 @@ func tabTabHasChildren(data unsafe.Pointer, which C.LRESULT) C.BOOL {
 	return C.FALSE
 }
 
-func (t *tab) preferredSize(d *sizing) (width, height int) {
+func (t *tab) xpreferredSize(d *sizing) (width, height int) {
 	for _, c := range t.children {
 		w, h := c.preferredSize(d)
 		if width < w {
@@ -88,10 +90,9 @@ func (t *tab) preferredSize(d *sizing) (width, height int) {
 }
 
 // a tab control contains other controls; size appropriately
-func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
+func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to the container base to keep the Z-order correct
-	// TODO use a variable for this
-	t.controlSingleHWND.resize(x, y, width, height, d)
+	t.chainresize(x, y, width, height, d)
 
 	// now resize the children
 	var r C.RECT

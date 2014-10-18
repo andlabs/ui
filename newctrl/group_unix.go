@@ -20,6 +20,8 @@ type group struct {
 	container		*container
 
 	margined		bool
+
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -54,7 +56,8 @@ func newGroup(text string, control Control) Group {
 	g.child.setParent(g.container.parent())
 	g.container.setParent(&controlParent{g.gcontainer})
 
-	g.fresize = g.resize
+	g.chainresize = g.fresize
+	g.fresize = g.xresize
 
 	return g
 }
@@ -77,10 +80,9 @@ func (g *group) SetMargined(margined bool) {
 	g.margined = margined
 }
 
-func (g *group) resize(x int, y int, width int, height int, d *sizing) {
+func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to change the GtkFrame and its child container
-	// TODO use a variable for this
-	g.controlSingleWidget.resize(x, y, width, height, d)
+	g.chainresize(x, y, width, height, d)
 
 	// now that the container has the correct size, we can resize the child
 	a := g.container.allocation(g.margined)

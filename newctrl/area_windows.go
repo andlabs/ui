@@ -40,7 +40,7 @@ func newArea(ab *areabase) Area {
 		textfielddone: newEvent(),
 	}
 	a.controlSingleHWND = newControlSingleHWND(C.newArea(unsafe.Pointer(a)))
-	a.fpreferredSize = a.preferredSize
+	a.fpreferredSize = a.xpreferredSize
 	a.SetSize(a.width, a.height)
 	a.textfield = C.newAreaTextField(a.hwnd, unsafe.Pointer(a))
 	C.controlSetControlFont(a.textfield)
@@ -330,7 +330,7 @@ func areaResetClickCounter(data unsafe.Pointer) {
 	a.clickCounter.reset()
 }
 
-func (a *area) preferredSize(d *sizing) (width, height int) {
+func (a *area) xpreferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
 }

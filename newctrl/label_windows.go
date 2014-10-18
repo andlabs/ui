@@ -21,7 +21,7 @@ func newLabel(text string) Label {
 	l := &label{
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 	}
-	l.fpreferredSize = l.preferredSize
+	l.fpreferredSize = l.xpreferredSize
 	l.fnTabStops = func() int {
 		// labels are not tab stops
 		return 0
@@ -45,7 +45,7 @@ const (
 	labelYOffset = 3
 )
 
-func (l *label) preferredSize(d *sizing) (width, height int) {
+func (l *label) xpreferredSize(d *sizing) (width, height int) {
 	return int(l.textlen), fromdlgunitsY(labelHeight, d)
 }
 

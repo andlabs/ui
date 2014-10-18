@@ -23,22 +23,22 @@ type controlSingleWidget struct {
 func newControlSingleWidget(widget *C.GtkWidget) *controlSingleWidget {
 	c := new(controlSingleWidget)
 	c.controlbase = &controlbase{
-		fsetParent:		c.setParent,
-		fpreferredSize:		c.preferredSize,
-		fresize:			c.resize,
+		fsetParent:		c.xsetParent,
+		fpreferredSize:		c.xpreferredSize,
+		fresize:			c.xresize,
 	}
 	c.widget = widget
 	return c
 }
 
-func (c *controlSingleWidget) setParent(p *controlParent) {
+func (c *controlSingleWidget) xsetParent(p *controlParent) {
 	C.gtk_container_add(p.c, c.widget)
 	// make sure the new widget is shown if not explicitly hidden
 	// TODO why did I have this again?
 	C.gtk_widget_show_all(c.widget)
 }
 
-func (c *controlSingleWidget) preferredSize(d *sizing) (int, int) {
+func (c *controlSingleWidget) xpreferredSize(d *sizing) (int, int) {
 	// GTK+ 3 makes this easy: controls can tell us what their preferred size is!
 	// ...actually, it tells us two things: the "minimum size" and the "natural size".
 	// The "minimum size" is the smallest size we /can/ display /anything/. The "natural size" is the smallest size we would /prefer/ to display.
@@ -51,7 +51,7 @@ func (c *controlSingleWidget) preferredSize(d *sizing) (int, int) {
 	return int(r.width), int(r.height)
 }
 
-func (c *controlSingleWidget) resize(x int, y int, width int, height int, d *sizing) {
+func (c *controlSingleWidget) xresize(x int, y int, width int, height int, d *sizing) {
 	// as we resize on size-allocate, we have to also use size-allocate on our children
 	// this is fine anyway; in fact, this allows us to move without knowing what the container is!
 	// this is what GtkBox does anyway

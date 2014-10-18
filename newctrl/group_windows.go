@@ -9,6 +9,7 @@ type group struct {
 	*controlSingleHWNDWithText
 	child			Control
 	margined		bool
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -19,8 +20,9 @@ func newGroup(text string, control Control) Group {
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		child:		control,
 	}
-	g.fpreferredSize = g.preferredSize
-	g.fresize = g.resize
+	g.fpreferredSize = g.xpreferredSize
+	g.chainresize = g.fresize
+	g.fresize = g.xresize
 	g.fnTabStops = control.nTabStops		// groupbox itself is not tabbable but the contents might be
 	g.SetText(text)
 	C.controlSetControlFont(g.hwnd)
@@ -50,7 +52,7 @@ const (
 	groupYMarginBottom = 7
 )
 
-func (g *group) preferredSize(d *sizing) (width, height int) {
+func (g *group) xpreferredSize(d *sizing) (width, height int) {
 	var r C.RECT
 
 	width, height = g.child.preferredSize(d)
@@ -73,10 +75,9 @@ func (g *group) preferredSize(d *sizing) (width, height int) {
 	return int(r.right - r.left), int(r.bottom - r.top)
 }
 
-func (g *group) resize(x int, y int, width int, height int, d *sizing) {
+func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to the container base to keep the Z-order correct
-	// TODO use a variable for this
-	g.controlSingleHWNDWithText.resize(x, y, width, height, d)
+	g.chainresize(x, y, width, height, d)
 
 	// now resize the child container
 	var r C.RECT

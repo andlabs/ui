@@ -24,7 +24,7 @@ func newButton(text string) *button {
 		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		clicked: newEvent(),
 	}
-	b.fpreferredSize = b.preferredSize
+	b.fpreferredSize = b.xpreferredSize
 	b.SetText(text)
 	C.controlSetControlFont(b.hwnd)
 	C.setButtonSubclass(b.hwnd, unsafe.Pointer(b))
@@ -54,7 +54,7 @@ const (
 	buttonHeight = 14
 )
 
-func (b *button) preferredSize(d *sizing) (width, height int) {
+func (b *button) xpreferredSize(d *sizing) (width, height int) {
 	// comctl32.dll version 6 thankfully provides a method to grab this...
 	var size C.SIZE
 

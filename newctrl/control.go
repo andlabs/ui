@@ -17,6 +17,8 @@ type controlbase struct {
 	fnTabStops		func() int
 }
 
+// children should not use the same name as these, otherwise weird things will happen
+
 func (c *controlbase) setParent(p *controlParent) {
 	c.fsetParent(p)
 }

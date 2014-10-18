@@ -18,6 +18,8 @@ type tab struct {
 
 	tabs []*container
 	children	[]Control
+
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
@@ -27,7 +29,8 @@ func newTab() Tab {
 		container: (*C.GtkContainer)(unsafe.Pointer(widget)),
 		notebook:  (*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
-	t.fresize = t.resize
+	t.chainresize = t.fresize
+	t.fresize = t.xresize
 	// there are no scrolling arrows by default; add them in case there are too many tabs
 	C.gtk_notebook_set_scrollable(t.notebook, C.TRUE)
 	return t
@@ -48,10 +51,9 @@ func (t *tab) Append(name string, control Control) {
 		cname)
 }
 
-func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
+func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to change the GtkFrame and its child container
-	// TODO use a variable for this
-	t.controlSingleWidget.resize(x, y, width, height, d)
+	t.chainresize(x, y, width, height, d)
 
 	// now that the containers have the correct size, we can resize the children
 	for i, _ := range t.tabs {

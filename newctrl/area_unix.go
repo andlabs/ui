@@ -65,7 +65,7 @@ func newArea(ab *areabase) Area {
 		textfield:     (*C.GtkEntry)(unsafe.Pointer(textfieldw)),
 		textfielddone: newEvent(),
 	}
-	a.fpreferredSize = a.preferredSize
+	a.fpreferredSize = a.xpreferredSize
 	for _, c := range areaCallbacks {
 		g_signal_connect(
 			C.gpointer(unsafe.Pointer(a.drawingarea)),
@@ -491,7 +491,7 @@ var modonlykeys = map[C.guint]Modifiers{
 	C.GDK_KEY_Super_R:   Super,
 }
 
-func (a *area) preferredSize(d *sizing) (width, height int) {
+func (a *area) xpreferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
 }
