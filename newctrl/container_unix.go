@@ -37,10 +37,17 @@ func (c *container) parent() *controlParent {
 	return &controlParent{c.container}
 }
 
-//export containerResizing
-func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
-	c := (*container)(data)
-	c.resize(int(r.x), int(r.y), int(r.width), int(r.height))
+func (c *container) allocation(margined bool) C.GtkAllocation {
+	var a C.GtkAllocation
+
+	C.gtk_widget_get_allocation(c.widget, &a)
+	if margined {
+		a.x += C.gint(gtkXMargin)
+		a.y += C.gint(gtkYMargin)
+		a.width -= C.gint(gtkXMargin) * 2
+		a.height -= C.gint(gtkYMargin) * 2
+	}
+	return a
 }
 
 const (
@@ -53,9 +60,6 @@ const (
 func (w *window) beginResize() (d *sizing) {
 	d = new(sizing)
 	if spaced {
-		d.xmargin = gtkXMargin
-		d.ymargintop = gtkYMargin
-		d.ymarginbottom = d.ymargintop
 		d.xpadding = gtkXPadding
 		d.ypadding = gtkYPadding
 	}
