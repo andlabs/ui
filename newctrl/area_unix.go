@@ -102,7 +102,7 @@ func newArea(ab *areabase) Area {
 func (a *area) SetSize(width, height int) {
 	a.width = width
 	a.height = height
-	C.gtk_widget_set_size_request(a._widget, C.gint(a.width), C.gint(a.height))
+	C.gtk_widget_set_size_request(a.widget, C.gint(a.width), C.gint(a.height))
 }
 
 func (a *area) Repaint(r image.Rectangle) {
@@ -110,11 +110,11 @@ func (a *area) Repaint(r image.Rectangle) {
 	if r.Empty() {
 		return
 	}
-	C.gtk_widget_queue_draw_area(a._widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
+	C.gtk_widget_queue_draw_area(a.widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
 }
 
 func (a *area) RepaintAll() {
-	C.gtk_widget_queue_draw(a._widget)
+	C.gtk_widget_queue_draw(a.widget)
 }
 
 func (a *area) OpenTextFieldAt(x, y int) {

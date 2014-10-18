@@ -114,7 +114,7 @@ func newScroller(widget *C.GtkWidget, native bool, bordered bool, overlay bool) 
 		s.overlay = newControlSingleWidget(s.overlaywidget)
 		s.fsetParent = s.overlay.fsetParent
 		s.fresize = s.overlay.fresize
-		C.gtk_container_add(s.overlaycontainer, s.scrollcontainer)
+		C.gtk_container_add(s.overlaycontainer, s.scrollwidget)
 	}
 
 	return s

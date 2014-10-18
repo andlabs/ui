@@ -34,7 +34,7 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	c := newContainer(control)
+	c := newContainer()
 	t.tabs = append(t.tabs, c)
 	// this calls gtk_container_add(), which, according to gregier in irc.gimp.net/#gtk+, acts just like gtk_notebook_append_page()
 	c.setParent(&controlParent{t.container})
@@ -51,11 +51,11 @@ func (t *tab) Append(name string, control Control) {
 func (t *tab) resize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to change the GtkFrame and its child container
 	// TODO use a variable for this
-	t.containerSingleWidget.resize(x, y, width, height, d)
+	t.controlSingleWidget.resize(x, y, width, height, d)
 
 	// now that the containers have the correct size, we can resize the children
 	for i, _ := range t.tabs {
-		a := g.tabs[i].allocation(g.margined)
-		g.children[i].resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
+		a := t.tabs[i].allocation(false/*TODO*/)
+		t.children[i].resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
 	}
 }

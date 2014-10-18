@@ -42,10 +42,10 @@ func (c *container) allocation(margined bool) C.GtkAllocation {
 
 	C.gtk_widget_get_allocation(c.widget, &a)
 	if margined {
-		a.x += C.gint(gtkXMargin)
-		a.y += C.gint(gtkYMargin)
-		a.width -= C.gint(gtkXMargin) * 2
-		a.height -= C.gint(gtkYMargin) * 2
+		a.x += C.int(gtkXMargin)
+		a.y += C.int(gtkYMargin)
+		a.width -= C.int(gtkXMargin) * 2
+		a.height -= C.int(gtkYMargin) * 2
 	}
 	return a
 }
@@ -59,9 +59,7 @@ const (
 
 func (w *window) beginResize() (d *sizing) {
 	d = new(sizing)
-	if spaced {
-		d.xpadding = gtkXPadding
-		d.ypadding = gtkYPadding
-	}
+	d.xpadding = gtkXPadding
+	d.ypadding = gtkYPadding
 	return d
 }

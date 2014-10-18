@@ -50,7 +50,7 @@ func newGroup(text string, control Control) Group {
 	C.gtk_label_set_attributes(label, boldlist)
 	C.pango_attr_list_unref(boldlist) // thanks baedert in irc.gimp.net/#gtk+
 
-	g.container = newContainer(control)
+	g.container = newContainer()
 	g.child.setParent(g.container.parent())
 	g.container.setParent(&controlParent{g.gcontainer})
 
@@ -80,7 +80,7 @@ func (g *group) SetMargined(margined bool) {
 func (g *group) resize(x int, y int, width int, height int, d *sizing) {
 	// first, chain up to change the GtkFrame and its child container
 	// TODO use a variable for this
-	g.containerSingleWidget.resize(x, y, width, height, d)
+	g.controlSingleWidget.resize(x, y, width, height, d)
 
 	// now that the container has the correct size, we can resize the child
 	a := g.container.allocation(g.margined)
