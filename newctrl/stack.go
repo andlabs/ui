@@ -92,6 +92,7 @@ func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
 		return
 	}
+	x, y, width, height = s.container.bounds(d)
 	// -1) get this Stack's padding
 	xpadding := d.xpadding
 	ypadding := d.ypadding
@@ -99,14 +100,12 @@ func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 		xpadding = 0
 		ypadding = 0
 	}
-	// 0) inset the available rect by the needed padding and reset the x/y coordinates for the children
+	// 0) inset the available rect by the needed padding
 	if s.orientation == horizontal {
 		width -= (len(s.controls) - 1) * xpadding
 	} else {
 		height -= (len(s.controls) - 1) * ypadding
 	}
-	x = 0
-	y = 0
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
 	stretchyht = height

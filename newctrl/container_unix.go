@@ -50,6 +50,15 @@ func (c *container) allocation(margined bool) C.GtkAllocation {
 	return a
 }
 
+// we can just return these values as is
+// note that allocations of a widget on GTK+ have their origin in the /window/ origin
+func (c *container) bounds(d *sizing) (int, int, int, int) {
+	var a C.GtkAllocation
+
+	C.gtk_widget_get_allocation(c.widget, &a)
+	return int(a.x), int(a.y), int(a.width), int(a.height)
+}
+
 const (
 	gtkXMargin  = 12
 	gtkYMargin  = 12

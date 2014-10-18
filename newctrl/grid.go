@@ -205,6 +205,8 @@ func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
 		return
 	}
 
+	x, y, width, height = g.container.bounds(d)
+
 	// -2) get this Grid's padding
 	xpadding := d.xpadding
 	ypadding := d.ypadding
