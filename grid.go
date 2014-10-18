@@ -27,6 +27,11 @@ type Grid interface {
 	// The effect of overlapping spanning Controls is also undefined.
 	// Add panics if either xspan or yspan are zero or negative.
 	Add(control Control, nextTo Control, side Side, xexpand bool, xalign Align, yexpand bool, yalign Align, xspan int, yspan int)
+
+	// Padded and SetPadded get and set whether the controls of the Grid have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 // Align represents the alignment of a Control in its cell of a Grid.
@@ -54,7 +59,8 @@ type grid struct {
 	controls []gridCell
 	indexof  map[Control]int
 	prev     int
-	parent   *controlParent
+	container		*container
+	padded	bool
 
 	xmax int
 	ymax int
@@ -84,6 +90,7 @@ type gridCell struct {
 func NewGrid() Grid {
 	return &grid{
 		indexof: map[Control]int{},
+		container:		newContainer(),
 	}
 }
 
@@ -129,9 +136,7 @@ func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xal
 		xspan:   xspan,
 		yspan:   yspan,
 	}
-	if g.parent != nil {
-		control.setParent(g.parent)
-	}
+	control.setParent(g.container.parent())
 	// if this is the first control, just add it in directly
 	if len(g.controls) != 0 {
 		next := g.prev
@@ -161,11 +166,16 @@ func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xal
 	g.reorigin()
 }
 
+func (g *grid) Padded() bool {
+	return g.padded
+}
+
+func (g *grid) SetPadded(padded bool) {
+	g.padded = padded
+}
+
 func (g *grid) setParent(p *controlParent) {
-	g.parent = p
-	for i := range g.controls {
-		g.controls[i].control.setParent(g.parent)
-	}
+	g.container.setParent(p)
 }
 
 // builds the topological cell grid; also makes colwidths and rowheights
@@ -187,15 +197,27 @@ func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
 	return gg, make([]int, g.xmax), make([]int, g.ymax)
 }
 
-func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
+func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
+	g.container.resize(x, y, width, height, d)
+
 	if len(g.controls) == 0 {
 		// nothing to do
-		return nil
+		return
+	}
+
+	x, y, width, height = g.container.bounds(d)
+
+	// -2) get this Grid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
 	}
 
 	// -1) discount padding from width/height
-	width -= (g.xmax - 1) * d.xpadding
-	height -= (g.ymax - 1) * d.ypadding
+	width -= (g.xmax - 1) * xpadding
+	height -= (g.ymax - 1) * ypadding
 
 	// 0) build necessary data structures
 	gg, colwidths, rowheights := g.mkgrid()
@@ -317,11 +339,11 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 				if i != prev {
 					g.controls[i].finalx = curx
 				} else {
-					g.controls[i].finalwidth += d.xpadding
+					g.controls[i].finalwidth += xpadding
 				}
 				g.controls[i].finalwidth += colwidths[x]
 			}
-			curx += colwidths[x] + d.xpadding
+			curx += colwidths[x] + xpadding
 			prev = i
 		}
 	}
@@ -334,11 +356,11 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 				if i != prev {
 					g.controls[i].finaly = cury
 				} else {
-					g.controls[i].finalheight += d.ypadding
+					g.controls[i].finalheight += ypadding
 				}
 				g.controls[i].finalheight += rowheights[y]
 			}
-			cury += rowheights[y] + d.ypadding
+			cury += rowheights[y] + ypadding
 			prev = i
 		}
 	}
@@ -367,35 +389,31 @@ func (g *grid) allocate(x int, y int, width int, height int, d *sizing) (allocat
 	}
 
 	// 8) and FINALLY we draw
-	var current *allocation
-
 	for _, ycol := range gg {
-		current = nil
 		for _, i := range ycol {
 			if i != -1 { // treat empty cells like spaces
-				as := g.controls[i].control.allocate(
+				g.controls[i].control.resize(
 					g.controls[i].finalx+x, g.controls[i].finaly+y,
 					g.controls[i].finalwidth, g.controls[i].finalheight, d)
-				if current != nil { // connect first left to first right
-					current.neighbor = g.controls[i].control
-				}
-				if len(as) != 0 {
-					current = as[0] // next left is first subwidget
-				} else {
-					current = nil // spaces don't have allocation data
-				}
-				allocations = append(allocations, as...)
 			}
 		}
 	}
 
-	return allocations
+	return
 }
 
 func (g *grid) preferredSize(d *sizing) (width, height int) {
 	if len(g.controls) == 0 {
 		// nothing to do
 		return 0, 0
+	}
+
+	// -1) get this Grid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
 	}
 
 	// 0) build necessary data structures
@@ -434,14 +452,14 @@ func (g *grid) preferredSize(d *sizing) (width, height int) {
 	}
 
 	// and that's it; just account for padding
-	return colwidth + (g.xmax-1)*d.xpadding,
-		rowheight + (g.ymax-1)*d.ypadding
+	return colwidth + (g.xmax-1) * xpadding,
+		rowheight + (g.ymax-1) * ypadding
 }
 
-func (g *grid) commitResize(a *allocation, d *sizing) {
-	// do nothing; needed to satisfy Control
-}
-
-func (g *grid) getAuxResizeInfo(d *sizing) {
-	// do nothing; needed to satisfy Control
+func (g *grid) nTabStops() int {
+	n := 0
+	for _, c := range g.controls {
+		n += c.control.nTabStops()
+	}
+	return n
 }

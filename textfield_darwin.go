@@ -10,17 +10,20 @@ import (
 import "C"
 
 type textfield struct {
-	_id     C.id
+	*controlSingleObject
 	changed *event
 	invalid C.id
+	chainpreferredSize	func(d *sizing) (int, int)
 }
 
 func finishNewTextField(id C.id) *textfield {
 	t := &textfield{
-		_id:     id,
+		controlSingleObject:		newControlSingleObject(id),
 		changed: newEvent(),
 	}
-	C.textfieldSetDelegate(t._id, unsafe.Pointer(t))
+	C.textfieldSetDelegate(t.id, unsafe.Pointer(t))
+	t.chainpreferredSize = t.fpreferredSize
+	t.fpreferredSize = t.xpreferredSize
 	return t
 }
 
@@ -33,13 +36,13 @@ func newPasswordField() *textfield {
 }
 
 func (t *textfield) Text() string {
-	return C.GoString(C.textfieldText(t._id))
+	return C.GoString(C.textfieldText(t.id))
 }
 
 func (t *textfield) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textfieldSetText(t._id, ctext)
+	C.textfieldSetText(t.id, ctext)
 }
 
 func (t *textfield) OnChanged(f func()) {
@@ -56,7 +59,7 @@ func (t *textfield) Invalid(reason string) {
 	}
 	creason := C.CString(reason)
 	defer C.free(unsafe.Pointer(creason))
-	t.invalid = C.textfieldOpenInvalidPopover(t._id, creason)
+	t.invalid = C.textfieldOpenInvalidPopover(t.id, creason)
 }
 
 //export textfieldChanged
@@ -65,28 +68,8 @@ func textfieldChanged(data unsafe.Pointer) {
 	t.changed.fire()
 }
 
-func (t *textfield) id() C.id {
-	return t._id
-}
-
-func (t *textfield) setParent(p *controlParent) {
-	basesetParent(t, p)
-}
-
-func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
-func (t *textfield) preferredSize(d *sizing) (width, height int) {
-	_, height = basepreferredSize(t, d)
+func (t *textfield) xpreferredSize(d *sizing) (width, height int) {
+	_, height = t.chainpreferredSize(d)
 	// the returned width is based on the contents; use this instead
 	return C.textfieldWidth, height
-}
-
-func (t *textfield) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t, a, d)
-}
-
-func (t *textfield) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
 }

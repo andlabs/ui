@@ -5,45 +5,59 @@ package ui
 // #include "winapi_windows.h"
 import "C"
 
-type controlPrivate interface {
-	hwnd() C.HWND
-	Control
-}
-
 type controlParent struct {
-	c *container
+	hwnd	C.HWND
 }
 
-func basesetParent(c controlPrivate, p *controlParent) {
-	C.controlSetParent(c.hwnd(), p.c.hwnd)
-	p.c.nchildren++
+// don't specify preferredSize in any of these; they're per-control
+
+type controlSingleHWND struct {
+	*controlbase
+	hwnd	C.HWND
 }
 
-// don't specify basepreferredSize; it is custom on ALL controls
-
-func basecommitResize(c controlPrivate, a *allocation, d *sizing) {
-	C.moveWindow(c.hwnd(), C.int(a.x), C.int(a.y), C.int(a.width), C.int(a.height))
+func newControlSingleHWND(hwnd C.HWND) *controlSingleHWND {
+	c := new(controlSingleHWND)
+	c.controlbase = &controlbase{
+		fsetParent:	c.xsetParent,
+		fresize:		c.xresize,
+		fnTabStops:	func() int {
+			// most controls count as one tab stop
+			return 1
+		},
+	}
+	c.hwnd = hwnd
+	return c
 }
 
-func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
-	// do nothing
+func (c *controlSingleHWND) xsetParent(p *controlParent) {
+	C.controlSetParent(c.hwnd, p.hwnd)
+}
+
+func (c *controlSingleHWND) xresize(x int, y int, width int, height int, d *sizing) {
+	C.moveWindow(c.hwnd, C.int(x), C.int(y), C.int(width), C.int(height))
 }
 
 // these are provided for convenience
 
-type textableControl interface {
-	controlPrivate
-	textlen() C.LONG
-	settextlen(C.LONG)
+type controlSingleHWNDWithText struct {
+	*controlSingleHWND
+	textlen	C.LONG
 }
 
-func baseText(c textableControl) string {
-	return getWindowText(c.hwnd())
+func newControlSingleHWNDWithText(h C.HWND) *controlSingleHWNDWithText {
+	return &controlSingleHWNDWithText{
+		controlSingleHWND:		newControlSingleHWND(h),
+	}
 }
 
-func baseSetText(c textableControl, text string) {
-	hwnd := c.hwnd()
+// TODO export these instead of requiring dummy declarations in each implementation
+func (c *controlSingleHWNDWithText) text() string {
+	return getWindowText(c.hwnd)
+}
+
+func (c *controlSingleHWNDWithText) setText(text string) {
 	t := toUTF16(text)
-	C.setWindowText(hwnd, t)
-	c.settextlen(C.controlTextLength(hwnd, t))
+	C.setWindowText(c.hwnd, t)
+	c.textlen = C.controlTextLength(c.hwnd, t)
 }

@@ -98,7 +98,7 @@ extern LRESULT getWindowTextLen(HWND);
 extern void getWindowText(HWND, WPARAM, LPWSTR);
 extern void setWindowText(HWND, LPWSTR);
 extern void updateWindow(HWND);
-extern void *getWindowData(HWND, UINT, WPARAM, LPARAM, LRESULT *, void (*)(void *, HWND));
+extern void *getWindowData(HWND, UINT, WPARAM, LPARAM, LRESULT *);
 extern BOOL sharedWndProc(HWND, UINT, WPARAM, LPARAM, LRESULT *);
 extern void paintControlBackground(HWND, HDC);
 
@@ -122,8 +122,10 @@ extern intptr_t tableSelectedItem(HWND);
 extern void tableSelectItem(HWND, intptr_t);
 
 // container_windows.c
+#define containerclass L"gouicontainer"
 extern DWORD makeContainerWindowClass(char **);
-extern HWND newContainer(void *);
+extern HWND newContainer();
+extern RECT containerBounds(HWND);
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
 // area_windows.c

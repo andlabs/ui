@@ -10,46 +10,44 @@ import (
 import "C"
 
 type tab struct {
-	_id  C.id
-	tabs []*container
+	*controlSingleObject
+	tabs			[]*container
+	children		[]Control
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
-	return &tab{
-		_id: C.newTab(),
+	t := &tab{
+		controlSingleObject:		newControlSingleObject(C.newTab()),
 	}
+	t.fpreferredSize = t.xpreferredSize
+	t.chainresize = t.fresize
+	t.fresize = t.xresize
+	return t
 }
 
 func (t *tab) Append(name string, control Control) {
-	c := newContainer(control)
+	c := newContainer()
 	t.tabs = append(t.tabs, c)
+	control.setParent(c.parent())
+	t.children = append(t.children, control)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	C.tabAppend(t._id, cname, c.id)
+	C.tabAppend(t.id, cname, c.id)
 }
 
-func (t *tab) id() C.id {
-	return t._id
-}
-
-func (t *tab) setParent(p *controlParent) {
-	basesetParent(t, p)
-}
-
-func (t *tab) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
-func (t *tab) preferredSize(d *sizing) (width, height int) {
-	s := C.tabPreferredSize(t._id)
+func (t *tab) xpreferredSize(d *sizing) (width, height int) {
+	s := C.tabPreferredSize(t.id)
 	return int(s.width), int(s.height)
 }
 
-// no need to override Control.commitResize() as only prepared the tabbed control; its children will be resized when that one is resized (and NSTabView itself will call setFrame: for us)
-func (t *tab) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t, a, d)
-}
+func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
+	// first, chain up to change the GtkFrame and its child container
+	t.chainresize(x, y, width, height, d)
 
-func (t *tab) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
+	// now that the containers have the correct size, we can resize the children
+	for i, _ := range t.tabs {
+		a := t.tabs[i].allocation(false/*TODO*/)
+		t.children[i].resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
+	}
 }

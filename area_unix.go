@@ -34,9 +34,8 @@ import "C"
 type area struct {
 	*areabase
 
-	_widget     *C.GtkWidget
+	*scroller
 	drawingarea *C.GtkDrawingArea
-	scroller    *scroller
 
 	clickCounter *clickCounter
 
@@ -59,7 +58,6 @@ func newArea(ab *areabase) Area {
 	textfieldw := C.gtk_entry_new()
 	a := &area{
 		areabase:      ab,
-		_widget:       widget,
 		drawingarea:   (*C.GtkDrawingArea)(unsafe.Pointer(widget)),
 		scroller:      newScroller(widget, false, false, true), // not natively scrollable; no border; have an overlay for OpenTextFieldAt()
 		clickCounter:  new(clickCounter),
@@ -67,6 +65,7 @@ func newArea(ab *areabase) Area {
 		textfield:     (*C.GtkEntry)(unsafe.Pointer(textfieldw)),
 		textfielddone: newEvent(),
 	}
+	a.fpreferredSize = a.xpreferredSize
 	for _, c := range areaCallbacks {
 		g_signal_connect(
 			C.gpointer(unsafe.Pointer(a.drawingarea)),
@@ -75,9 +74,9 @@ func newArea(ab *areabase) Area {
 			C.gpointer(unsafe.Pointer(a)))
 	}
 	a.SetSize(a.width, a.height)
-	C.gtk_overlay_add_overlay(a.scroller.overlay, a.textfieldw)
+	C.gtk_overlay_add_overlay(a.scroller.overlayoverlay, a.textfieldw)
 	g_signal_connect(
-		C.gpointer(unsafe.Pointer(a.scroller.overlay)),
+		C.gpointer(unsafe.Pointer(a.scroller.overlayoverlay)),
 		"get-child-position",
 		area_get_child_position_callback,
 		C.gpointer(unsafe.Pointer(a)))
@@ -103,7 +102,7 @@ func newArea(ab *areabase) Area {
 func (a *area) SetSize(width, height int) {
 	a.width = width
 	a.height = height
-	C.gtk_widget_set_size_request(a._widget, C.gint(a.width), C.gint(a.height))
+	C.gtk_widget_set_size_request(a.widget, C.gint(a.width), C.gint(a.height))
 }
 
 func (a *area) Repaint(r image.Rectangle) {
@@ -111,11 +110,11 @@ func (a *area) Repaint(r image.Rectangle) {
 	if r.Empty() {
 		return
 	}
-	C.gtk_widget_queue_draw_area(a._widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
+	C.gtk_widget_queue_draw_area(a.widget, C.gint(r.Min.X), C.gint(r.Min.Y), C.gint(r.Dx()), C.gint(r.Dy()))
 }
 
 func (a *area) RepaintAll() {
-	C.gtk_widget_queue_draw(a._widget)
+	C.gtk_widget_queue_draw(a.widget)
 }
 
 func (a *area) OpenTextFieldAt(x, y int) {
@@ -492,28 +491,7 @@ var modonlykeys = map[C.guint]Modifiers{
 	C.GDK_KEY_Super_R:   Super,
 }
 
-func (a *area) widget() *C.GtkWidget {
-	return a._widget
-}
-
-func (a *area) setParent(p *controlParent) {
-	a.scroller.setParent(p)
-}
-
-func (a *area) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(a, x, y, width, height, d)
-}
-
-func (a *area) preferredSize(d *sizing) (width, height int) {
+func (a *area) xpreferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
-}
-
-func (a *area) commitResize(c *allocation, d *sizing) {
-	a.scroller.commitResize(c, d)
-}
-
-func (a *area) getAuxResizeInfo(d *sizing) {
-	// a Label to the left of an Area should be vertically aligned to the top
-	d.shouldVAlignTop = true
 }

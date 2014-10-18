@@ -52,6 +52,7 @@ func newRepainter(times int) *repainter {
 	grid.Add(r.repaint, nil, South, true, Fill, true, Fill, 1, 1)
 	grid.Add(r.all, nil, South, true, Center, false, LeftTop, 1, 1)
 	r.grid = grid
+	r.grid.SetPadded(*spaced)
 	return r
 }
 

@@ -10,57 +10,28 @@ import (
 import "C"
 
 type label struct {
-	_id        C.id
-	standalone bool
+	*controlSingleObject
 }
 
-func finishNewLabel(text string, standalone bool) *label {
+func newLabel(text string) Label {
 	l := &label{
-		_id:        C.newLabel(),
-		standalone: standalone,
+		controlSingleObject:        newControlSingleObject(C.newLabel()),
 	}
 	l.SetText(text)
 	return l
 }
 
-func newLabel(text string) Label {
-	return finishNewLabel(text, false)
-}
-
-func newStandaloneLabel(text string) Label {
-	return finishNewLabel(text, true)
-}
-
 func (l *label) Text() string {
-	return C.GoString(C.textfieldText(l._id))
+	return C.GoString(C.textfieldText(l.id))
 }
 
 func (l *label) SetText(text string) {
 	ctext := C.CString(text)
 	defer C.free(unsafe.Pointer(ctext))
-	C.textfieldSetText(l._id, ctext)
+	C.textfieldSetText(l.id, ctext)
 }
 
-func (l *label) isStandalone() bool {
-	return l.standalone
-}
-
-func (l *label) id() C.id {
-	return l._id
-}
-
-func (l *label) setParent(p *controlParent) {
-	basesetParent(l, p)
-}
-
-func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(l, x, y, width, height, d)
-}
-
-func (l *label) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(l, d)
-}
-
+/*TODO
 func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
@@ -89,7 +60,4 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 	}
 	basecommitResize(l, c, d)
 }
-
-func (l *label) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(l, d)
-}
+*/

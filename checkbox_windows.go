@@ -10,8 +10,7 @@ import (
 import "C"
 
 type checkbox struct {
-	_hwnd    C.HWND
-	_textlen C.LONG
+	*controlSingleHWNDWithText
 	toggled  *event
 }
 
@@ -22,12 +21,13 @@ func newCheckbox(text string) *checkbox {
 		C.BS_CHECKBOX|C.WS_TABSTOP,
 		0)
 	c := &checkbox{
-		_hwnd:   hwnd,
+		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		toggled: newEvent(),
 	}
+	c.fpreferredSize = c.xpreferredSize
 	c.SetText(text)
-	C.controlSetControlFont(c._hwnd)
-	C.setCheckboxSubclass(c._hwnd, unsafe.Pointer(c))
+	C.controlSetControlFont(c.hwnd)
+	C.setCheckboxSubclass(c.hwnd, unsafe.Pointer(c))
 	return c
 }
 
@@ -36,49 +36,29 @@ func (c *checkbox) OnToggled(e func()) {
 }
 
 func (c *checkbox) Text() string {
-	return baseText(c)
+	return c.text()
 }
 
 func (c *checkbox) SetText(text string) {
-	baseSetText(c, text)
+	c.setText(text)
 }
 
 func (c *checkbox) Checked() bool {
-	return C.checkboxChecked(c._hwnd) != C.FALSE
+	return C.checkboxChecked(c.hwnd) != C.FALSE
 }
 
 func (c *checkbox) SetChecked(checked bool) {
 	if checked {
-		C.checkboxSetChecked(c._hwnd, C.TRUE)
+		C.checkboxSetChecked(c.hwnd, C.TRUE)
 		return
 	}
-	C.checkboxSetChecked(c._hwnd, C.FALSE)
+	C.checkboxSetChecked(c.hwnd, C.FALSE)
 }
 
 //export checkboxToggled
 func checkboxToggled(data unsafe.Pointer) {
 	c := (*checkbox)(data)
 	c.toggled.fire()
-}
-
-func (c *checkbox) hwnd() C.HWND {
-	return c._hwnd
-}
-
-func (c *checkbox) textlen() C.LONG {
-	return c._textlen
-}
-
-func (c *checkbox) settextlen(len C.LONG) {
-	c._textlen = len
-}
-
-func (c *checkbox) setParent(p *controlParent) {
-	basesetParent(c, p)
-}
-
-func (c *checkbox) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(c, x, y, width, height, d)
 }
 
 const (
@@ -88,15 +68,7 @@ const (
 	checkboxXFromLeftOfBoxToLeftOfLabel = 12
 )
 
-func (c *checkbox) preferredSize(d *sizing) (width, height int) {
-	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c._textlen),
+func (c *checkbox) xpreferredSize(d *sizing) (width, height int) {
+	return fromdlgunitsX(checkboxXFromLeftOfBoxToLeftOfLabel, d) + int(c.textlen),
 		fromdlgunitsY(checkboxHeight, d)
-}
-
-func (c *checkbox) commitResize(a *allocation, d *sizing) {
-	basecommitResize(c, a, d)
-}
-
-func (c *checkbox) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(c, d)
 }

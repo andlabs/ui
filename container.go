@@ -2,41 +2,14 @@
 
 package ui
 
-type allocation struct {
-	x        int
-	y        int
-	width    int
-	height   int
-	this     Control
-	neighbor Control
-}
-
 type sizingbase struct {
-	xmargin       int
-	ymargintop    int
-	ymarginbottom int
 	xpadding      int
 	ypadding      int
 }
 
-type controlSizing interface {
-	allocate(x int, y int, width int, height int, d *sizing) []*allocation
-	preferredSize(*sizing) (int, int)
-	commitResize(*allocation, *sizing)
-	getAuxResizeInfo(*sizing)
-}
+// The container type, which is defined per-platform, is an internal Control that is only used to house other Controls from the underlying UI toolkit's point of view
 
-// A container hosts a Control and resizes that Control based on changes in size to the parent Window.
-// container is used by Window, Tab, and Group to contain and control their respective Controls.
-// Tab and Group use containers for their content; as such, their commitResize() functions should only change the size of the Tab and Group themselves, and have their containers do the real work.
-// All containers must embed containerbase.
-type containerbase struct {
-	child Control
-}
-
-// set to true to apply spacing to all windows
-var spaced bool = false
-
+/* TODO
 func (c *container) resize(x, y, width, height int) {
 	if c.child == nil { // no children; nothing to do
 		return
@@ -50,3 +23,4 @@ func (c *container) resize(x, y, width, height int) {
 		allocations[i].this.commitResize(allocations[i], d)
 	}
 }
+*/

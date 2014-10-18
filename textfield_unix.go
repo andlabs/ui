@@ -18,7 +18,7 @@ import (
 import "C"
 
 type textfield struct {
-	_widget *C.GtkWidget
+	*controlSingleWidget
 	entry   *C.GtkEntry
 	changed *event
 }
@@ -26,12 +26,12 @@ type textfield struct {
 func startNewTextField() *textfield {
 	widget := C.gtk_entry_new()
 	t := &textfield{
-		_widget: widget,
+		controlSingleWidget: newControlSingleWidget(widget),
 		entry:   (*C.GtkEntry)(unsafe.Pointer(widget)),
 		changed: newEvent(),
 	}
 	g_signal_connect(
-		C.gpointer(unsafe.Pointer(t._widget)),
+		C.gpointer(unsafe.Pointer(t.widget)),
 		"changed",
 		C.GCallback(C.textfieldChanged),
 		C.gpointer(unsafe.Pointer(t)))
@@ -71,35 +71,11 @@ func (t *textfield) Invalid(reason string) {
 	creason := togstr(reason)
 	defer freegstr(creason)
 	C.gtk_entry_set_icon_tooltip_text(t.entry, C.GTK_ENTRY_ICON_SECONDARY, creason)
-	C.gtk_widget_error_bell(t._widget)
+	C.gtk_widget_error_bell(t.widget)
 }
 
 //export textfieldChanged
 func textfieldChanged(editable *C.GtkEditable, data C.gpointer) {
 	t := (*textfield)(unsafe.Pointer(data))
 	t.changed.fire()
-}
-
-func (t *textfield) widget() *C.GtkWidget {
-	return t._widget
-}
-
-func (t *textfield) setParent(p *controlParent) {
-	basesetParent(t, p)
-}
-
-func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
-func (t *textfield) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(t, d)
-}
-
-func (t *textfield) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t, a, d)
-}
-
-func (t *textfield) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
 }

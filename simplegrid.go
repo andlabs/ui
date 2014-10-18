@@ -14,8 +14,6 @@ import (
 // One Control can be marked as "stretchy": when the Window containing the SimpleGrid is resized, the cell containing that Control resizes to take any remaining space; its row and column are adjusted accordingly (so other filling controls in the same row and column will fill to the new height and width, respectively).
 // A stretchy Control implicitly fills its cell.
 // All cooridnates in a SimpleGrid are given in (row,column) form with (0,0) being the top-left cell.
-//
-// As a special rule, to ensure proper appearance, non-standalone Labels are automatically made filling.
 type SimpleGrid interface {
 	Control
 
@@ -28,6 +26,11 @@ type SimpleGrid interface {
 	// Only one control can be stretchy per SimpleGrid; calling SetStretchy multiple times merely changes which control is stretchy (preserving the previous filling value).
 	// It panics if the given coordinate is invalid.
 	SetStretchy(row int, column int)
+
+	// Padded and SetPadded get and set whether the controls of the SimpleGrid have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 type simpleGrid struct {
@@ -37,6 +40,8 @@ type simpleGrid struct {
 	stretchyfill             bool
 	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
+	container		*container
+	padded	bool
 }
 
 // NewSimpleGrid creates a new SimpleGrid with the given Controls.
@@ -64,13 +69,10 @@ func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 		ch[row] = make([]int, nPerRow)
 		for x := 0; x < nPerRow; x++ {
 			cc[row][x] = controls[i]
-			if l, ok := controls[i].(Label); ok && !l.isStandalone() {
-				cf[row][x] = true
-			}
 			i++
 		}
 	}
-	return &simpleGrid{
+	g := &simpleGrid{
 		controls:    cc,
 		filling:     cf,
 		stretchyrow: -1,
@@ -79,7 +81,15 @@ func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 		heights:     ch,
 		rowheights:  make([]int, nRows),
 		colwidths:   make([]int, nPerRow),
+		container:		newContainer(),
 	}
+	p := g.container.parent()
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			c.setParent(p)
+		}
+	}
+	return g
 }
 
 func (g *simpleGrid) SetFilling(row int, column int) {
@@ -102,15 +112,19 @@ func (g *simpleGrid) SetStretchy(row int, column int) {
 	g.filling[g.stretchyrow][g.stretchycol] = true
 }
 
-func (g *simpleGrid) setParent(parent *controlParent) {
-	for _, col := range g.controls {
-		for _, c := range col {
-			c.setParent(parent)
-		}
-	}
+func (g *simpleGrid) Padded() bool {
+	return g.padded
 }
 
-func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
+func (g *simpleGrid) SetPadded(padded bool) {
+	g.padded = padded
+}
+
+func (g *simpleGrid) setParent(parent *controlParent) {
+	g.container.setParent(parent)
+}
+
+func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 	max := func(a int, b int) int {
 		if a > b {
 			return a
@@ -118,14 +132,21 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 		return b
 	}
 
-	var current *allocation // for neighboring
-
+	g.container.resize(x, y, width, height, d)
 	if len(g.controls) == 0 {
-		return nil
+		return
 	}
-	// 0) inset the available rect by the needed padding
-	width -= (len(g.colwidths) - 1) * d.xpadding
-	height -= (len(g.rowheights) - 1) * d.ypadding
+	x, y, width, height = g.container.bounds(d)
+	// -1) get this SimpleGrid's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
+	// 0) inset the available rect by the needed padding and reset x/y for children
+	width -= (len(g.colwidths) - 1) * xpadding
+	height -= (len(g.rowheights) - 1) * ypadding
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0
@@ -161,7 +182,6 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 	// 4) draw
 	startx := x
 	for row, xcol := range g.controls {
-		current = nil // reset on new columns
 		for col, c := range xcol {
 			w := g.widths[row][col]
 			h := g.heights[row][col]
@@ -169,22 +189,12 @@ func (g *simpleGrid) allocate(x int, y int, width int, height int, d *sizing) (a
 				w = g.colwidths[col]
 				h = g.rowheights[row]
 			}
-			as := c.allocate(x, y, w, h, d)
-			if current != nil { // connect first left to first right
-				current.neighbor = c
-			}
-			if len(as) != 0 {
-				current = as[0] // next left is first subwidget
-			} else {
-				current = nil // spaces don't have allocation data
-			}
-			allocations = append(allocations, as...)
-			x += g.colwidths[col] + d.xpadding
+			c.resize(x, y, w, h, d)
+			x += g.colwidths[col] + xpadding
 		}
 		x = startx
-		y += g.rowheights[row] + d.ypadding
+		y += g.rowheights[row] + ypadding
 	}
-	return
 }
 
 // filling and stretchy are ignored for preferred size calculation
@@ -196,8 +206,14 @@ func (g *simpleGrid) preferredSize(d *sizing) (width int, height int) {
 		return b
 	}
 
-	width -= (len(g.colwidths) - 1) * d.xpadding
-	height -= (len(g.rowheights) - 1) * d.ypadding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !g.padded {
+		xpadding = 0
+		ypadding = 0
+	}
+	width -= (len(g.colwidths) - 1) * xpadding
+	height -= (len(g.rowheights) - 1) * ypadding
 	// 1) clear data structures
 	for i := range g.rowheights {
 		g.rowheights[i] = 0
@@ -225,10 +241,12 @@ func (g *simpleGrid) preferredSize(d *sizing) (width int, height int) {
 	return width, height
 }
 
-func (g *simpleGrid) commitResize(c *allocation, d *sizing) {
-	// this is to satisfy Control; nothing to do here
-}
-
-func (g *simpleGrid) getAuxResizeInfo(d *sizing) {
-	// this is to satisfy Control; nothing to do here
+func (g *simpleGrid) nTabStops() int {
+	n := 0
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			n += c.nTabStops()
+		}
+	}
+	return n
 }

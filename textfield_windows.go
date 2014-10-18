@@ -10,8 +10,7 @@ import (
 import "C"
 
 type textfield struct {
-	_hwnd    C.HWND
-	_textlen C.LONG
+	*controlSingleHWNDWithText
 	changed  *event
 }
 
@@ -22,11 +21,12 @@ func startNewTextField(style C.DWORD) *textfield {
 		style|C.textfieldStyle,
 		C.textfieldExtStyle) // WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &textfield{
-		_hwnd:   hwnd,
+		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
 		changed: newEvent(),
 	}
-	C.controlSetControlFont(t._hwnd)
-	C.setTextFieldSubclass(t._hwnd, unsafe.Pointer(t))
+	t.fpreferredSize = t.xpreferredSize
+	C.controlSetControlFont(t.hwnd)
+	C.setTextFieldSubclass(t.hwnd, unsafe.Pointer(t))
 	return t
 }
 
@@ -39,11 +39,11 @@ func newPasswordField() *textfield {
 }
 
 func (t *textfield) Text() string {
-	return baseText(t)
+	return t.text()
 }
 
 func (t *textfield) SetText(text string) {
-	baseSetText(t, text)
+	t.setText(text)
 }
 
 func (t *textfield) OnChanged(f func()) {
@@ -52,10 +52,10 @@ func (t *textfield) OnChanged(f func()) {
 
 func (t *textfield) Invalid(reason string) {
 	if reason == "" {
-		C.textfieldHideInvalidBalloonTip(t._hwnd)
+		C.textfieldHideInvalidBalloonTip(t.hwnd)
 		return
 	}
-	C.textfieldSetAndShowInvalidBalloonTip(t._hwnd, toUTF16(reason))
+	C.textfieldSetAndShowInvalidBalloonTip(t.hwnd, toUTF16(reason))
 }
 
 //export textfieldChanged
@@ -64,40 +64,12 @@ func textfieldChanged(data unsafe.Pointer) {
 	t.changed.fire()
 }
 
-func (t *textfield) hwnd() C.HWND {
-	return t._hwnd
-}
-
-func (t *textfield) textlen() C.LONG {
-	return t._textlen
-}
-
-func (t *textfield) settextlen(len C.LONG) {
-	t._textlen = len
-}
-
-func (t *textfield) setParent(p *controlParent) {
-	basesetParent(t, p)
-}
-
-func (t *textfield) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
 const (
 	// from http://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
 	textfieldWidth  = 107 // this is actually the shorter progress bar width, but Microsoft only indicates as wide as necessary
 	textfieldHeight = 14
 )
 
-func (t *textfield) preferredSize(d *sizing) (width, height int) {
+func (t *textfield) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
-}
-
-func (t *textfield) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t, a, d)
-}
-
-func (t *textfield) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
 }

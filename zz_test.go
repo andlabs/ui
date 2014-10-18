@@ -18,6 +18,25 @@ import (
 
 var closeOnClick = flag.Bool("close", false, "close on click")
 var smallWindow = flag.Bool("small", false, "open a small window (test Mac OS X initial control sizing)")
+var spaced = flag.Bool("spaced", false, "enable spacing")
+
+func newHorizontalStack(c ...Control) Stack {
+	s := NewHorizontalStack(c...)
+	s.SetPadded(*spaced)
+	return s
+}
+
+func newVerticalStack(c ...Control) Stack {
+	s := NewVerticalStack(c...)
+	s.SetPadded(*spaced)
+	return s
+}
+
+func newSimpleGrid(n int, c ...Control) SimpleGrid {
+	g := NewSimpleGrid(n, c...)
+	g.SetPadded(*spaced)
+	return g
+}
 
 type dtype struct {
 	Name    string
@@ -96,7 +115,7 @@ func (tw *testwin) addfe() {
 			tw.felabel.SetText(t.String())
 		})
 	})
-	tw.felabel = NewStandaloneLabel("<stopped>")
+	tw.felabel = NewLabel("<stopped>")
 	tw.festop = NewButton("Stop")
 	tw.festop.OnClicked(func() {
 		if tw.fe != nil {
@@ -117,8 +136,8 @@ func (tw *testwin) addfe() {
 	tw.openbtn.OnClicked(func() {
 		OpenFile(tw.w, tw.openFile)
 	})
-	tw.fnlabel = NewStandaloneLabel("<no file selected>")
-	tw.festack = NewVerticalStack(tw.festart,
+	tw.fnlabel = NewLabel("<no file selected>")
+	tw.festack = newVerticalStack(tw.festart,
 		tw.felabel,
 		tw.festop,
 		NewCheckbox("This is a checkbox test"),
@@ -129,7 +148,7 @@ func (tw *testwin) addfe() {
 		tw.openbtn, tw.fnlabel)
 	tw.festack.SetStretchy(4)
 	tw.festack.SetStretchy(6)
-	tw.festack = NewHorizontalStack(tw.festack, Space())
+	tw.festack = newHorizontalStack(tw.festack, Space())
 	tw.festack.SetStretchy(0)
 	tw.festack.SetStretchy(1)
 	tw.t.Append("Foreign Events", tw.festack)
@@ -138,6 +157,7 @@ func (tw *testwin) addfe() {
 func (tw *testwin) make(done chan struct{}) {
 	tw.t = NewTab()
 	tw.w = NewWindow("Hello", 320, 240, tw.t)
+	tw.w.SetMargined(*spaced)
 	tw.w.OnClosing(func() bool {
 		if *closeOnClick {
 			panic("window closed normally in close on click mode (should not happen)")
@@ -171,12 +191,14 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.group2 = NewGroup("Group", NewButton("Button in Group"))
 	tw.t.Append("Empty Group", NewGroup("Group", Space()))
 	tw.t.Append("Filled Group", tw.group2)
-	tw.group = NewGroup("Group", NewVerticalStack(NewCheckbox("Checkbox in Group")))
+	tw.group2.SetMargined(*spaced)
+	tw.group = NewGroup("Group", newVerticalStack(NewCheckbox("Checkbox in Group")))
+	tw.group.SetMargined(*spaced)
 	tw.t.Append("Group", tw.group)
-	tw.simpleGrid = NewSimpleGrid(3,
+	tw.simpleGrid = newSimpleGrid(3,
 		NewLabel("0,0"), NewTextField(), NewLabel("0,2"),
 		NewButton("1,0"), NewButton("1,1"), NewButton("1,2"),
-		NewLabel("2,0"), NewTextField(), NewStandaloneLabel("2,2"))
+		NewLabel("2,0"), NewTextField(), NewLabel("2,2"))
 	tw.simpleGrid.SetFilling(2, 1)
 	tw.simpleGrid.SetFilling(1, 2)
 	tw.simpleGrid.SetStretchy(1, 1)
@@ -189,33 +211,33 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.t.Append("Space", Space())
 	tw.a = NewArea(200, 200, &areaHandler{false})
 	tw.t.Append("Area", tw.a)
-	tw.spw = NewHorizontalStack(
+	tw.spw = newHorizontalStack(
 		NewButton("hello"),
 		NewCheckbox("hello"),
 		NewTextField(),
 		NewPasswordField(),
 		NewTable(reflect.TypeOf(struct{ A, B, C int }{})),
-		NewStandaloneLabel("hello"))
+		NewLabel("hello"))
 	tw.t.Append("Pref Width", tw.spw)
-	tw.sph = NewVerticalStack(
+	tw.sph = newVerticalStack(
 		NewButton("hello"),
 		NewCheckbox("hello"),
 		NewTextField(),
 		NewPasswordField(),
 		NewTable(reflect.TypeOf(struct{ A, B, C int }{})),
-		NewStandaloneLabel("hello ÉÀÔ"))
+		NewLabel("hello ÉÀÔ"))
 	tw.t.Append("Pref Height", tw.sph)
-	stack1 := NewHorizontalStack(NewLabel("Test"), NewTextField())
+	stack1 := newHorizontalStack(NewLabel("Test"), NewTextField())
 	stack1.SetStretchy(1)
-	stack2 := NewHorizontalStack(NewLabel("ÉÀÔ"), NewTextField())
+	stack2 := newHorizontalStack(NewLabel("ÉÀÔ"), NewTextField())
 	stack2.SetStretchy(1)
-	stack3 := NewHorizontalStack(NewLabel("Test 2"),
+	stack3 := newHorizontalStack(NewLabel("Test 2"),
 		NewTable(reflect.TypeOf(struct{ A, B, C int }{})))
 	stack3.SetStretchy(1)
-	tw.s = NewVerticalStack(stack1, stack2, stack3)
+	tw.s = newVerticalStack(stack1, stack2, stack3)
 	tw.s.SetStretchy(2)
 	tw.t.Append("Stack", tw.s)
-	tw.l = NewStandaloneLabel("hello")
+	tw.l = NewLabel("hello")
 	tw.t.Append("Label", tw.l)
 	tw.table = NewTable(reflect.TypeOf(ddata[0]))
 	tw.table.Lock()
@@ -248,7 +270,7 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.w.Show()
 	if *smallWindow {
 		tw.wsmall = NewWindow("Small", 80, 80,
-			NewVerticalStack(
+			newVerticalStack(
 				NewButton("Small"),
 				NewButton("Small 2"),
 				NewArea(200, 200, &areaHandler{true})))
@@ -262,7 +284,6 @@ var tw *testwin
 
 // because Cocoa hates being run off the main thread, even if it's run exclusively off the main thread
 func init() {
-	flag.BoolVar(&spaced, "spaced", false, "enable spacing")
 	flag.Parse()
 	go func() {
 		tw = new(testwin)

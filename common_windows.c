@@ -29,7 +29,7 @@ void updateWindow(HWND hwnd)
 		xpanic("error calling UpdateWindow()", GetLastError());
 }
 
-void *getWindowData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult, void (*storeHWND)(void *, HWND))
+void *getWindowData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult)
 {
 	CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 	void *data;
@@ -37,11 +37,8 @@ void *getWindowData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT 
 	data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (data == NULL) {
 		// the lpParam is available during WM_NCCREATE and WM_CREATE
-		if (uMsg == WM_NCCREATE) {
+		if (uMsg == WM_NCCREATE)
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) (cs->lpCreateParams));
-			data = (void *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
-			(*storeHWND)(data, hwnd);
-		}
 		// act as if we're not ready yet, even during WM_NCCREATE (nothing important to the switch statement below happens here anyway)
 		*lResult = DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
@@ -106,21 +103,20 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	WCHAR classname[128] = L"";		// more than enough to avoid collisions
 
 	parent = hwnd;
-	do {
-		parent = GetParent(parent);
-		if (parent == NULL)
-			xpanic("error getting parent container of control in paintControlBackground()", GetLastError());
-		// wine sends these messages early, yay...
-		if (parent == msgwin)
-			return;
+	for (;;) {
 		parent = GetParent(parent);
 		if (parent == NULL)
 			xpanic("error getting parent control of control in paintControlBackground()", GetLastError());
+		// wine sends these messages early, yay...
 		if (parent == msgwin)
 			return;
 		if (GetClassNameW(parent, classname, 128) == 0)
 			xpanic("error getting name of focused window class in paintControlBackground()", GetLastError());
-	} while (_wcsicmp(classname, L"button") == 0);		// skip groupboxes
+		// skip container and groupboxes
+		if (_wcsicmp(classname, containerclass) != 0)		// container
+			if (_wcsicmp(classname, L"button") != 0)		// groupbox
+				break;
+	}
 	if (GetWindowRect(hwnd, &r) == 0)
 		xpanic("error getting control's window rect in paintControlBackground()", GetLastError());
 	// the above is a window rect; convert to client rect

@@ -14,8 +14,7 @@ import "C"
 type table struct {
 	*tablebase
 
-	_id      C.id
-	scroller *scroller
+	*scroller
 
 	images   []C.id
 	selected *event
@@ -24,13 +23,13 @@ type table struct {
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	id := C.newTable()
 	t := &table{
-		_id:       id,
 		scroller:  newScroller(id, true), // border on Table
 		tablebase: b,
 		selected:  newEvent(),
 	}
+	t.fpreferredSize = t.xpreferredSize
 	// also sets the delegate
-	C.tableMakeDataSource(t._id, unsafe.Pointer(t))
+	C.tableMakeDataSource(t.id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		cname := C.CString(ty.Field(i).Name)
 		coltype := C.colTypeText
@@ -42,7 +41,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 			coltype = C.colTypeCheckbox
 			editable = true
 		}
-		C.tableAppendColumn(t._id, C.intptr_t(i), cname, C.int(coltype), toBOOL(editable))
+		C.tableAppendColumn(t.id, C.intptr_t(i), cname, C.int(coltype), toBOOL(editable))
 		C.free(unsafe.Pointer(cname)) // free now (not deferred) to conserve memory
 	}
 	return t
@@ -56,7 +55,7 @@ func (t *table) Unlock() {
 		Do(func() {
 			t.RLock()
 			defer t.RUnlock()
-			C.tableUpdate(t._id)
+			C.tableUpdate(t.id)
 		})
 	}()
 }
@@ -68,13 +67,13 @@ func (t *table) LoadImageList(i ImageList) {
 func (t *table) Selected() int {
 	t.RLock()
 	defer t.RUnlock()
-	return int(C.tableSelected(t._id))
+	return int(C.tableSelected(t.id))
 }
 
 func (t *table) Select(index int) {
 	t.RLock()
 	defer t.RUnlock()
-	C.tableSelect(t._id, C.intptr_t(index))
+	C.tableSelect(t.id, C.intptr_t(index))
 }
 
 func (t *table) OnSelected(f func()) {
@@ -132,27 +131,7 @@ func tableSelectionChanged(data unsafe.Pointer) {
 	t.selected.fire()
 }
 
-func (t *table) id() C.id {
-	return t._id
-}
-
-func (t *table) setParent(p *controlParent) {
-	t.scroller.setParent(p)
-}
-
-func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
-func (t *table) preferredSize(d *sizing) (width, height int) {
-	s := C.tablePreferredSize(t._id)
+func (t *table) xpreferredSize(d *sizing) (width, height int) {
+	s := C.tablePreferredSize(t.id)
 	return int(s.width), int(s.height)
-}
-
-func (t *table) commitResize(c *allocation, d *sizing) {
-	t.scroller.commitResize(c, d)
-}
-
-func (t *table) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
 }

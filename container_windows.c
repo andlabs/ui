@@ -9,25 +9,13 @@ In this case, I chose to waste a window handle rather than keep things super com
 If this is seriously an issue in the future, I can roll it back.
 */
 
-#define containerclass L"gouicontainer"
-
 static LRESULT CALLBACK containerWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	void *data;
-	RECT r;
 	LRESULT lResult;
 
-	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult, storeContainerHWND);
-	if (data == NULL)
-		return lResult;
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
-	case WM_SIZE:
-		if (GetClientRect(hwnd, &r) == 0)
-			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());
-		containerResize(data, &r);
-		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
@@ -53,7 +41,7 @@ DWORD makeContainerWindowClass(char **errmsg)
 	return 0;
 }
 
-HWND newContainer(void *data)
+HWND newContainer(void)
 {
 	HWND hwnd;
 
@@ -63,10 +51,19 @@ HWND newContainer(void *data)
 		WS_CHILD | WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		100, 100,
-		msgwin, NULL, hInstance, data);
+		msgwin, NULL, hInstance, NULL);
 	if (hwnd == NULL)
 		xpanic("container creation failed", GetLastError());
 	return hwnd;
+}
+
+RECT containerBounds(HWND hwnd)
+{
+	RECT r;
+
+	if (GetClientRect(hwnd, &r) == 0)
+		xpanic("error getting container client rect for container.bounds()", GetLastError());
+	return r;
 }
 
 void calculateBaseUnits(HWND hwnd, int *baseX, int *baseY, LONG *internalLeading)

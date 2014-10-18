@@ -321,7 +321,7 @@ static LRESULT CALLBACK areaWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	uintptr_t heldButtons = (uintptr_t) wParam;
 	LRESULT lResult;
 
-	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult, storeAreaHWND);
+	data = getWindowData(hwnd, uMsg, wParam, lParam, &lResult);
 	if (data == NULL)
 		return lResult;
 	switch (uMsg) {

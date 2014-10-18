@@ -13,7 +13,7 @@ import "C"
 
 type table struct {
 	*tablebase
-	_hwnd      C.HWND
+	*controlSingleHWND
 	noautosize bool
 	colcount   C.int
 	hotrow     C.int
@@ -21,13 +21,15 @@ type table struct {
 	pushedrow  C.int
 	pushedcol  C.int
 	selected   *event
+	chainresize		func(x int, y int, width int, height int, d *sizing)
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
+	hwnd := C.newControl(C.xWC_LISTVIEW,
+		C.LVS_REPORT|C.LVS_OWNERDATA|C.LVS_NOSORTHEADER|C.LVS_SHOWSELALWAYS|C.LVS_SINGLESEL|C.WS_HSCROLL|C.WS_VSCROLL|C.WS_TABSTOP,
+		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &table{
-		_hwnd: C.newControl(C.xWC_LISTVIEW,
-			C.LVS_REPORT|C.LVS_OWNERDATA|C.LVS_NOSORTHEADER|C.LVS_SHOWSELALWAYS|C.LVS_SINGLESEL|C.WS_HSCROLL|C.WS_VSCROLL|C.WS_TABSTOP,
-			C.WS_EX_CLIENTEDGE), // WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
+		controlSingleHWND:		newControlSingleHWND(hwnd),
 		tablebase: b,
 		hotrow:    -1,
 		hotcol:    -1,
@@ -35,14 +37,17 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		pushedcol: -1,
 		selected:  newEvent(),
 	}
-	C.setTableSubclass(t._hwnd, unsafe.Pointer(t))
+	t.fpreferredSize = t.xpreferredSize
+	t.chainresize = t.fresize
+	t.fresize = t.xresize
+	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
 	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
 	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
-	C.tableAddExtendedStyles(t._hwnd, C.LVS_EX_FULLROWSELECT|C.LVS_EX_SUBITEMIMAGES)
+	C.tableAddExtendedStyles(t.hwnd, C.LVS_EX_FULLROWSELECT|C.LVS_EX_SUBITEMIMAGES)
 	// this must come after the subclass because it uses one of our private messages
-	C.SendMessageW(t._hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
+	C.SendMessageW(t.hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
 	for i := 0; i < ty.NumField(); i++ {
-		C.tableAppendColumn(t._hwnd, C.int(i), toUTF16(ty.Field(i).Name))
+		C.tableAppendColumn(t.hwnd, C.int(i), toUTF16(ty.Field(i).Name))
 	}
 	t.colcount = C.int(ty.NumField())
 	return t
@@ -56,25 +61,25 @@ func (t *table) Unlock() {
 		Do(func() {
 			t.RLock()
 			defer t.RUnlock()
-			C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+			C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 		})
 	}()
 }
 
 func (t *table) LoadImageList(il ImageList) {
-	il.apply(t._hwnd, C.msgLoadImageList)
+	il.apply(t.hwnd, C.msgLoadImageList)
 }
 
 func (t *table) Selected() int {
 	t.RLock()
 	defer t.RUnlock()
-	return int(C.tableSelectedItem(t._hwnd))
+	return int(C.tableSelectedItem(t.hwnd))
 }
 
 func (t *table) Select(index int) {
 	t.RLock()
 	defer t.RUnlock()
-	C.tableSelectItem(t._hwnd, C.intptr_t(index))
+	C.tableSelectItem(t.hwnd, C.intptr_t(index))
 }
 
 func (t *table) OnSelected(f func()) {
@@ -144,7 +149,7 @@ func (t *table) autoresize() {
 	t.RLock()
 	defer t.RUnlock()
 	if !t.noautosize {
-		C.tableAutosizeColumns(t._hwnd, t.colcount)
+		C.tableAutosizeColumns(t.hwnd, t.colcount)
 	}
 }
 
@@ -167,7 +172,7 @@ func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
 	t.hotrow = row
 	t.hotcol = col
 	if redraw {
-		C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+		C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 	}
 }
 
@@ -176,7 +181,7 @@ func tablePushed(data unsafe.Pointer, row C.int, col C.int) {
 	t := (*table)(data)
 	t.pushedrow = row
 	t.pushedcol = col
-	C.tableUpdate(t._hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+	C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 }
 
 //export tableToggled
@@ -211,18 +216,6 @@ func tableSelectionChanged(data unsafe.Pointer) {
 	t.selected.fire()
 }
 
-func (t *table) hwnd() C.HWND {
-	return t._hwnd
-}
-
-func (t *table) setParent(p *controlParent) {
-	basesetParent(t, p)
-}
-
-func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
 const (
 	// from C++ Template 05 in http://msdn.microsoft.com/en-us/library/windows/desktop/bb226818%28v=vs.85%29.aspx as this is the best I can do for now
 	// there IS a message LVM_APPROXIMATEVIEWRECT that can do calculations, but it doesn't seem to work right when asked to base its calculations on the current width/height on Windows and wine...
@@ -230,17 +223,13 @@ const (
 	tableHeight = 50
 )
 
-func (t *table) preferredSize(d *sizing) (width, height int) {
+func (t *table) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(tableWidth, d), fromdlgunitsY(tableHeight, d)
 }
 
-func (t *table) commitResize(a *allocation, d *sizing) {
-	basecommitResize(t, a, d)
+func (t *table) xresize(x int, y int, width int, height int, d *sizing) {
+	t.chainresize(x, y, width, height, d)
 	t.RLock()
 	defer t.RUnlock()
 	t.autoresize()
-}
-
-func (t *table) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(t, d)
 }

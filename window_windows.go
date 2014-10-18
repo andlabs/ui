@@ -17,7 +17,8 @@ type window struct {
 
 	closing *event
 
-	*container
+	child			Control
+	margined		bool
 }
 
 func makeWindowWindowClass() error {
@@ -32,19 +33,15 @@ func makeWindowWindowClass() error {
 
 func newWindow(title string, width int, height int, control Control) *window {
 	w := &window{
-		// hwnd set in WM_CREATE handler
 		closing:   newEvent(),
-		container: newContainer(control),
+		child:	control,
 	}
-	hwnd := C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
-	if hwnd != w.hwnd {
-		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in Window (%p) differ", hwnd, w.hwnd))
-	}
+	w.hwnd = C.newWindow(toUTF16(title), C.int(width), C.int(height), unsafe.Pointer(w))
 	hresult := C.EnableThemeDialogTexture(w.hwnd, C.ETDT_ENABLE|C.ETDT_USETABTEXTURE)
 	if hresult != C.S_OK {
 		panic(fmt.Errorf("error setting tab background texture on Window; HRESULT: 0x%X", hresult))
 	}
-	w.container.setParent(w.hwnd)
+	w.child.setParent(&controlParent{w.hwnd})
 	return w
 }
 
@@ -78,17 +75,22 @@ func (w *window) OnClosing(e func() bool) {
 	w.closing.setbool(e)
 }
 
-//export storeWindowHWND
-func storeWindowHWND(data unsafe.Pointer, hwnd C.HWND) {
-	w := (*window)(data)
-	w.hwnd = hwnd
+func (w *window) Margined() bool {
+	return w.margined
+}
+
+func (w *window) SetMargined(margined bool) {
+	w.margined = margined
 }
 
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	// the origin of the window's content area is always (0, 0), but let's use the values from the RECT just to be safe
-	w.container.move(r)
+	d := w.beginResize()
+	if w.margined {
+		marginRectDLU(r, marginDialogUnits, marginDialogUnits, marginDialogUnits, marginDialogUnits, d)
+	}
+	w.child.resize(int(r.left), int (r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 }
 
 //export windowClosing

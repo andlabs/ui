@@ -24,6 +24,11 @@ type Stack interface {
 	// SetStretchy marks a control in a Stack as stretchy.
 	// It panics if index is out of range.
 	SetStretchy(index int)
+
+	// Padded and SetPadded get and set whether the controls of the Stack have padding between them.
+	// The size of the padding is platform-dependent.
+	Padded() bool
+	SetPadded(padded bool)
 }
 
 type stack struct {
@@ -31,16 +36,24 @@ type stack struct {
 	controls      []Control
 	stretchy      []bool
 	width, height []int // caches to avoid reallocating these each time
+	container		*container
+	padded	bool
 }
 
 func newStack(o orientation, controls ...Control) Stack {
-	return &stack{
+	s := &stack{
 		orientation: o,
 		controls:    controls,
 		stretchy:    make([]bool, len(controls)),
 		width:       make([]int, len(controls)),
 		height:      make([]int, len(controls)),
+		container:		newContainer(),
 	}
+	p := s.container.parent()
+	for _, c := range s.controls {
+		c.setParent(p)
+	}
+	return s
 }
 
 // NewHorizontalStack creates a new Stack that arranges the given Controls horizontally.
@@ -60,24 +73,38 @@ func (s *stack) SetStretchy(index int) {
 	s.stretchy[index] = true
 }
 
-func (s *stack) setParent(parent *controlParent) {
-	for _, c := range s.controls {
-		c.setParent(parent)
-	}
+func (s *stack) Padded() bool {
+	return s.padded
 }
 
-func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (allocations []*allocation) {
-	var stretchywid, stretchyht int
-	var current *allocation // for neighboring
+func (s *stack) SetPadded(padded bool) {
+	s.padded = padded
+}
 
+func (s *stack) setParent(parent *controlParent) {
+	s.container.setParent(parent)
+}
+
+func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
+	var stretchywid, stretchyht int
+
+	s.container.resize(x, y, width, height, d)
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
-		return nil
+		return
+	}
+	x, y, width, height = s.container.bounds(d)
+	// -1) get this Stack's padding
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !s.padded {
+		xpadding = 0
+		ypadding = 0
 	}
 	// 0) inset the available rect by the needed padding
 	if s.orientation == horizontal {
-		width -= (len(s.controls) - 1) * d.xpadding
+		width -= (len(s.controls) - 1) * xpadding
 	} else {
-		height -= (len(s.controls) - 1) * d.ypadding
+		height -= (len(s.controls) - 1) * ypadding
 	}
 	// 1) get height and width of non-stretchy controls; figure out how much space is alloted to stretchy controls
 	stretchywid = width
@@ -116,25 +143,14 @@ func (s *stack) allocate(x int, y int, width int, height int, d *sizing) (alloca
 	}
 	// 3) now actually place controls
 	for i, c := range s.controls {
-		as := c.allocate(x, y, s.width[i], s.height[i], d)
-		if s.orientation == horizontal { // no vertical neighbors
-			if current != nil { // connect first left to first right
-				current.neighbor = c
-			}
-			if len(as) != 0 {
-				current = as[0] // next left is first subwidget
-			} else {
-				current = nil // spaces don't have allocation data
-			}
-		}
-		allocations = append(allocations, as...)
+		c.resize(x, y, s.width[i], s.height[i], d)
 		if s.orientation == horizontal {
-			x += s.width[i] + d.xpadding
+			x += s.width[i] + xpadding
 		} else {
-			y += s.height[i] + d.ypadding
+			y += s.height[i] + ypadding
 		}
 	}
-	return allocations
+	return
 }
 
 // The preferred size of a Stack is the sum of the preferred sizes of non-stretchy controls + (the number of stretchy controls * the largest preferred size among all stretchy controls).
@@ -152,10 +168,16 @@ func (s *stack) preferredSize(d *sizing) (width int, height int) {
 	if len(s.controls) == 0 { // no controls, so return emptiness
 		return 0, 0
 	}
+	xpadding := d.xpadding
+	ypadding := d.ypadding
+	if !s.padded {
+		xpadding = 0
+		ypadding = 0
+	}
 	if s.orientation == horizontal {
-		width = (len(s.controls) - 1) * d.xpadding
+		width = (len(s.controls) - 1) * xpadding
 	} else {
-		height = (len(s.controls) - 1) * d.ypadding
+		height = (len(s.controls) - 1) * ypadding
 	}
 	for i, c := range s.controls {
 		w, h := c.preferredSize(d)
@@ -184,13 +206,15 @@ func (s *stack) preferredSize(d *sizing) (width int, height int) {
 	return
 }
 
-func (s *stack) commitResize(c *allocation, d *sizing) {
-	// this is to satisfy Control; nothing to do here
+func (s *stack) nTabStops() int {
+	n := 0
+	for _, c := range s.controls {
+		n += c.nTabStops()
+	}
+	return n
 }
 
-func (s *stack) getAuxResizeInfo(d *sizing) {
-	// this is to satisfy Control; nothing to do here
-}
+// TODO the below needs to be changed
 
 // Space returns a null Control intended for padding layouts with blank space.
 // It appears to its owner as a Control of 0x0 size.

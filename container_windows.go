@@ -5,17 +5,13 @@ package ui
 import (
 	"fmt"
 	"syscall"
-	"unsafe"
 )
 
 // #include "winapi_windows.h"
 import "C"
 
 type container struct {
-	containerbase
-	hwnd      C.HWND
-	nchildren int
-	isGroup   bool
+	*controlSingleHWND
 }
 
 type sizing struct {
@@ -40,45 +36,30 @@ func makeContainerWindowClass() error {
 	return nil
 }
 
-func newContainer(control Control) *container {
-	c := new(container)
-	hwnd := C.newContainer(unsafe.Pointer(c))
-	if hwnd != c.hwnd {
-		panic(fmt.Errorf("inconsistency: hwnd returned by CreateWindowEx() (%p) and hwnd stored in container (%p) differ", hwnd, c.hwnd))
+func newContainer() *container {
+	// don't set preferredSize(); it should never be called
+	return &container{
+		controlSingleHWND:		newControlSingleHWND(C.newContainer()),
 	}
-	c.child = control
-	c.child.setParent(&controlParent{c})
-	return c
 }
 
-func (c *container) setParent(hwnd C.HWND) {
-	C.controlSetParent(c.hwnd, hwnd)
-}
-
-// this is needed because Windows won't move/resize a child window for us
-func (c *container) move(r *C.RECT) {
-	C.moveWindow(c.hwnd, C.int(r.left), C.int(r.top), C.int(r.right-r.left), C.int(r.bottom-r.top))
-}
-
+// TODO merge with controlSingleHWND
 func (c *container) show() {
 	C.ShowWindow(c.hwnd, C.SW_SHOW)
 }
 
+// TODO merge with controlSingleHWND
 func (c *container) hide() {
 	C.ShowWindow(c.hwnd, C.SW_HIDE)
 }
 
-//export storeContainerHWND
-func storeContainerHWND(data unsafe.Pointer, hwnd C.HWND) {
-	c := (*container)(data)
-	c.hwnd = hwnd
+func (c *container) parent() *controlParent {
+	return &controlParent{c.hwnd}
 }
 
-//export containerResize
-func containerResize(data unsafe.Pointer, r *C.RECT) {
-	c := (*container)(data)
-	// the origin of any window's content area is always (0, 0), but let's use the values from the RECT just to be safe
-	c.resize(int(r.left), int(r.top), int(r.right-r.left), int(r.bottom-r.top))
+func (c *container) bounds(d *sizing) (int, int, int, int) {
+	r := C.containerBounds(c.hwnd)
+	return int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top)
 }
 
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.
@@ -103,45 +84,31 @@ func fromdlgunitsY(du int, d *sizing) int {
 }
 
 const (
+	// shared by multiple containers
 	marginDialogUnits  = 7
 	paddingDialogUnits = 4
-
-	groupXMargin       = 6
-	groupYMarginTop    = 11 // note this value /includes the groupbox label/
-	groupYMarginBottom = 7
 )
 
-func (c *container) beginResize() (d *sizing) {
+func (w *window) beginResize() (d *sizing) {
 	var baseX, baseY C.int
 	var internalLeading C.LONG
 
 	d = new(sizing)
 
-	C.calculateBaseUnits(c.hwnd, &baseX, &baseY, &internalLeading)
+	C.calculateBaseUnits(w.hwnd, &baseX, &baseY, &internalLeading)
 	d.baseX = baseX
 	d.baseY = baseY
 	d.internalLeading = internalLeading
 
-	if spaced {
-		d.xmargin = fromdlgunitsX(marginDialogUnits, d)
-		d.ymargintop = fromdlgunitsY(marginDialogUnits, d)
-		d.ymarginbottom = d.ymargintop
-		d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
-		d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
-	}
-	if c.isGroup {
-		// note that these values apply regardless of whether or not spaced is set
-		// this is because Windows groupboxes have the client rect spanning the entire size of the control, not just the active work area
-		// the measurements Microsoft give us are for spaced margining; let's just use them
-		d.xmargin = fromdlgunitsX(groupXMargin, d)
-		d.ymargintop = fromdlgunitsY(groupYMarginTop, d)
-		d.ymarginbottom = fromdlgunitsY(groupYMarginBottom, d)
-
-	}
+	d.xpadding = fromdlgunitsX(paddingDialogUnits, d)
+	d.ypadding = fromdlgunitsY(paddingDialogUnits, d)
 
 	return d
 }
 
-func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
-	// no translation needed on windows
+func marginRectDLU(r *C.RECT, top int, bottom int, left int, right int, d *sizing) {
+	r.left += C.LONG(fromdlgunitsX(left, d))
+	r.top += C.LONG(fromdlgunitsY(top, d))
+	r.right -= C.LONG(fromdlgunitsX(right, d))
+	r.bottom -= C.LONG(fromdlgunitsY(bottom, d))
 }

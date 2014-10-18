@@ -5,16 +5,32 @@ package ui
 // Control represents a control.
 type Control interface {
 	setParent(p *controlParent) // controlParent defined per-platform
-	controlSizing
+	preferredSize(d *sizing) (width, height int)
+	resize(x int, y int, width int, height int, d *sizing)
+	nTabStops() int		// used by the Windows backend
 }
 
-// this is the same across all platforms
-func baseallocate(c Control, x int, y int, width int, height int, d *sizing) []*allocation {
-	return []*allocation{&allocation{
-		x:      x,
-		y:      y,
-		width:  width,
-		height: height,
-		this:   c,
-	}}
+type controlbase struct {
+	fsetParent			func(p *controlParent)
+	fpreferredSize		func(d *sizing) (width, height int)
+	fresize			func(x int, y int, width int, height int, d *sizing)
+	fnTabStops		func() int
+}
+
+// children should not use the same name as these, otherwise weird things will happen
+
+func (c *controlbase) setParent(p *controlParent) {
+	c.fsetParent(p)
+}
+
+func (c *controlbase) preferredSize(d *sizing) (width, height int) {
+	return c.fpreferredSize(d)
+}
+
+func (c *controlbase) resize(x int, y int, width int, height int, d *sizing) {
+	c.fresize(x, y, width, height, d)
+}
+
+func (c *controlbase) nTabStops() int {
+	return c.fnTabStops()
 }

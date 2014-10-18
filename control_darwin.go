@@ -5,54 +5,52 @@ package ui
 // #include "objc_darwin.h"
 import "C"
 
-// all Controls that call base methods must be this
-type controlPrivate interface {
-	id() C.id
-	Control
-}
-
 type controlParent struct {
 	id C.id
 }
 
-func basesetParent(c controlPrivate, p *controlParent) {
-	// redrawing the new window handled by C.parent()
-	C.parent(c.id(), p.id)
+type controlSingleObject struct {
+	*controlbase
+	id	C.id
 }
 
-func basepreferredSize(c controlPrivate, d *sizing) (int, int) {
-	s := C.controlPreferredSize(c.id())
+func newControlSingleObject(id C.id) *controlSingleObject {
+	c := new(controlSingleObject)
+	c.controlbase = &controlbase{
+		fsetParent:		c.xsetParent,
+		fpreferredSize:		c.xpreferredSize,
+		fresize:			c.xresize,
+	}
+	c.id = id
+	return c
+}
+
+func (c *controlSingleObject) xsetParent(p *controlParent) {
+	// redrawing the new window handled by C.parent()
+	C.parent(c.id, p.id)
+}
+
+func (c *controlSingleObject) xpreferredSize(d *sizing) (int, int) {
+	s := C.controlPreferredSize(c.id)
 	return int(s.width), int(s.height)
 }
 
-func basecommitResize(c controlPrivate, a *allocation, d *sizing) {
-	dobasecommitResize(c.id(), a, d)
-}
-
-func dobasecommitResize(id C.id, c *allocation, d *sizing) {
-	C.moveControl(id, C.intptr_t(c.x), C.intptr_t(c.y), C.intptr_t(c.width), C.intptr_t(c.height))
-}
-
-func basegetAuxResizeInfo(c controlPrivate, d *sizing) {
-	d.neighborAlign = C.alignmentInfoFrame(c.id())
+func (c *controlSingleObject) xresize(x int, y int, width int, height int, d *sizing) {
+	C.moveControl(c.id, C.intptr_t(x), C.intptr_t(y), C.intptr_t(width), C.intptr_t(height))
 }
 
 type scroller struct {
-	id C.id
+	*controlSingleObject
+	scroller	*controlSingleObject
 }
 
 func newScroller(child C.id, bordered bool) *scroller {
-	id := C.newScrollView(child, toBOOL(bordered))
+	sid := C.newScrollView(child, toBOOL(bordered))
 	s := &scroller{
-		id: id,
+		controlSingleObject:		newControlSingleObject(child),
+		scroller:				newControlSingleObject(sid),
 	}
+	s.fsetParent = s.scroller.fsetParent
+	s.fresize = s .scroller.fresize
 	return s
-}
-
-func (s *scroller) setParent(p *controlParent) {
-	C.parent(s.id, p.id)
-}
-
-func (s *scroller) commitResize(c *allocation, d *sizing) {
-	dobasecommitResize(s.id, c, d)
 }

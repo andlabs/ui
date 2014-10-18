@@ -6,10 +6,10 @@ package ui
 import "C"
 
 type group struct {
-	_hwnd    C.HWND
-	_textlen C.LONG
-
-	*container
+	*controlSingleHWNDWithText
+	child			Control
+	margined		bool
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -17,66 +17,82 @@ func newGroup(text string, control Control) Group {
 		C.BS_GROUPBOX,
 		C.WS_EX_CONTROLPARENT)
 	g := &group{
-		_hwnd:     hwnd,
-		container: newContainer(control),
+		controlSingleHWNDWithText:		newControlSingleHWNDWithText(hwnd),
+		child:		control,
 	}
+	g.fpreferredSize = g.xpreferredSize
+	g.chainresize = g.fresize
+	g.fresize = g.xresize
+	g.fnTabStops = control.nTabStops		// groupbox itself is not tabbable but the contents might be
 	g.SetText(text)
-	C.controlSetControlFont(g._hwnd)
-	g.container.setParent(g._hwnd)
-	g.container.isGroup = true
+	C.controlSetControlFont(g.hwnd)
+	control.setParent(&controlParent{g.hwnd})
 	return g
 }
 
 func (g *group) Text() string {
-	return baseText(g)
+	return g.text()
 }
 
 func (g *group) SetText(text string) {
-	baseSetText(g, text)
+	g.setText(text)
 }
 
-func (g *group) hwnd() C.HWND {
-	return g._hwnd
+func (g *group) Margined() bool {
+	return g.margined
 }
 
-func (g *group) textlen() C.LONG {
-	return g._textlen
+func (g *group) SetMargined(margined bool) {
+	g.margined = margined
 }
 
-func (g *group) settextlen(len C.LONG) {
-	g._textlen = len
-}
+const (
+	groupXMargin       = 6
+	groupYMarginTop    = 11 // note this value /includes the groupbox label/
+	groupYMarginBottom = 7
+)
 
-func (g *group) setParent(p *controlParent) {
-	basesetParent(g, p)
-}
+func (g *group) xpreferredSize(d *sizing) (width, height int) {
+	var r C.RECT
 
-func (g *group) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(g, x, y, width, height, d)
-}
-
-func (g *group) preferredSize(d *sizing) (width, height int) {
 	width, height = g.child.preferredSize(d)
-	if width < int(g._textlen) { // if the text is longer, try not to truncate
-		width = int(g._textlen)
+	if width < int(g.textlen) { // if the text is longer, try not to truncate
+		width = int(g.textlen)
 	}
-	// the two margin constants come from container_windows.go
-	return width, height + fromdlgunitsY(groupYMarginTop, d) + fromdlgunitsY(groupYMarginBottom, d)
+	r.left = 0
+	r.top = 0
+	r.right = C.LONG(width)
+	r.bottom = C.LONG(height)
+	// use negative numbers to increase the size of the rectangle
+	if g.margined {
+		marginRectDLU(&r, -groupYMarginTop, -groupYMarginBottom, -groupXMargin, -groupXMargin, d)
+	} else {
+		// unforutnately, as mentioned above, the size of a groupbox includes the label and border
+		// 1DLU on each side should be enough to make up for that; TODO is not, we can change it
+		// TODO make these named constants
+		marginRectDLU(&r, -1, -1, -1, -1, d)
+	}
+	return int(r.right - r.left), int(r.bottom - r.top)
 }
 
-func (g *group) commitResize(c *allocation, d *sizing) {
+func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
+	// first, chain up to the container base to keep the Z-order correct
+	g.chainresize(x, y, width, height, d)
+
+	// now resize the child container
 	var r C.RECT
 
 	// pretend that the client area of the group box only includes the actual empty space
 	// container will handle the necessary adjustments properly
 	r.left = 0
 	r.top = 0
-	r.right = C.LONG(c.width)
-	r.bottom = C.LONG(c.height)
-	g.container.move(&r)
-	basecommitResize(g, c, d)
-}
-
-func (g *group) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(g, d)
+	r.right = C.LONG(width)
+	r.bottom = C.LONG(height)
+	if g.margined {
+		// see above
+		marginRectDLU(&r, groupYMarginTop, groupYMarginBottom, groupXMargin, groupXMargin, d)
+	} else {
+		marginRectDLU(&r, 1, 1, 1, 1, d)
+	}
+	g.child.resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
 }

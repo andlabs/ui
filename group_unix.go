@@ -12,11 +12,16 @@ import (
 import "C"
 
 type group struct {
-	_widget    *C.GtkWidget
+	*controlSingleWidget
 	gcontainer *C.GtkContainer
 	frame      *C.GtkFrame
 
-	*container
+	child			Control
+	container		*container
+
+	margined		bool
+
+	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -24,9 +29,10 @@ func newGroup(text string, control Control) Group {
 	defer freegstr(ctext)
 	widget := C.gtk_frame_new(ctext)
 	g := &group{
-		_widget:    widget,
+		controlSingleWidget:	newControlSingleWidget(widget),
 		gcontainer: (*C.GtkContainer)(unsafe.Pointer(widget)),
 		frame:      (*C.GtkFrame)(unsafe.Pointer(widget)),
+		child:	control,
 	}
 
 	// with GTK+, groupboxes by default have frames and slightly x-offset regular text
@@ -46,8 +52,12 @@ func newGroup(text string, control Control) Group {
 	C.gtk_label_set_attributes(label, boldlist)
 	C.pango_attr_list_unref(boldlist) // thanks baedert in irc.gimp.net/#gtk+
 
-	g.container = newContainer(control)
+	g.container = newContainer()
+	g.child.setParent(g.container.parent())
 	g.container.setParent(&controlParent{g.gcontainer})
+
+	g.chainresize = g.fresize
+	g.fresize = g.xresize
 
 	return g
 }
@@ -62,26 +72,19 @@ func (g *group) SetText(text string) {
 	C.gtk_frame_set_label(g.frame, ctext)
 }
 
-func (g *group) widget() *C.GtkWidget {
-	return g._widget
+func (g *group) Margined() bool {
+	return g.margined
 }
 
-func (g *group) setParent(p *controlParent) {
-	basesetParent(g, p)
+func (g *group) SetMargined(margined bool) {
+	g.margined = margined
 }
 
-func (g *group) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(g, x, y, width, height, d)
-}
+func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
+	// first, chain up to change the GtkFrame and its child container
+	g.chainresize(x, y, width, height, d)
 
-func (g *group) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(g, d)
-}
-
-func (g *group) commitResize(a *allocation, d *sizing) {
-	basecommitResize(g, a, d)
-}
-
-func (g *group) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(g, d)
+	// now that the container has the correct size, we can resize the child
+	a := g.container.allocation(g.margined)
+	g.child.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
 }

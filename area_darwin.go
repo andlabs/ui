@@ -15,8 +15,7 @@ import "C"
 type area struct {
 	*areabase
 
-	_id           C.id
-	scroller      *scroller
+	*scroller
 	textfield     C.id
 	textfielddone *event
 }
@@ -26,11 +25,12 @@ func newArea(ab *areabase) Area {
 		areabase:      ab,
 		textfielddone: newEvent(),
 	}
-	a._id = C.newArea(unsafe.Pointer(a))
-	a.scroller = newScroller(a._id, false) // no border on Area
+	id := C.newArea(unsafe.Pointer(a))
+	a.scroller = newScroller(id, false) // no border on Area
+	a.fpreferredSize = a.xpreferredSize
 	a.SetSize(a.width, a.height)
 	a.textfield = C.newTextField()
-	C.areaSetTextField(a._id, a.textfield)
+	C.areaSetTextField(a.id, a.textfield)
 	return a
 }
 
@@ -38,7 +38,7 @@ func (a *area) SetSize(width, height int) {
 	a.width = width
 	a.height = height
 	// set the frame size to set the area's effective size on the Cocoa side
-	C.moveControl(a._id, 0, 0, C.intptr_t(a.width), C.intptr_t(a.height))
+	C.moveControl(a.id, 0, 0, C.intptr_t(a.width), C.intptr_t(a.height))
 }
 
 func (a *area) Repaint(r image.Rectangle) {
@@ -52,18 +52,18 @@ func (a *area) Repaint(r image.Rectangle) {
 	s.y = C.intptr_t(r.Min.Y)
 	s.width = C.intptr_t(r.Dx())
 	s.height = C.intptr_t(r.Dy())
-	C.areaRepaint(a._id, s)
+	C.areaRepaint(a.id, s)
 }
 
 func (a *area) RepaintAll() {
-	C.areaRepaintAll(a._id)
+	C.areaRepaintAll(a.id)
 }
 
 func (a *area) OpenTextFieldAt(x, y int) {
 	if x < 0 || x >= a.width || y < 0 || y >= a.height {
 		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
 	}
-	C.areaTextFieldOpen(a._id, a.textfield, C.intptr_t(x), C.intptr_t(y))
+	C.areaTextFieldOpen(a.id, a.textfield, C.intptr_t(x), C.intptr_t(y))
 }
 
 func (a *area) TextFieldText() string {
@@ -238,27 +238,7 @@ func areaView_flagsChanged(self C.id, e C.id, data unsafe.Pointer) C.BOOL {
 	return sendKeyEvent(self, ke, data)
 }
 
-func (a *area) id() C.id {
-	return a._id
-}
-
-func (a *area) setParent(p *controlParent) {
-	a.scroller.setParent(p)
-}
-
-func (a *area) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(a, x, y, width, height, d)
-}
-
-func (a *area) preferredSize(d *sizing) (width, height int) {
+func (a *area) xpreferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
-}
-
-func (a *area) commitResize(c *allocation, d *sizing) {
-	a.scroller.commitResize(c, d)
-}
-
-func (a *area) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(a, d)
 }

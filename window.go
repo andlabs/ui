@@ -26,6 +26,11 @@ type Window interface {
 	// If this handler returns false, the Window is not closed.
 	OnClosing(func() bool)
 
+	// Margined and SetMargined get and set whether the contents of the Window have a margin around them.
+	// The size of the margin is platform-dependent.
+	Margined() bool
+	SetMargined(margined bool)
+
 	windowDialog
 }
 

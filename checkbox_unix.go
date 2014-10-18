@@ -13,7 +13,7 @@ import (
 import "C"
 
 type checkbox struct {
-	_widget  *C.GtkWidget
+	*controlSingleWidget
 	button   *C.GtkButton
 	toggle   *C.GtkToggleButton
 	checkbox *C.GtkCheckButton
@@ -25,7 +25,7 @@ func newCheckbox(text string) *checkbox {
 	defer freegstr(ctext)
 	widget := C.gtk_check_button_new_with_label(ctext)
 	c := &checkbox{
-		_widget:  widget,
+		controlSingleWidget:  newControlSingleWidget(widget),
 		button:   (*C.GtkButton)(unsafe.Pointer(widget)),
 		toggle:   (*C.GtkToggleButton)(unsafe.Pointer(widget)),
 		checkbox: (*C.GtkCheckButton)(unsafe.Pointer(widget)),
@@ -65,28 +65,4 @@ func (c *checkbox) SetChecked(checked bool) {
 func checkboxToggled(bwid *C.GtkToggleButton, data C.gpointer) {
 	c := (*checkbox)(unsafe.Pointer(data))
 	c.toggled.fire()
-}
-
-func (c *checkbox) widget() *C.GtkWidget {
-	return c._widget
-}
-
-func (c *checkbox) setParent(p *controlParent) {
-	basesetParent(c, p)
-}
-
-func (c *checkbox) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(c, x, y, width, height, d)
-}
-
-func (c *checkbox) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(c, d)
-}
-
-func (c *checkbox) commitResize(a *allocation, d *sizing) {
-	basecommitResize(c, a, d)
-}
-
-func (c *checkbox) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(c, d)
 }

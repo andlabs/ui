@@ -18,9 +18,8 @@ import "C"
 type table struct {
 	*tablebase
 
-	_widget  *C.GtkWidget
+	*scroller
 	treeview *C.GtkTreeView
-	scroller *scroller
 
 	model     *C.goTableModel
 	modelgtk  *C.GtkTreeModel
@@ -48,7 +47,6 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	t := &table{
 		scroller:  newScroller(widget, true, true, false), // natively scrollable; has a border; no overlay
 		tablebase: b,
-		_widget:   widget,
 		treeview:  (*C.GtkTreeView)(unsafe.Pointer(widget)),
 		crtocol:   make(map[*C.GtkCellRendererToggle]int),
 		selected:  newEvent(),
@@ -221,29 +219,4 @@ func goTableModel_toggled(cr *C.GtkCellRendererToggle, pathstr *C.gchar, data C.
 func tableSelectionChanged(sel *C.GtkTreeSelection, data C.gpointer) {
 	t := (*table)(unsafe.Pointer(data))
 	t.selected.fire()
-}
-
-func (t *table) widget() *C.GtkWidget {
-	return t._widget
-}
-
-func (t *table) setParent(p *controlParent) {
-	t.scroller.setParent(p)
-}
-
-func (t *table) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(t, x, y, width, height, d)
-}
-
-func (t *table) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(t, d)
-}
-
-func (t *table) commitResize(c *allocation, d *sizing) {
-	t.scroller.commitResize(c, d)
-}
-
-func (t *table) getAuxResizeInfo(d *sizing) {
-	// a Label to the left of a Table should be vertically aligned to the top
-	d.shouldVAlignTop = true
 }

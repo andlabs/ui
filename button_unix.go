@@ -13,7 +13,7 @@ import (
 import "C"
 
 type button struct {
-	_widget *C.GtkWidget
+	*controlSingleWidget
 	button  *C.GtkButton
 	clicked *event
 }
@@ -24,7 +24,7 @@ func newButton(text string) *button {
 	defer freegstr(ctext)
 	widget := C.gtk_button_new_with_label(ctext)
 	b := &button{
-		_widget: widget,
+		controlSingleWidget: newControlSingleWidget(widget),
 		button:  (*C.GtkButton)(unsafe.Pointer(widget)),
 		clicked: newEvent(),
 	}
@@ -54,28 +54,4 @@ func (b *button) SetText(text string) {
 func buttonClicked(bwid *C.GtkButton, data C.gpointer) {
 	b := (*button)(unsafe.Pointer(data))
 	b.clicked.fire()
-}
-
-func (b *button) widget() *C.GtkWidget {
-	return b._widget
-}
-
-func (b *button) setParent(p *controlParent) {
-	basesetParent(b, p)
-}
-
-func (b *button) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(b, x, y, width, height, d)
-}
-
-func (b *button) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(b, d)
-}
-
-func (b *button) commitResize(a *allocation, d *sizing) {
-	basecommitResize(b, a, d)
-}
-
-func (b *button) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(b, d)
 }

@@ -83,6 +83,7 @@ extern void groupSetText(id, char *);
 /* container_darwin.m */
 extern id newContainerView(void *);
 extern void moveControl(id, intptr_t, intptr_t, intptr_t, intptr_t);
+extern struct xrect containerBounds(id);
 
 /* tab_darwin.m */
 extern id newTab(void);

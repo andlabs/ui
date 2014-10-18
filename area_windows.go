@@ -15,7 +15,7 @@ import "C"
 type area struct {
 	*areabase
 
-	_hwnd C.HWND
+	*controlSingleHWND
 
 	clickCounter *clickCounter
 
@@ -39,9 +39,10 @@ func newArea(ab *areabase) Area {
 		clickCounter:  new(clickCounter),
 		textfielddone: newEvent(),
 	}
-	a._hwnd = C.newArea(unsafe.Pointer(a))
+	a.controlSingleHWND = newControlSingleHWND(C.newArea(unsafe.Pointer(a)))
+	a.fpreferredSize = a.xpreferredSize
 	a.SetSize(a.width, a.height)
-	a.textfield = C.newAreaTextField(a._hwnd, unsafe.Pointer(a))
+	a.textfield = C.newAreaTextField(a.hwnd, unsafe.Pointer(a))
 	C.controlSetControlFont(a.textfield)
 	return a
 }
@@ -49,14 +50,14 @@ func newArea(ab *areabase) Area {
 func (a *area) SetSize(width, height int) {
 	a.width = width
 	a.height = height
-	C.SendMessageW(a._hwnd, C.msgAreaSizeChanged, 0, 0)
+	C.SendMessageW(a.hwnd, C.msgAreaSizeChanged, 0, 0)
 }
 
 func (a *area) Repaint(r image.Rectangle) {
 	var hscroll, vscroll C.int
 	var rect C.RECT
 
-	C.SendMessageW(a._hwnd, C.msgAreaGetScroll, C.WPARAM(uintptr(unsafe.Pointer(&hscroll))), C.LPARAM(uintptr(unsafe.Pointer(&vscroll))))
+	C.SendMessageW(a.hwnd, C.msgAreaGetScroll, C.WPARAM(uintptr(unsafe.Pointer(&hscroll))), C.LPARAM(uintptr(unsafe.Pointer(&vscroll))))
 	r = r.Add(image.Pt(int(hscroll), int(vscroll))) // adjust by scroll position
 	r = image.Rect(0, 0, a.width, a.height).Intersect(r)
 	if r.Empty() {
@@ -66,18 +67,18 @@ func (a *area) Repaint(r image.Rectangle) {
 	rect.top = C.LONG(r.Min.Y)
 	rect.right = C.LONG(r.Max.X)
 	rect.bottom = C.LONG(r.Max.Y)
-	C.SendMessageW(a._hwnd, C.msgAreaRepaint, 0, C.LPARAM(uintptr(unsafe.Pointer(&rect))))
+	C.SendMessageW(a.hwnd, C.msgAreaRepaint, 0, C.LPARAM(uintptr(unsafe.Pointer(&rect))))
 }
 
 func (a *area) RepaintAll() {
-	C.SendMessageW(a._hwnd, C.msgAreaRepaintAll, 0, 0)
+	C.SendMessageW(a.hwnd, C.msgAreaRepaintAll, 0, 0)
 }
 
 func (a *area) OpenTextFieldAt(x, y int) {
 	if x < 0 || x >= a.width || y < 0 || y >= a.height {
 		panic(fmt.Errorf("point (%d,%d) outside Area in Area.OpenTextFieldAt()", x, y))
 	}
-	C.areaOpenTextField(a._hwnd, a.textfield, C.int(x), C.int(y), textfieldWidth, textfieldHeight)
+	C.areaOpenTextField(a.hwnd, a.textfield, C.int(x), C.int(y), textfieldWidth, textfieldHeight)
 }
 
 func (a *area) TextFieldText() string {
@@ -96,7 +97,7 @@ func (a *area) OnTextFieldDismissed(f func()) {
 //export areaTextFieldDone
 func areaTextFieldDone(data unsafe.Pointer) {
 	a := (*area)(data)
-	C.areaMarkTextFieldDone(a._hwnd)
+	C.areaMarkTextFieldDone(a.hwnd)
 	a.textfielddone.fire()
 }
 
@@ -323,39 +324,13 @@ var modonlykeys = map[C.WPARAM]Modifiers{
 	C.VK_RWIN: Super,
 }
 
-//export storeAreaHWND
-func storeAreaHWND(data unsafe.Pointer, hwnd C.HWND) {
-	a := (*area)(data)
-	a._hwnd = hwnd
-}
-
 //export areaResetClickCounter
 func areaResetClickCounter(data unsafe.Pointer) {
 	a := (*area)(data)
 	a.clickCounter.reset()
 }
 
-func (a *area) hwnd() C.HWND {
-	return a._hwnd
-}
-
-func (a *area) setParent(p *controlParent) {
-	basesetParent(a, p)
-}
-
-func (a *area) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(a, x, y, width, height, d)
-}
-
-func (a *area) preferredSize(d *sizing) (width, height int) {
+func (a *area) xpreferredSize(d *sizing) (width, height int) {
 	// the preferred size of an Area is its size
 	return a.width, a.height
-}
-
-func (a *area) commitResize(c *allocation, d *sizing) {
-	basecommitResize(a, c, d)
-}
-
-func (a *area) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(a, d)
 }

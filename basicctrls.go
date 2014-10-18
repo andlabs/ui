@@ -87,29 +87,18 @@ func NewTab() Tab {
 
 // Label is a Control that shows a static line of text.
 // Label shows one line of text; any text that does not fit is truncated.
-// A Label can either have smart vertical alignment relative to the control to its right or just be vertically aligned to the top (standalone).
-// The effect of placing a non-standalone Label in any context other than to the immediate left of a Control is undefined.
-// Both types of labels are left-aligned. [FUTURE PLANS: For platform-specific horizontal alignment rules, use a Form.]
+// Labels are left-aligned. [FUTURE PLANS: For platform-specific horizontal alignment rules, use a Form.]
 type Label interface {
 	Control
 
 	// Text and SetText get and set the Label's text.
 	Text() string
 	SetText(text string)
-
-	isStandalone() bool
 }
 
 // NewLabel creates a new Label with the given text.
-// The Label will smartly vertically position itself relative to the control to its immediate right.
 func NewLabel(text string) Label {
 	return newLabel(text)
-}
-
-// NewStandaloneLabel creates a new Label with the given text.
-// The Label will be vertically positioned at the top of its allocated space.
-func NewStandaloneLabel(text string) Label {
-	return newStandaloneLabel(text)
 }
 
 // Group is a Control that holds a single Control; if that Control also contains other Controls, then the Controls will appear visually grouped together.
@@ -121,6 +110,11 @@ type Group interface {
 	// Text and SetText get and set the Group's label text.
 	Text() string
 	SetText(text string)
+
+	// Margined and SetMargined get and set whether the contents of the Group have a margin around them.
+	// The size of the margin is platform-dependent.
+	Margined() bool
+	SetMargined(margined bool)
 }
 
 // NewGroup creates a new Group with the given text label and child Control.

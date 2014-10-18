@@ -10,6 +10,7 @@ import (
 
 // #include "gtk_unix.h"
 // extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
+// extern void windowResized(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type window struct {
@@ -22,7 +23,10 @@ type window struct {
 
 	closing *event
 
-	*container
+	child			Control
+	container		*container
+
+	margined		bool
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
@@ -35,6 +39,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 		bin:     (*C.GtkBin)(unsafe.Pointer(widget)),
 		window:  (*C.GtkWindow)(unsafe.Pointer(widget)),
 		closing: newEvent(),
+		child:	control,
 	}
 	C.gtk_window_set_title(w.window, ctitle)
 	g_signal_connect(
@@ -43,8 +48,15 @@ func newWindow(title string, width int, height int, control Control) *window {
 		C.GCallback(C.windowClosing),
 		C.gpointer(unsafe.Pointer(w)))
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
-	w.container = newContainer(control)
+	w.container = newContainer()
+	w.child.setParent(w.container.parent())
 	w.container.setParent(&controlParent{w.wc})
+	// notice that we connect this to the container
+	g_signal_connect_after(		// so we get it after the child container has been allocated
+		C.gpointer(unsafe.Pointer(w.container.widget)),
+		"size-allocate",
+		C.GCallback(C.windowResized),
+		C.gpointer(unsafe.Pointer(w)))
 	// for dialogs; otherwise, they will be modal to all windows, not just this one
 	w.group = C.gtk_window_group_new()
 	C.gtk_window_group_add_window(w.group, w.window)
@@ -77,6 +89,14 @@ func (w *window) OnClosing(e func() bool) {
 	w.closing.setbool(e)
 }
 
+func (w *window) Margined() bool {
+	return w.margined
+}
+
+func (w *window) SetMargined(margined bool) {
+	w.margined = margined
+}
+
 //export windowClosing
 func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean {
 	w := (*window)(unsafe.Pointer(data))
@@ -85,4 +105,12 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 		return C.GDK_EVENT_PROPAGATE // will do gtk_widget_destroy(), which is what we want (thanks ebassi in irc.gimp.net/#gtk+)
 	}
 	return C.GDK_EVENT_STOP // keeps window alive
+}
+
+//export windowResized
+func windowResized(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
+	w := (*window)(unsafe.Pointer(data))
+	a := w.container.allocation(w.margined)
+	d := w.beginResize()
+	w.child.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
 }

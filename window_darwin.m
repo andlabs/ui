@@ -20,6 +20,11 @@
 	return windowClosing(self->gowin);
 }
 
+- (void)windowDidResize:(NSNotification *)note
+{
+	windowResized(self->gowin);
+}
+
 @end
 
 id newWindow(intptr_t width, intptr_t height)

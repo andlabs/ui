@@ -13,7 +13,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 	RECT r;
 	LRESULT lResult;
 
-	data = (void *) getWindowData(hwnd, uMsg, wParam, lParam, &lResult, storeWindowHWND);
+	data = (void *) getWindowData(hwnd, uMsg, wParam, lParam, &lResult);
 	if (data == NULL)
 		return lResult;
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))

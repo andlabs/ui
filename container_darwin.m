@@ -21,12 +21,6 @@
 
 @implementation goContainerView
 
-- (void)setFrameSize:(NSSize)s
-{
-	[super setFrameSize:s];
-	containerResized(self->gocontainer, (intptr_t) s.width, (intptr_t) s.height);
-}
-
 @end
 
 id newContainerView(void *gocontainer)
@@ -40,5 +34,25 @@ id newContainerView(void *gocontainer)
 
 void moveControl(id c, intptr_t x, intptr_t y, intptr_t width, intptr_t height)
 {
-	[toNSView(c) setFrame:NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) width, (CGFloat) height)];
+	NSView *v;
+	NSRect frame;
+
+	frame = NSMakeRect((CGFloat) x, (CGFloat) y, (CGFloat) width, (CGFloat) height);
+	// mac os x coordinate system has (0,0) in the lower-left
+	v = toNSView(c);
+	frame.origin.y = ([[v superview] bounds].size.height - frame.size.height) - frame.origin.y;
+	[v setFrame:frame];
+}
+
+struct xrect containerBounds(id view)
+{
+	NSRect b;
+	struct xrect r;
+
+	b = [toNSView(view) bounds];
+	r.x = (intptr_t) b.origin.x;
+	r.y = (intptr_t) b.origin.y;
+	r.width = (intptr_t) b.size.width;
+	r.height = (intptr_t) b.size.height;
+	return r;
 }

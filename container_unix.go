@@ -12,9 +12,8 @@ import (
 import "C"
 
 type container struct {
-	containerbase
-	layoutwidget    *C.GtkWidget
-	layoutcontainer *C.GtkContainer
+	*controlSingleWidget
+	container *C.GtkContainer
 }
 
 type sizing struct {
@@ -24,27 +23,40 @@ type sizing struct {
 	// gtk+ needs nothing
 
 	// for the actual resizing
-	shouldVAlignTop bool
+	// gtk+ needs nothing
 }
 
-func newContainer(child Control) *container {
+func newContainer() *container {
 	c := new(container)
-	widget := C.newContainer(unsafe.Pointer(c))
-	c.layoutwidget = widget
-	c.layoutcontainer = (*C.GtkContainer)(unsafe.Pointer(widget))
-	c.child = child
-	c.child.setParent(&controlParent{c.layoutcontainer})
+	c.controlSingleWidget = newControlSingleWidget(C.newContainer(unsafe.Pointer(c)))
+	c.container = (*C.GtkContainer)(unsafe.Pointer(c.widget))
 	return c
 }
 
-func (c *container) setParent(p *controlParent) {
-	C.gtk_container_add(p.c, c.layoutwidget)
+func (c *container) parent() *controlParent {
+	return &controlParent{c.container}
 }
 
-//export containerResizing
-func containerResizing(data unsafe.Pointer, r *C.GtkAllocation) {
-	c := (*container)(data)
-	c.resize(int(r.x), int(r.y), int(r.width), int(r.height))
+func (c *container) allocation(margined bool) C.GtkAllocation {
+	var a C.GtkAllocation
+
+	C.gtk_widget_get_allocation(c.widget, &a)
+	if margined {
+		a.x += C.int(gtkXMargin)
+		a.y += C.int(gtkYMargin)
+		a.width -= C.int(gtkXMargin) * 2
+		a.height -= C.int(gtkYMargin) * 2
+	}
+	return a
+}
+
+// we can just return these values as is
+// note that allocations of a widget on GTK+ have their origin in the /window/ origin
+func (c *container) bounds(d *sizing) (int, int, int, int) {
+	var a C.GtkAllocation
+
+	C.gtk_widget_get_allocation(c.widget, &a)
+	return int(a.x), int(a.y), int(a.width), int(a.height)
 }
 
 const (
@@ -54,18 +66,9 @@ const (
 	gtkYPadding = 6
 )
 
-func (c *container) beginResize() (d *sizing) {
+func (w *window) beginResize() (d *sizing) {
 	d = new(sizing)
-	if spaced {
-		d.xmargin = gtkXMargin
-		d.ymargintop = gtkYMargin
-		d.ymarginbottom = d.ymargintop
-		d.xpadding = gtkXPadding
-		d.ypadding = gtkYPadding
-	}
+	d.xpadding = gtkXPadding
+	d.ypadding = gtkYPadding
 	return d
-}
-
-func (c *container) translateAllocationCoords(allocations []*allocation, winwidth, winheight int) {
-	// no need for coordinate conversion with gtk+
 }

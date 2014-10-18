@@ -9,40 +9,34 @@ import (
 )
 
 // #include "gtk_unix.h"
-// extern void buttonClicked(GtkButton *, gpointer);
-// extern void checkboxToggled(GtkToggleButton *, gpointer);
 import "C"
 
 type label struct {
-	_widget    *C.GtkWidget
+	*controlSingleWidget
 	misc       *C.GtkMisc
 	label      *C.GtkLabel
-	standalone bool
 }
 
-func finishNewLabel(text string, standalone bool) *label {
+func newLabel(text string) Label {
 	ctext := togstr(text)
 	defer freegstr(ctext)
 	widget := C.gtk_label_new(ctext)
 	l := &label{
-		_widget:    widget,
+		controlSingleWidget:    newControlSingleWidget(widget),
 		misc:       (*C.GtkMisc)(unsafe.Pointer(widget)),
 		label:      (*C.GtkLabel)(unsafe.Pointer(widget)),
-		standalone: standalone,
 	}
 	return l
 }
 
-func newLabel(text string) Label {
-	return finishNewLabel(text, false)
-}
-
+/*TODO
 func newStandaloneLabel(text string) Label {
 	l := finishNewLabel(text, true)
 	// standalone labels are always at the top left
 	C.gtk_misc_set_alignment(l.misc, 0, 0)
 	return l
 }
+*/
 
 func (l *label) Text() string {
 	return fromgstr(C.gtk_label_get_text(l.label))
@@ -54,26 +48,7 @@ func (l *label) SetText(text string) {
 	C.gtk_label_set_text(l.label, ctext)
 }
 
-func (l *label) isStandalone() bool {
-	return l.standalone
-}
-
-func (l *label) widget() *C.GtkWidget {
-	return l._widget
-}
-
-func (l *label) setParent(p *controlParent) {
-	basesetParent(l, p)
-}
-
-func (l *label) allocate(x int, y int, width int, height int, d *sizing) []*allocation {
-	return baseallocate(l, x, y, width, height, d)
-}
-
-func (l *label) preferredSize(d *sizing) (width, height int) {
-	return basepreferredSize(l, d)
-}
-
+/*TODO
 func (l *label) commitResize(c *allocation, d *sizing) {
 	if !l.standalone && c.neighbor != nil {
 		c.neighbor.getAuxResizeInfo(d)
@@ -86,7 +61,4 @@ func (l *label) commitResize(c *allocation, d *sizing) {
 	}
 	basecommitResize(l, c, d)
 }
-
-func (l *label) getAuxResizeInfo(d *sizing) {
-	basegetAuxResizeInfo(l, d)
-}
+*/
