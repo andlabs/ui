@@ -257,7 +257,7 @@ void tableUpdate(goTableModel *t, gint old, gint new)
 	for (i = 0; i < nUpdate; i++) {
 		path = gtk_tree_path_new_from_indices(i, -1);
 		iter.user_data = TO(i);
-		g_signal_emit_by_name(t, "row-updated", path, &iter);
+		g_signal_emit_by_name(t, "row-changed", path, &iter);
 	}
 	// finally, remove deleted items
 	if (old > new)
