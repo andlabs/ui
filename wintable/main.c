@@ -47,27 +47,22 @@ static void drawItems(struct table *t, HDC dc)
 		abort();
 	y = 0;
 	for (i = 0; i < 100; i++) {
+		RECT rsel;
+		HBRUSH background;
+
 		// TODO check errors
 		// TODO verify correct colors
+		rsel.left = r.left;
+		rsel.top = y;
+		rsel.right = r.right - r.left;
+		rsel.bottom = y + tm.tmHeight;
+		background = (HBRUSH) (COLOR_WINDOW + 1);
 		if (t->selected == i) {
-			RECT rsel;
-
+			background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
 			SetTextColor(dc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-			rsel.left = r.left;
-			rsel.top = y;
-			rsel.right = r.right - r.left;
-			rsel.bottom = y + tm.tmHeight;
-			FillRect(dc, &rsel, (HBRUSH) (COLOR_HIGHLIGHT + 1));
-		} else {
-			RECT rsel;
-
+		} else
 			SetTextColor(dc, GetSysColor(COLOR_WINDOWTEXT));
-			rsel.left = r.left;
-			rsel.top = y;
-			rsel.right = r.right - r.left;
-			rsel.bottom = y + tm.tmHeight;
-			FillRect(dc, &rsel, (HBRUSH) (COLOR_WINDOW + 1));
-		}
+		FillRect(dc, &rsel, background);
 		SetBkMode(dc, TRANSPARENT);
 		TextOutW(dc, r.left, y, L"Item", 4);
 		y += tm.tmHeight;
