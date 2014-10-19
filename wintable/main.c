@@ -28,6 +28,7 @@ struct table {
 	HFONT defaultFont;
 	HFONT font;
 	intptr_t selected;
+	intptr_t count;
 };
 
 static void drawItems(struct table *t, HDC dc)
@@ -46,7 +47,7 @@ static void drawItems(struct table *t, HDC dc)
 	if (GetTextMetricsW(dc, &tm) == 0)
 		abort();
 	y = 0;
-	for (i = 0; i < 100; i++) {
+	for (i = 0; i < t->count; i++) {
 		RECT rsel;
 		HBRUSH background;
 
@@ -89,7 +90,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		if (t->defaultFont == NULL)
 			abort();
 		t->font = t->defaultFont;
-t->selected = 5;//TODO
+t->selected = 5;t->count=100;//TODO
 		SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 	}
 	switch (uMsg) {
