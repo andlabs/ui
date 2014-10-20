@@ -33,7 +33,7 @@ struct table {
 
 static void drawItems(struct table *t, HDC dc)
 {
-	HFONT prevfont;
+	HFONT thisfont, prevfont;
 	TEXTMETRICW tm;
 	LONG y;
 	intptr_t i;
@@ -41,7 +41,8 @@ static void drawItems(struct table *t, HDC dc)
 
 	if (GetClientRect(t->hwnd, &r) == 0)
 		abort();
-	prevfont = (HFONT) SelectObject(dc, t->font);
+	thisfont = t->font;		// in case WM_SETFONT happens before we return
+	prevfont = (HFONT) SelectObject(dc, thisfont);
 	if (prevfont == NULL)
 		abort();
 	if (GetTextMetricsW(dc, &tm) == 0)
@@ -68,7 +69,7 @@ static void drawItems(struct table *t, HDC dc)
 		TextOutW(dc, r.left, y, L"Item", 4);
 		y += tm.tmHeight;
 	}
-	if (SelectObject(dc, prevfont) != (HGDIOBJ) (t->font))
+	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
 		abort();
 }
 
