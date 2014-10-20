@@ -30,7 +30,67 @@ struct table {
 	intptr_t selected;
 	intptr_t count;
 	intptr_t firstVisible;
+	intptr_t pagesize;
 };
+
+static void vscroll(struct table *t, WPARAM wParam)
+{
+	SCROLLINFO si;
+	intptr_t newpos;
+
+	ZeroMemory(&si, sizeof (SCROLLINFO));
+	si.cbSize = sizeof (SCROLLINFO);
+	si.fMask = SIF_POS | SIF_TRACKPOS;
+	if (GetScrollInfo(t->hwnd, SB_VERT, &si) == 0)
+		abort();
+
+	newpos = t->firstVisible;
+	switch (LOWORD(wParam)) {
+	case SB_TOP:
+		newpos = 0;
+		break;
+	case SB_BOTTOM:
+		newpos = t->count - t->pagesize;
+		break;
+	case SB_LINEUP:
+		newpos--;
+		break;
+	case SB_LINEDOWN:
+		newpos++;
+		break;
+	case SB_PAGEUP:
+		newpos -= t->pagesize;
+		break;
+	case SB_PAGEDOWN:
+		newpos += t->pagesize;
+		break;
+	case SB_THUMBPOSITION:
+		newpos = (intptr_t) (si.nPos);
+		break;
+	case SB_THUMBTRACK:
+		newpos = (intptr_t) (si.nTrackPos);
+	}
+	if (newpos < 0)
+		newpos = 0;
+	if (newpos > (t->count - t->pagesize))
+		newpos = (t->count - t->pagesize);
+
+	// negative because ScrollWindowEx() is "backwards"
+	if (ScrollWindowEx(t->hwnd, 0, -(newpos - t->firstVisible),
+		NULL, NULL, NULL, NULL,
+		SW_ERASE | SW_INVALIDATE) == ERROR)
+		abort();
+	t->firstVisible = newpos;
+
+	ZeroMemory(&si, sizeof (SCROLLINFO));
+	si.cbSize = sizeof (SCROLLINFO);
+	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
+	si.nPage = t->pagesize;
+	si.nMin = 0;
+	si.nMax = t->count - 1;		// nMax is inclusive
+	si.nPos = t->firstVisible;
+	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+}
 
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
 {
@@ -104,6 +164,8 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	struct table *t;
 	HDC dc;
 	PAINTSTRUCT ps;
+	RECT r;
+	SCROLLINFO si;
 
 	t = (struct table *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (t == NULL) {
@@ -137,6 +199,21 @@ t->selected = 5;t->count=100;//TODO
 		return 0;
 	case WM_GETFONT:
 		return (LRESULT) t->font;
+	case WM_VSCROLL:
+		vscroll(t, wParam);
+		return 0;
+	case WM_SIZE:
+		if (GetClientRect(hwnd, &r) == 0)
+			abort();
+		/*TODO
+		t->pagesize = (r.bottom - r.top) / tm.tmHeight;
+		ZeroMemory(&si, sizeof (SCROLLINFO));
+		si.cbSize = sizeof (SCROLLINFO);
+		si.fMask = SIF_PAGE;
+		si.nPage = t->pagesize;
+		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
+		*/
+		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
