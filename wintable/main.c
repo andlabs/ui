@@ -60,6 +60,32 @@ static LONG rowHeight(struct table *t)
 	return tm.tmHeight;
 }
 
+static void redrawAll(struct table *t)
+{
+	if (InvalidateRect(t->hwnd, NULL, TRUE) == 0)
+		abort();
+	if (UpdateWindow(t->hwnd) == 0)
+		abort();
+}
+
+static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	int x, y;
+	LONG h;
+
+	x = GET_X_LPARAM(lParam);
+	y = GET_Y_LPARAM(lParam);
+	h = rowHeight(t);
+	y += t->firstVisible * h;
+	y /= h;
+	t->selected = y;
+	if (t->selected >= t->count)
+		t->selected = -1;
+	// TODO update only the old and new selected items
+	redrawAll(t);
+	// TODO scroll to the selected item if it's not entirely visible
+}
+
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
@@ -271,8 +297,11 @@ t->selected = 5;t->count=100;//TODO
 		t->font = (HFONT) wParam;
 		if (t->font == NULL)
 			t->font = t->defaultFont;
-		if (LOWORD(lParam) != FALSE)
-			;	// TODO
+		if (LOWORD(lParam) != FALSE) {
+			// the scrollbar page size will change so redraw that too
+			resize(t);
+			redrawAll(t);
+		}
 		return 0;
 	case WM_GETFONT:
 		return (LRESULT) t->font;
@@ -284,6 +313,9 @@ t->selected = 5;t->count=100;//TODO
 		return 0;
 	case WM_SIZE:
 		resize(t);
+		return 0;
+	case WM_LBUTTONDOWN:
+		selectItem(t, wParam, lParam);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
