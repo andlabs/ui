@@ -35,8 +35,26 @@ struct table {
 
 static void vscroll(struct table *t, WPARAM wParam)
 {
+	HFONT thisfont, prevfont;
+	TEXTMETRICW tm;
+	HDC dc;
 	SCROLLINFO si;
 	intptr_t newpos;
+
+	// TODO split into a function
+	dc = GetDC(t->hwnd);
+	if (dc == NULL)
+		abort();
+	thisfont = t->font;		// in case WM_SETFONT happens before we return
+	prevfont = (HFONT) SelectObject(dc, thisfont);
+	if (prevfont == NULL)
+		abort();
+	if (GetTextMetricsW(dc, &tm) == 0)
+		abort();
+	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
+		abort();
+	if (ReleaseDC(t->hwnd, dc) == 0)
+		abort();
 
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
@@ -76,7 +94,7 @@ static void vscroll(struct table *t, WPARAM wParam)
 		newpos = (t->count - t->pagesize);
 
 	// negative because ScrollWindowEx() is "backwards"
-	if (ScrollWindowEx(t->hwnd, 0, -(newpos - t->firstVisible),
+	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * tm.tmHeight,
 		NULL, NULL, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
@@ -89,6 +107,39 @@ static void vscroll(struct table *t, WPARAM wParam)
 	si.nMin = 0;
 	si.nMax = t->count - 1;		// nMax is inclusive
 	si.nPos = t->firstVisible;
+	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+}
+
+static void resize(struct table *t)
+{
+	HFONT thisfont, prevfont;
+	TEXTMETRICW tm;
+	HDC dc;
+	RECT r;
+	SCROLLINFO si;
+
+	if (GetClientRect(t->hwnd, &r) == 0)
+		abort();
+	dc = GetDC(t->hwnd);
+	if (dc == NULL)
+		abort();
+	thisfont = t->font;		// in case WM_SETFONT happens before we return
+	prevfont = (HFONT) SelectObject(dc, thisfont);
+	if (prevfont == NULL)
+		abort();
+	if (GetTextMetricsW(dc, &tm) == 0)
+		abort();
+	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
+		abort();
+	if (ReleaseDC(t->hwnd, dc) == 0)
+		abort();
+	t->pagesize = (r.bottom - r.top) / tm.tmHeight;
+	ZeroMemory(&si, sizeof (SCROLLINFO));
+	si.cbSize = sizeof (SCROLLINFO);
+	si.fMask = SIF_RANGE | SIF_PAGE;
+	si.nMin = 0;
+	si.nMax = t->count - 1;
+	si.nPage = t->pagesize;
 	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
 }
 
@@ -164,8 +215,6 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	struct table *t;
 	HDC dc;
 	PAINTSTRUCT ps;
-	RECT r;
-	SCROLLINFO si;
 
 	t = (struct table *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (t == NULL) {
@@ -203,16 +252,7 @@ t->selected = 5;t->count=100;//TODO
 		vscroll(t, wParam);
 		return 0;
 	case WM_SIZE:
-		if (GetClientRect(hwnd, &r) == 0)
-			abort();
-		/*TODO
-		t->pagesize = (r.bottom - r.top) / tm.tmHeight;
-		ZeroMemory(&si, sizeof (SCROLLINFO));
-		si.cbSize = sizeof (SCROLLINFO);
-		si.fMask = SIF_PAGE;
-		si.nPage = t->pagesize;
-		SetScrollInfo(hwnd, SB_VERT, &si, TRUE);
-		*/
+		resize(t);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
