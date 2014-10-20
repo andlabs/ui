@@ -34,7 +34,7 @@ struct table {
 	intptr_t selected;
 	intptr_t count;
 	intptr_t firstVisible;
-	intptr_t pagesize;
+	intptr_t pagesize;		// in rows
 	int wheelCarry;
 };
 
@@ -66,6 +66,43 @@ static void redrawAll(struct table *t)
 		abort();
 	if (UpdateWindow(t->hwnd) == 0)
 		abort();
+}
+
+static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	// TODO what happens if up/page up is pressed with nothing selected?
+	if (t->count == 0)		// don't try to do anything if there's nothing to do
+		return;
+	switch (wParam) {
+	case VK_UP:
+		t->selected--;
+		break;
+	case VK_DOWN:
+		t->selected++;
+		break;
+	case VK_PRIOR:
+		t->selected -= t->pagesize;
+		break;
+	case VK_NEXT:
+		t->selected += t->pagesize;
+		break;
+	case VK_HOME:
+		t->selected = 0;
+		break;
+	case VK_END:
+		t->selected = t->count - 1;
+		break;
+	default:
+		// don't touch anything
+		return;
+	}
+	if (t->selected < 0)
+		t->selected = 0;
+	if (t->selected >= t->count)
+		t->selected = t->count - 1;
+	// TODO update only the old and new selected items
+	redrawAll(t);
+	// TODO scroll to the selected item if it's not entirely visible
 }
 
 static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
@@ -331,6 +368,9 @@ t->selected = 5;t->count=100;//TODO
 		// TODO localize to just the selected item
 		// TODO ensure giving focus works right
 		redrawAll(t);
+		return 0;
+	case WM_KEYDOWN:
+		keySelect(t, wParam, lParam);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
