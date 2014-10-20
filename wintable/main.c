@@ -19,7 +19,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-// #qo LIBS: user32 kernel32 gdi32
+// #qo LIBS: user32 kernel32 gdi32 comctl32
 
 // TODO
 // - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx (relies on the integrality parts? IDK)
@@ -36,6 +36,8 @@ struct table {
 	intptr_t firstVisible;
 	intptr_t pagesize;		// in rows
 	int wheelCarry;
+	HWND header;
+	int headerHeight;
 };
 
 static LONG rowHeight(struct table *t)
@@ -220,6 +222,8 @@ static void resize(struct table *t)
 {
 	RECT r;
 	SCROLLINFO si;
+	HDLAYOUT headerlayout;
+	WINDOWPOS headerpos;
 
 	if (GetClientRect(t->hwnd, &r) == 0)
 		abort();
@@ -231,6 +235,13 @@ static void resize(struct table *t)
 	si.nMax = t->count - 1;
 	si.nPage = t->pagesize;
 	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+	headerlayout.prc = &r;
+	headerlayout.pwpos = &headerpos;
+	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&headerlayout)) == FALSE)
+		abort();
+	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
+		abort();
+	t->headerHeight = headerpos.cy;
 }
 
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
@@ -317,18 +328,42 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
 	t = (struct table *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (t == NULL) {
-		t = (struct table *) malloc(sizeof (struct table));
-		if (t == NULL)
-			abort();
-		ZeroMemory(t, sizeof (struct table));
-		t->hwnd = hwnd;
-		// TODO this should be a global
-		t->defaultFont = (HFONT) GetStockObject(SYSTEM_FONT);
-		if (t->defaultFont == NULL)
-			abort();
-		t->font = t->defaultFont;
+		// we have to do things this way because creating the header control will fail mysteriously if we create it first thing
+		// (which is fine; we can get the parent hInstance this way too)
+		if (uMsg == WM_NCCREATE) {
+			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
+
+			t = (struct table *) malloc(sizeof (struct table));
+			if (t == NULL)
+				abort();
+			ZeroMemory(t, sizeof (struct table));
+			t->hwnd = hwnd;
+			// TODO this should be a global
+			t->defaultFont = (HFONT) GetStockObject(SYSTEM_FONT);
+			if (t->defaultFont == NULL)
+				abort();
+			t->font = t->defaultFont;
 t->selected = 5;t->count=100;//TODO
-		SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
+			t->header = CreateWindowExW(0,
+				WC_HEADERW, L"",
+				// TODO is HOTTRACK needed?
+				WS_CHILD | HDS_FULLDRAG | HDS_HORZ | HDS_HOTTRACK,
+				0, 0, 0, 0,
+				t->hwnd, (HMENU) 100, cs->hInstance, NULL);
+			if (t->header == NULL)
+				abort();
+{HDITEMW item;
+ZeroMemory(&item, sizeof (HDITEMW));
+item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
+item.cxy = 200;
+item.pszText = L"Column";
+item.fmt = HDF_LEFT | HDF_STRING;
+if (SendMessage(t->header, HDM_INSERTITEM, 0, (LPARAM) (&item)) == (LRESULT) (-1))
+abort();}
+			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
+		}
+		// even if we did the above, fall through
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	switch (uMsg) {
 	case WM_PAINT:
@@ -342,8 +377,12 @@ t->selected = 5;t->count=100;//TODO
 		t->font = (HFONT) wParam;
 		if (t->font == NULL)
 			t->font = t->defaultFont;
+		// also set the header font
+		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
 		if (LOWORD(lParam) != FALSE) {
 			// the scrollbar page size will change so redraw that too
+			// also recalculate the header height
+			// TODO do that when this is FALSE too somehow
 			resize(t);
 			redrawAll(t);
 		}
@@ -399,7 +438,13 @@ int main(void)
 {
 	HWND mainwin;
 	MSG msg;
+	INITCOMMONCONTROLSEX icc;
 
+	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
+	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
+	icc.dwICC = ICC_LISTVIEW_CLASSES;
+	if (InitCommonControlsEx(&icc) == 0)
+		abort();
 	makeTableWindowClass();
 	mainwin = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
