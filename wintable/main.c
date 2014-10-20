@@ -31,24 +31,36 @@ struct table {
 	intptr_t count;
 };
 
-static void drawItems(struct table *t, HDC dc)
+static void drawItems(struct table *t, HDC dc, RECT cliprect)
 {
 	HFONT thisfont, prevfont;
 	TEXTMETRICW tm;
 	LONG y;
 	intptr_t i;
 	RECT r;
+	intptr_t first, last;
 
+	// TODO eliminate the need (only use cliprect)
 	if (GetClientRect(t->hwnd, &r) == 0)
 		abort();
+
 	thisfont = t->font;		// in case WM_SETFONT happens before we return
 	prevfont = (HFONT) SelectObject(dc, thisfont);
 	if (prevfont == NULL)
 		abort();
 	if (GetTextMetricsW(dc, &tm) == 0)
 		abort();
+
+	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
+	first = cliprect.top / tm.tmHeight;
+	if (first < 0)
+		first = 0;
+	last = (cliprect.bottom + tm.tmHeight - 1) / tm.tmHeight;
+	if (last >= t->count)
+		last = t->count;
+
 	y = 0;
-	for (i = 0; i < t->count; i++) {
+	for (i = first; i < last; i++) {
 		RECT rsel;
 		HBRUSH background;
 
@@ -69,6 +81,7 @@ static void drawItems(struct table *t, HDC dc)
 		TextOutW(dc, r.left, y, L"Item", 4);
 		y += tm.tmHeight;
 	}
+
 	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
 		abort();
 }
@@ -99,7 +112,7 @@ t->selected = 5;t->count=100;//TODO
 		dc = BeginPaint(hwnd, &ps);
 		if (dc == NULL)
 			abort();
-		drawItems(t, dc);
+		drawItems(t, dc, ps.rcPaint);
 		EndPaint(hwnd, &ps);
 		return 0;
 	case WM_SETFONT:
@@ -128,6 +141,7 @@ void makeTableWindowClass(void)
 	wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
 	wc.hIcon = LoadIconW(NULL, IDI_APPLICATION);
 	wc.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);		// TODO correct?
+	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.hInstance = GetModuleHandle(NULL);
 	if (RegisterClassW(&wc) == 0)
 		abort();
