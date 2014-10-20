@@ -31,15 +31,15 @@ struct table {
 	intptr_t count;
 	intptr_t firstVisible;
 	intptr_t pagesize;
+	int wheelCarry;
 };
 
-static void vscroll(struct table *t, WPARAM wParam)
+static void vscrollto(struct table *t, intptr_t newpos)
 {
 	HFONT thisfont, prevfont;
 	TEXTMETRICW tm;
 	HDC dc;
 	SCROLLINFO si;
-	intptr_t newpos;
 
 	// TODO split into a function
 	dc = GetDC(t->hwnd);
@@ -55,6 +55,59 @@ static void vscroll(struct table *t, WPARAM wParam)
 		abort();
 	if (ReleaseDC(t->hwnd, dc) == 0)
 		abort();
+
+	if (newpos < 0)
+		newpos = 0;
+	if (newpos > (t->count - t->pagesize))
+		newpos = (t->count - t->pagesize);
+
+	// negative because ScrollWindowEx() is "backwards"
+	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * tm.tmHeight,
+		NULL, NULL, NULL, NULL,
+		SW_ERASE | SW_INVALIDATE) == ERROR)
+		abort();
+	t->firstVisible = newpos;
+
+	ZeroMemory(&si, sizeof (SCROLLINFO));
+	si.cbSize = sizeof (SCROLLINFO);
+	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
+	si.nPage = t->pagesize;
+	si.nMin = 0;
+	si.nMax = t->count - 1;		// nMax is inclusive
+	si.nPos = t->firstVisible;
+	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+}
+
+static void vscrollby(struct table *t, intptr_t n)
+{
+	vscrollto(t, t->firstVisible + n);
+}
+
+static void wheelscroll(struct table *t, WPARAM wParam)
+{
+	int delta;
+	int lines;
+	UINT scrollAmount;
+
+	delta = GET_WHEEL_DELTA_WPARAM(wParam);
+	if (SystemParametersInfoW(SPI_GETWHEELSCROLLLINES, 0, &scrollAmount, 0) == 0)
+		abort();
+	if (scrollAmount == WHEEL_PAGESCROLL)
+		scrollAmount = t->pagesize;
+	if (scrollAmount == 0)		// no mouse wheel scrolling (or t->pagesize == 0)
+		return;
+	// the rest of this is basically http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54615.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54624.aspx
+	// see those pages for information on subtleties
+	delta += t->wheelCarry;
+	lines = delta * ((int) scrollAmount) / WHEEL_DELTA;
+	t->wheelCarry = delta - lines * WHEEL_DELTA / ((int) scrollAmount);
+	vscrollby(t, -lines);
+}
+
+static void vscroll(struct table *t, WPARAM wParam)
+{
+	SCROLLINFO si;
+	intptr_t newpos;
 
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
@@ -88,26 +141,8 @@ static void vscroll(struct table *t, WPARAM wParam)
 	case SB_THUMBTRACK:
 		newpos = (intptr_t) (si.nTrackPos);
 	}
-	if (newpos < 0)
-		newpos = 0;
-	if (newpos > (t->count - t->pagesize))
-		newpos = (t->count - t->pagesize);
 
-	// negative because ScrollWindowEx() is "backwards"
-	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * tm.tmHeight,
-		NULL, NULL, NULL, NULL,
-		SW_ERASE | SW_INVALIDATE) == ERROR)
-		abort();
-	t->firstVisible = newpos;
-
-	ZeroMemory(&si, sizeof (SCROLLINFO));
-	si.cbSize = sizeof (SCROLLINFO);
-	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-	si.nPage = t->pagesize;
-	si.nMin = 0;
-	si.nMax = t->count - 1;		// nMax is inclusive
-	si.nPos = t->firstVisible;
-	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+	vscrollto(t, newpos);
 }
 
 static void resize(struct table *t)
@@ -250,6 +285,9 @@ t->selected = 5;t->count=100;//TODO
 		return (LRESULT) t->font;
 	case WM_VSCROLL:
 		vscroll(t, wParam);
+		return 0;
+	case WM_MOUSEWHEEL:
+		wheelscroll(t, wParam);
 		return 0;
 	case WM_SIZE:
 		resize(t);
