@@ -71,6 +71,16 @@ static void redrawAll(struct table *t)
 		abort();
 }
 
+static RECT realClientRect(struct table *t)
+{
+	RECT r;
+
+	if (GetClientRect(t->hwnd, &r) == 0)
+		abort();
+	r.top += t->headerHeight;
+	return r;
+}
+
 static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 {
 	// TODO what happens if up/page up is pressed with nothing selected?
@@ -129,15 +139,18 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
+	RECT scrollArea;
 
 	if (newpos < 0)
 		newpos = 0;
 	if (newpos > (t->count - t->pagesize))
 		newpos = (t->count - t->pagesize);
 
+	scrollArea = realClientRect(t);
+
 	// negative because ScrollWindowEx() is "backwards"
 	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * rowHeight(t),
-		NULL, NULL, NULL, NULL,
+		&scrollArea, &scrollArea, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
 	t->firstVisible = newpos;
@@ -226,8 +239,19 @@ static void resize(struct table *t)
 	HDLAYOUT headerlayout;
 	WINDOWPOS headerpos;
 
-	if (GetClientRect(t->hwnd, &r) == 0)
+	// do this first so our scrollbar calculations can be correct
+	if (GetClientRect(t->hwnd, &r) == 0)		// use the whole client rect
 		abort();
+	headerlayout.prc = &r;
+	headerlayout.pwpos = &headerpos;
+	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&headerlayout)) == FALSE)
+		abort();
+	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
+		abort();
+	t->headerHeight = headerpos.cy;
+
+	// now adjust the scrollbars
+	r = realClientRect(t);
 	t->pagesize = (r.bottom - r.top) / rowHeight(t);
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
@@ -236,13 +260,6 @@ static void resize(struct table *t)
 	si.nMax = t->count - 1;
 	si.nPage = t->pagesize;
 	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
-	headerlayout.prc = &r;
-	headerlayout.pwpos = &headerpos;
-	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&headerlayout)) == FALSE)
-		abort();
-	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
-		abort();
-	t->headerHeight = headerpos.cy;
 }
 
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
@@ -275,6 +292,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
+	// this is also why we kept cliprect unaware of t->headerHeight above
 	first = cliprect.top / tm.tmHeight;
 	if (first < 0)
 		first = 0;
