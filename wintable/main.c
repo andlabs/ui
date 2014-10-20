@@ -237,20 +237,28 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	for (i = first; i < last; i++) {
 		RECT rsel;
 		HBRUSH background;
+		int textColor;
 		WCHAR msg[100];
 
 		// TODO check errors
-		// TODO verify correct colors
 		rsel.left = r.left;
 		rsel.top = y;
 		rsel.right = r.right - r.left;
 		rsel.bottom = y + tm.tmHeight;
+		// TODO verify these two
 		background = (HBRUSH) (COLOR_WINDOW + 1);
+		textColor = COLOR_WINDOWTEXT;
 		if (t->selected == i) {
+			// these are the colors wine uses (http://source.winehq.org/source/dlls/comctl32/listview.c)
+			// the two for unfocused are also suggested by http://stackoverflow.com/questions/10428710/windows-forms-inactive-highlight-color
 			background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
-			SetTextColor(dc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-		} else
-			SetTextColor(dc, GetSysColor(COLOR_WINDOWTEXT));
+			textColor = COLOR_HIGHLIGHTTEXT;
+			if (GetFocus() != t->hwnd) {
+				background = (HBRUSH) (COLOR_BTNFACE + 1);
+				textColor = COLOR_BTNTEXT;
+			}
+		}
+		SetTextColor(dc, GetSysColor(textColor));
 		FillRect(dc, &rsel, background);
 		SetBkMode(dc, TRANSPARENT);
 		TextOutW(dc, r.left, y, msg, wsprintf(msg, L"Item %d", i));
@@ -316,6 +324,13 @@ t->selected = 5;t->count=100;//TODO
 		return 0;
 	case WM_LBUTTONDOWN:
 		selectItem(t, wParam, lParam);
+		return 0;
+	case WM_SETFOCUS:
+	case WM_KILLFOCUS:
+		// all we need to do here is redraw the highlight
+		// TODO localize to just the selected item
+		// TODO ensure giving focus works right
+		redrawAll(t);
 		return 0;
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
