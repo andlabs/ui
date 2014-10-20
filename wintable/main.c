@@ -29,6 +29,7 @@ struct table {
 	HFONT font;
 	intptr_t selected;
 	intptr_t count;
+	intptr_t firstVisible;
 };
 
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
@@ -39,6 +40,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	intptr_t i;
 	RECT r;
 	intptr_t first, last;
+	POINT prevOrigin;
 
 	// TODO eliminate the need (only use cliprect)
 	if (GetClientRect(t->hwnd, &r) == 0)
@@ -49,6 +51,14 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	if (prevfont == NULL)
 		abort();
 	if (GetTextMetricsW(dc, &tm) == 0)
+		abort();
+
+	// adjust the clip rect and the viewport so that (0, 0) is always the first item
+	if (OffsetRect(&cliprect, 0, t->firstVisible * tm.tmHeight) == 0)
+		abort();
+	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
+		abort();
+	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight), NULL) == 0)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
@@ -82,6 +92,9 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		y += tm.tmHeight;
 	}
 
+	// reset everything
+	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y, NULL) == 0)
+		abort();
 	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
 		abort();
 }
