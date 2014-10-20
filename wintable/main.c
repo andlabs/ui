@@ -21,6 +21,10 @@
 
 // #qo LIBS: user32 kernel32 gdi32
 
+// TODO
+// - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx (relies on the integrality parts? IDK)
+// 	- might want to http://blogs.msdn.com/b/oldnewthing/archive/2003/09/17/54944.aspx instead
+
 #define tableWindowClass L"gouitable"
 
 struct table {
