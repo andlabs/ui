@@ -180,7 +180,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	if (last >= t->count)
 		last = t->count;
 
-	y = 0;
+	y = first * tm.tmHeight;
 	for (i = first; i < last; i++) {
 		RECT rsel;
 		HBRUSH background;
