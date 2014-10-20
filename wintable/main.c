@@ -38,14 +38,12 @@ struct table {
 	int wheelCarry;
 };
 
-static void vscrollto(struct table *t, intptr_t newpos)
+static LONG rowHeight(struct table *t)
 {
 	HFONT thisfont, prevfont;
 	TEXTMETRICW tm;
 	HDC dc;
-	SCROLLINFO si;
 
-	// TODO split into a function
 	dc = GetDC(t->hwnd);
 	if (dc == NULL)
 		abort();
@@ -59,6 +57,12 @@ static void vscrollto(struct table *t, intptr_t newpos)
 		abort();
 	if (ReleaseDC(t->hwnd, dc) == 0)
 		abort();
+	return tm.tmHeight;
+}
+
+static void vscrollto(struct table *t, intptr_t newpos)
+{
+	SCROLLINFO si;
 
 	if (newpos < 0)
 		newpos = 0;
@@ -66,7 +70,7 @@ static void vscrollto(struct table *t, intptr_t newpos)
 		newpos = (t->count - t->pagesize);
 
 	// negative because ScrollWindowEx() is "backwards"
-	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * tm.tmHeight,
+	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * rowHeight(t),
 		NULL, NULL, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
@@ -151,28 +155,12 @@ static void vscroll(struct table *t, WPARAM wParam)
 
 static void resize(struct table *t)
 {
-	HFONT thisfont, prevfont;
-	TEXTMETRICW tm;
-	HDC dc;
 	RECT r;
 	SCROLLINFO si;
 
 	if (GetClientRect(t->hwnd, &r) == 0)
 		abort();
-	dc = GetDC(t->hwnd);
-	if (dc == NULL)
-		abort();
-	thisfont = t->font;		// in case WM_SETFONT happens before we return
-	prevfont = (HFONT) SelectObject(dc, thisfont);
-	if (prevfont == NULL)
-		abort();
-	if (GetTextMetricsW(dc, &tm) == 0)
-		abort();
-	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
-		abort();
-	if (ReleaseDC(t->hwnd, dc) == 0)
-		abort();
-	t->pagesize = (r.bottom - r.top) / tm.tmHeight;
+	t->pagesize = (r.bottom - r.top) / rowHeight(t);
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
 	si.fMask = SIF_RANGE | SIF_PAGE;
@@ -223,6 +211,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	for (i = first; i < last; i++) {
 		RECT rsel;
 		HBRUSH background;
+		WCHAR msg[100];
 
 		// TODO check errors
 		// TODO verify correct colors
@@ -238,7 +227,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 			SetTextColor(dc, GetSysColor(COLOR_WINDOWTEXT));
 		FillRect(dc, &rsel, background);
 		SetBkMode(dc, TRANSPARENT);
-		TextOutW(dc, r.left, y, L"Item", 4);
+		TextOutW(dc, r.left, y, msg, wsprintf(msg, L"Item %d", i));
 		y += tm.tmHeight;
 	}
 
