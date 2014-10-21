@@ -127,6 +127,7 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	y = GET_Y_LPARAM(lParam);
 	h = rowHeight(t);
 	y += t->firstVisible * h;
+	y -= t->headerHeight;
 	y /= h;
 	t->selected = y;
 	if (t->selected >= t->count)
