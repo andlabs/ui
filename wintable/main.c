@@ -39,6 +39,7 @@ struct table {
 	int wheelCarry;
 	HWND header;
 	int headerHeight;
+	intptr_t nColumns;
 };
 
 static LONG rowHeight(struct table *t)
@@ -81,9 +82,20 @@ static RECT realClientRect(struct table *t)
 	return r;
 }
 
+static void finishSelect(struct table *t)
+{
+	if (t->selected < 0)
+		t->selected = 0;
+	if (t->selected >= t->count)
+		t->selected = t->count - 1;
+	// TODO update only the old and new selected items
+	redrawAll(t);
+	// TODO scroll to the selected item if it's not entirely visible
+}
+
 static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 {
-	// TODO what happens if up/page up is pressed with nothing selected?
+	// TODO figure out correct behavior with nothing selected
 	if (t->count == 0)		// don't try to do anything if there's nothing to do
 		return;
 	switch (wParam) {
@@ -109,13 +121,7 @@ static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 		// don't touch anything
 		return;
 	}
-	if (t->selected < 0)
-		t->selected = 0;
-	if (t->selected >= t->count)
-		t->selected = t->count - 1;
-	// TODO update only the old and new selected items
-	redrawAll(t);
-	// TODO scroll to the selected item if it's not entirely visible
+	finishSelect(t);
 }
 
 static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
@@ -132,9 +138,7 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	t->selected = y;
 	if (t->selected >= t->count)
 		t->selected = -1;
-	// TODO update only the old and new selected items
-	redrawAll(t);
-	// TODO scroll to the selected item if it's not entirely visible
+	finishSelect(t);
 }
 
 // TODO on initial show the items are not arranged properly
@@ -272,12 +276,11 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	TEXTMETRICW tm;
 	LONG y;
 	intptr_t i;
-	RECT r;
+	RECT controlSize;		// for filling the entire selected row
 	intptr_t first, last;
 	POINT prevOrigin, prevViewportOrigin;
 
-	// TODO eliminate the need (only use cliprect)
-	if (GetClientRect(t->hwnd, &r) == 0)
+	if (GetClientRect(t->hwnd, &controlSize) == 0)
 		abort();
 
 	thisfont = t->font;		// in case WM_SETFONT happens before we return
@@ -313,12 +316,8 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		int textColor;
 		WCHAR msg[100];
 		RECT headeritem;
+		intptr_t j;
 
-		// TODO check errors
-		rsel.left = r.left;
-		rsel.top = y;
-		rsel.right = r.right - r.left;
-		rsel.bottom = y + tm.tmHeight;
 		// TODO verify these two
 		background = (HBRUSH) (COLOR_WINDOW + 1);
 		textColor = COLOR_WINDOWTEXT;
@@ -332,16 +331,30 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 				textColor = COLOR_BTNTEXT;
 			}
 		}
-		SetTextColor(dc, GetSysColor(textColor));
-		FillRect(dc, &rsel, background);
-		SetBkMode(dc, TRANSPARENT);
-		if (SendMessageW(t->header, HDM_GETITEMRECT, 0, (LPARAM) (&headeritem)) == 0)
-			abort();
-		rsel.left = headeritem.left + SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+
+		// first fill the selection rect
+		rsel.left = controlSize.left;
 		rsel.top = y;
-		rsel.right = headeritem.right;
+		rsel.right = controlSize.right - controlSize.left;
 		rsel.bottom = y + tm.tmHeight;
-		DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL);
+		if (FillRect(dc, &rsel, background) == 0)
+			abort();
+
+		// now draw the cells
+		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
+			abort();
+		if (SetBkMode(dc, TRANSPARENT) == 0)
+			abort();
+		for (j = 0; j < t->nColumns; j++) {
+			if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&headeritem)) == 0)
+				abort();
+			rsel.left = headeritem.left + SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+			rsel.top = y;
+			rsel.right = headeritem.right;
+			rsel.bottom = y + tm.tmHeight;
+			if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+				abort();
+		}
 		y += tm.tmHeight;
 	}
 
@@ -395,7 +408,15 @@ item.cxy = 200;
 item.pszText = L"Column";
 item.fmt = HDF_LEFT | HDF_STRING;
 if (SendMessage(t->header, HDM_INSERTITEM, 0, (LPARAM) (&item)) == (LRESULT) (-1))
-abort();}
+abort();
+ZeroMemory(&item, sizeof (HDITEMW));
+item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
+item.cxy = 150;
+item.pszText = L"Column 2";
+item.fmt = HDF_LEFT | HDF_STRING;
+if (SendMessage(t->header, HDM_INSERTITEM, 1, (LPARAM) (&item)) == (LRESULT) (-1))
+abort();
+t->nColumns=2;}
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
