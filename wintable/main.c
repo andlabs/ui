@@ -138,7 +138,8 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 }
 
 // TODO on initial show the items are not arranged properly
-// TODO the lowest row does not redraw properly after scrolling
+// TODO the lowest visible row does not redraw properly after scrolling
+// TODO the row behind the header bar does not redraw properly after scrolling
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
@@ -358,6 +359,8 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	struct table *t;
 	HDC dc;
 	PAINTSTRUCT ps;
+	NMHDR *nmhdr = (NMHDR *) lParam;
+	NMHEADERW *nm = (NMHEADERW *) lParam;
 
 	t = (struct table *) GetWindowLongPtrW(hwnd, GWLP_USERDATA);
 	if (t == NULL) {
@@ -444,6 +447,20 @@ abort();}
 	case WM_KEYDOWN:
 		keySelect(t, wParam, lParam);
 		return 0;
+	// TODO header double-click
+	case WM_NOTIFY:
+		if (nmhdr->hwndFrom == t->header)
+			switch (nmhdr->code) {
+			// TODO are any of these redundant?
+			case HDN_BEGINTRACK:
+			case HDN_TRACK:
+			case HDN_ENDTRACK:
+			case HDN_ITEMCHANGING:
+			case HDN_ITEMCHANGED:
+				redrawAll(t);
+				return FALSE;
+			}
+		// otherwise fall through
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
