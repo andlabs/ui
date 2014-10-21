@@ -43,6 +43,7 @@ struct table {
 	HWND header;
 	int headerHeight;
 	intptr_t nColumns;
+	HIMAGELIST imagelist;
 };
 
 static LONG rowHeight(struct table *t)
@@ -350,6 +351,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		WCHAR msg[100];
 		RECT headeritem;
 		intptr_t j;
+		LRESULT xoff;
 
 		// TODO verify these two
 		background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -373,6 +375,8 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		if (FillRect(dc, &rsel, background) == 0)
 			abort();
 
+		xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+
 		// now draw the cells
 		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
 			abort();
@@ -381,7 +385,29 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		for (j = 0; j < t->nColumns; j++) {
 			if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&headeritem)) == 0)
 				abort();
-			rsel.left = headeritem.left + SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+
+			if (j == 1) {			// TODO
+				IMAGELISTDRAWPARAMS ip;
+
+				ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
+				ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
+				ip.himl = t->imagelist;
+				ip.i = 0;
+				ip.hdcDst = dc;
+				ip.x = headeritem.left + xoff;
+				ip.y = y;
+				ip.cx = 0;		// draw whole image
+				ip.cy = 0;
+				ip.xBitmap = 0;
+				ip.yBitmap = 0;
+				ip.rgbBk = CLR_NONE;
+				ip.fStyle = ILD_NORMAL | ILD_SCALE;		// TODO alpha-blend; ILD_DPISCALE?
+				// TODO ILS_ALPHA?
+				if (ImageList_DrawIndirect(&ip) == 0)
+					abort();
+				continue;
+			}
+			rsel.left = headeritem.left + xoff;
 			rsel.top = y;
 			rsel.right = headeritem.right;
 			rsel.bottom = y + tm.tmHeight;
@@ -449,7 +475,16 @@ item.pszText = L"Column 2";
 item.fmt = HDF_LEFT | HDF_STRING;
 if (SendMessage(t->header, HDM_INSERTITEM, 1, (LPARAM) (&item)) == (LRESULT) (-1))
 abort();
-t->nColumns=2;}
+t->nColumns=2;
+t->imagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
+if(t->imagelist==NULL)abort();
+{
+HICON icon;
+icon = LoadIconW(NULL, IDI_ERROR);
+if(icon == NULL)abort();
+if (ImageList_AddIcon(t->imagelist, icon) == -1)abort();
+}
+}
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
