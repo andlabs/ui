@@ -137,7 +137,7 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 }
 
 // TODO on initial show the items are not arranged properly
-// TODO the lowest row does not redraw properly
+// TODO the lowest row does not redraw properly after scrolling
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
@@ -152,7 +152,7 @@ static void vscrollto(struct table *t, intptr_t newpos)
 
 	// negative because ScrollWindowEx() is "backwards"
 	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * rowHeight(t),
-		NULL, NULL, NULL, NULL,
+		&scrollArea, &scrollArea, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
 	t->firstVisible = newpos;
@@ -272,7 +272,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	intptr_t i;
 	RECT r;
 	intptr_t first, last;
-	POINT prevOrigin;
+	POINT prevOrigin, prevViewportOrigin;
 
 	// TODO eliminate the need (only use cliprect)
 	if (GetClientRect(t->hwnd, &r) == 0)
@@ -285,12 +285,15 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	if (GetTextMetricsW(dc, &tm) == 0)
 		abort();
 
-	// adjust the clip rect and the viewport so that (0, 0) is always the first item
+	// adjust the clip rect and the window so that (0, 0) is always the first item
+	// adjust the viewport so that everything is shifted down t->headerHeight pixels
 	if (OffsetRect(&cliprect, 0, t->firstVisible * tm.tmHeight) == 0)
 		abort();
 	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
 		abort();
 	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight), NULL) == 0)
+		abort();
+	if (SetViewportOrgEx(dc, 0, t->headerHeight, &prevViewportOrigin) == 0)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
@@ -334,6 +337,8 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	}
 
 	// reset everything
+	if (SetViewportOrgEx(dc, prevViewportOrigin.x, prevViewportOrigin.y, NULL) == 0)
+		abort();
 	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y, NULL) == 0)
 		abort();
 	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
