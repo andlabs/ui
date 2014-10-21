@@ -152,7 +152,7 @@ static void vscrollto(struct table *t, intptr_t newpos)
 
 	// negative because ScrollWindowEx() is "backwards"
 	if (ScrollWindowEx(t->hwnd, 0, (-(newpos - t->firstVisible)) * rowHeight(t),
-		&scrollArea, &scrollArea, NULL, NULL,
+		NULL, NULL, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
 	t->firstVisible = newpos;
@@ -290,12 +290,10 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		abort();
 	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
 		abort();
-	// notice this calculation: we discount t->headerHeight so that (0,0) shows up at (0, t->headerHeight)
-	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight - t->headerHeight), NULL) == 0)
+	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight), NULL) == 0)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
-	// this is also why we kept cliprect unaware of t->headerHeight above
 	first = cliprect.top / tm.tmHeight;
 	if (first < 0)
 		first = 0;
