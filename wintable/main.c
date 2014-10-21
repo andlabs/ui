@@ -311,6 +311,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		HBRUSH background;
 		int textColor;
 		WCHAR msg[100];
+		RECT headeritem;
 
 		// TODO check errors
 		rsel.left = r.left;
@@ -333,7 +334,13 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		SetTextColor(dc, GetSysColor(textColor));
 		FillRect(dc, &rsel, background);
 		SetBkMode(dc, TRANSPARENT);
-		TextOutW(dc, r.left, y, msg, wsprintf(msg, L"Item %d", i));
+		if (SendMessageW(t->header, HDM_GETITEMRECT, 0, (LPARAM) (&headeritem)) == 0)
+			abort();
+		rsel.left = headeritem.left + SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+		rsel.top = y;
+		rsel.right = headeritem.right;
+		rsel.bottom = y + tm.tmHeight;
+		DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL);
 		y += tm.tmHeight;
 	}
 
