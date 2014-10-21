@@ -82,6 +82,34 @@ static RECT realClientRect(struct table *t)
 	return r;
 }
 
+static void recomputeHScroll(struct table *t)
+{
+	HDITEMW item;
+	intptr_t i;
+	int width = 0;
+	RECT r;
+	SCROLLINFO si;
+
+	// TODO count dividers
+	for (i = 0; i < t->nColumns; i++) {
+		ZeroMemory(&item, sizeof (HDITEMW));
+		item.mask = HDI_WIDTH;
+		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
+			abort();
+		width += item.cxy;
+	}
+
+	if (GetClientRect(t->hwnd, &r) == 0)
+		abort();
+	ZeroMemory(&si, sizeof (SCROLLINFO));
+	si.cbSize = sizeof (SCROLLINFO);
+	si.fMask = SIF_PAGE | SIF_RANGE;
+	si.nPage = r.right - r.left;
+	si.nMin = 0;
+	si.nMax = width - 1;			// - 1 because endpoints inclusive
+	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
+}
+
 static void finishSelect(struct table *t)
 {
 	if (t->selected < 0)
@@ -268,6 +296,8 @@ static void resize(struct table *t)
 	si.nMax = t->count - 1;
 	si.nPage = t->pagesize;
 	SetScrollInfo(t->hwnd, SB_VERT, &si, TRUE);
+
+	recomputeHScroll(t);
 }
 
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
@@ -475,6 +505,7 @@ t->nColumns=2;}
 			// I could use HDN_TRACK but wine doesn't emit that
 			case HDN_ITEMCHANGING:
 			case HDN_ITEMCHANGED:		// TODO needed?
+				recomputeHScroll(t);
 				redrawAll(t);
 				return FALSE;
 			}
