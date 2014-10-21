@@ -136,6 +136,8 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	// TODO scroll to the selected item if it's not entirely visible
 }
 
+// TODO on initial show the items are not arranged properly
+// TODO the lowest row does not redraw properly
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
@@ -288,7 +290,8 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		abort();
 	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
 		abort();
-	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight), NULL) == 0)
+	// notice this calculation: we discount t->headerHeight so that (0,0) shows up at (0, t->headerHeight)
+	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight - t->headerHeight), NULL) == 0)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
