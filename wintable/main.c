@@ -44,6 +44,7 @@ struct table {
 	int headerHeight;
 	intptr_t nColumns;
 	HIMAGELIST imagelist;
+	int imagelistHeight;
 };
 
 static LONG rowHeight(struct table *t)
@@ -51,6 +52,7 @@ static LONG rowHeight(struct table *t)
 	HFONT thisfont, prevfont;
 	TEXTMETRICW tm;
 	HDC dc;
+	LONG ret;
 
 	dc = GetDC(t->hwnd);
 	if (dc == NULL)
@@ -65,7 +67,10 @@ static LONG rowHeight(struct table *t)
 		abort();
 	if (ReleaseDC(t->hwnd, dc) == 0)
 		abort();
-	return tm.tmHeight;
+	ret = tm.tmHeight;
+	if (ret < t->imagelistHeight)
+		ret = t->imagelistHeight;
+	return ret;
 }
 
 static void redrawAll(struct table *t)
@@ -307,7 +312,7 @@ static void resize(struct table *t)
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
 {
 	HFONT thisfont, prevfont;
-	TEXTMETRICW tm;
+	LONG height;
 	LONG y;
 	intptr_t i;
 	RECT controlSize;		// for filling the entire selected row
@@ -317,33 +322,33 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	if (GetClientRect(t->hwnd, &controlSize) == 0)
 		abort();
 
+	height = rowHeight(t);
+
 	thisfont = t->font;		// in case WM_SETFONT happens before we return
 	prevfont = (HFONT) SelectObject(dc, thisfont);
 	if (prevfont == NULL)
 		abort();
-	if (GetTextMetricsW(dc, &tm) == 0)
-		abort();
 
 	// adjust the clip rect and the window so that (0, 0) is always the first item
 	// adjust the viewport so that everything is shifted down t->headerHeight pixels
-	if (OffsetRect(&cliprect, 0, t->firstVisible * tm.tmHeight) == 0)
+	if (OffsetRect(&cliprect, 0, t->firstVisible * height) == 0)
 		abort();
 	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
 		abort();
-	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * tm.tmHeight), NULL) == 0)
+	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * height), NULL) == 0)
 		abort();
 	if (SetViewportOrgEx(dc, 0, t->headerHeight, &prevViewportOrigin) == 0)
 		abort();
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
-	first = cliprect.top / tm.tmHeight;
+	first = cliprect.top / height;
 	if (first < 0)
 		first = 0;
-	last = (cliprect.bottom + tm.tmHeight - 1) / tm.tmHeight;
+	last = (cliprect.bottom + height - 1) / height;
 	if (last >= t->count)
 		last = t->count;
 
-	y = first * tm.tmHeight;
+	y = first * height;
 	for (i = first; i < last; i++) {
 		RECT rsel;
 		HBRUSH background;
@@ -371,7 +376,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 		rsel.left = controlSize.left;
 		rsel.top = y;
 		rsel.right = controlSize.right - controlSize.left;
-		rsel.bottom = y + tm.tmHeight;
+		rsel.bottom = y + height;
 		if (FillRect(dc, &rsel, background) == 0)
 			abort();
 
@@ -410,11 +415,12 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 			rsel.left = headeritem.left + xoff;
 			rsel.top = y;
 			rsel.right = headeritem.right;
-			rsel.bottom = y + tm.tmHeight;
+			rsel.bottom = y + height;
+			// TODO vertical center in case the height is less than the icon height?
 			if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 				abort();
 		}
-		y += tm.tmHeight;
+		y += height;
 	}
 
 	// reset everything
@@ -480,9 +486,11 @@ t->imagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(
 if(t->imagelist==NULL)abort();
 {
 HICON icon;
+int unused;
 icon = LoadIconW(NULL, IDI_ERROR);
 if(icon == NULL)abort();
 if (ImageList_AddIcon(t->imagelist, icon) == -1)abort();
+if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abort();
 }
 }
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
