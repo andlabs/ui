@@ -451,12 +451,9 @@ abort();}
 	case WM_NOTIFY:
 		if (nmhdr->hwndFrom == t->header)
 			switch (nmhdr->code) {
-			// TODO are any of these redundant?
-			case HDN_BEGINTRACK:
-			case HDN_TRACK:
-			case HDN_ENDTRACK:
+			// I could use HDN_TRACK but wine doesn't emit that
 			case HDN_ITEMCHANGING:
-			case HDN_ITEMCHANGED:
+			case HDN_ITEMCHANGED:		// TODO needed?
 				redrawAll(t);
 				return FALSE;
 			}
