@@ -70,6 +70,17 @@ not yet in Ubuntu Utopic (14.10)
 - GtkStack signaling
 - **gtk_tree_path_new_from_indicesv()** (for when we add Table if we have trees too)
 
+### GTK+ 3.14
+
+- gestures
+- better GtkListbox selection handling
+- more style classes (TODO also prior?)
+- delayed switch changes on GtkSwitch
+
+### GTK+ 3.16
+
+- **GtkSidebar**
+
 ## Cocoa
 ### Mac OS X 10.7
 
