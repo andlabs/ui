@@ -7,7 +7,6 @@ import "C"
 
 type label struct {
 	*controlSingleHWNDWithText
-	standalone bool
 }
 
 var labelclass = toUTF16("STATIC")

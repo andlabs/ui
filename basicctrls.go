@@ -121,3 +121,20 @@ type Group interface {
 func NewGroup(text string, control Control) Group {
 	return newGroup(text, control)
 }
+
+// Textbox represents a multi-line text entry box.
+// Text in a Textbox is unformatted, and scrollbars are applied automatically.
+// TODO rename to TextBox? merge with TextField (but cannot use Invalid())? enable/disable line wrapping?
+// TODO events
+type Textbox interface {
+	Control
+
+	// Text and SetText get and set the Textbox's text.
+	Text() string
+	SetText(text string)
+}
+
+// NewTextbox creates a new Textbox.
+func NewTextbox() Textbox {
+	return newTextbox()
+}

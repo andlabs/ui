@@ -16,13 +16,6 @@ type textfield struct {
 
 var editclass = toUTF16("EDIT")
 
-/*
-notes about multiline text boxes
-- ES_LEFT | ES_MULTILINE | ES_NOHIDESEL | ES_WANTRETURN
-(ES_AUTOVSCROLL as well?)
-(what about word wrap?)
-*/
-
 func startNewTextField(style C.DWORD) *textfield {
 	hwnd := C.newControl(editclass,
 		style|C.textfieldStyle,
@@ -77,6 +70,7 @@ const (
 	textfieldHeight = 14
 )
 
+// TODO allow custom preferred widths
 func (t *textfield) xpreferredSize(d *sizing) (width, height int) {
 	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }

@@ -57,6 +57,7 @@ type testwin struct {
 	repainter  *repainter
 	fe         *ForeignEvent
 	festack    Stack
+	festack2		Stack
 	festart    Button
 	felabel    Label
 	festop     Button
@@ -148,7 +149,10 @@ func (tw *testwin) addfe() {
 		tw.openbtn, tw.fnlabel)
 	tw.festack.SetStretchy(4)
 	tw.festack.SetStretchy(6)
-	tw.festack = newHorizontalStack(tw.festack, Space())
+	tw.festack2 = newVerticalStack(Space(), NewTextbox())
+	tw.festack2.SetStretchy(0)
+	tw.festack2.SetStretchy(1)
+	tw.festack = newHorizontalStack(tw.festack, tw.festack2)
 	tw.festack.SetStretchy(0)
 	tw.festack.SetStretchy(1)
 	tw.t.Append("Foreign Events", tw.festack)
