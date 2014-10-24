@@ -41,6 +41,8 @@ void moveControl(id c, intptr_t x, intptr_t y, intptr_t width, intptr_t height)
 	// mac os x coordinate system has (0,0) in the lower-left
 	v = toNSView(c);
 	frame.origin.y = ([[v superview] bounds].size.height - frame.size.height) - frame.origin.y;
+	// here's the magic: what we specified was what we want the alignment rect to be; make it the actual frame
+	frame = [v frameForAlignmentRect:frame];
 	[v setFrame:frame];
 }
 

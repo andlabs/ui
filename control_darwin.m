@@ -37,7 +37,8 @@ struct xsize controlPreferredSize(id control)
 
 	c = toNSControl(control);
 	[c sizeToFit];
-	r = [c frame];
+	// use alignmentRect here instead of frame because we'll be resizing based on that
+	r = [c alignmentRectForFrame:[c frame]];
 	s.width = (intptr_t) r.size.width;
 	s.height = (intptr_t) r.size.height;
 	return s;

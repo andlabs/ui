@@ -1,13 +1,11 @@
 mac os x sizing is now completely broken
 	- need to catch window initial sizes
 	- need to catch tab changes
-		- can't just resize every tab to the current tab size; that'll just cause weirdness
-	- rect should be based on the alignment rect, not the frame rect
+		- can't just resize every tab to the current tab size; that doesn't seem to work
 
 mac os x
-	Table, Textbox
+	Textbox
 		refuse first responder
-		Table still works because it's entirely mouse based
 		Textbox does not work at all
 
 new control stuff
@@ -126,5 +124,4 @@ gtk+, mac os x
 	- figure out how dialogs and Areas work together
 		- once that is done, document the behavior of Areas
 all
-	- make spaced settable somehow
 	- rename Selected to Selection?
