@@ -79,7 +79,7 @@ extern id newLabel(void);
 extern id newGroup(id);
 extern const char *groupText(id);
 extern void groupSetText(id, char *);
-extern id newTextbox(id);
+extern id newTextbox(void);
 extern char *textboxText(id);
 extern void textboxSetText(id, char *);
 
