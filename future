@@ -3,6 +3,12 @@ mac os x sizing is now completely broken
 	- need to catch tab changes
 	- rect should be based on the alignment rect, not the frame rect
 
+mac os x
+	Table, Textbox
+		refuse first responder
+		Table still works because it's entirely mouse based
+		Textbox does not work at all
+
 new control stuff
 	Tab, Group
 		- should host Controls directly?
