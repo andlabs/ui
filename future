@@ -1,6 +1,7 @@
 mac os x sizing is now completely broken
 	- need to catch window initial sizes
 	- need to catch tab changes
+		- can't just resize every tab to the current tab size; that'll just cause weirdness
 	- rect should be based on the alignment rect, not the frame rect
 
 mac os x
