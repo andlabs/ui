@@ -9,6 +9,7 @@
 #define toNSView(x) ((NSView *) (x))
 #define toNSWindow(x) ((NSWindow *) (x))
 #define toNSBox(x) ((NSBox *) (x))
+#define toNSTextView(x) ((NSTextView *) (x))
 
 @interface goControlDelegate : NSObject <NSTextFieldDelegate> {
 @public
@@ -216,4 +217,57 @@ const char *groupText(id group)
 void groupSetText(id group, char *text)
 {
 	[toNSBox(group) setTitle:[NSString stringWithUTF8String:text]];
+}
+
+id newTextbox(void)
+{
+	NSTextView *tv;
+
+	tv = [[NSTextView alloc] initWithFrame:NSZeroRect];
+	// verified against Interface Builder, except for rich text options
+	[tv setAllowsDocumentBackgroundColorChange:NO];
+	[tv setBackgroundColor:[NSColor textBackgroundColor]];
+	[tv setTextColor:[NSColor textColor]];
+	[tv setAllowsUndo:YES];
+	[tv setEditable:YES];
+	[tv setSelectable:YES];
+	[tv setRichText:NO];
+	[tv setImportsGraphics:NO];
+	[tv setBaseWritingDirection:NSWritingDirectionNatural];
+	// TODO default paragraph format
+	[tv setAllowsImageEditing:NO];
+	[tv setAutomaticQuoteSubstitutionEnabled:NO];
+	[tv setAutomaticLinkDetectionEnabled:NO];
+	[tv setUsesRuler:NO];
+	[tv setRulerVisible:NO];
+	[tv setUsesInspectorBar:NO];
+	[tv setSelectionGranularity:NSSelectByCharacter];
+//TODO	[tv setInsertionPointColor:[NSColor insertionColor]];
+	[tv setContinuousSpellCheckingEnabled:NO];
+	[tv setGrammarCheckingEnabled:NO];
+	[tv setUsesFontPanel:NO];
+	[tv setEnabledTextCheckingTypes:0];
+	[tv setAutomaticDashSubstitutionEnabled:NO];
+	[tv setAutomaticSpellingCorrectionEnabled:NO];
+	[tv setAutomaticTextReplacementEnabled:NO];
+	[tv setSmartInsertDeleteEnabled:NO];
+	[tv setLayoutOrientation:NSTextLayoutOrientationHorizontal];
+	// TODO default find panel behavior
+	// now just to be safe; this will do some of the above but whatever
+	disableAutocorrect((id) tv);
+	// this option is complex; just set it to the Interface Builder default
+	[[tv layoutManager] setAllowsNonContiguousLayout:YES];
+	// this will work because it's the same selector
+	setStandardControlFont((id) tv);
+	return (id) tv;
+}
+
+char *textboxText(id tv)
+{
+	return [[toNSTextView(tv) string] UTF8String];
+}
+
+void textboxSetText(id tv, char *text)
+{
+	[toNSTextView(tv) setString:[NSString stringWithUTF8String:text]];
 }

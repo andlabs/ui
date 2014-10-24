@@ -13,4 +13,7 @@ void disableAutocorrect(id onwhat)
 	// don't worry about automatic data detection; it won't change stringValue (thanks pretty_function in irc.freenode.net/#macdev)
 	[tv setAutomaticSpellingCorrectionEnabled:NO];
 	[tv setAutomaticTextReplacementEnabled:NO];
+	[tv setAutomaticQuoteSubstitutionEnabled:NO];
+	[tv setAutomaticLinkDetectionEnabled:NO];
+	[tv setSmartInsertDeleteEnabled:NO];
 }

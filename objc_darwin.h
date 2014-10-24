@@ -79,6 +79,9 @@ extern id newLabel(void);
 extern id newGroup(id);
 extern const char *groupText(id);
 extern void groupSetText(id, char *);
+extern id newTextbox(id);
+extern char *textboxText(id);
+extern void textboxSetText(id, char *);
 
 /* container_darwin.m */
 extern id newContainerView(void *);

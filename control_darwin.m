@@ -16,7 +16,7 @@ void controlSetHidden(id control, BOOL hidden)
 	[toNSView(control) setHidden:hidden];
 }
 
-// also fine for NSCells
+// also fine for NSCells and NSTexts (NSTextViews)
 void setStandardControlFont(id control)
 {
 	[toNSControl(control) setFont:[NSFont systemFontOfSize:[NSFont systemFontSizeForControlSize:NSRegularControlSize]]];
