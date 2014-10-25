@@ -23,6 +23,8 @@ The in-code documentation needs improvement. I have written a [tutorial](https:/
 
 # Updates
 
+**24 october 2014**<br>Textbox, a multi-line version of TextField, has been added. (Note that it may not work properly on Mac OS X; this is being investigated.) In addition, excess space around controls on Mac OS X should be settled now.
+
 **18 October 2014**<br>The container system was rewritten entirely. You can now set a margin on Windows and Groups and spacing between controls ("padding") on Stacks, Grids, and SimpleGrids. Margins on Tabs will come soon. The work needed to change this will make future additions (like Popover and Spinbox) easier/more sensible. (The Mac OS X code is still glitchy; mind the dust.)
 
 As part of the change, standalone Labels have been removed. All Labels now behave like standalone labels. A new layout container, Form, will be introduced in the near future to allow proper layout of widgets with labels.
