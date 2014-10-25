@@ -3,6 +3,8 @@ mac os x sizing is now completely broken
 	- need to catch tab changes
 		- can't just resize every tab to the current tab size; that doesn't seem to work
 
+password fields: caps lock warnings
+
 mac os x
 	Textbox
 		refuse first responder
