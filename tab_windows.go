@@ -20,6 +20,7 @@ type tab struct {
 	tabs			[]*container
 	children		[]Control
 	chainresize	func(x int, y int, width int, height int, d *sizing)
+	// TODO don't save this (will make things easier)
 	current		int
 }
 
