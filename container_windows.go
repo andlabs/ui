@@ -89,13 +89,13 @@ const (
 	paddingDialogUnits = 4
 )
 
-func (w *window) beginResize() (d *sizing) {
+func beginResize(hwnd C.HWND) (d *sizing) {
 	var baseX, baseY C.int
 	var internalLeading C.LONG
 
 	d = new(sizing)
 
-	C.calculateBaseUnits(w.hwnd, &baseX, &baseY, &internalLeading)
+	C.calculateBaseUnits(hwnd, &baseX, &baseY, &internalLeading)
 	d.baseX = baseX
 	d.baseY = baseY
 	d.internalLeading = internalLeading

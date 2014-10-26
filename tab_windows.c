@@ -10,6 +10,8 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
 	LRESULT r;
+	RECT resizeRect;
+	WINDOWPOS *wp;
 
 	switch (uMsg) {
 	case msgNOTIFY:
@@ -27,6 +29,17 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case msgTabCurrentTabHasChildren:
 		return (LRESULT) tabTabHasChildren((void *) data, SendMessageW(hwnd, TCM_GETCURSEL, 0, 0));
+	case WM_WINDOWPOSCHANGING:
+	case WM_WINDOWPOSCHANGED:
+		wp = (WINDOWPOS *) lParam;
+		resizeRect.left = wp->x;
+		resizeRect.top = wp->y;
+		resizeRect.right = wp->x + wp->cx;
+		resizeRect.bottom = wp->y + wp->cy;
+		tabGetContentRect(hwnd, &resizeRect);
+		tabResized((void *) data, resizeRect);
+		// and chain up
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case WM_NCDESTROY:
 		if ((*fv_RemoveWindowSubclass)(hwnd, tabSubProc, id) == FALSE)
 			xpanic("error removing Tab subclass (which was for its own event handler)", GetLastError());

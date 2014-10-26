@@ -20,6 +20,7 @@ type tab struct {
 	tabs			[]*container
 	children		[]Control
 	chainresize	func(x int, y int, width int, height int, d *sizing)
+	current		int
 }
 
 func newTab() Tab {
@@ -28,6 +29,7 @@ func newTab() Tab {
 		0) // don't set WS_EX_CONTROLPARENT here; see uitask_windows.c
 	t := &tab{
 		controlSingleHWND:		newControlSingleHWND(hwnd),
+		current:				-1,
 	}
 	t.fpreferredSize = t.xpreferredSize
 	t.chainresize = t.fresize
@@ -61,7 +63,9 @@ func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 //export tabChanged
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
-	t.tabs[int(new)].show()
+	t.current = int(new)
+	// TODO resize the new tab
+	t.tabs[t.current].show()
 }
 
 //export tabTabHasChildren
@@ -89,27 +93,22 @@ func (t *tab) xpreferredSize(d *sizing) (width, height int) {
 	return width, height + int(C.tabGetTabHeight(t.hwnd))
 }
 
-// a tab control contains other controls; size appropriately
+// no need to resize the other controls; we do that in tabResized() which is called by the tab subclass handler
 func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
-	// first, chain up to the container base to keep the Z-order correct
+	// just chain up to the container base to keep the Z-order correct
 	t.chainresize(x, y, width, height, d)
+}
 
-	// now resize the children
-	var r C.RECT
-
-	// figure out what the rect for each child is...
-	// the tab contents are children of the tab itself, so ignore x and y, which are relative to the window!
-	r.left = C.LONG(0)
-	r.top = C.LONG(0)
-	r.right = C.LONG(width)
-	r.bottom = C.LONG(height)
-	C.tabGetContentRect(t.hwnd, &r)
-	// and resize tabs
-	// don't resize just the current tab; resize all tabs!
-	for i, _ := range t.tabs {
-		// because each widget is actually a child of the Window, the origin is the one we calculated above
-		t.tabs[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
-		// TODO get the actual client rect
-		t.children[i].resize(int(0), int(0), int(r.right - r.left), int(r.bottom - r.top), d)
+//export tabResized
+func tabResized(data unsafe.Pointer, r C.RECT) {
+	t := (*tab)(data)
+	if t.current == -1 {		// nothing to do
+		return
 	}
+	d := beginResize(t.hwnd)
+	// only need to resize the current tab; we resize new tabs when the tab changes in tabChanged() above
+	// because each widget is actually a child of the Window, the origin is the one we calculated above
+	t.tabs[t.current].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
+	// TODO get the actual client rect
+	t.children[t.current].resize(int(0), int(0), int(r.right - r.left), int(r.bottom - r.top), d)
 }

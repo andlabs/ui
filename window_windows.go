@@ -86,7 +86,7 @@ func (w *window) SetMargined(margined bool) {
 //export windowResize
 func windowResize(data unsafe.Pointer, r *C.RECT) {
 	w := (*window)(data)
-	d := w.beginResize()
+	d := beginResize(w.hwnd)
 	if w.margined {
 		marginRectDLU(r, marginDialogUnits, marginDialogUnits, marginDialogUnits, marginDialogUnits, d)
 	}
