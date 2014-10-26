@@ -1,3 +1,17 @@
+imminent:
+- the new sizing infrasructure does not work with os x
+- I'm surprsied now that it worked on GTK+
+- the addition of container to stack/grid/simplegrid doesn't actually fix the problem of simplifying container hiding
+- so something different is needed
+- perhaps get rid of container entirely
+	- keep goContainer (the C GtkContainer/NSView subclasses) around for the purpose of autommated resizing
+	- on Windows, gouiwindow and the button and (eventual) group subclasses will need to respond to WM_WINDOWPOSCHANGED to size the child
+- we WILL need to implement containerShow() and containerHide() which respect the programmer's show/hide settings
+- for GTK+, all widget size allocations need to be relative to the window, not the parent; this is different from Windows and Mac OS X
+
+
+
+
 mac os x sizing is now completely broken
 	- need to catch window initial sizes
 	- need to catch tab changes
