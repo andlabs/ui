@@ -178,6 +178,18 @@ func (g *grid) setParent(p *controlParent) {
 	g.container.setParent(p)
 }
 
+func (g *grid) containerShow() {
+	for _, c := range g.controls {
+		c.control.containerShow()
+	}
+}
+
+func (g *grid) containerHide() {
+	for _, c := range g.controls {
+		c.control.containerHide()
+	}
+}
+
 // builds the topological cell grid; also makes colwidths and rowheights
 func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
 	gg = make([][]int, g.ymax)

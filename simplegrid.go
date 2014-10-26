@@ -124,6 +124,22 @@ func (g *simpleGrid) setParent(parent *controlParent) {
 	g.container.setParent(parent)
 }
 
+func (g *simpleGrid) containerShow() {
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			c.containerShow()
+		}
+	}
+}
+
+func (g *simpleGrid) containerHide() {
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			c.containerHide()
+		}
+	}
+}
+
 func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 	max := func(a int, b int) int {
 		if a > b {

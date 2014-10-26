@@ -85,6 +85,18 @@ func (s *stack) setParent(parent *controlParent) {
 	s.container.setParent(parent)
 }
 
+func (s *stack) containerShow() {
+	for _, c := range s.controls {
+		c.containerShow()
+	}
+}
+
+func (s *stack) containerHide() {
+	for _, c := range s.controls {
+		c.containerHide()
+	}
+}
+
 func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	var stretchywid, stretchyht int
 

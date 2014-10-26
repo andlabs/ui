@@ -19,11 +19,17 @@ type controlSingleHWND struct {
 func newControlSingleHWND(hwnd C.HWND) *controlSingleHWND {
 	c := new(controlSingleHWND)
 	c.controlbase = &controlbase{
-		fsetParent:	c.xsetParent,
-		fresize:		c.xresize,
-		fnTabStops:	func() int {
+		fsetParent:		c.xsetParent,
+		fresize:			c.xresize,
+		fnTabStops:		func() int {
 			// most controls count as one tab stop
 			return 1
+		},
+		fcontainerShow:	func() {
+			C.ShowWindow(c.hwnd, C.SW_SHOW)
+		},
+		fcontainerHide:		func() {
+			C.ShowWindow(c.hwnd, C.SW_HIDE)
 		},
 	}
 	c.hwnd = hwnd
