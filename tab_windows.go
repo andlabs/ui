@@ -17,8 +17,6 @@ type tab struct {
 	*controlSingleHWND
 	children		[]Control
 	chainresize	func(x int, y int, width int, height int, d *sizing)
-	// TODO don't save this (will make things easier)
-	current		int
 }
 
 func newTab() Tab {
@@ -27,7 +25,6 @@ func newTab() Tab {
 		0) // don't set WS_EX_CONTROLPARENT here; see uitask_windows.c
 	t := &tab{
 		controlSingleHWND:		newControlSingleHWND(hwnd),
-		current:				-1,
 	}
 	t.fpreferredSize = t.xpreferredSize
 	t.chainresize = t.fresize
@@ -58,9 +55,7 @@ func tabChanging(data unsafe.Pointer, current C.LRESULT) {
 //export tabChanged
 func tabChanged(data unsafe.Pointer, new C.LRESULT) {
 	t := (*tab)(data)
-	t.current = int(new)
-	// TODO resize the new tab
-	t.children[t.current].containerShow()
+	t.children[int(new)].containerShow()
 }
 
 //export tabTabHasChildren
@@ -97,11 +92,13 @@ func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
 //export tabResized
 func tabResized(data unsafe.Pointer, r C.RECT) {
 	t := (*tab)(data)
-	if t.current == -1 {		// nothing to do
+	if len(t.children) == 0 {		// nothing to do
 		return
 	}
 	d := beginResize(t.hwnd)
 	// only need to resize the current tab; we resize new tabs when the tab changes in tabChanged() above
 	// because each widget is actually a child of the Window, the origin is the one we calculated above
-	t.children[t.current].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
+	for i := 0; i < len(t.children); i++ {
+		t.children[i].resize(int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top), d)
+	}
 }
