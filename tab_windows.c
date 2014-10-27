@@ -9,10 +9,12 @@ LPWSTR xWC_TABCONTROL = WC_TABCONTROL;
 static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
-	LRESULT r;
+	LRESULT lResult, r;
 	RECT resizeRect;
 	WINDOWPOS *wp;
 
+	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
+		return lResult;
 	switch (uMsg) {
 	case msgNOTIFY:
 		switch (nmhdr->code) {
