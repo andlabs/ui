@@ -59,7 +59,7 @@ type grid struct {
 	controls []gridCell
 	indexof  map[Control]int
 	prev     int
-	container		*container
+	parent	*controlParent
 	padded	bool
 
 	xmax int
@@ -90,7 +90,6 @@ type gridCell struct {
 func NewGrid() Grid {
 	return &grid{
 		indexof: map[Control]int{},
-		container:		newContainer(),
 	}
 }
 
@@ -136,7 +135,9 @@ func (g *grid) Add(control Control, nextTo Control, side Side, xexpand bool, xal
 		xspan:   xspan,
 		yspan:   yspan,
 	}
-	control.setParent(g.container.parent())
+	if g.parent != nil {
+		control.setParent(g.parent)
+	}
 	// if this is the first control, just add it in directly
 	if len(g.controls) != 0 {
 		next := g.prev
@@ -175,7 +176,10 @@ func (g *grid) SetPadded(padded bool) {
 }
 
 func (g *grid) setParent(p *controlParent) {
-	g.container.setParent(p)
+	g.parent = p
+	for _, c := range g.controls {
+		c.control.setParent(g.parent)
+	}
 }
 
 func (g *grid) containerShow() {
@@ -210,14 +214,10 @@ func (g *grid) mkgrid() (gg [][]int, colwidths []int, rowheights []int) {
 }
 
 func (g *grid) resize(x int, y int, width int, height int, d *sizing) {
-	g.container.resize(x, y, width, height, d)
-
 	if len(g.controls) == 0 {
 		// nothing to do
 		return
 	}
-
-	x, y, width, height = g.container.bounds(d)
 
 	// -2) get this Grid's padding
 	xpadding := d.xpadding

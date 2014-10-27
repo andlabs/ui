@@ -40,7 +40,6 @@ type simpleGrid struct {
 	stretchyfill             bool
 	widths, heights          [][]int // caches to avoid reallocating each time
 	rowheights, colwidths    []int
-	container		*container
 	padded	bool
 }
 
@@ -81,13 +80,6 @@ func NewSimpleGrid(nPerRow int, controls ...Control) SimpleGrid {
 		heights:     ch,
 		rowheights:  make([]int, nRows),
 		colwidths:   make([]int, nPerRow),
-		container:		newContainer(),
-	}
-	p := g.container.parent()
-	for _, cc := range g.controls {
-		for _, c := range cc {
-			c.setParent(p)
-		}
 	}
 	return g
 }
@@ -121,7 +113,11 @@ func (g *simpleGrid) SetPadded(padded bool) {
 }
 
 func (g *simpleGrid) setParent(parent *controlParent) {
-	g.container.setParent(parent)
+	for _, cc := range g.controls {
+		for _, c := range cc {
+			c.setParent(parent)
+		}
+	}
 }
 
 func (g *simpleGrid) containerShow() {
@@ -148,11 +144,9 @@ func (g *simpleGrid) resize(x int, y int, width int, height int, d *sizing) {
 		return b
 	}
 
-	g.container.resize(x, y, width, height, d)
 	if len(g.controls) == 0 {
 		return
 	}
-	x, y, width, height = g.container.bounds(d)
 	// -1) get this SimpleGrid's padding
 	xpadding := d.xpadding
 	ypadding := d.ypadding
