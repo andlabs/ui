@@ -18,10 +18,6 @@ type group struct {
 
 	child			Control
 	container		*container
-
-	margined		bool
-
-	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -54,10 +50,8 @@ func newGroup(text string, control Control) Group {
 
 	g.container = newContainer()
 	g.child.setParent(g.container.parent())
-	g.container.setParent(&controlParent{g.gcontainer})
-
-	g.chainresize = g.fresize
-	g.fresize = g.xresize
+	g.container.resize = g.child.resize
+	C.gtk_container_add(g.gcontainer, g.container.widget)
 
 	return g
 }
@@ -73,18 +67,11 @@ func (g *group) SetText(text string) {
 }
 
 func (g *group) Margined() bool {
-	return g.margined
+	return g.container.margined
 }
 
 func (g *group) SetMargined(margined bool) {
-	g.margined = margined
+	g.container.margined = margined
 }
 
-func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
-	// first, chain up to change the GtkFrame and its child container
-	g.chainresize(x, y, width, height, d)
-
-	// now that the container has the correct size, we can resize the child
-	a := g.container.allocation(g.margined)
-	g.child.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
-}
+// no need to override resize; the child container handles that for us

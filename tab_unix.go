@@ -18,8 +18,6 @@ type tab struct {
 
 	tabs []*container
 	children	[]Control
-
-	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
@@ -29,8 +27,6 @@ func newTab() Tab {
 		container: (*C.GtkContainer)(unsafe.Pointer(widget)),
 		notebook:  (*C.GtkNotebook)(unsafe.Pointer(widget)),
 	}
-	t.chainresize = t.fresize
-	t.fresize = t.xresize
 	// there are no scrolling arrows by default; add them in case there are too many tabs
 	C.gtk_notebook_set_scrollable(t.notebook, C.TRUE)
 	return t
@@ -40,8 +36,9 @@ func (t *tab) Append(name string, control Control) {
 	c := newContainer()
 	t.tabs = append(t.tabs, c)
 	// this calls gtk_container_add(), which, according to gregier in irc.gimp.net/#gtk+, acts just like gtk_notebook_append_page()
-	c.setParent(&controlParent{t.container})
+	C.gtk_container_add(t.container, c.widget)
 	control.setParent(c.parent())
+	c.resize = control.resize
 	t.children = append(t.children, control)
 	cname := togstr(name)
 	defer freegstr(cname)
@@ -51,13 +48,4 @@ func (t *tab) Append(name string, control Control) {
 		cname)
 }
 
-func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
-	// first, chain up to change the GtkFrame and its child container
-	t.chainresize(x, y, width, height, d)
-
-	// now that the containers have the correct size, we can resize the children
-	for i, _ := range t.tabs {
-		a := t.tabs[i].allocation(false/*TODO*/)
-		t.children[i].resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
-	}
-}
+// no need to handle resize; the children containers handle that for us

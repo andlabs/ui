@@ -59,6 +59,7 @@ static void goContainer_remove(GtkContainer *container, GtkWidget *widget)
 static void goContainer_size_allocate(GtkWidget *widget, GtkAllocation *allocation)
 {
 	gtk_widget_set_allocation(widget, allocation);
+	containerResize(GOCONTAINER(widget)->gocontainer, allocation);
 }
 
 struct forall {

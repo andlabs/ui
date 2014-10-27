@@ -11,9 +11,12 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
+// TODO avoid direct access to contents?
 type container struct {
-	*controlSingleWidget
-	container *C.GtkContainer
+	widget		*C.GtkWidget
+	container		*C.GtkContainer
+	resize		func(x int, y int, width int, height int, d *sizing)
+	margined		bool
 }
 
 type sizing struct {
@@ -28,7 +31,7 @@ type sizing struct {
 
 func newContainer() *container {
 	c := new(container)
-	c.controlSingleWidget = newControlSingleWidget(C.newContainer(unsafe.Pointer(c)))
+	c.widget = C.newContainer(unsafe.Pointer(c))
 	c.container = (*C.GtkContainer)(unsafe.Pointer(c.widget))
 	return c
 }
@@ -37,26 +40,19 @@ func (c *container) parent() *controlParent {
 	return &controlParent{c.container}
 }
 
-func (c *container) allocation(margined bool) C.GtkAllocation {
-	var a C.GtkAllocation
-
-	C.gtk_widget_get_allocation(c.widget, &a)
-	if margined {
+//export containerResize
+func containerResize(data unsafe.Pointer, aorig *C.GtkAllocation) {
+	c := (*container)(data)
+	d := beginResize()
+	// copy aorig
+	a := *aorig
+	if c.margined {
 		a.x += C.int(gtkXMargin)
 		a.y += C.int(gtkYMargin)
 		a.width -= C.int(gtkXMargin) * 2
 		a.height -= C.int(gtkYMargin) * 2
 	}
-	return a
-}
-
-// we can just return these values as is
-// note that allocations of a widget on GTK+ have their origin in the /window/ origin
-func (c *container) bounds(d *sizing) (int, int, int, int) {
-	var a C.GtkAllocation
-
-	C.gtk_widget_get_allocation(c.widget, &a)
-	return int(a.x), int(a.y), int(a.width), int(a.height)
+	c.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
 }
 
 const (
@@ -66,7 +62,7 @@ const (
 	gtkYPadding = 6
 )
 
-func (w *window) beginResize() (d *sizing) {
+func beginResize() (d *sizing) {
 	d = new(sizing)
 	d.xpadding = gtkXPadding
 	d.ypadding = gtkYPadding

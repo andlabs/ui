@@ -10,7 +10,6 @@ import (
 
 // #include "gtk_unix.h"
 // extern gboolean windowClosing(GtkWidget *, GdkEvent *, gpointer);
-// extern void windowResized(GtkWidget *, GdkRectangle *, gpointer);
 import "C"
 
 type window struct {
@@ -25,8 +24,6 @@ type window struct {
 
 	child			Control
 	container		*container
-
-	margined		bool
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
@@ -50,13 +47,8 @@ func newWindow(title string, width int, height int, control Control) *window {
 	C.gtk_window_resize(w.window, C.gint(width), C.gint(height))
 	w.container = newContainer()
 	w.child.setParent(w.container.parent())
-	w.container.setParent(&controlParent{w.wc})
-	// notice that we connect this to the container
-	g_signal_connect_after(		// so we get it after the child container has been allocated
-		C.gpointer(unsafe.Pointer(w.container.widget)),
-		"size-allocate",
-		C.GCallback(C.windowResized),
-		C.gpointer(unsafe.Pointer(w)))
+	w.container.resize = w.child.resize
+	C.gtk_container_add(w.wc, w.container.widget)
 	// for dialogs; otherwise, they will be modal to all windows, not just this one
 	w.group = C.gtk_window_group_new()
 	C.gtk_window_group_add_window(w.group, w.window)
@@ -90,11 +82,11 @@ func (w *window) OnClosing(e func() bool) {
 }
 
 func (w *window) Margined() bool {
-	return w.margined
+	return w.container.margined
 }
 
 func (w *window) SetMargined(margined bool) {
-	w.margined = margined
+	w.container.margined = margined
 }
 
 //export windowClosing
@@ -107,10 +99,4 @@ func windowClosing(wid *C.GtkWidget, e *C.GdkEvent, data C.gpointer) C.gboolean 
 	return C.GDK_EVENT_STOP // keeps window alive
 }
 
-//export windowResized
-func windowResized(wid *C.GtkWidget, r *C.GdkRectangle, data C.gpointer) {
-	w := (*window)(unsafe.Pointer(data))
-	a := w.container.allocation(w.margined)
-	d := w.beginResize()
-	w.child.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
-}
+// no need for windowResized; the child container takes care of that
