@@ -11,6 +11,8 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
+// TODO on which sides do margins get applied?
+
 type group struct {
 	*controlSingleWidget
 	gcontainer *C.GtkContainer
