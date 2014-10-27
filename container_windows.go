@@ -2,17 +2,8 @@
 
 package ui
 
-import (
-	"fmt"
-	"syscall"
-)
-
 // #include "winapi_windows.h"
 import "C"
-
-type container struct {
-	*controlSingleHWND
-}
 
 type sizing struct {
 	sizingbase
@@ -24,42 +15,6 @@ type sizing struct {
 
 	// for the actual resizing
 	// possibly the HDWP
-}
-
-func makeContainerWindowClass() error {
-	var errmsg *C.char
-
-	err := C.makeContainerWindowClass(&errmsg)
-	if err != 0 || errmsg != nil {
-		return fmt.Errorf("%s: %v", C.GoString(errmsg), syscall.Errno(err))
-	}
-	return nil
-}
-
-func newContainer() *container {
-	// don't set preferredSize(); it should never be called
-	return &container{
-		controlSingleHWND:		newControlSingleHWND(C.newContainer()),
-	}
-}
-
-// TODO merge with controlSingleHWND
-func (c *container) show() {
-	C.ShowWindow(c.hwnd, C.SW_SHOW)
-}
-
-// TODO merge with controlSingleHWND
-func (c *container) hide() {
-	C.ShowWindow(c.hwnd, C.SW_HIDE)
-}
-
-func (c *container) parent() *controlParent {
-	return &controlParent{c.hwnd}
-}
-
-func (c *container) bounds(d *sizing) (int, int, int, int) {
-	r := C.containerBounds(c.hwnd)
-	return int(r.left), int(r.top), int(r.right - r.left), int(r.bottom - r.top)
 }
 
 // For Windows, Microsoft just hands you a list of preferred control sizes as part of the MSDN documentation and tells you to roll with it.

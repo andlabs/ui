@@ -112,10 +112,9 @@ void paintControlBackground(HWND hwnd, HDC dc)
 			return;
 		if (GetClassNameW(parent, classname, 128) == 0)
 			xpanic("error getting name of focused window class in paintControlBackground()", GetLastError());
-		// skip container and groupboxes
-		if (_wcsicmp(classname, containerclass) != 0)		// container
-			if (_wcsicmp(classname, L"button") != 0)		// groupbox
-				break;
+		// skip groupboxes; they're (supposed to be) transparent
+		if (_wcsicmp(classname, L"button") != 0)
+			break;
 	}
 	if (GetWindowRect(hwnd, &r) == 0)
 		xpanic("error getting control's window rect in paintControlBackground()", GetLastError());

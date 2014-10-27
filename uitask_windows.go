@@ -33,9 +33,6 @@ func uiinit() error {
 	if err := makeWindowWindowClass(); err != nil {
 		return fmt.Errorf("error creating Window window class: %v", err)
 	}
-	if err := makeContainerWindowClass(); err != nil {
-		return fmt.Errorf("error creating container window class: %v", err)
-	}
 	if err := makeAreaWindowClass(); err != nil {
 		return fmt.Errorf("error creating Area window class: %v", err)
 	}

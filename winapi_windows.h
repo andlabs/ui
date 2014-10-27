@@ -122,9 +122,6 @@ extern intptr_t tableSelectedItem(HWND);
 extern void tableSelectItem(HWND, intptr_t);
 
 // container_windows.c
-#define containerclass L"gouicontainer"
-extern DWORD makeContainerWindowClass(char **);
-extern HWND newContainer();
 extern RECT containerBounds(HWND);
 extern void calculateBaseUnits(HWND, int *, int *, LONG *);
 
