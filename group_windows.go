@@ -2,6 +2,10 @@
 
 package ui
 
+import (
+	"unsafe"
+)
+
 // #include "winapi_windows.h"
 import "C"
 
@@ -9,7 +13,6 @@ type group struct {
 	*controlSingleHWNDWithText
 	child			Control
 	margined		bool
-	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newGroup(text string, control Control) Group {
@@ -21,11 +24,10 @@ func newGroup(text string, control Control) Group {
 		child:		control,
 	}
 	g.fpreferredSize = g.xpreferredSize
-	g.chainresize = g.fresize
-	g.fresize = g.xresize
 	g.fnTabStops = control.nTabStops		// groupbox itself is not tabbable but the contents might be
 	g.SetText(text)
 	C.controlSetControlFont(g.hwnd)
+	C.setGroupSubclass(g.hwnd, unsafe.Pointer(g))
 	control.setParent(&controlParent{g.hwnd})
 	return g
 }
@@ -75,19 +77,10 @@ func (g *group) xpreferredSize(d *sizing) (width, height int) {
 	return int(r.right - r.left), int(r.bottom - r.top)
 }
 
-func (g *group) xresize(x int, y int, width int, height int, d *sizing) {
-	// first, chain up to the container base to keep the Z-order correct
-	g.chainresize(x, y, width, height, d)
-
-	// now resize the child container
-	var r C.RECT
-
-	// pretend that the client area of the group box only includes the actual empty space
-	// container will handle the necessary adjustments properly
-	r.left = 0
-	r.top = 0
-	r.right = C.LONG(width)
-	r.bottom = C.LONG(height)
+//export groupResized
+func groupResized(data unsafe.Pointer, r C.RECT) {
+	g := (*group)(unsafe.Pointer(data))
+	d := beginResize(g.hwnd)
 	if g.margined {
 		// see above
 		marginRectDLU(&r, groupYMarginTop, groupYMarginBottom, groupXMargin, groupXMargin, d)

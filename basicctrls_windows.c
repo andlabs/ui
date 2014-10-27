@@ -127,3 +127,36 @@ void textfieldHideInvalidBalloonTip(HWND hwnd)
 	if (SendMessageW(hwnd, EM_HIDEBALLOONTIP, 0, 0) == FALSE)
 		xpanic("error hiding TextField.Invalid() balloon tip", GetLastError());
 }
+
+static LRESULT CALLBACK groupSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	LRESULT lResult;
+	RECT r;
+
+	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
+		return lResult;
+	switch (uMsg) {
+	case WM_WINDOWPOSCHANGING:
+	case WM_WINDOWPOSCHANGED:
+		// don't use the WINDOWPOS rect here; the coordinates of the controls have to be in real client coordinates
+		if (GetClientRect(hwnd, &r) == 0)
+			xpanic("error getting client rect of Group for resizing its child Control", GetLastError());
+		groupResized((void *) data, r);
+		// and chain up
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, groupSubProc, id) == FALSE)
+			xpanic("error removing Group subclass (which was for its own event handler)", GetLastError());
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	default:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	}
+	xmissedmsg("Group", "groupSubProc()", uMsg);
+	return 0;		// unreached
+}
+
+void setGroupSubclass(HWND hwnd, void *data)
+{
+	if ((*fv_SetWindowSubclass)(hwnd, groupSubProc, 0, (DWORD_PTR) data) == FALSE)
+		xpanic("error subclassing Group to give it its own event handler", GetLastError());
+}

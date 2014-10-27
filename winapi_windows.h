@@ -74,6 +74,7 @@ extern void checkboxSetChecked(HWND, BOOL);
 extern void setTextFieldSubclass(HWND, void *);
 extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
 extern void textfieldHideInvalidBalloonTip(HWND);
+extern void setGroupSubclass(HWND, void *);
 
 // init_windows.c
 extern HINSTANCE hInstance;
