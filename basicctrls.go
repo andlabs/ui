@@ -126,6 +126,7 @@ func NewGroup(text string, control Control) Group {
 // Text in a Textbox is unformatted, and scrollbars are applied automatically.
 // TODO rename to TextBox? merge with TextField (but cannot use Invalid())? enable/disable line wrapping?
 // TODO events
+// TODO Tab key - insert horizontal tab or tab stop?
 type Textbox interface {
 	Control
 

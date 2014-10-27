@@ -19,6 +19,12 @@ mac os x sizing is now completely broken
 
 password fields: caps lock warnings
 
+tab on windows
+	- windows xp: weird redraw issues on the bottom right corner of the first tab
+tab, group, windows on windows
+	- all platforms: only resize when the size changed
+	- all platforms: redrawing issue on resizes
+
 mac os x
 	Textbox
 		refuse first responder
