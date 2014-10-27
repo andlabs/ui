@@ -36,7 +36,6 @@ type stack struct {
 	controls      []Control
 	stretchy      []bool
 	width, height []int // caches to avoid reallocating these each time
-	container		*container
 	padded	bool
 }
 
@@ -47,11 +46,6 @@ func newStack(o orientation, controls ...Control) Stack {
 		stretchy:    make([]bool, len(controls)),
 		width:       make([]int, len(controls)),
 		height:      make([]int, len(controls)),
-		container:		newContainer(),
-	}
-	p := s.container.parent()
-	for _, c := range s.controls {
-		c.setParent(p)
 	}
 	return s
 }
@@ -82,7 +76,9 @@ func (s *stack) SetPadded(padded bool) {
 }
 
 func (s *stack) setParent(parent *controlParent) {
-	s.container.setParent(parent)
+	for _, c := range s.controls {
+		c.setParent(parent)
+	}
 }
 
 func (s *stack) containerShow() {
@@ -100,11 +96,9 @@ func (s *stack) containerHide() {
 func (s *stack) resize(x int, y int, width int, height int, d *sizing) {
 	var stretchywid, stretchyht int
 
-	s.container.resize(x, y, width, height, d)
 	if len(s.controls) == 0 { // do nothing if there's nothing to do
 		return
 	}
-	x, y, width, height = s.container.bounds(d)
 	// -1) get this Stack's padding
 	xpadding := d.xpadding
 	ypadding := d.ypadding
