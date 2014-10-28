@@ -139,3 +139,21 @@ type Textbox interface {
 func NewTextbox() Textbox {
 	return newTextbox()
 }
+
+// Spinbox is a Control that provides a text entry field that accepts integers and up and down buttons to increment and decrement those values.
+// This control is in its preliminary state.
+// TODO everything:
+// - TODO set increment
+// - TODO set step
+// - TODO set page step?
+// - TODO wrapping
+// - TODO set/get integer value
+// - TODO negative values
+type Spinbox interface {
+	Control
+}
+
+// NewSpinbox creates a new Spinbox.
+func NewSpinbox() Spinbox {
+	return newSpinbox()
+}
