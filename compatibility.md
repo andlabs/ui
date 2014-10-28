@@ -80,6 +80,7 @@ not yet in Ubuntu Utopic (14.10)
 ### GTK+ 3.16
 
 - **GtkSidebar**
+- **GtkGLArea**
 
 ## Cocoa
 ### Mac OS X 10.7
