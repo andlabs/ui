@@ -24,10 +24,9 @@ func newTab() Tab {
 }
 
 func (t *tab) Append(name string, control Control) {
-	c := newContainer()
+	c := newContainer(control.resize)
 	t.tabs = append(t.tabs, c)
 	control.setParent(c.parent())
-	c.resize = control.resize
 	t.children = append(t.children, control)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))

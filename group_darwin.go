@@ -18,11 +18,10 @@ type group struct {
 
 func newGroup(text string, control Control) Group {
 	g := new(group)
-	g.container = newContainer()
-	g.controlSingleObject = newControlSingleObject(C.newGroup(g.container.id))
 	g.child = control
+	g.container = newContainer(g.child.resize)
 	g.child.setParent(g.container.parent())
-	g.container.resize = g.child.resize
+	g.controlSingleObject = newControlSingleObject(C.newGroup(g.container.id))
 	g.SetText(text)
 	return g
 }

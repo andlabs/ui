@@ -25,8 +25,10 @@ type sizing struct {
 	neighborAlign C.struct_xalignment
 }
 
-func newContainer() *container {
+// containerResized() gets called early so we have to do this in the constructor
+func newContainer(resize func(x int, y int, width int, height int, d *sizing)) *container {
 	c := new(container)
+	c.resize = resize
 	c.id = C.newContainerView(unsafe.Pointer(c))
 	return c
 }
