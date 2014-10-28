@@ -17,6 +17,7 @@ BOOL (*WINAPI fv_ImageList_Destroy)(HIMAGELIST);
 	ICC_PROGRESS_CLASS |		/* progress bars */		\
 	ICC_TAB_CLASSES |			/* tabs */				\
 	ICC_LISTVIEW_CLASSES |		/* list views */			\
+	ICC_UPDOWN_CLASS |		/* spinboxes */		\
 	0)
 
 // note that this is an 8-bit character string we're writing; see the encoding clause

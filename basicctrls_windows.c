@@ -160,3 +160,6 @@ void setGroupSubclass(HWND hwnd, void *data)
 	if ((*fv_SetWindowSubclass)(hwnd, groupSubProc, 0, (DWORD_PTR) data) == FALSE)
 		xpanic("error subclassing Group to give it its own event handler", GetLastError());
 }
+
+// provided for cgo's benefit
+LPWSTR xUPDOWN_CLASSW = UPDOWN_CLASSW;
