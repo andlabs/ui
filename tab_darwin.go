@@ -13,7 +13,6 @@ type tab struct {
 	*controlSingleObject
 	tabs			[]*container
 	children		[]Control
-	chainresize	func(x int, y int, width int, height int, d *sizing)
 }
 
 func newTab() Tab {
@@ -21,8 +20,6 @@ func newTab() Tab {
 		controlSingleObject:		newControlSingleObject(C.newTab()),
 	}
 	t.fpreferredSize = t.xpreferredSize
-	t.chainresize = t.fresize
-	t.fresize = t.xresize
 	return t
 }
 
@@ -30,6 +27,7 @@ func (t *tab) Append(name string, control Control) {
 	c := newContainer()
 	t.tabs = append(t.tabs, c)
 	control.setParent(c.parent())
+	c.resize = control.resize
 	t.children = append(t.children, control)
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
@@ -41,13 +39,4 @@ func (t *tab) xpreferredSize(d *sizing) (width, height int) {
 	return int(s.width), int(s.height)
 }
 
-func (t *tab) xresize(x int, y int, width int, height int, d *sizing) {
-	// first, chain up to change the GtkFrame and its child container
-	t.chainresize(x, y, width, height, d)
-
-	// now that the containers have the correct size, we can resize the children
-	for i, _ := range t.tabs {
-		a := t.tabs[i].allocation(false/*TODO*/)
-		t.children[i].resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
-	}
-}
+// no need to handle resize; the children containers handle that for us

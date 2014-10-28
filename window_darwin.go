@@ -16,8 +16,6 @@ type window struct {
 
 	child			Control
 	container		*container
-
-	margined		bool
 }
 
 func newWindow(title string, width int, height int, control Control) *window {
@@ -34,6 +32,7 @@ func newWindow(title string, width int, height int, control Control) *window {
 	C.windowSetDelegate(w.id, unsafe.Pointer(w))
 	C.windowSetContentView(w.id, w.container.id)
 	w.child.setParent(w.container.parent())
+	w.container.resize = w.child.resize
 	// trigger an initial resize
 	return w
 }
@@ -50,9 +49,6 @@ func (w *window) SetTitle(title string) {
 
 func (w *window) Show() {
 	C.windowShow(w.id)
-	// trigger an initial resize
-	// TODO fine-tune this
-	windowResized(unsafe.Pointer(w))
 }
 
 func (w *window) Hide() {
@@ -68,11 +64,11 @@ func (w *window) OnClosing(e func() bool) {
 }
 
 func (w *window) Margined() bool {
-	return w.margined
+	return w.container.margined
 }
 
 func (w *window) SetMargined(margined bool) {
-	w.margined = margined
+	w.container.margined = margined
 }
 
 //export windowClosing
@@ -85,10 +81,4 @@ func windowClosing(xw unsafe.Pointer) C.BOOL {
 	return C.NO
 }
 
-//export windowResized
-func windowResized(data unsafe.Pointer) {
-	w := (*window)(data)
-	a := w.container.allocation(w.margined)
-	d := w.beginResize()
-	w.child.resize(int(a.x), int(a.y), int(a.width), int(a.height), d)
-}
+// no need for windowResized; the child container takes care of that

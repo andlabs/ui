@@ -10,7 +10,9 @@ import (
 import "C"
 
 type container struct {
-	*controlSingleObject
+	id			C.id
+	resize		func(x int, y int, width int, height int, d *sizing)
+	margined		bool
 }
 
 type sizing struct {
@@ -25,7 +27,7 @@ type sizing struct {
 
 func newContainer() *container {
 	c := new(container)
-	c.controlSingleObject = newControlSingleObject(C.newContainerView(unsafe.Pointer(c)))
+	c.id = C.newContainerView(unsafe.Pointer(c))
 	return c
 }
 
@@ -33,21 +35,19 @@ func (c *container) parent() *controlParent {
 	return &controlParent{c.id}
 }
 
-func (c *container) allocation(margined bool) C.struct_xrect {
+//export containerResized
+func containerResized(data unsafe.Pointer) {
+	c := (*container)(data)
+	d := beginResize()
+	// TODO make this a parameter
 	b := C.containerBounds(c.id)
-	if margined {
+	if c.margined {
 		b.x += C.intptr_t(macXMargin)
 		b.y += C.intptr_t(macYMargin)
 		b.width -= C.intptr_t(macXMargin) * 2
 		b.height -= C.intptr_t(macYMargin) * 2
 	}
-	return b
-}
-
-// we can just return these values as is
-func (c *container) bounds(d *sizing) (int, int, int, int) {
-	b := C.containerBounds(c.id)
-	return int(b.x), int(b.y), int(b.width), int(b.height)
+	c.resize(int(b.x), int(b.y), int(b.width), int(b.height), d)
 }
 
 // These are based on measurements from Interface Builder.
@@ -58,7 +58,7 @@ const (
 	macYPadding = 8
 )
 
-func (w *window) beginResize() (d *sizing) {
+func beginResize() (d *sizing) {
 	d = new(sizing)
 	d.xpadding = macXPadding
 	d.ypadding = macYPadding

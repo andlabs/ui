@@ -21,6 +21,12 @@
 
 @implementation goContainerView
 
+- (void)setFrameSize:(NSSize)s
+{
+	[super setFrameSize:s];
+	containerResized(self->gocontainer);
+}
+
 @end
 
 id newContainerView(void *gocontainer)
