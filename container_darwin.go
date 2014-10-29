@@ -53,6 +53,7 @@ func containerResized(data unsafe.Pointer) {
 }
 
 // These are based on measurements from Interface Builder.
+// TODO reverify these against /layout rects/, not /frame rects/
 const (
 	macXMargin  = 20
 	macYMargin  = 20

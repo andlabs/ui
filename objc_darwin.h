@@ -151,4 +151,8 @@ extern void openFile(id, void *);
 extern id newWarningPopover(char *);
 extern void warningPopoverShow(id, id);
 
+/* spinbox_darwin.m */
+extern id newSpinboxStepper(void);
+extern id spinboxSetup(id, id, void *);
+
 #endif
