@@ -149,6 +149,7 @@ func NewTextbox() Textbox {
 // - TODO wrapping
 // - TODO set/get integer value
 // - TODO negative values
+// - TODO ensuring values entered in text box stay within bounds
 type Spinbox interface {
 	Control
 }
