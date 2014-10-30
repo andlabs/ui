@@ -10,6 +10,7 @@ import (
 import "C"
 
 // TODO do we have to manually monitor user changes to the edit control?
+// TODO WS_EX_CLIENTEDGE on the updown?
 
 type spinbox struct {
 	hwndEdit			C.HWND
