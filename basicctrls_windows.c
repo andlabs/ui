@@ -161,5 +161,27 @@ void setGroupSubclass(HWND hwnd, void *data)
 		xpanic("error subclassing Group to give it its own event handler", GetLastError());
 }
 
-// provided for cgo's benefit
-LPWSTR xUPDOWN_CLASSW = UPDOWN_CLASSW;
+HWND newUpDown(HWND prevUpDown)
+{
+	HWND hwnd;
+	HWND parent;
+
+	parent = msgwin;		// for the first up-down
+	if (prevUpDown != NULL) {
+		parent = GetParent(prevUpDown);
+		if (parent == NULL)
+			xpanic("error getting parent of old up-down in Spinbox resize for new up-down", GetLastError());
+		if (DestroyWindow(prevUpDown) == 0)
+			xpanic("error destroying previous up-down in Spinbox resize", GetLastError());
+	}
+	hwnd = CreateWindowExW(0,
+		UPDOWN_CLASSW, L"",
+		// no WS_VISIBLE; we set visibility ourselves
+		WS_CHILD | UDS_ALIGNRIGHT | UDS_ARROWKEYS | UDS_HOTTRACK | UDS_NOTHOUSANDS | UDS_SETBUDDYINT,
+		// this is important; it's necessary for autosizing to work
+		0, 0, 0, 0,
+		parent, NULL, hInstance, NULL);
+	if (hwnd == NULL)
+		xpanic("error creating up-down control for Spinbox", GetLastError());
+	return hwnd;
+}

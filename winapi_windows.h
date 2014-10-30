@@ -75,7 +75,7 @@ extern void setTextFieldSubclass(HWND, void *);
 extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
 extern void textfieldHideInvalidBalloonTip(HWND);
 extern void setGroupSubclass(HWND, void *);
-extern LPWSTR xUPDOWN_CLASSW;
+extern HWND newUpDown(HWND);
 
 // init_windows.c
 extern HINSTANCE hInstance;
