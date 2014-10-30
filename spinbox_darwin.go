@@ -21,22 +21,26 @@ import "C"
 // - proper spacing between edit and spinner: Interface Builder isn't clear; NSDatePicker doesn't spill the beans
 
 type spinbox struct {
-	textfield		C.id
-	stepper		C.id
-	objcspinbox	C.id
+	id	C.id
 }
 
 func newSpinbox() Spinbox {
 	s := new(spinbox)
-	s.textfield = C.newTextField()
-	s.stepper = C.newSpinboxStepper()
-	s.objcspinbox = C.spinboxSetup(s.textfield, s.stepper, unsafe.Pointer(s))
+	s.id = C.newSpinbox(unsafe.Pointer(s))
 	return s
 }
 
+func (s *spinbox) textfield() C.id {
+	return C.spinboxTextField(s.id)
+}
+
+func (s *spinbox) stepper() C.id {
+	return C.spinboxStepper(s.id)
+}
+
 func (s *spinbox) setParent(p *controlParent) {
-	C.parent(s.textfield, p.id)
-	C.parent(s.stepper, p.id)
+	C.parent(s.textfield(), p.id)
+	C.parent(s.stepper(), p.id)
 }
 
 func (s *spinbox) preferredSize(d *sizing) (width, height int) {
@@ -46,8 +50,8 @@ func (s *spinbox) preferredSize(d *sizing) (width, height int) {
 
 func (s *spinbox) resize(x int, y int, width int, height int, d *sizing) {
 	// TODO
-	C.moveControl(s.textfield, C.intptr_t(x), C.intptr_t(y), C.intptr_t(width - 20), C.intptr_t(height))
-	C.moveControl(s.stepper, C.intptr_t(x + width - 15), C.intptr_t(y), C.intptr_t(15), C.intptr_t(height))
+	C.moveControl(s.textfield(), C.intptr_t(x), C.intptr_t(y), C.intptr_t(width - 20), C.intptr_t(height))
+	C.moveControl(s.stepper(), C.intptr_t(x + width - 15), C.intptr_t(y), C.intptr_t(15), C.intptr_t(height))
 }
 
 func (s *spinbox) nTabStops() int {
