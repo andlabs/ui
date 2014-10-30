@@ -1,3 +1,6 @@
+C interop
+	- substitute intmax_t and uintmax_t for all uses of intptr_t and uintptr_t
+
 mac os x sizing is now completely broken
 	- need to catch window initial sizes
 
