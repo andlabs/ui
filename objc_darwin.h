@@ -152,8 +152,10 @@ extern id newWarningPopover(char *);
 extern void warningPopoverShow(id, id);
 
 /* spinbox_darwin.m */
-extern id newSpinbox(void *);
+extern id newSpinbox(void *, intmax_t, intmax_t);
 extern id spinboxTextField(id);
 extern id spinboxStepper(id);
+extern intmax_t spinboxValue(id);
+extern void spinboxSetValue(id, intmax_t);
 
 #endif

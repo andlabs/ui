@@ -24,10 +24,18 @@ type spinbox struct {
 	id	C.id
 }
 
-func newSpinbox() Spinbox {
+func newSpinbox(min int, max int) Spinbox {
 	s := new(spinbox)
-	s.id = C.newSpinbox(unsafe.Pointer(s))
+	s.id = C.newSpinbox(unsafe.Pointer(s), C.intmax_t(min), C.intmax_t(max))
 	return s
+}
+
+func (s *spinbox) Value() int {
+	return int(C.spinboxValue(s.id))
+}
+
+func (s *spinbox) SetValue(value int) {
+	C.spinboxSetValue(s.id, C.intmax_t(value))
 }
 
 func (s *spinbox) textfield() C.id {

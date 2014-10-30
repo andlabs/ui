@@ -21,7 +21,7 @@
 
 @implementation goSpinbox
 
-- (id)init
+- (id)initWithMinimum:(NSInteger)minimum maximum:(NSInteger)maximum
 {
 	self = [super init];
 	if (self == nil)
@@ -40,13 +40,14 @@
 
 	self->stepper = [[NSStepper alloc] initWithFrame:NSZeroRect];
 	[self->stepper setIncrement:1];
+	[self->stepper setValueWraps:NO];
 	[self->stepper setAutorepeat:YES];		// hold mouse button to step repeatedly
 
 	// TODO how SHOULD the formatter treat invald input?
 
-	[self setMinimum:0];
-	[self setMaximum:100];
-	[self setValue:0];
+	[self setMinimum:minimum];
+	[self setMaximum:maximum];
+	[self setValue:self->minimum];
 
 	[self->textfield setDelegate:self];
 	[self->stepper setTarget:self];
@@ -57,42 +58,49 @@
 
 - (void)setValue:(NSInteger)value
 {
+	if (self->value < self->minimum)
+		self->value = self->minimum;
+	if (self->value > self->maximum)
+		self->value = self->maximum;
 	self->value = value;
-	[self->textfield setIntegerValue:value];
-	[self->stepper setIntegerValue:value];
+	// TODO does not work?
+	[self->textfield setIntegerValue:self->value];
+	[self->stepper setIntegerValue:self->value];
 }
 
 - (void)setMinimum:(NSInteger)min
 {
 	self->minimum = min;
-	[self->formatter setMinimum:[NSNumber numberWithInteger:min]];
-	[self->stepper setMinValue:((double) min)];
+	[self->formatter setMinimum:[NSNumber numberWithInteger:self->minimum]];
+	[self->stepper setMinValue:((double) (self->minimum))];
 }
 
 - (void)setMaximum:(NSInteger)max
 {
 	self->maximum = max;
-	[self->formatter setMaximum:[NSNumber numberWithInteger:max]];
-	[self->stepper setMaxValue:((double) max)];
+	[self->formatter setMaximum:[NSNumber numberWithInteger:self->maximum]];
+	[self->stepper setMaxValue:((double) (self->maximum))];
 }
 
 - (IBAction)stepperClicked:(id)sender
 {
+NSLog(@"stepperClicked %d\n", [self->stepper integerValue]);
 	[self setValue:[self->stepper integerValue]];
 }
 
 - (void)controlTextDidChange:(NSNotification *)note
 {
+NSLog(@"controlTextDidChange %d\n", [self->textfield integerValue]);
 	[self setValue:[self->textfield integerValue]];
 }
 
 @end
 
-id newSpinbox(void *gospinbox)
+id newSpinbox(void *gospinbox, intmax_t minimum, intmax_t maximum)
 {
 	goSpinbox *s;
 
-	s = [goSpinbox new];
+	s = [[goSpinbox new] initWithMinimum:((NSInteger) minimum) maximum:((NSInteger) maximum)];
 	s->gospinbox = gospinbox;
 	return s;
 }
@@ -105,4 +113,14 @@ id spinboxTextField(id spinbox)
 id spinboxStepper(id spinbox)
 {
 	return (id) (togoSpinbox(spinbox)->stepper);
+}
+
+intmax_t spinboxValue(id spinbox)
+{
+	return (intmax_t) (togoSpinbox(spinbox)->value);
+}
+
+void spinboxSetValue(id spinbox, intmax_t value)
+{
+	[togoSpinbox(spinbox) setValue:((NSInteger) value)];
 }
