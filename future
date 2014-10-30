@@ -1,3 +1,6 @@
+windows
+	- WM_WININICHANGED, etc. (TODO get a full list) causing size recomputations
+
 C interop
 	- substitute intmax_t and uintmax_t for all uses of intptr_t and uintptr_t
 
