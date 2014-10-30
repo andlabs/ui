@@ -143,8 +143,7 @@ func NewTextbox() Textbox {
 // Spinbox is a Control that provides a text entry field that accepts integers and up and down buttons to increment and decrement those values.
 // This control is in its preliminary state.
 // TODO everything:
-// - TODO set increment
-// - TODO set step
+// - TODO set increment? (work on windows)
 // - TODO set page step?
 // - TODO wrapping
 // - TODO set/get integer value
@@ -152,9 +151,19 @@ func NewTextbox() Textbox {
 // - TODO ensuring values entered in text box stay within bounds
 type Spinbox interface {
 	Control
+
+	// Value and SetValue get and set the current value of the Spinbox, respectively.
+	// For SetValue, if the new value is outside the current range of the Spinbox, it is set to the nearest extremity.
+	Value() int
+	SetValue(value int)
 }
 
-// NewSpinbox creates a new Spinbox.
-func NewSpinbox() Spinbox {
-	return newSpinbox()
+// NewSpinbox creates a new Spinbox with the given minimum and maximum.
+// The initial value will be the minimum value.
+// NewSpinbox() panics if min > max.
+func NewSpinbox(min int, max int) Spinbox {
+	if min > max {
+		panic("min > max in NewSpinbox()")
+	}
+	return newSpinbox(min, max)
 }
