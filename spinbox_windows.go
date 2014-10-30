@@ -17,16 +17,42 @@ type spinbox struct {
 	hwndUpDown		C.HWND
 	// updown state
 	updownVisible		bool
+	// keep these here to avoid having to get them out
+	value			int
+	min				int
+	max				int
 }
 
-func newSpinbox() Spinbox {
+func newSpinbox(min int, max int) Spinbox {
 	s := new(spinbox)
 	s.hwndEdit = C.newControl(editclass,
 		C.textfieldStyle | C.ES_NUMBER,
 		C.textfieldExtStyle)
 	s.updownVisible = true		// initially shown
+	s.min = min
+	s.max = max
+	s.value = s.min
 	s.remakeUpDown()
 	return s
+}
+
+func (s *spinbox) Value() int {
+	// TODO TODO TODO TODO TODO
+	// this CAN error out!!!
+	// we need to update s.value but we need to implement events first
+	return int(C.SendMessageW(s.hwndUpDown, C.UDM_GETPOS32, 0, 0))
+}
+
+func (s *spinbox) SetValue(value int) {
+	// UDM_SETPOS32 is documented to do what we want, but since we're keeping a copy of value we need to do it anyway
+	if value < s.min {
+		value = s.min
+	}
+	if value > s.max {
+		value = s.max
+	}
+	s.value = value
+	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(value))
 }
 
 func (s *spinbox) setParent(p *controlParent) {
@@ -44,8 +70,8 @@ func (s *spinbox) remakeUpDown() {
 	// for this to work, hwndUpDown needs to have rect [0 0 0 0]
 	C.moveWindow(s.hwndUpDown, 0, 0, 0, 0)
 	C.SendMessageW(s.hwndUpDown, C.UDM_SETBUDDY, C.WPARAM(uintptr(unsafe.Pointer(s.hwndEdit))), 0)
-	C.SendMessageW(s.hwndUpDown, C.UDM_SETRANGE32, 0, 100)
-	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, 0)
+	C.SendMessageW(s.hwndUpDown, C.UDM_SETRANGE32, C.WPARAM(s.min), C.LPARAM(s.max))
+	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(s.value))
 	if s.updownVisible {
 		C.ShowWindow(s.hwndUpDown, C.SW_SHOW)
 	}
