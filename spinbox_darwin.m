@@ -28,9 +28,16 @@
 		return nil;
 
 	self->textfield = (NSTextField *) newTextField();
+
 	self->formatter = [NSNumberFormatter new];
+	[self->formatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+	[self->formatter setLocalizesFormat:NO];
+	[self->formatter setUsesGroupingSeparator:NO];
+	[self->formatter setHasThousandSeparators:NO];
 	[self->formatter setAllowsFloats:NO];
+	// TODO partial string validation?
 	[self->textfield setFormatter:self->formatter];
+
 	self->stepper = [[NSStepper alloc] initWithFrame:NSZeroRect];
 	[self->stepper setIncrement:1];
 	[self->stepper setAutorepeat:YES];		// hold mouse button to step repeatedly
