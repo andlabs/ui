@@ -98,8 +98,7 @@ void paintControlBackground(HWND hwnd, HDC dc)
 {
 	HWND parent;
 	RECT r;
-	POINT p;
-	int saved;
+	POINT p, pOrig;
 	WCHAR classname[128] = L"";		// more than enough to avoid collisions
 
 	parent = hwnd;
@@ -123,12 +122,9 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	p.y = r.top;
 	if (ScreenToClient(parent, &p) == 0)
 		xpanic("error getting client origin of control in paintControlBackground()", GetLastError());
-	saved = SaveDC(dc);
-	if (saved == 0)
-		xpanic("error saving DC info in paintControlBackground()", GetLastError());
-	if (SetWindowOrgEx(dc, p.x, p.y, NULL) == 0)
+	if (SetWindowOrgEx(dc, p.x, p.y, &pOrig) == 0)
 		xpanic("error moving window origin in paintControlBackground()", GetLastError());
 	SendMessageW(parent, WM_PRINTCLIENT, (WPARAM) dc, PRF_CLIENT);
-	if (RestoreDC(dc, saved) == 0)
-		xpanic("error restoring DC info in paintControlBackground()", GetLastError());
+	if (SetWindowOrgEx(dc, pOrig.x, pOrig.y, NULL) == 0)
+		xpanic("error resetting window origin in paintControlBackground()", GetLastError());
 }
