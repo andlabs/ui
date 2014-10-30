@@ -12,16 +12,73 @@
 	NSTextField *textfield;
 	NSNumberFormatter *formatter;
 	NSStepper *stepper;
+
+	NSInteger value;
+	NSInteger minimum;
+	NSInteger maximum;
 }
-@property NSInteger integerValue;
-@property NSInteger minimum;
-@property NSInteger maximum;
 @end
 
 @implementation goSpinbox
-@synthesize integerValue;
-@synthesize minimum;
-@synthesize maximum;
+
+- (id)init
+{
+	self = [super init];
+	if (self == nil)
+		return nil;
+
+	self->textfield = (NSTextField *) newTextField();
+	self->formatter = [NSNumberFormatter new];
+	[self->formatter setAllowsFloats:NO];
+	[self->textfield setFormatter:self->formatter];
+	self->stepper = [[NSStepper alloc] initWithFrame:NSZeroRect];
+	[self->stepper setIncrement:1];
+	[self->stepper setAutorepeat:YES];		// hold mouse button to step repeatedly
+
+	// TODO how SHOULD the formatter treat invald input?
+
+	[self setMinimum:0];
+	[self setMaximum:100];
+	[self setValue:0];
+
+	[self->textfield setDelegate:self];
+	[self->stepper setTarget:self];
+	[self->stepper setAction:@selector(stepperClicked:)];
+
+	return self;
+}
+
+- (void)setValue:(NSInteger)value
+{
+	self->value = value;
+	[self->textfield setIntegerValue:value];
+	[self->stepper setIntegerValue:value];
+}
+
+- (void)setMinimum:(NSInteger)min
+{
+	self->minimum = min;
+	[self->formatter setMinimum:[NSNumber numberWithInteger:min]];
+	[self->stepper setMinValue:((double) min)];
+}
+
+- (void)setMaximum:(NSInteger)max
+{
+	self->maximum = max;
+	[self->formatter setMaximum:[NSNumber numberWithInteger:max]];
+	[self->stepper setMaxValue:((double) max)];
+}
+
+- (IBAction)stepperClicked:(id)sender
+{
+	[self setValue:[self->stepper integerValue]];
+}
+
+- (void)controlTextDidChange:(NSNotification *)note
+{
+	[self setValue:[self->textfield integerValue]];
+}
+
 @end
 
 id newSpinbox(void *gospinbox)
@@ -30,24 +87,7 @@ id newSpinbox(void *gospinbox)
 
 	s = [goSpinbox new];
 	s->gospinbox = gospinbox;
-	s->textfield = (NSTextField *) newTextField();
-	s->formatter = [NSNumberFormatter new];
-	[s->formatter setAllowsFloats:NO];
-	[s->textfield setFormatter:s->formatter];
-	s->stepper = [[NSStepper alloc] initWithFrame:NSZeroRect];
-	[s->stepper setAutorepeat:YES];		// hold mouse button to step repeatedly
-
-	[s setMinimum:0];
-	[s setMaximum:100];
-
-	[s->textfield bind:@"integerValue" toObject:s withKeyPath:@"integerValue" options:nil];
-	[s->stepper bind:@"integerValue" toObject:s withKeyPath:@"integerValue" options:nil];
-//	[s->formatter bind:@"minimum" toObject:s withKeyPath:@"minimum" options:nil];
-	[s->stepper bind:@"minValue" toObject:s withKeyPath:@"minimum" options:nil];
-//	[s->formatter bind:@"maximum" toObject:s withkeyPath:@"maximum" options:nil];
-	[s->stepper bind:@"maxValue" toObject:s withKeyPath:@"maximum" options:nil];
-
-	return (id) s;
+	return s;
 }
 
 id spinboxTextField(id spinbox)
