@@ -136,7 +136,7 @@ static LRESULT CALLBACK groupSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	if (sharedWndProc(hwnd, uMsg, wParam, lParam, &lResult))
 		return lResult;
 	switch (uMsg) {
-	case WM_WINDOWPOSCHANGING:
+	// don't do this on WM_WINDOWPOSCHANGING; weird redraw issues will happen
 	case WM_WINDOWPOSCHANGED:
 		// don't use the WINDOWPOS rect here; the coordinates of the controls have to be in real client coordinates
 		if (GetClientRect(hwnd, &r) == 0)

@@ -28,7 +28,7 @@ static LRESULT CALLBACK windowWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (FillRect((HDC) wParam, &r, windowBackground) == 0)
 			xpanic("error filling WM_PRINTCLIENT DC with window background color", GetLastError());
 		return lResult;
-	case WM_WINDOWPOSCHANGING:
+	// don't do this on WM_WINDOWPOSCHANGING; weird redraw issues will happen
 	case WM_WINDOWPOSCHANGED:
 		if (GetClientRect(hwnd, &r) == 0)
 			xpanic("error getting client rect for Window in WM_SIZE", GetLastError());

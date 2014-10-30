@@ -31,7 +31,7 @@ static LRESULT CALLBACK tabSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 	case msgTabCurrentTabHasChildren:
 		return (LRESULT) tabTabHasChildren((void *) data, SendMessageW(hwnd, TCM_GETCURSEL, 0, 0));
-	case WM_WINDOWPOSCHANGING:
+	// don't do this on WM_WINDOWPOSCHANGING; weird redraw issues will happen
 	case WM_WINDOWPOSCHANGED:
 		wp = (WINDOWPOS *) lParam;
 		resizeRect.left = wp->x;
