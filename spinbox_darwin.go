@@ -21,12 +21,14 @@ import "C"
 // - proper spacing between edit and spinner: Interface Builder isn't clear; NSDatePicker doesn't spill the beans
 
 type spinbox struct {
-	id	C.id
+	id			C.id
+	changed		*event
 }
 
 func newSpinbox(min int, max int) Spinbox {
 	s := new(spinbox)
 	s.id = C.newSpinbox(unsafe.Pointer(s), C.intmax_t(min), C.intmax_t(max))
+	s.changed = newEvent()
 	return s
 }
 
@@ -36,6 +38,16 @@ func (s *spinbox) Value() int {
 
 func (s *spinbox) SetValue(value int) {
 	C.spinboxSetValue(s.id, C.intmax_t(value))
+}
+
+func (s *spinbox) OnChanged(e func()) {
+	s.changed.set(e)
+}
+
+//export spinboxChanged
+func spinboxChanged(data unsafe.Pointer) {
+	s := (*spinbox)(data)
+	s.changed.fire()
 }
 
 func (s *spinbox) textfield() C.id {

@@ -146,7 +146,6 @@ func NewTextbox() Textbox {
 // - TODO set increment? (work on windows)
 // - TODO set page step?
 // - TODO wrapping
-// - TODO set/get integer value
 // - TODO negative values
 // - TODO ensuring values entered in text box stay within bounds
 type Spinbox interface {
@@ -156,6 +155,10 @@ type Spinbox interface {
 	// For SetValue, if the new value is outside the current range of the Spinbox, it is set to the nearest extremity.
 	Value() int
 	SetValue(value int)
+
+	// OnChanged sets the event handler for when the Spinbox's value is changed.
+	// Under what conditions this event is raised when the user types into the Spinbox's edit field is platform-defined.
+	OnChanged(func())
 }
 
 // NewSpinbox creates a new Spinbox with the given minimum and maximum.

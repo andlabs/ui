@@ -150,15 +150,11 @@ func (tw *testwin) addfe() {
 	tw.festack.SetStretchy(4)
 	tw.festack.SetStretchy(6)
 	sb := NewSpinbox(0, 100)
-	cbutton := NewButton("Set to Invalid Low")
-	cbutton.OnClicked(func() {
-		sb.SetValue(-500)
+	sl := NewLabel("")
+	sb.OnChanged(func() {
+		sl.SetText(fmt.Sprintf("%d", sb.Value()))
 	})
-	dbutton := NewButton("Set to Invalid High")
-	dbutton.OnClicked(func() {
-		sb.SetValue(500)
-	})
-	tw.festack2 = newVerticalStack(sb, cbutton, dbutton, Space(), NewTextbox())
+	tw.festack2 = newVerticalStack(sb, sl, Space(), Space(), NewTextbox())
 	tw.festack2.SetStretchy(3)
 	tw.festack2.SetStretchy(4)
 	tw.festack = newHorizontalStack(tw.festack, tw.festack2)

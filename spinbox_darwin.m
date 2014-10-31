@@ -84,11 +84,13 @@
 - (IBAction)stepperClicked:(id)sender
 {
 	[self setValue:[self->stepper integerValue]];
+	spinboxChanged(self->gospinbox);
 }
 
 - (void)controlTextDidChange:(NSNotification *)note
 {
 	[self setValue:[self->textfield integerValue]];
+	spinboxChanged(self->gospinbox);
 }
 
 @end
