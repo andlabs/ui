@@ -58,12 +58,11 @@
 
 - (void)setValue:(NSInteger)value
 {
+	self->value = value;
 	if (self->value < self->minimum)
 		self->value = self->minimum;
 	if (self->value > self->maximum)
 		self->value = self->maximum;
-	self->value = value;
-	// TODO does not work?
 	[self->textfield setIntegerValue:self->value];
 	[self->stepper setIntegerValue:self->value];
 }
@@ -84,13 +83,11 @@
 
 - (IBAction)stepperClicked:(id)sender
 {
-NSLog(@"stepperClicked %d\n", [self->stepper integerValue]);
 	[self setValue:[self->stepper integerValue]];
 }
 
 - (void)controlTextDidChange:(NSNotification *)note
 {
-NSLog(@"controlTextDidChange %d\n", [self->textfield integerValue]);
 	[self setValue:[self->textfield integerValue]];
 }
 
