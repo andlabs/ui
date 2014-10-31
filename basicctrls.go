@@ -147,7 +147,7 @@ func NewTextbox() Textbox {
 // - TODO set page step?
 // - TODO wrapping
 // - TODO negative values
-// - TODO ensuring values entered in text box stay within bounds
+// - TODO ensuring values entered in text box stay within bounds (OS X seems to take care of this automatically; not sure about Windows or GTK+...)
 type Spinbox interface {
 	Control
 
