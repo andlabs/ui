@@ -161,7 +161,30 @@ void setGroupSubclass(HWND hwnd, void *data)
 		xpanic("error subclassing Group to give it its own event handler", GetLastError());
 }
 
-HWND newUpDown(HWND prevUpDown)
+static LRESULT CALLBACK updownSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	NMHDR *nmhdr = (NMHDR *) lParam;
+
+	switch (uMsg) {
+	case msgNOTIFY:
+		switch (nmhdr->code) {
+		case UDN_DELTAPOS:
+			spinboxUpDownClicked((void *) data, (NMUPDOWN *) lParam);
+			return FALSE;			// allow change
+		}
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, updownSubProc, id) == FALSE)
+			xpanic("error removing Spinbox up-down control subclass (which was for its own event handler)", GetLastError());
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	default:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	}
+	xmissedmsg("Spinbox up-down control", "updownSubProc()", uMsg);
+	return 0;		// unreached
+}
+
+HWND newUpDown(HWND prevUpDown, void *data)
 {
 	HWND hwnd;
 	HWND parent;
@@ -183,5 +206,7 @@ HWND newUpDown(HWND prevUpDown)
 		parent, NULL, hInstance, NULL);
 	if (hwnd == NULL)
 		xpanic("error creating up-down control for Spinbox", GetLastError());
+	if ((*fv_SetWindowSubclass)(hwnd, updownSubProc, 0, (DWORD_PTR) data) == FALSE)
+		xpanic("error subclassing Spinbox up-down control to give it its own event handler", GetLastError());
 	return hwnd;
 }

@@ -15,6 +15,7 @@ import "C"
 type spinbox struct {
 	hwndEdit			C.HWND
 	hwndUpDown		C.HWND
+	changed			*event
 	// updown state
 	updownVisible		bool
 	// keep these here to avoid having to get them out
@@ -28,6 +29,7 @@ func newSpinbox(min int, max int) Spinbox {
 	s.hwndEdit = C.newControl(editclass,
 		C.textfieldStyle | C.ES_NUMBER,
 		C.textfieldExtStyle)
+	s.changed = newEvent()
 	s.updownVisible = true		// initially shown
 	s.min = min
 	s.max = max
@@ -37,10 +39,7 @@ func newSpinbox(min int, max int) Spinbox {
 }
 
 func (s *spinbox) Value() int {
-	// TODO TODO TODO TODO TODO
-	// this CAN error out!!!
-	// we need to update s.value but we need to implement events first
-	return int(C.SendMessageW(s.hwndUpDown, C.UDM_GETPOS32, 0, 0))
+	return s.value
 }
 
 func (s *spinbox) SetValue(value int) {
@@ -55,6 +54,19 @@ func (s *spinbox) SetValue(value int) {
 	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(value))
 }
 
+func (s *spinbox) OnChanged(e func()) {
+	s.changed.set(e)
+}
+
+//export spinboxUpDownClicked
+func spinboxUpDownClicked(data unsafe.Pointer, nud *C.NMUPDOWN) {
+	// this is where we do custom increments
+	s := (*spinbox)(data)
+	// TODO this is allowed to go beyond the limits in wine?
+	s.value = int(nud.iPos + nud.iDelta)
+	s.changed.fire()
+}
+
 func (s *spinbox) setParent(p *controlParent) {
 	C.controlSetParent(s.hwndEdit, p.hwnd)
 	C.controlSetParent(s.hwndUpDown, p.hwnd)
@@ -65,8 +77,8 @@ func (s *spinbox) setParent(p *controlParent) {
 // alas, we have to make a new up/down control each time :(
 // TODO we'll need to store a copy of the current position and range for this
 func (s *spinbox) remakeUpDown() {
-	// destroying the previous one and setting the parent properly is handled here
-	s.hwndUpDown = C.newUpDown(s.hwndUpDown)
+	// destroying the previous one, setting the parent properly, and subclassing are handled here
+	s.hwndUpDown = C.newUpDown(s.hwndUpDown, unsafe.Pointer(s))
 	// for this to work, hwndUpDown needs to have rect [0 0 0 0]
 	C.moveWindow(s.hwndUpDown, 0, 0, 0, 0)
 	C.SendMessageW(s.hwndUpDown, C.UDM_SETBUDDY, C.WPARAM(uintptr(unsafe.Pointer(s.hwndEdit))), 0)
