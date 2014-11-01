@@ -5,7 +5,7 @@ C interop
 	- substitute intmax_t and uintmax_t for all uses of intptr_t and uintptr_t
 
 mac os x sizing is now completely broken
-	- need to catch window initial sizes
+	- need to catch window initial sizes?
 
 password fields: caps lock warnings
 
@@ -19,6 +19,8 @@ mac os x
 	Textbox
 		refuse first responder
 		Textbox does not work at all
+	sizing
+		things can get cut off (top of NSStepper) with alignment rect based positioning...
 
 new control stuff
 	Tab, Group
