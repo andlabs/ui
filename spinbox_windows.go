@@ -38,20 +38,24 @@ func newSpinbox(min int, max int) Spinbox {
 	return s
 }
 
+func (s *spinbox) cap() {
+	if s.value < s.min {
+		s.value = s.min
+	}
+	if s.value > s.max {
+		s.value = s.max
+	}
+}
+
 func (s *spinbox) Value() int {
 	return s.value
 }
 
 func (s *spinbox) SetValue(value int) {
 	// UDM_SETPOS32 is documented to do what we want, but since we're keeping a copy of value we need to do it anyway
-	if value < s.min {
-		value = s.min
-	}
-	if value > s.max {
-		value = s.max
-	}
 	s.value = value
-	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(value))
+	s.cap()
+	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(s.value))
 }
 
 func (s *spinbox) OnChanged(e func()) {
@@ -62,8 +66,10 @@ func (s *spinbox) OnChanged(e func()) {
 func spinboxUpDownClicked(data unsafe.Pointer, nud *C.NMUPDOWN) {
 	// this is where we do custom increments
 	s := (*spinbox)(data)
-	// TODO this is allowed to go beyond the limits in wine?
 	s.value = int(nud.iPos + nud.iDelta)
+	// this can go above or below the bounds (the spinbox only rejects invalid values after the UDN_DELTAPOS notification is processed)
+	// because we have a copy of the value, we need to fix that here
+	s.cap()
 	s.changed.fire()
 }
 
