@@ -35,6 +35,7 @@ func newSpinbox(min int, max int) Spinbox {
 	s.max = max
 	s.value = s.min
 	s.remakeUpDown()
+	C.setSpinboxEditSubclass(s.hwndEdit, unsafe.Pointer(s))
 	return s
 }
 
@@ -70,6 +71,13 @@ func spinboxUpDownClicked(data unsafe.Pointer, nud *C.NMUPDOWN) {
 	// this can go above or below the bounds (the spinbox only rejects invalid values after the UDN_DELTAPOS notification is processed)
 	// because we have a copy of the value, we need to fix that here
 	s.cap()
+	s.changed.fire()
+}
+
+//export spinboxEditChanged
+func spinboxEditChanged(data unsafe.Pointer) {
+	s := (*spinbox)(unsafe.Pointer(data))
+	// TODO
 	s.changed.fire()
 }
 

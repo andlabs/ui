@@ -76,6 +76,7 @@ extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
 extern void textfieldHideInvalidBalloonTip(HWND);
 extern void setGroupSubclass(HWND, void *);
 extern HWND newUpDown(HWND, void *);
+extern void setSpinboxEditSubclass(HWND, void *);
 
 // init_windows.c
 extern HINSTANCE hInstance;

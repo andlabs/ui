@@ -210,3 +210,29 @@ HWND newUpDown(HWND prevUpDown, void *data)
 		xpanic("error subclassing Spinbox up-down control to give it its own event handler", GetLastError());
 	return hwnd;
 }
+
+static LRESULT CALLBACK spinboxEditSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
+{
+	switch (uMsg) {
+	case msgCOMMAND:
+		if (HIWORD(wParam) == EN_CHANGE) {
+			spinboxEditChanged((void *) data);
+			return 0;
+		}
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	case WM_NCDESTROY:
+		if ((*fv_RemoveWindowSubclass)(hwnd, spinboxEditSubProc, id) == FALSE)
+			xpanic("error removing Spinbox edit control subclass (which was for its own event handler)", GetLastError());
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	default:
+		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
+	}
+	xmissedmsg("Spinbox edit control", "spinboxEditSubProc()", uMsg);
+	return 0;		// unreached
+}
+
+void setSpinboxEditSubclass(HWND hwnd, void *data)
+{
+	if ((*fv_SetWindowSubclass)(hwnd, spinboxEditSubProc, 0, (DWORD_PTR) data) == FALSE)
+		xpanic("error subclassing Spinbox edit control to give it its own event handler", GetLastError());
+}
