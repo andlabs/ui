@@ -3,6 +3,7 @@
 package ui
 
 import (
+	"strconv"
 	"unsafe"
 )
 
@@ -78,6 +79,13 @@ func spinboxUpDownClicked(data unsafe.Pointer, nud *C.NMUPDOWN) {
 func spinboxEditChanged(data unsafe.Pointer) {
 	s := (*spinbox)(unsafe.Pointer(data))
 	// TODO
+	value, err := strconv.Atoi(getWindowText(s.hwndEdit))
+	if err != nil {
+		// TODO see what OS X does
+	}
+	s.value = int(value)
+	s.cap()
+	// TODO see what OS X does if the cap happened
 	s.changed.fire()
 }
 
