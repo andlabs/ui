@@ -236,3 +236,6 @@ void setSpinboxEditSubclass(HWND hwnd, void *data)
 	if ((*fv_SetWindowSubclass)(hwnd, spinboxEditSubProc, 0, (DWORD_PTR) data) == FALSE)
 		xpanic("error subclassing Spinbox edit control to give it its own event handler", GetLastError());
 }
+
+// provided for cgo's benefit
+LPWSTR xPROGRESS_CLASS = PROGRESS_CLASS;
