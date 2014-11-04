@@ -77,15 +77,20 @@ func spinboxUpDownClicked(data unsafe.Pointer, nud *C.NMUPDOWN) {
 
 //export spinboxEditChanged
 func spinboxEditChanged(data unsafe.Pointer) {
+	// we're basically on our own here
 	s := (*spinbox)(unsafe.Pointer(data))
-	// TODO
+	// this basically does what OS X does: values too low get clamped to the minimum, values too high get clamped to the maximum, and deleting everything clamps to the minimum
 	value, err := strconv.Atoi(getWindowText(s.hwndEdit))
 	if err != nil {
-		// TODO see what OS X does
+		// best we can do fo rnow in this case :S
+		// a partial atoi() like in C would be more optimal
+		// it handles the deleting everything case just fine
+		value = s.min
 	}
-	s.value = int(value)
+	s.value = value
 	s.cap()
-	// TODO see what OS X does if the cap happened
+	C.SendMessageW(s.hwndUpDown, C.UDM_SETPOS32, 0, C.LPARAM(s.value))
+	// TODO position the insertion caret at the end (or wherever is appropriate)
 	s.changed.fire()
 }
 
