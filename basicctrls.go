@@ -147,7 +147,6 @@ func NewTextbox() Textbox {
 // - TODO set page step?
 // - TODO wrapping
 // - TODO negative values
-// - TODO ensuring values entered in text box stay within bounds (OS X seems to take care of this automatically; not sure about Windows or GTK+...)
 type Spinbox interface {
 	Control
 
@@ -169,4 +168,20 @@ func NewSpinbox(min int, max int) Spinbox {
 		panic("min > max in NewSpinbox()")
 	}
 	return newSpinbox(min, max)
+}
+
+// ProgressBar is a Control that displays a horizontal bar which shows the level of completion of an operation.
+type ProgressBar interface {
+	Control
+
+	// Percent and SetPrecent get and set the current percentage indicated by the ProgressBar, respectively.
+	// This value must be between 0 and 100; all other values cause SetPercent to panic.
+	Percent() int
+	SetPercent(percent int)
+}
+
+// NewProgressBar creates a new ProgressBar.
+// It will initially show a progress of 0%.
+func NewProgressBar() ProgressBar {
+	return newProgressBar()
 }
