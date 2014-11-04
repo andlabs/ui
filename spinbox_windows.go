@@ -36,6 +36,7 @@ func newSpinbox(min int, max int) Spinbox {
 	s.max = max
 	s.value = s.min
 	s.remakeUpDown()
+	C.controlSetControlFont(s.hwndEdit)
 	C.setSpinboxEditSubclass(s.hwndEdit, unsafe.Pointer(s))
 	return s
 }
@@ -116,9 +117,10 @@ func (s *spinbox) remakeUpDown() {
 	}
 }
 
+// use the same height as normal text fields
+// TODO constrain the width somehow
 func (s *spinbox) preferredSize(d *sizing) (width, height int) {
-	// TODO
-	return 20, 20
+	return fromdlgunitsX(textfieldWidth, d), fromdlgunitsY(textfieldHeight, d)
 }
 
 func (s *spinbox) resize(x int, y int, width int, height int, d *sizing) {
