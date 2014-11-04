@@ -171,11 +171,13 @@ func NewSpinbox(min int, max int) Spinbox {
 }
 
 // ProgressBar is a Control that displays a horizontal bar which shows the level of completion of an operation.
+// TODO indetermiante
 type ProgressBar interface {
 	Control
 
 	// Percent and SetPrecent get and set the current percentage indicated by the ProgressBar, respectively.
 	// This value must be between 0 and 100; all other values cause SetPercent to panic.
+	// TODO rename to Progress/SetProgress?
 	Percent() int
 	SetPercent(percent int)
 }
