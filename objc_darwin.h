@@ -82,6 +82,9 @@ extern void groupSetText(id, char *);
 extern id newTextbox(void);
 extern char *textboxText(id);
 extern void textboxSetText(id, char *);
+extern id newProgressBar(void);
+extern intmax_t progressbarPercent(id);
+extern void progressbarSetPercent(id, intmax_t);
 
 /* container_darwin.m */
 extern id newContainerView(void *);

@@ -10,6 +10,7 @@
 #define toNSWindow(x) ((NSWindow *) (x))
 #define toNSBox(x) ((NSBox *) (x))
 #define toNSTextView(x) ((NSTextView *) (x))
+#define toNSProgressIndicator(x) ((NSProgressIndicator *) (x))
 
 @interface goControlDelegate : NSObject <NSTextFieldDelegate> {
 @public
@@ -270,4 +271,32 @@ char *textboxText(id tv)
 void textboxSetText(id tv, char *text)
 {
 	[toNSTextView(tv) setString:[NSString stringWithUTF8String:text]];
+}
+
+id newProgressBar(void)
+{
+	NSProgressIndicator *pi;
+
+	pi = [[NSProgressIndicator alloc] initWithFrame:NSZeroRect];
+	[pi setStyle:NSProgressIndicatorBarStyle];
+	[pi setControlSize:NSRegularControlSize];
+	[pi setControlTint:NSDefaultControlTint];
+	[pi setBezeled:YES];
+	[pi setDisplayedWhenStopped:YES];
+	[pi setUsesThreadedAnimation:YES];
+	[pi setIndeterminate:NO];
+	[pi setMinValue:0];
+	[pi setMaxValue:100];
+	[pi setDoubleValue:0];
+	return (id) pi;
+}
+
+intmax_t progressbarPercent(id pbar)
+{
+	return (intmax_t) [toNSProgressIndicator(pbar) doubleValue];
+}
+
+void progressbarSetPercent(id pbar, intmax_t percent)
+{
+	[toNSProgressIndicator(pbar) setDoubleValue:((double) percent)];
 }
