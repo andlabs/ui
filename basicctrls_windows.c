@@ -128,6 +128,19 @@ void textfieldHideInvalidBalloonTip(HWND hwnd)
 		xpanic("error hiding TextField.Invalid() balloon tip", GetLastError());
 }
 
+// also good for Textbox
+int textfieldReadOnly(HWND hwnd)
+{
+	return (GetWindowLongPtrW(hwnd, GWL_STYLE) & ES_READONLY) != 0;
+}
+
+// also good for Textbox
+void textfieldSetReadOnly(HWND hwnd, BOOL readonly)
+{
+	if (SendMessageW(hwnd, EM_SETREADONLY, (WPARAM) readonly, 0) == 0)
+		xpanic("error setting TextField/Textbox as read-only/not read-only", GetLastError());
+}
+
 static LRESULT CALLBACK groupSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	LRESULT lResult;

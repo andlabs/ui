@@ -58,6 +58,18 @@ func (t *textfield) Invalid(reason string) {
 	C.textfieldSetAndShowInvalidBalloonTip(t.hwnd, toUTF16(reason))
 }
 
+func (t *textfield) ReadOnly() bool {
+	return C.textfieldReadOnly(t.hwnd) != 0
+}
+
+func (t *textfield) SetReadOnly(readonly bool) {
+	if readonly {
+		C.textfieldSetReadOnly(t.hwnd, C.TRUE)
+		return
+	}
+	C.textfieldSetReadOnly(t.hwnd, C.FALSE)
+}
+
 //export textfieldChanged
 func textfieldChanged(data unsafe.Pointer) {
 	t := (*textfield)(data)

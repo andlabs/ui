@@ -54,6 +54,8 @@ var ddata = []dtype{
 type testwin struct {
 	t          Tab
 	w          Window
+	roenter	TextField
+	roro		TextField
 	repainter  *repainter
 	fe         *ForeignEvent
 	festack    Stack
@@ -176,6 +178,13 @@ func (tw *testwin) make(done chan struct{}) {
 		done <- struct{}{}
 		return true
 	})
+	tw.roenter = NewTextField()
+	tw.roro = NewTextField()
+	tw.roro.SetReadOnly(true)
+	tw.roenter.OnChanged(func() {
+		tw.roro.SetText(tw.roenter.Text())
+	})
+	tw.t.Append("Read-Only", newVerticalStack(tw.roenter, tw.roro))
 	tw.icons, tw.il = readIcons() // repainter uses these
 	tw.repainter = newRepainter(15)
 	tw.t.Append("Repaint", tw.repainter.grid)

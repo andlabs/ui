@@ -85,6 +85,7 @@ BOOL sharedWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *
 		return TRUE;
 	case WM_CTLCOLORSTATIC:
 	case WM_CTLCOLORBTN:
+		// TODO exempt read-only textboxes
 		if (SetBkMode((HDC) wParam, TRANSPARENT) == 0)
 			xpanic("error setting transparent background mode to Labels", GetLastError());
 		paintControlBackground((HWND) lParam, (HDC) wParam);

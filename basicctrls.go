@@ -57,6 +57,11 @@ type TextField interface {
 	// The string passed to Invalid will be displayed to the user to inform them of what specifically is wrong with the input.
 	// Pass an empty string to remove the warning.
 	Invalid(reason string)
+
+	// ReadOnly and SetReadOnly get and set whether the TextField is read-only.
+	// A read-only TextField cannot be changed by the user, but its text can still be manipulated in other ways (selecting, copying, etc.).
+	ReadOnly() bool
+	SetReadOnly(readonly bool)
 }
 
 // NewTextField creates a new TextField.
@@ -127,6 +132,7 @@ func NewGroup(text string, control Control) Group {
 // TODO rename to TextBox? merge with TextField (but cannot use Invalid())? enable/disable line wrapping?
 // TODO events
 // TODO Tab key - insert horizontal tab or tab stop?
+// TODO ReadOnly
 type Textbox interface {
 	Control
 

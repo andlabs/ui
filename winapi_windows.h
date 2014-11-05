@@ -74,6 +74,8 @@ extern void checkboxSetChecked(HWND, BOOL);
 extern void setTextFieldSubclass(HWND, void *);
 extern void textfieldSetAndShowInvalidBalloonTip(HWND, WCHAR *);
 extern void textfieldHideInvalidBalloonTip(HWND);
+extern int textfieldReadOnly(HWND);
+extern void textfieldSetReadOnly(HWND, BOOL);
 extern void setGroupSubclass(HWND, void *);
 extern HWND newUpDown(HWND, void *);
 extern void setSpinboxEditSubclass(HWND, void *);
