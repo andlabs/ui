@@ -59,7 +59,6 @@ void uimsgloop(void)
 	MSG msg;
 	int res;
 	HWND active, focus;
-	WCHAR classchk[maxClassName + 1];
 	BOOL dodlgmessage;
 
 	for (;;) {
@@ -80,12 +79,11 @@ void uimsgloop(void)
 		// as for Tabs, we can't have both WS_TABSTOP and WS_EX_CONTROLPARENT set at the same time, so we hotswap the two styles to get the behavior we want
 		focus = GetFocus();
 		if (focus != NULL) {
-			if (GetClassNameW(focus, classchk, maxClassName) == 0)
-				xpanic("error getting name of focused window class for Area check", GetLastError());
-			if (_wcsicmp(classchk, areaWindowClass) == 0) {
+			switch (windowClassOf(focus, areaWindowClass, WC_TABCONTROLW, NULL)) {
+			case 0:		// areaWindowClass
 				uimsgloop_area(active, focus, &msg);
 				continue;
-			} else if (_wcsicmp(classchk, WC_TABCONTROL) == 0) {
+			case 1:		// WC_TABCONTROLW
 				uimsgloop_tab(active, focus, &msg);
 				continue;
 			}
