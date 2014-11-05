@@ -23,6 +23,8 @@ The in-code documentation needs improvement. I have written a [tutorial](https:/
 
 # Updates
 
+**5 November 2014**<br>TextFields can now be marked as read-only (non-editable). Textboxes will gain this ability soon.
+
 **4 November 2014**<br>Added two new controls, Spinbox (which allows numeric entry with up and down buttons) and ProgressBar (which measures progress). Both aren't fully fleshed out, but are good enough for general use now.
 
 **28 October 2014**<br>Mac OS X resizing issues should be (mostly?) fixed now. Textbox still doesn't work right...
