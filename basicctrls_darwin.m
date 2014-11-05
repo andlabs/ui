@@ -136,6 +136,7 @@ id newTextField(void)
 	NSTextField *t;
 
 	t = [[NSTextField alloc] initWithFrame:NSZeroRect];
+	[t setSelectable:YES];		// otherwise the setting is masked by the editable default of YES
 	return finishNewTextField((id) t, YES);
 }
 
@@ -144,6 +145,7 @@ id newPasswordField(void)
 	NSSecureTextField *t;
 
 	t = [[NSSecureTextField alloc] initWithFrame:NSZeroRect];
+	[t setSelectable:YES];		// otherwise the setting is masked by the editable default of YES
 	return finishNewTextField((id) t, YES);
 }
 
@@ -182,6 +184,16 @@ void textfieldCloseInvalidPopover(id popover)
 {
 	[toNSWindow(popover) close];
 	// don't release; close does that already
+}
+
+BOOL textfieldEditable(id textfield)
+{
+	return [toNSTextField(textfield) isEditable];
+}
+
+void textfieldSetEditable(id textfield, BOOL editable)
+{
+	[toNSTextField(textfield) setEditable:editable];
 }
 
 id newLabel(void)

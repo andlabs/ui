@@ -100,7 +100,7 @@ void paintControlBackground(HWND hwnd, HDC dc)
 	HWND parent;
 	RECT r;
 	POINT p, pOrig;
-	WCHAR classname[128] = L"";		// more than enough to avoid collisions
+	WCHAR classname[maxClassName + 1] = L"";
 
 	parent = hwnd;
 	for (;;) {
@@ -110,7 +110,7 @@ void paintControlBackground(HWND hwnd, HDC dc)
 		// wine sends these messages early, yay...
 		if (parent == msgwin)
 			return;
-		if (GetClassNameW(parent, classname, 128) == 0)
+		if (GetClassNameW(parent, classname, maxClassName) == 0)
 			xpanic("error getting name of focused window class in paintControlBackground()", GetLastError());
 		// skip groupboxes; they're (supposed to be) transparent
 		if (_wcsicmp(classname, L"button") != 0)

@@ -3,10 +3,6 @@
 #include "winapi_windows.h"
 #include "_cgo_export.h"
 
-// note that this includes the terminating '\0'
-// this also assumes WC_TABCONTROL is longer than areaWindowClass
-#define NCLASSNAME (sizeof WC_TABCONTROL / sizeof WC_TABCONTROL[0])
-
 void uimsgloop_area(HWND active, HWND focus, MSG *msg)
 {
 	MSG copy;
@@ -63,7 +59,7 @@ void uimsgloop(void)
 	MSG msg;
 	int res;
 	HWND active, focus;
-	WCHAR classchk[NCLASSNAME];
+	WCHAR classchk[maxClassName + 1];
 	BOOL dodlgmessage;
 
 	for (;;) {
@@ -82,12 +78,9 @@ void uimsgloop(void)
 		// bit of logic involved here:
 		// we don't want dialog messages passed into Areas, so we don't call IsDialogMessageW() there
 		// as for Tabs, we can't have both WS_TABSTOP and WS_EX_CONTROLPARENT set at the same time, so we hotswap the two styles to get the behavior we want
-		// theoretically we could use the class atom to avoid a wcscmp()
-		// however, raymond chen advises against this - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx (and we're not in control of the Tab class, before you say anything)
-		// we could also theoretically just send msgAreaDefocuses directly, but what DefWindowProc() does to a WM_APP message is undocumented
 		focus = GetFocus();
 		if (focus != NULL) {
-			if (GetClassNameW(focus, classchk, NCLASSNAME) == 0)
+			if (GetClassNameW(focus, classchk, maxClassName) == 0)
 				xpanic("error getting name of focused window class for Area check", GetLastError());
 			if (_wcsicmp(classchk, areaWindowClass) == 0) {
 				uimsgloop_area(active, focus, &msg);

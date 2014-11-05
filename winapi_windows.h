@@ -41,6 +41,13 @@ enum {
 	msgOpenFileDone,
 };
 
+// there are a number of places where we need to know what window class an arbitrary handle has
+// theoretically we could use the class atom to avoid a _wcsicmp()
+// however, raymond chen advises against this - http://blogs.msdn.com/b/oldnewthing/archive/2004/10/11/240744.aspx (and we're not in control of the Tab class, before you say anything)
+// MSDN says 256 is the maximum length of a class name; add a few characters just to be safe (because it doesn't say whether this includes the terminating null character)
+// TODO localize this to a helper function
+#define maxClassName 260
+
 // uitask_windows.c
 extern void uimsgloop(void);
 extern void issue(void *);

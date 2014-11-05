@@ -62,6 +62,16 @@ func (t *textfield) Invalid(reason string) {
 	t.invalid = C.textfieldOpenInvalidPopover(t.id, creason)
 }
 
+// note that the property here is editable, which is the opposite of read-only
+
+func (t *textfield) ReadOnly() bool {
+	return !fromBOOL(C.textfieldEditable(t.id))
+}
+
+func (t *textfield) SetReadOnly(readonly bool) {
+	C.textfieldSetEditable(t.id, toBOOL(!readonly))
+}
+
 //export textfieldChanged
 func textfieldChanged(data unsafe.Pointer) {
 	t := (*textfield)(data)

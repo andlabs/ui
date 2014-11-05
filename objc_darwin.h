@@ -75,6 +75,8 @@ extern const char *textfieldText(id);
 extern void textfieldSetText(id, char *);
 extern id textfieldOpenInvalidPopover(id, char *);
 extern void textfieldCloseInvalidPopover(id);
+extern BOOL textfieldEditable(id);
+extern void textfieldSetEditable(id, BOOL);
 extern id newLabel(void);
 extern id newGroup(id);
 extern const char *groupText(id);
