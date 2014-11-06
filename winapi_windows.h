@@ -25,6 +25,11 @@
 #include <vssym32.h>
 #include <stdarg.h>
 
+// if by some stroke of luck Go ever supports compiling with MSVC, this will need to change
+#ifndef __MINGW64_VERSION_MAJOR
+#error Sorry, you must use MinGW-w64 (http://mingw-w64.sourceforge.net/) to build package ui, as vanilla MinGW does not support Windows XP features (in 2014!).
+#endif
+
 // global messages unique to everything
 enum {
 	msgRequest = WM_APP + 1,		// + 1 just to be safe
