@@ -309,6 +309,80 @@ static void resize(struct table *t)
 	recomputeHScroll(t);
 }
 
+static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, RECT controlSize)
+{
+	RECT rsel;
+	HBRUSH background;
+	int textColor;
+	WCHAR msg[100];
+	RECT headeritem;
+	intptr_t j;
+	LRESULT xoff;
+
+	// TODO verify these two
+	background = (HBRUSH) (COLOR_WINDOW + 1);
+	textColor = COLOR_WINDOWTEXT;
+	if (t->selected == i) {
+		// these are the colors wine uses (http://source.winehq.org/source/dlls/comctl32/listview.c)
+		// the two for unfocused are also suggested by http://stackoverflow.com/questions/10428710/windows-forms-inactive-highlight-color
+		background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
+		textColor = COLOR_HIGHLIGHTTEXT;
+		if (GetFocus() != t->hwnd) {
+			background = (HBRUSH) (COLOR_BTNFACE + 1);
+			textColor = COLOR_BTNTEXT;
+		}
+	}
+
+	// first fill the selection rect
+	rsel.left = controlSize.left;
+	rsel.top = y;
+	rsel.right = controlSize.right - controlSize.left;
+	rsel.bottom = y + height;
+	if (FillRect(dc, &rsel, background) == 0)
+		abort();
+
+	xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+
+	// now draw the cells
+	if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
+		abort();
+	if (SetBkMode(dc, TRANSPARENT) == 0)
+		abort();
+	for (j = 0; j < t->nColumns; j++) {
+		if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&headeritem)) == 0)
+			abort();
+
+		if (j == 1) {			// TODO
+			IMAGELISTDRAWPARAMS ip;
+
+			ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
+			ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
+			ip.himl = t->imagelist;
+			ip.i = 0;
+			ip.hdcDst = dc;
+			ip.x = headeritem.left + xoff;
+			ip.y = y;
+			ip.cx = 0;		// draw whole image
+			ip.cy = 0;
+			ip.xBitmap = 0;
+			ip.yBitmap = 0;
+			ip.rgbBk = CLR_NONE;
+			ip.fStyle = ILD_NORMAL | ILD_SCALE;		// TODO alpha-blend; ILD_DPISCALE?
+			// TODO ILS_ALPHA?
+			if (ImageList_DrawIndirect(&ip) == 0)
+				abort();
+			continue;
+		}
+		rsel.left = headeritem.left + xoff;
+		rsel.top = y;
+		rsel.right = headeritem.right;
+		rsel.bottom = y + height;
+		// TODO vertical center in case the height is less than the icon height?
+		if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+			abort();
+	}
+}
+
 static void drawItems(struct table *t, HDC dc, RECT cliprect)
 {
 	HFONT thisfont, prevfont;
@@ -350,76 +424,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 
 	y = first * height;
 	for (i = first; i < last; i++) {
-		RECT rsel;
-		HBRUSH background;
-		int textColor;
-		WCHAR msg[100];
-		RECT headeritem;
-		intptr_t j;
-		LRESULT xoff;
-
-		// TODO verify these two
-		background = (HBRUSH) (COLOR_WINDOW + 1);
-		textColor = COLOR_WINDOWTEXT;
-		if (t->selected == i) {
-			// these are the colors wine uses (http://source.winehq.org/source/dlls/comctl32/listview.c)
-			// the two for unfocused are also suggested by http://stackoverflow.com/questions/10428710/windows-forms-inactive-highlight-color
-			background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
-			textColor = COLOR_HIGHLIGHTTEXT;
-			if (GetFocus() != t->hwnd) {
-				background = (HBRUSH) (COLOR_BTNFACE + 1);
-				textColor = COLOR_BTNTEXT;
-			}
-		}
-
-		// first fill the selection rect
-		rsel.left = controlSize.left;
-		rsel.top = y;
-		rsel.right = controlSize.right - controlSize.left;
-		rsel.bottom = y + height;
-		if (FillRect(dc, &rsel, background) == 0)
-			abort();
-
-		xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
-
-		// now draw the cells
-		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
-			abort();
-		if (SetBkMode(dc, TRANSPARENT) == 0)
-			abort();
-		for (j = 0; j < t->nColumns; j++) {
-			if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&headeritem)) == 0)
-				abort();
-
-			if (j == 1) {			// TODO
-				IMAGELISTDRAWPARAMS ip;
-
-				ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
-				ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
-				ip.himl = t->imagelist;
-				ip.i = 0;
-				ip.hdcDst = dc;
-				ip.x = headeritem.left + xoff;
-				ip.y = y;
-				ip.cx = 0;		// draw whole image
-				ip.cy = 0;
-				ip.xBitmap = 0;
-				ip.yBitmap = 0;
-				ip.rgbBk = CLR_NONE;
-				ip.fStyle = ILD_NORMAL | ILD_SCALE;		// TODO alpha-blend; ILD_DPISCALE?
-				// TODO ILS_ALPHA?
-				if (ImageList_DrawIndirect(&ip) == 0)
-					abort();
-				continue;
-			}
-			rsel.left = headeritem.left + xoff;
-			rsel.top = y;
-			rsel.right = headeritem.right;
-			rsel.bottom = y + height;
-			// TODO vertical center in case the height is less than the icon height?
-			if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
-				abort();
-		}
+		drawItem(t, dc, i, y, height, controlSize);
 		y += height;
 	}
 
