@@ -388,6 +388,8 @@ static void resize(struct table *t)
 	recomputeHScroll(t);
 }
 
+// TODO alter this so that only the visible columns are redrawn
+// TODO this means rename controlSize to clientRect
 static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, RECT controlSize)
 {
 	RECT rsel;
@@ -413,6 +415,7 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	}
 
 	// first fill the selection rect
+	// note that this already only draws the visible area
 	rsel.left = controlSize.left;
 	rsel.top = y;
 	rsel.right = controlSize.right - controlSize.left;
@@ -421,6 +424,8 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 		abort();
 
 	xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+	// now adjust for horizontal scrolling
+	xoff -= t->hpos;
 
 	// now draw the cells
 	// TODO check error from GetSysColor()?
