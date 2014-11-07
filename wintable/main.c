@@ -27,7 +27,7 @@
 // - http://msdn.microsoft.com/en-us/library/windows/desktop/bb775574%28v=vs.85%29.aspx
 // - hscroll (harder)
 // 	- keyboard navigation
-// 	- mousewheel navigation
+// 	- mousewheel navigation is only available on Vista and up :/
 
 #define tableWindowClass L"gouitable"
 
