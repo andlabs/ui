@@ -45,6 +45,9 @@ struct table {
 	intptr_t nColumns;
 	HIMAGELIST imagelist;
 	int imagelistHeight;
+	intptr_t width;
+	intptr_t hpageSize;
+	intptr_t hpos;
 };
 
 static LONG rowHeight(struct table *t)
@@ -107,15 +110,18 @@ static void recomputeHScroll(struct table *t)
 			abort();
 		width += item.cxy;
 	}
+	t->width = (intptr_t) width;
 
 	if (GetClientRect(t->hwnd, &r) == 0)
 		abort();
+	t->hpageSize = r.right - r.left;
+
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
 	si.fMask = SIF_PAGE | SIF_RANGE;
-	si.nPage = r.right - r.left;
+	si.nPage = t->hpageSize;
 	si.nMin = 0;
-	si.nMax = width - 1;			// - 1 because endpoints inclusive
+	si.nMax = t->width - 1;			// - 1 because endpoints inclusive
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
 }
 
