@@ -178,9 +178,6 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	finishSelect(t);
 }
 
-// TODO on initial show the items are not arranged properly
-// TODO the lowest visible row does not redraw properly after scrolling
-// TODO the row behind the header bar does not redraw properly after scrolling
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
