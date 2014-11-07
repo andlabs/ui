@@ -392,7 +392,6 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	intptr_t i;
 	RECT controlSize;		// for filling the entire selected row
 	intptr_t first, last;
-	POINT prevOrigin, prevViewportOrigin;
 
 	if (GetClientRect(t->hwnd, &controlSize) == 0)
 		abort();
@@ -404,36 +403,33 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	if (prevfont == NULL)
 		abort();
 
-	// adjust the clip rect and the window so that (0, 0) is always the first item
-	// adjust the viewport so that everything is shifted down t->headerHeight pixels
-	if (OffsetRect(&cliprect, 0, t->firstVisible * height) == 0)
-		abort();
-	if (GetWindowOrgEx(dc, &prevOrigin) == 0)
-		abort();
-	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y + (t->firstVisible * height), NULL) == 0)
-		abort();
-	if (SetViewportOrgEx(dc, 0, t->headerHeight, &prevViewportOrigin) == 0)
-		abort();
+	// ignore anything beneath the header
+	if (cliprect.top < t->headerHeight)
+		cliprect.top = t->headerHeight;
+	// now let's pretend the header isn't there
+	// we only need it in (or rather, before) the drawItem() calls below
+	cliprect.top -= t->headerHeight;
+	cliprect.bottom -= t->headerHeight;
 
 	// see http://blogs.msdn.com/b/oldnewthing/archive/2003/07/29/54591.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/07/30/54600.aspx
-	first = cliprect.top / height;
+	// we need to add t->firstVisible here because cliprect is relative to the visible area
+	first = (cliprect.top / height) + t->firstVisible;
 	if (first < 0)
 		first = 0;
-	last = (cliprect.bottom + height - 1) / height;
+	last = ((cliprect.bottom + height - 1) / height) + t->firstVisible;
 	if (last >= t->count)
 		last = t->count;
 
-	y = first * height;
+	// now for the first y, discount firstVisible
+	y = (first - t->firstVisible) * height;
+	// and offset by the header height
+	y += t->headerHeight;
 	for (i = first; i < last; i++) {
 		drawItem(t, dc, i, y, height, controlSize);
 		y += height;
 	}
 
 	// reset everything
-	if (SetViewportOrgEx(dc, prevViewportOrigin.x, prevViewportOrigin.y, NULL) == 0)
-		abort();
-	if (SetWindowOrgEx(dc, prevOrigin.x, prevOrigin.y, NULL) == 0)
-		abort();
 	if (SelectObject(dc, prevfont) != (HGDIOBJ) (thisfont))
 		abort();
 }
