@@ -428,7 +428,6 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	xoff -= t->hpos;
 
 	// now draw the cells
-	// TODO check error from GetSysColor()?
 	if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
 		abort();
 	if (SetBkMode(dc, TRANSPARENT) == 0)
