@@ -659,7 +659,22 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 				redrawAll(t);
 				return FALSE;
 			}
-		// otherwise fall through
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	case WM_GETOBJECT:		// accessibility
+/*
+		if (((DWORD) lParam) == OBJID_CLIENT) {
+			TODO *server;
+			LRESULT lResult;
+
+			// TODO create the server object
+			lResult = LresultFromObject(IID_IAccessible, wParam, server);
+			if (/* TODO failure */)
+				abort();
+			// TODO release object
+			return lResult;
+		}
+*/
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	default:
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
