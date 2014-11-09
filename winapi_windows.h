@@ -8,6 +8,7 @@
 #define _UNICODE
 #define STRICT
 #define STRICT_TYPED_ITEMIDS
+#define CINTERFACE
 // get Windows version right; right now Windows XP
 #define WINVER 0x0501
 #define _WIN32_WINNT 0x0501
@@ -24,6 +25,7 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 #include <stdarg.h>
+#include <oleacc.h>
 
 // if by some stroke of luck Go ever supports compiling with MSVC, this will need to change
 // noe that this has to come after the headers above because it's not predefined
