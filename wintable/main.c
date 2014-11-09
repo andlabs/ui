@@ -28,6 +28,7 @@
 // - hscroll
 // 	- keyboard navigation
 // - accessibility
+// 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
 
 #define tableWindowClass L"gouitable"
 
