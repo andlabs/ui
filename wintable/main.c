@@ -94,18 +94,40 @@ static RECT realClientRect(struct table *t)
 	return r;
 }
 
+static void repositionHeader(struct table *t)
+{
+	RECT r;
+	HDLAYOUT headerlayout;
+	WINDOWPOS headerpos;
+
+	if (GetClientRect(t->hwnd, &r) == 0)		// use the whole client rect
+		abort();
+	// grow the rectangle to the left to fake scrolling
+	r.left -= t->hpos;
+	headerlayout.prc = &r;
+	headerlayout.pwpos = &headerpos;
+	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&headerlayout)) == FALSE)
+		abort();
+	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
+		abort();
+	t->headerHeight = headerpos.cy;
+}
+
 static void hscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
+	RECT scrollArea;
 
 	if (newpos < 0)
 		newpos = 0;
 	if (newpos > (t->width - t->hpagesize))
 		newpos = (t->width - t->hpagesize);
 
+	scrollArea = realClientRect(t);
+
 	// negative because ScrollWindowEx() is "backwards"
 	if (ScrollWindowEx(t->hwnd, -(newpos - t->hpos), 0,
-		NULL, NULL, NULL, NULL,
+		&scrollArea, &scrollArea, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
 		abort();
 	t->hpos = newpos;
@@ -120,6 +142,9 @@ static void hscrollto(struct table *t, intptr_t newpos)
 	si.nMax = t->width - 1;		// nMax is inclusive
 	si.nPos = t->hpos;
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
+
+	// and finally reposition the header
+	repositionHeader(t);
 }
 
 static void hscrollby(struct table *t, intptr_t n)
@@ -360,19 +385,9 @@ static void resize(struct table *t)
 {
 	RECT r;
 	SCROLLINFO si;
-	HDLAYOUT headerlayout;
-	WINDOWPOS headerpos;
 
 	// do this first so our scrollbar calculations can be correct
-	if (GetClientRect(t->hwnd, &r) == 0)		// use the whole client rect
-		abort();
-	headerlayout.prc = &r;
-	headerlayout.pwpos = &headerpos;
-	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&headerlayout)) == FALSE)
-		abort();
-	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
-		abort();
-	t->headerHeight = headerpos.cy;
+	repositionHeader(t);
 
 	// now adjust the scrollbars
 	r = realClientRect(t);
