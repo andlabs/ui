@@ -16,12 +16,19 @@
 #include <uxtheme.h>
 #include <string.h>
 #include <wchar.h>
+extern HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme);
+enum {
+        checkboxStateChecked = 1 << 0,
+        checkboxStateHot = 1 << 1,
+        checkboxStatePushed = 1 << 2,
+        checkboxnStates = 1 << 3,
+};
 #include <windowsx.h>
 #include <vsstyle.h>
 #include <vssym32.h>
 #include <oleacc.h>
 
-// #qo LIBS: user32 kernel32 gdi32 comctl32
+// #qo LIBS: user32 kernel32 gdi32 comctl32 uxtheme
 
 // TODO
 // - http://blogs.msdn.com/b/oldnewthing/archive/2003/09/09/54826.aspx (relies on the integrality parts? IDK)
@@ -51,6 +58,8 @@ struct table {
 	intptr_t width;
 	intptr_t hpagesize;
 	intptr_t hpos;
+	HIMAGELIST checkboxes;
+	HTHEME theme;
 };
 
 static LONG rowHeight(struct table *t)
@@ -459,8 +468,8 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 
 			ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
 			ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
-			ip.himl = t->imagelist;
-			ip.i = 0;
+			ip.himl = t->checkboxes;//t->imagelist;
+			ip.i = (i%8);//0;
 			ip.hdcDst = dc;
 			ip.x = headeritem.left + xoff;
 			ip.y = y;
@@ -596,6 +605,7 @@ if (ImageList_AddIcon(t->imagelist, icon) == -1)abort();
 if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abort();
 }
 }
+			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme));
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
@@ -662,6 +672,18 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 				return FALSE;
 			}
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	// TODO others?
+	case WM_WININICHANGE:
+	case WM_SYSCOLORCHANGE:
+	case WM_THEMECHANGED:
+		if (ImageList_Destroy(t->checkboxes) == 0)
+			abort();
+		t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme));
+		resize(t);		// TODO needed?
+		redrawAll(t);
+		// now defer back to DefWindowProc() in case other things are needed
+		// TODO needed?
+		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	case WM_GETOBJECT:		// accessibility
 /*
 		if (((DWORD) lParam) == OBJID_CLIENT) {
@@ -670,7 +692,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 
 			// TODO create the server object
 			lResult = LresultFromObject(IID_IAccessible, wParam, server);
-			if (/* TODO failure */)
+			if (/* TODO failure *|/)
 				abort();
 			// TODO release object
 			return lResult;
