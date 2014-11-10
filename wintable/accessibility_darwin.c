@@ -71,10 +71,9 @@ ULONG STDMETHODCALLTYPE taRelease(IUnknown *this)
 	ULONG rc;
 
 	rc = (ULONG) InterlockedDecrement((volatile LONG *) (&(((tableAccessible *) this)->refcount)));
-	// TODO pull the refcount back out?
+	// don't pull the refcount back out (see http://blogs.msdn.com/b/oldnewthing/archive/2013/04/25/10413997.aspx)
 	if (rc == 0)
 		free((tableAccessible *) this);
-	// TODO pull the refcount back out?
 	return rc;
 }
 
