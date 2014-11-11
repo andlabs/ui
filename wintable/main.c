@@ -38,8 +38,22 @@ enum {
 // 	- keyboard navigation
 // - accessibility
 // 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
+// - try horizontally scrolling the initail window and watch the selection rect corrupt itself *sometimes*
 
 #define tableWindowClass L"gouitable"
+
+enum {
+	// wParam - one of the type constants
+	// lParam - column name as a Unicode string
+	tableAddColumn = WM_USER,
+};
+
+enum {
+	tableColumnText,
+	tableColumnImage,
+	tableColumnCheckbox,
+	nTableColumnTypes,
+};
 
 struct table {
 	HWND hwnd;
@@ -60,6 +74,7 @@ struct table {
 	intptr_t hpos;
 	HIMAGELIST checkboxes;
 	HTHEME theme;
+	int *columnTypes;
 };
 
 static LONG rowHeight(struct table *t)
@@ -123,6 +138,28 @@ static void repositionHeader(struct table *t)
 	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
 		abort();
 	t->headerHeight = headerpos.cy;
+}
+
+static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	HDITEMW item;
+
+	if (((int) wParam) >= nTableColumnTypes)
+		abort();
+
+	t->nColumns++;
+	t->columnTypes = (int *) realloc(t->columnTypes, t->nColumns * sizeof (int));
+	if (t->columnTypes == NULL)
+		abort();
+	t->columnTypes[t->nColumns - 1] = (int) wParam;
+
+	ZeroMemory(&item, sizeof (HDITEMW));
+	item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
+	item.cxy = 200;		// TODO
+	item.pszText = (WCHAR *) lParam;
+	item.fmt = HDF_LEFT | HDF_STRING;
+	if (SendMessage(t->header, HDM_INSERTITEM, (WPARAM) (t->nColumns - 1), (LPARAM) (&item)) == (LRESULT) (-1))
+		abort();
 }
 
 static void hscrollto(struct table *t, intptr_t newpos)
@@ -426,6 +463,7 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	RECT headeritem;
 	intptr_t j;
 	LRESULT xoff;
+	IMAGELISTDRAWPARAMS ip;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -462,10 +500,17 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	for (j = 0; j < t->nColumns; j++) {
 		if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&headeritem)) == 0)
 			abort();
-
-		if (j == 1) {			// TODO
-			IMAGELISTDRAWPARAMS ip;
-
+		switch (t->columnTypes[j]) {
+		case tableColumnText:
+			rsel.left = headeritem.left + xoff;
+			rsel.top = y;
+			rsel.right = headeritem.right;
+			rsel.bottom = y + height;
+			// TODO vertical center in case the height is less than the icon height?
+			if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+				abort();
+			break;
+		case tableColumnImage:
 			ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
 			ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
 			ip.himl = t->checkboxes;//t->imagelist;
@@ -482,15 +527,10 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 			// TODO ILS_ALPHA?
 			if (ImageList_DrawIndirect(&ip) == 0)
 				abort();
-			continue;
+			break;
+		case tableColumnCheckbox:
+			;// TODO
 		}
-		rsel.left = headeritem.left + xoff;
-		rsel.top = y;
-		rsel.right = headeritem.right;
-		rsel.bottom = y + height;
-		// TODO vertical center in case the height is less than the icon height?
-		if (DrawTextExW(dc, msg, wsprintf(msg, L"Item %d", i), &rsel, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
-			abort();
 	}
 }
 
@@ -578,23 +618,7 @@ t->selected = 5;t->count=100;//TODO
 				t->hwnd, (HMENU) 100, cs->hInstance, NULL);
 			if (t->header == NULL)
 				abort();
-{HDITEMW item;
-ZeroMemory(&item, sizeof (HDITEMW));
-item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
-item.cxy = 200;
-item.pszText = L"Column";
-item.fmt = HDF_LEFT | HDF_STRING;
-if (SendMessage(t->header, HDM_INSERTITEM, 0, (LPARAM) (&item)) == (LRESULT) (-1))
-abort();
-ZeroMemory(&item, sizeof (HDITEMW));
-item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
-item.cxy = 150;
-item.pszText = L"Column 2";
-item.fmt = HDF_LEFT | HDF_STRING;
-if (SendMessage(t->header, HDM_INSERTITEM, 1, (LPARAM) (&item)) == (LRESULT) (-1))
-abort();
-t->nColumns=2;
-t->imagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
+{t->imagelist = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 1, 1);
 if(t->imagelist==NULL)abort();
 {
 HICON icon;
@@ -684,6 +708,9 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		// now defer back to DefWindowProc() in case other things are needed
 		// TODO needed?
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	case tableAddColumn:
+		addColumn(t, wParam, lParam);
+		return 0;
 	case WM_GETOBJECT:		// accessibility
 /*
 		if (((DWORD) lParam) == OBJID_CLIENT) {
@@ -742,6 +769,9 @@ int main(void)
 		NULL, NULL, GetModuleHandle(NULL), NULL);
 	if (mainwin == NULL)
 		abort();
+	SendMessageW(mainwin, tableAddColumn, tableColumnText, (LPARAM) L"Column");
+	SendMessageW(mainwin, tableAddColumn, tableColumnImage, (LPARAM) L"Column 2");
+	SendMessageW(mainwin, tableAddColumn, tableColumnCheckbox, (LPARAM) L"Column 3");
 	ShowWindow(mainwin, SW_SHOWDEFAULT);
 	if (UpdateWindow(mainwin) == 0)
 		abort();
