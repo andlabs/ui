@@ -39,6 +39,7 @@ enum {
 // - accessibility
 // 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
 // - try horizontally scrolling the initail window and watch the selection rect corrupt itself *sometimes*
+// - preallocate t->columnTypes instead of keeping it at exactly the right size
 
 #define tableWindowClass L"gouitable"
 
@@ -160,6 +161,8 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	item.fmt = HDF_LEFT | HDF_STRING;
 	if (SendMessage(t->header, HDM_INSERTITEM, (WPARAM) (t->nColumns - 1), (LPARAM) (&item)) == (LRESULT) (-1))
 		abort();
+	// TODO resize(t)?
+	redrawAll(t);
 }
 
 static void hscrollto(struct table *t, intptr_t newpos)
