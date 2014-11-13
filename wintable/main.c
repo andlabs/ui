@@ -555,6 +555,8 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				abort();
 			break;
 		case tableColumnImage:
+			// TODO vertically center if image is smaller than text height
+			// TODO same for checkboxes
 			ZeroMemory(&ip, sizeof (IMAGELISTDRAWPARAMS));
 			ip.cbSize = sizeof (IMAGELISTDRAWPARAMS);
 			ip.himl = t->checkboxes;//t->imagelist;
