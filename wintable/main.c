@@ -40,6 +40,9 @@ enum {
 // 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
 // - try horizontally scrolling the initail window and watch the selection rect corrupt itself *sometimes*
 // - preallocate t->columnTypes instead of keeping it at exactly the right size
+// - checkbox events
+// 	- space to toggle (TODO); + or = to set; - to clear (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775941%28v=vs.85%29.aspx)
+// 	- TODO figure out which notification is needed
 
 #define tableWindowClass L"gouitable"
 
