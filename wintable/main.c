@@ -43,6 +43,7 @@ enum {
 // - checkbox events
 // 	- space to toggle (TODO); + or = to set; - to clear (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775941%28v=vs.85%29.aspx)
 // 	- TODO figure out which notification is needed
+// - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
 
 #define tableWindowClass L"gouitable"
 
