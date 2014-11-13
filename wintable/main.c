@@ -76,6 +76,7 @@ struct table {
 	HIMAGELIST checkboxes;
 	HTHEME theme;
 	int *columnTypes;
+	intptr_t focusedColumn;
 };
 
 static LONG rowHeight(struct table *t)
@@ -139,6 +140,25 @@ static void repositionHeader(struct table *t)
 	if (SetWindowPos(t->header, headerpos.hwndInsertAfter, headerpos.x, headerpos.y, headerpos.cx, headerpos.cy, headerpos.flags | SWP_SHOWWINDOW) == 0)
 		abort();
 	t->headerHeight = headerpos.cy;
+}
+
+static intptr_t hitTestColumn(struct table *t, int x)
+{
+	HDITEMW item;
+	intptr_t i;
+
+	// TODO count dividers
+	for (i = 0; i < t->nColumns; i++) {
+		ZeroMemory(&item, sizeof (HDITEMW));
+		item.mask = HDI_WIDTH;
+		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
+			abort();
+		if (x < item.cxy)
+			return i;
+		x -= item.cxy;		// not yet
+	}
+	// no column
+	return -1;
 }
 
 static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
@@ -334,6 +354,7 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	t->selected = y;
 	if (t->selected >= t->count)
 		t->selected = -1;
+	t->focusedColumn = hitTestColumn(t, x);
 	finishSelect(t);
 }
 
@@ -534,6 +555,14 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 		case tableColumnCheckbox:
 			;// TODO
 		}
+		if (t->selected == i && t->focusedColumn == j) {
+			rsel.left = headeritem.left;
+			rsel.top = y;
+			rsel.right = headeritem.right;
+			rsel.bottom = y + height;
+			if (DrawFocusRect(dc, &rsel) == 0)
+				abort();
+		}
 	}
 }
 
@@ -633,6 +662,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 }
 }
 			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme));
+			t->focusedColumn = -1;
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
