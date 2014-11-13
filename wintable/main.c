@@ -336,6 +336,23 @@ static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 	case VK_END:
 		t->selected = t->count - 1;
 		break;
+	case VK_LEFT:
+		t->focusedColumn--;
+		if (t->focusedColumn < 0)
+			if (t->nColumns == 0)		// peg at -1
+				t->focusedColumn = -1;
+			else
+				t->focusedColumn = 0;
+		break;
+	case VK_RIGHT:
+		t->focusedColumn++;
+		if (t->focusedColumn >= t->nColumns)
+			if (t->nColumns == 0)		// peg at -1
+				t->focusedColumn = -1;
+			else
+				t->focusedColumn = t->nColumns - 1;
+		break;
+	// TODO keyboard shortcuts for going to the first/last column?
 	default:
 		// don't touch anything
 		return;
