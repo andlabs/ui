@@ -148,9 +148,8 @@ static HBITMAP makeCheckboxImageListEntry(HDC dc, int width, int height, int cbS
 	return bitmap;
 }
 
-static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *, int *, HTHEME), void (*drawfunc)(HDC, RECT *, int, HTHEME), HTHEME theme)
+static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *, int *, HTHEME), void (*drawfunc)(HDC, RECT *, int, HTHEME), HTHEME theme, int *width, int *height)
 {
-	int width, height;
 	int cbState;
 	HDC dc;
 	HIMAGELIST il;
@@ -176,7 +175,7 @@ static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *,
 	return il;
 }
 
-HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme)
+HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme, int *width, int *height)
 {
 	if (*theme != NULL) {
 		HRESULT res;
@@ -190,7 +189,7 @@ HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme)
 	if (*theme == NULL)		// try to open the theme
 		*theme = OpenThemeData(hwnddc, L"button");
 	if (*theme != NULL)		// use the theme
-		return newCheckboxImageList(hwnddc, themeSize, themeImage, *theme);
+		return newCheckboxImageList(hwnddc, themeSize, themeImage, *theme, width, height);
 	// couldn't open; fall back
-	return newCheckboxImageList(hwnddc, dfcSize, dfcImage, *theme);
+	return newCheckboxImageList(hwnddc, dfcSize, dfcImage, *theme, width, height);
 }

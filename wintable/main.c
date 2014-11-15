@@ -16,7 +16,7 @@
 #include <uxtheme.h>
 #include <string.h>
 #include <wchar.h>
-extern HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme);
+extern HIMAGELIST makeCheckboxImageList(HWND hwnddc, HTHEME *theme, int *, int *);
 enum {
         checkboxStateChecked = 1 << 0,
         checkboxStateHot = 1 << 1,
@@ -81,6 +81,8 @@ struct table {
 	HTHEME theme;
 	int *columnTypes;
 	intptr_t focusedColumn;
+	int checkboxWidth;
+	int checkboxHeight;
 };
 
 static LONG rowHeight(struct table *t)
@@ -684,7 +686,7 @@ if (ImageList_AddIcon(t->imagelist, icon) == -1)abort();
 if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abort();
 }
 }
-			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme));
+			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme), &(t->checkboxWidth), &(t->checkboxHeight));
 			t->focusedColumn = -1;
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
@@ -758,7 +760,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 	case WM_THEMECHANGED:
 		if (ImageList_Destroy(t->checkboxes) == 0)
 			abort();
-		t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme));
+		t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme), &(t->checkboxWidth), &(t->checkboxHeight));
 		resize(t);		// TODO needed?
 		redrawAll(t);
 		// now defer back to DefWindowProc() in case other things are needed
