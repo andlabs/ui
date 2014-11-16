@@ -2,6 +2,7 @@ windows
 	- WM_WININICHANGED, etc. (TODO get a full list) causing size recomputations
 	- check +, =, and - key handling for checkboxes
 	- Area and sharedWndProc(): http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
+	- probably not necessary but http://blogs.msdn.com/b/aaron_margosis/archive/2006/08/07/luabuglight.aspx
 
 C interop
 	- substitute intmax_t and uintmax_t for all uses of intptr_t and uintptr_t
