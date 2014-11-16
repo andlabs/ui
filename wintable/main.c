@@ -148,6 +148,17 @@ static void repositionHeader(struct table *t)
 	t->headerHeight = headerpos.cy;
 }
 
+// cliprect and rowHeight must be specified here to avoid recomputing things multiple times
+static intptr_t lastVisible(struct table *t, RECT cliprect, LONG rowHeight)
+{
+	intptr_t last;
+
+	last = ((cliprect.bottom + rowHeight - 1) / rowHeight) + t->firstVisible;
+	if (last >= t->count)
+		last = t->count;
+	return last;
+}
+
 static intptr_t hitTestColumn(struct table *t, int x)
 {
 	HDITEMW item;
@@ -623,9 +634,7 @@ static void drawItems(struct table *t, HDC dc, RECT cliprect)
 	first = (cliprect.top / height) + t->firstVisible;
 	if (first < 0)
 		first = 0;
-	last = ((cliprect.bottom + height - 1) / height) + t->firstVisible;
-	if (last >= t->count)
-		last = t->count;
+	last = lastVisible(t, cliprect, height);
 
 	// now for the first y, discount firstVisible
 	y = (first - t->firstVisible) * height;
