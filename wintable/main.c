@@ -159,6 +159,24 @@ static intptr_t lastVisible(struct table *t, RECT cliprect, LONG rowHeight)
 	return last;
 }
 
+static void redrawRow(struct table *t, intptr_t row)
+{
+	RECT r;
+	intptr_t height;
+
+	r = realClientRect(t);
+	height = rowHeight(t);
+	if (row < t->firstVisible || row > lastVisible(t, r, height))		// not visible; don't bother
+		return;
+	r.top = (row - t->firstVisible) * height + t->headerHeight;
+	r.bottom = r.top + height;
+	// keep the width and height the same; it spans the client area anyway
+	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+		abort();
+	if (UpdateWindow(t->hwnd) == 0)
+		abort();
+}
+
 static intptr_t hitTestColumn(struct table *t, int x)
 {
 	HDITEMW item;
@@ -744,9 +762,8 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 	case WM_SETFOCUS:
 	case WM_KILLFOCUS:
 		// all we need to do here is redraw the highlight
-		// TODO localize to just the selected item
 		// TODO ensure giving focus works right
-		redrawAll(t);
+		redrawRow(t, t->selected);
 		return 0;
 	case WM_KEYDOWN:
 		keySelect(t, wParam, lParam);
