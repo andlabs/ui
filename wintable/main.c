@@ -333,7 +333,7 @@ static void recomputeHScroll(struct table *t)
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
 }
 
-static void finishSelect(struct table *t)
+static void finishSelect(struct table *t, intptr_t prev)
 {
 	if (t->selected < 0)
 		t->selected = 0;
@@ -346,9 +346,12 @@ static void finishSelect(struct table *t)
 
 static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 {
+	intptr_t prev;
+
 	// TODO figure out correct behavior with nothing selected
 	if (t->count == 0)		// don't try to do anything if there's nothing to do
 		return;
+	prev = t->selected;
 	switch (wParam) {
 	case VK_UP:
 		t->selected--;
@@ -389,14 +392,16 @@ static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 		// don't touch anything
 		return;
 	}
-	finishSelect(t);
+	finishSelect(t, prev);
 }
 
 static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 {
 	int x, y;
 	LONG h;
+	intptr_t prev;
 
+	prev = t->selected;
 	x = GET_X_LPARAM(lParam);
 	y = GET_Y_LPARAM(lParam);
 	h = rowHeight(t);
@@ -407,7 +412,7 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	if (t->selected >= t->count)
 		t->selected = -1;
 	t->focusedColumn = hitTestColumn(t, x);
-	finishSelect(t);
+	finishSelect(t, prev);
 }
 
 static void vscrollto(struct table *t, intptr_t newpos)
