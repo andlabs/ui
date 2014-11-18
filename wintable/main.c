@@ -439,7 +439,7 @@ static void finishSelect(struct table *t, intptr_t prev)
 		t->selected = 0;
 	if (t->selected >= t->count)
 		t->selected = t->count - 1;
-	// always redraw the old row, even if it matches the new row (since the focused column may have changed)
+	// always redraw the old row to avoid artifacts when scrolling, even if it matches the new row (since the focused column may have changed)
 	redrawRow(t, prev);
 	// if we need to scroll, the scrolling will force a redraw, so we don't have to worry about doing so ourselves
 	if (t->selected < t->firstVisible)
