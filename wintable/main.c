@@ -44,8 +44,6 @@ enum {
 // 	- space to toggle (TODO); + or = to set; - to clear (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775941%28v=vs.85%29.aspx)
 // 	- TODO figure out which notification is needed
 // - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
-// - merge recomputeHScroll() with resize()? the pagesize can change if a horizontal scrollbar is added or removed
-// 	- related: vertical scrolling code doesn't work right because of the presence of horizontal scrollbars, but the addition of a vertical scrollbar can affect t->hpagesize and the addition of a horizontal scrollbar can affect t->pagesize, leading to a catch 22 situation and a potential infinite loop if we just say "repeat the process if one changes"
 
 #define tableWindowClass L"gouitable"
 
@@ -439,17 +437,18 @@ static void finishSelect(struct table *t, intptr_t prev)
 		t->selected = 0;
 	if (t->selected >= t->count)
 		t->selected = t->count - 1;
-	// always redraw the old row to avoid artifacts when scrolling, even if it matches the new row (since the focused column may have changed)
+
+	// always redraw the old and new rows to avoid artifacts when scrolling, even if they are the same (since the focused column may have changed)
 	redrawRow(t, prev);
+	if (prev != t->selected)
+		redrawRow(t, t->selected);
+
 	// if we need to scroll, the scrolling will force a redraw, so we don't have to worry about doing so ourselves
 	if (t->selected < t->firstVisible)
 		vscrollto(t, t->selected);
 	// note that this is not lastVisible(t) because the last visible row may only be partially visible and we want selections to make them fully visible
 	else if (t->selected >= (t->firstVisible + t->pagesize))
-		vscrollto(t, t->selected - t->pagesize);
-	// no scrolling needed; redraw just the new row (but don't redraw it twice
-	else if (prev != t->selected)
-		redrawRow(t, t->selected);
+		vscrollto(t, t->selected - t->pagesize + 1);
 }
 
 static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
