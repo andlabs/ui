@@ -44,6 +44,7 @@ enum {
 // 	- space to toggle (TODO); + or = to set; - to clear (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775941%28v=vs.85%29.aspx)
 // 	- TODO figure out which notification is needed
 // - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
+// - free all allocated resources on WM_DESTROY
 
 #define tableWindowClass L"gouitable"
 
@@ -623,7 +624,16 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				abort();
 			break;
 		case tableColumnCheckbox:
-			;// TODO
+			// TODO replace all this
+			rsel.left = headeritem.left + xoff;
+			rsel.top = y;
+			rsel.right = rsel.left + t->checkboxWidth;
+			rsel.bottom = rsel.top + t->checkboxHeight;
+			if (SetDCBrushColor(dc, RGB(255, 0, 0)) == CLR_INVALID)
+				abort();
+			if (FillRect(dc, &rsel, GetStockObject(DC_BRUSH)) == 0)
+				abort();
+			break;
 		}
 		if (t->selected == i && t->focusedColumn == j) {
 			rsel.left = headeritem.left;

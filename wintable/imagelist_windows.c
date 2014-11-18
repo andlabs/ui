@@ -157,14 +157,14 @@ static HIMAGELIST newCheckboxImageList(HWND hwnddc, void (*sizefunc)(HDC, int *,
 	dc = GetDC(hwnddc);
 	if (dc == NULL)
 		xpanic("error getting DC for making the checkbox image list", GetLastError());
-	(*sizefunc)(dc, &width, &height, theme);
-	il = ImageList_Create(width, height, ILC_COLOR32, 20, 20);		// should be reasonable
+	(*sizefunc)(dc, width, height, theme);
+	il = ImageList_Create(*width, *height, ILC_COLOR32, 20, 20);		// should be reasonable
 	if (il == NULL)
 		xpanic("error creating checkbox image list", GetLastError());
 	for (cbState = 0; cbState < checkboxnStates; cbState++) {
 		HBITMAP bitmap;
 
-		bitmap = makeCheckboxImageListEntry(dc, width, height, cbState, drawfunc, theme);
+		bitmap = makeCheckboxImageListEntry(dc, *width, *height, cbState, drawfunc, theme);
 		if (ImageList_Add(il, bitmap, NULL) == -1)
 			xpanic("error adding checkbox image to image list", GetLastError());
 		if (DeleteObject(bitmap) == 0)
