@@ -336,99 +336,6 @@ static void recomputeHScroll(struct table *t)
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
 }
 
-static void finishSelect(struct table *t, intptr_t prev)
-{
-	if (t->selected < 0)
-		t->selected = 0;
-	if (t->selected >= t->count)
-		t->selected = t->count - 1;
-	// if we need to scroll, the scrolling will force a redraw, so we don't have to worry about doing so ourselves
-	if (t->selected < t->firstVisible)
-;//TODO		vscrollto(t, t->selected);
-	// note that this is not lastVisible(t) because the last visible row may only be partially visible and we want selections to make them fully visible
-	// TODO >=?
-	else if (t->selected > (t->firstVisible + t->pagesize))
-;//TODO		vscrollto(t, t->selected - t->pagesize);
-	else {
-		// no scrolling needed; redraw just the old and new rows
-		// if prev == t->selected, redraw that row at least once because the focused column may have changed
-		redrawRow(t, prev);
-		if (prev != t->selected)
-			redrawRow(t, t->selected);
-	}
-}
-
-static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
-{
-	intptr_t prev;
-
-	// TODO figure out correct behavior with nothing selected
-	if (t->count == 0)		// don't try to do anything if there's nothing to do
-		return;
-	prev = t->selected;
-	switch (wParam) {
-	case VK_UP:
-		t->selected--;
-		break;
-	case VK_DOWN:
-		t->selected++;
-		break;
-	case VK_PRIOR:
-		t->selected -= t->pagesize;
-		break;
-	case VK_NEXT:
-		t->selected += t->pagesize;
-		break;
-	case VK_HOME:
-		t->selected = 0;
-		break;
-	case VK_END:
-		t->selected = t->count - 1;
-		break;
-	case VK_LEFT:
-		t->focusedColumn--;
-		if (t->focusedColumn < 0)
-			if (t->nColumns == 0)		// peg at -1
-				t->focusedColumn = -1;
-			else
-				t->focusedColumn = 0;
-		break;
-	case VK_RIGHT:
-		t->focusedColumn++;
-		if (t->focusedColumn >= t->nColumns)
-			if (t->nColumns == 0)		// peg at -1
-				t->focusedColumn = -1;
-			else
-				t->focusedColumn = t->nColumns - 1;
-		break;
-	// TODO keyboard shortcuts for going to the first/last column?
-	default:
-		// don't touch anything
-		return;
-	}
-	finishSelect(t, prev);
-}
-
-static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
-{
-	int x, y;
-	LONG h;
-	intptr_t prev;
-
-	prev = t->selected;
-	x = GET_X_LPARAM(lParam);
-	y = GET_Y_LPARAM(lParam);
-	h = rowHeight(t);
-	y += t->firstVisible * h;
-	y -= t->headerHeight;
-	y /= h;
-	t->selected = y;
-	if (t->selected >= t->count)
-		t->selected = -1;
-	t->focusedColumn = hitTestColumn(t, x);
-	finishSelect(t, prev);
-}
-
 static void vscrollto(struct table *t, intptr_t newpos)
 {
 	SCROLLINFO si;
@@ -523,6 +430,96 @@ static void vscroll(struct table *t, WPARAM wParam)
 	}
 
 	vscrollto(t, newpos);
+}
+
+static void finishSelect(struct table *t, intptr_t prev)
+{
+	if (t->selected < 0)
+		t->selected = 0;
+	if (t->selected >= t->count)
+		t->selected = t->count - 1;
+	// always redraw the old row, even if it matches the new row (since the focused column may have changed)
+	redrawRow(t, prev);
+	// if we need to scroll, the scrolling will force a redraw, so we don't have to worry about doing so ourselves
+	if (t->selected < t->firstVisible)
+		vscrollto(t, t->selected);
+	// note that this is not lastVisible(t) because the last visible row may only be partially visible and we want selections to make them fully visible
+	else if (t->selected >= (t->firstVisible + t->pagesize))
+		vscrollto(t, t->selected - t->pagesize);
+	// no scrolling needed; redraw just the new row (but don't redraw it twice
+	else if (prev != t->selected)
+		redrawRow(t, t->selected);
+}
+
+static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	intptr_t prev;
+
+	// TODO figure out correct behavior with nothing selected
+	if (t->count == 0)		// don't try to do anything if there's nothing to do
+		return;
+	prev = t->selected;
+	switch (wParam) {
+	case VK_UP:
+		t->selected--;
+		break;
+	case VK_DOWN:
+		t->selected++;
+		break;
+	case VK_PRIOR:
+		t->selected -= t->pagesize;
+		break;
+	case VK_NEXT:
+		t->selected += t->pagesize;
+		break;
+	case VK_HOME:
+		t->selected = 0;
+		break;
+	case VK_END:
+		t->selected = t->count - 1;
+		break;
+	case VK_LEFT:
+		t->focusedColumn--;
+		if (t->focusedColumn < 0)
+			if (t->nColumns == 0)		// peg at -1
+				t->focusedColumn = -1;
+			else
+				t->focusedColumn = 0;
+		break;
+	case VK_RIGHT:
+		t->focusedColumn++;
+		if (t->focusedColumn >= t->nColumns)
+			if (t->nColumns == 0)		// peg at -1
+				t->focusedColumn = -1;
+			else
+				t->focusedColumn = t->nColumns - 1;
+		break;
+	// TODO keyboard shortcuts for going to the first/last column?
+	default:
+		// don't touch anything
+		return;
+	}
+	finishSelect(t, prev);
+}
+
+static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	int x, y;
+	LONG h;
+	intptr_t prev;
+
+	prev = t->selected;
+	x = GET_X_LPARAM(lParam);
+	y = GET_Y_LPARAM(lParam);
+	h = rowHeight(t);
+	y += t->firstVisible * h;
+	y -= t->headerHeight;
+	y /= h;
+	t->selected = y;
+	if (t->selected >= t->count)
+		t->selected = -1;
+	t->focusedColumn = hitTestColumn(t, x);
+	finishSelect(t, prev);
 }
 
 static void resize(struct table *t)
