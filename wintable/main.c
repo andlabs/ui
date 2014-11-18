@@ -45,6 +45,7 @@ enum {
 // 	- TODO figure out which notification is needed
 // - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
 // - merge recomputeHScroll() with resize()? the pagesize can change if a horizontal scrollbar is added or removed
+// 	- related: vertical scrolling code doesn't work right because of the presence of horizontal scrollbars, but the addition of a vertical scrollbar can affect t->hpagesize and the addition of a horizontal scrollbar can affect t->pagesize, leading to a catch 22 situation and a potential infinite loop if we just say "repeat the process if one changes"
 
 #define tableWindowClass L"gouitable"
 
