@@ -44,6 +44,7 @@ enum {
 // 	- space to toggle (TODO); + or = to set; - to clear (see http://msdn.microsoft.com/en-us/library/windows/desktop/bb775941%28v=vs.85%29.aspx)
 // 	- TODO figure out which notification is needed
 // - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
+// - merge recomputeHScroll() with resize()? the pagesize can change if a horizontal scrollbar is added or removed
 
 #define tableWindowClass L"gouitable"
 
@@ -148,6 +149,8 @@ static void repositionHeader(struct table *t)
 	t->headerHeight = headerpos.cy;
 }
 
+// this counts partially visible rows
+// for all fully visible rows use t->pagesize
 // cliprect and rowHeight must be specified here to avoid recomputing things multiple times
 static intptr_t lastVisible(struct table *t, RECT cliprect, LONG rowHeight)
 {
@@ -339,9 +342,20 @@ static void finishSelect(struct table *t, intptr_t prev)
 		t->selected = 0;
 	if (t->selected >= t->count)
 		t->selected = t->count - 1;
-	// TODO update only the old and new selected items
-	redrawAll(t);
-	// TODO scroll to the selected item if it's not entirely visible
+	// if we need to scroll, the scrolling will force a redraw, so we don't have to worry about doing so ourselves
+	if (t->selected < t->firstVisible)
+;//TODO		vscrollto(t, t->selected);
+	// note that this is not lastVisible(t) because the last visible row may only be partially visible and we want selections to make them fully visible
+	// TODO >=?
+	else if (t->selected > (t->firstVisible + t->pagesize))
+;//TODO		vscrollto(t, t->selected - t->pagesize);
+	else {
+		// no scrolling needed; redraw just the old and new rows
+		// if prev == t->selected, redraw that row at least once because the focused column may have changed
+		redrawRow(t, prev);
+		if (prev != t->selected)
+			redrawRow(t, t->selected);
+	}
 }
 
 static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
