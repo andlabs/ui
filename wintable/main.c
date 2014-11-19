@@ -85,7 +85,7 @@ struct table {
 	int checkboxWidth;
 	int checkboxHeight;
 	BOOL lastmouse;
-	int lastmouseX;
+	int lastmouseX;				// unadjusted coordinates
 	int lastmouseY;
 	BOOL mouseDown;			// TRUE if over a checkbox; the next two decide which ones
 	intptr_t mouseDownRow;
@@ -203,6 +203,18 @@ static intptr_t hitTestColumn(struct table *t, int x)
 	}
 	// no column
 	return -1;
+}
+
+static void retrack(struct table *t)
+{
+	TRACKMOUSEEVENT tm;
+
+	ZeroMemory(&tm, sizeof (TRACKMOUSEEVENT));
+	tm.cbSize = sizeof (TRACKMOUSEEVENT);
+	tm.dwFlags = TME_LEAVE;		// TODO also TME_NONCLIENT?
+	tm.hwndTrack = t->hwnd;
+	if (_TrackMouseEvent(&tm) == 0)
+		abort();
 }
 
 static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
@@ -648,8 +660,8 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				if (i == t->mouseDownRow && j == t->mouseDownColumn)
 					c = RGB(0, 0, 255);
 			} else if (t->lastmouse) {
-				pt.x = t->lastmouseX;
-				pt.y = t->lastmouseY;
+				pt.x = t->lastmouseX - t->hpos;		// because t->lastmouseX is in client coordinates
+				pt.y = t->lastmouseY;				// ...but so are the vertical coordinates of rsel
 				if (PtInRect(&rsel, pt) != 0)
 					c = RGB(0, 255, 0);
 			}
@@ -766,6 +778,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 }
 			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme), &(t->checkboxWidth), &(t->checkboxHeight));
 			t->focusedColumn = -1;
+			retrack(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
@@ -818,6 +831,22 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		}
 		return 0;
 	// TODO other mouse buttons?
+	case WM_MOUSEMOVE:
+		t->lastmouse = TRUE;
+		t->lastmouseX = GET_X_LPARAM(lParam);
+		t->lastmouseY = GET_Y_LPARAM(lParam);
+		// TODO redraw row being hovered over
+		return 0;
+	case WM_MOUSELEAVE:
+		t->lastmouse = FALSE;
+		retrack(t);
+		// TODO redraw row mouse is currently over
+		// TODO split into its own function
+		if (t->mouseDown) {
+			t->mouseDown = FALSE;
+			redrawRow(t, t->mouseDownRow);
+		}
+		return 0;
 	case WM_SETFOCUS:
 	case WM_KILLFOCUS:
 		// all we need to do here is redraw the highlight
