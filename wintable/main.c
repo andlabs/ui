@@ -592,6 +592,7 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	if (FillRect(dc, &rsel, background) == 0)
 		abort();
 
+	// TODO double-check to see if this takes any parameters
 	xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
 	// now adjust for horizontal scrolling
 	xoff -= t->hpos;
