@@ -84,6 +84,12 @@ struct table {
 	intptr_t focusedColumn;
 	int checkboxWidth;
 	int checkboxHeight;
+	BOOL lastmouse;
+	int lastmouseX;
+	int lastmouseY;
+	BOOL mouseDown;			// TRUE if over a checkbox; the next two decide which ones
+	intptr_t mouseDownRow;
+	intptr_t mouseDownColumn;
 };
 
 static LONG rowHeight(struct table *t)
@@ -520,6 +526,10 @@ static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 	if (t->selected >= t->count)
 		t->selected = -1;
 	t->focusedColumn = hitTestColumn(t, x);
+	// TODO only if inside a checkbox
+	t->mouseDown = TRUE;
+	t->mouseDownRow = t->selected;
+	t->mouseDownColumn = t->focusedColumn;
 	finishSelect(t, prev);
 }
 
@@ -557,6 +567,7 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 	intptr_t j;
 	LRESULT xoff;
 	IMAGELISTDRAWPARAMS ip;
+	POINT pt;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -629,8 +640,21 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 			rsel.top = y;
 			rsel.right = rsel.left + t->checkboxWidth;
 			rsel.bottom = rsel.top + t->checkboxHeight;
-			if (SetDCBrushColor(dc, RGB(255, 0, 0)) == CLR_INVALID)
+			{ COLORREF c;
+
+			c = RGB(255, 0, 0);
+			if (t->mouseDown) {
+				if (i == t->mouseDownRow && j == t->mouseDownColumn)
+					c = RGB(0, 0, 255);
+			} else if (t->lastmouse) {
+				pt.x = t->lastmouseX;
+				pt.y = t->lastmouseY;
+				if (PtInRect(&rsel, pt) != 0)
+					c = RGB(0, 255, 0);
+			}
+			if (SetDCBrushColor(dc, c) == CLR_INVALID)
 				abort();
+			}
 			if (FillRect(dc, &rsel, GetStockObject(DC_BRUSH)) == 0)
 				abort();
 			break;
@@ -785,6 +809,14 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 	case WM_LBUTTONDOWN:
 		selectItem(t, wParam, lParam);
 		return 0;
+	case WM_LBUTTONUP:
+		// TODO toggle checkbox
+		if (t->mouseDown) {
+			t->mouseDown = FALSE;
+			redrawRow(t, t->mouseDownRow);
+		}
+		return 0;
+	// TODO other mouse buttons?
 	case WM_SETFOCUS:
 	case WM_KILLFOCUS:
 		// all we need to do here is redraw the highlight
