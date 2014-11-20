@@ -324,14 +324,10 @@ static void track(struct table *t, LPARAM lParam)
 	BOOL prev;
 	intptr_t prevrow, prevcolumn;
 
-	// TODO limit all this to if a checkbox is being hovered over
-	lParamToRowColumn(t, lParam, &row, &column);
 	prev = t->lastmouse;
 	prevrow = t->lastmouseRow;
 	prevcolumn = t->lastmouseColumn;
-	t->lastmouse = TRUE;
-	t->lastmouseRow = row;
-	t->lastmouseColumn = column;
+	t->lastmouse = lParamInCheckbox(t, lParam, &(t->lastmouseRow), &(t->lastmouseColumn));
 	if (prev)
 		if (prevrow != row || prevcolumn != column)
 			redrawRow(t, prevrow);
@@ -746,11 +742,9 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				if (i == t->mouseDownRow && j == t->mouseDownColumn)
 					c = RGB(0, 0, 255);
 			} else if (t->lastmouse) {
-/*TODO				pt.x = t->lastmouseX - t->hpos;		// because t->lastmouseX is in client coordinates
-				pt.y = t->lastmouseY;				// ...but so are the vertical coordinates of rsel
-				if (PtInRect(&rsel, pt) != 0)
+				if (i == t->lastmouseRow && j == t->lastmouseColumn)
 					c = RGB(0, 255, 0);
-*/			}
+			}
 			if (SetDCBrushColor(dc, c) == CLR_INVALID)
 				abort();
 			}
