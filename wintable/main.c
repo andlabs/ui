@@ -225,6 +225,63 @@ static void lParamToRowColumn(struct table *t, LPARAM lParam, intptr_t *row, int
 		*column = hitTestColumn(t, x);
 }
 
+static RECT checkboxRect(struct table *t, intptr_t row, intptr_t column, LONG rowHeight)
+{
+	RECT r;
+	HDITEMW item;
+	intptr_t i;
+
+	// TODO count dividers
+	for (i = 0; i < column; i++) {
+		ZeroMemory(&item, sizeof (HDITEMW));
+		item.mask = HDI_WIDTH;
+		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
+			abort();
+		r.left += item.cxy;
+	}
+	// TODO double-check to see if this takes any parameters
+	r.left += SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+	r.right = r.left + t->checkboxWidth;
+	// TODO vertical center
+	r.top = row * rowHeight;
+	r.bottom = r.top + t->checkboxHeight;
+	return r;
+}
+
+// TODO clean up variables
+static BOOL lParamInCheckbox(struct table *t, LPARAM lParam, intptr_t *row, intptr_t *column)
+{
+	int x, y;
+	LONG h;
+	intptr_t col;
+	RECT r;
+	POINT pt;
+
+	x = GET_X_LPARAM(lParam);
+	y = GET_Y_LPARAM(lParam);
+	h = rowHeight(t);
+	y += t->firstVisible * h;
+	y -= t->headerHeight;
+	pt.y = y;		// save actual y coordinate now
+	y /= h;		// turn it into a row count
+	if (y >= t->count)
+		return FALSE;
+	col = hitTestColumn(t, x);
+	if (col == -1)
+		return FALSE;
+	if (t->columnTypes[col] != tableColumnCheckbox)
+		return FALSE;
+	r = checkboxRect(t, y, col, h);
+	pt.x = x;
+	if (PtInRect(&r, pt) == 0)
+		return FALSE;
+	if (row != NULL)
+		*row = y;
+	if (column != NULL)
+		*column = col;
+	return TRUE;
+}
+
 static void retrack(struct table *t)
 {
 	TRACKMOUSEEVENT tm;
