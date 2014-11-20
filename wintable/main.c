@@ -36,6 +36,7 @@ enum {
 // - http://msdn.microsoft.com/en-us/library/windows/desktop/bb775574%28v=vs.85%29.aspx
 // - hscroll
 // 	- keyboard navigation
+// 		- how will this affect hot-tracking?
 // - accessibility
 // 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
 // - try horizontally scrolling the initail window and watch the selection rect corrupt itself *sometimes*
