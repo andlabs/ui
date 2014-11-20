@@ -46,6 +46,8 @@ enum {
 // 	- TODO figure out which notification is needed
 // - http://blogs.msdn.com/b/oldnewthing/archive/2006/01/03/508694.aspx
 // - free all allocated resources on WM_DESTROY
+// - rename lastmouse
+// 	- or perhaps do a general cleanup of the checkbox and mouse event code...
 
 #define tableWindowClass L"gouitable"
 
