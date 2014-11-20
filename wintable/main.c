@@ -85,8 +85,8 @@ struct table {
 	int checkboxWidth;
 	int checkboxHeight;
 	BOOL lastmouse;
-	int lastmouseX;				// unadjusted coordinates
-	int lastmouseY;
+	intptr_t lastmouseRow;
+	intptr_t lastmouseColumn;
 	BOOL mouseDown;			// TRUE if over a checkbox; the next two decide which ones
 	intptr_t mouseDownRow;
 	intptr_t mouseDownColumn;
@@ -259,6 +259,26 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 		abort();
 	// TODO resize(t)?
 	redrawAll(t);
+}
+
+static void track(struct table *t, LPARAM lParam)
+{
+	intptr_t row, column;
+	BOOL prev;
+	intptr_t prevrow, prevcolumn;
+
+	// TODO limit all this to if a checkbox is being hovered over
+	lParamToRowColumn(t, lParam, &row, &column);
+	prev = t->lastmouse;
+	prevrow = t->lastmouseRow;
+	prevcolumn = t->lastmouseColumn;
+	t->lastmouse = TRUE;
+	t->lastmouseRow = row;
+	t->lastmouseColumn = column;
+	if (prev)
+		if (prevrow != row || prevcolumn != column)
+			redrawRow(t, prevrow);
+	redrawRow(t, t->lastmouseRow);
 }
 
 static void hscrollto(struct table *t, intptr_t newpos)
@@ -669,11 +689,11 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				if (i == t->mouseDownRow && j == t->mouseDownColumn)
 					c = RGB(0, 0, 255);
 			} else if (t->lastmouse) {
-				pt.x = t->lastmouseX - t->hpos;		// because t->lastmouseX is in client coordinates
+/*TODO				pt.x = t->lastmouseX - t->hpos;		// because t->lastmouseX is in client coordinates
 				pt.y = t->lastmouseY;				// ...but so are the vertical coordinates of rsel
 				if (PtInRect(&rsel, pt) != 0)
 					c = RGB(0, 255, 0);
-			}
+*/			}
 			if (SetDCBrushColor(dc, c) == CLR_INVALID)
 				abort();
 			}
@@ -841,10 +861,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		return 0;
 	// TODO other mouse buttons?
 	case WM_MOUSEMOVE:
-		t->lastmouse = TRUE;
-		t->lastmouseX = GET_X_LPARAM(lParam);
-		t->lastmouseY = GET_Y_LPARAM(lParam);
-		// TODO redraw row being hovered over
+		track(t, lParam);
 		return 0;
 	case WM_MOUSELEAVE:
 		t->lastmouse = FALSE;
