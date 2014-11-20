@@ -205,6 +205,26 @@ static intptr_t hitTestColumn(struct table *t, int x)
 	return -1;
 }
 
+static void lParamToRowColumn(struct table *t, LPARAM lParam, intptr_t *row, intptr_t *column)
+{
+	int x, y;
+	LONG h;
+
+	x = GET_X_LPARAM(lParam);
+	y = GET_Y_LPARAM(lParam);
+	h = rowHeight(t);
+	y += t->firstVisible * h;
+	y -= t->headerHeight;
+	y /= h;
+	if (row != NULL) {
+		*row = y;
+		if (*row >= t->count)
+			*row = -1;
+	}
+	if (column != NULL)
+		*column = hitTestColumn(t, x);
+}
+
 static void retrack(struct table *t)
 {
 	TRACKMOUSEEVENT tm;
@@ -523,21 +543,10 @@ static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 
 static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 {
-	int x, y;
-	LONG h;
 	intptr_t prev;
 
 	prev = t->selected;
-	x = GET_X_LPARAM(lParam);
-	y = GET_Y_LPARAM(lParam);
-	h = rowHeight(t);
-	y += t->firstVisible * h;
-	y -= t->headerHeight;
-	y /= h;
-	t->selected = y;
-	if (t->selected >= t->count)
-		t->selected = -1;
-	t->focusedColumn = hitTestColumn(t, x);
+	lParamToRowColumn(t, lParam, &(t->selected), &(t->focusedColumn));
 	// TODO only if inside a checkbox
 	t->mouseDown = TRUE;
 	t->mouseDownRow = t->selected;
