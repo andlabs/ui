@@ -118,6 +118,8 @@ static LONG rowHeight(struct table *t)
 	ret = tm.tmHeight;
 	if (ret < t->imagelistHeight)
 		ret = t->imagelistHeight;
+	if (ret < t->checkboxHeight)
+		ret = t->checkboxHeight;
 	return ret;
 }
 
