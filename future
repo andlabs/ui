@@ -9,6 +9,7 @@ C interop
 
 mac os x sizing is now completely broken
 	- need to catch window initial sizes?
+	- unrelated: https://files.slack.com/files-pri/T029RQSE6-F0321TX9B/pasted_image_at_2014_11_23_12_35_pm.png com.apple.main-thread
 
 password fields: caps lock warnings
 
