@@ -48,6 +48,7 @@ enum {
 // - free all allocated resources on WM_DESTROY
 // - rename lastmouse
 // 	- or perhaps do a general cleanup of the checkbox and mouse event code...
+// - figure out why initial draw pretends there is no header
 
 #define tableWindowClass L"gouitable"
 
