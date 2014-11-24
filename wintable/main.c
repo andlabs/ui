@@ -89,12 +89,6 @@ struct table {
 	intptr_t focusedColumn;
 	int checkboxWidth;
 	int checkboxHeight;
-	BOOL lastmouse;
-	intptr_t lastmouseRow;
-	intptr_t lastmouseColumn;
-	BOOL mouseDown;			// TRUE if over a checkbox; the next two decide which ones
-	intptr_t mouseDownRow;
-	intptr_t mouseDownColumn;
 };
 
 static LONG rowHeight(struct table *t)
@@ -232,75 +226,6 @@ static void lParamToRowColumn(struct table *t, LPARAM lParam, intptr_t *row, int
 		*column = hitTestColumn(t, x);
 }
 
-static RECT checkboxRect(struct table *t, intptr_t row, intptr_t column, LONG rowHeight)
-{
-	RECT r;
-	HDITEMW item;
-	intptr_t i;
-
-	// TODO count dividers
-	for (i = 0; i < column; i++) {
-		ZeroMemory(&item, sizeof (HDITEMW));
-		item.mask = HDI_WIDTH;
-		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
-			abort();
-		r.left += item.cxy;
-	}
-	// TODO double-check to see if this takes any parameters
-	r.left += SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
-	r.right = r.left + t->checkboxWidth;
-	// TODO vertical center
-	r.top = row * rowHeight;
-	r.bottom = r.top + t->checkboxHeight;
-	return r;
-}
-
-// TODO clean up variables
-static BOOL lParamInCheckbox(struct table *t, LPARAM lParam, intptr_t *row, intptr_t *column)
-{
-	int x, y;
-	LONG h;
-	intptr_t col;
-	RECT r;
-	POINT pt;
-
-	x = GET_X_LPARAM(lParam);
-	y = GET_Y_LPARAM(lParam);
-	h = rowHeight(t);
-	y += t->firstVisible * h;
-	y -= t->headerHeight;
-	pt.y = y;		// save actual y coordinate now
-	y /= h;		// turn it into a row count
-	if (y >= t->count)
-		return FALSE;
-	col = hitTestColumn(t, x);
-	if (col == -1)
-		return FALSE;
-	if (t->columnTypes[col] != tableColumnCheckbox)
-		return FALSE;
-	r = checkboxRect(t, y, col, h);
-	pt.x = x;
-	if (PtInRect(&r, pt) == 0)
-		return FALSE;
-	if (row != NULL)
-		*row = y;
-	if (column != NULL)
-		*column = col;
-	return TRUE;
-}
-
-static void retrack(struct table *t)
-{
-	TRACKMOUSEEVENT tm;
-
-	ZeroMemory(&tm, sizeof (TRACKMOUSEEVENT));
-	tm.cbSize = sizeof (TRACKMOUSEEVENT);
-	tm.dwFlags = TME_LEAVE;		// TODO also TME_NONCLIENT?
-	tm.hwndTrack = t->hwnd;
-	if (_TrackMouseEvent(&tm) == 0)
-		abort();
-}
-
 static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 {
 	HDITEMW item;
@@ -323,22 +248,6 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 		abort();
 	// TODO resize(t)?
 	redrawAll(t);
-}
-
-static void track(struct table *t, LPARAM lParam)
-{
-	intptr_t row, column;
-	BOOL prev;
-	intptr_t prevrow, prevcolumn;
-
-	prev = t->lastmouse;
-	prevrow = t->lastmouseRow;
-	prevcolumn = t->lastmouseColumn;
-	t->lastmouse = lParamInCheckbox(t, lParam, &(t->lastmouseRow), &(t->lastmouseColumn));
-	if (prev)
-		if (prevrow != row || prevcolumn != column)
-			redrawRow(t, prevrow);
-	redrawRow(t, t->lastmouseRow);
 }
 
 static void hscrollto(struct table *t, intptr_t newpos)
@@ -621,16 +530,13 @@ static void keySelect(struct table *t, WPARAM wParam, LPARAM lParam)
 	finishSelect(t, prev);
 }
 
+// TODO rename
 static void selectItem(struct table *t, WPARAM wParam, LPARAM lParam)
 {
 	intptr_t prev;
 
 	prev = t->selected;
 	lParamToRowColumn(t, lParam, &(t->selected), &(t->focusedColumn));
-	// TODO only if inside a checkbox
-	t->mouseDown = TRUE;
-	t->mouseDownRow = t->selected;
-	t->mouseDownColumn = t->focusedColumn;
 	finishSelect(t, prev);
 }
 
@@ -737,26 +643,7 @@ static void drawItem(struct table *t, HDC dc, intptr_t i, LONG y, LONG height, R
 				abort();
 			break;
 		case tableColumnCheckbox:
-			// TODO replace all this
-			rsel.left = headeritem.left + xoff;
-			rsel.top = y;
-			rsel.right = rsel.left + t->checkboxWidth;
-			rsel.bottom = rsel.top + t->checkboxHeight;
-			{ COLORREF c;
-
-			c = RGB(255, 0, 0);
-			if (t->mouseDown) {
-				if (i == t->mouseDownRow && j == t->mouseDownColumn)
-					c = RGB(0, 0, 255);
-			} else if (t->lastmouse) {
-				if (i == t->lastmouseRow && j == t->lastmouseColumn)
-					c = RGB(0, 255, 0);
-			}
-			if (SetDCBrushColor(dc, c) == CLR_INVALID)
-				abort();
-			}
-			if (FillRect(dc, &rsel, GetStockObject(DC_BRUSH)) == 0)
-				abort();
+			// TODO
 			break;
 		}
 		if (t->selected == i && t->focusedColumn == j) {
@@ -865,7 +752,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 }
 			t->checkboxes = makeCheckboxImageList(t->hwnd, &(t->theme), &(t->checkboxWidth), &(t->checkboxHeight));
 			t->focusedColumn = -1;
-			retrack(t);
+//TODO			retrack(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
@@ -909,27 +796,6 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		return 0;
 	case WM_LBUTTONDOWN:
 		selectItem(t, wParam, lParam);
-		return 0;
-	case WM_LBUTTONUP:
-		// TODO toggle checkbox
-		if (t->mouseDown) {
-			t->mouseDown = FALSE;
-			redrawRow(t, t->mouseDownRow);
-		}
-		return 0;
-	// TODO other mouse buttons?
-	case WM_MOUSEMOVE:
-		track(t, lParam);
-		return 0;
-	case WM_MOUSELEAVE:
-		t->lastmouse = FALSE;
-		retrack(t);
-		// TODO redraw row mouse is currently over
-		// TODO split into its own function
-		if (t->mouseDown) {
-			t->mouseDown = FALSE;
-			redrawRow(t, t->mouseDownRow);
-		}
 		return 0;
 	case WM_SETFOCUS:
 	case WM_KILLFOCUS:
