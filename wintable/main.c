@@ -1005,7 +1005,7 @@ void makeTableWindowClass(void)
 		abort();
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
 	HWND mainwin;
 	MSG msg;
@@ -1028,6 +1028,19 @@ int main(void)
 	SendMessageW(mainwin, tableAddColumn, tableColumnText, (LPARAM) L"Column");
 	SendMessageW(mainwin, tableAddColumn, tableColumnImage, (LPARAM) L"Column 2");
 	SendMessageW(mainwin, tableAddColumn, tableColumnCheckbox, (LPARAM) L"Column 3");
+	if (argc > 1) {
+		NONCLIENTMETRICSW ncm;
+		HFONT font;
+
+		ZeroMemory(&ncm, sizeof (NONCLIENTMETRICSW));
+		ncm.cbSize = sizeof (NONCLIENTMETRICSW);
+		if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICSW), &ncm, sizeof (NONCLIENTMETRICSW)) == 0)
+			abort();
+		font = CreateFontIndirectW(&ncm.lfMessageFont);
+		if (font == NULL)
+			abort();
+		SendMessageW(mainwin, WM_SETFONT, (WPARAM) font, TRUE);
+	}
 	ShowWindow(mainwin, SW_SHOWDEFAULT);
 	if (UpdateWindow(mainwin) == 0)
 		abort();
