@@ -9,7 +9,7 @@ This is a library that aims to provide simple GUI software development in Go. It
 - Mac OS X: cgo, Mac OS X 10.7 and newer
 - other Unixes: cgo, GTK+ 3.4 and newer
 
-Go 1.3 is required. Note that vanilla 1.3 has a bug in Mac OS X cgo; the next release will fix it.
+Go 1.4 RC1 or newer (including Go tip/master/direct from the source repository) is required. This is due to a variety of compiler and linker bugs on Windows and Mac OS X spanning the Go 1.3 release family.
 
 (this README needs some work)
 
