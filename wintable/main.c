@@ -37,6 +37,7 @@ enum {
 // - hscroll
 // 	- keyboard navigation
 // 		- how will this affect hot-tracking?
+// 	- automatic hscroll when scrolling columns
 // - accessibility
 // 	- must use MSAA as UI Automation is not included by default on Windows XP (and apparently requires SP3?)
 // - try horizontally scrolling the initail window and watch the selection rect corrupt itself *sometimes*
