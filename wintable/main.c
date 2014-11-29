@@ -51,6 +51,7 @@ enum {
 // 	- or perhaps do a general cleanup of the checkbox and mouse event code...
 // - figure out why initial draw pretends there is no header
 // - find places where the top-left corner of the client rect is assumed to be (0, 0)
+// - figure out how we can split this into multiple files to make this easier to manage
 
 #define tableWindowClass L"gouitable"
 
