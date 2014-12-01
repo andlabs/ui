@@ -103,7 +103,7 @@ struct table {
 
 typedef BOOL (*handlerfunc)(struct table *, UINT, WPARAM, LPARAM, LRESULT *);
 
-handlerfunc handlerfuncs[] = {
+const handlerfunc handlerfuncs[] = {
 	APIHandler,
 	NULL,
 };
