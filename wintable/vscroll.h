@@ -95,3 +95,18 @@ static void vscroll(struct table *t, WPARAM wParam)
 
 	vscrollto(t, newpos);
 }
+
+HANDLER(vscroll)
+{
+	switch (uMsg) {
+	case WM_VSCROLL:
+		vscroll(t, wParam);
+		*lResult = 0;
+		return TRUE;
+	case WM_MOUSEWHEEL:
+		wheelscroll(t, wParam);
+		*lResult = 0;
+		return TRUE;
+	}
+	return FALSE;
+}

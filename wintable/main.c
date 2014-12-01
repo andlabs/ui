@@ -104,6 +104,7 @@ struct table {
 typedef BOOL (*handlerfunc)(struct table *, UINT, WPARAM, LPARAM, LRESULT *);
 
 const handlerfunc handlerfuncs[] = {
+	vscrollHandler,
 	APIHandler,
 	NULL,
 };
@@ -174,12 +175,6 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 			abort();
 		drawItems(t, dc, ps.rcPaint);
 		EndPaint(hwnd, &ps);
-		return 0;
-	case WM_VSCROLL:
-		vscroll(t, wParam);
-		return 0;
-	case WM_MOUSEWHEEL:
-		wheelscroll(t, wParam);
 		return 0;
 	case WM_HSCROLL:
 		hscroll(t, wParam);
