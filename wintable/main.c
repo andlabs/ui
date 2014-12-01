@@ -94,11 +94,11 @@ struct table {
 };
 
 #include "util.h"
-#include "api.h"
 #include "hscroll.h"
 #include "vscroll.h"
 #include "selection.h"
 #include "draw.h"
+#include "api.h"
 
 // TODO create a system where each of the above modules provide their own window procedures
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
