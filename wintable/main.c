@@ -93,6 +93,7 @@ struct table {
 	int checkboxHeight;
 };
 
+#define HANDLER(what) static BOOL what ## Handler(struct table *t, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult)
 #include "util.h"
 #include "hscroll.h"
 #include "vscroll.h"
@@ -100,10 +101,19 @@ struct table {
 #include "draw.h"
 #include "api.h"
 
+typedef BOOL (*handlerfunc)(struct table *, UINT, WPARAM, LPARAM, LRESULT *);
+
+handlerfunc handlerfuncs[] = {
+	APIHandler,
+	NULL,
+};
+
 // TODO create a system where each of the above modules provide their own window procedures
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	struct table *t;
+	handlerfunc *hf;
+	LRESULT lResult;
 	HDC dc;
 	PAINTSTRUCT ps;
 	NMHDR *nmhdr = (NMHDR *) lParam;
@@ -154,6 +164,9 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		// even if we did the above, fall through
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
+	for (hf = handlerfuncs; *hf != NULL; hf++)
+		if ((*hf)(t, uMsg, wParam, lParam, &lResult))
+			return lResult;
 	switch (uMsg) {
 	case WM_PAINT:
 		dc = BeginPaint(hwnd, &ps);
@@ -162,22 +175,6 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		drawItems(t, dc, ps.rcPaint);
 		EndPaint(hwnd, &ps);
 		return 0;
-	case WM_SETFONT:
-		t->font = (HFONT) wParam;
-		if (t->font == NULL)
-			t->font = t->defaultFont;
-		// also set the header font
-		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
-		if (LOWORD(lParam) != FALSE) {
-			// the scrollbar page size will change so redraw that too
-			// also recalculate the header height
-			// TODO do that when this is FALSE too somehow
-			resize(t);
-			redrawAll(t);
-		}
-		return 0;
-	case WM_GETFONT:
-		return (LRESULT) t->font;
 	case WM_VSCROLL:
 		vscroll(t, wParam);
 		return 0;
@@ -226,9 +223,6 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		// now defer back to DefWindowProc() in case other things are needed
 		// TODO needed?
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
-	case tableAddColumn:
-		addColumn(t, wParam, lParam);
-		return 0;
 	case WM_GETOBJECT:		// accessibility
 /*
 		if (((DWORD) lParam) == OBJID_CLIENT) {

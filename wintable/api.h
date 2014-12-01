@@ -23,3 +23,32 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	// TODO resize(t)?
 	redrawAll(t);
 }
+
+HANDLER(API)
+{
+	switch (uMsg) {
+	case WM_SETFONT:
+		t->font = (HFONT) wParam;
+		if (t->font == NULL)
+			t->font = t->defaultFont;
+		// also set the header font
+		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
+		if (LOWORD(lParam) != FALSE) {
+			// the scrollbar page size will change so redraw that too
+			// also recalculate the header height
+			// TODO do that when this is FALSE too somehow
+			resize(t);
+			redrawAll(t);
+		}
+		*lResult = 0;
+		return TRUE;
+	case WM_GETFONT:
+		*lResult = (LRESULT) t->font;
+		return TRUE;
+	case tableAddColumn:
+		addColumn(t, wParam, lParam);
+		*lResult = 0;
+		return TRUE;
+	}
+	return FALSE;
+}
