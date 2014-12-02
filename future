@@ -1,3 +1,7 @@
+Table
+	- with our custom Windows Table we no longer really need image lists...
+		- TODO what about icon views with groups?
+
 windows
 	- WM_WININICHANGED, etc. (TODO get a full list) causing size recomputations
 	- check +, =, and - key handling for checkboxes
