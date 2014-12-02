@@ -55,10 +55,11 @@ enum {
 
 #define tableWindowClass L"gouitable"
 
+// start at WM_USER + 20 just in case for whatever reason we ever get the various dialog manager messages (see also http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx)
 enum {
 	// wParam - one of the type constants
 	// lParam - column name as a Unicode string
-	tableAddColumn = WM_USER,
+	tableAddColumn = WM_USER + 20,
 };
 
 enum {
