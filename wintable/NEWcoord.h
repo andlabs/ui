@@ -13,7 +13,6 @@ static rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 }
 
 // same as client coordinates, but stored in a lParam (like the various mouse messages provide)
-// TODO should we use GetMessagePos() instead?
 static rowcol lParamToRowColumn(struct table *t, LPARAM lParam)
 {
 	POINT pt;
