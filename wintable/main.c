@@ -105,6 +105,7 @@ struct table {
 typedef BOOL (*handlerfunc)(struct table *, UINT, WPARAM, LPARAM, LRESULT *);
 
 const handlerfunc handlerfuncs[] = {
+	hscrollHandler,
 	vscrollHandler,
 	APIHandler,
 	NULL,
@@ -177,9 +178,6 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 		drawItems(t, dc, ps.rcPaint);
 		EndPaint(hwnd, &ps);
 		return 0;
-	case WM_HSCROLL:
-		hscroll(t, wParam);
-		return 0;
 	case WM_SIZE:
 		resize(t);
 		return 0;
@@ -190,6 +188,7 @@ if (ImageList_GetIconSize(t->imagelist, &unused, &(t->imagelistHeight)) == 0)abo
 	case WM_KILLFOCUS:
 		// all we need to do here is redraw the highlight
 		// TODO ensure giving focus works right
+		// TODO figure out hwat I meant by this
 		redrawRow(t, t->selected);
 		return 0;
 	case WM_KEYDOWN:

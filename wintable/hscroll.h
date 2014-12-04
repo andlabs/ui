@@ -112,3 +112,14 @@ static void recomputeHScroll(struct table *t)
 	si.nMax = t->width - 1;			// - 1 because endpoints inclusive
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
 }
+
+HANDLER(hscroll)
+{
+	switch (uMsg) {
+	case WM_HSCROLL:
+		hscroll(t, wParam);
+		*lResult = 0;
+		return TRUE;
+	}
+	return FALSE;
+}
