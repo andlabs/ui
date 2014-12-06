@@ -1,6 +1,6 @@
 // 5 december 2014
 
-static consst handlerfunc keyDownHandlers[] = {
+static const handlerfunc keyDownHandlers[] = {
 	NULL,
 };
 
@@ -24,7 +24,7 @@ static const handlerfunc lbuttonDownHandlers[] = {
 	NULL,
 };
 
-static const handlerufnc lbuttonUpHandlers[] = {
+static const handlerfunc lbuttonUpHandlers[] = {
 	NULL,
 };
 
@@ -34,7 +34,7 @@ static const handlerfunc mouseWheelHandlers[] = {
 
 // TODO WM_MOUSEHOVER, other mouse buttons
 
-HANDLER(events)
+HANDLER(eventHandlers)
 {
 	switch (uMsg) {
 #define eventHandler(msg, array) \
