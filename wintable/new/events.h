@@ -1,34 +1,34 @@
 // 5 december 2014
 
-static handlerfunc keyDownHandlers[] = {
+static consst handlerfunc keyDownHandlers[] = {
 	NULL,
 };
 
-static handlerfunc keyUpHandlers[] = {
+static const handlerfunc keyUpHandlers[] = {
 	NULL,
 };
 
-static handlerfunc charHandlers[] = {
+static const handlerfunc charHandlers[] = {
 	NULL,
 };
 
-static handlerfunc mouseMoveHandlers[] = {
+static const handlerfunc mouseMoveHandlers[] = {
 	NULL,
 };
 
-static handlerfunc mouseLeaveHandlers[] = {
+static const handlerfunc mouseLeaveHandlers[] = {
 	NULL,
 };
 
-static handlerfunc lbuttonDownHandlers[] = {
+static const handlerfunc lbuttonDownHandlers[] = {
 	NULL,
 };
 
-static handlerufnc lbuttonUpHandlers[] = {
+static const handlerufnc lbuttonUpHandlers[] = {
 	NULL,
 };
 
-static handlerfunc mouseWheelHandlers[] = {
+static const handlerfunc mouseWheelHandlers[] = {
 	NULL,
 };
 
