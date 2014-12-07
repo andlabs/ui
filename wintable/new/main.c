@@ -54,6 +54,7 @@ struct table {
 #include "util.h"
 #include "coord.h"
 #include "events.h"
+#include "header.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
@@ -69,20 +70,23 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	if (t == NULL) {
 		// we have to do things this way because creating the header control will fail mysteriously if we create it first thing
 		// (which is fine; we can get the parent hInstance this way too)
-		if (uMsg == WM_NCCREATE) {
+		// we use WM_CREATE because we have to use WM_DESTROY to destroy the header; trying to do it within WM_NCDESTROY results in DestroyWindow() failing (on wine, at least)
+		if (uMsg == WM_CREATE) {
 			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 
 			t = (struct table *) tableAlloc(sizeof (struct table), "error allocating internal Table data structure");
 			t->hwnd = hwnd;
+			makeHeader(t, cs->hInstance);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
-	// TODO decide if we do this in WM_DESTROY or WM_NCDESTROY (need to see how the header control responds) so this can be in sync witht he above
 	if (uMsg == WM_DESTROY) {
+printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
 		// TODO send DESTROY events to accessibility listeners (when appropriate)
+		destroyHeader(t);
 		tableFree(t, "error allocating internal Table data structure");
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
