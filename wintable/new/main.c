@@ -55,9 +55,11 @@ struct table {
 #include "coord.h"
 #include "events.h"
 #include "header.h"
+#include "children.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
+	childrenHandlers,
 	NULL,
 };
 

@@ -18,3 +18,8 @@ static void destroyHeader(struct table *t)
 	if (DestroyWindow(t->header) == 0)
 		panic("error destroying Table header");
 }
+
+static void repositionHeader(struct table *t)
+{
+	// TODO http://msdn.microsoft.com/en-us/library/windows/desktop/hh298357%28v=vs.85%29.aspx
+}
