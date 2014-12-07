@@ -23,6 +23,9 @@
 
 // #qo LIBS: user32 kernel32 gdi32 comctl32 uxtheme
 
+// TODO
+// - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
+
 #define tableWindowClass L"gouitable"
 
 // start at WM_USER + 20 just in case for whatever reason we ever get the various dialog manager messages (see also http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx)
