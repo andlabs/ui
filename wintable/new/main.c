@@ -72,7 +72,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		if (uMsg == WM_NCCREATE) {
 			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 
-			// TODO use HeapAlloc() or something to make the last error reasonable
+			// TODO find something that DOES set a last error code to use instead, or figure out how to abuse SEH temporarily so we can use HeapAlloc()...
 			t = (struct table *) malloc(sizeof (struct table));
 			if (t == NULL)
 				panic("error allocating internal Table data structure");
