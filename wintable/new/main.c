@@ -41,6 +41,7 @@ enum {
 
 struct table {
 	HWND hwnd;
+	HWND header;
 };
 
 #include "util.h"
