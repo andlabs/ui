@@ -72,11 +72,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		if (uMsg == WM_NCCREATE) {
 			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 
-			// TODO find something that DOES set a last error code to use instead, or figure out how to abuse SEH temporarily so we can use HeapAlloc()...
-			t = (struct table *) malloc(sizeof (struct table));
-			if (t == NULL)
-				panic("error allocating internal Table data structure");
-			ZeroMemory(t, sizeof (struct table));
+			t = (struct table *) tableAlloc(sizeof (struct table), "error allocating internal Table data structure");
 			t->hwnd = hwnd;
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
@@ -87,7 +83,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	if (uMsg == WM_DESTROY) {
 		// TODO free appropriate (after figuring this part out) components of t
 		// TODO send DESTROY events to accessibility listeners (when appropriate)
-		free(t);
+		tableFree(t, "error allocating internal Table data structure");
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 	}
 	if (runHandlers(handlers, t, uMsg, wParam, lParam, &lResult))
