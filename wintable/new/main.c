@@ -39,7 +39,7 @@ enum {
 	nTableColumnTypes,
 };
 
-void (*tablePanic)(const char *, DWORD) = NULL;
+static void (*tablePanic)(const char *, DWORD) = NULL;
 #define panic(...) (*tablePanic)(__VA_ARGS__, GetLastError())
 #define abort $$$$		// prevent accidental use of abort()
 
