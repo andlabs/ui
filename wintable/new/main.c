@@ -70,7 +70,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	if (t == NULL) {
 		// we have to do things this way because creating the header control will fail mysteriously if we create it first thing
 		// (which is fine; we can get the parent hInstance this way too)
-		// we use WM_CREATE because we have to use WM_DESTROY to destroy the header; trying to do it within WM_NCDESTROY results in DestroyWindow() failing (on wine, at least)
+		// we use WM_CREATE because we have to use WM_DESTROY to destroy the header; we can't do it in WM_NCDESTROY because Windows will have destroyed it for us by then, and let's match message pairs to be safe
 		if (uMsg == WM_CREATE) {
 			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 
@@ -85,7 +85,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	if (uMsg == WM_DESTROY) {
 printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
-		// TODO send DESTROY events to accessibility listeners (when appropriate)
+		// TODO send EVENT_OBJECT_DESTROY events to accessibility listeners (when appropriate); see the note on proxy objects as well
 		destroyHeader(t);
 		tableFree(t, "error allocating internal Table data structure");
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
