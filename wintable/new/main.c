@@ -39,6 +39,10 @@ enum {
 	nTableColumnTypes,
 };
 
+void (*tablePanic)(const char *, DWORD) = NULL;
+#define panic(...) (*tablePanic)(__VA_ARGS__, GetLastError())
+#define abort $$$$		// prevent accidental use of abort()
+
 struct table {
 	HWND hwnd;
 	HWND header;
@@ -65,9 +69,10 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		if (uMsg == WM_NCCREATE) {
 			CREATESTRUCTW *cs = (CREATESTRUCTW *) lParam;
 
+			// TODO use HeapAlloc() or something to make the last error reasonable
 			t = (struct table *) malloc(sizeof (struct table));
 			if (t == NULL)
-				abort();
+				panic("error allocating internal Table data structure");
 			ZeroMemory(t, sizeof (struct table));
 			t->hwnd = hwnd;
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
@@ -87,10 +92,22 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }
 
-void makeTableWindowClass(void)
+static void deftablePanic(const char *msg, DWORD lastError)
+{
+	fprintf(stderr, "Table error: %s (last error %d)\n", msg, lastError);
+	fprintf(stderr, "This is the default Table error handler function; programs that use Table should provide their own instead.\nThe program will now abort.\n");
+#undef abort
+	abort();
+#define abort $$$$
+}
+
+void initTable(void (*panicfunc)(const char *msg, DWORD lastError))
 {
 	WNDCLASSW wc;
 
+	tablePanic = panicfunc;
+	if (tablePanic == NULL)
+		tablePanic = deftablePanic;
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpszClassName = tableWindowClass;
 	wc.lpfnWndProc = tableWndProc;
@@ -100,7 +117,7 @@ void makeTableWindowClass(void)
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.hInstance = GetModuleHandle(NULL);
 	if (RegisterClassW(&wc) == 0)
-		abort();
+		panic("error registering Table window class");
 }
 
 int main(int argc, char *argv[])
@@ -113,8 +130,8 @@ int main(int argc, char *argv[])
 	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
 	icc.dwICC = ICC_LISTVIEW_CLASSES;
 	if (InitCommonControlsEx(&icc) == 0)
-		abort();
-	makeTableWindowClass();
+		panic("(test program) error initializing comctl32.dll");
+	initTable(NULL);
 	mainwin = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
 		WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,
@@ -122,7 +139,7 @@ int main(int argc, char *argv[])
 		400, 400,
 		NULL, NULL, GetModuleHandle(NULL), NULL);
 	if (mainwin == NULL)
-		abort();
+		panic("(test program) error creating Table");
 	SendMessageW(mainwin, tableAddColumn, tableColumnText, (LPARAM) L"Column");
 	SendMessageW(mainwin, tableAddColumn, tableColumnImage, (LPARAM) L"Column 2");
 	SendMessageW(mainwin, tableAddColumn, tableColumnCheckbox, (LPARAM) L"Column 3");
@@ -133,15 +150,15 @@ int main(int argc, char *argv[])
 		ZeroMemory(&ncm, sizeof (NONCLIENTMETRICSW));
 		ncm.cbSize = sizeof (NONCLIENTMETRICSW);
 		if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof (NONCLIENTMETRICSW), &ncm, sizeof (NONCLIENTMETRICSW)) == 0)
-			abort();
+			panic("(test program) error getting non-client metrics");
 		font = CreateFontIndirectW(&ncm.lfMessageFont);
 		if (font == NULL)
-			abort();
+			panic("(test program) error creating lfMessageFont HFONT");
 		SendMessageW(mainwin, WM_SETFONT, (WPARAM) font, TRUE);
 	}
 	ShowWindow(mainwin, SW_SHOWDEFAULT);
 	if (UpdateWindow(mainwin) == 0)
-		abort();
+		panic("(test program) error updating window");
 	while (GetMessageW(&msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&msg);
 		DispatchMessageW(&msg);
