@@ -52,3 +52,17 @@ static void headerAddColumn(struct table *t, WCHAR *name)
 	if (SendMessage(t->header, HDM_INSERTITEM, (WPARAM) (100), (LPARAM) (&item)) == (LRESULT) (-1))
 		panic("error adding column to Table header");
 }
+
+HANDLER(headerNotifyHandler)
+{
+	NMHDR *nmhdr = (NMHDR *) lParam;
+
+	if (nmhdr->hwndFrom != t->header)
+		return FALSE;
+	if (nmhdr->code != HDN_ITEMCHANGED)
+		return FALSE;
+	// TODO
+	InvalidateRect(t->hwnd, NULL, TRUE);
+	*lResult = 0;
+	return TRUE;
+}
