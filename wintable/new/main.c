@@ -49,6 +49,7 @@ static void (*tablePanic)(const char *, DWORD) = NULL;
 struct table {
 	HWND hwnd;
 	HWND header;
+	HFONT font;
 };
 
 #include "util.h"
@@ -58,12 +59,14 @@ struct table {
 #include "children.h"
 #include "resize.h"
 #include "draw.h"
+#include "api.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
 	childrenHandlers,
 	resizeHandler,
 	drawHandlers,
+	apiHandlers,
 	NULL,
 };
 
