@@ -29,3 +29,31 @@ static BOOL rowColumnToClientCoord(struct table *t, rowcol rc, struct POINT *pt)
 }
 
 // TODO idealCoordToRowColumn/rowColumnToIdealCoord?
+
+// TODO find a better place for this
+static LONG rowHeight(struct table *t, HDC dc, BOOL select)
+{
+	BOOL release;
+	HFONT prevfont, newfont;
+	TEXTMETRICW tm;
+
+	release = FALSE;
+	if (dc == NULL) {
+		dc = GetDC(t->hwnd);
+		if (dc == NULL)
+			panic("error getting Table DC for rowHeight()");
+		release = TRUE;
+	}
+	if (select)
+		prevfont = selectFont(t, dc, &newfont);
+	if (GetTextMetricsW(dc, &tm) == 0)
+		panic("error getting text metrics for rowHeight()");
+	if (select)
+		deselectFont(dc, prevfont, newfont);
+	if (release)
+		if (ReleaseDC(t->hwnd, dc) == 0)
+			panic("error releasing Table DC for rowHeight()");
+	return tm.tmHeight;
+}
+
+#define rowht(t) rowHeight(t, NULL, TRUE)

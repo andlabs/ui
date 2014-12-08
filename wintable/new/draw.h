@@ -5,6 +5,7 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	LRESULT i, n;
 	RECT r;
 	int x = 0;
+	HFONT prevfont, newfont;
 
 	n = SendMessageW(t->header, HDM_GETITEMCOUNT, 0, 0);
 	for (i = 0; i < n; i++) {
@@ -14,6 +15,10 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 		FillRect(dc, &r, GetSysColorBrush(x));
 		x++;
 	}
+
+	prevfont = selectFont(t, dc, &newfont);
+	TextOutW(dc, 100, 100, L"come on", 7);
+	deselectFont(dc, prevfont, newfont);
 }
 
 HANDLER(drawHandlers)
