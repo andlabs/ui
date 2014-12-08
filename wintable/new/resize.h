@@ -1,6 +1,7 @@
 // 7 december 2014
 
 // TODO why doesn't this trigger on first show?
+// TODO last few bits of the scrollbar series, that talk about WM_WINDOWPOSCHANGING and the metaphor
 
 HANDLER(resizeHandler)
 {
