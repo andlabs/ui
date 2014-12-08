@@ -65,6 +65,13 @@ static const handlerfunc handlers[] = {
 	NULL,
 };
 
+static void initDummyTableStuff(struct table *t)
+{
+	headerAddColumn(t, L"Column 1");
+	headerAddColumn(t, L"Column 2");
+	headerAddColumn(t, L"Column 3");
+}
+
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	struct table *t;
@@ -81,6 +88,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			t = (struct table *) tableAlloc(sizeof (struct table), "error allocating internal Table data structure");
 			t->hwnd = hwnd;
 			makeHeader(t, cs->hInstance);
+initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through

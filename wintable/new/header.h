@@ -38,3 +38,17 @@ static void repositionHeader(struct table *t)
 		wp.flags | SWP_SHOWWINDOW) == 0)
 		panic("error repositioning Table header");
 }
+
+static void headerAddColumn(struct table *t, WCHAR *name)
+{
+	HDITEMW item;
+
+	ZeroMemory(&item, sizeof (HDITEMW));
+	item.mask = HDI_WIDTH | HDI_TEXT | HDI_FORMAT;
+	item.cxy = 200;		// TODO
+	item.pszText = name;
+	item.fmt = HDF_LEFT | HDF_STRING;
+	// TODO replace 100 with (t->nColumns - 1)
+	if (SendMessage(t->header, HDM_INSERTITEM, (WPARAM) (100), (LPARAM) (&item)) == (LRESULT) (-1))
+		panic("error adding column to Table header");
+}
