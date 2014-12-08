@@ -2,7 +2,18 @@
 
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
-	Rectangle(dc, 20, 20, 200, 200);
+	LRESULT i, n;
+	RECT r;
+	int x = 0;
+
+	n = SendMessageW(t->header, HDM_GETITEMCOUNT, 0, 0);
+	for (i = 0; i < n; i++) {
+		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r));
+		r.top = client.top;
+		r.bottom = client.bottom;
+		FillRect(dc, &r, GetSysColorBrush(x));
+		x++;
+	}
 }
 
 // TODO handle WM_PRINTCLIENT flags?
