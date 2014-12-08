@@ -2,6 +2,7 @@
 
 // TODO why doesn't this trigger on first show?
 // TODO last few bits of the scrollbar series, that talk about WM_WINDOWPOSCHANGING and the metaphor
+// TODO rename this to boot
 
 HANDLER(resizeHandler)
 {
