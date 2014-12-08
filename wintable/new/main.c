@@ -57,11 +57,13 @@ struct table {
 #include "header.h"
 #include "children.h"
 #include "resize.h"
+#include "draw.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
 	childrenHandlers,
 	resizeHandler,
+	drawHandlers,
 	NULL,
 };
 
