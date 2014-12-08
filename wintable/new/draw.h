@@ -16,24 +16,18 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	}
 }
 
-// TODO handle WM_PRINTCLIENT flags?
-
 HANDLER(drawHandlers)
 {
 	HDC dc;
 	PAINTSTRUCT ps;
 	RECT client;
 	RECT r;
-	BOOL wmpaint;
 
 	if (uMsg != WM_PAINT && uMsg != WM_PRINTCLIENT)
 		return FALSE;
 	if (GetClientRect(t->hwnd, &client) == 0)
 		panic("error getting client rect for Table painting");
-	// let's be nice: some controls don't support WM_PRINTCLIENT but do allow you to pass a HDC as the WPARAM to WM_PAINT, so let's support that too as an option
-	// TODO find out how susch controls handle LPARAM
-	wmpaint = uMsg == WM_PAINT && ((HDC) wParam) == NULL;
-	if (wmpaint) {
+	if (uMsg == WM_PAINT) {
 		dc = BeginPaint(t->hwnd, &ps);
 		if (dc == NULL)
 			panic("error beginning Table painting");
@@ -43,9 +37,9 @@ HANDLER(drawHandlers)
 		r = client;
 	}
 	draw(t, dc, r, client);
-	if (wmpaint)
+	if (uMsg == WM_PAINT)
 		EndPaint(t->hwnd, &ps);
-	// TODO is this correct for WM_PRINTCLIENT? MSDN doesn't say
+	// this is correct for WM_PRINTCLIENT; see http://stackoverflow.com/a/27362258/3408572
 	*lResult = 0;
 	return TRUE;
 }
