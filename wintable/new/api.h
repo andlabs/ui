@@ -4,7 +4,7 @@ HANDLER(apiHandlers)
 {
 	switch (uMsg) {
 	case WM_SETFONT:
-		// TODO release old font?
+		// don't free the old font; see http://blogs.msdn.com/b/oldnewthing/archive/2008/09/12/8945692.aspx
 		t->font = (HFONT) wParam;
 		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
 		// TODO reposition header?
