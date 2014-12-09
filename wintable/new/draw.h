@@ -20,7 +20,8 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	r.right = p->x + p->width;
 	r.top = p->y;
 	r.bottom = p->y + p->height;
-	// TODO vertical center
+	// TODO fill this rect with the appropriate background color
+	// TODO then vertical center content
 	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
 	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 		panic("error drawing Table cell text");
