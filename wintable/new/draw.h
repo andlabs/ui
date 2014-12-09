@@ -1,11 +1,38 @@
 // 8 december 2014
 
+struct drawCellParams {
+	intptr_t row;
+	intptr_t column;
+	LONG x;
+	LONG y;
+	LONG width;		// of column
+	LONG height;		// rowHeight()
+	LRESULT xoff;		// result of HDM_GETBITMAPMARGIN
+};
+
+static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
+{
+	RECT r;
+	WCHAR msg[200];
+	int n;
+
+	r.left = p->x + p->xoff;
+	r.right = p->x + p->width;
+	r.top = p->y;
+	r.bottom = p->y + p->height;
+	// TODO vertical center
+	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
+	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+		panic("error drawing Table cell text");
+}
+
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
 	LRESULT i, n;
 	RECT r;
 	int x = 0;
 	HFONT prevfont, newfont;
+	struct drawCellParams p;
 
 	n = SendMessageW(t->header, HDM_GETITEMCOUNT, 0, 0);
 	for (i = 0; i < n; i++) {
@@ -17,7 +44,15 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	}
 
 	prevfont = selectFont(t, dc, &newfont);
-	TextOutW(dc, 100, 100, L"come on", 7);
+	ZeroMemory(&p, sizeof (struct drawCellParams));
+	p.row = 0;
+	p.column = 0;
+	p.x = r.left;
+	p.y = 100;
+	p.width = r.right - r.left;
+	p.height = rowHeight(t, dc, FALSE);
+	p.xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+	drawCell(t, dc, &p);
 	deselectFont(dc, prevfont, newfont);
 }
 
