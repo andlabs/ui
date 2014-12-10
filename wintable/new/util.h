@@ -15,6 +15,7 @@ static BOOL runHandlers(const handlerfunc list[], struct table *t, UINT uMsg, WP
 
 // memory allocation stuff
 // each of these functions do an implicit ZeroMemory()
+// these also make tableRealloc(NULL, ...) act like realloc(NULL, ...) (that is, same as tableAlloc(...)/malloc(...))
 // we're using LocalAlloc() because:
 // - whether the malloc() family supports the last-error code is undefined
 // - the HeapAlloc() family DOES NOT support the last-error code; you're supposed to use Windows exceptions, and I can't find a clean way to do this with MinGW-w64 that doesn't rely on inline assembly or external libraries (unless they added __try/__except blocks)
@@ -35,6 +36,8 @@ static void *tableRealloc(void *p, size_t size, const char *panicMessage)
 {
 	HLOCAL out;
 
+	if (p == NULL)
+		return tableAlloc(size, panicMessage);
 	out = LocalReAlloc((HLOCAL) p, size, LMEM_ZEROINIT);
 	if (out == NULL)
 		panic(panicMessage);

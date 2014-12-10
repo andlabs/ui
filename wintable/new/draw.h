@@ -29,14 +29,13 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
-	LRESULT i, n;
+	intptr_t i;
 	RECT r;
 	int x = 0;
 	HFONT prevfont, newfont;
 	struct drawCellParams p;
 
-	n = SendMessageW(t->header, HDM_GETITEMCOUNT, 0, 0);
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < t->nColumns; i++) {
 		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r));
 		r.top = client.top;
 		r.bottom = client.bottom;

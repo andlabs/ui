@@ -50,6 +50,8 @@ struct table {
 	HWND hwnd;
 	HWND header;
 	HFONT font;
+	intptr_t nColumns;
+	int *columnTypes;
 };
 
 #include "util.h"
@@ -72,9 +74,7 @@ static const handlerfunc handlers[] = {
 
 static void initDummyTableStuff(struct table *t)
 {
-	headerAddColumn(t, L"Column 1");
-	headerAddColumn(t, L"Column 2");
-	headerAddColumn(t, L"Column 3");
+	// nothing yet...
 }
 
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
