@@ -53,6 +53,11 @@ static void headerAddColumn(struct table *t, WCHAR *name)
 		panic("error adding column to Table header");
 }
 
+static void updateTableWidth(struct table *t)
+{
+	recomputeHScroll(t);
+}
+
 HANDLER(headerNotifyHandler)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
@@ -61,8 +66,7 @@ HANDLER(headerNotifyHandler)
 		return FALSE;
 	if (nmhdr->code != HDN_ITEMCHANGED)
 		return FALSE;
-	// TODO should this be last?
-	recomputeHScroll(t);
+	updateTableWidth(t);
 	// TODO make more intelligent
 	InvalidateRect(t->hwnd, NULL, TRUE);
 	// TODO UpdateWindow()?

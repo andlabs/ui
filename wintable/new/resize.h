@@ -14,7 +14,7 @@ HANDLER(resizeHandler)
 	if ((wp->flags & SWP_NOSIZE) != 0)
 		return FALSE;
 	repositionHeader(t);
-	recomputeHScroll(t);
+	updateTableWidth(t);
 	*lResult = 0;
 	return TRUE;
 }

@@ -9,7 +9,7 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	if (t->columnTypes[t->nColumns - 1] >= nTableColumnTypes)
 		panic("invalid column type passed to tableAddColumn");
 	headerAddColumn(t, (WCHAR *) lParam);
-	recomputeHScroll(t);
+	updateTableWidth(t);
 }
 
 HANDLER(apiHandlers)
