@@ -54,6 +54,8 @@ struct table {
 	int *columnTypes;
 	intptr_t width;
 	intptr_t headerHeight;
+	intptr_t hscrollpos;
+	intptr_t hpagesize;
 };
 
 #include "util.h"
@@ -72,6 +74,7 @@ static const handlerfunc handlers[] = {
 	resizeHandler,
 	drawHandlers,
 	apiHandlers,
+	hscrollHandler,
 	NULL,
 };
 

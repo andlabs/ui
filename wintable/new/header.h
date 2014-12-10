@@ -68,8 +68,8 @@ static void updateTableWidth(struct table *t)
 			panic("error getting Table column width for updateTableWidth()");
 		t->width += item.cxy;
 	}
-	// TODO replace this with a call to hscrollby(t, 0)
-	recomputeHScroll(t);
+	// do a dummy scroll to update the horizontal scrollbar to use the new width
+	hscrollby(t, 0);
 }
 
 HANDLER(headerNotifyHandler)
