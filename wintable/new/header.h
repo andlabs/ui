@@ -61,8 +61,9 @@ HANDLER(headerNotifyHandler)
 		return FALSE;
 	if (nmhdr->code != HDN_ITEMCHANGED)
 		return FALSE;
-	// TODO
+	// TODO make more intelligent
 	InvalidateRect(t->hwnd, NULL, TRUE);
+	// TODO UpdateWindow()?
 	*lResult = 0;
 	return TRUE;
 }
