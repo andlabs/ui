@@ -25,6 +25,7 @@
 
 // TODO
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
+// - make panic messages grammatically correct ("Table error: adding...")
 
 #define tableWindowClass L"gouitable"
 
