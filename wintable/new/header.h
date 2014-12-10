@@ -37,6 +37,7 @@ static void repositionHeader(struct table *t)
 		// see above on showing the header here instead of in the CreateWindowExW() call
 		wp.flags | SWP_SHOWWINDOW) == 0)
 		panic("error repositioning Table header");
+	t->headerHeight = wp.cy;
 }
 
 static void headerAddColumn(struct table *t, WCHAR *name)

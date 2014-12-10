@@ -53,6 +53,7 @@ struct table {
 	intptr_t nColumns;
 	int *columnTypes;
 	intptr_t width;
+	intptr_t headerHeight;
 };
 
 #include "util.h"
