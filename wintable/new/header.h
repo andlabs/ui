@@ -61,6 +61,8 @@ HANDLER(headerNotifyHandler)
 		return FALSE;
 	if (nmhdr->code != HDN_ITEMCHANGED)
 		return FALSE;
+	// TODO should this be last?
+	recomputeHScroll(t);
 	// TODO make more intelligent
 	InvalidateRect(t->hwnd, NULL, TRUE);
 	// TODO UpdateWindow()?
