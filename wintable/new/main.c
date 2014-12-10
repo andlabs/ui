@@ -52,6 +52,7 @@ struct table {
 	HFONT font;
 	intptr_t nColumns;
 	int *columnTypes;
+	intptr_t width;
 };
 
 #include "util.h"

@@ -55,6 +55,19 @@ static void headerAddColumn(struct table *t, WCHAR *name)
 
 static void updateTableWidth(struct table *t)
 {
+	HDITEMW item;
+	intptr_t i;
+
+	t->width = 0;
+	// TODO count dividers?
+	for (i = 0; i < t->nColumns; i++) {
+		ZeroMemory(&item, sizeof (HDITEMW));
+		item.mask = HDI_WIDTH;
+		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
+			panic("error getting Table column width for updateTableWidth()");
+		t->width += item.cxy;
+	}
+	// TODO replace this with a call to hscrollby(t, 0)
 	recomputeHScroll(t);
 }
 

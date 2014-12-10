@@ -18,19 +18,8 @@ static void hscroll(struct table *t, WPARAM wParam, LPARAM lParam)
 static void recomputeHScroll(struct table *t)
 {
 	SCROLLINFO si;
-	HDITEMW item;
-	intptr_t i, width;
 	RECT r;
 
-	width = 0;
-	// TODO count dividers?
-	for (i = 0; i < t->nColumns; i++) {
-		ZeroMemory(&item, sizeof (HDITEMW));
-		item.mask = HDI_WIDTH;
-		if (SendMessageW(t->header, HDM_GETITEM, (WPARAM) i, (LPARAM) (&item)) == FALSE)
-			panic("error getting Table column width for recomputeHScroll()");
-		width += item.cxy;
-	}
 	if (GetClientRect(t->hwnd, &r) == 0)
 		panic("error getting Table client rect for recomputeHScroll()");
 	ZeroMemory(&si, sizeof (SCROLLINFO));
@@ -38,7 +27,7 @@ static void recomputeHScroll(struct table *t)
 	si.fMask = SIF_PAGE | SIF_RANGE;
 	si.nPage = r.right - r.left;
 	si.nMin = 0;
-	si.nMax = width - 1;		// endpoint inclusive
+	si.nMax = t->width - 1;		// endpoint inclusive
 	SetScrollInfo(t->hwnd, SB_HORZ, &si, TRUE);
 	// TODO what happens if the above call renders the current scroll position moot?
 }
