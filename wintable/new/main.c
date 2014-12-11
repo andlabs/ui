@@ -57,6 +57,7 @@ struct table {
 	intptr_t headerHeight;
 	intptr_t hscrollpos;
 	intptr_t hpagesize;
+	intptr_t count;
 };
 
 #include "util.h"
@@ -81,7 +82,7 @@ static const handlerfunc handlers[] = {
 
 static void initDummyTableStuff(struct table *t)
 {
-	// nothing yet...
+	t->count = 100;
 }
 
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
