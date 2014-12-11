@@ -22,7 +22,8 @@ static void hscrollto(struct table *t, intptr_t pos)
 	if (ScrollWindowEx(t->hwnd, -(pos - t->hscrollpos), 0,
 		&scrollArea, &scrollArea, NULL, NULL,
 		SW_ERASE | SW_INVALIDATE) == ERROR)
-		panic("error horizontally scrolling Table");
+;// TODO failure case ignored for now; see https://bugs.winehq.org/show_bug.cgi?id=37706
+//		panic("error horizontally scrolling Table");
 	// TODO call UpdateWindow()?
 
 	t->hscrollpos = pos;
