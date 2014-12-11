@@ -3,7 +3,7 @@
 static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 {
 	t->nColumns++;
-	t->columnTypes = tableRealloc(t->columnTypes, t->nColumns * sizeof (int), "adding the new column type to the current Table's list of column types");
+	t->columnTypes = (int *) tableRealloc(t->columnTypes, t->nColumns * sizeof (int), "adding the new column type to the current Table's list of column types");
 	t->columnTypes[t->nColumns - 1] = (int) wParam;
 	// TODO make a panicNoErrCode() or panicArg() for this
 	if (t->columnTypes[t->nColumns - 1] >= nTableColumnTypes)
