@@ -37,6 +37,8 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 
 	for (i = 0; i < t->nColumns; i++) {
 		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r));
+		r.left -= t->hscrollpos;
+		r.right -= t->hscrollpos;
 		r.top = client.top;
 		r.bottom = client.bottom;
 		FillRect(dc, &r, GetSysColorBrush(x));
@@ -47,7 +49,7 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	ZeroMemory(&p, sizeof (struct drawCellParams));
 	p.row = 0;
 	p.column = 0;
-	p.x = r.left;
+	p.x = r.left - t->hscrollpos;
 	p.y = 100;
 	p.width = r.right - r.left;
 	p.height = rowHeight(t, dc, FALSE);

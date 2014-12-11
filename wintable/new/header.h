@@ -28,6 +28,8 @@ static void repositionHeader(struct table *t)
 
 	if (GetClientRect(t->hwnd, &r) == 0)
 		panic("error getting client rect for Table header repositioning");
+	// we fake horizontal scrolling here by extending the client rect to the left by the scroll position
+	r.left -= t->hscrollpos;
 	l.prc = &r;
 	l.pwpos = &wp;
 	if (SendMessageW(t->header, HDM_LAYOUT, 0, (LPARAM) (&l)) == FALSE)
