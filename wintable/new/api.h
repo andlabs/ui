@@ -19,8 +19,8 @@ HANDLER(apiHandlers)
 		// don't free the old font; see http://blogs.msdn.com/b/oldnewthing/archive/2008/09/12/8945692.aspx
 		t->font = (HFONT) wParam;
 		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
-		// TODO reposition header?
 		// TODO how to properly handle LOWORD(lParam) != FALSE?
+		// TODO depending on the result of the above, update table width to refresh t->headerHeight?
 		*lResult = 0;
 		return TRUE;
 	case WM_GETFONT:
