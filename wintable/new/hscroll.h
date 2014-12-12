@@ -32,8 +32,6 @@ static void hscrollto(struct table *t, intptr_t pos)
 	ZeroMemory(&si, sizeof (SCROLLINFO));
 	si.cbSize = sizeof (SCROLLINFO);
 	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-	// the width of scrollArea is unchanged here; use it
-	t->hpagesize = scrollArea.right - scrollArea.left;
 	si.nPage = t->hpagesize;
 	si.nMin = 0;
 	si.nMax = t->width - 1;		// endpoint inclusive
