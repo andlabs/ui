@@ -19,8 +19,8 @@ HANDLER(resizeHandler)
 	// TODO does wp store the window rect or the client rect?
 	if (GetClientRect(t->hwnd, &client) == 0)
 		panic("error getting Table client rect in resizeHandler()");
-	// TODO do this before calling updateTableWidth() (which calls repositionHeader()?)?
-	client.top -= t->headerHeight;
+	// TODO do this after calling updateTableWidth() (which calls repositionHeader()?)?
+	client.top += t->headerHeight;
 
 	// update the width...
 	// this will call repositionHeader(); there's a good reason... (see comments)
