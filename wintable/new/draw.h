@@ -27,11 +27,11 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	// TODO then vertical center content
 	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
 
-	FillRect(dc, &r, (HBRUSH) (current + 1));
+/*	FillRect(dc, &r, (HBRUSH) (current + 1));
 	current++;
 	if (current >= 31)
 		current = 0;
-
+*/
 	r.left += p->xoff;
 	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 		panic("error drawing Table cell text");
@@ -56,7 +56,7 @@ current = 0;
 	p.xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
 
 	p.y = client.top;
-	for (i = 0; i < t->count; i++) {
+	for (i = t->vscrollpos; i < t->count; i++) {
 		p.row = i;
 		p.x = client.left - t->hscrollpos;
 		for (j = 0; j < t->nColumns; j++) {
