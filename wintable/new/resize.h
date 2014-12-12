@@ -13,6 +13,8 @@ HANDLER(resizeHandler)
 	wp = (WINDOWPOS *) lParam;
 	if ((wp->flags & SWP_NOSIZE) != 0)
 		return FALSE;
+	// this will call repositionHeader(); there's a good reason... (see comments)
+	// TODO when I clean that mess up, remove this comment
 	updateTableWidth(t);
 	*lResult = 0;
 	return TRUE;
