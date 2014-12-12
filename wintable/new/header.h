@@ -56,10 +56,15 @@ static void headerAddColumn(struct table *t, WCHAR *name)
 		panic("error adding column to Table header");
 }
 
+// TODO make a better name for this?
+// TODO move to hscroll.h?
+// TODO organize this in general...
+// TODO because of this function's new extended functionality only hscrollto() is allowed to call repositionHeader()
 static void updateTableWidth(struct table *t)
 {
 	HDITEMW item;
 	intptr_t i;
+	RECT client;
 
 	t->width = 0;
 	// TODO count dividers?
@@ -70,6 +75,16 @@ static void updateTableWidth(struct table *t)
 			panic("error getting Table column width for updateTableWidth()");
 		t->width += item.cxy;
 	}
+
+	if (GetClientRect(t->hwnd, &client) == 0)
+		panic("error getting Table client rect in updateTableWidth()");
+	t->hpagesize = client.right - client.left;
+
+	// this part is critical: if we resize the columns to less than the client area width, then the following hscrollby() will make t->hscrollpos negative, which does very bad things
+	// note to self: do this regardless of whether the table width or the client area width was changed
+	if (t->hpagesize > t->width)
+		t->hpagesize = t->width;
+
 	// do a dummy scroll to update the horizontal scrollbar to use the new width
 	hscrollby(t, 0);
 }

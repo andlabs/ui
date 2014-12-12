@@ -26,7 +26,6 @@
 // TODO
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
 // - make panic messages grammatically correct ("Table error: adding...")
-// - figure out how to handle the situation where we resize the table width to less than the width of the client rect...
 
 #define tableWindowClass L"gouitable"
 
