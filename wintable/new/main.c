@@ -27,6 +27,7 @@
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
 // - make panic messages grammatically correct ("Table error: adding...")
 // - make access to column widths consistent; see whether HDITEMW.cxy == (ITEMRECT.right - ITEMRECT.left)
+// - make sure all uses of t->headerHeight are ADDED to RECT.top
 
 #define tableWindowClass L"gouitable"
 
