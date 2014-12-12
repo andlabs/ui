@@ -10,51 +10,66 @@ struct drawCellParams {
 	LRESULT xoff;		// result of HDM_GETBITMAPMARGIN
 };
 
+//TODO delete when done
+static int current = 0;
+
 static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 {
 	RECT r;
 	WCHAR msg[200];
 	int n;
 
-	r.left = p->x + p->xoff;
+	r.left = p->x;//TODO + p->xoff;
 	r.right = p->x + p->width;
 	r.top = p->y;
 	r.bottom = p->y + p->height;
 	// TODO fill this rect with the appropriate background color
 	// TODO then vertical center content
 	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
+
+	FillRect(dc, &r, (HBRUSH) (current + 1));
+	current++;
+	if (current >= 31)
+		current = 0;
+
+	r.left += p->xoff;
 	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 		panic("error drawing Table cell text");
 }
 
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
-	intptr_t i;
+	intptr_t i, j;
 	RECT r;
 	int x = 0;
 	HFONT prevfont, newfont;
 	struct drawCellParams p;
 
-	for (i = 0; i < t->nColumns; i++) {
-		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&r));
-		r.left -= t->hscrollpos;
-		r.right -= t->hscrollpos;
-		r.top = client.top;
-		r.bottom = client.bottom;
-		FillRect(dc, &r, GetSysColorBrush(x));
-		x++;
-	}
-
 	prevfont = selectFont(t, dc, &newfont);
+
+current = 0;
+
+	client.top += t->headerHeight;
+
 	ZeroMemory(&p, sizeof (struct drawCellParams));
-	p.row = 0;
-	p.column = 0;
-	p.x = r.left;
-	p.y = 100;
-	p.width = r.right - r.left;
 	p.height = rowHeight(t, dc, FALSE);
 	p.xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
-	drawCell(t, dc, &p);
+
+	p.y = client.top;
+	for (i = 0; i < t->count; i++) {
+		p.row = i;
+		p.x = client.left - t->hscrollpos;
+		for (j = 0; j < t->nColumns; j++) {
+			p.column = j;
+			// TODO error check
+			SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&r));
+			p.width = r.right - r.left;
+			drawCell(t, dc, &p);
+			p.x += p.width;
+		}
+		p.y += p.height;
+	}
+
 	deselectFont(dc, prevfont, newfont);
 }
 

@@ -26,6 +26,7 @@
 // TODO
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
 // - make panic messages grammatically correct ("Table error: adding...")
+// - make access to column widths consistent; see whether HDITEMW.cxy == (ITEMRECT.right - ITEMRECT.left)
 
 #define tableWindowClass L"gouitable"
 
@@ -55,9 +56,11 @@ struct table {
 	int *columnTypes;
 	intptr_t width;
 	intptr_t headerHeight;
-	intptr_t hscrollpos;
-	intptr_t hpagesize;
+	intptr_t hscrollpos;		// in logical units
+	intptr_t hpagesize;		// in logical units
 	intptr_t count;
+	intptr_t vscrollpos;		// in rows
+	intptr_t vpagesize;		// in rows
 };
 
 #include "util.h"
