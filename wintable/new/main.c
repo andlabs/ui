@@ -66,6 +66,7 @@ struct table {
 #include "util.h"
 #include "coord.h"
 #include "events.h"
+#include "scroll.h"
 #include "hscroll.h"
 #include "header.h"
 #include "children.h"
