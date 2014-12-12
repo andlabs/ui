@@ -49,7 +49,7 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	ZeroMemory(&p, sizeof (struct drawCellParams));
 	p.row = 0;
 	p.column = 0;
-	p.x = r.left - t->hscrollpos;
+	p.x = r.left;
 	p.y = 100;
 	p.width = r.right - r.left;
 	p.height = rowHeight(t, dc, FALSE);
