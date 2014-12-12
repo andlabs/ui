@@ -68,6 +68,7 @@ struct table {
 #include "events.h"
 #include "scroll.h"
 #include "hscroll.h"
+#include "vscroll.h"
 #include "header.h"
 #include "children.h"
 #include "resize.h"
@@ -81,6 +82,7 @@ static const handlerfunc handlers[] = {
 	drawHandlers,
 	apiHandlers,
 	hscrollHandler,
+	vscrollHandler,
 	NULL,
 };
 
