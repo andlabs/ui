@@ -59,7 +59,8 @@ HANDLER(vscrollHandler)
 		return TRUE;
 	case WM_MOUSEWHEEL:
 		vwheelscroll(t, wParam, lParam);
-		// TODO what to return?
+		*lResult = 0;
+		return TRUE;
 	}
 	return FALSE;
 }
