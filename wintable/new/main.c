@@ -28,6 +28,7 @@
 // - make panic messages grammatically correct ("Table error: adding...")
 // - make access to column widths consistent; see whether HDITEMW.cxy == (ITEMRECT.right - ITEMRECT.left)
 // - make sure all uses of t->headerHeight are ADDED to RECT.top
+// - do we maintain the scrolling metaphor?
 
 #define tableWindowClass L"gouitable"
 
