@@ -13,6 +13,7 @@ static struct scrollParams vscrollParams(struct table *t)
 	p.length = t->count;
 	p.scale = rowht(t);
 	p.post = NULL;
+	p.wheelCarry = &(t->vwheelCarry);
 	return p;
 }
 
@@ -40,12 +41,25 @@ static void vscroll(struct table *t, WPARAM wParam, LPARAM lParam)
 	scroll(t, SB_VERT, &p, wParam, lParam);
 }
 
+static void vwheelscroll(struct table *t, WPARAM wParam, LPARAM lParam)
+{
+	struct scrollParams p;
+
+	p = vscrollParams(t);
+	wheelscroll(t, SB_VERT, &p, wParam, lParam);
+}
+
 // TODO WM_MOUSEWHEEL
 HANDLER(vscrollHandler)
 {
-	if (uMsg != WM_VSCROLL)
-		return FALSE;
-	vscroll(t, wParam, lParam);
-	*lResult = 0;
-	return TRUE;
+	switch (uMsg) {
+	case WM_VSCROLL:
+		vscroll(t, wParam, lParam);
+		*lResult = 0;
+		return TRUE;
+	case WM_MOUSEWHEEL:
+		vwheelscroll(t, wParam, lParam);
+		// TODO what to return?
+	}
+	return FALSE;
 }

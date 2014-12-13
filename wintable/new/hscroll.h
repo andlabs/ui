@@ -13,6 +13,7 @@ static struct scrollParams hscrollParams(struct table *t)
 	p.length = t->width;
 	p.scale = 1;
 	p.post = repositionHeader;
+	p.wheelCarry = &(t->hwheelCarry);
 	return p;
 }
 

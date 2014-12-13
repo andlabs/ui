@@ -62,6 +62,8 @@ struct table {
 	intptr_t count;
 	intptr_t vscrollpos;		// in rows
 	intptr_t vpagesize;		// in rows
+	int hwheelCarry;
+	int vwheelCarry;
 };
 
 #include "util.h"

@@ -6,6 +6,7 @@ struct scrollParams {
 	intptr_t length;
 	intptr_t scale;
 	void (*post)(struct table *);
+	int *wheelCarry;
 };
 
 static void scrollto(struct table *t, int which, struct scrollParams *p, intptr_t pos)
@@ -103,4 +104,27 @@ static void scroll(struct table *t, int which, struct scrollParams *p, WPARAM wP
 		break;
 	}
 	scrollto(t, which, p, pos);
+}
+
+static void wheelscroll(struct table *t, int which, struct scrollParams *p, WPARAM wParam, LPARAM lParam)
+{
+	int delta;
+	int lines;
+	UINT scrollAmount;
+
+	delta = GET_WHEEL_DELTA_WPARAM(wParam);
+	// TODO make a note of what the appropriate hscroll constant is
+	if (SystemParametersInfoW(SPI_GETWHEELSCROLLLINES, 0, &scrollAmount, 0) == 0)
+		// TODO use scrollAmount == 3 instead?
+		panic("error getting wheel scroll amount in wheelscroll()");
+	if (scrollAmount == WHEEL_PAGESCROLL)
+		scrollAmount = p->pagesize;
+	if (scrollAmount == 0)		// no mouse wheel scrolling (or t->pagesize == 0)
+		return;
+	// the rest of this is basically http://blogs.msdn.com/b/oldnewthing/archive/2003/08/07/54615.aspx and http://blogs.msdn.com/b/oldnewthing/archive/2003/08/11/54624.aspx
+	// see those pages for information on subtleties
+	delta += *(p->wheelCarry);
+	lines = delta * ((int) scrollAmount) / WHEEL_DELTA;
+	*(p->wheelCarry) = delta - lines * WHEEL_DELTA / ((int) scrollAmount);
+	scrollby(t, which, p, -lines);
 }
