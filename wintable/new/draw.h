@@ -10,9 +10,6 @@ struct drawCellParams {
 	LRESULT xoff;		// result of HDM_GETBITMAPMARGIN
 };
 
-//TODO delete when done
-static int current = 0;
-
 static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 {
 	RECT r;
@@ -66,8 +63,6 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	struct drawCellParams p;
 
 	prevfont = selectFont(t, dc, &newfont);
-
-current = 0;
 
 	client.top += t->headerHeight;
 
