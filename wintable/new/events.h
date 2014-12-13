@@ -21,6 +21,7 @@ static const handlerfunc mouseLeaveHandlers[] = {
 };
 
 static const handlerfunc lbuttonDownHandlers[] = {
+	mouseDownSelectHandler,
 	NULL,
 };
 
@@ -28,6 +29,7 @@ static const handlerfunc lbuttonUpHandlers[] = {
 	NULL,
 };
 
+// TODO remove or something? depends on if we implement combobox and how
 static const handlerfunc mouseWheelHandlers[] = {
 	NULL,
 };

@@ -70,6 +70,7 @@ struct table {
 
 #include "util.h"
 #include "coord.h"
+#include "select.h"
 #include "events.h"
 #include "scroll.h"
 #include "hscroll.h"
