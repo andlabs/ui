@@ -18,21 +18,41 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	RECT r;
 	WCHAR msg[200];
 	int n;
+	HBRUSH background;
+	int textColor;
 
-	r.left = p->x;//TODO + p->xoff;
+	// TODO verify these two
+	background = (HBRUSH) (COLOR_WINDOW + 1);
+	textColor = COLOR_WINDOWTEXT;
+	// TODO get rid of the selectedRow/selectedColumn bits
+	if (t->selectedRow == p->row && t->selectedColumn == p->column) {
+		// these are the colors wine uses (http://source.winehq.org/source/dlls/comctl32/listview.c)
+		// the two for unfocused are also suggested by http://stackoverflow.com/questions/10428710/windows-forms-inactive-highlight-color
+		background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
+		textColor = COLOR_HIGHLIGHTTEXT;
+		if (GetFocus() != t->hwnd) {
+			background = (HBRUSH) (COLOR_BTNFACE + 1);
+			textColor = COLOR_BTNTEXT;
+		}
+		// TODO disabled
+	}
+
+	r.left = p->x;
 	r.right = p->x + p->width;
 	r.top = p->y;
 	r.bottom = p->y + p->height;
-	// TODO fill this rect with the appropriate background color
-	// TODO then vertical center content
-	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
+	if (FillRect(dc, &r, background) == 0)
+		panic("error filling Table cell background");
 
-/*	FillRect(dc, &r, (HBRUSH) (current + 1));
-	current++;
-	if (current >= 31)
-		current = 0;
-*/
+	// now offset the content to where inside the cell it should be
 	r.left += p->xoff;
+	// TODO vertical center content too
+
+	if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
+		panic("error setting Table cell text color");
+	if (SetBkMode(dc, TRANSPARENT) == 0)
+		panic("error setting transparent text drawing mode for Table cell");
+	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
 	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 		panic("error drawing Table cell text");
 }

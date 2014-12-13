@@ -64,6 +64,8 @@ struct table {
 	intptr_t vpagesize;		// in rows
 	int hwheelCarry;
 	int vwheelCarry;
+	intptr_t selectedRow;
+	intptr_t selectedColumn;
 };
 
 #include "util.h"
@@ -92,6 +94,8 @@ static const handlerfunc handlers[] = {
 static void initDummyTableStuff(struct table *t)
 {
 	t->count = 100;
+	t->selectedRow = 2;
+	t->selectedColumn = 1;
 }
 
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -110,6 +114,8 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			t = (struct table *) tableAlloc(sizeof (struct table), "error allocating internal Table data structure");
 			t->hwnd = hwnd;
 			makeHeader(t, cs->hInstance);
+			t->selectedRow = -1;
+			t->selectedColumn = -1;
 initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
