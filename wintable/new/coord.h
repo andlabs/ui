@@ -87,10 +87,51 @@ static struct rowcol lParamToRowColumn(struct table *t, LPARAM lParam)
 	return clientCoordToRowColumn(t, pt);
 }
 
-// returns TRUE if the row is visible and thus has client coordinates; FALSE otherwise
-static BOOL rowColumnToClientCoord(struct table *t, struct rowcol rc, POINT *pt)
+// returns TRUE if the row is visible (even partially visible) and thus has a rectangle in the client area; FALSE otherwise
+static BOOL rowColumnToClientRect(struct table *t, struct rowcol rc, RECT *r)
 {
-	// TODO
+	RECT client;
+	RECT out;			// don't change r if we return FALSE
+	RECT colrect;
+	LONG height;
+	intptr_t xpos;
+	intptr_t i;
+
+	if (rc.row < t->vscrollpos)
+		return FALSE;
+	rc.row -= t->vscrollpos;		// align with client.top
+
+	if (GetClientRect(t->hwnd, &client) == 0)
+		panic("error getting Table client rect in rowColumnToClientRect()");
+	client.top += t->headerHeight;
+
+	height = rowht(t);
+	out.top = client.top + (rc.row * height);
+	if (out.top >= client.bottom)		// >= because RECT.bottom is the first pixel outside the rectangle
+		return FALSE;
+	out.bottom = out.top + height;
+
+	// and again the columns are the hard part
+	// so we start with client.left - t->hscrollpos, then keep adding widths until we get to the column we want
+	xpos = client.left - t->hscrollpos;
+	for (i = 0; i < rc.column; i++) {
+		// TODO error check
+		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&colrect));
+		xpos += colrect.right - colrect.left;
+	}
+	// did we stray too far to the right? if so it's not visible
+	if (xpos >= client.right)		// >= because RECT.right is the first pixel outside the rectangle
+		return FALSE;
+	out.left = xpos;
+	// TODO error check
+	SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) (rc.column), (LPARAM) (&colrect));
+	out.right = xpos + (colrect.right - colrect.left);
+	// and is this too far to the left?
+	if (out.right < client.left)		// < because RECT.left is the first pixel inside the rect
+		return FALSE;
+
+	*r = out;
+	return TRUE;
 }
 
 // TODO idealCoordToRowColumn/rowColumnToIdealCoord?
