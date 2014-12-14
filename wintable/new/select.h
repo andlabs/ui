@@ -43,15 +43,16 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 		xpos += columnWidth(t, i);
 	if (xpos < t->hscrollpos)
 		hscrollto(t, xpos);
-	else while(1){break;
+	else {
 		// if the full cell is not visible, scroll to the right just enough to make it fully visible (or as visible as possible)
 		width = columnWidth(t, t->selectedColumn);
 		clientWidth = client.right - client.left;
-		if (xpos + width < t->hscrollpos + clientWidth)
+		if (xpos + width > t->hscrollpos + clientWidth)			// > because both sides deal with the first pixel outside
 			// if the column is too wide, then just make it occupy the whole visible area (left-aligned)
 			if (width > clientWidth)
 				hscrollto(t, xpos);
 			else
+				// TODO this formula is wrong
 				hscrollby(t, clientWidth - width);
 	}
 
