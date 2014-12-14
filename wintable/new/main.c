@@ -71,11 +71,11 @@ struct table {
 
 #include "util.h"
 #include "coord.h"
-#include "select.h"
-#include "events.h"
 #include "scroll.h"
 #include "hscroll.h"
 #include "vscroll.h"
+#include "select.h"
+#include "events.h"
 #include "header.h"
 #include "children.h"
 #include "resize.h"
