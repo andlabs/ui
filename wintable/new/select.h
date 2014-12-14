@@ -5,9 +5,12 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 {
 	RECT r, client;
 	intptr_t oldrow;
-	LONG height;
+	LONG width, height;
 	struct rowcol rc;
 	BOOL dovscroll;
+	intptr_t i;
+	intptr_t xpos;
+	LONG clientWidth;
 
 	oldrow = t->selectedRow;
 	t->selectedRow = row;
@@ -34,7 +37,23 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 			vscrollto(t, t->selectedRow - t->vpagesize + 1);		// + 1 because apparently just t->selectedRow - t->vpagesize results in no scrolling (t->selectedRow - t->vpagesize == t->vscrollpos)...
 	}
 
-	// TODO horizontal scroll
+	// now see if the cell we want is to the left of offscreen, in which case scroll to its x-position
+	xpos = 0;
+	for (i = 0; i < t->selectedColumn; i++)
+		xpos += columnWidth(t, i);
+	if (xpos < t->hscrollpos)
+		hscrollto(t, xpos);
+	else while(1){break;
+		// if the full cell is not visible, scroll to the right just enough to make it fully visible (or as visible as possible)
+		width = columnWidth(t, t->selectedColumn);
+		clientWidth = client.right - client.left;
+		if (xpos + width < t->hscrollpos + clientWidth)
+			// if the column is too wide, then just make it occupy the whole visible area (left-aligned)
+			if (width > clientWidth)
+				hscrollto(t, xpos);
+			else
+				hscrollby(t, clientWidth - width);
+	}
 
 	// now redraw the old and new /rows/
 	// we do this after scrolling so the rectangles to be invalidated make sense
