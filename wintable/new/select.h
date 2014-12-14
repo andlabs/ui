@@ -52,8 +52,8 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 			if (width > clientWidth)			// TODO >= ?
 				hscrollto(t, xpos);
 			else
-				// TODO this formula is wrong
-				hscrollby(t, clientWidth - width);
+				// TODO don't use t->hpagesize here? depends if other code uses it
+				hscrollto(t, (xpos + width) - t->hpagesize);
 	}
 
 	// now redraw the old and new /rows/
