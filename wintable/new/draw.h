@@ -57,7 +57,6 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
 	intptr_t i, j;
-	RECT r;
 	int x = 0;
 	HFONT prevfont, newfont;
 	struct drawCellParams p;
@@ -76,9 +75,7 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 		p.x = client.left - t->hscrollpos;
 		for (j = 0; j < t->nColumns; j++) {
 			p.column = j;
-			// TODO error check
-			SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) j, (LPARAM) (&r));
-			p.width = r.right - r.left;
+			p.width = columnWidth(t, p.column);
 			drawCell(t, dc, &p);
 			p.x += p.width;
 		}

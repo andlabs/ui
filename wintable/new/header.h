@@ -68,6 +68,7 @@ static void updateTableWidth(struct table *t)
 
 	t->width = 0;
 	// TODO count dividers?
+	// TODO use columnWidth()
 	for (i = 0; i < t->nColumns; i++) {
 		ZeroMemory(&item, sizeof (HDITEMW));
 		item.mask = HDI_WIDTH;

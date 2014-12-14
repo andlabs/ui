@@ -78,3 +78,14 @@ static void deselectFont(HDC dc, HFONT prevfont, HFONT newfont)
 		panic("error deselecting Table font from Table DC");
 	// doin't delete newfont here, even if it is the system font (see http://msdn.microsoft.com/en-us/library/windows/desktop/dd144925%28v=vs.85%29.aspx)
 }
+
+// and back to other functions
+
+static LONG columnWidth(struct table *t, intptr_t n)
+{
+	RECT r;
+
+	if (SendMessageW(t->header, HDM_GETITEMRECT, (WPARAM) n, (LPARAM) (&r)) == 0)
+		panic("error getting Table column width");
+	return r.right - r.left;
+}

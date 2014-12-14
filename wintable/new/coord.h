@@ -38,7 +38,6 @@ static struct rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 	RECT r;
 	struct rowcol rc;
 	intptr_t i;
-	RECT colrect;
 
 	// initial values for the PtInRect() check
 	rc.row = -1;
@@ -59,9 +58,7 @@ static struct rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 	pt.x += t->hscrollpos;
 	rc.column = 0;
 	for (i = 0; i < t->nColumns; i++) {
-		// TODO error check
-		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&colrect));
-		pt.x -= colrect.right - colrect.left;
+		pt.x -= columnWidth(t, i);
 		// use <, not <=, here:
 		// assume r.left and t->hscrollpos == 0;
 		// given the first column is 100 wide,
@@ -92,7 +89,6 @@ static BOOL rowColumnToClientRect(struct table *t, struct rowcol rc, RECT *r)
 {
 	RECT client;
 	RECT out;			// don't change r if we return FALSE
-	RECT colrect;
 	LONG height;
 	intptr_t xpos;
 	intptr_t i;
@@ -114,18 +110,13 @@ static BOOL rowColumnToClientRect(struct table *t, struct rowcol rc, RECT *r)
 	// and again the columns are the hard part
 	// so we start with client.left - t->hscrollpos, then keep adding widths until we get to the column we want
 	xpos = client.left - t->hscrollpos;
-	for (i = 0; i < rc.column; i++) {
-		// TODO error check
-		SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) i, (LPARAM) (&colrect));
-		xpos += colrect.right - colrect.left;
-	}
+	for (i = 0; i < rc.column; i++)
+		xpos += columnWidth(t, i);
 	// did we stray too far to the right? if so it's not visible
 	if (xpos >= client.right)		// >= because RECT.right is the first pixel outside the rectangle
 		return FALSE;
 	out.left = xpos;
-	// TODO error check
-	SendMessage(t->header, HDM_GETITEMRECT, (WPARAM) (rc.column), (LPARAM) (&colrect));
-	out.right = xpos + (colrect.right - colrect.left);
+	out.right = xpos + columnWidth(t, rc.column);
 	// and is this too far to the left?
 	if (out.right < client.left)		// < because RECT.left is the first pixel inside the rect
 		return FALSE;
