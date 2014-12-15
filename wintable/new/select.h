@@ -86,3 +86,23 @@ HANDLER(mouseDownSelectHandler)
 	*lResult = 0;
 	return TRUE;
 }
+
+/*
+keyboard selection behaviors of the windows 7 listview:
+with 100 items (0-99), the window currently shows items 30 through 47 as well as having item 48 partially visible
+-  item 30:
+	- page up -> item 13
+	- page down -> item 47
+- item 31:
+	TODO
+- item 42:
+	- page up -> item 30
+	- page down -> item 47
+- item 46:
+	TODO
+- item 47:
+	- page up: -> item 30
+	- page down: -> item 64
+
+TODO what happens if you press a navigational button with no item selected? at different scroll positions?
+*/
