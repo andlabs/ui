@@ -1,3 +1,6 @@
+mac os x
+	- investigate [NSWindow allowsToolTipsWhenApplicationIsInactive] to see what we should set it to
+
 Table
 	- with our custom Windows Table we no longer really need image lists...
 		- TODO what about icon views with groups?
