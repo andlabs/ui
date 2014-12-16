@@ -140,10 +140,8 @@ printf("destroy\n");
 static void deftablePanic(const char *msg, DWORD lastError)
 {
 	fprintf(stderr, "Table error: %s (last error %d)\n", msg, lastError);
-	fprintf(stderr, "This is the default Table error handler function; programs that use Table should provide their own instead.\nThe program will now abort.\n");
-#undef abort
-	abort();
-#define abort $$$$
+	fprintf(stderr, "This is the default Table error handler function; programs that use Table should provide their own instead.\nThe program will now break into the debugger.\n");
+	DebugBreak();
 }
 
 void initTable(void (*panicfunc)(const char *msg, DWORD lastError))
