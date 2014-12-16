@@ -107,8 +107,12 @@ with 100 items (0-99), the window currently shows items 30 through 47 as well as
 when nothing is selected:
 - down selects item 0 regardless of scroll
 - up selects nothing regardless of scroll
-- page down selects item xxx regardless of scroll
-- page up selects items xxxx regarldess of scroll
+- page down selects the last fully visible item depending on scroll
+	- so with the above configuration:
+		- item 0 -> item 17
+		- item 30 -> item 47
+		- item 80 -> item 97
+- page up selects item 0 regardless of scroll
 - home selects item xxxx
 - end selects item xxx
 */
