@@ -104,5 +104,11 @@ with 100 items (0-99), the window currently shows items 30 through 47 as well as
 	- page up: -> item 30
 	- page down: -> item 64
 
-TODO what happens if you press a navigational button with no item selected? at different scroll positions?
+when nothing is selected:
+- down selects item 0 regardless of scroll
+- up selects nothing regardless of scroll
+- page down selects item xxx regardless of scroll
+- page up selects items xxxx regarldess of scroll
+- home selects item xxxx
+- end selects item xxx
 */
