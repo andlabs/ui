@@ -14,13 +14,13 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 
 	// check existing selection to see if it's valid
 	if (t->selectedRow == -1 && t->selectedColumn != -1)
-		panic("sanity check failure: old Table selection invalid (row == -1, column != -1");
+		panic("sanity check failure: old Table selection invalid (row == -1, column != -1)");
 	if (t->selectedRow != -1 && t->selectedColumn == -1)
-		panic("sanity check failure: old Table selection invalid (row != -1, column == -1");
+		panic("sanity check failure: old Table selection invalid (row != -1, column == -1)");
 	if (t->selectedRow >= t->count)
 		panic("sanity check failure: old Table selection invalid (row out of range)");
 	if (t->selectedColumn >= t->nColumns)
-		panic("sanity check failure: old Table selection invalid (column out of range");
+		panic("sanity check failure: old Table selection invalid (column out of range)");
 
 	oldrow = t->selectedRow;
 	t->selectedRow = row;
@@ -28,13 +28,13 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 
 	// check new selection to see if it's valid
 	if (t->selectedRow == -1 && t->selectedColumn != -1)
-		panic("sanity check failure: new Table selection invalid (row == -1, column != -1");
+		panic("sanity check failure: new Table selection invalid (row == -1, column != -1)");
 	if (t->selectedRow != -1 && t->selectedColumn == -1)
-		panic("sanity check failure: new Table selection invalid (row != -1, column == -1");
+		panic("sanity check failure: new Table selection invalid (row != -1, column == -1)");
 	if (t->selectedRow >= t->count)
 		panic("sanity check failure: new Table selection invalid (row out of range)");
 	if (t->selectedColumn >= t->nColumns)
-		panic("sanity check failure: new Table selection invalid (column out of range");
+		panic("sanity check failure: new Table selection invalid (column out of range)");
 
 	if (GetClientRect(t->hwnd, &client) == 0)
 		panic("error getting Table client rect in doselect()");
