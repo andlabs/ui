@@ -38,7 +38,6 @@ static struct rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 	RECT r;
 	struct rowcol rc;
 	intptr_t i;
-	intptr_t row, column;
 
 	// initial values for the PtInRect() check
 	rc.row = -1;
@@ -52,15 +51,12 @@ static struct rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 
 	// the row is easy
 	pt.y -= t->headerHeight;
-	row = (pt.y / rowht(t)) + t->vscrollpos;
-	if (row > t->count - 1)
-		// after the last row; don't select anything
-		return rc;
+	rc.row = (pt.y / rowht(t)) + t->vscrollpos;
 
 	// the column... not so much
 	// we scroll p.x, then subtract column widths until we cross the left edge of the control
 	pt.x += t->hscrollpos;
-	column = 0;
+	rc.column = 0;
 	for (i = 0; i < t->nColumns; i++) {
 		pt.x -= columnWidth(t, i);
 		// use <, not <=, here:
@@ -71,14 +67,10 @@ static struct rowcol clientCoordToRowColumn(struct table *t, POINT pt)
 		// pt.x == 100 (first pixel of col 1) -> p.x - 100 == 0 >= 0 -> next column
 		if (pt.x < r.left)
 			break;
-		column++;
+		rc.column++;
 	}
-	if (column > t->nColumns - 1)
-		// to the right of all columns; select nothing
-		return rc;
+	// TODO what happens if the break was never taken?
 
-	rc.row = row;
-	rc.column = column;
 	return rc;
 }
 
