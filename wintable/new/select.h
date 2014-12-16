@@ -12,9 +12,29 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 	intptr_t xpos;
 	LONG clientWidth;
 
+	// check existing selection to see if it's valid
+	if (t->selectedRow == -1 && t->selectedColumn != -1)
+		panic("sanity check failure: old Table selection invalid (row == -1, column != -1");
+	if (t->selectedRow != -1 && t->selectedColumn == -1)
+		panic("sanity check failure: old Table selection invalid (row != -1, column == -1");
+	if (t->selectedRow >= t->count)
+		panic("sanity check failure: old Table selection invalid (row out of range)");
+	if (t->selectedColumn >= t->nColumns)
+		panic("sanity check failure: old Table selection invalid (column out of range");
+
 	oldrow = t->selectedRow;
 	t->selectedRow = row;
 	t->selectedColumn = column;
+
+	// check new selection to see if it's valid
+	if (t->selectedRow == -1 && t->selectedColumn != -1)
+		panic("sanity check failure: new Table selection invalid (row == -1, column != -1");
+	if (t->selectedRow != -1 && t->selectedColumn == -1)
+		panic("sanity check failure: new Table selection invalid (row != -1, column == -1");
+	if (t->selectedRow >= t->count)
+		panic("sanity check failure: new Table selection invalid (row out of range)");
+	if (t->selectedColumn >= t->nColumns)
+		panic("sanity check failure: new Table selection invalid (column out of range");
 
 	if (GetClientRect(t->hwnd, &client) == 0)
 		panic("error getting Table client rect in doselect()");
@@ -153,7 +173,7 @@ HANDLER(keyDownSelectHandler)
 			column = 0;
 		} else {
 			row++;
-			if (row > t->count - 1)
+			if (row >= t->count)
 				row = t->count - 1;
 		}
 		break;
@@ -170,7 +190,7 @@ HANDLER(keyDownSelectHandler)
 			column = 0;
 		} else {
 			column++;
-			if (column > t->nColumns - 1)
+			if (column >= t->nColumns)
 				column = t->nColumns - 1;
 		}
 		break;
@@ -206,7 +226,7 @@ HANDLER(keyDownSelectHandler)
 			row = t->vscrollpos + t->vpagesize - 1;
 			if (row == t->selectedRow)
 				row += t->vpagesize - 1;
-			if (row > t->count - 1)
+			if (row >= t->count)
 				row = t->count - 1;
 		}
 		break;
