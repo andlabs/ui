@@ -89,7 +89,7 @@ HANDLER(mouseDownSelectHandler)
 
 /*
 the routine below is intended to simulate the comctl32.dll listview keyboard navigation rules, at least as far as vertical navigation is concerned.
-horizontal scrolling is different because (unlike the comctl32) listview, we say that a single column in each row has the keyboard focus, so left and right navigate between columns here, instead of scrolling left/right by pixels.
+horizontal scrolling is different because unlike the comctl32 listview, we say that a single column in each row has the keyboard focus, so left and right navigate between columns here, instead of scrolling left/right by pixels.
 	TODO provide an override for scrolling by pixels?
 	TODO any other keyboard shortcuts?
 
