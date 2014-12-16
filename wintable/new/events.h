@@ -1,6 +1,7 @@
 // 5 december 2014
 
 static const handlerfunc keyDownHandlers[] = {
+	keyDownSelectHandler,
 	NULL,
 };
 
