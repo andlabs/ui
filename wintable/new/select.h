@@ -83,6 +83,7 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 noScroll:
 	// now redraw the old and new /rows/
 	// we do this after scrolling so the rectangles to be invalidated make sense
+	// TODO this doesn't work correctly if we're deselecting
 	r.left = client.left;
 	r.right = client.right;
 	if (oldrow != -1 && oldrow >= t->vscrollpos) {
