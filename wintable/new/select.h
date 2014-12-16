@@ -36,6 +36,10 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 	if (t->selectedColumn >= t->nColumns)
 		panic("sanity check failure: new Table selection invalid (column out of range)");
 
+	// only scroll if we selected something
+	if (t->selectedRow == -1 || t->selectedColumn == -1)
+		goto noScroll;
+
 	if (GetClientRect(t->hwnd, &client) == 0)
 		panic("error getting Table client rect in doselect()");
 	client.top += t->headerHeight;
@@ -76,6 +80,7 @@ static void doselect(struct table *t, intptr_t row, intptr_t column)
 				hscrollto(t, (xpos + width) - t->hpagesize);
 	}
 
+noScroll:
 	// now redraw the old and new /rows/
 	// we do this after scrolling so the rectangles to be invalidated make sense
 	r.left = client.left;
