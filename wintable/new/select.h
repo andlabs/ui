@@ -88,18 +88,25 @@ HANDLER(mouseDownSelectHandler)
 }
 
 /*
+the routine below is intended to simulate the comctl32.dll listview keyboard navigation rules, at least as far as vertical navigation is concerned.
+horizontal scrolling is different because (unlike the comctl32) listview, we say that a single column in each row has the keyboard focus, so left and right navigate between columns here, instead of scrolling left/right by pixels.
+	TODO provide an override for scrolling by pixels?
+	TODO any other keyboard shortcuts?
+
 keyboard selection behaviors of the windows 7 listview:
 with 100 items (0-99), the window currently shows items 30 through 47 as well as having item 48 partially visible
 -  item 30:
 	- page up -> item 13
 	- page down -> item 47
 - item 31:
-	TODO
+	- page up -> item 30
+	- page down -> item 47
 - item 42:
 	- page up -> item 30
 	- page down -> item 47
 - item 46:
-	TODO
+	- page up -> item 30
+	- page down -> item 47
 - item 47:
 	- page up: -> item 30
 	- page down: -> item 64
@@ -113,6 +120,8 @@ when nothing is selected:
 		- item 30 -> item 47
 		- item 80 -> item 97
 - page up selects item 0 regardless of scroll
-- home selects item xxxx
-- end selects item xxx
+- home selects item 0 regardless of scroll
+- end selects the last item regardless of scroll
+
+for left and right we will simulate up and down, respectively (so right selects row 0 column 0); remember that you can't have either row or column be -1 but not both
 */
