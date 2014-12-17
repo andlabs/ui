@@ -154,6 +154,8 @@ when nothing is selected:
 - end selects the last item regardless of scroll
 
 for left and right we will simulate up and down, respectively (so right selects row 0 column 0); remember that you can't have either row or column be -1 but not both
+
+TODO what happens if page up and page down are pressed with an item selected and the scroll in a different position?
 */
 
 HANDLER(keyDownSelectHandler)
@@ -226,7 +228,10 @@ HANDLER(keyDownSelectHandler)
 		break;
 	case VK_NEXT:
 		if (row == -1) {
-			row = t->vpagesize;
+			row = t->vscrollpos + t->vpagesize - 1;
+			// TODO ensusre this is the case with the real list view
+			if (row >= t->count)
+				row = t->count - 1;
 			column = 0;
 		} else {
 			row = t->vscrollpos + t->vpagesize - 1;
@@ -243,5 +248,3 @@ HANDLER(keyDownSelectHandler)
 	*lResult = 0;
 	return TRUE;
 }
-
-// TODO check keyboard selections with nothing selected
