@@ -1,5 +1,7 @@
 // 16 august 2014
 
+// TODO instead of caching checkbox images, draw them on the fly, because they could be transparent
+
 // TODO actually make this
 #define panichresult(a, b) panic(a)
 
