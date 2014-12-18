@@ -50,6 +50,13 @@ static void (*tablePanic)(const char *, DWORD) = NULL;
 #define panic(...) (*tablePanic)(__VA_ARGS__, GetLastError())
 #define abort $$$$		// prevent accidental use of abort()
 
+enum {
+        checkboxStateChecked = 1 << 0,
+        checkboxStateHot = 1 << 1,
+        checkboxStatePushed = 1 << 2,
+        checkboxnStates = 1 << 3,
+};
+
 struct table {
 	HWND hwnd;
 	HWND header;
@@ -67,6 +74,10 @@ struct table {
 	int vwheelCarry;
 	intptr_t selectedRow;
 	intptr_t selectedColumn;
+	HTHEME theme;
+	HBITMAP checkboxImages[checkboxnStates];
+	int checkboxWidth;
+	int checkboxHeight;
 };
 
 #include "util.h"
@@ -81,6 +92,7 @@ struct table {
 #include "resize.h"
 #include "draw.h"
 #include "api.h"
+#include "checkboximages.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
@@ -118,6 +130,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			makeHeader(t, cs->hInstance);
 			t->selectedRow = -1;
 			t->selectedColumn = -1;
+			makeCheckboxImages(t);
 initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
@@ -128,6 +141,7 @@ initDummyTableStuff(t);
 printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
 		// TODO send EVENT_OBJECT_DESTROY events to accessibility listeners (when appropriate); see the note on proxy objects as well
+		freeCheckboxImages(t);
 		destroyHeader(t);
 		tableFree(t, "error allocating internal Table data structure");
 		return DefWindowProcW(hwnd, uMsg, wParam, lParam);
