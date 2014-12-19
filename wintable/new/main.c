@@ -78,13 +78,13 @@ struct table {
 #include "hscroll.h"
 #include "vscroll.h"
 #include "select.h"
+#include "checkboxes.h"
 #include "events.h"
 #include "header.h"
 #include "children.h"
 #include "resize.h"
 #include "draw.h"
 #include "api.h"
-#include "checkboximages.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
