@@ -30,7 +30,7 @@ static void drawFrameControlCheckbox(HDC dc, RECT *r, int cbState)
 		panic("error drawing Table checkbox image with DrawFrameControl()");
 }
 
-static void getFrameControlCheckboxSize(HDC dc, int *width, int *height, HTHEME theme)
+static void getFrameControlCheckboxSize(HDC dc, int *width, int *height)
 {
 	// there's no real metric around
 	// let's use SM_CX/YSMICON and hope for the best
@@ -128,7 +128,7 @@ static void loadCheckboxThemeData(struct table *t)
 	if (t->theme != NULL)		// use the theme
 		getThemeCheckboxSize(dc, &(t->checkboxWidth), &(t->checkboxHeight), t->theme);
 	else						// couldn't open; fall back
-		getFrameControlCheckboxSize(dc, &(t->checkboxWidth), &(t->checkboxHeight), t->theme);
+		getFrameControlCheckboxSize(dc, &(t->checkboxWidth), &(t->checkboxHeight));
 	if (ReleaseDC(t->hwnd, dc) == 0)
 		panic("error releasing Table DC for loading checkbox theme data");
 }
