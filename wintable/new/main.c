@@ -29,6 +29,7 @@
 // - make access to column widths consistent; see whether HDITEMW.cxy == (ITEMRECT.right - ITEMRECT.left)
 // - make sure all uses of t->headerHeight are ADDED to RECT.top
 // - do we maintain the scrolling metaphor?
+// - WM_THEMECHANGED, etc.
 
 #define tableWindowClass L"gouitable"
 
