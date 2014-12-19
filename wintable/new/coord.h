@@ -1,7 +1,7 @@
 // 4 december 2014
 
-// TODO find a better place for this
-static LONG rowHeight(struct table *t, HDC dc, BOOL select)
+// TODO find a better place for these
+static LONG textHeight(struct table *t, HDC dc, BOOL select)
 {
 	BOOL release;
 	HFONT prevfont, newfont;
@@ -24,6 +24,23 @@ static LONG rowHeight(struct table *t, HDC dc, BOOL select)
 		if (ReleaseDC(t->hwnd, dc) == 0)
 			panic("error releasing Table DC for rowHeight()");
 	return tm.tmHeight;
+}
+
+#define tableImageWidth() GetSystemMetrics(SM_CXSMICON)
+#define tableImageHeight() GetSystemMetrics(SM_CYSMICON)
+
+static LONG rowHeight(struct table *t, HDC dc, BOOL select)
+{
+	LONG height;
+	LONG tmHeight;
+
+	height = tableImageHeight();		// start with this to avoid two function calls
+	tmHeight = textHeight(t, dc, select);
+	if (height < tmHeight)
+		height = tmHeight;
+	if (height < t->checkboxHeight)
+		height = t->checkboxHeight;
+	return height;
 }
 
 #define rowht(t) rowHeight(t, NULL, TRUE)
