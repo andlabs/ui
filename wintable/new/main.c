@@ -30,6 +30,7 @@
 // - make sure all uses of t->headerHeight are ADDED to RECT.top
 // - do we maintain the scrolling metaphor?
 // - WM_THEMECHANGED, etc.
+// - see if vertical centering is really what we want or if we just want to offset by a few pixels or so
 
 #define tableWindowClass L"gouitable"
 
