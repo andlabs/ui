@@ -1,6 +1,11 @@
 // 16 august 2014
 
-// TODO instead of caching checkbox images, draw them on the fly, because they could be transparent
+enum {
+        checkboxStateChecked = 1 << 0,
+        checkboxStateHot = 1 << 1,
+        checkboxStatePushed = 1 << 2,
+        checkboxnStates = 1 << 3,
+};
 
 // TODO actually make this
 #define panichresult(a, b) panic(a)
@@ -19,13 +24,13 @@ static UINT dfcState(int cbstate)
 	return ret;
 }
 
-static void dfcImage(HDC dc, RECT *r, int cbState, HTHEME theme)
+static void drawFrameControlCheckbox(HDC dc, RECT *r, int cbState)
 {
 	if (DrawFrameControl(dc, r, DFC_BUTTON, dfcState(cbState)) == 0)
 		panic("error drawing Table checkbox image with DrawFrameControl()");
 }
 
-static void dfcSize(HDC dc, int *width, int *height, HTHEME theme)
+static void getFrameControlCheckboxSize(HDC dc, int *width, int *height, HTHEME theme)
 {
 	// there's no real metric around
 	// let's use SM_CX/YSMICON and hope for the best
@@ -55,7 +60,7 @@ static SIZE getStateSize(HDC dc, int cbState, HTHEME theme)
 	return s;
 }
 
-static void themeImage(HDC dc, RECT *r, int cbState, HTHEME theme)
+static void drawThemeCheckbox(HDC dc, RECT *r, int cbState, HTHEME theme)
 {
 	HRESULT res;
 
@@ -64,7 +69,7 @@ static void themeImage(HDC dc, RECT *r, int cbState, HTHEME theme)
 		panichresult("error drawing Table checkbox image from theme", res);
 }
 
-static void themeSize(HDC dc, int *width, int *height, HTHEME theme)
+static void getThemeCheckboxSize(HDC dc, int *width, int *height, HTHEME theme)
 {
 	SIZE size;
 	int cbState;
@@ -82,87 +87,48 @@ static void themeSize(HDC dc, int *width, int *height, HTHEME theme)
 	*height = (int) size.cy;
 }
 
-static void makeCheckboxImage(struct table *t, HDC dc, int cbState, void (*drawfunc)(HDC, RECT *, int, HTHEME))
+static void drawCheckbox(struct table *t, HDC dc, int x, int y, int cbState)
 {
-	BITMAPINFO bi;
-	VOID *ppvBits;
-	HBITMAP bitmap;
 	RECT r;
-	HDC drawDC;
-	HBITMAP prevbitmap;
 
-	r.left = 0;
-	r.top = 0;
-	r.right = t->checkboxWidth;
-	r.bottom = t->checkboxHeight;
-	ZeroMemory(&bi, sizeof (BITMAPINFO));
-	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = (LONG) (t->checkboxWidth);
-	bi.bmiHeader.biHeight = -((LONG) (t->checkboxHeight));			// negative height to force top-down drawing;
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biCompression = BI_RGB;
-	bi.bmiHeader.biSizeImage = (DWORD) (t->checkboxWidth * t->checkboxHeight * 4);
-	bitmap = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &ppvBits, 0, 0);
-	if (bitmap == NULL)
-		panic("error creating HBITMAP for Table checkbox image");
-
-	drawDC = CreateCompatibleDC(dc);
-	if (drawDC == NULL)
-		panic("error getting DC for drawing Table checkbox image");
-	prevbitmap = SelectObject(drawDC, bitmap);
-	if (prevbitmap == NULL)
-		panic("error selecting Table checkbox image list bitmap into DC");
-	(*drawfunc)(drawDC, &r, cbState, t->theme);
-	if (SelectObject(drawDC, prevbitmap) != bitmap)
-		panic("error selecting previous bitmap into Table checkbox image's DC");
-	if (DeleteDC(drawDC) == 0)
-		panic("error deleting Table checkbox image's DC");
-
-	t->checkboxImages[cbState] = bitmap;
+	r.left = x;
+	r.top = y;
+	r.right = r.bottom + t->checkboxWidth;
+	r.bottom = r.top + t->checkboxHeight;
+	if (t->theme != NULL) {
+		drawThemeCheckbox(dc, &r, cbState, t->theme);
+		return;
+	}
+	drawFrameControlCheckbox(dc, &r, cbState);
 }
 
-static void getCheckboxImages(struct table *t, void (*sizefunc)(HDC, int *, int *, HTHEME), void (*drawfunc)(HDC, RECT *, int, HTHEME))
-{
-	int cbState;
-	HDC dc;
-
-	dc = GetDC(t->hwnd);
-	if (dc == NULL)
-		panic("error getting DC for making Table checkbox images");
-	(*sizefunc)(dc, &(t->checkboxWidth), &(t->checkboxHeight), t->theme);
-	for (cbState = 0; cbState < checkboxnStates; cbState++)
-		makeCheckboxImage(t, dc, cbState, drawfunc);
-	if (ReleaseDC(t->hwnd, dc) == 0)
-		panic("error deleting Table DC for making checkbox images");
-}
-
-static void makeCheckboxImages(struct table *t)
+static void freeCheckboxThemeData(struct table *t)
 {
 	if (t->theme != NULL) {
 		HRESULT res;
 
 		res = CloseThemeData(t->theme);
 		if (res != S_OK)
-			panichresult("error closing theme", res);
+			panichresult("error closing Table checkbox theme", res);
 		t->theme = NULL;
 	}
+}
+
+static void loadCheckboxThemeData(struct table *t)
+{
+	HDC dc;
+
+	freeCheckboxThemeData(t);
+	dc = GetDC(t->hwnd);
+	if (dc == NULL)
+		panic("error getting Table DC for loading checkbox theme data");
 	// ignore error; if it can't be done, we can fall back to DrawFrameControl()
 	if (t->theme == NULL)		// try to open the theme
 		t->theme = OpenThemeData(t->hwnd, L"button");
-	if (t->theme != NULL) {		// use the theme
-		getCheckboxImages(t, themeSize, themeImage);
-		return;
-	}
-	// couldn't open; fall back
-	getCheckboxImages(t, dfcSize, dfcImage);
-}
-
-static void freeCheckboxImages(struct table *t)
-{
-	int cbState;
-
-	for (cbState = 0; cbState < checkboxnStates; cbState++)
-		if (DeleteObject(t->checkboxImages[cbState]) == 0)
-			panic("error freeing Table checkbox image");
+	if (t->theme != NULL)		// use the theme
+		getThemeCheckboxSize(dc, &(t->checkboxWidth), &(t->checkboxHeight), t->theme);
+	else						// couldn't open; fall back
+		getFrameControlCheckboxSize(dc, &(t->checkboxWidth), &(t->checkboxHeight), t->theme);
+	if (ReleaseDC(t->hwnd, dc) == 0)
+		panic("error releasing Table DC for loading checkbox theme data");
 }
