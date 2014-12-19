@@ -1,6 +1,6 @@
 // 4 december 2014
 
-// TODO find a better place for these
+// TODO find a better place for these (metrics.h?)
 static LONG textHeight(struct table *t, HDC dc, BOOL select)
 {
 	BOOL release;
@@ -29,6 +29,7 @@ static LONG textHeight(struct table *t, HDC dc, BOOL select)
 #define tableImageWidth() GetSystemMetrics(SM_CXSMICON)
 #define tableImageHeight() GetSystemMetrics(SM_CYSMICON)
 
+// TODO omit column types that are not present?
 static LONG rowHeight(struct table *t, HDC dc, BOOL select)
 {
 	LONG height;
