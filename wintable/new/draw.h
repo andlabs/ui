@@ -45,13 +45,17 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	r.left += p->xoff;
 	// TODO vertical center content too
 
-	if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
-		panic("error setting Table cell text color");
-	if (SetBkMode(dc, TRANSPARENT) == 0)
-		panic("error setting transparent text drawing mode for Table cell");
-	n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
-	if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
-		panic("error drawing Table cell text");
+	switch (t->columnTypes[p->column]) {
+	case tableColumnText:
+	case tableColumnImage:		// TODO
+		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
+			panic("error setting Table cell text color");
+		if (SetBkMode(dc, TRANSPARENT) == 0)
+			panic("error setting transparent text drawing mode for Table cell");
+		n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
+		if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+			panic("error drawing Table cell text");
+	}
 }
 
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
