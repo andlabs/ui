@@ -1,5 +1,7 @@
 // 5 december 2014
 
+// TODO handler functions don't work here because you can't have more than one for the mouse ones...
+
 static const handlerfunc keyDownHandlers[] = {
 	keyDownSelectHandler,
 	NULL,
@@ -14,10 +16,12 @@ static const handlerfunc charHandlers[] = {
 };
 
 static const handlerfunc mouseMoveHandlers[] = {
+	checkboxMouseMoveHandler,
 	NULL,
 };
 
 static const handlerfunc mouseLeaveHandlers[] = {
+	checkboxMouseLeaveHandler,
 	NULL,
 };
 

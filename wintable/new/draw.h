@@ -17,6 +17,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	int n;
 	HBRUSH background;
 	int textColor;
+	POINT pt;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -56,6 +57,12 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	case tableColumnCheckbox:
 		toCheckboxRect(t, &r, p->xoff);
 		SetDCBrushColor(dc, RGB(255, 0, 0));
+		if (t->checkboxMouseOverLast) {
+			pt.x = GET_X_LPARAM(t->checkboxMouseOverLastPoint);
+			pt.y = GET_Y_LPARAM(t->checkboxMouseOverLastPoint);
+			if (PtInRect(&r, pt) != 0)
+				SetDCBrushColor(dc, RGB(0, 255, 0));
+		}
 		FillRect(dc, &r, GetStockObject(DC_BRUSH));
 		break;
 	}

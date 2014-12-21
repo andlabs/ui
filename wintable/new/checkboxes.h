@@ -132,3 +132,34 @@ static void loadCheckboxThemeData(struct table *t)
 	if (ReleaseDC(t->hwnd, dc) == 0)
 		panic("error releasing Table DC for loading checkbox theme data");
 }
+
+HANDLER(checkboxMouseMoveHandler)
+{
+	struct rowcol rc;
+	RECT r;
+
+	if (!t->checkboxMouseOverLast) {
+		t->checkboxMouseOverLast = TRUE;
+		retrack(t);
+	}
+	// TODO redraw old cell
+	// TODO we could probably optimize these by only checking the checkbox rects
+	t->checkboxMouseOverLastPoint = lParam;
+	rc = lParamToRowColumn(t, t->checkboxMouseOverLastPoint);
+	if (rc.row != -1 && rc.column != -1)
+		if (t->columnTypes[rc.column] == tableColumnCheckbox)
+			if (rowColumnToClientRect(t, rc, &r))
+				if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+					panic("error queueing Table checkbox for redraw after mouse over");
+	*lResult = 0;
+	return TRUE;
+}
+
+HANDLER(checkboxMouseLeaveHandler)
+{
+	// TODO redraw old cell
+	// TODO remember what I wanted to do here in the case of a held mouse button
+	t->checkboxMouseOverLast = FALSE;
+	*lResult = 0;
+	return TRUE;
+}

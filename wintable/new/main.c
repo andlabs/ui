@@ -75,6 +75,8 @@ struct table {
 	HTHEME theme;
 	int checkboxWidth;
 	int checkboxHeight;
+	BOOL checkboxMouseOverLast;
+	LPARAM checkboxMouseOverLastPoint;
 };
 
 #include "util.h"
