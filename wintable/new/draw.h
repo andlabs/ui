@@ -55,6 +55,13 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
 		if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 			panic("error drawing Table cell text");
+		break;
+	case tableColumnCheckbox:
+		r.right = r.left + t->checkboxWidth;
+		r.bottom = r.top + t->checkboxHeight;
+		SetDCBrushColor(dc, RGB(255, 0, 0));
+		FillRect(dc, &r, GetStockObject(DC_BRUSH));
+		break;
 	}
 }
 
