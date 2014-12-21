@@ -41,13 +41,10 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	if (FillRect(dc, &r, background) == 0)
 		panic("error filling Table cell background");
 
-	// now offset the content to where inside the cell it should be
-	r.left += p->xoff;
-	// TODO vertical center content too
-
 	switch (t->columnTypes[p->column]) {
 	case tableColumnText:
 	case tableColumnImage:		// TODO
+		toItemContentRect(t, &r, p->xoff, 0, 0);		// TODO get the text height
 		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
 			panic("error setting Table cell text color");
 		if (SetBkMode(dc, TRANSPARENT) == 0)
@@ -57,8 +54,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 			panic("error drawing Table cell text");
 		break;
 	case tableColumnCheckbox:
-		r.right = r.left + t->checkboxWidth;
-		r.bottom = r.top + t->checkboxHeight;
+		toCheckboxRect(t, &r);
 		SetDCBrushColor(dc, RGB(255, 0, 0));
 		FillRect(dc, &r, GetStockObject(DC_BRUSH));
 		break;

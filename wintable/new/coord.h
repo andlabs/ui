@@ -148,3 +148,17 @@ static BOOL rowColumnToClientRect(struct table *t, struct rowcol rc, RECT *r)
 }
 
 // TODO idealCoordToRowColumn/rowColumnToIdealCoord?
+
+static void toItemContentRect(struct table *t, RECT *r, LRESULT xoff, intptr_t width, intptr_t height)
+{
+	if (xoff == 0)
+		xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
+	r->left += xoff;
+	if (width != 0)
+		r->right = r->left + width;
+	if (height != 0)
+		// TODO vertical center
+		r->bottom = r->top + height;
+}
+
+#define toCheckboxRect(t, r) toItemContentRect(t, r, 0, t->checkboxWidth, t->checkboxHeight)
