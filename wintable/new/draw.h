@@ -44,7 +44,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	switch (t->columnTypes[p->column]) {
 	case tableColumnText:
 	case tableColumnImage:		// TODO
-		toItemContentRect(t, &r, p->xoff, 0, 0);		// TODO get the text height
+		toCellContentRect(t, &r, p->xoff, 0, 0);		// TODO get the text height
 		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
 			panic("error setting Table cell text color");
 		if (SetBkMode(dc, TRANSPARENT) == 0)
