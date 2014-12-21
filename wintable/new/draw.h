@@ -54,7 +54,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 			panic("error drawing Table cell text");
 		break;
 	case tableColumnCheckbox:
-		toCheckboxRect(t, &r);
+		toCheckboxRect(t, &r, p->xoff);
 		SetDCBrushColor(dc, RGB(255, 0, 0));
 		FillRect(dc, &r, GetStockObject(DC_BRUSH));
 		break;

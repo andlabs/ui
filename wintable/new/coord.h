@@ -161,4 +161,4 @@ static void toCellContentRect(struct table *t, RECT *r, LRESULT xoff, intptr_t w
 		r->bottom = r->top + height;
 }
 
-#define toCheckboxRect(t, r) toCellContentRect(t, r, 0, t->checkboxWidth, t->checkboxHeight)
+#define toCheckboxRect(t, r, xoff) toCellContentRect(t, r, xoff, t->checkboxWidth, t->checkboxHeight)
