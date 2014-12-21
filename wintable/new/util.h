@@ -89,3 +89,22 @@ static LONG columnWidth(struct table *t, intptr_t n)
 		panic("error getting Table column width");
 	return r.right - r.left;
 }
+
+/* TODO:
+http://blogs.msdn.com/b/oldnewthing/archive/2003/10/13/55279.aspx
+http://blogs.msdn.com/b/oldnewthing/archive/2003/10/14/55286.aspx
+we'll need to make sure that initial edge case works properly
+(TODO get the linked article in the latter)
+also implement retrack() as so, in the WM_MOUSEMOVE handler
+*/
+static void retrack(struct table *t)
+{
+	TRACKMOUSEEVENT tm;
+
+	ZeroMemory(&tm, sizeof (TRACKMOUSEEVENT));
+	tm.cbSize = sizeof (TRACKMOUSEEVENT);
+	tm.dwFlags = TME_LEAVE;		// TODO TME_NONCLIENT as well?
+	tm.hwndTrack = t->hwnd;
+	if ((*tableTrackMouseEvent)(&tm) == 0)
+		panic("error retracking Table mouse events");
+}

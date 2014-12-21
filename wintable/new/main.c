@@ -53,6 +53,8 @@ static void (*tablePanic)(const char *, DWORD) = NULL;
 #define panic(...) (*tablePanic)(__VA_ARGS__, GetLastError())
 #define abort $$$$		// prevent accidental use of abort()
 
+static BOOL (*WINAPI tableTrackMouseEvent)(LPTRACKMOUSEEVENT);
+
 struct table {
 	HWND hwnd;
 	HWND header;
@@ -153,13 +155,17 @@ static void deftablePanic(const char *msg, DWORD lastError)
 	DebugBreak();
 }
 
-void initTable(void (*panicfunc)(const char *msg, DWORD lastError))
+void initTable(void (*panicfunc)(const char *msg, DWORD lastError), BOOL (*WINAPI tme)(LPTRACKMOUSEEVENT))
 {
 	WNDCLASSW wc;
 
 	tablePanic = panicfunc;
 	if (tablePanic == NULL)
 		tablePanic = deftablePanic;
+	if (tme == NULL)
+		// TODO errorless version
+		panic("must provide a TrackMouseEvent() to initTable()");
+	tableTrackMouseEvent = tme;
 	ZeroMemory(&wc, sizeof (WNDCLASSW));
 	wc.lpszClassName = tableWindowClass;
 	wc.lpfnWndProc = tableWndProc;
@@ -183,7 +189,7 @@ int main(int argc, char *argv[])
 	icc.dwICC = ICC_LISTVIEW_CLASSES;
 	if (InitCommonControlsEx(&icc) == 0)
 		panic("(test program) error initializing comctl32.dll");
-	initTable(NULL);
+	initTable(NULL, _TrackMouseEvent);
 	mainwin = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
 		WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,
