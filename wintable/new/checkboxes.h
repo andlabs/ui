@@ -133,31 +133,44 @@ static void loadCheckboxThemeData(struct table *t)
 		panic("error releasing Table DC for loading checkbox theme data");
 }
 
-HANDLER(checkboxMouseMoveHandler)
+static void redrawCheckboxRect(struct table *t, LPARAM lParam)
 {
 	struct rowcol rc;
 	RECT r;
+	POINT pt;
 
+	rc = lParamToRowColumn(t, lParam);
+	if (rc.row == -1 && rc.column == -1)
+		return;
+	if (t->columnTypes[rc.column] != tableColumnCheckbox)
+		return;
+	if (!rowColumnToClientRect(t, rc, &r))
+		return;
+	// TODO only the checkbox rect?
+	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+		panic("error redrawing Table checkbox rect for mouse events");
+}
+
+HANDLER(checkboxMouseMoveHandler)
+{
+	// don't actually check to see if the mouse is in the checkbox rect
+	// if there's scrolling without mouse movement, that will change
+	// instead, drawCell() will handle it
 	if (!t->checkboxMouseOverLast) {
 		t->checkboxMouseOverLast = TRUE;
 		retrack(t);
-	}
-	// TODO redraw old cell
-	// TODO we could probably optimize these by only checking the checkbox rects
+	} else
+		redrawCheckboxRect(t, t->checkboxMouseOverLastPoint);
 	t->checkboxMouseOverLastPoint = lParam;
-	rc = lParamToRowColumn(t, t->checkboxMouseOverLastPoint);
-	if (rc.row != -1 && rc.column != -1)
-		if (t->columnTypes[rc.column] == tableColumnCheckbox)
-			if (rowColumnToClientRect(t, rc, &r))
-				if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
-					panic("error queueing Table checkbox for redraw after mouse over");
+	redrawCheckboxRect(t, t->checkboxMouseOverLastPoint);
 	*lResult = 0;
 	return TRUE;
 }
 
 HANDLER(checkboxMouseLeaveHandler)
 {
-	// TODO redraw old cell
+	if (t->checkboxMouseOverLast)
+		redrawCheckboxRect(t, t->checkboxMouseOverLastPoint);
 	// TODO remember what I wanted to do here in the case of a held mouse button
 	t->checkboxMouseOverLast = FALSE;
 	*lResult = 0;
