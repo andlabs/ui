@@ -87,19 +87,13 @@ static void getThemeCheckboxSize(HDC dc, int *width, int *height, HTHEME theme)
 	*height = (int) size.cy;
 }
 
-static void drawCheckbox(struct table *t, HDC dc, int x, int y, int cbState)
+static void drawCheckbox(struct table *t, HDC dc, RECT *r, int cbState)
 {
-	RECT r;
-
-	r.left = x;
-	r.top = y;
-	r.right = r.bottom + t->checkboxWidth;
-	r.bottom = r.top + t->checkboxHeight;
 	if (t->theme != NULL) {
-		drawThemeCheckbox(dc, &r, cbState, t->theme);
+		drawThemeCheckbox(dc, r, cbState, t->theme);
 		return;
 	}
-	drawFrameControlCheckbox(dc, &r, cbState);
+	drawFrameControlCheckbox(dc, r, cbState);
 }
 
 static void freeCheckboxThemeData(struct table *t)

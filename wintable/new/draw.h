@@ -18,6 +18,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	HBRUSH background;
 	int textColor;
 	POINT pt;
+	int cbState;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -56,19 +57,19 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		break;
 	case tableColumnCheckbox:
 		toCheckboxRect(t, &r, p->xoff);
-		SetDCBrushColor(dc, RGB(255, 0, 0));
+		cbState = 0;
 		if (p->row == lastCheckbox.row && p->column == lastCheckbox.column)
-			SetDCBrushColor(dc, RGB(216, 0, 216));
-		if (t->checkboxMouseDown) {
+			cbState |= checkboxStateChecked;
+		if (t->checkboxMouseDown)
 			if (p->row == t->checkboxMouseDownRow && p->column == t->checkboxMouseDownColumn)
-				SetDCBrushColor(dc, RGB(0, 0, 255));
-		} else if (t->checkboxMouseOverLast) {			// TODO else?
+				cbState |= checkboxStatePushed;
+		if (t->checkboxMouseOverLast) {
 			pt.x = GET_X_LPARAM(t->checkboxMouseOverLastPoint);
 			pt.y = GET_Y_LPARAM(t->checkboxMouseOverLastPoint);
 			if (PtInRect(&r, pt) != 0)
-				SetDCBrushColor(dc, RGB(0, 255, 0));
+				cbState |= checkboxStateHot;
 		}
-		FillRect(dc, &r, GetStockObject(DC_BRUSH));
+		drawCheckbox(t, dc, &r, cbState);
 		break;
 	}
 }
