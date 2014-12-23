@@ -32,6 +32,7 @@
 // - WM_THEMECHANGED, etc.
 // - see if vertical centering is really what we want or if we just want to offset by a few pixels or so
 // - going right from column 0 to column 2 with the right arrow key deselects
+// - make sure all error messages involving InvalidateRect() are consistent with regards to "redrawing" and "queueing for redraw"
 
 #define tableWindowClass L"gouitable"
 
@@ -77,6 +78,9 @@ struct table {
 	int checkboxHeight;
 	BOOL checkboxMouseOverLast;
 	LPARAM checkboxMouseOverLastPoint;
+	BOOL checkboxMouseDown;
+	intptr_t checkboxMouseDownRow;
+	intptr_t checkboxMouseDownColumn;
 };
 
 #include "util.h"

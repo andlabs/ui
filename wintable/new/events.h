@@ -31,6 +31,7 @@ static const handlerfunc lbuttonDownHandlers[] = {
 };
 
 static const handlerfunc lbuttonUpHandlers[] = {
+	checkboxMouseUpHandler,
 	NULL,
 };
 

@@ -176,3 +176,71 @@ HANDLER(checkboxMouseLeaveHandler)
 	*lResult = 0;
 	return TRUE;
 }
+
+HANDLER(checkboxMouseDownHandler)
+{
+	struct rowcol rc;
+	RECT r;
+	POINT pt;
+
+	rc = lParamToRowColumn(t, lParam);
+	if (rc.row == -1 || rc.column == -1)
+		return FALSE;
+	if (t->columnTypes[rc.column] != tableColumnCheckbox)
+		return FALSE;
+	if (!rowColumnToClientRect(t, rc, &r))
+		return FALSE;
+	toCheckboxRect(t, &r, 0);
+	pt.x = GET_X_LPARAM(lParam);
+	pt.y = GET_Y_LPARAM(lParam);
+	if (PtInRect(&r, pt) == 0)
+		return FALSE;
+	t->checkboxMouseDown = TRUE;
+	t->checkboxMouseDownRow = rc.row;
+	t->checkboxMouseDownColumn = rc.column;
+	// TODO redraw the whole cell?
+	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+		panic("error redrawing Table checkbox after mouse down");
+	*lResult = 0;
+	return TRUE;
+}
+
+// TODO get rid of this
+struct rowcol lastCheckbox;
+
+HANDLER(checkboxMouseUpHandler)
+{
+	struct rowcol rc;
+	RECT r;
+	POINT pt;
+
+	if (!t->checkboxMouseDown)
+		return FALSE;
+	// the logic behind goto wrongUp is that the mouse must be released on the same checkbox
+	rc = lParamToRowColumn(t, lParam);
+	if (rc.row == -1 || rc.column == -1)
+		goto wrongUp;
+	if (rc.row != t->checkboxMouseDownRow && rc.column != t->checkboxMouseDownColumn)
+		goto wrongUp;
+	if (t->columnTypes[rc.column] != tableColumnCheckbox)
+		goto wrongUp;
+	if (!rowColumnToClientRect(t, rc, &r))
+		goto wrongUp;
+	toCheckboxRect(t, &r, 0);
+	pt.x = GET_X_LPARAM(lParam);
+	pt.y = GET_Y_LPARAM(lParam);
+	if (PtInRect(&r, pt) == 0)
+		goto wrongUp;
+	// TODO send toggle event
+lastCheckbox = rc;
+	t->checkboxMouseDown = FALSE;
+	// TODO redraw the whole cell?
+	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+		panic("error redrawing Table checkbox after mouse up");
+	*lResult = 0;
+	return TRUE;
+wrongUp:
+	// TODO redraw the invalid cell
+	t->checkboxMouseDown = FALSE;
+	return FALSE;		// TODO really?
+}

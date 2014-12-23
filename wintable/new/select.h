@@ -101,6 +101,9 @@ noScroll:
 	}
 }
 
+// TODO make this needless
+HANDLER(checkboxMouseDownHandler);
+
 // TODO which WM_xBUTTONDOWNs?
 HANDLER(mouseDownSelectHandler)
 {
@@ -109,6 +112,8 @@ HANDLER(mouseDownSelectHandler)
 	rc = lParamToRowColumn(t, lParam);
 	// don't check if lParamToRowColumn() returned row -1 or column -1; we want deselection behavior
 	doselect(t, rc.row, rc.column);
+	// TODO separate this from here
+	checkboxMouseDownHandler(t, uMsg, wParam, lParam, lResult);
 	*lResult = 0;
 	return TRUE;
 }
