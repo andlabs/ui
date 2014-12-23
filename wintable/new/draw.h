@@ -100,6 +100,8 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 			p.x += p.width;
 		}
 		p.y += p.height;
+		if (p.y >= client.bottom)			// >= because RECT.bottom is the first pixel outside the rect
+			break;
 	}
 
 	deselectFont(dc, prevfont, newfont);
