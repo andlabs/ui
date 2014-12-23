@@ -34,6 +34,7 @@
 // - going right from column 0 to column 2 with the right arrow key deselects
 // - make sure all error messages involving InvalidateRect() are consistent with regards to "redrawing" and "queueing for redraw"
 // - collect all resize-related tasks in a single function (so things like adding columns will refresh everything, not just horizontal scrolls; also would fix initial coordinates)
+// - checkbox columns don't clip to the column width
 
 #define tableWindowClass L"gouitable"
 

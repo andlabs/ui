@@ -19,12 +19,12 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	int textColor;
 	POINT pt;
 	int cbState;
+	RECT cellrect;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
 	textColor = COLOR_WINDOWTEXT;
-	// TODO get rid of the selectedColumn bits
-	if (t->selectedRow == p->row && t->selectedColumn == p->column) {
+	if (t->selectedRow == p->row) {
 		// these are the colors wine uses (http://source.winehq.org/source/dlls/comctl32/listview.c)
 		// the two for unfocused are also suggested by http://stackoverflow.com/questions/10428710/windows-forms-inactive-highlight-color
 		background = (HBRUSH) (COLOR_HIGHLIGHT + 1);
@@ -42,6 +42,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	r.bottom = p->y + p->height;
 	if (FillRect(dc, &r, background) == 0)
 		panic("error filling Table cell background");
+	cellrect = r;		// save for drawing the focus rect
 
 	switch (t->columnTypes[p->column]) {
 	case tableColumnText:
@@ -72,8 +73,14 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		drawCheckbox(t, dc, &r, cbState);
 		break;
 	}
+
+	// TODO in front of or behind the cell contents?
+	if (t->selectedRow == p->row && t->selectedColumn == p->column)
+		if (DrawFocusRect(dc, &cellrect) == 0)
+			panic("error drawing focus rect on current Table cell");
 }
 
+// TODO use cliprect
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
 	intptr_t i, j;
