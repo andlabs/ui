@@ -1,10 +1,10 @@
 // 16 august 2014
 
 enum {
-        checkboxStateChecked = 1 << 0,
-        checkboxStateHot = 1 << 1,
-        checkboxStatePushed = 1 << 2,
-        checkboxnStates = 1 << 3,
+	checkboxStateChecked = 1 << 0,
+	checkboxStateHot = 1 << 1,
+	checkboxStatePushed = 1 << 2,
+	checkboxnStates = 1 << 3,
 };
 
 // TODO actually make this
@@ -220,7 +220,7 @@ HANDLER(checkboxMouseUpHandler)
 	rc = lParamToRowColumn(t, lParam);
 	if (rc.row == -1 || rc.column == -1)
 		goto wrongUp;
-	if (rc.row != t->checkboxMouseDownRow && rc.column != t->checkboxMouseDownColumn)
+	if (rc.row != t->checkboxMouseDownRow || rc.column != t->checkboxMouseDownColumn)
 		goto wrongUp;
 	if (t->columnTypes[rc.column] != tableColumnCheckbox)
 		goto wrongUp;
@@ -240,7 +240,17 @@ lastCheckbox = rc;
 	*lResult = 0;
 	return TRUE;
 wrongUp:
-	// TODO redraw the invalid cell
+	if (t->checkboxMouseDown) {
+		rc.row = t->checkboxMouseDownRow;
+		rc.column = t->checkboxMouseDownColumn;
+		if (rowColumnToClientRect(t, rc, &r))
+			// TODO only the checkbox rect?
+			if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
+				panic("error redrawing Table checkbox rect for aborted mouse up event");
+	}
+	// if we landed on another checkbox, be sure to draw that one too
+	if (t->checkboxMouseOverLast)
+		redrawCheckboxRect(t, t->checkboxMouseOverLastPoint);
 	t->checkboxMouseDown = FALSE;
 	return FALSE;		// TODO really?
 }

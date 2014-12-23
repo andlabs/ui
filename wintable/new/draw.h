@@ -58,7 +58,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		toCheckboxRect(t, &r, p->xoff);
 		SetDCBrushColor(dc, RGB(255, 0, 0));
 		if (p->row == lastCheckbox.row && p->column == lastCheckbox.column)
-			SetDCBrushColor(dc, RGB(128, 0, 128));
+			SetDCBrushColor(dc, RGB(216, 0, 216));
 		if (t->checkboxMouseDown) {
 			if (p->row == t->checkboxMouseDownRow && p->column == t->checkboxMouseDownColumn)
 				SetDCBrushColor(dc, RGB(0, 0, 255));
