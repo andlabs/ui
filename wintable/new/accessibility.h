@@ -1,7 +1,7 @@
 // 24 december 2014
 
 struct tableAcc {
-	IAccessibleVtbl vtbl;
+	IAccessibleVtbl *vtbl;
 	ULONG refcount;
 	struct table *t;
 	// TODO create a standard accessible object
@@ -33,6 +33,7 @@ static ULONG STDMETHODCALLTYPE tableAccAddRef(IAccessible *this)
 
 static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 {
+printf("refcount %d\n", TA->refcount);
 	TA->refcount--;
 	if (TA->refcount == 0) {
 		tableFree(TA, "error freeing Table accessibility object");
@@ -97,6 +98,7 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
+printf("tableAccget_accName()\n");
 	// TODO check pointer
 	if (varChild.vt != VT_I4) {
 		*pszName = NULL;
@@ -248,8 +250,8 @@ static struct tableAcc *newTableAcc(struct table *t)
 	struct tableAcc *ta;
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
-	ta->vtbl = tableAccVtbl;
-	ta->vtbl.AddRef(ta);
+	ta->vtbl = &tableAccVtbl;
+	ta->vtbl->AddRef(ta);
 	ta->t = t;
 	return ta;
 }
@@ -257,16 +259,18 @@ static struct tableAcc *newTableAcc(struct table *t)
 static void freeTableAcc(struct tableAcc *ta)
 {
 	ta->t = NULL;
-	ta->vtbl.Release(ta);
+	ta->vtbl->Release(ta);
 }
 
 HANDLER(accessibilityHandler)
 {
 	if (uMsg != WM_GETOBJECT)
 		return FALSE;
-	if (wParam != OBJID_CLIENT)
+	if (((DWORD) lParam) != OBJID_CLIENT)
 		return FALSE;
+printf("getobject\n");
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, t->ta);
+printf("0x%X\n", *lResult);
 	// TODO check *lResult
 	return TRUE;
 }
