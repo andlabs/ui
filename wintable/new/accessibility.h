@@ -10,9 +10,9 @@ static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFII
 {
 	if (ppvObject == NULL)
 		return E_POINTER;
-	if (IsEqualIID(riid, IID_IUnknown) ||
-		IsEqualIID(riid, IID_IDispatch) ||
-		IsEqualIID(riid, IID_IAccessible)) {
+	if (IsEqualIID(riid, &IID_IUnknown) ||
+		IsEqualIID(riid, &IID_IDispatch) ||
+		IsEqualIID(riid, &IID_IAccessible)) {
 		*ppvObject = (void *) this;
 		return S_OK;
 	}
@@ -256,7 +256,7 @@ HANDLER(accessibilityHandler)
 		return FALSE;
 	if (wParam != OBJID_CLIENT)
 		return FALSE;
-	*lResult = LresultFromObject(IID_IAccessible, wParam, t->ta);
+	*lResult = LresultFromObject(&IID_IAccessible, wParam, t->ta);
 	// TODO check *lResult
 	return TRUE;
 }
