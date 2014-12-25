@@ -1,7 +1,7 @@
 // 24 december 2014
 
 struct tableAcc {
-	IAccessibleVtbl *vtbl;
+	IAccessibleVtbl vtbl;
 	ULONG refcount;
 	struct table *t;
 };
@@ -46,7 +46,7 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfoCount(IAccessible *this, UINT *pctinfo)
 {
 	if (pctinfo == NULL)
-		return E_INVALIDARG
+		return E_INVALIDARG;
 	// TODO assign something to *pctinfo?
 	return E_NOTIMPL;
 }
@@ -64,7 +64,7 @@ static HRESULT STDMETHODCALLTYPE tableAccGetIDsOfNames(IAccessible *this, REFIID
 	// TODO verify this one
 	if (rgDispId == NULL)
 		return E_INVALIDARG;
-	*rgDispId = NULL;
+	// TODO overwrite rgDispId?
 	return E_NOTIMPL;
 }
 
@@ -79,106 +79,127 @@ static HRESULT STDMETHODCALLTYPE tableAccInvoke(IAccessible *this, DISPID dispId
 static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispatch **ppdispParent)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, VARIANT varChild, BSTR *pszDescription)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelp(IAccessible *this, VARIANT varChild, BSTR *pszHelp)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelpTopic(IAccessible *this, BSTR *pszHelpFile, VARIANT varChild, long *pidTopic)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *this, VARIANT varChild, BSTR *pszKeyboardShortcut)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accFocus(IAccessible *this, VARIANT *pvarChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VARIANT *pvarChildren)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this, VARIANT varChild, BSTR *pszDefaultAction)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flagsSelect, VARIANT varChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accName(IAccessible *this, VARIANT varChild, BSTR szName)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accValue(IAccessible *this, VARIANT varChild, BSTR szValue)
 {
 	// TODO
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static const IAccessibleVtbl tableAccVtbl = {
@@ -217,8 +238,8 @@ static struct tableAcc *newTableAcc(struct table *t)
 	struct tableAcc *ta;
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
-	ta->vtbl = &tableAccVtbl;
-	ta->vtbl->AddRef(vtbl);
+	ta->vtbl = tableAccVtbl;
+	ta->vtbl.AddRef(ta);
 	ta->t = t;
 	return ta;
 }
@@ -226,7 +247,7 @@ static struct tableAcc *newTableAcc(struct table *t)
 static void freeTableAcc(struct tableAcc *ta)
 {
 	ta->t = NULL;
-	ta->vtbl->Release(ta);
+	ta->vtbl.Release(ta);
 }
 
 HANDLER(accessibilityHandler)
