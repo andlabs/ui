@@ -4,6 +4,7 @@ struct tableAcc {
 	IAccessibleVtbl vtbl;
 	ULONG refcount;
 	struct table *t;
+	// TODO create a standard accessible object
 };
 
 static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFIID riid, void **ppvObject)
