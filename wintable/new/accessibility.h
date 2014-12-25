@@ -27,16 +27,19 @@ static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFII
 
 static ULONG STDMETHODCALLTYPE tableAccAddRef(IAccessible *this)
 {
+printf("AddRef()\n");
 	TA->refcount++;
+	// TODO correct?
 	return TA->refcount;
 }
 
 static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 {
-printf("refcount %d\n", TA->refcount);
+printf("Release(): refcount %d\n", TA->refcount);
 	TA->refcount--;
 	if (TA->refcount == 0) {
-		tableFree(TA, "error freeing Table accessibility object");
+printf("FREEING\n");
+//TODO		tableFree(TA, "error freeing Table accessibility object");
 		return 0;
 	}
 	return TA->refcount;
@@ -251,7 +254,9 @@ static struct tableAcc *newTableAcc(struct table *t)
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
 	ta->vtbl = &tableAccVtbl;
+printf("create: %d -> ", ta->refcount);
 	ta->vtbl->AddRef(ta);
+printf("%d\n", ta->refcount);
 	ta->t = t;
 	return ta;
 }
@@ -268,9 +273,9 @@ HANDLER(accessibilityHandler)
 		return FALSE;
 	if (((DWORD) lParam) != OBJID_CLIENT)
 		return FALSE;
-printf("getobject\n");
+printf("before LresultFromObject()\n");
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, t->ta);
-printf("0x%X\n", *lResult);
+printf("after LresultFromObject(): 0x%X\n", *lResult);
 	// TODO check *lResult
 	return TRUE;
 }
