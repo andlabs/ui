@@ -21,7 +21,7 @@
 #include <vssym32.h>
 #include <oleacc.h>
 
-// #qo LIBS: user32 kernel32 gdi32 comctl32 uxtheme ole32 oleacc uuid
+// #qo LIBS: user32 kernel32 gdi32 comctl32 uxtheme ole32 oleaut32 oleacc uuid
 
 // TODO
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?

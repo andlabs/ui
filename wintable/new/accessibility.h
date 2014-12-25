@@ -96,8 +96,17 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	// TODO check pointer
+	if (varChild.vt != VT_I4) {
+		*pszName = NULL;
+		return E_INVALIDARG;
+	}
+	if (varChild.lVal == CHILDID_SELF)
+		; // TODO standard accessible object
+	// TODO actually get the real name
+	*pszName = SysAllocString("This is a test of the accessibility interface.");
+	// TODO check null pointer
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
