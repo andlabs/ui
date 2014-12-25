@@ -58,6 +58,9 @@ static void (*tablePanic)(const char *, DWORD) = NULL;
 
 static BOOL (*WINAPI tableTrackMouseEvent)(LPTRACKMOUSEEVENT);
 
+// forward declaration
+struct tableAcc;
+
 struct table {
 	HWND hwnd;
 	HWND header;
@@ -83,6 +86,7 @@ struct table {
 	BOOL checkboxMouseDown;
 	intptr_t checkboxMouseDownRow;
 	intptr_t checkboxMouseDownColumn;
+	struct tableAcc *ta;
 };
 
 #include "util.h"
@@ -98,6 +102,7 @@ struct table {
 #include "resize.h"
 #include "draw.h"
 #include "api.h"
+#include "accessibility.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,
@@ -107,6 +112,7 @@ static const handlerfunc handlers[] = {
 	apiHandlers,
 	hscrollHandler,
 	vscrollHandler,
+	accessibilityHandler,
 	NULL,
 };
 
@@ -136,6 +142,7 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			t->selectedRow = -1;
 			t->selectedColumn = -1;
 			loadCheckboxThemeData(t);
+			t->ta = newTableAcc(t);
 initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
@@ -146,6 +153,8 @@ initDummyTableStuff(t);
 printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
 		// TODO send EVENT_OBJECT_DESTROY events to accessibility listeners (when appropriate); see the note on proxy objects as well
+		freeTableAcc(t->ta);
+		t->ta = NULL;
 		freeCheckboxThemeData(t);
 		destroyHeader(t);
 		tableFree(t, "error allocating internal Table data structure");
