@@ -4,7 +4,7 @@ struct tableAcc {
 	IAccessibleVtbl *vtbl;
 	ULONG refcount;
 	struct table *t;
-	// TODO create a standard accessible object
+	IAccessible *std;
 };
 
 #define TA ((struct tableAcc *) this)
@@ -38,6 +38,7 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 {
 	TA->refcount--;
 	if (TA->refcount == 0) {
+		IAccessible_Release(TA->std);
 		tableFree(TA, "error freeing Table accessibility object");
 		return 0;
 	}
@@ -103,12 +104,14 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT 
 printf("tableAccget_accName()\n");
 	// TODO check pointer
 	if (varChild.vt != VT_I4) {
+printf("invalid arg\n");
 		*pszName = NULL;
 		return E_INVALIDARG;
 	}
 	if (varChild.lVal == CHILDID_SELF)
 		; // TODO standard accessible object
 	// TODO actually get the real name
+printf("returning name\n");
 	*pszName = SysAllocString("This is a test of the accessibility interface.");
 	// TODO check null pointer
 	return S_OK;
@@ -183,19 +186,19 @@ static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flags
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
 {
 	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
 {
 	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
 	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_accHitTest(TA->std, xLeft, yTop, pvarChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
@@ -250,11 +253,18 @@ static const IAccessibleVtbl tableAccVtbl = {
 static struct tableAcc *newTableAcc(struct table *t)
 {
 	struct tableAcc *ta;
+	HRESULT hr;
+	IAccessible *std;
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
 	ta->vtbl = &tableAccVtbl;
 	ta->vtbl->AddRef(ta);
 	ta->t = t;
+	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, &std);
+	if (hr != S_OK)
+		// TODO panichresult
+		panic("error creating standard accessible object for Table");
+	ta->std = std;
 	return ta;
 }
 
