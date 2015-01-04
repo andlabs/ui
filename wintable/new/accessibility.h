@@ -47,6 +47,7 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 
 // disregard IDispatch: http://msdn.microsoft.com/en-us/library/windows/desktop/cc307844.aspx
 // TODO DISP_E_MEMBERNOTFOUND? http://blogs.msdn.com/b/saraford/archive/2004/08/20/which-controls-support-which-msaa-properties-and-how-these-controls-implement-msaa-properties.aspx
+// TODO relegate these to the standard object?
 
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfoCount(IAccessible *this, UINT *pctinfo)
 {
