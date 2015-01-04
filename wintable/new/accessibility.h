@@ -112,7 +112,7 @@ printf("invalid arg\n");
 		; // TODO standard accessible object
 	// TODO actually get the real name
 printf("returning name\n");
-	*pszName = SysAllocString("This is a test of the accessibility interface.");
+	*pszName = SysAllocString(L"This is a test of the accessibility interface.");
 	// TODO check null pointer
 	return S_OK;
 }
