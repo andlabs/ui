@@ -7,6 +7,8 @@ struct tableAcc {
 	// TODO create a standard accessible object
 };
 
+#define TA ((struct tableAcc *) this)
+
 static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFIID riid, void **ppvObject)
 {
 	if (ppvObject == NULL)
@@ -14,14 +16,13 @@ static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFII
 	if (IsEqualIID(riid, &IID_IUnknown) ||
 		IsEqualIID(riid, &IID_IDispatch) ||
 		IsEqualIID(riid, &IID_IAccessible)) {
+		TA->vtbl->AddRef(TA);
 		*ppvObject = (void *) this;
 		return S_OK;
 	}
 	*ppvObject = NULL;
 	return E_NOINTERFACE;
 }
-
-#define TA ((struct tableAcc *) this)
 
 // TODO use InterlockedIncrement()/InterlockedDecrement() for these?
 
