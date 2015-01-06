@@ -49,7 +49,6 @@ static void vwheelscroll(struct table *t, WPARAM wParam, LPARAM lParam)
 	wheelscroll(t, SB_VERT, &p, wParam, lParam);
 }
 
-// TODO WM_MOUSEWHEEL
 HANDLER(vscrollHandler)
 {
 	switch (uMsg) {
