@@ -141,3 +141,6 @@ HANDLER(drawHandlers)
 	*lResult = 0;
 	return TRUE;
 }
+
+// TODO redraw selected row on focus change
+// TODO here or in select.h?
