@@ -29,7 +29,6 @@
 // - make panic messages grammatically correct ("Table error: adding...")
 // - make access to column widths consistent; see whether HDITEMW.cxy == (ITEMRECT.right - ITEMRECT.left)
 // - make sure all uses of t->headerHeight are ADDED to RECT.top
-// - do we maintain the scrolling metaphor?
 // - WM_THEMECHANGED, etc.
 // - see if vertical centering is really what we want or if we just want to offset by a few pixels or so
 // - going right from column 0 to column 2 with the right arrow key deselects
