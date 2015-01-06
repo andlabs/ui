@@ -1,5 +1,7 @@
 // 7 december 2014
 
+// TODO verify header events (double-clicking on a divider, for example)
+
 static void makeHeader(struct table *t, HINSTANCE hInstance)
 {
 	t->header = CreateWindowExW(0,
