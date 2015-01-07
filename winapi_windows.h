@@ -4,29 +4,7 @@
 #ifndef __GO_UI_WINAPI_WINDOWS_H__
 #define __GO_UI_WINAPI_WINDOWS_H__
 
-#define UNICODE
-#define _UNICODE
-#define STRICT
-#define STRICT_TYPED_ITEMIDS
-#define CINTERFACE
-#define COBJMACROS
-// get Windows version right; right now Windows XP
-#define WINVER 0x0501
-#define _WIN32_WINNT 0x0501
-#define _WIN32_WINDOWS 0x0501		/* according to Microsoft's winperf.h */
-#define _WIN32_IE 0x0600			/* according to Microsoft's sdkddkver.h */
-#define NTDDI_VERSION 0x05010000	/* according to Microsoft's sdkddkver.h */
-#include <windows.h>
-#include <commctrl.h>
-#include <stdint.h>
-#include <uxtheme.h>
-#include <string.h>
-#include <wchar.h>
-#include <windowsx.h>
-#include <vsstyle.h>
-#include <vssym32.h>
-#include <stdarg.h>
-#include <oleacc.h>
+#include "wininclude_windows.h"
 
 // if by some stroke of luck Go ever supports compiling with MSVC, this will need to change
 // noe that this has to come after the headers above because it's not predefined

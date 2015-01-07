@@ -1,23 +1,5 @@
 // 9 october 2014
-#define UNICODE
-#define _UNICODE
-#define STRICT
-#define STRICT_TYPED_ITEMIDS
-// get Windows version right; right now Windows XP
-#define WINVER 0x0501
-#define _WIN32_WINNT 0x0501
-#define _WIN32_WINDOWS 0x0501		/* according to Microsoft's winperf.h */
-#define _WIN32_IE 0x0600			/* according to Microsoft's sdkddkver.h */
-#define NTDDI_VERSION 0x05010000	/* according to Microsoft's sdkddkver.h */
-#include <windows.h>
-#include <commctrl.h>
-#include <stdint.h>
-#include <uxtheme.h>
-#include <string.h>
-#include <wchar.h>
-#include <windowsx.h>
-#include <vsstyle.h>
-#include <vssym32.h>
+#include "../wininclude_windows.h"
 #include "popover.h"
 
 // #qo LIBS: user32 kernel32 gdi32
