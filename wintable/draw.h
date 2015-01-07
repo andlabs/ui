@@ -20,6 +20,9 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 	POINT pt;
 	int cbState;
 	RECT cellrect;
+	HDC idc;
+	HBITMAP previbitmap;
+	BLENDFUNCTION bf;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -46,7 +49,6 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 
 	switch (t->columnTypes[p->column]) {
 	case tableColumnText:
-	case tableColumnImage:		// TODO
 		toCellContentRect(t, &r, p->xoff, 0, 0);		// TODO get the text height
 		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
 			panic("error setting Table cell text color");
@@ -55,6 +57,28 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
 		if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 			panic("error drawing Table cell text");
+		break;
+	case tableColumnImage:
+		toCellContentRect(t, &r, p->xoff, tableImageWidth(), tableImageHeight());
+		idc = CreateCompatibleDC(dc);
+		if (idc == NULL)
+			panic("error creating compatible DC for Table image cell drawing");
+		previbitmap = SelectObject(idc, testbitmap);
+		if (previbitmap == NULL)
+			panic("error selecting Table cell image into compatible DC for image drawing");
+		ZeroMemory(&bf, sizeof (BLENDFUNCTION));
+		bf.BlendOp = AC_SRC_OVER;
+		bf.BlendFlags = 0;
+		bf.SourceConstantAlpha = 255;			// per-pixel alpha values
+		bf.AlphaFormat = AC_SRC_ALPHA;
+		// TODO 16 and 16 are the width and height of the image; we would need to get that out somehow
+		if (AlphaBlend(dc, r.left, r.top, r.right - r.left, r.bottom - r.top,
+			idc, 0, 0, 16, 16, bf) == FALSE)
+			panic("error drawing image into Table cell");
+		if (SelectObject(idc, previbitmap) != testbitmap)
+			panic("error deselecting Table cell image for drawing image");
+		if (DeleteDC(idc) == 0)
+			panic("error deleting Table compatible DC for image cell drawing");
 		break;
 	case tableColumnCheckbox:
 		toCheckboxRect(t, &r, p->xoff);
