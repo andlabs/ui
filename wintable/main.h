@@ -38,14 +38,14 @@ enum {
 	// for tableColumnText return should be WCHAR *
 	// for tableColumnImage return should be HBITMAP
 	// for tableColumnCheckbox return is nonzero for checked, zero for unchecked
-	tableNotificationGetColumnData,
-	// data parameter is pointer, same as tableNotificationGetColumnData
+	tableNotificationGetCellData,
+	// data parameter is pointer, same as tableNotificationGetCellData
 	// not sent for checkboxes
 	// no return
-	tableNotificationFreeColumnData,
+	tableNotificationFinishedWithData,
 	// data is zero
 	// no return
-	tableNotificationToggleColumnCheck,
+	tableNotificationToggleCellCheck,
 };
 
 typedef struct tableNM tableNM;
