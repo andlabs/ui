@@ -33,3 +33,20 @@ HANDLER(apiHandlers)
 	}
 	return FALSE;
 }
+
+static LRESULT notify(struct table *t, UINT code, intptr_t row, intptr_t column, uintptr_t data)
+{
+	tableNM nm;
+
+	ZeroMemory(&nm, sizeof (tableNM));
+	nm.nmhdr.hwndFrom = t->hwnd;
+	// TODO check for error from here? 0 is a valid ID (IDCANCEL)
+	nm.nmhdr.idFrom = GetDlgCtrlID(t->hwnd);
+	nm.nmhdr.code = code;
+	nm.row = row;
+	nm.column = column;
+	nm.columnType = t->columnTypes[nm.column];
+	nm.data = data;
+	// TODO check for error from GetParent()?
+	return SendMessageW(GetParent(t->hwnd), WM_NOTIFY, (WPARAM) (nm.nmhdr.idFrom), (LPARAM) (&nm));
+}

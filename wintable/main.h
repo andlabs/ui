@@ -11,6 +11,7 @@
 // - make sure all error messages involving InvalidateRect() are consistent with regards to "redrawing" and "queueing for redraw"
 // - collect all resize-related tasks in a single function (so things like adding columns will refresh everything, not just horizontal scrolls; also would fix initial coordinates)
 // - checkbox columns don't clip to the column width
+// - send standard notification codes
 
 #define tableWindowClass L"gouitable"
 
@@ -26,6 +27,35 @@ enum {
 	tableColumnImage,
 	tableColumnCheckbox,
 	nTableColumnTypes,
+};
+
+// notification codes
+// note that these are positive; see http://blogs.msdn.com/b/oldnewthing/archive/2009/08/21/9877791.aspx
+// each of these is of type tableNM
+// all fields except data will always be set
+enum {
+	// data parameter is always 0
+	// for tableColumnText return should be WCHAR *
+	// for tableColumnImage return should be HBITMAP
+	// for tableColumnCheckbox return is nonzero for checked, zero for unchecked
+	tableNotificationGetColumnData,
+	// data parameter is pointer, same as tableNotificationGetColumnData
+	// not sent for checkboxes
+	// no return
+	tableNotificationFreeColumnData,
+	// data is zero
+	// no return
+	tableNotificationToggleColumnCheck,
+};
+
+typedef struct tableNM tableNM;
+
+struct tableNM {
+	NMHDR nmhdr;
+	intptr_t row;
+	intptr_t column;
+	int columnType;
+	uintptr_t data;
 };
 
 static void (*tablePanic)(const char *, DWORD) = NULL;
@@ -64,6 +94,9 @@ struct table {
 	intptr_t checkboxMouseDownColumn;
 	struct tableAcc *ta;
 };
+
+// forward declaration (TODO needed?)
+static LRESULT notify(struct table *, UINT, intptr_t, intptr_t, uintptr_t);
 
 #include "util.h"
 #include "coord.h"
