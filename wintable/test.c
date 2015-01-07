@@ -8,31 +8,23 @@ void mkbitmap(void);
 
 #include "main.h"
 
-int main(int argc, char *argv[])
-{
-	HWND mainwin;
-	MSG msg;
-	INITCOMMONCONTROLSEX icc;
+HWND tablehwnd = NULL;
+BOOL msgfont = FALSE;
 
-	mkbitmap();
-	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
-	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
-	icc.dwICC = ICC_LISTVIEW_CLASSES;
-	if (InitCommonControlsEx(&icc) == 0)
-		panic("(test program) error initializing comctl32.dll");
-	initTable(NULL, _TrackMouseEvent);
-	mainwin = CreateWindowExW(0,
+BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
+{
+	tablehwnd = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
-		WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,
+		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL,
 		CW_USEDEFAULT, CW_USEDEFAULT,
 		400, 400,
-		NULL, NULL, GetModuleHandle(NULL), NULL);
-	if (mainwin == NULL)
+		hwnd, NULL, lpcs->hInstance, NULL);
+	if (tablehwnd == NULL)
 		panic("(test program) error creating Table");
-	SendMessageW(mainwin, tableAddColumn, tableColumnText, (LPARAM) L"Column");
-	SendMessageW(mainwin, tableAddColumn, tableColumnImage, (LPARAM) L"Column 2");
-	SendMessageW(mainwin, tableAddColumn, tableColumnCheckbox, (LPARAM) L"Column 3");
-	if (argc > 1) {
+	SendMessageW(tablehwnd, tableAddColumn, tableColumnText, (LPARAM) L"Column");
+	SendMessageW(tablehwnd, tableAddColumn, tableColumnImage, (LPARAM) L"Column 2");
+	SendMessageW(tablehwnd, tableAddColumn, tableColumnCheckbox, (LPARAM) L"Column 3");
+	if (msgfont) {
 		NONCLIENTMETRICSW ncm;
 		HFONT font;
 
@@ -43,8 +35,64 @@ int main(int argc, char *argv[])
 		font = CreateFontIndirectW(&ncm.lfMessageFont);
 		if (font == NULL)
 			panic("(test program) error creating lfMessageFont HFONT");
-		SendMessageW(mainwin, WM_SETFONT, (WPARAM) font, TRUE);
+		SendMessageW(tablehwnd, WM_SETFONT, (WPARAM) font, TRUE);
 	}
+	return TRUE;
+}
+
+void mainwinDestroy(HWND hwnd)
+{
+        DestroyWindow(tablehwnd);
+        PostQuitMessage(0);
+}
+
+void mainwinResize(HWND hwnd, UINT state, int cx, int cy)
+{
+        if (tablehwnd != NULL)
+                MoveWindow(tablehwnd, 0, 0, cx, cy, TRUE);
+}
+
+LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch (uMsg) {
+	HANDLE_MSG(hwnd, WM_CREATE, mainwinCreate);
+	HANDLE_MSG(hwnd, WM_SIZE, mainwinResize);
+	HANDLE_MSG(hwnd, WM_DESTROY, mainwinDestroy);
+	}
+	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+}
+
+int main(int argc, char *argv[])
+{
+	HWND mainwin;
+	MSG msg;
+	INITCOMMONCONTROLSEX icc;
+	WNDCLASSW wc;
+
+	mkbitmap();
+	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
+	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
+	icc.dwICC = ICC_LISTVIEW_CLASSES;
+	if (InitCommonControlsEx(&icc) == 0)
+		panic("(test program) error initializing comctl32.dll");
+	initTable(NULL, _TrackMouseEvent);
+	ZeroMemory(&wc, sizeof (WNDCLASSW));
+	wc.lpszClassName = L"mainwin";
+	wc.lpfnWndProc = mainwndproc;
+	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH) (COLOR_BTNFACE + 1);
+	wc.hInstance = GetModuleHandle(NULL);
+	if (RegisterClassW(&wc) == 0)
+		panic("(test program) error registering main window class");
+	mainwin = CreateWindowExW(0,
+		L"mainwin", L"Main Window",
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT,
+		400, 400,
+		NULL, NULL, GetModuleHandle(NULL), NULL);
+	if (mainwin == NULL)
+		panic("(test program) error creating main window");
 	ShowWindow(mainwin, SW_SHOWDEFAULT);
 	if (UpdateWindow(mainwin) == 0)
 		panic("(test program) error updating window");

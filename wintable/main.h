@@ -148,6 +148,7 @@ static void deftablePanic(const char *msg, DWORD lastError)
 	DebugBreak();
 }
 
+// TODO have hInstance passed in
 void initTable(void (*panicfunc)(const char *msg, DWORD lastError), BOOL (*WINAPI tme)(LPTRACKMOUSEEVENT))
 {
 	WNDCLASSW wc;
