@@ -4,7 +4,7 @@
 // The control font changing is the big one, as that comes with a flag that decides whether or not to redraw everything. We'll need to respect that here.
 
 // TODO actually use redraw here
-static void update(struct table *t, int redraw)
+static void update(struct table *t, BOOL redraw)
 {
 	RECT client;
 	intptr_t i;

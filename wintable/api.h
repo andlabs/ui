@@ -15,15 +15,20 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 HANDLER(apiHandlers)
 {
 	intptr_t *rcp;
+	BOOL tfbool;
 
 	switch (uMsg) {
 	case WM_SETFONT:
 		// don't free the old font; see http://blogs.msdn.com/b/oldnewthing/archive/2008/09/12/8945692.aspx
 		t->font = (HFONT) wParam;
 		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
-		update(t, LOWORD(lParam) != FALSE);
-		// TODO is this needed?
+		// let's ensure the values are strictly TRUE and FALSE just to be safe
+		tfbool = FALSE;
 		if (LOWORD(lParam) != FALSE)
+			tfbool = TRUE;
+		update(t, tfbool);
+		// TODO is this needed?
+		if (tfbool != FALSE)
 			// TODO check error
 			InvalidateRect(t->hwnd, NULL, TRUE);
 		*lResult = 0;
