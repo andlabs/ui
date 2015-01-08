@@ -199,9 +199,6 @@ HANDLER(checkboxMouseDownHandler)
 	return TRUE;
 }
 
-// TODO get rid of this
-struct rowcol lastCheckbox;
-
 HANDLER(checkboxMouseUpHandler)
 {
 	struct rowcol rc;
@@ -225,8 +222,7 @@ HANDLER(checkboxMouseUpHandler)
 	pt.y = GET_Y_LPARAM(lParam);
 	if (PtInRect(&r, pt) == 0)
 		goto wrongUp;
-	// TODO send toggle event
-lastCheckbox = rc;
+	notify(t, tableNotificationCellCheckboxToggled, rc.row, rc.column, 0);
 	t->checkboxMouseDown = FALSE;
 	// TODO redraw the whole cell?
 	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)

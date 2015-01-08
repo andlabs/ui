@@ -45,7 +45,7 @@ enum {
 	tableNotificationFinishedWithCellData,
 	// data is zero
 	// no return
-	tableNotificationToggleCellCheckbox,
+	tableNotificationCellCheckboxToggled,
 };
 
 typedef struct tableNM tableNM;

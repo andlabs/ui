@@ -67,13 +67,32 @@ static void drawImageCell(struct table *t, HDC dc, struct drawCellParams *p, REC
 	notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) bitmap);
 }
 
+static void drawCheckboxCell(struct table *t, HDC dc, struct drawCellParams *p, RECT *r)
+{
+	POINT pt;
+	int cbState;
+
+	toCheckboxRect(t, r, p->xoff);
+	cbState = 0;
+	if (notify(t, tableNotificationGetCellData, p->row, p->column, 0) != 0)
+		cbState |= checkboxStateChecked;
+	if (t->checkboxMouseDown)
+		if (p->row == t->checkboxMouseDownRow && p->column == t->checkboxMouseDownColumn)
+			cbState |= checkboxStatePushed;
+	if (t->checkboxMouseOverLast) {
+		pt.x = GET_X_LPARAM(t->checkboxMouseOverLastPoint);
+		pt.y = GET_Y_LPARAM(t->checkboxMouseOverLastPoint);
+		if (PtInRect(r, pt) != 0)
+			cbState |= checkboxStateHot;
+	}
+	drawCheckbox(t, dc, r, cbState);
+}
+
 static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 {
 	RECT r;
 	HBRUSH background;
 	int textColor;
-	POINT pt;
-	int cbState;
 	RECT cellrect;
 
 	// TODO verify these two
@@ -107,20 +126,7 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 		drawImageCell(t, dc, p, &r);
 		break;
 	case tableColumnCheckbox:
-		toCheckboxRect(t, &r, p->xoff);
-		cbState = 0;
-		if (p->row == lastCheckbox.row && p->column == lastCheckbox.column)
-			cbState |= checkboxStateChecked;
-		if (t->checkboxMouseDown)
-			if (p->row == t->checkboxMouseDownRow && p->column == t->checkboxMouseDownColumn)
-				cbState |= checkboxStatePushed;
-		if (t->checkboxMouseOverLast) {
-			pt.x = GET_X_LPARAM(t->checkboxMouseOverLastPoint);
-			pt.y = GET_Y_LPARAM(t->checkboxMouseOverLastPoint);
-			if (PtInRect(&r, pt) != 0)
-				cbState |= checkboxStateHot;
-		}
-		drawCheckbox(t, dc, &r, cbState);
+		drawCheckboxCell(t, dc, p, &r);
 		break;
 	}
 

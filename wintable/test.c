@@ -51,6 +51,8 @@ void mainwinResize(HWND hwnd, UINT state, int cx, int cy)
                 MoveWindow(tablehwnd, 0, 0, cx, cy, TRUE);
 }
 
+BOOL checkboxstates[100];
+
 LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
@@ -58,6 +60,8 @@ LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	WCHAR *text;
 	int n;
 
+	if (uMsg == WM_CREATE)
+		ZeroMemory(checkboxstates, 100 * sizeof (BOOL));
 	switch (uMsg) {
 	HANDLE_MSG(hwnd, WM_CREATE, mainwinCreate);
 	HANDLE_MSG(hwnd, WM_SIZE, mainwinResize);
@@ -78,7 +82,7 @@ LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case tableColumnImage:
 				return (LRESULT) mkbitmap();
 			case tableColumnCheckbox:
-				; // TODO
+				return (LRESULT) (checkboxstates[nm->row]);
 			}
 			panic("(test program) unreachable");
 		case tableNotificationFinishedWithCellData:
@@ -92,8 +96,9 @@ LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			return 0;
-		case tableNotificationToggleCellCheckbox:
-			; // TODO
+		case tableNotificationCellCheckboxToggled:
+			checkboxstates[nm->row] = !checkboxstates[nm->row];
+			return 0;
 		}
 		break;
 	}
