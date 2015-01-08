@@ -14,6 +14,7 @@ HANDLER(resizeHandler)
 	wp = (WINDOWPOS *) lParam;
 	if ((wp->flags & SWP_NOSIZE) != 0)
 		return FALSE;
+	// TODO redraw everything?
 	update(t, TRUE);
 	*lResult = 0;
 	return TRUE;

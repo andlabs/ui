@@ -61,6 +61,7 @@ static void headerAddColumn(struct table *t, WCHAR *name)
 		panic("error adding column to Table header");
 }
 
+// TODO is this triggered if we programmatically move headers (for autosizing)?
 HANDLER(headerNotifyHandler)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
@@ -71,7 +72,8 @@ HANDLER(headerNotifyHandler)
 		return FALSE;
 	update(t, TRUE);
 	// TODO make more intelligent
-	// (TODO is it actually needed?)
+	// to do this, we have to redraw the column to the left of the divider that was dragged and scroll everything to the right normally (leaving the hole that was scrolled invalidated as well)
+	// of course, this implies that dragging a divider only resizes the column of which it is the right side of and moves all others
 	InvalidateRect(t->hwnd, NULL, TRUE);
 	*lResult = 0;
 	return TRUE;

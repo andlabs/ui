@@ -10,6 +10,8 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 		panic("invalid column type passed to tableAddColumn");
 	headerAddColumn(t, (WCHAR *) lParam);
 	update(t, TRUE);
+	// TODO only redraw the part of the client area where the new client went, if any
+	// (TODO when — if — adding autoresize, figure this one out)
 }
 
 HANDLER(apiHandlers)
@@ -38,8 +40,9 @@ HANDLER(apiHandlers)
 	case tableSetRowCount:
 		rcp = (intptr_t *) lParam;
 		t->count = *rcp;
-		// TODO shouldn't we just redraw everything?
-		update(t, TRUE);
+		// we DO redraw everything because we don't want any rows that should no longer be there to remain on screen!
+		updateAll(t);			// DONE
+		// TODO reset checkbox and selection logic if the current row for both no longer exists
 		*lResult = 0;
 		return TRUE;
 	}
