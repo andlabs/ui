@@ -36,6 +36,7 @@ BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 			panic("(test program) error creating lfMessageFont HFONT");
 		SendMessageW(tablehwnd, WM_SETFONT, (WPARAM) font, TRUE);
 	}
+	SetFocus(tablehwnd);
 	return TRUE;
 }
 
