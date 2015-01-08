@@ -42,10 +42,10 @@ enum {
 	// data parameter is pointer, same as tableNotificationGetCellData
 	// not sent for checkboxes
 	// no return
-	tableNotificationFinishedWithData,
+	tableNotificationFinishedWithCellData,
 	// data is zero
 	// no return
-	tableNotificationToggleCellCheck,
+	tableNotificationToggleCellCheckbox,
 };
 
 typedef struct tableNM tableNM;

@@ -54,10 +54,48 @@ void mainwinResize(HWND hwnd, UINT state, int cx, int cy)
 
 LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	NMHDR *nmhdr = (NMHDR *) lParam;
+	tableNM *nm = (tableNM *) lParam;
+	WCHAR *text;
+	int n;
+
 	switch (uMsg) {
 	HANDLE_MSG(hwnd, WM_CREATE, mainwinCreate);
 	HANDLE_MSG(hwnd, WM_SIZE, mainwinResize);
 	HANDLE_MSG(hwnd, WM_DESTROY, mainwinDestroy);
+	case WM_NOTIFY:
+		if (nmhdr->hwndFrom != tablehwnd)
+			break;
+		switch (nmhdr->code) {
+		case tableNotificationGetCellData:
+			switch (nm->columnType) {
+			case tableColumnText:
+				n = _scwprintf(L"mainwin (%d,%d)", nm->row, nm->column);
+				text = (WCHAR *) malloc((n + 1) * sizeof (WCHAR));
+				if (text == NULL)
+					panic("(table program) error allocating string");
+				_swprintf(text, L"mainwin (%d,%d)", nm->row, nm->column);
+				return (LRESULT) text;
+			case tableColumnImage:
+				return (LRESULT) testbitmap;
+			case tableColumnCheckbox:
+				; // TODO
+			}
+			panic("(test program) unreachable");
+		case tableNotificationFinishedWithCellData:
+			switch (nm->columnType) {
+			case tableColumnText:
+				free((void *) (nm->data));
+				break;
+			case tableColumnImage:
+				// do nothing
+				break;
+			}
+			return 0;
+		case tableNotificationToggleCellCheckbox:
+			; // TODO
+		}
+		break;
 	}
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }

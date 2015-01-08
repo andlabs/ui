@@ -13,8 +13,7 @@ struct drawCellParams {
 static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 {
 	RECT r;
-	WCHAR msg[200];
-	int n;
+	WCHAR *text;
 	HBRUSH background;
 	int textColor;
 	POINT pt;
@@ -54,9 +53,10 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 			panic("error setting Table cell text color");
 		if (SetBkMode(dc, TRANSPARENT) == 0)
 			panic("error setting transparent text drawing mode for Table cell");
-		n = wsprintf(msg, L"(%d,%d)", p->row, p->column);
-		if (DrawTextExW(dc, msg, n, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+		text = (WCHAR *) notify(t, tableNotificationGetCellData, p->row, p->column, 0);
+		if (DrawTextExW(dc, text, -1, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 			panic("error drawing Table cell text");
+		notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) text);
 		break;
 	case tableColumnImage:
 		toCellContentRect(t, &r, p->xoff, tableImageWidth(), tableImageHeight());
