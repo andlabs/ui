@@ -14,6 +14,8 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 
 HANDLER(apiHandlers)
 {
+	intptr_t *rcp;
+
 	switch (uMsg) {
 	case WM_SETFONT:
 		// don't free the old font; see http://blogs.msdn.com/b/oldnewthing/archive/2008/09/12/8945692.aspx
@@ -28,6 +30,13 @@ HANDLER(apiHandlers)
 		return TRUE;
 	case tableAddColumn:
 		addColumn(t, wParam, lParam);
+		*lResult = 0;
+		return TRUE;
+	case tableSetRowCount:
+		rcp = (intptr_t *) lParam;
+		t->count = *rcp;
+		// TODO refresh table in this way?
+		updateTableWidth(t);
 		*lResult = 0;
 		return TRUE;
 	}

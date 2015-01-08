@@ -12,14 +12,19 @@
 // - collect all resize-related tasks in a single function (so things like adding columns will refresh everything, not just horizontal scrolls; also would fix initial coordinates)
 // - checkbox columns don't clip to the column width
 // - send standard notification codes
+// - seriously figure out how we're going to update everything about the table in one place
 
 #define tableWindowClass L"gouitable"
 
 // start at WM_USER + 20 just in case for whatever reason we ever get the various dialog manager messages (see also http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx)
+// each of these returns nothing unless otherwise indicated
 enum {
 	// wParam - one of the type constants
 	// lParam - column name as a Unicode string
 	tableAddColumn = WM_USER + 20,
+	// wParam - 0
+	// lParam - pointer to intptr_t containing new count
+	tableSetRowCount,
 };
 
 enum {
@@ -127,7 +132,6 @@ static const handlerfunc handlers[] = {
 
 static void initDummyTableStuff(struct table *t)
 {
-	t->count = 100;
 	t->selectedRow = 2;
 	t->selectedColumn = 1;
 }

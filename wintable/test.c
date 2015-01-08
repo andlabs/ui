@@ -12,6 +12,8 @@ HBITMAP mkbitmap(void);
 
 BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 {
+	intptr_t c;
+
 	tablehwnd = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
 		WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL,
@@ -36,6 +38,8 @@ BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 			panic("(test program) error creating lfMessageFont HFONT");
 		SendMessageW(tablehwnd, WM_SETFONT, (WPARAM) font, TRUE);
 	}
+	c = 100;
+	SendMessageW(tablehwnd, tableSetRowCount, 0, (LPARAM) (&c));
 	SetFocus(tablehwnd);
 	return TRUE;
 }
