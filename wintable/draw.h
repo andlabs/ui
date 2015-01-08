@@ -41,6 +41,7 @@ static void drawImageCell(struct table *t, HDC dc, struct drawCellParams *p, REC
 	ZeroMemory(&bi, sizeof (BITMAP));
 	if (GetObject(bitmap, sizeof (BITMAP), &bi) == 0)
 		panic("error getting Table cell image dimensions for drawing");
+	// is it even possible to enforce the type of bitmap we need here based on the contents of the BITMAP (or even the DIBSECTION) structs?
 
 	idc = CreateCompatibleDC(dc);
 	if (idc == NULL)
