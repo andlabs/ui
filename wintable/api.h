@@ -9,7 +9,7 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	if (t->columnTypes[t->nColumns - 1] >= nTableColumnTypes)
 		panic("invalid column type passed to tableAddColumn");
 	headerAddColumn(t, (WCHAR *) lParam);
-	updateTableWidth(t);
+	update(t, TRUE);
 }
 
 HANDLER(apiHandlers)
@@ -21,8 +21,11 @@ HANDLER(apiHandlers)
 		// don't free the old font; see http://blogs.msdn.com/b/oldnewthing/archive/2008/09/12/8945692.aspx
 		t->font = (HFONT) wParam;
 		SendMessageW(t->header, WM_SETFONT, wParam, lParam);
-		// TODO how to properly handle LOWORD(lParam) != FALSE?
-		// TODO depending on the result of the above, update table width to refresh t->headerHeight?
+		update(t, LOWORD(lParam) != FALSE);
+		// TODO is this needed?
+		if (LOWORD(lParam) != FALSE)
+			// TODO check error
+			InvalidateRect(t->hwnd, NULL, TRUE);
 		*lResult = 0;
 		return TRUE;
 	case WM_GETFONT:
@@ -35,8 +38,8 @@ HANDLER(apiHandlers)
 	case tableSetRowCount:
 		rcp = (intptr_t *) lParam;
 		t->count = *rcp;
-		// TODO refresh table in this way?
-		updateTableWidth(t);
+		// TODO shouldn't we just redraw everything?
+		update(t, TRUE);
 		*lResult = 0;
 		return TRUE;
 	}

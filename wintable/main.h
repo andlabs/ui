@@ -103,6 +103,9 @@ struct table {
 // forward declaration (TODO needed?)
 static LRESULT notify(struct table *, UINT, intptr_t, intptr_t, uintptr_t);
 
+// necessary forward declaration
+static void update(struct table *, BOOL);
+
 #include "util.h"
 #include "coord.h"
 #include "scroll.h"
@@ -117,6 +120,7 @@ static LRESULT notify(struct table *, UINT, intptr_t, intptr_t, uintptr_t);
 #include "draw.h"
 #include "api.h"
 #include "accessibility.h"
+#include "update.h"
 
 static const handlerfunc handlers[] = {
 	eventHandlers,

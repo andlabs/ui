@@ -117,7 +117,8 @@ int main(int argc, char *argv[])
 	INITCOMMONCONTROLSEX icc;
 	WNDCLASSW wc;
 
-	mkbitmap();
+	if (argc != 1)
+		msgfont = TRUE;
 	ZeroMemory(&icc, sizeof (INITCOMMONCONTROLSEX));
 	icc.dwSize = sizeof (INITCOMMONCONTROLSEX);
 	icc.dwICC = ICC_LISTVIEW_CLASSES;
