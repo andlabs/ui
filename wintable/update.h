@@ -3,6 +3,8 @@
 // Whenever a number of things in the Table changes, the update() function needs to be called to update any metrics and scrolling positions.
 // The control font changing is the big one, as that comes with a flag that decides whether or not to redraw everything. We'll need to respect that here.
 
+// For my personal convenience, each invocation of update() and updateAll() will be suffixed with a DONE comment once I have reasoned that the chosen function is correct and that no additional redrawing is necessary.
+
 // TODO actually use redraw here
 static void update(struct table *t, BOOL redraw)
 {
@@ -39,6 +41,13 @@ static void update(struct table *t, BOOL redraw)
 	t->vpagesize = height / rowht(t);
 	// and do a dummy vertical scroll to apply that
 	vscrollby(t, 0);
+}
 
-	// TODO invalidate /everything/?
+// this is the same as update(), but also redraws /everything/
+// as such, redraw is TRUE
+static void updateAll(struct table *t)
+{
+	update(t, TRUE);
+	if (InvalidateRect(t, NULL, TRUE) == 0)
+		panic("error queueing all of Table for redraw in updateAll()");
 }

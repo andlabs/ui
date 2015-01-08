@@ -103,8 +103,9 @@ struct table {
 // forward declaration (TODO needed?)
 static LRESULT notify(struct table *, UINT, intptr_t, intptr_t, uintptr_t);
 
-// necessary forward declaration
+// necessary forward declarations
 static void update(struct table *, BOOL);
+static void updateAll(struct table *);
 
 #include "util.h"
 #include "coord.h"
