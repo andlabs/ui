@@ -3,13 +3,12 @@
 
 // #qo LIBS: user32 kernel32 gdi32 comctl32 uxtheme ole32 oleaut32 oleacc uuid msimg32
 
-HBITMAP testbitmap;
-void mkbitmap(void);
-
 #include "main.h"
 
 HWND tablehwnd = NULL;
 BOOL msgfont = FALSE;
+
+HBITMAP mkbitmap(void);
 
 BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 {
@@ -77,7 +76,7 @@ LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				_swprintf(text, L"mainwin (%d,%d)", nm->row, nm->column);
 				return (LRESULT) text;
 			case tableColumnImage:
-				return (LRESULT) testbitmap;
+				return (LRESULT) mkbitmap();
 			case tableColumnCheckbox:
 				; // TODO
 			}
@@ -88,7 +87,8 @@ LRESULT CALLBACK mainwndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				free((void *) (nm->data));
 				break;
 			case tableColumnImage:
-				// do nothing
+				if (DeleteObject((HBITMAP) (nm->data)) == 0)
+					panic("(test program) error deleting cell image");
 				break;
 			}
 			return 0;
@@ -161,10 +161,11 @@ COLORREF iconpix[] = {
 	0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1B050A11, 0x4000102, 0x0, 0x0,
 };
 
-void mkbitmap(void)
+HBITMAP mkbitmap(void)
 {
 	BITMAPINFO bi;
 	void *ppvBits;
+	HBITMAP b;
 
 	ZeroMemory(&bi, sizeof (BITMAPINFO));
 	bi.bmiHeader.biSize = sizeof (BITMAPINFOHEADER);
@@ -174,8 +175,9 @@ void mkbitmap(void)
 	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biSizeImage = 16 * 16 * 4;
-	testbitmap = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &ppvBits, 0, 0);
-	if (testbitmap == 0)
+	b = CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, &ppvBits, 0, 0);
+	if (b == 0)
 		panic("test bitmap creation failed");
 	memcpy(ppvBits, iconpix, bi.bmiHeader.biSizeImage);
+	return b;
 }

@@ -10,18 +10,70 @@ struct drawCellParams {
 	LRESULT xoff;		// result of HDM_GETBITMAPMARGIN
 };
 
+static void drawTextCell(struct table *t, HDC dc, struct drawCellParams *p, RECT *r, int textColor)
+{
+	WCHAR *text;
+
+	toCellContentRect(t, r, p->xoff, 0, 0);		// TODO get the text height
+	if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
+		panic("error setting Table cell text color");
+	if (SetBkMode(dc, TRANSPARENT) == 0)
+		panic("error setting transparent text drawing mode for Table cell");
+	text = (WCHAR *) notify(t, tableNotificationGetCellData, p->row, p->column, 0);
+	if (DrawTextExW(dc, text, -1, r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
+		panic("error drawing Table cell text");
+	notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) text);
+}
+
+static void drawImageCell(struct table *t, HDC dc, struct drawCellParams *p, RECT *r)
+{
+	HBITMAP bitmap;
+	BITMAP bi;
+	HDC idc;
+	HBITMAP previbitmap;
+	BLENDFUNCTION bf;
+
+	// only call tableImageWidth() and tableImageHeight() here in case it changes partway through
+	// we can get the values back out with basic subtraction (r->right - r->left/r->bottom - r->top)
+	toCellContentRect(t, r, p->xoff, tableImageWidth(), tableImageHeight());
+
+	bitmap = (HBITMAP) notify(t, tableNotificationGetCellData, p->row, p->column, 0);
+	ZeroMemory(&bi, sizeof (BITMAP));
+	if (GetObject(bitmap, sizeof (BITMAP), &bi) == 0)
+		panic("error getting Table cell image dimensions for drawing");
+
+	idc = CreateCompatibleDC(dc);
+	if (idc == NULL)
+		panic("error creating compatible DC for Table image cell drawing");
+	previbitmap = SelectObject(idc, bitmap);
+	if (previbitmap == NULL)
+		panic("error selecting Table cell image into compatible DC for image drawing");
+
+	ZeroMemory(&bf, sizeof (BLENDFUNCTION));
+	bf.BlendOp = AC_SRC_OVER;
+	bf.BlendFlags = 0;
+	bf.SourceConstantAlpha = 255;			// per-pixel alpha values
+	bf.AlphaFormat = AC_SRC_ALPHA;
+	if (AlphaBlend(dc, r->left, r->top, r->right - r->left, r->bottom - r->top,
+		idc, 0, 0, bi.bmWidth, bi.bmHeight, bf) == FALSE)
+		panic("error drawing image into Table cell");
+
+	if (SelectObject(idc, previbitmap) != bitmap)
+		panic("error deselecting Table cell image for drawing image");
+	if (DeleteDC(idc) == 0)
+		panic("error deleting Table compatible DC for image cell drawing");
+
+	notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) bitmap);
+}
+
 static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 {
 	RECT r;
-	WCHAR *text;
 	HBRUSH background;
 	int textColor;
 	POINT pt;
 	int cbState;
 	RECT cellrect;
-	HDC idc;
-	HBITMAP previbitmap;
-	BLENDFUNCTION bf;
 
 	// TODO verify these two
 	background = (HBRUSH) (COLOR_WINDOW + 1);
@@ -48,37 +100,10 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 
 	switch (t->columnTypes[p->column]) {
 	case tableColumnText:
-		toCellContentRect(t, &r, p->xoff, 0, 0);		// TODO get the text height
-		if (SetTextColor(dc, GetSysColor(textColor)) == CLR_INVALID)
-			panic("error setting Table cell text color");
-		if (SetBkMode(dc, TRANSPARENT) == 0)
-			panic("error setting transparent text drawing mode for Table cell");
-		text = (WCHAR *) notify(t, tableNotificationGetCellData, p->row, p->column, 0);
-		if (DrawTextExW(dc, text, -1, &r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
-			panic("error drawing Table cell text");
-		notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) text);
+		drawTextCell(t, dc, p, &r, textColor);
 		break;
 	case tableColumnImage:
-		toCellContentRect(t, &r, p->xoff, tableImageWidth(), tableImageHeight());
-		idc = CreateCompatibleDC(dc);
-		if (idc == NULL)
-			panic("error creating compatible DC for Table image cell drawing");
-		previbitmap = SelectObject(idc, testbitmap);
-		if (previbitmap == NULL)
-			panic("error selecting Table cell image into compatible DC for image drawing");
-		ZeroMemory(&bf, sizeof (BLENDFUNCTION));
-		bf.BlendOp = AC_SRC_OVER;
-		bf.BlendFlags = 0;
-		bf.SourceConstantAlpha = 255;			// per-pixel alpha values
-		bf.AlphaFormat = AC_SRC_ALPHA;
-		// TODO 16 and 16 are the width and height of the image; we would need to get that out somehow
-		if (AlphaBlend(dc, r.left, r.top, r.right - r.left, r.bottom - r.top,
-			idc, 0, 0, 16, 16, bf) == FALSE)
-			panic("error drawing image into Table cell");
-		if (SelectObject(idc, previbitmap) != testbitmap)
-			panic("error deselecting Table cell image for drawing image");
-		if (DeleteDC(idc) == 0)
-			panic("error deleting Table compatible DC for image cell drawing");
+		drawImageCell(t, dc, p, &r);
 		break;
 	case tableColumnCheckbox:
 		toCheckboxRect(t, &r, p->xoff);
