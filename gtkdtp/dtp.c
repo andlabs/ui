@@ -1,6 +1,10 @@
 // 9 january 2015
 #include "dtp.h"
 
+/* notes:
+https://git.gnome.org/browse/gtk+/tree/gtk/gtkcombobox.c?h=gtk-3-4
+*/
+
 #define GDTP(x) ((goDateTimePicker *) x)
 #define PRIV(x) (GDTP(x)->priv)
 #define GDTPC(x) ((goDateTimePickerClass *) x)
