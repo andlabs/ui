@@ -16,7 +16,7 @@ struct goDateTimePickerPrivate {
 };
 
 G_DEFINE_TYPE_WITH_CODE(goDateTimePicker, goDateTimePicker, GTK_TYPE_BOX,
-	G_ADD_PRIVATE(goDateTimePicker))
+	;)
 
 // TODO figure out how to share these between C and Go
 enum {
@@ -27,7 +27,7 @@ enum {
 
 static void goDateTimePicker_init(goDateTimePicker *dtp)
 {
-	dtp->priv = goDateTimePicker_get_instance_private(dtp);
+	dtp->priv = G_TYPE_INSTANCE_GET_PRIVATE(dtp, goDateTimePicker_get_type(), goDateTimePickerPrivate);
 }
 
 static void goDateTimePicker_dispose(GObject *obj)
@@ -103,6 +103,8 @@ static void goDateTimePicker_get_property(GObject *obj, guint prop, GValue *valu
 
 static void goDateTimePicker_class_init(goDateTimePickerClass *class)
 {
+	g_type_class_add_private(class, sizeof (goDateTimePickerPrivate));
+
 	G_OBJECT_CLASS(class)->dispose = goDateTimePicker_dispose;
 	G_OBJECT_CLASS(class)->finalize = goDateTimePicker_finalize;
 	G_OBJECT_CLASS(class)->set_property = goDateTimePicker_set_property;
