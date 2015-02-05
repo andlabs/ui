@@ -48,6 +48,6 @@ static void update(struct table *t, BOOL redraw)
 static void updateAll(struct table *t)
 {
 	update(t, TRUE);
-	if (InvalidateRect(t, NULL, TRUE) == 0)
+	if (InvalidateRect(t->hwnd, NULL, TRUE) == 0)
 		panic("error queueing all of Table for redraw in updateAll()");
 }
