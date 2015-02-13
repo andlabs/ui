@@ -5,6 +5,10 @@ struct tableAcc {
 	ULONG refcount;
 	struct table *t;
 	IAccessible *std;
+
+	TODOTYPE role;
+	intptr_t row;
+	intptr_t column;
 };
 
 #define TA ((struct tableAcc *) this)
@@ -92,6 +96,19 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, lo
 {
 	// TODO
 	return DISP_E_MEMBERNOTFOUND;
+
+	// TODO check pcountChildren
+	switch (TA->role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO +1?
+		pcountChildren->xxxx = t->count;
+		return xxxx;
+	case ROLE_SYSTEM_ROW:
+		// TODO what to do about row 0 if +1?
+		pcountChildren->xxxx = t->nColumns;
+		return xxxx;
+	}
+	// TODO
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
@@ -132,8 +149,20 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, V
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
+	xxxxx cid;
+
 	// TODO
 	return DISP_E_MEMBERNOTFOUND;
+
+	// TODO check pvarRole
+	// TODO check varChild
+	cid = varChild.xxxx;
+	if (cid == CHILDID_SELF) {
+		pvarRole->xxx = TA->role;
+		return xxxx;
+	}
+	cid--;
+	// TODO process cid
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
@@ -266,6 +295,9 @@ static struct tableAcc *newTableAcc(struct table *t)
 		// TODO panichresult
 		panic("error creating standard accessible object for Table");
 	ta->std = std;
+	ta->role = ROLE_SYSTEM_TABLE;
+	ta->row = -1;
+	ta->column = -1;
 	return ta;
 }
 
