@@ -6,7 +6,7 @@ struct tableAcc {
 	struct table *t;
 	IAccessible *std;
 
-	TODOTYPE role;
+	LONG role;
 	intptr_t row;
 	intptr_t column;
 };
@@ -94,21 +94,22 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispa
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
-
-	// TODO check pcountChildren
+	if (pcountChildren == NULL)
+		// TODO really?
+		return E_POINTER;
 	switch (TA->role) {
 	case ROLE_SYSTEM_TABLE:
 		// TODO +1?
-		pcountChildren->xxxx = t->count;
-		return xxxx;
+		*pcountChildren = (long) (TA->t->count);
+		return S_OK;
 	case ROLE_SYSTEM_ROW:
 		// TODO what to do about row 0 if +1?
-		pcountChildren->xxxx = t->nColumns;
-		return xxxx;
+		*pcountChildren = (long) (TA->t->nColumns);
+		return S_OK;
 	}
-	// TODO
+	// TODO really?
+	*pcountChildren = 0;
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
@@ -149,20 +150,43 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, V
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
-	xxxxx cid;
+	LONG cid;
 
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
-
-	// TODO check pvarRole
-	// TODO check varChild
-	cid = varChild.xxxx;
+	if (pvarRole == NULL)
+		// TODO really?
+		return E_POINTER;
+	if (varChild.vt != VT_I4)
+		goto invalid;
+	cid = varChild.lVal;
 	if (cid == CHILDID_SELF) {
-		pvarRole->xxx = TA->role;
-		return xxxx;
+		pvarRole->vt = VT_I4;
+		pvarRole->lVal = TA->role;
+		return S_OK;
 	}
 	cid--;
-	// TODO process cid
+	if (cid < 0)
+		goto invalid;
+	switch (TA->role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO +1?
+		if (cid >= TA->t->count)
+			goto invalid;
+		pvarRole->vt = VT_I4;
+		pvarRole->lVal = ROLE_SYSTEM_ROW;
+		return S_OK;
+	case ROLE_SYSTEM_ROW:
+		// TODO what to do about row 0 if +1?
+		if (cid >= TA->t->nColumns)
+			goto invalid;
+		pvarRole->vt = VT_I4;
+		pvarRole->lVal = ROLE_SYSTEM_CELL;
+		return S_OK;
+	}
+	// TODO CELL?
+	// otherwise, fall through
+invalid:
+	pvarRole->vt = VT_EMPTY;
+	return E_INVALIDARG;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
