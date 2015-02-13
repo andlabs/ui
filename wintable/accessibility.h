@@ -248,6 +248,7 @@ HANDLER(accessibilityHandler)
 	// its two siblings only cast lParam, resulting in an erroneous DWORD to LONG comparison
 	// The Old New Thing book does not cast anything
 	// Microsoft's MSAA sample casts lParam to LONG instead!
+	// (As you can probably tell, the biggest problem with MSAA is that its documentation is ambiguous and/or self-contradictory...)
 	if (((DWORD) lParam) != ((DWORD) OBJID_CLIENT))
 		return FALSE;
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (t->ta));
