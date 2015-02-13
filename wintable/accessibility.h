@@ -49,228 +49,134 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 	return TA->refcount;
 }
 
-// disregard IDispatch: http://msdn.microsoft.com/en-us/library/windows/desktop/cc307844.aspx
-// TODO DISP_E_MEMBERNOTFOUND? http://blogs.msdn.com/b/saraford/archive/2004/08/20/which-controls-support-which-msaa-properties-and-how-these-controls-implement-msaa-properties.aspx
-// TODO relegate these to the standard object?
+// IDispatch
+// TODO make sure relegating these to the standard accessibility object is harmless
 
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfoCount(IAccessible *this, UINT *pctinfo)
 {
-	if (pctinfo == NULL)
-		return E_INVALIDARG;
-	// TODO assign something to *pctinfo?
-	return E_NOTIMPL;
+	return IAccessible_GetTypeInfoCount(TA->std, pctinfo);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfo(IAccessible *this, UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo)
 {
-	if (ppTInfo == NULL)
-		return E_INVALIDARG;
-	*ppTInfo = NULL;
-	return E_NOTIMPL;
+	return IAccessible_GetTypeInfo(TA->std, iTInfo, lcid, ppTInfo);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccGetIDsOfNames(IAccessible *this, REFIID riid, LPOLESTR *rgszNames, UINT cNames, LCID lcid, DISPID *rgDispId)
 {
-	// TODO verify this one
-	if (rgDispId == NULL)
-		return E_INVALIDARG;
-	// TODO overwrite rgDispId?
-	return E_NOTIMPL;
+	return IAccessible_GetIDsOfNames(TA->std, riid, rgszNames, cNames, lcid, rgDispId);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccInvoke(IAccessible *this, DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
 {
-	// TODO check this one
-	return E_NOTIMPL;
+	return IAccessible_Invoke(TA->std, dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);
 }
 
 // IAccessible
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispatch **ppdispParent)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accParent(TA->std, ppdispParent);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
-	if (pcountChildren == NULL)
-		// TODO really?
-		return E_POINTER;
-	switch (TA->role) {
-	case ROLE_SYSTEM_TABLE:
-		// TODO +1?
-		*pcountChildren = (long) (TA->t->count);
-		return S_OK;
-	case ROLE_SYSTEM_ROW:
-		// TODO what to do about row 0 if +1?
-		*pcountChildren = (long) (TA->t->nColumns);
-		return S_OK;
-	}
-	// TODO really?
-	*pcountChildren = 0;
-	return S_OK;
+	return IAccessible_get_accChildCount(TA->std, pcountChildren);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accChild(TA->std, varChild, ppdispChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
-printf("tableAccget_accName()\n");
-	// TODO check pointer
-	if (varChild.vt != VT_I4) {
-printf("invalid arg\n");
-		*pszName = NULL;
-		return E_INVALIDARG;
-	}
-	if (varChild.lVal == CHILDID_SELF)
-		; // TODO standard accessible object
-	// TODO actually get the real name
-printf("returning name\n");
-	*pszName = SysAllocString(L"This is a test of the accessibility interface.");
-	// TODO check null pointer
-	return S_OK;
+	return IAccessible_get_accName(TA->std, varChild, pszName);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accValue(TA->std, varChild, pszValue);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, VARIANT varChild, BSTR *pszDescription)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accDescription(TA->std, varChild, pszDescription);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
-	LONG cid;
-
-	if (pvarRole == NULL)
-		// TODO really?
-		return E_POINTER;
-	if (varChild.vt != VT_I4)
-		goto invalid;
-	cid = varChild.lVal;
-	if (cid == CHILDID_SELF) {
-		pvarRole->vt = VT_I4;
-		pvarRole->lVal = TA->role;
-		return S_OK;
-	}
-	cid--;
-	if (cid < 0)
-		goto invalid;
-	switch (TA->role) {
-	case ROLE_SYSTEM_TABLE:
-		// TODO +1?
-		if (cid >= TA->t->count)
-			goto invalid;
-		pvarRole->vt = VT_I4;
-		pvarRole->lVal = ROLE_SYSTEM_ROW;
-		return S_OK;
-	case ROLE_SYSTEM_ROW:
-		// TODO what to do about row 0 if +1?
-		if (cid >= TA->t->nColumns)
-			goto invalid;
-		pvarRole->vt = VT_I4;
-		pvarRole->lVal = ROLE_SYSTEM_CELL;
-		return S_OK;
-	}
-	// TODO CELL?
-	// otherwise, fall through
-invalid:
-	pvarRole->vt = VT_EMPTY;
-	return E_INVALIDARG;
+	return IAccessible_get_accRole(TA->std, varChild, pvarRole);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accState(TA->std, varChild, pvarState);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelp(IAccessible *this, VARIANT varChild, BSTR *pszHelp)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accHelp(TA->std, varChild, pszHelp);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelpTopic(IAccessible *this, BSTR *pszHelpFile, VARIANT varChild, long *pidTopic)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accHelpTopic(TA->std, pszHelpFile, varChild, pidTopic);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *this, VARIANT varChild, BSTR *pszKeyboardShortcut)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accKeyboardShortcut(TA->std, varChild, pszKeyboardShortcut);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accFocus(IAccessible *this, VARIANT *pvarChild)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accFocus(TA->std, pvarChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VARIANT *pvarChildren)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accSelection(TA->std, pvarChildren);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this, VARIANT varChild, BSTR *pszDefaultAction)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_get_accDefaultAction(TA->std, varChild, pszDefaultAction);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flagsSelect, VARIANT varChild)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_accSelect(TA->std, flagsSelect, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
 {
-	// TODO
 	return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
 {
-	// TODO
 	return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
-	// TODO
 	return IAccessible_accHitTest(TA->std, xLeft, yTop, pvarChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_accDoDefaultAction(TA->std, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accName(IAccessible *this, VARIANT varChild, BSTR szName)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_put_accName(TA->std, varChild, szName);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accValue(IAccessible *this, VARIANT varChild, BSTR szValue)
 {
-	// TODO
-	return DISP_E_MEMBERNOTFOUND;
+	return IAccessible_put_accValue(TA->std, varChild, szValue);
 }
 
 static const IAccessibleVtbl tableAccVtbl = {
