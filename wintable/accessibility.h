@@ -1,7 +1,7 @@
 // 24 december 2014
 
 struct tableAcc {
-	IAccessibleVtbl *vtbl;
+	const IAccessibleVtbl *vtbl;
 	ULONG refcount;
 	struct table *t;
 	IAccessible *std;
@@ -20,8 +20,7 @@ static HRESULT STDMETHODCALLTYPE tableAccQueryInterface(IAccessible *this, REFII
 	if (IsEqualIID(riid, &IID_IUnknown) ||
 		IsEqualIID(riid, &IID_IDispatch) ||
 		IsEqualIID(riid, &IID_IAccessible)) {
-		// TODO figure out what pointer to use here
-		TA->vtbl->AddRef(TA);
+		IAccessible_AddRef(this);
 		*ppvObject = (void *) this;
 		return S_OK;
 	}
@@ -218,9 +217,10 @@ static struct tableAcc *newTableAcc(struct table *t)
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
 	ta->vtbl = &tableAccVtbl;
-	ta->vtbl->AddRef(ta);
+	// TODO
+	IAccessible_AddRef((IAccessible *) ta);
 	ta->t = t;
-	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, &std);
+	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, (void *) (&std));
 	if (hr != S_OK)
 		// TODO panichresult
 		panic("error creating standard accessible object for Table");
@@ -234,16 +234,23 @@ static struct tableAcc *newTableAcc(struct table *t)
 static void freeTableAcc(struct tableAcc *ta)
 {
 	ta->t = NULL;
-	ta->vtbl->Release(ta);
+	// TODO
+	IAccessible_Release((IAccessible *) ta);
 }
 
 HANDLER(accessibilityHandler)
 {
 	if (uMsg != WM_GETOBJECT)
 		return FALSE;
-	if (((DWORD) lParam) != OBJID_CLIENT)
+	// OBJID_CLIENT evaluates to an expression of type LONG
+	// the documentation for WM_GETOBJECT says to cast "it" to a DWORD before comparing
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/dd373624%28v=vs.85%29.aspx casts them both to DWORDs; let's do that
+	// its two siblings only cast lParam, resulting in an erroneous DWORD to LONG comparison
+	// The Old New Thing book does not cast anything
+	// Microsoft's MSAA sample casts lParam to LONG instead!
+	if (((DWORD) lParam) != ((DWORD) OBJID_CLIENT))
 		return FALSE;
-	*lResult = LresultFromObject(&IID_IAccessible, wParam, t->ta);
+	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (t->ta));
 	// TODO check *lResult
 	return TRUE;
 }

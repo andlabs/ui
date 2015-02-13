@@ -140,7 +140,6 @@ static void drawCell(struct table *t, HDC dc, struct drawCellParams *p)
 static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 {
 	intptr_t i, j;
-	int x = 0;
 	HFONT prevfont, newfont;
 	struct drawCellParams p;
 

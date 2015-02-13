@@ -1,5 +1,8 @@
 // 7 january 2015
 
+// TODO remove
+#include <stdio.h>
+
 // TODO
 // - should tablePanic be CALLBACK or some other equivalent macro? and definitely export initTable somehow, but which alias macro to use?
 // - make panic messages grammatically correct ("Table error: adding...")
@@ -185,7 +188,7 @@ printf("destroy\n");
 
 static void deftablePanic(const char *msg, DWORD lastError)
 {
-	fprintf(stderr, "Table error: %s (last error %d)\n", msg, lastError);
+	fprintf(stderr, "Table error: %s (last error %I32u)\n", msg, lastError);
 	fprintf(stderr, "This is the default Table error handler function; programs that use Table should provide their own instead.\nThe program will now break into the debugger.\n");
 	DebugBreak();
 }

@@ -5,7 +5,7 @@ typedef BOOL (*handlerfunc)(struct table *, UINT, WPARAM, LPARAM, LRESULT *);
 
 static BOOL runHandlers(const handlerfunc list[], struct table *t, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *lResult)
 {
-	handlerfunc *p;
+	const handlerfunc *p;
 
 	for (p = list; *p != NULL; p++)
 		if ((*(*p))(t, uMsg, wParam, lParam, lResult))

@@ -131,7 +131,6 @@ static void redrawCheckboxRect(struct table *t, LPARAM lParam)
 {
 	struct rowcol rc;
 	RECT r;
-	POINT pt;
 
 	rc = lParamToRowColumn(t, lParam);
 	if (rc.row == -1 && rc.column == -1)
