@@ -441,7 +441,8 @@ printf("new ta %p\n", ta);
 printf("before add:"); list(t);
 #endif
 	ta->next = t->firstAcc;
-	t->firstAcc->prev = ta;
+	if (t->firstAcc != NULL)
+		t->firstAcc->prev = ta;
 	t->firstAcc = ta;
 #ifdef TABLE_DEBUG_LINKEDLIST
 printf("after add:"); list(t);
