@@ -89,6 +89,8 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 	if (TA->refcount == 0) {
 		struct tableAcc *prev, *next;
 
+		if (TA->t != NULL && TA->t->firstAcc == TA)
+			TA->t->firstAcc = TA->next;
 		prev = TA->prev;
 		next = TA->next;
 		if (prev != NULL)
