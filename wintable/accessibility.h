@@ -1,15 +1,51 @@
 // 24 december 2014
 
+typedef struct tableAccWhat tableAccWhat;
+
+struct tableAccWhat {
+	LONG role;
+	intptr_t row;
+	intptr_t col;
+};
+
 struct tableAcc {
 	const IAccessibleVtbl *vtbl;
 	ULONG refcount;
 	struct table *t;
 	IAccessible *std;
-
-	LONG role;
-	intptr_t row;
-	intptr_t column;
+	tableAccWhat what;
 };
+
+// common validation for accessibility functions that take varChild
+// also normalizes what as if varChild == CHILDID_SELF
+static HRESULT normalizeWhat(struct tableAcc *ta, VARIANT varChild, tableAccWhat *what)
+{
+	LONG cid;
+
+	if (varChild.vt != VT_I4)
+		return E_INVALIDARG;
+	cid = varChild.lVal;
+	if (cid == CHILDID_SELF)
+		return S_OK;
+	cid--;
+	if (cid < 0)
+		return E_INVALIDARG;
+	switch (what->role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO +1?
+		if (cid >= ta->t->count)
+			return E_INVALIDARG;
+		what->role = ROLE_SYSTEM_ROW;
+		what->row = (intptr_t) cid;
+		what->column = -1;
+		break;
+	case ROLE_SYSTEM_ROW:
+	case ROLE_SYSTEM_CELL:
+		// TODO
+		break;
+	}
+	return S_OK;
+}
 
 #define TA ((struct tableAcc *) this)
 
