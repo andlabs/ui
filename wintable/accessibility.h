@@ -3,6 +3,9 @@
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
 
+// uncomment this to debug table linked list management
+#define TABLE_DEBUG_LINKEDLIST
+
 typedef struct tableAccWhat tableAccWhat;
 
 struct tableAccWhat {
@@ -22,6 +25,28 @@ struct tableAcc {
 	struct tableAcc *prev;
 	struct tableAcc *next;
 };
+
+#ifdef TABLE_DEBUG_LINKEDLIST
+void list(struct table *t)
+{
+	struct tableAcc *ta;
+
+	printf("\n");
+	if (t->firstAcc == NULL) {
+		printf("\tempty\n");
+		return;
+	}
+	printf("\t-> ");
+	for (ta = t->firstAcc; ta != NULL; ta = ta->next)
+		printf("%p ", ta);
+	printf("\n\t<- ");
+	for (ta = t->firstAcc; ta->next != NULL; ta = ta->next)
+		;
+	for (; ta != NULL; ta = ta->prev)
+		printf("%p ", ta);
+	printf("\n");
+}
+#endif
 
 // called after each allocation
 static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, intptr_t column);
@@ -89,6 +114,9 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 	if (TA->refcount == 0) {
 		struct tableAcc *prev, *next;
 
+#ifdef TABLE_DEBUG_LINKEDLIST
+if (TA->t != NULL) { printf("before delete:"); list(TA->t); }
+#endif
 		if (TA->t != NULL && TA->t->firstAcc == TA)
 			TA->t->firstAcc = TA->next;
 		prev = TA->prev;
@@ -97,6 +125,9 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 			prev->next = next;
 		if (next != NULL)
 			next->prev = prev;
+#ifdef TABLE_DEBUG_LINKEDLIST
+if (TA->t != NULL) { printf("after delete:"); list(TA->t); }
+#endif
 		if (TA->std != NULL)
 			IAccessible_Release(TA->std);
 		tableFree(TA, "error freeing Table accessibility object");
@@ -180,10 +211,13 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
+printf("get_accName() t %p std %p\n", TA->t, TA->std);
 	if (TA->t == NULL || TA->std == NULL) {
+printf("returning RPC_E_DISCONNECTED\n");
 		// TODO set values on error
 		return RPC_E_DISCONNECTED;
 	}
+printf("running main function\n");
 //TODO
 if (pszName == NULL)
 return E_POINTER;
@@ -389,10 +423,12 @@ static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, in
 	IAccessible *std;
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
+printf("new ta %p\n", ta);
 	ta->vtbl = &tableAccVtbl;
 	ta->refcount = 1;
 	ta->t = t;
-	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, (void *) (&std));
+	// TODO adjust last argument
+	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, (void **) (&std));
 	if (hr != S_OK)
 		// TODO panichresult
 		panic("error creating standard accessible object for Table");
@@ -401,9 +437,15 @@ static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, in
 	ta->what.row = row;
 	ta->what.column = column;
 
+#ifdef TABLE_DEBUG_LINKEDLIST
+printf("before add:"); list(t);
+#endif
 	ta->next = t->firstAcc;
 	t->firstAcc->prev = ta;
 	t->firstAcc = ta;
+#ifdef TABLE_DEBUG_LINKEDLIST
+printf("after add:"); list(t);
+#endif
 
 	return ta;
 }
@@ -435,8 +477,11 @@ HANDLER(accessibilityHandler)
 	// (As you can probably tell, the biggest problem with MSAA is that its documentation is ambiguous and/or self-contradictory...)
 	if (((DWORD) lParam) != ((DWORD) OBJID_CLIENT))
 		return FALSE;
+printf("creating ta\n");
 	ta = newTableAcc(t, ROLE_SYSTEM_TABLE, -1, -1);
+printf("ta %p\n", ta);
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (ta));
+printf("lResult %I32d\n", *lResult);
 	// TODO check *lResult
 	return TRUE;
 }
