@@ -484,5 +484,7 @@ printf("ta %p\n", ta);
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (ta));
 printf("lResult %I32d\n", *lResult);
 	// TODO check *lResult
+	// TODO adjust pointer
+	IAccessible_Release((IAccessible *) ta);
 	return TRUE;
 }
