@@ -100,7 +100,7 @@ struct table {
 	BOOL checkboxMouseDown;
 	intptr_t checkboxMouseDownRow;
 	intptr_t checkboxMouseDownColumn;
-	struct tableAcc *ta;
+	struct tableAcc *firstAcc;
 };
 
 // forward declaration (TODO needed?)
@@ -163,7 +163,6 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			t->selectedRow = -1;
 			t->selectedColumn = -1;
 			loadCheckboxThemeData(t);
-			t->ta = newTableAcc(t);
 initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
@@ -174,8 +173,7 @@ initDummyTableStuff(t);
 printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
 		// TODO send EVENT_OBJECT_DESTROY events to accessibility listeners (when appropriate); see the note on proxy objects as well
-		freeTableAcc(t->ta);
-		t->ta = NULL;
+		invalidateTableAccs(t);
 		freeCheckboxThemeData(t);
 		destroyHeader(t);
 		tableFree(t, "error allocating internal Table data structure");

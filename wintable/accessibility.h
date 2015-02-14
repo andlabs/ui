@@ -1,5 +1,8 @@
 // 24 december 2014
 
+// TODOs:
+// - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
+
 typedef struct tableAccWhat tableAccWhat;
 
 struct tableAccWhat {
@@ -14,11 +17,14 @@ struct tableAcc {
 	struct table *t;
 	IAccessible *std;
 	tableAccWhat what;
+
+	// the list of currently active accessibility objects is a doubly linked list
+	struct tableAcc *prev;
+	struct tableAcc *next;
 };
 
 // called after each allocation
-// TODO really be a forward declaration?
-static void initAcc(struct tableAcc *acc, struct table *t, LONG role, intptr_t row, intptr_t column);
+static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, intptr_t column);
 
 // common validation for accessibility functions that take varChild
 // also normalizes what as if varChild == CHILDID_SELF
@@ -81,7 +87,16 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 {
 	TA->refcount--;
 	if (TA->refcount == 0) {
-		IAccessible_Release(TA->std);
+		struct tableAcc *prev, *next;
+
+		prev = TA->prev;
+		next = TA->next;
+		if (prev != NULL)
+			prev->next = next;
+		if (next != NULL)
+			next->prev = prev;
+		if (TA->std != NULL)
+			IAccessible_Release(TA->std);
 		tableFree(TA, "error freeing Table accessibility object");
 		return 0;
 	}
@@ -93,21 +108,37 @@ static ULONG STDMETHODCALLTYPE tableAccRelease(IAccessible *this)
 
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfoCount(IAccessible *this, UINT *pctinfo)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_GetTypeInfoCount(TA->std, pctinfo);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccGetTypeInfo(IAccessible *this, UINT iTInfo, LCID lcid, ITypeInfo **ppTInfo)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_GetTypeInfo(TA->std, iTInfo, lcid, ppTInfo);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccGetIDsOfNames(IAccessible *this, REFIID riid, LPOLESTR *rgszNames, UINT cNames, LCID lcid, DISPID *rgDispId)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_GetIDsOfNames(TA->std, riid, rgszNames, cNames, lcid, rgDispId);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccInvoke(IAccessible *this, DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_Invoke(TA->std, dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);
 }
 
@@ -115,11 +146,19 @@ static HRESULT STDMETHODCALLTYPE tableAccInvoke(IAccessible *this, DISPID dispId
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispatch **ppdispParent)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accParent(TA->std, ppdispParent);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 //TODO
 if (pcountChildren == NULL)
 return E_POINTER;
@@ -130,11 +169,19 @@ return S_OK;
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accChild(TA->std, varChild, ppdispChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 //TODO
 if (pszName == NULL)
 return E_POINTER;
@@ -145,16 +192,28 @@ return S_OK;
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accValue(TA->std, varChild, pszValue);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, VARIANT varChild, BSTR *pszDescription)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accDescription(TA->std, varChild, pszDescription);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 //TODO
 if (pvarRole == NULL)
 return E_POINTER;
@@ -166,71 +225,127 @@ return S_OK;
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accState(TA->std, varChild, pvarState);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelp(IAccessible *this, VARIANT varChild, BSTR *pszHelp)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accHelp(TA->std, varChild, pszHelp);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelpTopic(IAccessible *this, BSTR *pszHelpFile, VARIANT varChild, long *pidTopic)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accHelpTopic(TA->std, pszHelpFile, varChild, pidTopic);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *this, VARIANT varChild, BSTR *pszKeyboardShortcut)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accKeyboardShortcut(TA->std, varChild, pszKeyboardShortcut);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accFocus(IAccessible *this, VARIANT *pvarChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accFocus(TA->std, pvarChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VARIANT *pvarChildren)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accSelection(TA->std, pvarChildren);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this, VARIANT varChild, BSTR *pszDefaultAction)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_get_accDefaultAction(TA->std, varChild, pszDefaultAction);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flagsSelect, VARIANT varChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_accSelect(TA->std, flagsSelect, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_accHitTest(TA->std, xLeft, yTop, pvarChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_accDoDefaultAction(TA->std, varChild);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accName(IAccessible *this, VARIANT varChild, BSTR szName)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_put_accName(TA->std, varChild, szName);
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accValue(IAccessible *this, VARIANT varChild, BSTR szValue)
 {
+	if (TA->t == NULL || TA->std == NULL) {
+		// TODO set values on error
+		return RPC_E_DISCONNECTED;
+	}
 	return IAccessible_put_accValue(TA->std, varChild, szValue);
 }
 
@@ -265,42 +380,48 @@ static const IAccessibleVtbl tableAccVtbl = {
 	.put_accValue = tableAccput_accValue,
 };
 
-static void initAcc(struct tableAcc *acc, struct table *t, LONG role, intptr_t row, intptr_t column)
+static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, intptr_t column)
 {
+	struct tableAcc *ta;
 	HRESULT hr;
 	IAccessible *std;
 
-	acc->vtbl = &tableAccVtbl;
-	acc->refcount = 1;
-	acc->t = t;
+	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
+	ta->vtbl = &tableAccVtbl;
+	ta->refcount = 1;
+	ta->t = t;
 	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, (void *) (&std));
 	if (hr != S_OK)
 		// TODO panichresult
 		panic("error creating standard accessible object for Table");
-	acc->std = std;
-	acc->what.role = role;
-	acc->what.row = row;
-	acc->what.column = column;
-}
+	ta->std = std;
+	ta->what.role = role;
+	ta->what.row = row;
+	ta->what.column = column;
 
-static struct tableAcc *newTableAcc(struct table *t)
-{
-	struct tableAcc *ta;
+	ta->next = t->firstAcc;
+	t->firstAcc->prev = ta;
+	t->firstAcc = ta;
 
-	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
-	initAcc(ta, t, ROLE_SYSTEM_TABLE, -1, -1);
 	return ta;
 }
 
-static void freeTableAcc(struct tableAcc *ta)
+static void invalidateTableAccs(struct table *t)
 {
-	ta->t = NULL;
-	// TODO
-	IAccessible_Release((IAccessible *) ta);
+	struct tableAcc *ta;
+
+	for (ta = t->firstAcc; ta != NULL; ta = ta->next) {
+		ta->t = NULL;
+		IAccessible_Release(ta->std);
+		ta->std = NULL;
+	}
+	t->firstAcc = NULL;
 }
 
 HANDLER(accessibilityHandler)
 {
+	struct tableAcc *ta;
+
 	if (uMsg != WM_GETOBJECT)
 		return FALSE;
 	// OBJID_CLIENT evaluates to an expression of type LONG
@@ -312,7 +433,8 @@ HANDLER(accessibilityHandler)
 	// (As you can probably tell, the biggest problem with MSAA is that its documentation is ambiguous and/or self-contradictory...)
 	if (((DWORD) lParam) != ((DWORD) OBJID_CLIENT))
 		return FALSE;
-	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (t->ta));
+	ta = newTableAcc(t, ROLE_SYSTEM_TABLE, -1, -1);
+	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (ta));
 	// TODO check *lResult
 	return TRUE;
 }
