@@ -5,7 +5,7 @@ typedef struct tableAccWhat tableAccWhat;
 struct tableAccWhat {
 	LONG role;
 	intptr_t row;
-	intptr_t col;
+	intptr_t column;
 };
 
 struct tableAcc {
@@ -15,6 +15,10 @@ struct tableAcc {
 	IAccessible *std;
 	tableAccWhat what;
 };
+
+// called after each allocation
+// TODO really be a forward declaration?
+static void initAcc(struct tableAcc *acc, struct table *t, LONG role, intptr_t row, intptr_t column);
 
 // common validation for accessibility functions that take varChild
 // also normalizes what as if varChild == CHILDID_SELF
@@ -245,25 +249,30 @@ static const IAccessibleVtbl tableAccVtbl = {
 	.put_accValue = tableAccput_accValue,
 };
 
-static struct tableAcc *newTableAcc(struct table *t)
+static void initAcc(struct tableAcc *acc, struct table *t, LONG role, intptr_t row, intptr_t column)
 {
-	struct tableAcc *ta;
 	HRESULT hr;
 	IAccessible *std;
 
-	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
-	ta->vtbl = &tableAccVtbl;
-	// TODO
-	IAccessible_AddRef((IAccessible *) ta);
-	ta->t = t;
+	acc->vtbl = &tableAccVtbl;
+	acc->refcount = 1;
+	acc->t = t;
 	hr = CreateStdAccessibleObject(t->hwnd, OBJID_CLIENT, &IID_IAccessible, (void *) (&std));
 	if (hr != S_OK)
 		// TODO panichresult
 		panic("error creating standard accessible object for Table");
-	ta->std = std;
-	ta->role = ROLE_SYSTEM_TABLE;
-	ta->row = -1;
-	ta->column = -1;
+	acc->std = std;
+	acc->what.role = role;
+	acc->what.row = row;
+	acc->what.column = column;
+}
+
+static struct tableAcc *newTableAcc(struct table *t)
+{
+	struct tableAcc *ta;
+
+	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
+	initAcc(ta, t, ROLE_SYSTEM_TABLE, -1, -1);
 	return ta;
 }
 
