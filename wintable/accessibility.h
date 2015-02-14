@@ -120,6 +120,11 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispa
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
+//TODO
+if (pcountChildren == NULL)
+return E_POINTER;
+*pcountChildren = 0;
+return S_OK;
 	return IAccessible_get_accChildCount(TA->std, pcountChildren);
 }
 
@@ -130,6 +135,11 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
+//TODO
+if (pszName == NULL)
+return E_POINTER;
+*pszName = SysAllocString(L"accessible table");
+return S_OK;
 	return IAccessible_get_accName(TA->std, varChild, pszName);
 }
 
@@ -145,6 +155,12 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, V
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
+//TODO
+if (pvarRole == NULL)
+return E_POINTER;
+pvarRole->vt = VT_I4;
+pvarRole->lVal = TA->what.role;
+return S_OK;
 	return IAccessible_get_accRole(TA->std, varChild, pvarRole);
 }
 
