@@ -4,7 +4,7 @@
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
 
 // uncomment this to debug table linked list management
-#define TABLE_DEBUG_LINKEDLIST
+//#define TABLE_DEBUG_LINKEDLIST
 
 // TODO get rid of this
 typedef struct tableAccWhat tableAccWhat;
@@ -506,7 +506,6 @@ static struct tableAcc *newTableAcc(struct table *t, LONG role, intptr_t row, in
 	IAccessible *std;
 
 	ta = (struct tableAcc *) tableAlloc(sizeof (struct tableAcc), "error creating Table accessibility object");
-printf("new ta %p\n", ta);
 	ta->vtbl = &tableAccVtbl;
 	ta->refcount = 1;
 	ta->t = t;
@@ -561,11 +560,8 @@ HANDLER(accessibilityHandler)
 	// (As you can probably tell, the biggest problem with MSAA is that its documentation is ambiguous and/or self-contradictory...)
 	if (((DWORD) lParam) != ((DWORD) OBJID_CLIENT))
 		return FALSE;
-printf("creating ta\n");
 	ta = newTableAcc(t, ROLE_SYSTEM_TABLE, -1, -1);
-printf("ta %p\n", ta);
 	*lResult = LresultFromObject(&IID_IAccessible, wParam, (LPUNKNOWN) (ta));
-printf("lResult %I32d\n", *lResult);
 	// TODO check *lResult
 	// TODO adjust pointer
 	IAccessible_Release((IAccessible *) ta);
