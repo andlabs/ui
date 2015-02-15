@@ -366,7 +366,7 @@ static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *px
 	pt.x = r.left;
 	pt.y = r.top;
 	if (ClientToScreen(TA->t->hwnd, &pt) == 0)
-		return GetLastError();		// TODO
+		return HRESULT_FROM_WIN32(GetLastError());
 	*pxLeft = pt.x;
 	*pyTop = pt.y;
 	*pcxWidth = r.right - r.left;
@@ -398,12 +398,12 @@ static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLef
 	pt.x = xLeft;
 	pt.y = yTop;
 	if (ScreenToClient(TA->t->hwnd, &pt) == 0)
-		return GetLastError();	// TODO
+		return HRESULT_FROM_WIN32(GetLastError());
 
 	switch (TA->what.role) {
 	case ROLE_SYSTEM_TABLE:
 		if (GetClientRect(TA->t->hwnd, &r) == 0)
-			return GetLastError();	// TODO
+			return HRESULT_FROM_WIN32(GetLastError());
 		r.top += TA->t->headerHeight;
 		break;
 	case ROLE_SYSTEM_ROW:
