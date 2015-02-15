@@ -360,11 +360,18 @@ static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLef
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_accDoDefaultAction(TA->std, varChild);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	if (what.role == ROLE_SYSTEM_CELL)
+		;	// TODO implement this for checkbox cells?
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accName(IAccessible *this, VARIANT varChild, BSTR szName)
