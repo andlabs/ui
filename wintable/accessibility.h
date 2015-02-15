@@ -6,6 +6,7 @@
 // uncomment this to debug table linked list management
 #define TABLE_DEBUG_LINKEDLIST
 
+// TODO get rid of this
 typedef struct tableAccWhat tableAccWhat;
 
 struct tableAccWhat {
@@ -333,11 +334,44 @@ static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flags
 
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+	RECT r;
+	POINT pt;
+	struct rowcol rc;
+
+	if (pxLeft == NULL || pyTop == NULL || pcxWidth == NULL || pcyHeight == NULL)
+		return E_POINTER;
+	// TODO set the out parameters to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	switch (what.role) {
+	case ROLE_SYSTEM_TABLE:
+		return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
+	case ROLE_SYSTEM_ROW:
+		// TODO see below about width of a row
+		return E_FAIL;
+	case ROLE_SYSTEM_CELL:
+		rc.row = what.row;
+		rc.column = what.column;
+		if (!rowColumnToClientRect(TA->t, rc, &r)) {
+			// TODO what do we do here?
+		}
+		break;
 	}
-	return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
+	pt.x = r.left;
+	pt.y = r.top;
+	if (ClientToScreen(TA->t->hwnd, &pt) == 0)
+		return GetLastError();		// TODO
+	*pxLeft = pt.x;
+	*pyTop = pt.y;
+	*pcxWidth = r.right - r.left;
+	*pcyHeight = r.bottom - r.top;
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
@@ -357,6 +391,7 @@ static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLef
 
 	if (pvarChild == NULL)
 		return E_POINTER;
+	// TODO set pvarChild to an invalid value?
 	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
 
