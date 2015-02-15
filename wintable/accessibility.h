@@ -351,11 +351,52 @@ static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long nav
 
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	POINT pt;
+	struct rowcol rc;
+	RECT r;
+
+	if (pvarChild == NULL)
+		return E_POINTER;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+
+	pt.x = xLeft;
+	pt.y = yTop;
+	if (ScreenToClient(TA->t->hwnd, &pt) == 0)
+		return GetLastError();	// TODO
+
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		if (GetClientRect(TA->t->hwnd, &r) == 0)
+			return GetLastError();	// TODO
+		r.top += TA->t->headerHeight;
+		break;
+	case ROLE_SYSTEM_ROW:
+		// TODO do we extend the row to the last cell or to the edge of the client rect?
+		return E_FAIL;
+	case ROLE_SYSTEM_CELL:
+		// TODO could probably be its own code path
+		return E_FAIL;
 	}
-	return IAccessible_accHitTest(TA->std, xLeft, yTop, pvarChild);
+	if (PtInRect(&r, pt) == 0) {
+		pvarChild->vt = VT_EMPTY;
+		return S_FALSE;
+	}
+
+	// TODO adjust the rest of this function to account for rows and cells
+
+	// TODO also handle GetLastError() here
+	rc = clientCoordToRowColumn(TA->t, pt);
+	// in the table itself?
+	if (rc.row == -1 || rc.column == -1) {
+		pvarChild->vt = VT_I4;
+		pvarChild->lVal = CHILDID_SELF;
+		return S_OK;
+	}
+	// nope, on a cell
+	pvarChild->vt = VT_DISPATCH;
+	pvarChild->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_CELL, rc.row, rc.column);
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, VARIANT varChild)
