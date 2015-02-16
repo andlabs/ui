@@ -4,6 +4,8 @@
 // - TODO figure out what to do about header
 // - a row extends as far right as the right edge of the last cell in the row; anything to the right of that is treated as table space (just like with mouse selection)
 // 	- this has the added effect that hit-testing can only ever return either the table or a cell, never a row
+// - cells have no children; checkbox cells are themselves the accessible object
+// 	- TODO if we ever add combobox columns, this will need to change somehow
 
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
@@ -384,11 +386,133 @@ static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *px
 
 static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long navDir, VARIANT varStart, VARIANT *pvarEndUpAt)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+	intptr_t row = -1;
+	intptr_t column = -1;
+
+	if (pvarEndUpAt == NULL)
+		return E_POINTER;
+	// TODO set pvarEndUpAt to an invalid value?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varStart, &what);
+	if (hr != S_OK)
+		return hr;
+	switch (what.role) {
+	case ROLE_SYSTEM_TABLE:
+		switch (navDir) {
+		case NAVDIR_FIRSTCHILD:
+			// TODO header row
+			if (TA->t->count == 0)
+				goto nowhere;
+			row = 0;
+			goto specificRow;
+		case NAVDIR_LASTCHILD:
+			// TODO header row
+			if (TA->t->count == 0)
+				goto nowhere;
+			row = TA->t->count - 1;
+			goto specificRow;
+		}
+		// otherwise, defer to the standard accessible object
+		return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
+	case ROLE_SYSTEM_ROW:
+		row = what.row;
+		switch (navDir) {
+		case NAVDIR_UP:
+		case NAVDIR_PREVIOUS:
+			if (row == 0)		// can't go up
+				goto nowhere;
+			row--;
+			// row should still be valid because normalizeWhat() returns an error if the current row is no longer valid, and if that's valid, the row above it should also be valid
+			goto specificRow;
+		case NAVDIR_DOWN:
+		case NAVDIR_NEXT:
+			if (row == TA->t->count - 1)		// can't go down
+				goto nowhere;
+			row++;
+			// row should still be valid by the above conjecture
+			goto specificRow;
+		case NAVDIR_LEFT:
+		case NAVDIR_RIGHT:
+			goto nowhere;
+// TODO this doesn't actually exist yet https://msdn.microsoft.com/en-us/library/ms971325 talks about it
+//		case NAVDIR_PARENT:
+//			goto tableItself;
+		case NAVDIR_FIRSTCHILD:
+			if (TA->t->nColumns == 0)
+				goto nowhere;
+			column = 0;
+			goto specificCell;
+		case NAVDIR_LASTCHILD:
+			if (TA->t->nColumns == 0)
+				goto nowhere;
+			column = TA->t->nColumns - 1;
+			goto specificCell;
+		}
+		// TODO differentiate between unsupported navigation directions and invalid navigation directions
+		goto nowhere;
+	case ROLE_SYSTEM_CELL:
+		row = what.row;
+		column = what.column;
+		switch (navDir) {
+		case NAVDIR_UP:
+			if (row == 0)		// can't go up
+				goto nowhere;
+			row--;
+			goto specificCell;
+		case NAVDIR_DOWN:
+			if (row == TA->t->count - 1)		// can't go down
+				goto nowhere;
+			row++;
+			goto specificCell;
+		case NAVDIR_LEFT:
+		case NAVDIR_PREVIOUS:
+			if (column == 0)		// can't go left
+				goto nowhere;
+			column--;
+			goto specificCell;
+		case NAVDIR_RIGHT:
+		case NAVDIR_NEXT:
+			if (column == TA->t->nColumns - 1)		// can't go right
+				goto nowhere;
+			column++;
+			goto specificCell;
+// TODO this doesn't actually exist yet https://msdn.microsoft.com/en-us/library/ms971325 talks about it
+//		case NAVDIR_PARENT:
+//			goto specificRow;
+		case NAVDIR_FIRSTCHILD:
+		case NAVDIR_LASTCHILD:
+			goto nowhere;
+		}
+		// TODO differentiate between unsupported navigation directions and invalid navigation directions
+		goto nowhere;
 	}
-	return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
+
+nowhere:
+	pvarEndUpAt->vt = VT_EMPTY;
+	return S_FALSE;
+
+tableItself:
+	pvarEndUpAt->vt = VT_DISPATCH;
+	pvarEndUpAt->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_TABLE, -1, -1);
+	return S_OK;
+
+specificRow:
+	pvarEndUpAt->vt = VT_DISPATCH;
+	pvarEndUpAt->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_ROW, row, -1);
+	return S_OK;
+
+specificCell:
+	pvarEndUpAt->vt = VT_DISPATCH;
+	pvarEndUpAt->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_CELL, row, column);
+	return S_OK;
 }
 
 // TODO should this ever return parents?
