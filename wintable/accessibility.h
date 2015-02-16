@@ -200,16 +200,27 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispa
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	if (pcountChildren == NULL)
+		return E_POINTER;
+	// TODO set pcountChildren to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO header row
+		*pcountChildren = (long) (TA->t->count);
+		return S_OK;
+	case ROLE_SYSTEM_ROW:
+		*pcountChildren = (long) (TA->t->nColumns);
+		return S_OK;
+	case ROLE_SYSTEM_CELL:
+		*pcountChildren = 0;
+		return S_OK;
 	}
-//TODO
-if (pcountChildren == NULL)
-return E_POINTER;
-*pcountChildren = 0;
-return S_OK;
-	return IAccessible_get_accChildCount(TA->std, pcountChildren);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 // TODO [EDGE CASE/NOT DOCUMENTED/CHECK SAMPLE] what happens if CHILDID_SELF is passed?
