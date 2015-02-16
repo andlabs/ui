@@ -83,6 +83,7 @@ static HRESULT normalizeWhat(struct tableAcc *ta, VARIANT varChild, tableAccWhat
 	case ROLE_SYSTEM_ROW:
 	case ROLE_SYSTEM_CELL:
 		// TODO
+		// TODO also figure out what to do if the current row/cell become invalid (rows being removed, etc.)
 		break;
 	}
 	return S_OK;
@@ -390,6 +391,7 @@ static HRESULT STDMETHODCALLTYPE tableAccaccNavigate(IAccessible *this, long nav
 	return IAccessible_accNavigate(TA->std, navDir, varStart, pvarEndUpAt);
 }
 
+// TODO should this ever return parents?
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
 	POINT pt;
