@@ -411,6 +411,9 @@ static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLef
 		return E_FAIL;
 	case ROLE_SYSTEM_CELL:
 		// TODO could probably be its own code path
+pvarChild->vt = VT_I4;
+pvarChild->lVal = CHILDID_SELF;
+return S_OK;
 		return E_FAIL;
 	}
 	if (PtInRect(&r, pt) == 0) {
