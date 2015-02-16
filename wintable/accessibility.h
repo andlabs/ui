@@ -6,6 +6,8 @@
 // 	- this has the added effect that hit-testing can only ever return either the table or a cell, never a row
 // - cells have no children; checkbox cells are themselves the accessible object
 // 	- TODO if we ever add combobox columns, this will need to change somehow
+// - only Table and Cell can have focus; only Row can have selection
+// 	- TODO allow selecting a cell?
 
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
@@ -331,13 +333,60 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this,
 	return IAccessible_get_accDefaultAction(TA->std, varChild, pszDefaultAction);
 }
 
+// TODO should this method result in an event?
+// TODO how do we deselect?
+// TODO require cell rows to be selected before focusing?
 static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flagsSelect, VARIANT varChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	if (what.role == ROLE_SYSTEM_TABLE)		// defer to the standard accessible object
+		return IAccessible_accSelect(TA->std, flagsSelect, varChild);
+	// reject flags that are only applicable to multiple selection
+	if ((flagsSelect & (SELFLAG_EXTENDSELECTION | SELFLAG_ADDSELECTION | SELFLAG_REMOVESELECTION)) != 0)
+		return E_INVALIDARG;
+	// and do nothing if a no-op
+	if (flagsSelect == SELFLAG_NONE)
+		return S_FALSE;
+	// TODO cast ~ expressions to the correct type
+	switch (what.role) {
+	case ROLE_SYSTEM_ROW:
+		// reject any other flag
+		if ((flagsSelect & (~SELFLAG_TAKESELECTION)) != 0)
+			return E_INVALIDARG;
+		if ((flagsSelect & SELFLAG_TAKESELECTION) != 0) {
+			if (TA->t->nColumns == 0)		// can't select
+				return S_FALSE;
+			// if no column selected, select first (congruent to behavior of certain keyboard events)
+			// TODO handle GetLastError()
+			if (TA->t->selectedColumn == -1)
+				doselect(TA->t, what.row, TA->t->selectedColumn);
+			else
+				doselect(TA->t, what.row, 0);
+			return S_OK;
+		}
+		return S_FALSE;
+	case ROLE_SYSTEM_CELL:
+		// reject any other flag
+		if ((flagsSelect & (~SELFLAG_TAKEFOCUS)) != 0)
+			return E_INVALIDARG;
+		if ((flagsSelect & SELFLAG_TAKEFOCUS) != 0) {
+			doselect(TA->t, what.row, what.column);
+			return S_OK;
+		}
+		return S_FALSE;
 	}
-	return IAccessible_accSelect(TA->std, flagsSelect, varChild);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varChild)
