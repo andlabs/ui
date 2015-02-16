@@ -11,6 +11,7 @@
 
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
+// - return last error on newTableAcc() in all accessible functions
 
 // uncomment this to debug table linked list management
 //#define TABLE_DEBUG_LINKEDLIST
@@ -211,13 +212,52 @@ return S_OK;
 	return IAccessible_get_accChildCount(TA->std, pcountChildren);
 }
 
+// TODO [EDGE CASE/NOT DOCUMENTED/CHECK SAMPLE] what happens if CHILDID_SELF is passed?
+// TODO [EDGE CASE/NOT DOCUMENTED/CHECK SAMPLE] what SHOULD happen if an out of bounds ID is passed?
 static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT varChild, IDispatch **ppdispChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	LONG cid;
+
+	if (ppdispChild == NULL)
+		return E_POINTER;
+	*ppdispChild = NULL;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	if (varChild.vt != VT_I4)
+		return E_INVALIDARG;
+	cid = varChild.lVal;
+	if (cid < 0)
+		// TODO really?
+		return E_INVALIDARG;
+	if (cid == CHILDID_SELF)
+		return E_FAIL;		// TODO
+	cid--;
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO table header
+		if (TA->t->count == 0)
+			return S_FALSE;
+		if (cid > TA->t->count - 1)
+			// TODO really?
+			return E_INVALIDARG;
+		*ppdispChild = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_ROW, cid, -1);
+		return S_OK;
+	case ROLE_SYSTEM_ROW:
+		// TODO verify that row is still valid
+		if (TA->t->nColumns == 0)
+			return S_FALSE;
+		if (cid > TA->t->nColumns - 1)
+			// TODO really?
+			return E_INVALIDARG;
+		*ppdispChild = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_CELL, TA->what.row, cid);
+	case ROLE_SYSTEM_CELL:
+		// TODO verify that row/column are still valid?
+		return S_FALSE;
 	}
-	return IAccessible_get_accChild(TA->std, varChild, ppdispChild);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
