@@ -1,5 +1,10 @@
 // 24 december 2014
 
+// notes:
+// - TODO figure out what to do about header
+// - a row extends as far right as the right edge of the last cell in the row; anything to the right of that is treated as table space (just like with mouse selection)
+// 	- this has the added effect that hit-testing can only ever return either the table or a cell, never a row
+
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
 
@@ -353,14 +358,16 @@ static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *px
 	case ROLE_SYSTEM_TABLE:
 		return IAccessible_accLocation(TA->std, pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
 	case ROLE_SYSTEM_ROW:
-		// TODO see below about width of a row
+		// TODO actually write this
 		return E_FAIL;
 	case ROLE_SYSTEM_CELL:
 		rc.row = what.row;
 		rc.column = what.column;
 		if (!rowColumnToClientRect(TA->t, rc, &r)) {
 			// TODO what do we do here?
+			// TODO we have to return something indicating that the object is off-screen
 		}
+		// TODO intersect with client rect?
 		break;
 	}
 	pt.x = r.left;
@@ -400,39 +407,54 @@ static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLef
 	if (ScreenToClient(TA->t->hwnd, &pt) == 0)
 		return HRESULT_FROM_WIN32(GetLastError());
 
-	switch (TA->what.role) {
-	case ROLE_SYSTEM_TABLE:
-		if (GetClientRect(TA->t->hwnd, &r) == 0)
-			return HRESULT_FROM_WIN32(GetLastError());
-		r.top += TA->t->headerHeight;
-		break;
-	case ROLE_SYSTEM_ROW:
-		// TODO do we extend the row to the last cell or to the edge of the client rect?
-		return E_FAIL;
-	case ROLE_SYSTEM_CELL:
-		// TODO could probably be its own code path
-pvarChild->vt = VT_I4;
-pvarChild->lVal = CHILDID_SELF;
-return S_OK;
-		return E_FAIL;
-	}
-	if (PtInRect(&r, pt) == 0) {
-		pvarChild->vt = VT_EMPTY;
-		return S_FALSE;
-	}
+	// first see if the point is even IN the table
+	if (GetClientRect(TA->t->hwnd, &r) == 0)
+		return HRESULT_FROM_WIN32(GetLastError());
+	r.top += TA->t->headerHeight;
+	if (PtInRect(&r, pt) == 0)
+		goto outside;
 
-	// TODO adjust the rest of this function to account for rows and cells
-
+	// now see if we're in a cell or in the table
 	// TODO also handle GetLastError() here
 	rc = clientCoordToRowColumn(TA->t, pt);
-	// in the table itself?
-	if (rc.row == -1 || rc.column == -1) {
-		pvarChild->vt = VT_I4;
-		pvarChild->lVal = CHILDID_SELF;
-		return S_OK;
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// either the table or the cell
+		if (rc.row == -1 || rc.column == -1)
+			goto self;
+		goto specificCell;
+	case ROLE_SYSTEM_ROW:
+		// a specific cell, but only if in the same row
+		// TODO actually do we really need these spurious rc.column ==/!= -1 checks?
+		if (rc.row == TA->what.row) {
+			if (rc.column == -1)
+				// TODO de-GetLastError() this
+				panic("impossible situation TODO write this");
+			goto specificCell;
+		}
+		goto outside;
+	case ROLE_SYSTEM_CELL:
+		if (rc.row == TA->what.row && rc.column == TA->what.column)
+			goto self;
+		goto outside;
 	}
-	// nope, on a cell
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
+
+outside:
+	pvarChild->vt = VT_EMPTY;
+	return S_FALSE;
+
+self:
+	pvarChild->vt = VT_I4;
+	pvarChild->lVal = CHILDID_SELF;
+	return S_OK;
+
+specificCell:
 	pvarChild->vt = VT_DISPATCH;
+	// TODO GetLastError() here too
 	pvarChild->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_CELL, rc.row, rc.column);
 	return S_OK;
 }
