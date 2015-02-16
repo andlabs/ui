@@ -133,6 +133,7 @@ func NewGroup(text string, control Control) Group {
 // TODO events
 // TODO Tab key - insert horizontal tab or tab stop?
 // TODO ReadOnly
+// TODO line endings
 type Textbox interface {
 	Control
 
