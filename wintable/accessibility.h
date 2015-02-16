@@ -334,7 +334,7 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this,
 }
 
 // TODO should this method result in an event?
-// TODO how do we deselect?
+// TODO [EDGE CASE] how do we deselect? in the table or in the row? wouldn't this go against multiple selection?
 // TODO require cell rows to be selected before focusing?
 static HRESULT STDMETHODCALLTYPE tableAccaccSelect(IAccessible *this, long flagsSelect, VARIANT varChild)
 {
@@ -416,10 +416,10 @@ static HRESULT STDMETHODCALLTYPE tableAccaccLocation(IAccessible *this, long *px
 		rc.row = what.row;
 		rc.column = what.column;
 		if (!rowColumnToClientRect(TA->t, rc, &r)) {
-			// TODO what do we do here?
+			// TODO [EDGE CASE] what do we do here?
 			// TODO we have to return something indicating that the object is off-screen
 		}
-		// TODO intersect with client rect?
+		// TODO [EDGE CASE] intersect with client rect?
 		break;
 	}
 	pt.x = r.left;
