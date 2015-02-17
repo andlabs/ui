@@ -54,6 +54,9 @@ static void scrollto(struct table *t, int which, struct scrollParams *p, intptr_
 
 	if (p->post != NULL)
 		(*(p->post))(t);
+
+	// EVENT_OBJECT_CONTENTSCROLLED is Vista and up only
+	// TODO send state changes for all affected rows/cells?
 }
 
 static void scrollby(struct table *t, int which, struct scrollParams *p, intptr_t delta)

@@ -12,6 +12,27 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	update(t, TRUE);
 	// TODO only redraw the part of the client area where the new client went, if any
 	// (TODO when — if — adding autoresize, figure this one out)
+
+	// TODO send a notification for all rows?
+}
+
+static void setRowCount(struct table *t, intptr_t rc)
+{
+	intptr_t old, i;
+
+	old = t->count;
+	t->count = rc;
+	// we DO redraw everything because we don't want any rows that should no longer be there to remain on screen!
+	updateAll(t);			// DONE
+	// TODO reset checkbox and selection logic if the current row for both no longer exists
+	// TODO really send all these notifications?
+	if (old < t->count)		// rows added
+		for (i = old; i < t->count; i++)
+			NotifyWinEvent(EVENT_OBJECT_CREATE, t->hwnd, OBJID_CLIENT, i);
+	else if (old > t->count)	// rows removed
+		for (i = old; i > t->count; i++)
+			NotifyWinEvent(EVENT_OBJECT_DESTROY, t->hwnd, OBJID_CLIENT, i);
+	// TODO update existing rows?
 }
 
 HANDLER(apiHandlers)
@@ -39,10 +60,7 @@ HANDLER(apiHandlers)
 		return TRUE;
 	case tableSetRowCount:
 		rcp = (intptr_t *) lParam;
-		t->count = *rcp;
-		// we DO redraw everything because we don't want any rows that should no longer be there to remain on screen!
-		updateAll(t);			// DONE
-		// TODO reset checkbox and selection logic if the current row for both no longer exists
+		setRowCount(t, *rcp);
 		*lResult = 0;
 		return TRUE;
 	}

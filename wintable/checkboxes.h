@@ -226,6 +226,8 @@ HANDLER(checkboxMouseUpHandler)
 	// TODO redraw the whole cell?
 	if (InvalidateRect(t->hwnd, &r, TRUE) == 0)
 		panic("error redrawing Table checkbox after mouse up");
+	// TODO really only the row? no way to specify column too?
+	NotifyWinEvent(EVENT_OBJECT_STATECHANGE, t->hwnd, OBJID_CLIENT, rc.row);
 	*lResult = 0;
 	return TRUE;
 wrongUp:

@@ -975,6 +975,7 @@ static HRESULT STDMETHODCALLTYPE tableAccput_accValue(IAccessible *this, VARIANT
 		return hr;
 	// don't support setting values anyway; do return the above errors just to be safe
 	// TODO defer ROW_SYSTEM_TABLE to the standard accessible object?
+	// TODO implement for checkboxes?
 	return DISP_E_MEMBERNOTFOUND;
 }
 
@@ -1053,6 +1054,7 @@ static void invalidateTableAccs(struct table *t)
 		ta->std = NULL;
 	}
 	t->firstAcc = NULL;
+	NotifyWinEvent(EVENT_OBJECT_DESTROY, t->hwnd, OBJID_CLIENT, CHILDID_SELF);
 }
 
 HANDLER(accessibilityHandler)
