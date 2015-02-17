@@ -100,9 +100,11 @@ noScroll:
 			panic("error queueing newly selected row for redraw in doselect()");
 	}
 
+	// TODO what about deselect/defocus?
 	// TODO notify on the old row too?
 	NotifyWinEvent(EVENT_OBJECT_SELECTION, t->hwnd, OBJID_CLIENT, t->selectedRow);
 	// TODO send EVENT_OBJECT_STATECHANGED too?
+	// TODO send EVENT_OBJECT_FOCUS
 }
 
 // TODO make this needless
