@@ -341,20 +341,40 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelp(IAccessible *this, VARIANT varChild, BSTR *pszHelp)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszHelp == NULL)
+		return E_POINTER;
+	*pszHelp = NULL;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_get_accHelp(TA->std, varChild, pszHelp);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// don't support help anyway; do return the above errors just to be safe
+	return DISP_E_MEMBERNOTFOUND;
 }
 
+// TODO Inspect.exe seems to ignore the DISP_E_MEMBERNOTFOUND and just tells us the help topic is the empty string; make sure this works right
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelpTopic(IAccessible *this, BSTR *pszHelpFile, VARIANT varChild, long *pidTopic)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszHelpFile == NULL || pidTopic == NULL)
+		return E_POINTER;
+	// TODO set pszHelpFile and pidTopic to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_get_accHelpTopic(TA->std, pszHelpFile, varChild, pidTopic);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// don't support Windows Help (the super-old .hlp help files) topics anyway; do return the above errors just to be safe
+	// TODO [EDGE CASE??] or should we defer back to the standard accessible object? get_accHelp() was explicitly documented as not being supported by the standard/common controls, but this one isn't...
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *this, VARIANT varChild, BSTR *pszKeyboardShortcut)
