@@ -172,7 +172,6 @@ initDummyTableStuff(t);
 	if (uMsg == WM_DESTROY) {
 printf("destroy\n");
 		// TODO free appropriate (after figuring this part out) components of t
-		// TODO send EVENT_OBJECT_DESTROY events to accessibility listeners (when appropriate); see the note on proxy objects as well
 		invalidateTableAccs(t);
 		freeCheckboxThemeData(t);
 		destroyHeader(t);
