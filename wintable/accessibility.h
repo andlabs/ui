@@ -273,19 +273,33 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accChild(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT varChild, BSTR *pszName)
 {
-printf("get_accName() t %p std %p\n", TA->t, TA->std);
-	if (TA->t == NULL || TA->std == NULL) {
-printf("returning RPC_E_DISCONNECTED\n");
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszName == NULL)
+		return E_POINTER;
+	*pszName = NULL;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	switch (what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// defer to standard accessible object
+		return IAccessible_get_accName(TA->std, varChild, pszName);
+	case ROLE_SYSTEM_ROW:
+		// TODO
+		return S_FALSE;
+	case ROLE_SYSTEM_CELL:
+		// TODO
+		return S_FALSE;
 	}
-printf("running main function\n");
-//TODO
-if (pszName == NULL)
-return E_POINTER;
-*pszName = SysAllocString(L"accessible table");
-return S_OK;
-	return IAccessible_get_accName(TA->std, varChild, pszName);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
