@@ -379,11 +379,24 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accHelpTopic(IAccessible *this, BST
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *this, VARIANT varChild, BSTR *pszKeyboardShortcut)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszKeyboardShortcut == NULL)
+		return E_POINTER;
+	// TODO set pszKeyboardShortcut to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_get_accKeyboardShortcut(TA->std, varChild, pszKeyboardShortcut);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// defer to the standard accessible object for the table itself in case a program assigns an access key somehow (adjacent label?); MSDN says to, anyway
+	if (what.role == ROLE_SYSTEM_TABLE)
+		return IAccessible_get_accKeyboardShortcut(TA->std, varChild, pszKeyboardShortcut);
+	if (what.role == ROLE_SYSTEM_CELL)
+		;	// TODO implement this for checkbox cells?
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 // TODO TEST THIS
