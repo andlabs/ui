@@ -118,6 +118,7 @@ HANDLER(mouseDownSelectHandler)
 	// TODO separate this from here
 	// TODO other mouse buttons?
 	// don't check SetFocus()'s error (http://stackoverflow.com/questions/24073695/winapi-can-setfocus-return-null-without-an-error-because-thats-what-im-see)
+	// TODO NotifyWinEvent() here?
 	SetFocus(t->hwnd);
 	rc = lParamToRowColumn(t, lParam);
 	// don't check if lParamToRowColumn() returned row -1 or column -1; we want deselection behavior
