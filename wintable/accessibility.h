@@ -299,11 +299,20 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, VARIANT varChild, BSTR *pszDescription)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszDescription == NULL)
+		return E_POINTER;
+	*pszDescription = NULL;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_get_accDescription(TA->std, varChild, pszDescription);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// don't support descriptions anyway; do return the above errors just to be safe
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
