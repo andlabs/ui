@@ -377,11 +377,21 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VAR
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this, VARIANT varChild, BSTR *pszDefaultAction)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pszDefaultAction == NULL)
+		return E_POINTER;
+	*pszDefaultAction = NULL;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_get_accDefaultAction(TA->std, varChild, pszDefaultAction);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	if (what.role == ROLE_SYSTEM_CELL)
+		;	// TODO implement this for checkbox cells?
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 // TODO should this method result in an event?
