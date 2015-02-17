@@ -494,13 +494,25 @@ selectedCell:
 	return S_OK;
 }
 
+// note: https://msdn.microsoft.com/en-us/library/ms971325 is geared toward cell-based selection
+// we have row-based selection, so only Tables implement this method, and they return a row
 static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VARIANT *pvarChildren)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	if (pvarChildren == NULL)
+		return E_POINTER;
+	// TOOD set pvarChildren to VT_EMPTY?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	if (TA->what.role != ROLE_SYSTEM_TABLE)
+		// TODO [EDGE CASE] implement this for row anyway? how?
+		return DISP_E_MEMBERNOTFOUND;
+	if (TA->t->selectedRow == -1) {
+		pvarChildren->vt = VT_EMPTY;
+		return S_OK;
 	}
-	return IAccessible_get_accSelection(TA->std, pvarChildren);
+	pvarChildren->vt = VT_DISPATCH;
+	pvarChildren->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_ROW, TA->t->selectedRow, -1);
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDefaultAction(IAccessible *this, VARIANT varChild, BSTR *pszDefaultAction)
