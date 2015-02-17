@@ -366,13 +366,63 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accKeyboardShortcut(IAccessible *th
 	return IAccessible_get_accKeyboardShortcut(TA->std, varChild, pszKeyboardShortcut);
 }
 
+// TODO TEST THIS
+// TODO [EDGE CASE??] no parents?
 static HRESULT STDMETHODCALLTYPE tableAccget_accFocus(IAccessible *this, VARIANT *pvarChild)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+
+	if (pvarChild == NULL)
+		return E_POINTER;
+	// TODO set pvarChild to empty?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	// TODO verify that TA is still pointing to a valid row/column
+
+	// first see if the control has the focus
+	// this is why a standard accessible object is needed on all accessible objects
+	hr = IAccessible_get_accFocus(TA->std, pvarChild);
+	// check the pvarChild type instead of hr
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/dd318479%28v=vs.85%29.aspx does this
+	// TODO [EDGE CASE] figure out why
+	if (pvarChild->vt != VT_I4)
+		return hr;
+
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		if (TA->t->selectedRow != -1 && TA->t->selectedColumn != -1)
+			goto selectedCell;
+		goto self;
+	case ROLE_SYSTEM_ROW:
+		if (TA->t->selectedRow != TA->what.row)
+			goto nothing;
+		goto selectedCell;
+	case ROLE_SYSTEM_CELL:
+		if (TA->t->selectedRow != TA->what.row)
+			goto nothing;
+		if (TA->t->selectedColumn != TA->what.column)
+			goto nothing;
+		goto self;
 	}
-	return IAccessible_get_accFocus(TA->std, pvarChild);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
+
+nothing:
+	pvarChild->vt = VT_EMPTY;
+	// TODO really this one?
+	return S_FALSE;
+
+self:
+	pvarChild->vt = VT_I4;
+	pvarChild->lVal = CHILDID_SELF;
+	return S_OK;
+
+selectedCell:
+	pvarChild->vt = VT_I4;
+	pvarChild->pdispVal = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_CELL, TA->what.row, TA->what.column);
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accSelection(IAccessible *this, VARIANT *pvarChildren)
@@ -634,7 +684,7 @@ specificCell:
 	return S_OK;
 }
 
-// TODO should this ever return parents?
+// TODO [EDGE CASE??] should this ever return parents?
 static HRESULT STDMETHODCALLTYPE tableAccaccHitTest(IAccessible *this, long xLeft, long yTop, VARIANT *pvarChild)
 {
 	POINT pt;
