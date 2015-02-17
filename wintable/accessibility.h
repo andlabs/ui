@@ -1,5 +1,17 @@
 // 24 december 2014
 
+// implement MSAA-conformant accessibility
+// we need to use MSAA because UI Automation is too new for us
+// unfortunately, MSAA's documentation is... very poor. very ambiguous, very inconsistent (just run through this file's commit history and watch the TODO progression to see)
+// resources:
+// http://msdn.microsoft.com/en-us/library/ms971338.aspx
+// http://msdn.microsoft.com/en-us/library/windows/desktop/cc307844.aspx
+// http://msdn.microsoft.com/en-us/library/windows/desktop/cc307847.aspx
+// http://blogs.msdn.com/b/saraford/archive/2004/08/20/which-controls-support-which-msaa-properties-and-how-these-controls-implement-msaa-properties.aspx
+// http://msdn.microsoft.com/en-us/library/ms971325
+// http://msdn.microsoft.com/en-us/library/windows/desktop/dd318017%28v=vs.85%29.aspx
+// http://msdn.microsoft.com/en-us/library/windows/desktop/dd373624%28v=vs.85%29.aspx
+
 // notes:
 // - TODO figure out what to do about header
 // - a row extends as far right as the right edge of the last cell in the row; anything to the right of that is treated as table space (just like with mouse selection)
@@ -12,6 +24,9 @@
 // TODOs:
 // - make sure E_POINTER and RPC_E_DISCONNECTED are correct returns for IAccessible
 // - return last error on newTableAcc() in all accessible functions
+// - figure out what should be names and what should be values
+// - figure out what to do about that header row
+// - http://acccheck.codeplex.com/
 
 // uncomment this to debug table linked list management
 //#define TABLE_DEBUG_LINKEDLIST
@@ -320,13 +335,49 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT 
 	return E_FAIL;
 }
 
+// this differs quite much from what is described at https://msdn.microsoft.com/en-us/library/ms971325
 static HRESULT STDMETHODCALLTYPE tableAccget_accValue(IAccessible *this, VARIANT varChild, BSTR *pszValue)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+	WCHAR *text;
+
+	if (pszValue == NULL)
+		return E_POINTER;
+	// TODO set pszValue to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	switch (what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// TODO really?
+		return IAccessible_get_accValue(TA->std, varChild, pszValue);
+	case ROLE_SYSTEM_ROW:
+		// TODO
+		return DISP_E_MEMBERNOTFOUND;
+	case ROLE_SYSTEM_CELL:
+		switch (TA->t->columnTypes[what.column]) {
+		case tableColumnText:
+			text = getCellText(TA->t, what.row, what.column);
+			// TODO check for error
+			*pszValue = SysAllocString(text);
+			returnCellData(TA->t, what.row, what.column, text);
+			return S_OK;
+		case tableColumnImage:
+			// TODO
+			return DISP_E_MEMBERNOTFOUND;
+		case tableColumnCheckbox:
+			// TODO!!!!!!
+			return DISP_E_MEMBERNOTFOUND;
+		}
 	}
-	return IAccessible_get_accValue(TA->std, varChild, pszValue);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, VARIANT varChild, BSTR *pszDescription)
@@ -891,22 +942,40 @@ static HRESULT STDMETHODCALLTYPE tableAccaccDoDefaultAction(IAccessible *this, V
 	return DISP_E_MEMBERNOTFOUND;
 }
 
+// inconsistencies, inconsistencies
+// https://msdn.microsoft.com/en-us/library/windows/desktop/dd318491%28v=vs.85%29.aspx says to just return E_NOTIMPL and not even bother with an implementation; in fact it doesn't even *have* the documentation anymore
+// http://blogs.msdn.com/b/saraford/archive/2004/08/20/which-controls-support-which-msaa-properties-and-how-these-controls-implement-msaa-properties.aspx says never to return E_NOTIMPL from an IAccessible method (but it also discounts RPC_E_DISCONNECTED (not explicitly), so I'm guessing this is a much older document)
+// let's just do what our put_accValue() does and do full validation, then just return DISP_E_MEMBERNOTFOUND
+// I really hope UI Automation isn't so ambiguous and inconsistent... too bad I'm still choosing to support Windows XP while its market share (compared to *every other OS ever*) is still as large as it is
 static HRESULT STDMETHODCALLTYPE tableAccput_accName(IAccessible *this, VARIANT varChild, BSTR szName)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_put_accName(TA->std, varChild, szName);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// don't support setting values anyway; do return the above errors just to be safe
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccput_accValue(IAccessible *this, VARIANT varChild, BSTR szValue)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-	return IAccessible_put_accValue(TA->std, varChild, szValue);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	// don't support setting values anyway; do return the above errors just to be safe
+	// TODO defer ROW_SYSTEM_TABLE to the standard accessible object?
+	return DISP_E_MEMBERNOTFOUND;
 }
 
 static const IAccessibleVtbl tableAccVtbl = {

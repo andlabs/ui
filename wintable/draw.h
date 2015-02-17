@@ -1,6 +1,14 @@
 // 8 december 2014
 
 // TODO move to api.h? definitely move somewhere
+static WCHAR *getCellText(struct table *t, intptr_t row, intptr_t column)
+{
+	return (WCHAR *) notify(t, tableNotificationGetCellData, row, column, 0);
+}
+static void returnCellData(struct table *t, intptr_t row, intptr_t column, void *what)
+{
+	notify(t, tableNotificationFinishedWithCellData, row, column, (uintptr_t) what);
+}
 static int isCheckboxChecked(struct table *t, intptr_t row, intptr_t column)
 {
 	return notify(t, tableNotificationGetCellData, row, column, 0) != 0;
@@ -25,10 +33,10 @@ static void drawTextCell(struct table *t, HDC dc, struct drawCellParams *p, RECT
 		panic("error setting Table cell text color");
 	if (SetBkMode(dc, TRANSPARENT) == 0)
 		panic("error setting transparent text drawing mode for Table cell");
-	text = (WCHAR *) notify(t, tableNotificationGetCellData, p->row, p->column, 0);
+	text = getCellText(t, p->row, p->column);
 	if (DrawTextExW(dc, text, -1, r, DT_END_ELLIPSIS | DT_LEFT | DT_NOPREFIX | DT_SINGLELINE, NULL) == 0)
 		panic("error drawing Table cell text");
-	notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) text);
+	returnCellData(t, p->row, p->column, text);
 }
 
 static void drawImageCell(struct table *t, HDC dc, struct drawCellParams *p, RECT *r)
@@ -70,7 +78,7 @@ static void drawImageCell(struct table *t, HDC dc, struct drawCellParams *p, REC
 	if (DeleteDC(idc) == 0)
 		panic("error deleting Table compatible DC for image cell drawing");
 
-	notify(t, tableNotificationFinishedWithCellData, p->row, p->column, (uintptr_t) bitmap);
+	returnCellData(t, p->row, p->column, bitmap);
 }
 
 static void drawCheckboxCell(struct table *t, HDC dc, struct drawCellParams *p, RECT *r)
