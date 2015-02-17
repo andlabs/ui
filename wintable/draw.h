@@ -1,5 +1,11 @@
 // 8 december 2014
 
+// TODO move to api.h? definitely move somewhere
+static int isCheckboxChecked(struct table *t, intptr_t row, intptr_t column)
+{
+	return notify(t, tableNotificationGetCellData, row, column, 0) != 0;
+}
+
 struct drawCellParams {
 	intptr_t row;
 	intptr_t column;
@@ -74,7 +80,7 @@ static void drawCheckboxCell(struct table *t, HDC dc, struct drawCellParams *p, 
 
 	toCheckboxRect(t, r, p->xoff);
 	cbState = 0;
-	if (notify(t, tableNotificationGetCellData, p->row, p->column, 0) != 0)
+	if (isCheckboxChecked(t, p->row, p->column))
 		cbState |= checkboxStateChecked;
 	if (t->checkboxMouseDown)
 		if (p->row == t->checkboxMouseDownRow && p->column == t->checkboxMouseDownColumn)

@@ -366,13 +366,53 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT 
 	return S_OK;
 }
 
+// TODO reason about STATE_SYSTEM_INVISIBLE and STATE_SYSTEM_OFFSCREEN
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+	LONG state;
+
+	if (pvarState == NULL)
+		return E_POINTER;
+	pvarState->vt = VT_EMPTY;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+
+	state = 0;
+	switch (what.role) {
+	case ROLE_SYSTEM_TABLE:
+		hr = IAccessible_get_accState(TA->std, varChild, pvarState);
+		if (hr != S_OK)
+			return hr;
+		// TODO make sure pvarState->vt == VT_I4 (what to return otherwise?)
+		state |= pvarState->lVal;
+		break;
+	case ROLE_SYSTEM_ROW:
+		state |= STATE_SYSTEM_SELECTABLE;
+		if (TA->t->selectedRow == what.row)
+			state |= STATE_SYSTEM_SELECTED;
+		break;
+	case ROLE_SYSTEM_CELL:
+		if (TA->t->columnTypes[what.column] == tableColumnCheckbox) {
+			// TODO is there no STATE_SYSTEM_CHECKABLE?
+			if (isCheckboxChecked(TA->t, what.row, what.column))
+				state |= STATE_SYSTEM_CHECKED;
+		}
+		state |= STATE_SYSTEM_FOCUSABLE;
+		if (TA->t->selectedRow == what.row && TA->t->selectedColumn == what.column)
+			state |= STATE_SYSTEM_FOCUSED;
+		if (TA->t->columnTypes[what.column] != tableColumnCheckbox)
+			state |= STATE_SYSTEM_READONLY;
+		break;
 	}
-	return IAccessible_get_accState(TA->std, varChild, pvarState);
+	pvarState->vt = VT_I4;
+	pvarState->lVal = state;
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accHelp(IAccessible *this, VARIANT varChild, BSTR *pszHelp)
