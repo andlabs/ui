@@ -349,17 +349,21 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accDescription(IAccessible *this, V
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accRole(IAccessible *this, VARIANT varChild, VARIANT *pvarRole)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	HRESULT hr;
+	tableAccWhat what;
+
+	if (pvarRole == NULL)
+		return E_POINTER;
+	pvarRole->vt = VT_EMPTY;
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
-	}
-//TODO
-if (pvarRole == NULL)
-return E_POINTER;
-pvarRole->vt = VT_I4;
-pvarRole->lVal = TA->what.role;
-return S_OK;
-	return IAccessible_get_accRole(TA->std, varChild, pvarRole);
+	what = TA->what;
+	hr = normalizeWhat(TA, varChild, &what);
+	if (hr != S_OK)
+		return hr;
+	pvarRole->vt = VT_I4;
+	pvarRole->lVal = what.role;
+	return S_OK;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accState(IAccessible *this, VARIANT varChild, VARIANT *pvarState)
