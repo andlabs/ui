@@ -191,11 +191,28 @@ static HRESULT STDMETHODCALLTYPE tableAccInvoke(IAccessible *this, DISPID dispId
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accParent(IAccessible *this, IDispatch **ppdispParent)
 {
-	if (TA->t == NULL || TA->std == NULL) {
-		// TODO set values on error
+	if (ppdispParent == NULL)
+		return E_POINTER;
+	// TODO set ppdispParent to zero?
+	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
+	// TODO check if row/column is still valid
+	switch (TA->what.role) {
+	case ROLE_SYSTEM_TABLE:
+		// defer to standard accessible object
+		// TODO [EDGE CASE/POOR DOCUMENTATION?] https://msdn.microsoft.com/en-us/library/ms971325 says "Returns the IDispatch interface of the Table object."; isn't that just returning self?
+		return IAccessible_get_accParent(TA->std, ppdispParent);
+	case ROLE_SYSTEM_ROW:
+		*ppdispParent = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_TABLE, -1, -1);
+		return S_OK;
+	case ROLE_SYSTEM_CELL:
+		*ppdispParent = (IDispatch *) newTableAcc(TA->t, ROLE_SYSTEM_ROW, TA->what.row, -1);
+		return S_OK;
 	}
-	return IAccessible_get_accParent(TA->std, ppdispParent);
+	// TODO actually do this right
+	// TODO un-GetLastError() this
+	panic("impossible blah blah blah TODO write this");
+	return E_FAIL;
 }
 
 static HRESULT STDMETHODCALLTYPE tableAccget_accChildCount(IAccessible *this, long *pcountChildren)
@@ -278,6 +295,7 @@ static HRESULT STDMETHODCALLTYPE tableAccget_accName(IAccessible *this, VARIANT 
 
 	if (pszName == NULL)
 		return E_POINTER;
+	// TODO double-check that this must be set to zero
 	*pszName = NULL;
 	if (TA->t == NULL || TA->std == NULL)
 		return RPC_E_DISCONNECTED;
