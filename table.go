@@ -10,7 +10,7 @@ import (
 
 // Table is a Control that displays a list of like-structured data in a grid where each row represents an item and each column represents a bit of data.
 // Tables store and render a slice of struct values.
-// Each field of the struct of type ImageIndex is rendered as an icon from the Table's ImageList.
+// Each field of the struct of type *image.RGBA is rendered as an icom.
 // Each field whose type is bool or equivalent to bool is rendered as a checkbox.
 // All other fields are rendered as strings formatted with package fmt's %v format specifier.
 //
@@ -36,10 +36,6 @@ type Table interface {
 	// The returned value will contain an object of type pointer to slice of some structure; use a type assertion to get the properly typed object out.
 	// Do not call this outside a Lock()..Unlock() or RLock()..RUnlock() pair.
 	Data() interface{}
-
-	// LoadImageList loads the given ImageList into the Table.
-	// This function copies; changes to the ImageList made later will not be reflected by the Table.
-	LoadImageList(imagelist ImageList)
 
 	// Selected and Select get and set the currently selected item in the Table.
 	// Selected returns -1 if no item is selected.

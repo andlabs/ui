@@ -67,7 +67,6 @@ type testwin struct {
 	openbtn    Button
 	fnlabel    Label
 	icons      []icon
-	il         ImageList
 	icontbl    Table
 	group2     Group
 	group      Group
@@ -185,7 +184,7 @@ func (tw *testwin) make(done chan struct{}) {
 		tw.roro.SetText(tw.roenter.Text())
 	})
 	tw.t.Append("Read-Only", newVerticalStack(tw.roenter, tw.roro))
-	tw.icons, tw.il = readIcons() // repainter uses these
+	tw.icons = readIcons() // repainter uses these
 	tw.repainter = newRepainter(15)
 	tw.t.Append("Repaint", tw.repainter.grid)
 	tw.addfe()
@@ -194,7 +193,6 @@ func (tw *testwin) make(done chan struct{}) {
 	idq := tw.icontbl.Data().(*[]icon)
 	*idq = tw.icons
 	tw.icontbl.Unlock()
-	tw.icontbl.LoadImageList(tw.il)
 	tw.icontbl.OnSelected(func() {
 		s := fmt.Sprintf("%d ", tw.icontbl.Selected())
 		tw.icontbl.RLock()

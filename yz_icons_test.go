@@ -12,15 +12,14 @@ import (
 
 type icon struct {
 	Bool bool
-	Icon ImageIndex
+	Icon *image.RGBA
 	Name string
 }
 
 var firstimg *image.RGBA
 
-func readIcons() ([]icon, ImageList) {
+func readIcons() []icon {
 	out := make([]icon, len(icons))
-	outil := NewImageList()
 	for i := range icons {
 		r := bytes.NewReader(icons[i].data)
 		png, _, err := image.Decode(r)
@@ -32,11 +31,10 @@ func readIcons() ([]icon, ImageList) {
 		if firstimg == nil {
 			firstimg = img
 		}
-		out[i].Icon = ImageIndex(i)
+		out[i].Icon = img
 		out[i].Name = icons[i].name
-		outil.Append(img)
 	}
-	return out, outil
+	return out
 }
 
 func tileImage(times int) *image.RGBA {
