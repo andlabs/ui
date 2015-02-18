@@ -38,6 +38,8 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	t.chainresize = t.fresize
 	t.fresize = t.xresize
 	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
+	// TODO listview didn't need this; someone mentioned (TODO) it uses the small caption font???
+	C.controlSetControlFont(t.hwnd)
 	for i := 0; i < ty.NumField(); i++ {
 		coltype := C.WPARAM(C.tableColumnText)
 		switch {
