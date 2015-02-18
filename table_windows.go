@@ -92,7 +92,9 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) C.LRESULT {
 	isText := true
 	switch {
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
-		bitmap := unsafe.Pointer(C.toBitmap(xxxxx TODO xxxx))
+		i := datum.Interface().(*image.RGBA)
+		hbitmap := C.toBitmap(unsafe.Pointer(i), C.intptr_t(i.Dx()), C.intptr_t(i.Dy()))
+		bitmap := unsafe.Pointer(hbitmap)
 		t.freeLock.Lock()
 		t.free[bitmap] = true		// bitmap freed with C.freeBitmap()
 		t.freeLock.Unlock()
@@ -124,7 +126,7 @@ func tableFreeData(gotable unsafe.Pointer, data unsafe.Pointer) {
 	if b == false {
 		C.free(data)
 	} else {
-		// TODO
+		C.freeBitmap(data)
 	}
 	delete(t.free, data)
 }
