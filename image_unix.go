@@ -13,19 +13,11 @@ import (
 // #include "gtk_unix.h"
 import "C"
 
-type imagelist struct {
-	list []*C.GdkPixbuf
-}
-
-func newImageList() ImageList {
-	return new(imagelist)
-}
-
 // this is what GtkFileChooserWidget uses
 // technically it uses max(width from that, height from that) if the call below fails and 16x16 otherwise, but we won't worry about that here (yet?)
 const scaleTo = C.GTK_ICON_SIZE_MENU
 
-func (i *imagelist) Append(img *image.RGBA) {
+func toIconSizedGdkPixbuf(img *image.RGBA) *C.GdkPixbuf {
 	var width, height C.gint
 
 	surface := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32,
@@ -59,20 +51,7 @@ func (i *imagelist) Append(img *image.RGBA) {
 		panic(fmt.Errorf("gdk_pixbuf_scale_simple() failed in ImageList.Append() (no reason available)"))
 	}
 
-	i.list = append(i.list, pixbuf)
 	C.g_object_unref(C.gpointer(unsafe.Pointer(basepixbuf)))
 	C.cairo_surface_destroy(surface)
-}
-
-func (i *imagelist) Len() ImageIndex {
-	return ImageIndex(len(i.list))
-}
-
-type imageListApply interface {
-	apply(*[]*C.GdkPixbuf)
-}
-
-func (i *imagelist) apply(out *[]*C.GdkPixbuf) {
-	*out = make([]*C.GdkPixbuf, len(i.list))
-	copy(*out, i.list)
+	return pixbuf
 }
