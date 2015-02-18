@@ -123,6 +123,7 @@ func dotoARGB(img unsafe.Pointer, ppvBits unsafe.Pointer, toNRGBA C.BOOL) {
 	i := (*image.RGBA)(unsafe.Pointer(img))
 	t := toNRGBA != C.FALSE
 	// the bitmap Windows gives us has a stride == width
+	// TODO use GetObject() and get the stride from the resultant BITMAP to be *absolutely* sure
 	toARGB(i, uintptr(ppvBits), i.Rect.Dx()*4, t)
 }
 
