@@ -40,10 +40,9 @@ func toIconSizedGdkPixbuf(img *image.RGBA) *C.GdkPixbuf {
 		panic(fmt.Errorf("gtk_icon_size_lookup() failed in ImageList.Append() (no reason available)"))
 	}
 	if int(width) == img.Rect.Dx() && int(height) == img.Rect.Dy() {
-		// just add the base pixbuf; we're good
-		i.list = append(i.list, basepixbuf)
+		// just return the base pixbuf; we're good
 		C.cairo_surface_destroy(surface)
-		return
+		return basepixbuf
 	}
 	// else scale
 	pixbuf := C.gdk_pixbuf_scale_simple(basepixbuf, C.int(width), C.int(height), C.GDK_INTERP_NEAREST)

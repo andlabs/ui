@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"unsafe"
+	"image"
 )
 
 // #include "gtk_unix.h"
@@ -24,8 +25,6 @@ type table struct {
 	model     *C.goTableModel
 	modelgtk  *C.GtkTreeModel
 	selection *C.GtkTreeSelection
-
-	pixbufs []*C.GdkPixbuf
 
 	selected *event
 
@@ -64,7 +63,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	for i := 0; i < ty.NumField(); i++ {
 		cname := togstr(ty.Field(i).Name)
 		switch {
-		case ty.Field(i).Type == reflect.TypeOf(ImageIndex(0)):
+		case ty.Field(i).Type == reflect.TypeOf((*image.RGBA)(nil)):
 			// can't use GDK_TYPE_PIXBUF here because it's a macro that expands to a function and cgo hates that
 			t.types = append(t.types, C.gdk_pixbuf_get_type())
 			C.tableAppendColumn(t.treeview, C.gint(i), cname,
@@ -111,10 +110,6 @@ func (t *table) Unlock() {
 			C.tableUpdate(t.model, t.old, new)
 		})
 	}()
-}
-
-func (t *table) LoadImageList(i ImageList) {
-	i.apply(&t.pixbufs)
 }
 
 func (t *table) Selected() int {
@@ -172,10 +167,13 @@ func goTableModel_do_get_value(data unsafe.Pointer, row C.gint, col C.gint, valu
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	switch {
-	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
-		d := datum.Interface().(ImageIndex)
+	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
+		d := datum.Interface().(*image.RGBA)
+		pixbuf := toIconSizedGdkPixbuf(d)
 		C.g_value_init(value, C.gdk_pixbuf_get_type())
-		C.g_value_set_object(value, C.gpointer(unsafe.Pointer(t.pixbufs[d])))
+		object := C.gpointer(unsafe.Pointer(pixbuf))
+		// use g_value_take_object() so the GtkTreeView becomes the pixbuf's owner
+		C.g_value_take_object(value, object)
 	case datum.Kind() == reflect.Bool:
 		d := datum.Interface().(bool)
 		C.g_value_init(value, C.G_TYPE_BOOLEAN)
