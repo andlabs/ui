@@ -28,7 +28,7 @@ HBITMAP toBitmap(void *i, intptr_t dx, intptr_t dy)
 	return bitmap;
 }
 
-void freeBitmap(void *bitmap)
+void freeBitmap(uintptr_t bitmap)
 {
 	if (DeleteObject((HBITMAP) bitmap) == 0)
 		xpanic("error deleting bitmap in freeBitmap()", GetLastError());

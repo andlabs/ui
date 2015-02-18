@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"unsafe"
 	"sync"
+	"image"
 )
 
 // #include "winapi_windows.h"
@@ -19,7 +20,7 @@ type table struct {
 	colcount   C.int
 	selected   *event
 	chainresize		func(x int, y int, width int, height int, d *sizing)
-	freeTexts		map[C.uintptr_t]bool
+	free			map[C.uintptr_t]bool
 	freeLock		sync.Mutex
 }
 
@@ -39,7 +40,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
 		coltype := C.WPARAM(C.tableColumnText)
-		switch ty.Field(i).Type {
+		switch {
 		case ty.Field(i).Type == reflect.TypeOf((*image.RGBA)(nil)):
 			coltype = C.tableColumnImage
 		case ty.Field(i).Type.Kind() == reflect.Bool:
@@ -89,16 +90,15 @@ func tableGetCell(data unsafe.Pointer, tnm *C.tableNM) C.LRESULT {
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(tnm.row)).Field(int(tnm.column))
-	isText := true
 	switch {
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
 		i := datum.Interface().(*image.RGBA)
-		hbitmap := C.toBitmap(unsafe.Pointer(i), C.intptr_t(i.Dx()), C.intptr_t(i.Dy()))
+		hbitmap := C.toBitmap(unsafe.Pointer(i), C.intptr_t(i.Rect.Dx()), C.intptr_t(i.Rect.Dy()))
 		bitmap := C.uintptr_t(uintptr(unsafe.Pointer(hbitmap)))
 		t.freeLock.Lock()
 		t.free[bitmap] = true		// bitmap freed with C.freeBitmap()
 		t.freeLock.Unlock()
-		return C.LRESULT(bmp)
+		return C.LRESULT(bitmap)
 	case datum.Kind() == reflect.Bool:
 		if datum.Bool() == true {
 			return C.TRUE
@@ -124,7 +124,7 @@ func tableFreeCellData(gotable unsafe.Pointer, data C.uintptr_t) {
 		panic(fmt.Errorf("undefined data %p in tableFreeData()", data))
 	}
 	if b == false {
-		C.free(data)
+		C.free(unsafe.Pointer(uintptr(data)))
 	} else {
 		C.freeBitmap(data)
 	}

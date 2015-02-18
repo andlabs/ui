@@ -131,7 +131,7 @@ extern void areaMarkTextFieldDone(HWND);
 
 // image_windows.c
 extern HBITMAP toBitmap(void *, intptr_t, intptr_t);
-extern void freeBitmap(void *);
+extern void freeBitmap(uintptr_t);
 
 // dialog_windows.c
 extern void openFile(HWND, void *);
