@@ -128,11 +128,9 @@ extern HWND newAreaTextField(HWND, void *);
 extern void areaOpenTextField(HWND, HWND, int, int, int, int);
 extern void areaMarkTextFieldDone(HWND);
 
-// imagelist_windows.c
-extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
-extern HIMAGELIST newImageList(int, int);
-extern void addImage(HIMAGELIST, HWND, HBITMAP, int, int, int, int);
-extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST, HIMAGELIST);
+// image_windows.c
+extern HBITMAP toBitmap(void *, intptr_t, intptr_t);
+extern void freeBitmap(void *);
 
 // dialog_windows.c
 extern void openFile(HWND, void *);
