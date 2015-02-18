@@ -90,7 +90,6 @@ func tableGetCell(data unsafe.Pointer, tnm *C.tableNM) C.LRESULT {
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
-fmt.Printf("%#v\n", *tnm)
 	datum := d.Index(int(tnm.row)).Field(int(tnm.column))
 	switch {
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):

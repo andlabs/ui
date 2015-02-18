@@ -19,6 +19,10 @@ static void scrollto(struct table *t, int which, struct scrollParams *p, intptr_
 		pos = 0;
 	if (pos > p->length - p->pagesize)
 		pos = p->length - p->pagesize;
+	// TODO this shouldn't have been necessary but alas
+	// TODO the logic is really intended for the whole y origin thing in the scrollbar series; fix that
+	if (pos < 0)
+		pos = 0;
 
 	// we don't want to scroll the header
 	if (GetClientRect(t->hwnd, &scrollArea) == 0)

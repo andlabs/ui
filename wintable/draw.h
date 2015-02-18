@@ -166,7 +166,6 @@ static void draw(struct table *t, HDC dc, RECT cliprect, RECT client)
 	p.xoff = SendMessageW(t->header, HDM_GETBITMAPMARGIN, 0, 0);
 
 	p.y = client.top;
-printf("%d %d\n", t->vscrollpos, t->count);
 	for (i = t->vscrollpos; i < t->count; i++) {
 		p.row = i;
 		p.x = client.left - t->hscrollpos;
