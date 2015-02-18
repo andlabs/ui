@@ -16,6 +16,8 @@
 // - checkbox columns don't clip to the column width
 // - send standard notification codes
 // - seriously figure out how we're going to update everything about the table in one place
+// - redraw on focus change
+// - draw themed WS_EX_CLIENTEDGE (and WS_EX_WINDOWEDGE?)
 
 #include "includethis.h"
 
