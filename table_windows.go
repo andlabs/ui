@@ -62,7 +62,7 @@ func (t *table) Unlock() {
 		Do(func() {
 			t.RLock()
 			defer t.RUnlock()
-			C.SendMessageW(t.hwnd, C.tableSetRowCount, 0, C.LPARAM(C.intptr_t(reflect.Indirect(reflect.ValueOf(t.data)).Len())))
+			C.gotableSetRowCount(t.hwnd, C.intptr_t(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
 		})
 	}()
 }
@@ -90,6 +90,7 @@ func tableGetCell(data unsafe.Pointer, tnm *C.tableNM) C.LRESULT {
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
+fmt.Printf("%#v\n", *tnm)
 	datum := d.Index(int(tnm.row)).Field(int(tnm.column))
 	switch {
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):

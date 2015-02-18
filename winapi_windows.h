@@ -110,6 +110,7 @@ extern void tabLeaveChildren(HWND);
 extern LPWSTR xtableWindowClass;
 extern void doInitTable(void);
 extern void setTableSubclass(HWND, void *);
+extern void gotableSetRowCount(HWND, intptr_t);
 /* TODO
 extern void tableAutosizeColumns(HWND, int);
 extern intptr_t tableSelectedItem(HWND);

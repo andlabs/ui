@@ -57,6 +57,12 @@ void setTableSubclass(HWND hwnd, void *data)
 		xpanic("error subclassing Table to give it its own event handler", GetLastError());
 }
 
+// TODO rename all of these functions to start with gotable, and all the exported ones in Go too
+void gotableSetRowCount(HWND hwnd, intptr_t count)
+{
+	SendMessageW(hwnd, tableSetRowCount, 0, (LPARAM) (&count));
+}
+
 void tableAutosizeColumns(HWND hwnd, int nColumns)
 {
 	int i;
