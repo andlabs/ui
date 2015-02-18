@@ -13,6 +13,9 @@ import "C"
 On Windows, container controls are just regular controls that notify their parent when the user wants to do things; changing the contents of a switching container (such as a tab control) must be done manually.
 */
 
+// TODO FIGURE OUT HOW OR WHY THIS IS PARTIALLY MARGINED WTF
+// it's probably something I did a while ago and forgot but still wow
+
 type tab struct {
 	*controlSingleHWND
 	children		[]Control
