@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"unsafe"
+	"sync"
 )
 
 // #include "winapi_windows.h"
@@ -16,38 +17,36 @@ type table struct {
 	*controlSingleHWND
 	noautosize bool
 	colcount   C.int
-	hotrow     C.int
-	hotcol     C.int
-	pushedrow  C.int
-	pushedcol  C.int
 	selected   *event
 	chainresize		func(x int, y int, width int, height int, d *sizing)
+	freeTexts		map[unsafe.Pointer]bool
+	freeLock		sync.Mutex
 }
 
 func finishNewTable(b *tablebase, ty reflect.Type) Table {
-	hwnd := C.newControl(C.xWC_LISTVIEW,
-		C.LVS_REPORT|C.LVS_OWNERDATA|C.LVS_NOSORTHEADER|C.LVS_SHOWSELALWAYS|C.LVS_SINGLESEL|C.WS_HSCROLL|C.WS_VSCROLL|C.WS_TABSTOP,
+	hwnd := C.newControl(C.xtableWindowClass,
+		C.WS_HSCROLL|C.WS_VSCROLL|C.WS_TABSTOP,
 		C.WS_EX_CLIENTEDGE)		// WS_EX_CLIENTEDGE without WS_BORDER will show the canonical visual styles border (thanks to MindChild in irc.efnet.net/#winprog)
 	t := &table{
 		controlSingleHWND:		newControlSingleHWND(hwnd),
 		tablebase: b,
-		hotrow:    -1,
-		hotcol:    -1,
-		pushedrow: -1,
-		pushedcol: -1,
 		selected:  newEvent(),
+		free:		make(map[unsafe.Pointer]bool),
 	}
 	t.fpreferredSize = t.xpreferredSize
 	t.chainresize = t.fresize
 	t.fresize = t.xresize
 	C.setTableSubclass(t.hwnd, unsafe.Pointer(t))
-	// LVS_EX_FULLROWSELECT gives us selection across the whole row, not just the leftmost column; this makes the list view work like on other platforms
-	// LVS_EX_SUBITEMIMAGES gives us images in subitems, which will be important when both images and checkboxes are added
-	C.tableAddExtendedStyles(t.hwnd, C.LVS_EX_FULLROWSELECT|C.LVS_EX_SUBITEMIMAGES)
-	// this must come after the subclass because it uses one of our private messages
-	C.SendMessageW(t.hwnd, C.msgTableMakeInitialCheckboxImageList, 0, 0)
 	for i := 0; i < ty.NumField(); i++ {
-		C.tableAppendColumn(t.hwnd, C.int(i), toUTF16(ty.Field(i).Name))
+		coltype := C.WPARAM(C.tableColumnText)
+		switch ty.Field(i).Type {
+		case ty.Field(i).Type == reflect.TypeOf((*image.RGBA)(nil)):
+			coltype = C.tableColumnImage
+		case ty.Field(i).Type.Kind() == reflect.Bool:
+			coltype = C.tableColumnCheckbox
+		}
+		colname := toUTF16(ty.Field(i).Name)
+		C.SendMessageW(t.hwnd, C.tableAddColumn, coltype, C.LPARAM(uintptr(unsafe.Pointer(colname))))
 	}
 	t.colcount = C.int(ty.NumField())
 	return t
@@ -61,25 +60,22 @@ func (t *table) Unlock() {
 		Do(func() {
 			t.RLock()
 			defer t.RUnlock()
-			C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
+			C.SendMessageW(t.hwnd, C.tableSetRowCount, 0, C.LPARAM(C.intptr_t(reflect.Indirect(reflect.ValueOf(t.data)).Len())))
 		})
 	}()
-}
-
-func (t *table) LoadImageList(il ImageList) {
-	il.apply(t.hwnd, C.msgLoadImageList)
 }
 
 func (t *table) Selected() int {
 	t.RLock()
 	defer t.RUnlock()
-	return int(C.tableSelectedItem(t.hwnd))
+//TODO	return int(C.tableSelectedItem(t.hwnd))
+	return -1
 }
 
 func (t *table) Select(index int) {
 	t.RLock()
 	defer t.RUnlock()
-	C.tableSelectItem(t.hwnd, C.intptr_t(index))
+//TODO	C.tableSelectItem(t.hwnd, C.intptr_t(index))
 }
 
 func (t *table) OnSelected(f func()) {
@@ -87,60 +83,50 @@ func (t *table) OnSelected(f func()) {
 }
 
 //export tableGetCell
-func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) {
+func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) C.LRESULT {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
 	isText := true
-	if item.mask&C.LVIF_IMAGE != 0 {
-		if datum.Type() == reflect.TypeOf(ImageIndex(0)) {
-			item.iImage = C.int(datum.Interface().(ImageIndex))
-			isText = false
+	switch {
+	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
+		bitmap := unsafe.Pointer(C.toBitmap(xxxxx TODO xxxx))
+		t.freeLock.Lock()
+		t.free[bitmap] = true		// bitmap freed with C.freeBitmap()
+		t.freeLock.Unlock()
+		return C.LRESULT(uintptr(bmp))
+	case datum.Kind() == reflect.Bool:
+		if datum.Bool() == true {
+			return C.TRUE
 		}
-		// else let the default behavior work
+		return C.FALSE
+	default:
+		s := fmt.Sprintf("%v", datum)
+		text := unsafe.Pointer(toUTF16(s))
+		t.freeLock.Lock()
+		t.free[text] = false		// text freed with C.free()
+		t.freeLock.Unlock()
+		return C.LRESULT(uintptr(text))
 	}
-	if item.mask&C.LVIF_INDENT != 0 {
-		// always have an indent of zero
-		item.iIndent = 0
+}
+
+//export tableFreeData
+func tableFreeData(gotable unsafe.Pointer, data unsafe.Pointer) {
+	t := (*table)(gotable)
+	t.freeLock.Lock()
+	defer t.freeLock.Unlock()
+	b, ok := t.free[data]
+	if !ok {
+		panic(fmt.Errorf("undefined data %p in tableFreeData()", data))
 	}
-	if item.mask&C.LVIF_STATE != 0 {
-		// start by not changing any state
-		item.stateMask = 0
-		if datum.Kind() == reflect.Bool {
-			item.stateMask = C.LVIS_STATEIMAGEMASK
-			// state image index is 1-based
-			curstate := ((item.state & C.LVIS_STATEIMAGEMASK) >> 12)
-			if curstate > 0 {
-				curstate--
-			}
-			if datum.Bool() == true {
-				curstate |= C.checkboxStateChecked
-			} else {
-				curstate &^= C.checkboxStateChecked
-			}
-			if item.iItem == t.hotrow && item.iSubItem == t.hotcol {
-				curstate |= C.checkboxStateHot
-			} else {
-				curstate &^= C.checkboxStateHot
-			}
-			if item.iItem == t.pushedrow && item.iSubItem == t.pushedcol {
-				curstate |= C.checkboxStatePushed
-			} else {
-				curstate &^= C.checkboxStatePushed
-			}
-			item.state = (curstate + 1) << 12
-			isText = false
-		}
+	if b == false {
+		C.free(data)
+	} else {
+		// TODO
 	}
-	if item.mask&C.LVIF_TEXT != 0 {
-		if isText {
-			s := fmt.Sprintf("%v", datum)
-			item.pszText = toUTF16(s)
-		}
-		// else let the default handler work
-	}
+	delete(t.free, data)
 }
 
 // the column autoresize policy is simple:
@@ -149,7 +135,7 @@ func (t *table) autoresize() {
 	t.RLock()
 	defer t.RUnlock()
 	if !t.noautosize {
-		C.tableAutosizeColumns(t.hwnd, t.colcount)
+//TODO		C.tableAutosizeColumns(t.hwnd, t.colcount)
 	}
 }
 
@@ -165,42 +151,11 @@ func tableColumnCount(data unsafe.Pointer) C.int {
 	return t.colcount
 }
 
-//export tableSetHot
-func tableSetHot(data unsafe.Pointer, row C.int, col C.int) {
-	t := (*table)(data)
-	redraw := (row != t.hotrow || col != t.hotcol)
-	t.hotrow = row
-	t.hotcol = col
-	if redraw {
-		C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
-	}
-}
-
-//export tablePushed
-func tablePushed(data unsafe.Pointer, row C.int, col C.int) {
-	t := (*table)(data)
-	t.pushedrow = row
-	t.pushedcol = col
-	C.tableUpdate(t.hwnd, C.int(reflect.Indirect(reflect.ValueOf(t.data)).Len()))
-}
-
 //export tableToggled
 func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
 	t := (*table)(data)
 	t.Lock()
-	defer func() {
-		// reset for next time
-		t.pushedrow = -1
-		t.pushedcol = -1
-		// and THEN unlock so the reset takes effect
-		t.Unlock()
-	}()
-	if row == -1 || col == -1 { // discard extras sent by handle() in table_windows.c
-		return
-	}
-	if row != t.pushedrow || col != t.pushedcol { // mouse moved out
-		return
-	}
+	defer t.Unlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	if datum.Kind() == reflect.Bool {

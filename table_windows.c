@@ -11,22 +11,20 @@ LPWSTR xtableWindowClass = tableWindowClass;
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
 {
 	NMHDR *nmhdr = (NMHDR *) lParam;
+	tableNM *tnm = (tableNM *) lParam;
 	void *gotable = (void *) data;
 
 	switch (uMsg) {
 	case msgNOTIFY:
 		switch (nmhdr->code) {
-		case LVN_GETDISPINFO:
-			tableGetCell(t->gotable, &(fill->item));
+		case tableNotificationGetCellData:
+			return tableGetCell(gotable, tnm);
+		case tableNotificationFinishedWithCellData:
+			tableFreeCellData(gotable, tnm->data);
 			return 0;
-		case LVN_ITEMCHANGED:
-			if ((nlv->uChanged & LVIF_STATE) == 0)
-				break;
-			// if both old and new states have the same value for the selected bit, then the selection state did not change, regardless of selected or deselected
-			if ((nlv->uOldState & LVIS_SELECTED) == (nlv->uNewState & LVIS_SELECTED))
-				break;
-			tableSelectionChanged(t->gotable);
-			return 0;
+		case tableNotificationCellCheckboxToggled:
+			// TODO
+		// TODO selection changed
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 /* TODO
