@@ -9,14 +9,14 @@ static HMODULE comctl32;
 BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
-HIMAGELIST (*WINAPI fv_ImageList_Create)(int, int, UINT, int, int);
-int (*WINAPI fv_ImageList_Add)(HIMAGELIST, HBITMAP, HBITMAP);
-BOOL (*WINAPI fv_ImageList_Destroy)(HIMAGELIST);
+
+// these are listed as WINAPI on MSDN
+BOOL (*WINAPI fv__TrackMouseEvent)(LPTRACKMOUSEEVENT);
 
 #define wantedICCClasses ( \
 	ICC_PROGRESS_CLASS |		/* progress bars */		\
 	ICC_TAB_CLASSES |			/* tabs */				\
-	ICC_LISTVIEW_CLASSES |		/* list views */			\
+	ICC_LISTVIEW_CLASSES |		/* table headers */		\
 	ICC_UPDOWN_CLASS |		/* spinboxes */		\
 	0)
 
@@ -119,12 +119,8 @@ DWORD initCommonControls(char **errmsg)
 	fv_RemoveWindowSubclass = (BOOL (*WINAPI)(HWND, SUBCLASSPROC, UINT_PTR)) f;
 	LOAD("DefSubclassProc");
 	fv_DefSubclassProc = (LRESULT (*WINAPI)(HWND, UINT, WPARAM, LPARAM)) f;
-	LOAD("ImageList_Create");
-	fv_ImageList_Create = (HIMAGELIST (*WINAPI)(int, int, UINT, int, int)) f;
-	LOAD("ImageList_Add");
-	fv_ImageList_Add = (int (*WINAPI)(HIMAGELIST, HBITMAP, HBITMAP)) f;
-	LOAD("ImageList_Destroy");
-	fv_ImageList_Destroy = (BOOL (*WINAPI)(HIMAGELIST)) f;
+	LOAD("_TrackMouseEvent");
+	fv__TrackMouseEvent = (HIMAGELIST (*WINAPI)(int, int, UINT, int, int)) f;
 
 	if ((*ficc)(&icc) == FALSE) {
 		*errmsg = "error initializing Common Controls (comctl32.dll)";

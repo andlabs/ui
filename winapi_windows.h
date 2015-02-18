@@ -41,9 +41,8 @@ extern DWORD initCommonControls(char **);
 extern BOOL (*WINAPI fv_SetWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR, DWORD_PTR);
 extern BOOL (*WINAPI fv_RemoveWindowSubclass)(HWND, SUBCLASSPROC, UINT_PTR);
 extern LRESULT (*WINAPI fv_DefSubclassProc)(HWND, UINT, WPARAM, LPARAM);
-extern HIMAGELIST (*WINAPI fv_ImageList_Create)(int, int, UINT, int, int);
-extern int (*WINAPI fv_ImageList_Add)(HIMAGELIST, HBITMAP, HBITMAP);
-extern BOOL (*WINAPI fv_ImageList_Destroy)(HIMAGELIST);
+// these are listed as WINAPI on MSDN
+extern BOOL (*WINAPI fv__TrackMouseEvent)(LPTRACKMOUSEEVENT);
 
 // control_windows.c
 extern HWND newControl(LPWSTR, DWORD, DWORD);
@@ -107,6 +106,7 @@ extern void tabEnterChildren(HWND);
 extern void tabLeaveChildren(HWND);
 
 // table_windows.go
+#include "wintable/includethis.h"
 extern LPWSTR xWC_LISTVIEW;
 extern void setTableSubclass(HWND, void *);
 extern void tableAppendColumn(HWND, int, LPWSTR);
@@ -134,13 +134,6 @@ extern HBITMAP unscaledBitmap(void *, intptr_t, intptr_t);
 extern HIMAGELIST newImageList(int, int);
 extern void addImage(HIMAGELIST, HWND, HBITMAP, int, int, int, int);
 extern void applyImageList(HWND, UINT, WPARAM, HIMAGELIST, HIMAGELIST);
-enum {
-	checkboxStateChecked = 1 << 0,
-	checkboxStateHot = 1 << 1,
-	checkboxStatePushed = 1 << 2,
-	checkboxnStates = 1 << 3,
-};
-extern HIMAGELIST makeCheckboxImageList(HWND, HTHEME *);
 
 // dialog_windows.c
 extern void openFile(HWND, void *);
