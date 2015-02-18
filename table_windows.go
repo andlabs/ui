@@ -48,6 +48,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		}
 		colname := toUTF16(ty.Field(i).Name)
 		C.SendMessageW(t.hwnd, C.tableAddColumn, coltype, C.LPARAM(uintptr(unsafe.Pointer(colname))))
+		// TODO free colname
 	}
 	t.colcount = C.int(ty.NumField())
 	return t
