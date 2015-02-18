@@ -1,5 +1,8 @@
 // 17 february 2015
 
+#ifndef __GO_UI_WINTABLE_INCLUDETHIS_H__
+#define __GO_UI_WINTABLE_INCLUDETHIS_H__
+
 #define tableWindowClass L"gouitable"
 
 // start at WM_USER + 20 just in case for whatever reason we ever get the various dialog manager messages (see also http://blogs.msdn.com/b/oldnewthing/archive/2003/10/21/55384.aspx)
@@ -51,3 +54,5 @@ struct tableNM {
 
 // TODO have hInstance passed in
 extern void initTable(void (*panicfunc)(const char *msg, DWORD lastError), BOOL (*WINAPI tme)(LPTRACKMOUSEEVENT));
+
+#endif

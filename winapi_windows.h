@@ -107,14 +107,13 @@ extern void tabLeaveChildren(HWND);
 
 // table_windows.go
 #include "wintable/includethis.h"
-extern LPWSTR xWC_LISTVIEW;
+extern LPWSTR xtableWindowClass;
 extern void setTableSubclass(HWND, void *);
-extern void tableAppendColumn(HWND, int, LPWSTR);
-extern void tableUpdate(HWND, int);
-extern void tableAddExtendedStyles(HWND, LPARAM);
+/* TODO
 extern void tableAutosizeColumns(HWND, int);
 extern intptr_t tableSelectedItem(HWND);
 extern void tableSelectItem(HWND, intptr_t);
+*/
 
 // container_windows.c
 extern RECT containerBounds(HWND);
