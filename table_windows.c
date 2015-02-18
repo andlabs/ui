@@ -28,7 +28,8 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			tableFreeCellData(gotable, tnm->data);
 			return 0;
 		case tableNotificationCellCheckboxToggled:
-			// TODO
+			tableToggled(gotable, tnm->row, tnm->column);
+			return 0;
 		// TODO selection changed
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);

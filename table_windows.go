@@ -19,7 +19,7 @@ type table struct {
 	colcount   C.int
 	selected   *event
 	chainresize		func(x int, y int, width int, height int, d *sizing)
-	freeTexts		map[unsafe.Pointer]bool
+	freeTexts		map[C.uintptr_t]bool
 	freeLock		sync.Mutex
 }
 
@@ -31,7 +31,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		controlSingleHWND:		newControlSingleHWND(hwnd),
 		tablebase: b,
 		selected:  newEvent(),
-		free:		make(map[unsafe.Pointer]bool),
+		free:		make(map[C.uintptr_t]bool),
 	}
 	t.fpreferredSize = t.xpreferredSize
 	t.chainresize = t.fresize
@@ -83,22 +83,22 @@ func (t *table) OnSelected(f func()) {
 }
 
 //export tableGetCell
-func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) C.LRESULT {
+func tableGetCell(data unsafe.Pointer, tnm *C.tableNM) C.LRESULT {
 	t := (*table)(data)
 	t.RLock()
 	defer t.RUnlock()
 	d := reflect.Indirect(reflect.ValueOf(t.data))
-	datum := d.Index(int(item.iItem)).Field(int(item.iSubItem))
+	datum := d.Index(int(tnm.row)).Field(int(tnm.column))
 	isText := true
 	switch {
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
 		i := datum.Interface().(*image.RGBA)
 		hbitmap := C.toBitmap(unsafe.Pointer(i), C.intptr_t(i.Dx()), C.intptr_t(i.Dy()))
-		bitmap := unsafe.Pointer(hbitmap)
+		bitmap := C.uintptr_t(uintptr(unsafe.Pointer(hbitmap)))
 		t.freeLock.Lock()
 		t.free[bitmap] = true		// bitmap freed with C.freeBitmap()
 		t.freeLock.Unlock()
-		return C.LRESULT(uintptr(bmp))
+		return C.LRESULT(bmp)
 	case datum.Kind() == reflect.Bool:
 		if datum.Bool() == true {
 			return C.TRUE
@@ -106,16 +106,16 @@ func tableGetCell(data unsafe.Pointer, item *C.LVITEMW) C.LRESULT {
 		return C.FALSE
 	default:
 		s := fmt.Sprintf("%v", datum)
-		text := unsafe.Pointer(toUTF16(s))
+		text := C.uintptr_t(uintptr(unsafe.Pointer(toUTF16(s))))
 		t.freeLock.Lock()
 		t.free[text] = false		// text freed with C.free()
 		t.freeLock.Unlock()
-		return C.LRESULT(uintptr(text))
+		return C.LRESULT(text)
 	}
 }
 
-//export tableFreeData
-func tableFreeData(gotable unsafe.Pointer, data unsafe.Pointer) {
+//export tableFreeCellData
+func tableFreeCellData(gotable unsafe.Pointer, data C.uintptr_t) {
 	t := (*table)(gotable)
 	t.freeLock.Lock()
 	defer t.freeLock.Unlock()
@@ -154,7 +154,7 @@ func tableColumnCount(data unsafe.Pointer) C.int {
 }
 
 //export tableToggled
-func tableToggled(data unsafe.Pointer, row C.int, col C.int) {
+func tableToggled(data unsafe.Pointer, row C.intptr_t, col C.intptr_t) {
 	t := (*table)(data)
 	t.Lock()
 	defer t.Unlock()
