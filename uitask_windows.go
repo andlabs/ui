@@ -36,6 +36,8 @@ func uiinit() error {
 	if err := makeAreaWindowClass(); err != nil {
 		return fmt.Errorf("error creating Area window class: %v", err)
 	}
+	// this depends on the common controls having been initialized already
+	C.doInitTable()
 	return nil
 }
 

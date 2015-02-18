@@ -108,6 +108,7 @@ extern void tabLeaveChildren(HWND);
 // table_windows.go
 #include "wintable/includethis.h"
 extern LPWSTR xtableWindowClass;
+extern void doInitTable(void);
 extern void setTableSubclass(HWND, void *);
 /* TODO
 extern void tableAutosizeColumns(HWND, int);
