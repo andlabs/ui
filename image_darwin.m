@@ -5,7 +5,7 @@
 
 #define toNSInteger(x) ((NSInteger) (x))
 
-id toImageListImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride)
+id toTableImage(void *pixels, intptr_t width, intptr_t height, intptr_t stride)
 {
 	NSBitmapImageRep *bitmap;
 	NSImage *image;
@@ -26,5 +26,6 @@ id toImageListImage(void *pixels, intptr_t width, intptr_t height, intptr_t stri
 	memcpy((void *) [bitmap bitmapData], pixels, [bitmap bytesPerPlane]);
 	image = [[NSImage alloc] initWithSize:NSMakeSize((CGFloat) width, (CGFloat) height)];
 	[image addRepresentation:bitmap];
+	// TODO release bitmap?
 	return (id) image;
 }

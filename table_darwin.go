@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"unsafe"
+	"image"
 )
 
 // #include "objc_darwin.h"
@@ -16,7 +17,6 @@ type table struct {
 
 	*scroller
 
-	images   []C.id
 	selected *event
 }
 
@@ -35,7 +35,7 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		coltype := C.colTypeText
 		editable := false
 		switch {
-		case ty.Field(i).Type == reflect.TypeOf(ImageIndex(0)):
+		case ty.Field(i).Type == reflect.TypeOf((*image.RGBA)(nil)):
 			coltype = C.colTypeImage
 		case ty.Field(i).Type.Kind() == reflect.Bool:
 			coltype = C.colTypeCheckbox
@@ -88,10 +88,11 @@ func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intpt
 	d := reflect.Indirect(reflect.ValueOf(t.data))
 	datum := d.Index(int(row)).Field(int(col))
 	switch {
-	case datum.Type() == reflect.TypeOf(ImageIndex(0)):
+	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
 		*outtype = C.colTypeImage
-		d := datum.Interface().(ImageIndex)
-		return unsafe.Pointer(t.images[d])
+		d := datum.Interface().(*image.RGBA)
+		img := C.toTableImage(unsafe.Pointer(pixelData(img)), C.intptr_t(d.Rect.Dx()), C.intptr_t(d.Rect.Dy()), C.intptr_t(d.Stride))
+		return unsafe.Pointer(img)
 	case datum.Kind() == reflect.Bool:
 		*outtype = C.colTypeCheckbox
 		if datum.Bool() == true {

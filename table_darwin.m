@@ -42,6 +42,7 @@
 	ret = goTableDataSource_getValue(self->gotable, (intptr_t) row, colnum, &type);
 	switch (type) {
 	case colTypeImage:
+		// TODO free the returned image when done somehow
 		return (id) ret;
 	case colTypeCheckbox:
 		if (ret == NULL)

@@ -146,8 +146,8 @@ extern void areaEndTextFieldEditing(id, id);
 /* common_darwin.m */
 extern void disableAutocorrect(id);
 
-/* imagerep_darwin.m */
-extern id toImageListImage(void *, intptr_t, intptr_t, intptr_t);
+/* image_darwin.m */
+extern id toTableImage(void *, intptr_t, intptr_t, intptr_t);
 
 /* dialog_darwin.m */
 extern void openFile(id, void *);
