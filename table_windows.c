@@ -30,7 +30,9 @@ static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 		case tableNotificationCellCheckboxToggled:
 			tableToggled(gotable, tnm->row, tnm->column);
 			return 0;
-		// TODO selection changed
+		case tableNotificationSelectionChanged:
+			tableSelectionChanged(gotable);
+			return 0;
 		}
 		return (*fv_DefSubclassProc)(hwnd, uMsg, wParam, lParam);
 /* TODO

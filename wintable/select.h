@@ -105,6 +105,9 @@ noScroll:
 	NotifyWinEvent(EVENT_OBJECT_SELECTION, t->hwnd, OBJID_CLIENT, t->selectedRow);
 	// TODO send EVENT_OBJECT_STATECHANGED too?
 	// TODO send EVENT_OBJECT_FOCUS
+
+	// TODO before or after NotifyWinEvent()? (see what other things I'm doing)
+	notify(t, tableNotificationSelectionChanged, t->selectedRow, t->selectedColumn, 0);
 }
 
 // TODO make this needless

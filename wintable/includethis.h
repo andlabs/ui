@@ -40,6 +40,10 @@ enum {
 	// data is zero
 	// no return
 	tableNotificationCellCheckboxToggled,
+	// sent even on deselection (in that case, row == -1 and column == -1)
+	// data is zero
+	// no return
+	tableNotificationSelectionChanged,
 };
 
 typedef struct tableNM tableNM;
