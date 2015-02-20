@@ -16,6 +16,7 @@ static void addColumn(struct table *t, WPARAM wParam, LPARAM lParam)
 	// TODO send a notification for all rows?
 }
 
+// TODO what happens if the currently selected row is lost?
 static void setRowCount(struct table *t, intptr_t rc)
 {
 	intptr_t old, i;

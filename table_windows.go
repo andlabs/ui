@@ -2,6 +2,11 @@
 
 package ui
 
+// TODO
+// - why are we not getting keyboard input (focus?) on a mouse click?
+// - are we getting keyboard input (focus?) on tab?
+// - random freezes on Windows 7 when resizing headers or clicking new rows; likely another package ui infrastructure issue though...
+
 import (
 	"fmt"
 	"reflect"
