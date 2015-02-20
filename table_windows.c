@@ -82,31 +82,7 @@ intptr_t tableSelectedItem(HWND hwnd)
 	return row;
 }
 
-/*
-TODO
 void tableSelectItem(HWND hwnd, intptr_t index)
 {
-	LVITEMW item;
-	LRESULT current;
-
-	// via http://support.microsoft.com/kb/131284
-	// we don't need to clear the other bits; Tables don't support cutting or drag/drop
-	current = SendMessageW(hwnd, LVM_GETNEXTITEM, (WPARAM) -1, LVNI_SELECTED);
-	if (current != (LRESULT) -1) {
-		ZeroMemory(&item, sizeof (LVITEMW));
-		item.mask = LVIF_STATE;
-		item.state = 0;
-		item.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-		if (SendMessageW(hwnd, LVM_SETITEMSTATE, (WPARAM) current, (LPARAM) (&item)) == FALSE)
-			xpanic("error deselecting current Table item", GetLastError());
-	}
-	if (index == -1)			// select nothing
-		return;
-	ZeroMemory(&item, sizeof (LVITEMW));
-	item.mask = LVIF_STATE;
-	item.state = LVIS_FOCUSED | LVIS_SELECTED;
-	item.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-	if (SendMessageW(hwnd, LVM_SETITEMSTATE, (WPARAM) index, (LPARAM) (&item)) == FALSE)
-		xpanic("error selecting new Table item", GetLastError());
+	SendMessageW(hwnd, tableSetSelection, (WPARAM) (&index), (LPARAM) NULL);
 }
-*/

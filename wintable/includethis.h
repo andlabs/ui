@@ -19,6 +19,12 @@ enum {
 	// both will be -1 for no selection
 	// if either is NULL, that value is not written
 	tableGetSelection,
+	// wParam - pointer to intptr_t containing selected row
+	// lParam - pointer to intptr_t containing selected column
+	// if lParam is NULL, do not change selected column (selects column 0 if nothing previously selected; TODO explicitly document this?)
+	// TODO allow wParam to be NULL too; should both being NULL select nothing or keep the current selection?
+	// this WILL result in a selection changed notification (TODO work into the package ui Table)
+	tableSetSelection,
 };
 
 enum {

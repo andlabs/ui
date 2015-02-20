@@ -38,6 +38,7 @@ static void setRowCount(struct table *t, intptr_t rc)
 HANDLER(apiHandlers)
 {
 	intptr_t *rcp;
+	intptr_t row;
 
 	switch (uMsg) {
 	case WM_SETFONT:
@@ -70,6 +71,20 @@ HANDLER(apiHandlers)
 		rcp = (intptr_t *) lParam;
 		if (rcp != NULL)
 			*rcp = t->selectedColumn;
+		*lResult = 0;
+		return TRUE;
+	case tableSetSelection:
+		// TODO does doselect() do validation?
+		rcp = (intptr_t *) wParam;
+		row = *rcp;
+		rcp = (intptr_t *) lParam;
+		if (rcp == NULL)
+			if (row == -1)
+				doselect(t, -1, -1);
+			else		// select column 0, just like keyboard selections; TODO what if there aren't any columns?
+				doselect(t, row, 0);
+		else
+			doselect(t, row, *rcp);
 		*lResult = 0;
 		return TRUE;
 	}

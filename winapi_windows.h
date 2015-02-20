@@ -115,9 +115,7 @@ extern void gotableSetRowCount(HWND, intptr_t);
 extern void tableAutosizeColumns(HWND, int);
 */
 extern intptr_t tableSelectedItem(HWND);
-/* TODO
 extern void tableSelectItem(HWND, intptr_t);
-*/
 
 // container_windows.c
 extern RECT containerBounds(HWND);

@@ -78,7 +78,7 @@ func (t *table) Selected() int {
 func (t *table) Select(index int) {
 	t.RLock()
 	defer t.RUnlock()
-//TODO	C.tableSelectItem(t.hwnd, C.intptr_t(index))
+	C.tableSelectItem(t.hwnd, C.intptr_t(index))
 }
 
 func (t *table) OnSelected(f func()) {
