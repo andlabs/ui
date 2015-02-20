@@ -9,20 +9,18 @@ import (
 	"image"
 	"image/draw"
 	_ "image/png"
-	"github.com/andlabs/ui"
 )
 
 type icon struct {
 	Name	string
-	Icon		ui.ImageIndex
+	Icon		*image.RGBA
 	Bool		bool
 }
 
 var firstimg *image.RGBA
 
-func readIcons() ([]icon, ui.ImageList) {
+func readIcons() []icon {
 	out := make([]icon, len(icons))
-	outil := ui.NewImageList()
 	for i := range icons {
 		r := bytes.NewReader(icons[i].data)
 		png, _, err := image.Decode(r)
@@ -34,11 +32,10 @@ func readIcons() ([]icon, ui.ImageList) {
 		if firstimg == nil {
 			firstimg = img
 		}
-		out[i].Icon = ui.ImageIndex(i)
+		out[i].Icon = img
 		out[i].Name = icons[i].name
-		outil.Append(img)
 	}
-	return out, outil
+	return out
 }
 
 func tileImage(times int) *image.RGBA {

@@ -37,13 +37,12 @@ func initGUI() {
 
 	g := ui.NewGroup("Group", ui.Space())
 
-	icons, il := readIcons()
+	icons := readIcons()
 	table := ui.NewTable(reflect.TypeOf(icons[0]))
 	table.Lock()
 	d := table.Data().(*[]icon)
 	*d = icons
 	table.Unlock()
-	table.LoadImageList(il)
 
 	area := ui.NewArea(200, 200, &areaHandler{tileImage(20)})
 
