@@ -94,12 +94,6 @@ static const handlerfunc handlers[] = {
 	NULL,
 };
 
-static void initDummyTableStuff(struct table *t)
-{
-	t->selectedRow = 2;
-	t->selectedColumn = 1;
-}
-
 static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	struct table *t;
@@ -119,7 +113,6 @@ static LRESULT CALLBACK tableWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 			t->selectedRow = -1;
 			t->selectedColumn = -1;
 			loadCheckboxThemeData(t);
-initDummyTableStuff(t);
 			SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR) t);
 		}
 		// even if we did the above, fall through

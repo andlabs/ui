@@ -13,6 +13,7 @@ HBITMAP mkbitmap(void);
 BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 {
 	intptr_t c;
+	intptr_t row, col;
 
 	tablehwnd = CreateWindowExW(0,
 		tableWindowClass, L"Main Window",
@@ -40,6 +41,9 @@ BOOL mainwinCreate(HWND hwnd, LPCREATESTRUCT lpcs)
 	}
 	c = 100;
 	SendMessageW(tablehwnd, tableSetRowCount, 0, (LPARAM) (&c));
+	row = 2;
+	col = 1;
+	SendMessageW(tablehwnd, tableSetSelection, (WPARAM) (&row), (LPARAM) (&col));
 	SetFocus(tablehwnd);
 	return TRUE;
 }
