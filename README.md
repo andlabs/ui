@@ -23,6 +23,10 @@ The in-code documentation needs improvement. I have written a [tutorial](https:/
 
 # Updates
 
+**19 February 2015**<br>ImageList is now gone; you simply store `*image.RGBA`s in your Table data structure and they'll work.
+
+Alongside this change is the introduction of a new backend for Table on Windows that should be more flexible than the standard list view control. This control is implemented in the `wintable/` folder; it is implemented in C and will one day be spun off into its own project for general-purpose use. I have tried to make it work as much like the standard list view control as possible, and it mostly works fine. That being said, there are still issues and incompletenesses. Please feel free to report any issues you may have found (though watch the TODOs in the source; I may know about the issue already).
+
 **5 November 2014**<br>TextFields can now be marked as read-only (non-editable). Textboxes will gain this ability soon.
 
 **4 November 2014**<br>Added two new controls, Spinbox (which allows numeric entry with up and down buttons) and ProgressBar (which measures progress). Both aren't fully fleshed out, but are good enough for general use now.
