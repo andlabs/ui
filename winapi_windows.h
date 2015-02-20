@@ -24,8 +24,6 @@ enum {
 	msgTabCurrentTabHasChildren,
 	msgAreaKeyDown,
 	msgAreaKeyUp,
-	msgLoadImageList,
-	msgTableMakeInitialCheckboxImageList,
 	msgOpenFileDone,
 };
 

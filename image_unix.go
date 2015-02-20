@@ -24,7 +24,7 @@ func toIconSizedGdkPixbuf(img *image.RGBA) *C.GdkPixbuf {
 		C.int(img.Rect.Dx()),
 		C.int(img.Rect.Dy()))
 	if status := C.cairo_surface_status(surface); status != C.CAIRO_STATUS_SUCCESS {
-		panic(fmt.Errorf("cairo_create_image_surface() failed in ImageList.Append(): %s\n",
+		panic(fmt.Errorf("cairo_create_image_surface() failed in toIconSizedGdkPixbuf(): %s\n",
 			C.GoString(C.cairo_status_to_string(status))))
 	}
 	C.cairo_surface_flush(surface)
@@ -33,11 +33,11 @@ func toIconSizedGdkPixbuf(img *image.RGBA) *C.GdkPixbuf {
 	C.cairo_surface_mark_dirty(surface)
 	basepixbuf := C.gdk_pixbuf_get_from_surface(surface, 0, 0, C.gint(img.Rect.Dx()), C.gint(img.Rect.Dy()))
 	if basepixbuf == nil {
-		panic(fmt.Errorf("gdk_pixbuf_get_from_surface() failed in ImageList.Append() (no reason available)"))
+		panic(fmt.Errorf("gdk_pixbuf_get_from_surface() failed in toIconSizedGdkPixbuf() (no reason available)"))
 	}
 
 	if C.gtk_icon_size_lookup(scaleTo, &width, &height) == C.FALSE {
-		panic(fmt.Errorf("gtk_icon_size_lookup() failed in ImageList.Append() (no reason available)"))
+		panic(fmt.Errorf("gtk_icon_size_lookup() failed in toIconSizedGdkPixbuf() (no reason available)"))
 	}
 	if int(width) == img.Rect.Dx() && int(height) == img.Rect.Dy() {
 		// just return the base pixbuf; we're good
@@ -47,7 +47,7 @@ func toIconSizedGdkPixbuf(img *image.RGBA) *C.GdkPixbuf {
 	// else scale
 	pixbuf := C.gdk_pixbuf_scale_simple(basepixbuf, C.int(width), C.int(height), C.GDK_INTERP_NEAREST)
 	if pixbuf == nil {
-		panic(fmt.Errorf("gdk_pixbuf_scale_simple() failed in ImageList.Append() (no reason available)"))
+		panic(fmt.Errorf("gdk_pixbuf_scale_simple() failed in toIconSizedGdkPixbuf() (no reason available)"))
 	}
 
 	C.g_object_unref(C.gpointer(unsafe.Pointer(basepixbuf)))
