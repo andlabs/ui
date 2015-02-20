@@ -18,6 +18,7 @@
 // - seriously figure out how we're going to update everything about the table in one place
 // - redraw on focus change
 // - draw themed WS_EX_CLIENTEDGE (and WS_EX_WINDOWEDGE?)
+// - in-place tooltips for text columns
 
 #include "includethis.h"
 
