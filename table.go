@@ -10,7 +10,8 @@ import (
 
 // Table is a Control that displays a list of like-structured data in a grid where each row represents an item and each column represents a bit of data.
 // Tables store and render a slice of struct values.
-// Each field of the struct of type *image.RGBA is rendered as an icom.
+// Each field of the struct of type *image.RGBA is rendered as an icon.
+// The Table itself will resize the image to an icon size if needed; the original *image.RGBA will not be modified and the icon size is implementation-defined.
 // Each field whose type is bool or equivalent to bool is rendered as a checkbox.
 // All other fields are rendered as strings formatted with package fmt's %v format specifier.
 //
