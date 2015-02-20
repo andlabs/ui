@@ -74,10 +74,12 @@ void tableAutosizeColumns(HWND hwnd, int nColumns)
 			xpanic("error resizing columns of results list view", GetLastError());
 }
 
-// because Go won't let me do C.WPARAM(-1)
 intptr_t tableSelectedItem(HWND hwnd)
 {
-	return (intptr_t) SendMessageW(hwnd, LVM_GETNEXTITEM, (WPARAM) -1, LVNI_SELECTED);
+	intptr_t row;
+
+	SendMessageW(hwnd, tableGetSelection, (WPARAM) (&row), (LPARAM) NULL);
+	return row;
 }
 
 /*

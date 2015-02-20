@@ -63,6 +63,15 @@ HANDLER(apiHandlers)
 		setRowCount(t, *rcp);
 		*lResult = 0;
 		return TRUE;
+	case tableGetSelection:
+		rcp = (intptr_t *) wParam;
+		if (rcp != NULL)
+			*rcp = t->selectedRow;
+		rcp = (intptr_t *) lParam;
+		if (rcp != NULL)
+			*rcp = t->selectedColumn;
+		*lResult = 0;
+		return TRUE;
 	}
 	return FALSE;
 }

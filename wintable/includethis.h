@@ -14,6 +14,11 @@ enum {
 	// wParam - 0
 	// lParam - pointer to intptr_t containing new count
 	tableSetRowCount,
+	// wParam - pointer to intptr_t where selected row will be stored
+	// lParam - pointer to intptr_t where selected column will be stored
+	// both will be -1 for no selection
+	// if either is NULL, that value is not written
+	tableGetSelection,
 };
 
 enum {

@@ -72,8 +72,7 @@ func (t *table) Unlock() {
 func (t *table) Selected() int {
 	t.RLock()
 	defer t.RUnlock()
-//TODO	return int(C.tableSelectedItem(t.hwnd))
-	return -1
+	return int(C.tableSelectedItem(t.hwnd))
 }
 
 func (t *table) Select(index int) {
