@@ -60,10 +60,6 @@ func (t *table) Unlock() {
 	}()
 }
 
-func (t *table) LoadImageList(i ImageList) {
-	i.apply(&t.images)
-}
-
 func (t *table) Selected() int {
 	t.RLock()
 	defer t.RUnlock()
@@ -91,7 +87,7 @@ func goTableDataSource_getValue(data unsafe.Pointer, row C.intptr_t, col C.intpt
 	case datum.Type() == reflect.TypeOf((*image.RGBA)(nil)):
 		*outtype = C.colTypeImage
 		d := datum.Interface().(*image.RGBA)
-		img := C.toTableImage(unsafe.Pointer(pixelData(img)), C.intptr_t(d.Rect.Dx()), C.intptr_t(d.Rect.Dy()), C.intptr_t(d.Stride))
+		img := C.toTableImage(unsafe.Pointer(pixelData(d)), C.intptr_t(d.Rect.Dx()), C.intptr_t(d.Rect.Dy()), C.intptr_t(d.Stride))
 		return unsafe.Pointer(img)
 	case datum.Kind() == reflect.Bool:
 		*outtype = C.colTypeCheckbox
