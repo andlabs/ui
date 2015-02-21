@@ -61,7 +61,11 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		C.gpointer(unsafe.Pointer(t)))
 	C.gtk_tree_view_set_model(t.treeview, t.modelgtk)
 	for i := 0; i < ty.NumField(); i++ {
-		cname := togstr(ty.Field(i).Name)
+		colname := ty.Field(i).Tag.Get("uicolumn")
+		if colname == "" {
+			colname = ty.Field(i).Name
+		}
+		cname := togstr(colname)
 		switch {
 		case ty.Field(i).Type == reflect.TypeOf((*image.RGBA)(nil)):
 			// can't use GDK_TYPE_PIXBUF here because it's a macro that expands to a function and cgo hates that

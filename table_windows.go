@@ -6,6 +6,7 @@ package ui
 // - why are we not getting keyboard input (focus?) on a mouse click?
 // - are we getting keyboard input (focus?) on tab?
 // - random freezes on Windows 7 when resizing headers or clicking new rows; likely another package ui infrastructure issue though...
+// - investigate japanese display in the table headers on wine (it has worked in the past in ANSI mode via Shift-JIS with what I assume is the same font, so huh?)
 
 import (
 	"fmt"
@@ -53,9 +54,13 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 		case ty.Field(i).Type.Kind() == reflect.Bool:
 			coltype = C.tableColumnCheckbox
 		}
-		colname := toUTF16(ty.Field(i).Name)
-		C.SendMessageW(t.hwnd, C.tableAddColumn, coltype, C.LPARAM(uintptr(unsafe.Pointer(colname))))
-		// TODO free colname
+		colname := ty.Field(i).Tag.Get("uicolumn")
+		if colname == "" {
+			colname = ty.Field(i).Name
+		}
+		ccolname := toUTF16(colname)
+		C.SendMessageW(t.hwnd, C.tableAddColumn, coltype, C.LPARAM(uintptr(unsafe.Pointer(ccolname))))
+		// TODO free ccolname
 	}
 	t.colcount = C.int(ty.NumField())
 	return t

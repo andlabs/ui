@@ -31,7 +31,11 @@ func finishNewTable(b *tablebase, ty reflect.Type) Table {
 	// also sets the delegate
 	C.tableMakeDataSource(t.id, unsafe.Pointer(t))
 	for i := 0; i < ty.NumField(); i++ {
-		cname := C.CString(ty.Field(i).Name)
+		colname := ty.Field(i).Tag.Get("uicolumn")
+		if colname == "" {
+			colname = ty.Field(i).Name
+		}
+		cname := C.CString(colname)
 		coltype := C.colTypeText
 		editable := false
 		switch {
