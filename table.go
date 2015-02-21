@@ -18,7 +18,8 @@ import (
 // Tables are read-only by default, except for checkboxes, which are user-settable.
 //
 // Tables have headers on top of all columns.
-// Currently the name of the header is the same as the name of the field.
+// By default, the name of the header is the same as the name of the field.
+// If the struct field has a tag "uicolumn", its value is used as the header string instead.
 //
 // Tables maintain their own storage behind a sync.RWMutex-compatible sync.Locker; use Table.Lock()/Table.Unlock() to make changes and Table.RLock()/Table.RUnlock() to merely read values.
 type Table interface {

@@ -38,6 +38,12 @@ func newSimpleGrid(n int, c ...Control) SimpleGrid {
 	return g
 }
 
+type colnametest struct {
+	IncorrectColumnName	string	`uicolumn:"Correct Column Name"`
+	IncorrectColumnName2	string	`uicolumn:"正解なコラムネーム"`		// thanks GlitterBerri in irc.badnik.net/#zelda
+	AlreadyCorrect			string
+}
+
 type dtype struct {
 	Name    string
 	Address string
@@ -183,7 +189,9 @@ func (tw *testwin) make(done chan struct{}) {
 	tw.roenter.OnChanged(func() {
 		tw.roro.SetText(tw.roenter.Text())
 	})
-	tw.t.Append("Read-Only", newVerticalStack(tw.roenter, tw.roro))
+	s := newVerticalStack(tw.roenter, tw.roro, NewTable(reflect.TypeOf(colnametest{})))
+	s.SetStretchy(2)
+	tw.t.Append("Read-Only", s)
 	tw.icons = readIcons() // repainter uses these
 	tw.repainter = newRepainter(15)
 	tw.t.Append("Repaint", tw.repainter.grid)
