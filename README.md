@@ -23,6 +23,10 @@ The in-code documentation needs improvement. I have written a [tutorial](https:/
 
 # Updates
 
+**21 February 2015**<br>Implemented Table column headers as a `uicolumn:` struct tag.
+
+This will probably be the last change for a while; I want to redo the backend again.
+
 **19 February 2015**<br>ImageList is now gone; you simply store `*image.RGBA`s in your Table data structure and they'll work.
 
 Alongside this change is the introduction of a new backend for Table on Windows that should be more flexible than the standard list view control. This control is implemented in the `wintable/` folder; it is implemented in C and will one day be spun off into its own project for general-purpose use. I have tried to make it work as much like the standard list view control as possible, and it mostly works fine. That being said, there are still issues and incompletenesses. Please feel free to report any issues you may have found (though watch the TODOs in the source; I may know about the issue already).
