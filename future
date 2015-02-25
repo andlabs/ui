@@ -1,4 +1,5 @@
 another TODO: capture support in Area
+another TODO: intptr_t -> intmax_t everywhere
 
 mac os x
 	- investigate [NSWindow allowsToolTipsWhenApplicationIsInactive] to see what we should set it to
