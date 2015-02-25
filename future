@@ -1,3 +1,5 @@
+another TODO: capture support in Area
+
 mac os x
 	- investigate [NSWindow allowsToolTipsWhenApplicationIsInactive] to see what we should set it to
 
