@@ -19,6 +19,7 @@
 // - redraw on focus change
 // - draw themed WS_EX_CLIENTEDGE (and WS_EX_WINDOWEDGE?)
 // - in-place tooltips for text columns
+// - checkboxes: use capture instead of manual tracking logic? http://blogs.msdn.com/b/oldnewthing/archive/2015/02/25/10595729.aspx
 
 #include "includethis.h"
 
