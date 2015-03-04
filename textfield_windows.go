@@ -62,6 +62,7 @@ func (t *textfield) ReadOnly() bool {
 	return C.textfieldReadOnly(t.hwnd) != 0
 }
 
+// TODO check visuals: http://www.microsoft.com/en-us/download/details.aspx?id=34587
 func (t *textfield) SetReadOnly(readonly bool) {
 	if readonly {
 		C.textfieldSetReadOnly(t.hwnd, C.TRUE)
