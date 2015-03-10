@@ -152,7 +152,6 @@ func (fe *ForeignEvent) do() {
 		if !ok {
 			break
 		}
-		fe.d = v.Interface()
 		Do(func() {
 			fe.e.fire()
 		})
