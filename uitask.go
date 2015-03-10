@@ -137,6 +137,7 @@ func NewForeignEvent(channel interface{}, handler func(data interface{})) *Forei
 	fe := &ForeignEvent{
 		c: c,
 		e: newEvent(),
+		d: c.Interface(),
 	}
 	fe.e.set(func() {
 		handler(fe.d)
@@ -151,7 +152,6 @@ func (fe *ForeignEvent) do() {
 		if !ok {
 			break
 		}
-		fe.d = v.Interface()
 		Do(func() {
 			fe.e.fire()
 		})
