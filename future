@@ -2,6 +2,7 @@ another TODO: capture support in Area
 another TODO: intptr_t -> intmax_t everywhere
 another TODO: https://msdn.microsoft.com/en-us/library/dd162593%28v=vs.85%29.aspx?
 another TODO: https://msdn.microsoft.com/en-us/library/windows/desktop/ms646275%28v=vs.85%29.aspx ?
+another TODO: use MapWindowRect() instead of ScreenToClient()?
 
 mac os x
 	- investigate [NSWindow allowsToolTipsWhenApplicationIsInactive] to see what we should set it to
