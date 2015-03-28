@@ -120,7 +120,7 @@ DWORD initCommonControls(char **errmsg)
 	LOAD("DefSubclassProc");
 	fv_DefSubclassProc = (LRESULT (*WINAPI)(HWND, UINT, WPARAM, LPARAM)) f;
 	LOAD("_TrackMouseEvent");
-	fv__TrackMouseEvent = (HIMAGELIST (*WINAPI)(int, int, UINT, int, int)) f;
+	fv__TrackMouseEvent = (BOOL (*WINAPI)(LPTRACKMOUSEEVENT)) f;
 
 	if ((*ficc)(&icc) == FALSE) {
 		*errmsg = "error initializing Common Controls (comctl32.dll)";
