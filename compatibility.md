@@ -79,8 +79,19 @@ not yet in Ubuntu Utopic (14.10)
 
 ### GTK+ 3.16
 
-- **GtkSidebar**
+- gtk_clipboard_get_default() (???)
 - **GtkGLArea**
+- proper xalign and yalign for GtkLabel; should get rid of runtime deprecation warnings
+- better control of GtkListBox model-based creation (probably not relevant but)
+- GtkModelButton (for GActions; probably not relevant?)
+- wide handles on GtkPaned
+- GtkPopoverMenu
+- IPP paper names in GtkPaperSize (TODO will this be important for printing?)
+- multiple matches in GtkSearchEntry (TODO evaluate priority)
+- **GtkStackSidebar**
+-  GTK_STYLE_CLASS_LABEL, GTK_STYLE_CLASS_MONOSPACE, GTK_STYLE_CLASS_STATUSBAR, GTK_STYLE_CLASS_TOUCH_SELECTION, GTK_STYLE_CLASS_WIDE (TODO figure out which of these are useful)
+- GtkTextView: extend-selection
+- GtkTextView: font fallbacks
 
 ## Cocoa
 ### Mac OS X 10.7
