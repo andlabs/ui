@@ -182,6 +182,18 @@ func goTableModel_do_get_value(data unsafe.Pointer, row C.gint, col C.gint, valu
 		d := datum.Interface().(bool)
 		C.g_value_init(value, C.G_TYPE_BOOLEAN)
 		C.g_value_set_boolean(value, togbool(d))
+	case datum.Kind() == reflect.Float64:
+	    s := fmt.Sprintf("%.8f", datum.Interface().(float64))
+		str := togstr(s)
+		defer freegstr(str)
+		C.g_value_init(value, C.G_TYPE_STRING)
+		C.g_value_set_string(value, str)
+	case datum.Kind() == reflect.Float32:
+	    s := fmt.Sprintf("%f", datum.Interface().(float32))
+		str := togstr(s)
+		defer freegstr(str)
+		C.g_value_init(value, C.G_TYPE_STRING)
+		C.g_value_set_string(value, str)
 	default:
 		s := fmt.Sprintf("%v", datum)
 		str := togstr(s)
