@@ -1,5 +1,9 @@
 # ui: platform-native GUI library for Go
 
+## NOTE
+
+ui is currently being rewritten for stability. The guts of the package will now be in C. For progress updates, see [the new repo for the C backend](https://github.com/andlabs/libui/).
+
 ## Feature requests wanted! (Really; IDK what to add next!)
 
 This is a library that aims to provide simple GUI software development in Go. It runs on/requires:
