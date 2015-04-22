@@ -10,7 +10,7 @@ LPWSTR xtableWindowClass = tableWindowClass;
 
 void doInitTable(void)
 {
-	initTable(xpanic, fv__TrackMouseEvent);
+	initTable((void (*)(const char *, DWORD)) xpanic, fv__TrackMouseEvent);
 }
 
 static LRESULT CALLBACK tableSubProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR id, DWORD_PTR data)
