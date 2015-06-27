@@ -21,7 +21,7 @@
 
 @implementation goSpinbox
 
-- (id)initWithMinimum:(NSInteger)minimum maximum:(NSInteger)maximum
+- (id)initWithMinimum:(NSInteger)min maximum:(NSInteger)max
 {
 	self = [super init];
 	if (self == nil)
@@ -45,20 +45,20 @@
 
 	// TODO how SHOULD the formatter treat invald input?
 
-	[self setMinimum:minimum];
-	[self setMaximum:maximum];
-	[self setValue:self->minimum];
+	[self setMinimum:min];
+	[self setMaximum:max];
+	[self setIntegerValue:self->minimum];
 
-	[self->textfield setDelegate:self];
+	[self->textfield setDelegate:(id<NSTextFieldDelegate>)(self)];
 	[self->stepper setTarget:self];
 	[self->stepper setAction:@selector(stepperClicked:)];
 
 	return self;
 }
 
-- (void)setValue:(NSInteger)value
+- (void)setIntegerValue:(NSInteger)val
 {
-	self->value = value;
+	self->value = val;
 	if (self->value < self->minimum)
 		self->value = self->minimum;
 	if (self->value > self->maximum)
@@ -83,13 +83,13 @@
 
 - (IBAction)stepperClicked:(id)sender
 {
-	[self setValue:[self->stepper integerValue]];
+	[self setIntegerValue:[self->stepper integerValue]];
 	spinboxChanged(self->gospinbox);
 }
 
 - (void)controlTextDidChange:(NSNotification *)note
 {
-	[self setValue:[self->textfield integerValue]];
+	[self setIntegerValue:[self->textfield integerValue]];
 	spinboxChanged(self->gospinbox);
 }
 
@@ -121,5 +121,5 @@ intmax_t spinboxValue(id spinbox)
 
 void spinboxSetValue(id spinbox, intmax_t value)
 {
-	[togoSpinbox(spinbox) setValue:((NSInteger) value)];
+	[togoSpinbox(spinbox) setIntegerValue:((NSInteger) value)];
 }

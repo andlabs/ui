@@ -5,6 +5,8 @@
 
 #define toNSWindow(x) ((NSWindow *) (x))
 
+void finishOpenFile(char* fname, void* data);
+
 void openFile(id parent, void *data)
 {
 	NSOpenPanel *op;

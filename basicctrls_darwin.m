@@ -275,7 +275,7 @@ id newTextbox(void)
 	return (id) tv;
 }
 
-char *textboxText(id tv)
+const char *textboxText(id tv)
 {
 	return [[toNSTextView(tv) string] UTF8String];
 }
