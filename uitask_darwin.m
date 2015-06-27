@@ -37,6 +37,8 @@ static Class areaClass;
 			case NSFlagsChanged:
 				handled = [focused doFlagsChanged:e];
 				break;
+			default:
+				break;
 			}
 	}
 	if (!handled)
