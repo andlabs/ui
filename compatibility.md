@@ -1,22 +1,6 @@
 # Useful things in newer versions
 
 ## Windows
-### Windows Vista
-http://channel9.msdn.com/blogs/pdc2008/pc43 (end of video talks about passwords and LockSetForegroundWindow()?)
-
-- **buffered paintaing**
-- cross-fade animation functions
-- list view tiles
-- list view group expansions: **collapsible**, subtitles, footers, help links
-	- video has more group issues (I had some with winiconview..)
-- cue banners in combo boxes and list views ("empty markup")
-	- links for the latter
-- alpha-blended menu bitmaps
-- 256x256 icons and smoother icon scaling algorithms involving scaling down from a larger size instead of scaling up to a larger size
-	- `SHDefExtractIcon()` does this for you AND still works on XP
-- **TaskDialog**
-- **cue banners actually work properly regardless of East Asian language support**
-
 ### Windows 7
 http://channel9.msdn.com/blogs/pdc2008/pc43
 
@@ -29,6 +13,8 @@ TODO look up PDC 2008 talk "new shell user interface"
 ### Windows 8
 
 ### Windows 8.1
+
+### Windows 10
 
 ## GTK+
 TODO what ships with Ubuntu Quantal (12.10)?
@@ -93,36 +79,11 @@ not yet in Ubuntu Utopic (14.10)
 - GtkTextView: extend-selection
 - GtkTextView: font fallbacks
 
+### GTK+ 3.18
+
+### GTK+ 3.20
+
 ## Cocoa
-### Mac OS X 10.7
-
-- Foundation ([full details](https://developer.apple.com/library/mac/releasenotes/Foundation/RN-FoundationOlderNotes/#//apple_ref/doc/uid/TP40008080-TRANSLATED_CHAPTER_965-TRANSLATED_DEST_0))
-	- can use [ClassName class] == nil to test for feature existence at class level
-	- NSUserDefaults is now thread-safe and respects user IDs
-	- NSProcessInfo is now thread-safe
-	- NSProcessInfo has automatic termination; might want to watch for this
-	- NSLinguisticTrigger
-	- NSCalendar changes (important for date/time pickers)
-- AppKit ([full details](https://developer.apple.com/library/mac/releasenotes/AppKit/RN-AppKitOlderNotes/#X10_7Notes)
-	- Cocoa decides when to draw focus rings
-	- lots of resolution independence stuff
-	- window edge resize/live resize
-	- restorable state
-	- toolbar versioning
-	- better scroll wheel management
-	- multi-image dragging (TODO didn't GTK+ add this too)
-	- built-in full screen (TODO what was fullscreen like before?)
-	- NSTextFinder for a standard search for text bar
-	- NSPasteboard: no longer need to invoke -[NSPasteboard types]
-	- NSPasteboards use UTIs for type information
-	- NOTE FROM LEOPARD: full-width cells, source lists
-	- view-based NSTableViews and NSOutlineViews
-	- URLs returned may not be file:// anymore! TODO note in futureplans.md
-	- **NSPopover**
-	- vertical text support improved
-	- **placeholder text in NSTextField now shown when focused**
-	- NSTextView now has an optional formatting bar
-
 ### Mac OS X 10.8
 
 - Foundation ([full details](https://developer.apple.com/library/mac/releasenotes/Foundation/RN-FoundationOlderNotes/#//apple_ref/doc/uid/TP40008080-TRANSLATED_CHAPTER_965-TRANSLATED_DEST_999B))
@@ -167,3 +128,7 @@ not yet in Ubuntu Utopic (14.10)
 	- NSAppearance
 	- **-[NSTableView moveRowAtIndex:toIndex:] bug regarding first responders fixed**
 	- view-specific RTL overrides
+
+### Mac OS X 10.10
+
+### Mac OS X 10.11
