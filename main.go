@@ -11,11 +11,16 @@ import (
 
 // #include "ui.h"
 // extern void doQueued(void *);
+// extern int doOnShouldQuit(void *);
 // /* I forgot how dumb cgo is... ./main.go:73: cannot use _Cgo_ptr(_Cfpvar_fp_doQueued) (type unsafe.Pointer) as type *[0]byte in argument to _Cfunc_uiQueueMain */
 // /* I'm pretty sure this worked before... */
 // static inline void realQueueMain(void *x)
 // {
 // 	uiQueueMain(doQueued, x);
+// }
+// static inline int realOnShouldQuit(void)
+// {
+// 	uiOnShouldQuit(doOnShouldQuit, NULL);
 // }
 import "C"
 
@@ -45,6 +50,8 @@ func start(errchan chan error, f func()) {
 		C.uiFreeInitError(estr)
 		return
 	}
+	// set up OnShouldQuit()
+	C.realOnShouldQuit()
 	QueueMain(f)
 	C.uiMain()
 	errchan <- nil
@@ -94,4 +101,28 @@ func doQueued(nn unsafe.Pointer) {
 	qmlock.Unlock()
 
 	f()
+}
+
+// no need to lock this; this API is only safe on the main thread
+var shouldQuitFunc func() bool
+
+// OnShouldQuit schedules f to be exeucted when the OS wants
+// the program to quit or when a Quit menu item has been clicked.
+// Only one function may be registered at a time. If the function
+// returns true, Quit will be called. If the function returns false, or
+// if OnShouldQuit is never called. Quit will not be called and the
+// OS will be told that the program needs to continue running.
+func OnShouldQuit(f func() bool) {
+	shouldQuitFunc = f
+}
+
+//export doOnShouldQuit
+func doOnShouldQuit(unused unsafe.Pointer) C.int {
+	if shouldQuitFunc == nil {
+		return 0
+	}
+	if shouldQuitFunc() {
+		return 1
+	}
+	return 0
 }
