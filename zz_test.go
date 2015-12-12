@@ -11,7 +11,7 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		s := NewHorizontalSeparator()
+		s := NewDateTimePicker()
 		w.SetChild(s)
 		w.SetMargined(true)
 		w.Show()
