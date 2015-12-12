@@ -94,3 +94,9 @@ func LibuiControlEnable(c uintptr) {
 func LibuiControlDisable(c uintptr) {
 	C.uiControlDisable(touiControl(c))
 }
+
+// LibuiFreeText allows implementations of Control
+// to call the libui function uiFreeText.
+func LibuiFreeText(c uintptr) {
+	C.uiFreeText((*C.char)(unsafe.Pointer(c)))
+}

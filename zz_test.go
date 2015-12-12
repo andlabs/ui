@@ -6,8 +6,12 @@ import "testing"
 
 func TestIt(t *testing.T) {
 	err := Main(func() {
-		t.Log("we're here")
-		Quit()
+		w := NewWindow("Hello", 320, 240, false)
+		w.OnClosing(func(w *Window) bool {
+			Quit()
+			return true
+		})
+		w.Show()
 	})
 	if err != nil {
 		t.Fatal(err)
