@@ -11,10 +11,9 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		c := NewCheckbox("Click Me")
-		c.OnToggled(func(c *Checkbox) {
-			w.SetMargined(c.Checked())
-		})
+		c := NewEditableCombobox()
+		c.Append("Item 1")
+		c.Append("Item 2")
 		w.SetChild(c)
 		w.Show()
 	})
