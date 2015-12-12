@@ -11,10 +11,11 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		c := NewEditableCombobox()
-		c.Append("Item 1")
-		c.Append("Item 2")
-		w.SetChild(c)
+		e := NewEntry()
+		e.OnChanged(func(*Entry) {
+			w.SetTitle(e.Text())
+		})
+		w.SetChild(e)
 		w.Show()
 	})
 	if err != nil {
