@@ -1,0 +1,1 @@
+- document that Destroy cannot be called on Controls that have a parent
