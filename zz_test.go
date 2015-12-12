@@ -11,11 +11,8 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		e := NewEntry()
-		e.OnChanged(func(*Entry) {
-			w.SetTitle(e.Text())
-		})
-		w.SetChild(e)
+		l := NewLabel("A Label")
+		w.SetChild(l)
 		w.Show()
 	})
 	if err != nil {
