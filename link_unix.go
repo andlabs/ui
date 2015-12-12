@@ -5,4 +5,5 @@
 
 package ui
 
-// #cgo LDFLAGS: -L. -lui -lpthread
+// #cgo LDFLAGS: -L${SRCDIR} -lui -Wl,-rpath=$ORIGIN
+import "C"
