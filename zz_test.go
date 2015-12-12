@@ -11,6 +11,11 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
+		c := NewCheckbox("Click Me")
+		c.OnToggled(func(c *Checkbox) {
+			w.SetMargined(c.Checked())
+		})
+		w.SetChild(c)
 		w.Show()
 	})
 	if err != nil {

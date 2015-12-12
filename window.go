@@ -63,6 +63,13 @@ func (w *Window) Destroy() {
 	C.uiControlDestroy(w.c)
 }
 
+// LibuiControl returns the libui uiControl pointer that backs
+// the Window. This is only used by package ui itself and should
+// not be called by programs.
+func (w *Window) LibuiControl() uintptr {
+	return uintptr(unsafe.Pointer(w.c))
+}
+
 // Handle returns the OS-level handle associated with this Window.
 // On Windows this is an HWND of a libui-internal class.
 // On GTK+ this is a pointer to a GtkWindow.
@@ -134,7 +141,7 @@ func (w *Window) SetChild(child Control) {
 	w.child = child
 	c := (*C.uiControl)(nil)
 	if w.child != nil {
-		c = touiControl(w.child.Handle())
+		c = touiControl(w.child.LibuiControl())
 	}
 	C.uiWindowSetChild(w.w, c)
 }

@@ -23,6 +23,11 @@ type Control interface {
 	// then call LibuiControlDestroy.
 	Destroy()
 
+	// LibuiControl returns the libui uiControl pointer that backs
+	// the Control. This is only used by package ui itself and should
+	// not be called by programs.
+	LibuiControl() uintptr
+
 	// Handle returns the OS-level handle that backs the
 	// Control. On OSs that use reference counting for
 	// controls, Handle does not increment the reference
