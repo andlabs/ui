@@ -35,6 +35,8 @@ func Main(f func()) error {
 func start(errchan chan error, f func()) {
 	runtime.LockOSThread()
 
+	// TODO set main thread on OS X
+
 	// TODO HEAP SAFETY
 	opts := C.uiInitOptions{}
 	estr := C.uiInit(&opts)
