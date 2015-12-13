@@ -58,8 +58,7 @@ func (g *Group) Handle() uintptr {
 	return uintptr(C.uiControlHandle(g.c))
 }
 
-// Show shows the Group. It uses the OS conception of "presenting"
-// the Group, whatever that may be on a given OS.
+// Show shows the Group.
 func (g *Group) Show() {
 	C.uiControlShow(g.c)
 }

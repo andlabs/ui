@@ -11,14 +11,12 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		s := NewGroup("Group")
-		w.SetChild(s)
+		t := NewTab()
+		w.SetChild(t)
 		w.SetMargined(true)
-		b := NewButton("Click Me")
-		b.OnClicked(func(*Button) {
-			s.SetMargined(!s.Margined())
-		})
-		s.SetChild(b)
+		t.Append("First Page", NewButton("Click Me"))
+		t.Append("Second Page", NewButton("Click Me Too"))
+		t.SetMargined(0, true)
 		w.Show()
 	})
 	if err != nil {
