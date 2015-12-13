@@ -1,6 +1,6 @@
 // 13 december 2015
 
-package main
+package ui
 
 // #include "ui.h"
 import "C"
