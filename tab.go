@@ -94,7 +94,12 @@ func (t *Tab) InsertAt(name string, n int, child Control) {
 	// TODO why is this uintmax_t and not intmax_t
 	C.uiTabInsertAt(t.t, cname, C.uintmax_t(n), c)
 	freestr(cname)
-	t.children = append(t.children, child)
+	ch := make([]Control, len(t.children) + 1)
+	// and insert into t.children at the right place
+	copy(ch[:n], t.children[:n])
+	ch[n] = child
+	copy(ch[n + 1:], t.children[n:])
+	t.children = ch
 }
 
 // Delete deletes the nth page of the Tab.
