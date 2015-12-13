@@ -2,28 +2,124 @@
 
 package ui
 
-import "testing"
+import (
+	"flag"
+	"testing"
+)
+
+var (
+	nomenus = flag.Bool("nomenus", false, "No menus")
+	startspaced = flag.Bool("startspaced", false, "Start with spacing")
+	swaphv = flag.Bool("swaphv", false, "Swap horizontal and vertical boxes")
+)
+
+func xmain() {
+	if !*nomenus {
+		// TODO
+	}
+
+	w := newWindow("Main Window", 320, 240, true)
+	w.OnClosing(func(*Window) bool {
+		Quit()
+		return true
+	})
+
+	OnShouldQuit(func() bool {
+		// TODO
+		return true
+	})
+
+	mainbox := newHorizontalBox()
+	w.SetChild(mainbox)
+
+	outerTab := newTab()
+	mainbox.Append(outerTab, true)
+
+	mainTab := newTab()
+	outerTab.Append("Original", mainTab)
+
+	// TODO
+
+	mainTab.Append("Page 2", makePage2())
+
+	// TODO
+
+	if *startspaced {
+		setSpaced(true)
+	}
+
+	w.Show()
+}
 
 func TestIt(t *testing.T) {
-	err := Main(func() {
-		w := NewWindow("Hello", 320, 240, false)
-		w.OnClosing(func(w *Window) bool {
-			Quit()
-			return true
-		})
-		b := NewVerticalBox()
-		w.SetChild(b)
-		w.SetMargined(true)
-		button := NewButton("Click Me")
-		button.OnClicked(func(*Button) {
-			b.SetPadded(!b.Padded())
-		})
-		b.Append(button, true)
-		b.Append(NewButton("Button 2"), false)
-		b.Append(NewButton("Button 3"), true)
-		w.Show()
-	})
+	err := Main(xmain)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+var (
+	spwindows []*Window
+	sptabs []*Tab
+	spgroups []*Group
+	spboxes []*Box
+)
+
+func newWindow(title string, width int, height int, hasMenubar bool) *Window {
+	w := NewWindow(title, width, height, hasMenubar)
+	spwindows = append(spwindows, w)
+	return w
+}
+
+func newTab() *Tab {
+	t := NewTab()
+	sptabs = append(sptabs, t)
+	return t
+}
+
+func newGroup(title string) *Group {
+	g := NewGroup(title)
+	spgroups = append(spgroups, g)
+	return g
+}
+
+func newHorizontalBox() *Box {
+	var b *Box
+
+	if *swaphv {
+		b = NewVerticalBox()
+	} else {
+		b = NewHorizontalBox()
+	}
+	spboxes = append(spboxes, b)
+	return b
+}
+
+func newVerticalBox() *Box {
+	var b *Box
+
+	if *swaphv {
+		b = NewHorizontalBox()
+	} else {
+		b = NewVerticalBox()
+	}
+	spboxes = append(spboxes, b)
+	return b
+}
+
+func setSpaced(spaced bool) {
+	for _, w := range spwindows {
+		w.SetMargined(spaced)
+	}
+	for _, t := range sptabs {
+		for i := 0; i < t.NumPages(); i++ {
+			t.SetMargined(i, spaced)
+		}
+	}
+	for _, g := range spgroups {
+		g.SetMargined(spaced)
+	}
+	for _, b := range spboxes {
+		b.SetPadded(spaced)
 	}
 }
