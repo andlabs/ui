@@ -11,9 +11,14 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		s := NewSlider(0, 100)
+		s := NewGroup("Group")
 		w.SetChild(s)
 		w.SetMargined(true)
+		b := NewButton("Click Me")
+		b.OnClicked(func(*Button) {
+			s.SetMargined(!s.Margined())
+		})
+		s.SetChild(b)
 		w.Show()
 	})
 	if err != nil {
