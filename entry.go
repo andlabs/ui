@@ -1,5 +1,9 @@
 // 12 december 2015
 
+// TODO typing in entry in OS X crashes libui
+// I've had similar issues with checkboxes on libui
+// something's wrong with NSMapTable
+
 package ui
 
 import (
