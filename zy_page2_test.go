@@ -21,14 +21,24 @@ func moveLabel(*Button) {
 	movingCurrent = to
 }
 
-var moveBack int
+var moveBack bool
 const (
 	moveOutText = "Move Page 1 Out"
 	moveBackText = "Move Page 1 Back"
 )
 
-func movePage1(*Button) {
-	// TODO
+func movePage1(b *Button) {
+	if moveBack {
+		mainbox.Delete(1)
+		mainTab.InsertAt("Page 1", 0, page1)
+		b.SetText(moveOutText)
+		moveBack = false
+		return
+	}
+	mainTab.Delete(0)
+	mainbox.Append(page1, true)
+	b.SetText(moveBackText)
+	moveBack = true
 }
 
 func makePage2() *Box {
@@ -63,7 +73,7 @@ func makePage2() *Box {
 	button.OnClicked(movePage1)
 	hbox.Append(button, false)
 	page2.Append(hbox, false)
-	moveBack = 0
+	moveBack = false
 
 	hbox = newHorizontalBox()
 	hbox.Append(NewLabel("Label Alignment Test"), false)

@@ -13,6 +13,9 @@ var (
 	swaphv = flag.Bool("swaphv", false, "Swap horizontal and vertical boxes")
 )
 
+var mainbox *Box
+var mainTab *Tab
+
 func xmain() {
 	if !*nomenus {
 		// TODO
@@ -29,16 +32,17 @@ func xmain() {
 		return true
 	})
 
-	mainbox := newHorizontalBox()
+	mainbox = newHorizontalBox()
 	w.SetChild(mainbox)
 
 	outerTab := newTab()
 	mainbox.Append(outerTab, true)
 
-	mainTab := newTab()
+	mainTab = newTab()
 	outerTab.Append("Original", mainTab)
 
-	// TODO
+	makePage1(w)
+	mainTab.Append("Page 1", page1)
 
 	mainTab.Append("Page 2", makePage2())
 
