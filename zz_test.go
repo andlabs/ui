@@ -11,10 +11,7 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		s := NewRadioButtons()
-		s.Append("Item 1")
-		s.Append("Item 2")
-		s.Append("Item 3")
+		s := NewSlider(0, 100)
 		w.SetChild(s)
 		w.SetMargined(true)
 		w.Show()
