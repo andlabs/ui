@@ -11,12 +11,16 @@ func TestIt(t *testing.T) {
 			Quit()
 			return true
 		})
-		t := NewTab()
-		w.SetChild(t)
+		b := NewVerticalBox()
+		w.SetChild(b)
 		w.SetMargined(true)
-		t.Append("First Page", NewButton("Click Me"))
-		t.Append("Second Page", NewButton("Click Me Too"))
-		t.SetMargined(0, true)
+		button := NewButton("Click Me")
+		button.OnClicked(func(*Button) {
+			b.SetPadded(!b.Padded())
+		})
+		b.Append(button, true)
+		b.Append(NewButton("Button 2"), false)
+		b.Append(NewButton("Button 3"), true)
 		w.Show()
 	})
 	if err != nil {

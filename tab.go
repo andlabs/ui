@@ -11,7 +11,7 @@ import "C"
 
 // Tab is a Control that holds tabbed pages of Controls. Each tab
 // has a label. The user can click on the tabs themselves to switch
-// pages.
+// pages. Individual pages can also have margins.
 type Tab struct {
 	c	*C.uiControl
 	t	*C.uiTab
