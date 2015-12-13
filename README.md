@@ -10,7 +10,7 @@ It runs on/requires:
 - Mac OS X: cgo, Mac OS X 10.7 and newer
 - other Unixes: cgo, GTK+ 3.4 and newer
 
-TODO figure out the minimum required version of Go
+It also requires Go 1.5 or newer (due to various bugs in cgo that were fixed only starting with 1.5).
 
 (this README needs some work)
 

@@ -40,7 +40,7 @@ func Main(f func()) error {
 func start(errchan chan error, f func()) {
 	runtime.LockOSThread()
 
-	// TODO set main thread on OS X
+	ensureMainThread()
 
 	// TODO HEAP SAFETY
 	opts := C.uiInitOptions{}
