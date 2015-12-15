@@ -4,7 +4,7 @@ package ui
 
 // #include "ui.h"
 // extern void doAreaHandlerDraw(uiAreaHandler *, uiArea *, uiAreaDrawParams *);
-// static inline void uiAreaHandler *allocAreaHandler(void)
+// static inline uiAreaHandler *allocAreaHandler(void)
 // {
 // 	uiAreaHandler *ah;
 // 
