@@ -32,14 +32,35 @@ import "C"
 // 	dp.Context.Clip(p)
 // 	// ...
 // 	p.Free() // when done with the path
+// 
+// A Path also defines its fill mode. (This should ideally be a fill
+// parameter, but some implementations prevent it.)
+// TODO talk about fill modes
 type Path struct {
 	p	*C.uiDrawPath
 }
 
-// NewPath creates a new Path.
-func NewPath() *Path {
+// TODO
+type FillMode uint
+const (
+	Winding FillMode = iota
+	Alternate
+)
+
+// NewPath creates a new Path with the given fill mode.
+func NewPath(fillMode FillMode) *Path {
+	var fm C.uiDrawFillMode
+
+	switch fillMode {
+	case Winding:
+		fm = C.uiDrawFillModeWinding
+	case Alternate:
+		fm = C.uiDrawFillModeAlternate
+	default:
+		panic("invalid fill mode passed to ui.NewPath()")
+	}
 	return &Path{
-		p:	C.uiDrawNewPath(),
+		p:	C.uiDrawNewPath(fm),
 	}
 }
 

@@ -2,6 +2,7 @@
 
 package ui
 
+// #include <stdlib.h>
 // #include "ui.h"
 // extern void doAreaHandlerDraw(uiAreaHandler *, uiArea *, uiAreaDrawParams *);
 // static inline uiAreaHandler *allocAreaHandler(void)
@@ -55,7 +56,7 @@ type AreaDrawParams struct {
 	VScrollPos	int
 }
 
-// export doAreaHandlerDraw
+//export doAreaHandlerDraw
 func doAreaHandlerDraw(uah *C.uiAreaHandler, ua *C.uiArea, udp *C.uiAreaDrawParams) {
 	ah := areahandlers[uah]
 	a := areas[ua]
