@@ -34,7 +34,8 @@ ships with: Ubuntu Saucy (13.10)
 Not many interesting new things to us here, unless you count widget-internal tickers and single-click instead of double-click to select list items (a la KDE)... and oh yeah, also widget opacity.
 
 ### GTK+ 3.10
-ships with: Ubuntu Trusty (14.04 LTS)
+ships with: **Ubuntu Trusty (14.04 LTS)**
+<br>GLib version: 2.40
 
 - tab character stops in GtkEntry
 - GtkHeaderBar
@@ -46,7 +47,8 @@ ships with: Ubuntu Trusty (14.04 LTS)
 - titlebar overrides (seems to be the hot new thing)
 
 ### GTK+ 3.12
-not yet in Ubuntu Utopic (14.10)
+ships with: Ubuntu Utopic (14.10)
+<br>GLib version: 2.42
 
 - GtkActionBar (basically like the bottom-of-the-window toolbars in Mac programs)
 - gtk_get_locale_direction(), for internationalization
@@ -57,6 +59,8 @@ not yet in Ubuntu Utopic (14.10)
 - **gtk_tree_path_new_from_indicesv()** (for when we add Table if we have trees too)
 
 ### GTK+ 3.14
+ships with: **Debian Jessie**, Ubuntu Vivid (15.04)
+<br>GLib version: Debian: 2.42, Ubuntu: 2.44
 
 - gestures
 - better GtkListbox selection handling
@@ -64,6 +68,8 @@ not yet in Ubuntu Utopic (14.10)
 - delayed switch changes on GtkSwitch
 
 ### GTK+ 3.16
+ships with: Ubuntu Wily (15.10)
+<br>GLib version: 2.46
 
 - gtk_clipboard_get_default() (???)
 - **GtkGLArea**
