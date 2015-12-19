@@ -2,7 +2,8 @@
 
 package ui
 
-// #cgo LDFLAGS: -L${SRCDIR} -lui -framework CoreFoundation -lpthread
+// #cgo LDFLAGS: -L${SRCDIR} -lui -framework CoreFoundation -lpthread -rpath @executable_path
+// /* (thanks to http://jorgen.tjer.no/post/2014/05/20/dt-rpath-ld-and-at-rpath-dyld/ for the @executable_path clarifiaction */
 // #include <CoreFoundation/CoreFoundation.h>
 // #include <pthread.h>
 // extern void _CFRunLoopSetCurrent(CFRunLoopRef);
