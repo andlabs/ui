@@ -2,7 +2,64 @@
 
 package ui
 
+// #include <stdlib.h>
 // #include "ui.h"
+// static uiDrawBrush *newBrush(void)
+// {
+// 	uiDrawBrush *b;
+// 
+// 	b = (uiDrawBrush *) malloc(sizeof (uiDrawBrush));
+// 	// TODO
+// 	return b;
+// }
+// static uiDrawBrushGradientStop *newStops(size_t n)
+// {
+// 	uiDrawBrushGradientStop *stops;
+// 
+// 	stops = (uiDrawBrushGradientStop *) malloc(n * sizeof (uiDrawBrushGradientStop));
+// 	// TODO
+// 	return stops;
+// }
+// static void setStop(uiDrawBrushGradientStop *stops, size_t i, double pos, double r, double g, double b, double a)
+// {
+// 	stops[i].Pos = pos;
+// 	stops[i].R = r;
+// 	stops[i].G = g;
+// 	stops[i].B = b;
+// 	stops[i].A = a;
+// }
+// static void freeBrush(uiDrawBrush *b)
+// {
+// 	if (b->Type == uiDrawBrushTypeLinearGradient || b->Type == uiDrawBrushTypeRadialGradient)
+// 		free(b->Stops);
+// 	free(b);
+// }
+// static uiDrawStrokeParams *newStrokeParams(void)
+// {
+// 	uiDrawStrokeParams *b;
+// 
+// 	b = (uiDrawStrokeParams *) malloc(sizeof (uiDrawStrokeParams));
+// 	// TODO
+// 	return b;
+// }
+// static double *newDashes(size_t n)
+// {
+// 	double *dashes;
+// 
+// 	dashes = (double *) malloc(n * sizeof (double));
+// 	// TODO
+// 	return dashes;
+// }
+// static void setDash(double *dashes, size_t i, double dash)
+// {
+// 	dashes[i] = dash;
+// }
+// static void freeStrokeParams(uiDrawStrokeParams *sp)
+// {
+// 	if (sp->Dashes != NULL)
+// 		free(sp->Dashes);
+// 	free(sp);
+// }
 import "C"
 
 // Path represents a geometric path in a drawing context.
@@ -148,3 +205,164 @@ func (p *Path) End() {
 type DrawContext struct {
 	c	*C.uiDrawContext
 }
+
+// BrushType defines the various types of brushes.
+// 
+// TODO disclaimer
+type BrushType int
+const (
+	Solid BrushType = iota
+	LinearGradient
+	RadialGradient
+	Image		// presently unimplemented
+)
+
+// TODO
+// 
+// TODO disclaimer
+type LineCap int
+const (
+	FlatCap LineCap = iota
+	RoundCap
+	SquareCap
+)
+
+// TODO
+// 
+// TODO disclaimer
+type LineJoin int
+const (
+	MiterJoin LineJoin = iota
+	RoundJoin
+	BevelJoin
+)
+
+// TODO document
+const DefaultMiterLimit = 10.0
+
+// TODO
+type Brush struct {
+	Type		BrushType
+
+	// If Type is Solid.
+	// TODO
+	R		float64
+	G		float64
+	B		float64
+	A		float64
+
+	// If Type is LinearGradient or RadialGradient.
+	// TODO
+	X0			float64	// start point for both
+	Y0			float64
+	X1			float64	// linear: end point; radial: circle center
+	Y1			float64
+	OuterRadius	float64	// for radial gradients only
+	Stops		[]GradientStop
+}
+
+// TODO
+type GradientStop struct {
+	Pos	float64		// between 0 and 1 inclusive
+	R	float64
+	G	float64
+	B	float64
+	A	float64
+}
+
+func (b *Brush) toC() *C.uiDrawBrush {
+	cb := C.newBrush()
+	cb.Type = C.uiDrawBrushType(b.Type)
+	switch b.Type {
+	case Solid:
+		cb.R = C.double(b.R)
+		cb.G = C.double(b.G)
+		cb.B = C.double(b.B)
+		cb.A = C.double(b.A)
+	case LinearGradient, RadialGradient:
+		cb.X0 = C.double(b.X0)
+		cb.Y0 = C.double(b.Y0)
+		cb.X1 = C.double(b.X1)
+		cb.Y1 = C.double(b.Y1)
+		cb.OuterRadius = C.double(b.OuterRadius)
+		cb.NumStops = C.size_t(len(b.Stops))
+		cb.Stops = C.newStops(cb.NumStops)
+		for i, s := range b.Stops {
+			C.setStop(cb.Stops, C.size_t(i),
+				C.double(s.Pos),
+				C.double(s.R),
+				C.double(s.G),
+				C.double(s.B),
+				C.double(s.A))
+		}
+	case Image:
+		panic("unimplemented")
+	default:
+		panic("invalid brush type in Brush.toC()")
+	}
+	return cb
+}
+
+// TODO
+type StrokeParams struct {
+	Cap			LineCap
+	Join			LineJoin
+	Thickness		float64
+	MiterLimit		float64
+	Dashes		[]float64
+	DashPhase	float64
+}
+
+func (sp *StrokeParams) toC() *C.uiDrawStrokeParams {
+	csp := C.newStrokeParams()
+	csp.Cap = C.uiDrawLineCap(sp.Cap)
+	csp.Join = C.uiDrawLineJoin(sp.Join)
+	csp.Thickness = C.double(sp.Thickness)
+	csp.MiterLimit = C.double(sp.MiterLimit)
+	csp.Dashes = nil
+	csp.NumDashes = C.size_t(len(sp.Dashes))
+	if csp.NumDashes != 0 {
+		csp.Dashes = C.newDashes(csp.NumDashes)
+		for i, d := range sp.Dashes {
+			C.setDash(csp.Dashes, C.size_t(i), C.double(d))
+		}
+	}
+	csp.DashPhase = C.double(sp.DashPhase)
+	return csp
+}
+
+// TODO
+func (c *DrawContext) Stroke(p *Path, b *Brush, sp *StrokeParams) {
+	cb := b.toC()
+	csp := sp.toC()
+	C.uiDrawStroke(c.c, p.p, cb, csp)
+	C.freeBrush(cb)
+	C.freeStrokeParams(csp)
+}
+
+// TODO
+func (c *DrawContext) Fill(p *Path, b *Brush) {
+	cb := b.toC()
+	C.uiDrawFill(c.c, p.p, cb)
+	C.freeBrush(cb)
+}
+
+// TODO
+type Matrix struct {
+	M11		float64
+	M12		float64
+	M21		float64
+	M22		float64
+	M31		float64
+	M32		float64
+}
+
+// TODO identity matrix
+func NewMatrix() *Matrix {
+	m := new(Matrix)
+	m.M11 = 1
+	m.M22 = 1
+	return m
+}
+
+// TODO

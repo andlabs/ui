@@ -14,7 +14,7 @@ package ui
 // 	uiAreaHandler *ah;
 // 
 // 	ah = (uiAreaHandler *) malloc(sizeof (uiAreaHandler));
-// 	if (ah == NULL)
+// 	if (ah == NULL)		// TODO
 // 		return NULL;
 // 	ah->Draw = doAreaHandlerDraw;
 // 	ah->MouseEvent = doAreaHandlerMouseEvent;
