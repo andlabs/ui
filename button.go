@@ -49,7 +49,7 @@ func (b *Button) Destroy() {
 }
 
 // LibuiControl returns the libui uiControl pointer that backs
-// the Window. This is only used by package ui itself and should
+// the Button. This is only used by package ui itself and should
 // not be called by programs.
 func (b *Button) LibuiControl() uintptr {
 	return uintptr(unsafe.Pointer(b.c))

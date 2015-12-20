@@ -43,7 +43,7 @@ type AreaHandler interface {
 	KeyEvent(a *Area, ke *AreaKeyEvent) (handled bool)
 }
 
-func registerHandler(ah AreaHandler) *C.uiAreaHandler {
+func registerAreaHandler(ah AreaHandler) *C.uiAreaHandler {
 	uah := C.allocAreaHandler()
 	areahandlers[uah] = ah
 	return uah
