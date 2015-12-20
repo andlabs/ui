@@ -173,6 +173,8 @@ func doAreaHandlerDraw(uah *C.uiAreaHandler, ua *C.uiArea, udp *C.uiAreaDrawPara
 }
 
 // TODO document all these
+// 
+// TODO note that in the case of a drag, X and Y can be out of bounds, or in the event of a scrolling area, in places that are not visible
 type AreaMouseEvent struct {
 	X			float64
 	Y			float64
