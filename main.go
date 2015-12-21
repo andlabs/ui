@@ -83,8 +83,14 @@ func QueueMain(f func()) {
 	qmlock.Lock()
 	defer qmlock.Unlock()
 
-	n := qmcurrent
-	qmcurrent++
+	n := uintptr(0)
+	for {
+		n = qmcurrent
+		qmcurrent++
+		if qmmap[n] == nil {
+			break
+		}
+	}
 	qmmap[n] = f
 	C.realQueueMain(unsafe.Pointer(n))
 }
