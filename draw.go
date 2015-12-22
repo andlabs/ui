@@ -60,6 +60,18 @@ package ui
 // 		free(sp->Dashes);
 // 	free(sp);
 // }
+// static uiDrawMatrix *newMatrix(void)
+// {
+// 	uiDrawMatrix *m;
+// 
+// 	m = (uiDrawMatrix *) malloc(sizeof (uiDrawMatrix));
+// 	// TODO
+// 	return m;
+// }
+// static void freeMatrix(uiDrawMatrix *m)
+// {
+// 	free(m);
+// }
 import "C"
 
 // Path represents a geometric path in a drawing context.
@@ -360,9 +372,128 @@ type Matrix struct {
 // TODO identity matrix
 func NewMatrix() *Matrix {
 	m := new(Matrix)
-	m.M11 = 1
-	m.M22 = 1
+	m.SetIdentity()
 	return m
 }
 
 // TODO
+func (m *Matrix) SetIdentity() {
+	m.M11 = 1
+	m.M12 = 0
+	m.M21 = 0
+	m.M22 = 1
+	m.M31 = 0
+	m.M32 = 0
+}
+
+func (m *Matrix) toC() *C.uiDrawMatrix {
+	cm := C.newMatrix()
+	cm.M11 = C.double(m.M11)
+	cm.M12 = C.double(m.M12)
+	cm.M21 = C.double(m.M21)
+	cm.M22 = C.double(m.M22)
+	cm.M31 = C.double(m.M31)
+	cm.M32 = C.double(m.M32)
+	return cm
+}
+
+func (m *Matrix) fromC(cm *C.uiDrawMatrix) {
+	m.M11 = float64(cm.M11)
+	m.M12 = float64(cm.M12)
+	m.M21 = float64(cm.M21)
+	m.M22 = float64(cm.M22)
+	m.M31 = float64(cm.M31)
+	m.M32 = float64(cm.M32)
+	C.freeMatrix(cm)
+}
+
+// TODO
+func (m *Matrix) Translate(x float64, y float64) {
+	cm := m.toC()
+	C.uiDrawMatrixTranslate(cm, C.double(x), C.double(y))
+	m.fromC(cm)
+}
+
+// TODO
+func (m *Matrix) Scale(xCenter float64, yCenter float64, x float64, y float64) {
+	cm := m.toC()
+	C.uiDrawMatrixScale(cm,
+		C.double(xCenter), C.double(yCenter),
+		C.double(x), C.double(y))
+	m.fromC(cm)
+}
+
+// TODO
+func (m *Matrix) Rotate(x float64, y float64, amount float64) {
+	cm := m.toC()
+	C.uiDrawMatrixRotate(cm, C.double(x), C.double(y), C.double(amount))
+	m.fromC(cm)
+}
+
+// TODO
+func (m *Matrix) Skew(x float64, y float64, xamount float64, yamount float64) {
+	cm := m.toC()
+	C.uiDrawMatrixSkew(cm,
+		C.double(x), C.double(y),
+		C.double(xamount), C.double(yamount))
+	m.fromC(cm)
+}
+
+// TODO
+func (m *Matrix) Multiply(m2 *Matrix) {
+	cm := m.toC()
+	cm2 := m2.toC()
+	C.uiDrawMatrixMultiply(cm, cm2)
+	C.freeMatrix(cm2)
+	m.fromC(cm)
+}
+
+// TODO
+func (m *Matrix) Invertible() bool {
+	cm := m.toC()
+	res := C.uiDrawMatrixInvertible(cm)
+	C.freeMatrix(cm)
+	return tobool(res)
+}
+
+// TODO
+// 
+// If m is not invertible, false is returned and m is left unchanged.
+func (m *Matrix) Invert() bool {
+	cm := m.toC()
+	res := C.uiDrawMatrixInvert(cm)
+	m.fromC(cm)
+	return tobool(res)
+}
+
+// TODO unimplemented
+func (m *Matrix) TransformPoint(x float64, y float64) (xout float64, yout float64) {
+	panic("TODO")
+}
+
+// TODO unimplemented
+func (m *Matrix) TransformSize(x float64, y float64) (xout float64, yout float64) {
+	panic("TODO")
+}
+
+// TODO
+func (c *DrawContext) Transform(m *Matrix) {
+	cm := m.toC()
+	C.uiDrawTransform(c.c, cm)
+	C.freeMatrix(cm)
+}
+
+// TODO
+func (c *DrawContext) Clip(p *Path) {
+	C.uiDrawClip(c.c, p.p)
+}
+
+// TODO
+func (c *DrawContext) Save() {
+	C.uiDrawSave(c.c)
+}
+
+// TODO
+func (c *DrawContext) Restore() {
+	C.uiDrawRestore(c.c)
+}
