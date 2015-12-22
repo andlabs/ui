@@ -10,7 +10,7 @@ If you want to play around with this new package ui, you'll need to install libu
 
 - On Windows, merely copy out\libui.dll to the root of this repo.
 - On OS X, copy out/libui.dylib to the root of this repo as libui.0.dylib and symlink it to libui.dylib
-- On other Unixes, copy out/libui.so to the eroot of this reop as libui.so.0 and symlink it to libui.so
+- On other Unixes, copy out/libui.so to the root of this repo as libui.so.0 and symlink it to libui.so
 
 and then copy ui.h to the top of this repo as well. (You may symlink any files instead of copying if so choose.)
 
