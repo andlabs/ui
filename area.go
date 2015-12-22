@@ -39,7 +39,11 @@ var areas = make(map[*C.uiArea]*Area)
 // 
 // The internal coordinate system of an Area is points, which are
 // floating-point and device-independent. For more details, see
-// AreaHandler.
+// AreaHandler. The size of a scrolling Area must be an exact integer
+// number of points (that is, you cannot have an Area that is 32.5
+// points tall) and thus the parameters to NewScrollingArea and
+// SetSize are ints. All other instances of points in parameters and
+// structures (including sizes of drawn objects) are float64s.
 type Area struct {
 	c	*C.uiControl
 	a	*C.uiArea
