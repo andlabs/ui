@@ -497,3 +497,46 @@ func (c *DrawContext) Save() {
 func (c *DrawContext) Restore() {
 	C.uiDrawRestore(c.c)
 }
+
+// FontFamilies represents an enumerator over the font families
+// available to use by package ui. A FontFamilies object behaves
+// similarly to a []string, except that since family names are loaded
+// on demand (depending on the backend), it is not an actual []string.
+// You call ListFontFamilies to obtain a FontFamilies object, which
+// should reflect the available fonts at the time of the call. Use
+// NumFamilies to get the number of families, and Family to get the
+// name of a given family by index. When finished, call Free.
+// 
+// There is no guarantee that the list of families is sorted. You will
+// need to do sorting yourself if you need it.
+// 
+// TODO thread affinity
+type FontFamilies struct {
+	ff *C.uiDrawFontFamilies
+}
+
+// ListFontFamilies creates a new FontFamilies object ready for use.
+func ListFontFamilies() *FontFamilies {
+	return &FontFamilies{
+		ff:	C.uiDrawListFontFamilies(),
+	}
+}
+
+// Free destroys a FontFamilies. After calling Free, the FontFamilies
+// cannot be used.
+func (f *FontFamilies) Free() {
+	C.uiDrawFreeFontFamilies(f.ff)
+}
+
+// NumFamilies returns the number of font families available.
+func (f *FontFamilies) NumFamilies() int {
+	return int(C.uiDrawFontFamiliesNumFamilies(f.ff))
+}
+
+// Family returns the name of the nth family in the list.
+func (f *FontFamilies) Family(n int) string {
+	cname := C.uiDrawFontFamiliesFamily(f.ff, C.uintmax_t(n))
+	name := C.GoString(cname)
+	C.uiFreeText(cname)
+	return name
+}
