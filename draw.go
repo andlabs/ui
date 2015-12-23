@@ -74,6 +74,8 @@ package ui
 // }
 import "C"
 
+// BUG(andlabs): Ideally, all the drawing APIs should be in another package ui/draw (they all have the "uiDraw" prefix in C to achieve a similar goal of avoiding confusing programmers via namespace pollution); managing the linkage of the libui shared library itself across multiple packages is likely going to be a pain, though. (Custom controls implemented using libui won't have this issue, as they *should* only need libui present when linking the shared object, not when linking the Go wrapper. I'm not sure; I'd have to find out first.)
+
 // Path represents a geometric path in a drawing context.
 // This is the basic unit of drawing: all drawing operations consist of
 // forming a path, then stroking, filling, or clipping to that path.
