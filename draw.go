@@ -499,7 +499,7 @@ func (c *DrawContext) Restore() {
 }
 
 // FontFamilies represents an enumerator over the font families
-// available to use by package ui. A FontFamilies object behaves
+// available for use by package ui. A FontFamilies object behaves
 // similarly to a []string, except that since family names are loaded
 // on demand (depending on the backend), it is not an actual []string.
 // You call ListFontFamilies to obtain a FontFamilies object, which
