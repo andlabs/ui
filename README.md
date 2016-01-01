@@ -2,7 +2,7 @@
 
 # This package is still very much WIP.
 
-**Note: Due to golang/go#13720 the OS X build is broken. Sorry about that.**
+**Note: Due to [a bug in Go](https://github.com/golang/go/issues/13720) the OS X build is broken. Sorry about that.**
 
 As of December 2015 the previous package ui API that has been around since this repo was started is no longer being supported. It is being replaced with a much more stable API built around my libui; see below.
 
