@@ -2,6 +2,8 @@
 
 # This package is still very much WIP.
 
+**Note: Due to golang/go#13720 the OS X build is broken. Sorry about that.**
+
 As of December 2015 the previous package ui API that has been around since this repo was started is no longer being supported. It is being replaced with a much more stable API built around my libui; see below.
 
 If you still want to use the old package ui, you can get the package under the `pre-libui` tag. Keep in mind that it's not stable, buggy, and **no longer supported**. If you do continue, make sure that instances of `ui.Window` escape to the heap to avoid some of the issues.
