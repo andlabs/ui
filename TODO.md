@@ -1,1 +1,2 @@
 - document that Destroy cannot be called on Controls that have a parent
+- identify earliest tag for https://github.com/golang/go/commit/dba926d7a37bd6b3d740c132e8d6346214b6355c
