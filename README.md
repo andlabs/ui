@@ -2,8 +2,6 @@
 
 # This package is still very much WIP.
 
-**Note: Due to [a bug in Go](https://github.com/golang/go/issues/13720) the OS X build is broken. Sorry about that.**
-
 As of December 2015 the previous package ui API that has been around since this repo was started is no longer being supported. It is being replaced with a much more stable API built around my libui; see below.
 
 If you still want to use the old package ui, you can get the package under the `pre-libui` tag. Keep in mind that it's not stable, buggy, and **no longer supported**. If you do continue, make sure that instances of `ui.Window` escape to the heap to avoid some of the issues.
@@ -11,8 +9,11 @@ If you still want to use the old package ui, you can get the package under the `
 If you want to play around with this new package ui, you'll need to install libui manually. Clone that repo and `make` (with GNU make) libui, then:
 
 - On Windows, merely copy out\libui.dll to the root of this repo.
+	- Go 1.5 is adequate.
 - On OS X, copy out/libui.dylib to the root of this repo as libui.0.dylib and symlink it to libui.dylib
+	- You must also be running Go 1.6 from master or Beta 2 or newer due to more Go bugs.
 - On other Unixes, copy out/libui.so to the root of this repo as libui.so.0 and symlink it to libui.so
+	- Go 1.5 is adequate.
 
 and then copy ui.h to the top of this repo as well. (You may symlink any files instead of copying if so choose.)
 
@@ -30,7 +31,7 @@ It runs on/requires:
 - Mac OS X: cgo, Mac OS X 10.7 and newer
 - other Unixes: cgo, GTK+ 3.4 and newer
 
-It also requires Go 1.5 or newer (due to various bugs in cgo that were fixed only starting with 1.5).
+It also requires Go 1.6 or newer (due to various bugs in cgo that were fixed only starting with 1.6).
 
 (this README needs some work)
 

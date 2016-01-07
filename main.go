@@ -18,7 +18,7 @@ import (
 // {
 // 	uiQueueMain(doQueued, x);
 // }
-// static inline int realOnShouldQuit(void)
+// static inline void realOnShouldQuit(void)
 // {
 // 	uiOnShouldQuit(doOnShouldQuit, NULL);
 // }
