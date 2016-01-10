@@ -72,6 +72,24 @@ package ui
 // {
 // 	free(m);
 // }
+// static uiDrawInitialTextStyle *newInitialTextStyle(void)
+// {
+// 	uiDrawInitialTextStyle *is;
+// 
+// 	is = (uiDrawInitialTextStyle *) malloc(sizeof (uiDrawInitialTextStyle));
+// 	// TODO
+// 	return is;
+// }
+// static uiDrawTextLayout *newTextLayout(char *text, uiDrawInitialTextStyle *is)
+// {
+// 	uiDrawTextLayout *layout;
+// 
+// 	layout = uiDrawNewTextLayout(text, is);
+// 	free(text);
+// 	free((char *) (is->Family));
+// 	free(is);
+// 	return layout;
+// }
 import "C"
 
 // BUG(andlabs): Ideally, all the drawing APIs should be in another package ui/draw (they all have the "uiDraw" prefix in C to achieve a similar goal of avoiding confusing programmers via namespace pollution); managing the linkage of the libui shared library itself across multiple packages is likely going to be a pain, though. (Custom controls implemented using libui won't have this issue, as they *should* only need libui present when linking the shared object, not when linking the Go wrapper. I'm not sure; I'd have to find out first.)
@@ -112,6 +130,8 @@ type Path struct {
 }
 
 // TODO
+// 
+// TODO disclaimer
 type FillMode uint
 const (
 	Winding FillMode = iota
@@ -542,4 +562,131 @@ func (f *FontFamilies) Family(n int) string {
 	name := C.GoString(cname)
 	C.uiFreeText(cname)
 	return name
+}
+
+// TextWeight defines the various text weights, in order of
+// increasing weight.
+// 
+// Note that if you leave this field unset, it will default to
+// TextWeightThin. If you want the normal font weight, explicitly
+// use the constant TextWeightNormal instead.
+// TODO realign these?
+// 
+// TODO disclaimer
+type TextWeight int
+const (
+	TextWeightThin TextWeight = iota
+	TextWeightUltraLight
+	TextWeightLight
+	TextWeightBook
+	TextWeightNormal
+	TextWeightMedium
+	TextWeightSemiBold
+	TextWeightBold
+	TextWeightUtraBold
+	TextWeightHeavy
+	TextWeightUltraHeavy
+)
+
+// TextItalic defines the various text italic modes.
+// 
+// TODO disclaimer
+type TextItalic int
+const (
+	TextItalicNormal TextItalic = iota
+	TextItalicOblique			// merely slanted text
+	TextItalicItalic				// true italics
+)
+
+// TextStretch defines the various text stretches, in order of
+// increasing wideness.
+// 
+// Note that if you leave this field unset, it will default to
+// TextStretchUltraCondensed. If you want the normal font
+// stretch, explicitly use the constant TextStretchNormal
+// instead.
+// TODO realign these?
+// 
+// TODO disclaimer
+type TextStretch int
+const (
+	TextStretchUltraCondensed TextStretch = iota
+	TextStretchExtraCondensed
+	TextStretchCondensed
+	TextStretchSemiCondensed
+	TextStretchNormal
+	TextStretchSemiExpanded
+	TextStretchExpanded
+	TextStretchExtraExpanded
+	TextStretchUltraExpanded
+)
+
+// TODO put TextGravity here
+
+// InitialTextStyle defines the text font and style that a TextLayout
+// initially takes. Characters in the TextLayout that do not have any
+// attributes applied will use this style. (Attributes that are not fields
+// of this structure have default values specified in their method
+// descriptions.)
+// 
+// If the requested text style is not available on the system, the
+// closest matching font is used. This means that, for instance,
+// if you specify a Weight of TextWeightUltraHeavy and the
+// heaviest weight available for the chosen font family is actually
+// TextWeightBold, that will be used instead. The specific details
+// of font matching beyond this description are implementation
+// defined.
+// 
+// TODO rename this TextFontDescriptor?
+type InitialTextStyle struct {
+	Family		string
+	Size			float64		// as a text size, for instance 12 for a 12-point font
+	Weight		TextWeight
+	Italic			TextItalic
+	SmallCaps	bool
+	Stretch		TextStretch
+	// TODO gravity
+}
+
+// TextLayout is the entry point for formatting a block of text to be
+// drawn onto a DrawContext.
+// 
+// The block of text to lay out and the initial attributes are provided
+// at TextLayout creation time and cannot be changed later.
+// However, you may add attributes to various points of the text
+// at any time, even after drawing the text once (unlike a DrawPath).
+// Some of these attributes also have initial values; refer to each
+// method to see what they are.
+type TextLayout struct {
+	l	*C.uiDrawTextLayout
+}
+
+// NewTextLayout creates a new TextLayout.
+func NewTextLayout(text string, initialStyle *InitialTextStyle) *TextLayout {
+	l := new(TextLayout)
+	ctext := C.CString(text)		// all three of these are cleaned up by C.newTextLayout()
+	is := C.newInitialTextStyle()
+	is.Family = C.CString(initialStyle.Family)
+	is.Size = C.double(initialStyle.Size)
+	is.Weight = C.uiDrawTextWeight(initialStyle.Weight)
+	is.Italic = C.uiDrawTextItalic(initialStyle.Italic)
+	is.SmallCaps = frombool(initialStyle.SmallCaps)
+	is.Stretch = C.uiDrawTextStretch(initialStyle.Stretch)
+//	is.Gravity = C.uiDrawTextGravity(initialStyle.Gravity)
+	is.Gravity = C.uiDrawTextGravitySouth
+	l.l = C.newTextLayout(ctext, is)
+	return l
+}
+
+// Free destroys a TextLayout. After calling Free the TextLayout
+// cannot be used.
+func (l *TextLayout) Free() {
+	C.uiDrawFreeTextLayout(l.l)
+}
+
+// Text draws the given TextLayout onto c at the given point.
+// The point refers to the top-left corner of the text.
+// (TODO bounding box or typographical extent?)
+func (c *DrawContext) Text(x float64, y float64, layout *TextLayout) {
+	C.uiDrawText(c.c, C.double(x), C.double(y), layout.l)
 }
