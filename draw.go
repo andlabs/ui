@@ -697,6 +697,7 @@ func (f *Font) Handle() uintptr {
 // Describe returns the FontDescriptor that most closely matches
 // this Font.
 // TODO guarantees about idempotency
+// TODO rewrite that first sentence
 func (f *Font) Describe() *FontDescriptor {
 	panic("TODO unimplemented")
 }
