@@ -649,9 +649,9 @@ type Font struct {
 // LoadClosestFont loads a Font.
 // 
 // You pass the properties of the ideal font you want to load in the
-// FontDescriptor you pass to this function. If the requested text
-// style is not available on the system, the closest matching font is
-// used. This means that, for instance, if you specify a Weight of
+// FontDescriptor you pass to this function. If the requested font
+// is not available on the system, the closest matching font is used.
+// This means that, for instance, if you specify a Weight of
 // TextWeightUltraHeavy and the heaviest weight available for the
 // chosen font family is actually TextWeightBold, that will be used
 // instead. The specific details of font matching beyond this
