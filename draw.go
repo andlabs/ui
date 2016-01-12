@@ -72,22 +72,29 @@ package ui
 // {
 // 	free(m);
 // }
-// static uiDrawInitialTextStyle *newInitialTextStyle(void)
+// static uiDrawTextFontDescriptor *newFontDescriptor(void)
 // {
-// 	uiDrawInitialTextStyle *is;
+// 	uiDrawTextFontDescriptor *desc;
 // 
-// 	is = (uiDrawInitialTextStyle *) malloc(sizeof (uiDrawInitialTextStyle));
+// 	desc = (uiDrawTextFontDescriptor *) malloc(sizeof (uiDrawTextFontDescriptor));
 // 	// TODO
-// 	return is;
+// 	return desc;
 // }
-// static uiDrawTextLayout *newTextLayout(char *text, uiDrawInitialTextStyle *is)
+// static uiDrawTextFont *newFont(uiDrawTextFontDescriptor *desc)
+// {
+// 	uiDrawTextFont *font;
+// 
+// 	font = uiDrawLoadClosestFont(desc);
+// 	free((char *) (desc->Family));
+// 	free(desc);
+// 	return font;
+// }
+// static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont)
 // {
 // 	uiDrawTextLayout *layout;
 // 
-// 	layout = uiDrawNewTextLayout(text, is);
+// 	layout = uiDrawNewTextLayout(text, defaultFont);
 // 	free(text);
-// 	free((char *) (is->Family));
-// 	free(is);
 // 	return layout;
 // }
 import "C"
@@ -623,22 +630,8 @@ const (
 
 // TODO put TextGravity here
 
-// InitialTextStyle defines the text font and style that a TextLayout
-// initially takes. Characters in the TextLayout that do not have any
-// attributes applied will use this style. (Attributes that are not fields
-// of this structure have default values specified in their method
-// descriptions.)
-// 
-// If the requested text style is not available on the system, the
-// closest matching font is used. This means that, for instance,
-// if you specify a Weight of TextWeightUltraHeavy and the
-// heaviest weight available for the chosen font family is actually
-// TextWeightBold, that will be used instead. The specific details
-// of font matching beyond this description are implementation
-// defined.
-// 
-// TODO rename this TextFontDescriptor?
-type InitialTextStyle struct {
+// FontDescriptor describes a Font.
+type FontDescriptor struct {
 	Family		string
 	Size			float64		// as a text size, for instance 12 for a 12-point font
 	Weight		TextWeight
@@ -648,10 +641,71 @@ type InitialTextStyle struct {
 	// TODO gravity
 }
 
+// Font represents an actual font that can be drawn with.
+type Font struct {
+	f	*C.uiDrawTextFont
+}
+
+// LoadClosestFont loads a Font.
+// 
+// You pass the properties of the ideal font you want to load in the
+// FontDescriptor you pass to this function. If the requested text
+// style is not available on the system, the closest matching font is
+// used. This means that, for instance, if you specify a Weight of
+// TextWeightUltraHeavy and the heaviest weight available for the
+// chosen font family is actually TextWeightBold, that will be used
+// instead. The specific details of font matching beyond this
+// description are implementation defined. This also means that
+// getting a descriptor back out of a Font may return a different
+// desriptor.
+// 
+// TODO guarantee that passing *that* back into LoadClosestFont() returns the same font
+func LoadClosestFont(desc *FontDescriptor) *Font {
+	d := C.newFontDescriptor()		// both of these are freed by C.newFont()
+	d.Family = C.CString(desc.Family)
+	d.Size = C.double(desc.Size)
+	d.Weight = C.uiDrawTextWeight(desc.Weight)
+	d.Italic = C.uiDrawTextItalic(desc.Italic)
+	d.SmallCaps = frombool(desc.SmallCaps)
+	d.Stretch = C.uiDrawTextStretch(desc.Stretch)
+//	d.Gravity = C.uiDrawTextGravity(desc.Gravity)
+	d.Gravity = C.uiDrawTextGravitySouth
+	return &Font{
+		f:	C.newFont(d),
+	}
+}
+
+// Free destroys a Font. After calling Free the Font cannot be used.
+func (f *Font) Free() {
+	C.uiDrawFreeTextFont(f.f)
+}
+
+// Handle returns the OS font object that backs this Font. On OSs
+// that use reference counting for font objects, Handle does not
+// increment the reference count; you are sharing package ui's
+// reference.
+// 
+// On Windows this is a pointer to an IDWriteFont.
+// 
+// On Unix systems this is a pointer to a PangoFont.
+// 
+// On OS X this is a CTFontRef.
+func (f *Font) Handle() uintptr {
+	return uintptr(C.uiDrawTextFontHandle(f.f))
+}
+
+// Describe returns the FontDescriptor that most closely matches
+// this Font.
+// TODO guarantees about idempotency
+func (f *Font) Describe() *FontDescriptor {
+	panic("TODO unimplemented")
+}
+
 // TextLayout is the entry point for formatting a block of text to be
 // drawn onto a DrawContext.
 // 
-// The block of text to lay out and the initial attributes are provided
+// The block of text to lay out and the default font that is used if no
+// font attributes are applied to a given character are provided
 // at TextLayout creation time and cannot be changed later.
 // However, you may add attributes to various points of the text
 // at any time, even after drawing the text once (unlike a DrawPath).
@@ -662,19 +716,10 @@ type TextLayout struct {
 }
 
 // NewTextLayout creates a new TextLayout.
-func NewTextLayout(text string, initialStyle *InitialTextStyle) *TextLayout {
+func NewTextLayout(text string, defaultFont *Font) *TextLayout {
 	l := new(TextLayout)
-	ctext := C.CString(text)		// all three of these are cleaned up by C.newTextLayout()
-	is := C.newInitialTextStyle()
-	is.Family = C.CString(initialStyle.Family)
-	is.Size = C.double(initialStyle.Size)
-	is.Weight = C.uiDrawTextWeight(initialStyle.Weight)
-	is.Italic = C.uiDrawTextItalic(initialStyle.Italic)
-	is.SmallCaps = frombool(initialStyle.SmallCaps)
-	is.Stretch = C.uiDrawTextStretch(initialStyle.Stretch)
-//	is.Gravity = C.uiDrawTextGravity(initialStyle.Gravity)
-	is.Gravity = C.uiDrawTextGravitySouth
-	l.l = C.newTextLayout(ctext, is)
+	ctext := C.CString(text)		// freed by C.newTextLayout()
+	l.l = C.newTextLayout(ctext, defaultFont.f)
 	return l
 }
 
