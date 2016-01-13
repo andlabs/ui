@@ -97,6 +97,18 @@ package ui
 // 	free(text);
 // 	return layout;
 // }
+// static uiDrawTextFontMetrics *newFontMetrics(void)
+// {
+// 	uiDrawTextFontMetrics *m;
+// 
+// 	m = (uiDrawTextFontMetrics *) malloc(sizeof (uiDrawTextFontMetrics));
+// 	// TODO
+// 	return m;
+// }
+// static void freeFontMetrics(uiDrawTextFontMetrics *m)
+// {
+// 	free(m);
+// }
 import "C"
 
 // BUG(andlabs): Ideally, all the drawing APIs should be in another package ui/draw (they all have the "uiDraw" prefix in C to achieve a similar goal of avoiding confusing programmers via namespace pollution); managing the linkage of the libui shared library itself across multiple packages is likely going to be a pain, though. (Custom controls implemented using libui won't have this issue, as they *should* only need libui present when linking the shared object, not when linking the Go wrapper. I'm not sure; I'd have to find out first.)
@@ -700,6 +712,45 @@ func (f *Font) Handle() uintptr {
 // TODO rewrite that first sentence
 func (f *Font) Describe() *FontDescriptor {
 	panic("TODO unimplemented")
+}
+
+// FontMetrics holds various measurements about a Font.
+// All metrics are in the same point units used for drawing.
+type FontMetrics struct {
+	// Ascent is the ascent of the font; that is, the distance from
+	// the top of the character cell to the baseline.
+	Ascent			float64
+
+	// Descent is the descent of the font; that is, the distance from
+	// the baseline to the bottom of the character cell. The sum of
+	// Ascent and Descent is the height of the character cell (and
+	// thus, the maximum height of a line of text).
+	Descent			float64
+
+	// Leading is the amount of space the font designer suggests
+	// to have between lines (between the bottom of the first line's
+	// character cell and the top of the second line's character cell).
+	// This is a suggestion; it is chosen by the font designer to
+	// improve legibility.
+	Leading			float64
+
+	// TODO figure out what these are
+	UnderlinePos		float64
+	UnderlineThickness	float64
+}
+
+// Metrics returns metrics about the given Font.
+func (f *Font) Metrics() *FontMetrics {
+	m := new(FontMetrics)
+	mm := C.newFontMetrics()
+	C.uiDrawTextFontGetMetrics(f.f, mm)
+	m.Ascent = float64(mm.Ascent)
+	m.Descent = float64(mm.Descent)
+	m.Leading = float64(mm.Leading)
+	m.UnderlinePos = float64(mm.UnderlinePos)
+	m.UnderlineThickness = float64(mm.UnderlineThickness)
+	C.freeFontMetrics(mm)
+	return m
 }
 
 // TextLayout is the entry point for formatting a block of text to be
