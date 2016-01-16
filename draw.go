@@ -89,11 +89,11 @@ package ui
 // 	free(desc);
 // 	return font;
 // }
-// static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont)
+// static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont, double width)
 // {
 // 	uiDrawTextLayout *layout;
 // 
-// 	layout = uiDrawNewTextLayout(text, defaultFont);
+// 	layout = uiDrawNewTextLayout(text, defaultFont, width);
 // 	free(text);
 // 	return layout;
 // }
@@ -108,6 +108,19 @@ package ui
 // static void freeFontMetrics(uiDrawTextFontMetrics *m)
 // {
 // 	free(m);
+// }
+// static double *newDouble(void)
+// {
+// 	double *d;
+// 
+// 	d = (double *) malloc(sizeof (double));
+// 	// TODO
+// 	return d;
+// }
+// static void freeDoubles(double *a, double *b)
+// {
+// 	free(a);
+// 	free(b);
 // }
 import "C"
 
@@ -763,15 +776,19 @@ func (f *Font) Metrics() *FontMetrics {
 // at any time, even after drawing the text once (unlike a DrawPath).
 // Some of these attributes also have initial values; refer to each
 // method to see what they are.
+// 
+// The block of text can either be a single line or multiple
+// word-wrapped lines, each with a given maximum width.
 type TextLayout struct {
 	l	*C.uiDrawTextLayout
 }
 
 // NewTextLayout creates a new TextLayout.
-func NewTextLayout(text string, defaultFont *Font) *TextLayout {
+// For details on the width parameter, see SetWidth.
+func NewTextLayout(text string, defaultFont *Font, width float64) *TextLayout {
 	l := new(TextLayout)
 	ctext := C.CString(text)		// freed by C.newTextLayout()
-	l.l = C.newTextLayout(ctext, defaultFont.f)
+	l.l = C.newTextLayout(ctext, defaultFont.f, C.double(width))
 	return l
 }
 
@@ -779,6 +796,28 @@ func NewTextLayout(text string, defaultFont *Font) *TextLayout {
 // cannot be used.
 func (l *TextLayout) Free() {
 	C.uiDrawFreeTextLayout(l.l)
+}
+
+// SetWidth sets the maximum width of the lines of text in a
+// TextLayout. If the given width is negative, then the TextLayout
+// will draw as a single line of text instead.
+func (l *TextLayout) SetWidth(width float64) {
+	C.uiDrawTextLayoutSetWidth(l.l, C.double(width))
+}
+
+// Extents returns the width and height that the TextLayout will
+// actually take up when drawn. This measures full line allocations,
+// even if no glyph reaches to the top of its ascent or bottom of its
+// descent; it does not return a "best fit" rectnagle for the points that
+// are actually drawn.
+func (l *TextLayout) Extents() (width float64, height float64) {
+	cwidth := C.newDouble()
+	cheight := C.newDouble()
+	C.uiDrawTextLayoutExtents(l.l, cwidth, cheight)
+	width = float64(*cwidth)
+	height = float64(*cheight)
+	C.freeDoubles(cwidth, cheight)
+	return width, height
 }
 
 // Text draws the given TextLayout onto c at the given point.
