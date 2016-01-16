@@ -810,6 +810,16 @@ func (l *TextLayout) SetWidth(width float64) {
 // even if no glyph reaches to the top of its ascent or bottom of its
 // descent; it does not return a "best fit" rectnagle for the points that
 // are actually drawn.
+// 
+// For a single-line TextLayout (where the width is negative), if there
+// are no font changes throughout the TextLayout, then the height
+// returned by TextLayout is equivalent to the sum of the ascent and
+// descent of its default font's metrics. Or in other words, after
+// 	f := ui.LoadClosestFont(...)
+// 	l := ui.NewTextLayout("text", f, -1)
+// 	metrics := f.Metrics()
+// 	_, height := l.Extents()
+// metrics.Ascent+metrics.Descent and height are equivalent.
 func (l *TextLayout) Extents() (width float64, height float64) {
 	cwidth := C.newDouble()
 	cheight := C.newDouble()
