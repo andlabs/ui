@@ -286,6 +286,7 @@ const (
 // TODO
 // 
 // TODO disclaimer
+// TODO rename these to put LineCap at the beginning? or just Cap?
 type LineCap int
 const (
 	FlatCap LineCap = iota
