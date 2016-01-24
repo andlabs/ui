@@ -415,6 +415,7 @@ func (c *DrawContext) Fill(p *Path, b *Brush) {
 }
 
 // TODO
+// TODO should the methods of these return self for chaining?
 type Matrix struct {
 	M11		float64
 	M12		float64
