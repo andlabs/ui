@@ -142,3 +142,15 @@ func (a *Area) SetSize(width int, height int) {
 func (a *Area) QueueRedrawAll() {
 	C.uiAreaQueueRedrawAll(a.a)
 }
+
+// ScrollTo scrolls the Area to show the given rectangle; what this
+// means is implementation-defined, but you can safely assume
+// that as much of the given rectangle as possible will be visible
+// after this call. (TODO verify this on OS X) ScrollTo panics if called
+// on a non-scrolling Area.
+func (a *Area) ScrollTo(x float64, y float64, width float64, height float64) {
+	if !a.scrolling {
+		panic("attempt to call ScrollTo on non-scrolling Area")
+	}
+	C.uiAreaScrollTo(a.a, C.double(x), C.double(y), C.double(width), C.double(height))
+}
