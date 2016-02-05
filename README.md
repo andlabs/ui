@@ -26,7 +26,7 @@ If you want to play around with this new package ui, you'll need to install libu
 
 - On Windows, merely copy out\libui.dll to the root of this repo.
 	- Go 1.5 is adequate.
-	- Use `go build -ldflags="-H windowsgui` to compile so Windows won't open the console window
+	- Use `go build -ldflags="-H windowsgui"` to compile so Windows won't open the console window
 - On OS X, copy out/libui.A.dylib to the root of this repo as libui.A.dylib and symlink it to libui.dylib
 	- You must also be running Go 1.6 Beta 2 or newer due to more Go bugs.
 - On other Unixes, copy out/libui.so.0 to the root of this repo as libui.so.0 and symlink it to libui.so
