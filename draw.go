@@ -4,12 +4,13 @@ package ui
 
 // #include <stdlib.h>
 // #include "ui.h"
+// // TODO figure this one out
+// extern void *uimalloc(size_t);
 // static uiDrawBrush *newBrush(void)
 // {
 // 	uiDrawBrush *b;
 // 
-// 	b = (uiDrawBrush *) malloc(sizeof (uiDrawBrush));
-// 	// TODO
+// 	b = (uiDrawBrush *) uimalloc(sizeof (uiDrawBrush));
 // 	return b;
 // }
 // static uiDrawBrushGradientStop *newStops(size_t n)
