@@ -662,7 +662,6 @@ type FontDescriptor struct {
 	Size			float64		// as a text size, for instance 12 for a 12-point font
 	Weight		TextWeight
 	Italic			TextItalic
-	SmallCaps	bool
 	Stretch		TextStretch
 }
 
@@ -691,7 +690,6 @@ func LoadClosestFont(desc *FontDescriptor) *Font {
 	d.Size = C.double(desc.Size)
 	d.Weight = C.uiDrawTextWeight(desc.Weight)
 	d.Italic = C.uiDrawTextItalic(desc.Italic)
-	d.SmallCaps = frombool(desc.SmallCaps)
 	d.Stretch = C.uiDrawTextStretch(desc.Stretch)
 	return &Font{
 		f:	C.newFont(d),
