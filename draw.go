@@ -656,8 +656,6 @@ const (
 	TextStretchUltraExpanded
 )
 
-// TODO put TextGravity here
-
 // FontDescriptor describes a Font.
 type FontDescriptor struct {
 	Family		string
@@ -666,7 +664,6 @@ type FontDescriptor struct {
 	Italic			TextItalic
 	SmallCaps	bool
 	Stretch		TextStretch
-	// TODO gravity
 }
 
 // Font represents an actual font that can be drawn with.
@@ -696,8 +693,6 @@ func LoadClosestFont(desc *FontDescriptor) *Font {
 	d.Italic = C.uiDrawTextItalic(desc.Italic)
 	d.SmallCaps = frombool(desc.SmallCaps)
 	d.Stretch = C.uiDrawTextStretch(desc.Stretch)
-//	d.Gravity = C.uiDrawTextGravity(desc.Gravity)
-	d.Gravity = C.uiDrawTextGravitySouth
 	return &Font{
 		f:	C.newFont(d),
 	}
