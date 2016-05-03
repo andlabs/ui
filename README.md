@@ -1,6 +1,6 @@
 # ui: platform-native GUI library for Go
 
-# This package is still very much WIP.
+# This package is still very much WIP. DO NOT SIMPLY `go get` THE PACKAGE AS IT IS RIGHT NOW; IT WILL NOT WORK. READ BELOW.
 
 As of December 2015 the previous package ui API that has been around since this repo was started is no longer being supported. It is being replaced with a much more stable API built around my libui; see below.
 
