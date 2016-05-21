@@ -11,10 +11,6 @@ import "C"
 
 // RadioButtons is a Control that represents a set of checkable
 // buttons from which exactly one may be chosen by the user.
-// 
-// Due to platform-specific limitations, it is impossible for a
-// RadioButtons to have no button selected (unless there are no
-// buttons).
 type RadioButtons struct {
 	c	*C.uiControl
 	r	*C.uiRadioButtons
@@ -47,7 +43,7 @@ func (r *RadioButtons) LibuiControl() uintptr {
 // child windows are instances of the standard Windows API
 // BUTTON class (as provided by Common Controls version 6).
 // On GTK+ this is a pointer to a GtkBox containing GtkRadioButtons.
-// On OS X this is a pointer to a NSMatrix with NSButtonCell cells.
+// On OS X this is a pointer to a NSView with each radio button as a NSButton subview.
 func (r *RadioButtons) Handle() uintptr {
 	return uintptr(C.uiControlHandle(r.c))
 }
