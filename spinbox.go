@@ -27,7 +27,7 @@ type Spinbox struct {
 	onChanged		func(*Spinbox)
 }
 
-// NewSpinbox creates a new Spinbox. TODO limits
+// NewSpinbox creates a new Spinbox. If min >= max, they are swapped.
 func NewSpinbox(min int, max int) *Spinbox {
 	s := new(Spinbox)
 

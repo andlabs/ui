@@ -27,7 +27,7 @@ type Slider struct {
 	onChanged		func(*Slider)
 }
 
-// NewSlider creates a new Slider. TODO limits
+// NewSlider creates a new Slider. If min >= max, they are swapped.
 func NewSlider(min int, max int) *Slider {
 	s := new(Slider)
 
