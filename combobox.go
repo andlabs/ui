@@ -41,7 +41,7 @@ func NewCombobox() *Combobox {
 
 	return c
 }
-
+/*TODO
 // NewEditableCombobox creates a new editable Combobox.
 func NewEditableCombobox() *Combobox {
 	c := new(Combobox)
@@ -54,7 +54,7 @@ func NewEditableCombobox() *Combobox {
 
 	return c
 }
-
+*/
 // Destroy destroys the Combobox.
 func (c *Combobox) Destroy() {
 	delete(comboboxes, c.c)

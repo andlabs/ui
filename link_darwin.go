@@ -2,7 +2,7 @@
 
 package ui
 
-// #cgo LDFLAGS: -L${SRCDIR} -lui -framework CoreFoundation -lpthread -Wl,-rpath,@executable_path/
+// #cgo LDFLAGS: ${SRCDIR}/libui_darwin.a -framework Foundation -framework AppKit -lpthread
 // /* (thanks to http://jorgen.tjer.no/post/2014/05/20/dt-rpath-ld-and-at-rpath-dyld/ for the @executable_path clarifiaction) */
 // #include <CoreFoundation/CoreFoundation.h>
 // #include <pthread.h>
