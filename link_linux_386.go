@@ -5,7 +5,8 @@
 
 package ui
 
-// #cgo LDFLAGS: -L${SRCDIR} -lui -Wl,-rpath=$ORIGIN
+// #cgo LDFLAGS: ${SRCDIR}/libui_linux_386.a -Wl,-rpath=$ORIGIN
+// #cgo pkg-config: gtk+-3.0
 import "C"
 
 func ensureMainThread() {
