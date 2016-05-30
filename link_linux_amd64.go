@@ -5,7 +5,7 @@
 
 package ui
 
-// #cgo LDFLAGS: ${SRCDIR}/libui_linux_amd64.a -Wl,-rpath=$ORIGIN
+// #cgo LDFLAGS: ${SRCDIR}/libui_linux_amd64.a -lm -ldl
 // #cgo pkg-config: gtk+-3.0
 import "C"
 
