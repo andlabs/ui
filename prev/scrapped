@@ -1,4 +1,0 @@
-Window.SetSize()
-Window.Center() (only really effective on Mac OS X)
-Control.Show()/Control.Hide() (too much effort to get right)
-Multiple selection Tables (Windows and GTK+ event handling is some wacky dumb thing; could reconsider for Windows if I can write a good replacement but GTK+ still kills it)
