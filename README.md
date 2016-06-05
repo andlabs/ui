@@ -1,23 +1,18 @@
 # ui: platform-native GUI library for Go
 
-# This package is still very much WIP. DO NOT SIMPLY `go get` THE PACKAGE AS IT IS RIGHT NOW; IT WILL NOT WORK. READ BELOW.
+# Update 5 June 2016: You can FINALLY `go get` this package!
 
-As of December 2015 the previous package ui API that has been around since this repo was started is no longer being supported. It is being replaced with a much more stable API built around my libui; see below.
+`go get` should work out of the box for the following configurations:
 
-If you still want to use the old package ui, you can get the package under the `pre-libui` tag. Keep in mind that it's not stable, buggy, and **no longer supported**. If you do continue, make sure that instances of `ui.Window` escape to the heap to avoid some of the issues.
+* darwin/amd64
+* linux/386
+* linux/amd64
+* windows/386
+* windows/amd64
 
-If you want to play around with this new package ui, you'll need to install libui manually. Clone that repo and `make` (with GNU make) libui, then:
+Everything is now fully static — no DLLs or shared objects anymore!
 
-- On Windows, merely copy out\libui.dll to the root of this repo.
-	- Go 1.5 is adequate.
-- On OS X, copy out/libui.A.dylib to the root of this repo as libui.A.dylib and symlink it to libui.dylib
-	- You must also be running Go 1.6 Beta 2 or newer due to more Go bugs.
-- On other Unixes, copy out/libui.so.0 to the root of this repo as libui.so.0 and symlink it to libui.so
-	- Go 1.5 is adequate.
-
-and then copy ui.h to the top of this repo as well. (You may symlink any files instead of copying if so choose.)
-
-Stable releases of package ui will have all these files built in; these steps are only necessary for master builds.
+Note that these might not fully work right now, as the libui Alpha 3.1 API isn't fully implemented yet, and there might be residual binding problems. Hopefully none which require an Alpha 3.2...
 
 # New README
 
