@@ -17,14 +17,14 @@ func MsgBoxError(w *Window, title string, description string) {
 func OpenFile(w *Window) string {
 	cname := C.uiOpenFile(w.w)
 	name := C.GoString(cname)
-	freestr(cname)
+	C.uiFreeText(cname)
 	return name
 }
 
 func SaveFile(w *Window) string {
 	cname := C.uiSaveFile(w.w)
 	name := C.GoString(cname)
-	freestr(cname)
+	C.uiFreeText(cname)
 	return name
 }
 
