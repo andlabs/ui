@@ -127,10 +127,11 @@ func (w *Window) OnClosing(f func(*Window) bool) {
 func doOnClosing(ww *C.uiWindow, data unsafe.Pointer) C.int {
 	w := windows[ww]
 	if w.onClosing == nil {
-		return 0
+		return 1
 	}
 	if w.onClosing(w) {
 		w.Destroy()
+		return 1
 	}
 	return 0
 }
