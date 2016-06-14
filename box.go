@@ -103,8 +103,7 @@ func (b *Box) Append(child Control, stretchy bool) {
 // Delete deletes the nth control of the Box.
 func (b *Box) Delete(n int) {
 	b.children = append(b.children[:n], b.children[n + 1:]...)
-	// TODO why is this uintmax_t instead of intmax_t
-	C.uiBoxDelete(b.b, C.uintmax_t(n))
+	C.uiBoxDelete(b.b, C.int(n))
 }
 
 // Padded returns whether there is space between each control

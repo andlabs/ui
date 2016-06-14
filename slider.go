@@ -31,7 +31,7 @@ type Slider struct {
 func NewSlider(min int, max int) *Slider {
 	s := new(Slider)
 
-	s.s = C.uiNewSlider(C.intmax_t(min), C.intmax_t(max))
+	s.s = C.uiNewSlider(C.int(min), C.int(max))
 	s.c = (*C.uiControl)(unsafe.Pointer(s.s))
 
 	C.realuiSliderOnChanged(s.s)
@@ -90,7 +90,7 @@ func (s *Slider) Value() int {
 
 // SetText sets the Slider's current value to value.
 func (s *Slider) SetValue(value int) {
-	C.uiSliderSetValue(s.s, C.intmax_t(value))
+	C.uiSliderSetValue(s.s, C.int(value))
 }
 
 // OnChanged registers f to be run when the user changes the value
