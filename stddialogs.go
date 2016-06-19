@@ -8,30 +8,34 @@ import "C"
 // TODO
 func MsgBoxError(w *Window, title string, description string) {
 	ctitle := C.CString(title)
+	defer freestr(ctitle)
 	cdescription := C.CString(description)
+	defer freestr(cdescription)
 	C.uiMsgBoxError(w.w, ctitle, cdescription)
-	freestr(ctitle)
-	freestr(cdescription)
 }
 
 func OpenFile(w *Window) string {
 	cname := C.uiOpenFile(w.w)
-	name := C.GoString(cname)
-	C.uiFreeText(cname)
-	return name
+	if cname == nil {
+		return ""
+	}
+	defer C.uiFreeText(cname)
+	return C.GoString(cname)
 }
 
 func SaveFile(w *Window) string {
 	cname := C.uiSaveFile(w.w)
-	name := C.GoString(cname)
-	C.uiFreeText(cname)
-	return name
+	if cname == nil {
+		return ""
+	}
+	defer C.uiFreeText(cname)
+	return C.GoString(cname)
 }
 
 func MsgBox(w *Window, title string, description string) {
 	ctitle := C.CString(title)
+	defer freestr(ctitle)
 	cdescription := C.CString(description)
+	defer freestr(cdescription)
 	C.uiMsgBox(w.w, ctitle, cdescription)
-	freestr(ctitle)
-	freestr(cdescription)
 }
