@@ -32,6 +32,8 @@ extern "C" {
 // This comes from Go's math.Pi, which in turn comes from http://oeis.org/A000796.
 #define uiPi 3.14159265358979323846264338327950288419716939937510582097494459
 
+// TODO uiBool?
+
 typedef struct uiInitOptions uiInitOptions;
 
 struct uiInitOptions {
@@ -125,7 +127,7 @@ _UI_EXTERN uiButton *uiNewButton(const char *text);
 typedef struct uiBox uiBox;
 #define uiBox(this) ((uiBox *) (this))
 _UI_EXTERN void uiBoxAppend(uiBox *b, uiControl *child, int stretchy);
-_UI_EXTERN void uiBoxDelete(uiBox *b, uintmax_t index);
+_UI_EXTERN void uiBoxDelete(uiBox *b, int index);
 _UI_EXTERN int uiBoxPadded(uiBox *b);
 _UI_EXTERN void uiBoxSetPadded(uiBox *b, int padded);
 _UI_EXTERN uiBox *uiNewHorizontalBox(void);
@@ -148,6 +150,8 @@ _UI_EXTERN void uiEntryOnChanged(uiEntry *e, void (*f)(uiEntry *e, void *data), 
 _UI_EXTERN int uiEntryReadOnly(uiEntry *e);
 _UI_EXTERN void uiEntrySetReadOnly(uiEntry *e, int readonly);
 _UI_EXTERN uiEntry *uiNewEntry(void);
+_UI_EXTERN uiEntry *uiNewPasswordEntry(void);
+_UI_EXTERN uiEntry *uiNewSearchEntry(void);
 
 typedef struct uiLabel uiLabel;
 #define uiLabel(this) ((uiLabel *) (this))
@@ -158,11 +162,11 @@ _UI_EXTERN uiLabel *uiNewLabel(const char *text);
 typedef struct uiTab uiTab;
 #define uiTab(this) ((uiTab *) (this))
 _UI_EXTERN void uiTabAppend(uiTab *t, const char *name, uiControl *c);
-_UI_EXTERN void uiTabInsertAt(uiTab *t, const char *name, uintmax_t before, uiControl *c);
-_UI_EXTERN void uiTabDelete(uiTab *t, uintmax_t index);
-_UI_EXTERN uintmax_t uiTabNumPages(uiTab *t);
-_UI_EXTERN int uiTabMargined(uiTab *t, uintmax_t page);
-_UI_EXTERN void uiTabSetMargined(uiTab *t, uintmax_t page, int margined);
+_UI_EXTERN void uiTabInsertAt(uiTab *t, const char *name, int before, uiControl *c);
+_UI_EXTERN void uiTabDelete(uiTab *t, int index);
+_UI_EXTERN int uiTabNumPages(uiTab *t);
+_UI_EXTERN int uiTabMargined(uiTab *t, int page);
+_UI_EXTERN void uiTabSetMargined(uiTab *t, int page, int margined);
 _UI_EXTERN uiTab *uiNewTab(void);
 
 typedef struct uiGroup uiGroup;
@@ -181,17 +185,17 @@ _UI_EXTERN uiGroup *uiNewGroup(const char *title);
 
 typedef struct uiSpinbox uiSpinbox;
 #define uiSpinbox(this) ((uiSpinbox *) (this))
-_UI_EXTERN intmax_t uiSpinboxValue(uiSpinbox *s);
-_UI_EXTERN void uiSpinboxSetValue(uiSpinbox *s, intmax_t value);
+_UI_EXTERN int uiSpinboxValue(uiSpinbox *s);
+_UI_EXTERN void uiSpinboxSetValue(uiSpinbox *s, int value);
 _UI_EXTERN void uiSpinboxOnChanged(uiSpinbox *s, void (*f)(uiSpinbox *s, void *data), void *data);
-_UI_EXTERN uiSpinbox *uiNewSpinbox(intmax_t min, intmax_t max);
+_UI_EXTERN uiSpinbox *uiNewSpinbox(int min, int max);
 
 typedef struct uiSlider uiSlider;
 #define uiSlider(this) ((uiSlider *) (this))
-_UI_EXTERN intmax_t uiSliderValue(uiSlider *s);
-_UI_EXTERN void uiSliderSetValue(uiSlider *s, intmax_t value);
+_UI_EXTERN int uiSliderValue(uiSlider *s);
+_UI_EXTERN void uiSliderSetValue(uiSlider *s, int value);
 _UI_EXTERN void uiSliderOnChanged(uiSlider *s, void (*f)(uiSlider *s, void *data), void *data);
-_UI_EXTERN uiSlider *uiNewSlider(intmax_t min, intmax_t max);
+_UI_EXTERN uiSlider *uiNewSlider(int min, int max);
 
 typedef struct uiProgressBar uiProgressBar;
 #define uiProgressBar(this) ((uiProgressBar *) (this))
@@ -207,8 +211,8 @@ _UI_EXTERN uiSeparator *uiNewVerticalSeparator(void);
 typedef struct uiCombobox uiCombobox;
 #define uiCombobox(this) ((uiCombobox *) (this))
 _UI_EXTERN void uiComboboxAppend(uiCombobox *c, const char *text);
-_UI_EXTERN intmax_t uiComboboxSelected(uiCombobox *c);
-_UI_EXTERN void uiComboboxSetSelected(uiCombobox *c, intmax_t n);
+_UI_EXTERN int uiComboboxSelected(uiCombobox *c);
+_UI_EXTERN void uiComboboxSetSelected(uiCombobox *c, int n);
 _UI_EXTERN void uiComboboxOnSelected(uiCombobox *c, void (*f)(uiCombobox *c, void *data), void *data);
 _UI_EXTERN uiCombobox *uiNewCombobox(void);
 
@@ -224,6 +228,9 @@ _UI_EXTERN uiEditableCombobox *uiNewEditableCombobox(void);
 typedef struct uiRadioButtons uiRadioButtons;
 #define uiRadioButtons(this) ((uiRadioButtons *) (this))
 _UI_EXTERN void uiRadioButtonsAppend(uiRadioButtons *r, const char *text);
+_UI_EXTERN int uiRadioButtonsSelected(uiRadioButtons *r);
+_UI_EXTERN void uiRadioButtonsSetSelected(uiRadioButtons *r, int n);
+_UI_EXTERN void uiRadioButtonsOnSelected(uiRadioButtons *r, void (*f)(uiRadioButtons *, void *), void *data);
 _UI_EXTERN uiRadioButtons *uiNewRadioButtons(void);
 
 typedef struct uiDateTimePicker uiDateTimePicker;
@@ -289,12 +296,12 @@ struct uiAreaHandler {
 #define uiArea(this) ((uiArea *) (this))
 // TODO give a better name
 // TODO document the types of width and height
-_UI_EXTERN void uiAreaSetSize(uiArea *a, intmax_t width, intmax_t height);
+_UI_EXTERN void uiAreaSetSize(uiArea *a, int width, int height);
 // TODO uiAreaQueueRedraw()
 _UI_EXTERN void uiAreaQueueRedrawAll(uiArea *a);
 _UI_EXTERN void uiAreaScrollTo(uiArea *a, double x, double y, double width, double height);
 _UI_EXTERN uiArea *uiNewArea(uiAreaHandler *ah);
-_UI_EXTERN uiArea *uiNewScrollingArea(uiAreaHandler *ah, intmax_t width, intmax_t height);
+_UI_EXTERN uiArea *uiNewScrollingArea(uiAreaHandler *ah, int width, int height);
 
 struct uiAreaDrawParams {
 	uiDrawContext *Context;
@@ -451,12 +458,12 @@ _UI_EXTERN void uiDrawRestore(uiDrawContext *c);
 
 // TODO manage the use of Text, Font, and TextFont, and of the uiDrawText prefix in general
 
-///// TODO
+///// TODO reconsider this
 typedef struct uiDrawFontFamilies uiDrawFontFamilies;
 
 _UI_EXTERN uiDrawFontFamilies *uiDrawListFontFamilies(void);
-_UI_EXTERN uintmax_t uiDrawFontFamiliesNumFamilies(uiDrawFontFamilies *ff);
-_UI_EXTERN char *uiDrawFontFamiliesFamily(uiDrawFontFamilies *ff, uintmax_t n);
+_UI_EXTERN int uiDrawFontFamiliesNumFamilies(uiDrawFontFamilies *ff);
+_UI_EXTERN char *uiDrawFontFamiliesFamily(uiDrawFontFamilies *ff, int n);
 _UI_EXTERN void uiDrawFreeFontFamilies(uiDrawFontFamilies *ff);
 ///// END TODO
 
@@ -530,7 +537,7 @@ _UI_EXTERN void uiDrawTextLayoutSetWidth(uiDrawTextLayout *layout, double width)
 _UI_EXTERN void uiDrawTextLayoutExtents(uiDrawTextLayout *layout, double *width, double *height);
 
 // and the attributes that you can set on a text layout
-_UI_EXTERN void uiDrawTextLayoutSetColor(uiDrawTextLayout *layout, intmax_t startChar, intmax_t endChar, double r, double g, double b, double a);
+_UI_EXTERN void uiDrawTextLayoutSetColor(uiDrawTextLayout *layout, int startChar, int endChar, double r, double g, double b, double a);
 
 _UI_EXTERN void uiDrawText(uiDrawContext *c, double x, double y, uiDrawTextLayout *layout);
 
@@ -551,10 +558,10 @@ struct uiAreaMouseEvent {
 	double AreaWidth;
 	double AreaHeight;
 
-	uintmax_t Down;
-	uintmax_t Up;
+	int Down;
+	int Up;
 
-	uintmax_t Count;
+	int Count;
 
 	uiModifiers Modifiers;
 
@@ -659,7 +666,7 @@ _UI_EXTERN void uiGridSetPadded(uiGrid *g, int padded);
 _UI_EXTERN uiGrid *uiNewGrid(void);
 
 // TODO merge
-#include "uitable.h"
+//#include "uitable.h"
 
 #ifdef __cplusplus
 }
