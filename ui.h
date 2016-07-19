@@ -43,6 +43,7 @@ _UI_EXTERN void uiUninit(void);
 _UI_EXTERN void uiFreeInitError(const char *err);
 
 _UI_EXTERN void uiMain(void);
+_UI_EXTERN void uiMainSteps(void);
 _UI_EXTERN int uiMainStep(int wait);
 _UI_EXTERN void uiQuit(void);
 
@@ -97,7 +98,18 @@ typedef struct uiWindow uiWindow;
 #define uiWindow(this) ((uiWindow *) (this))
 _UI_EXTERN char *uiWindowTitle(uiWindow *w);
 _UI_EXTERN void uiWindowSetTitle(uiWindow *w, const char *title);
+_UI_EXTERN void uiWindowPosition(uiWindow *w, int *x, int *y);
+_UI_EXTERN void uiWindowSetPosition(uiWindow *w, int x, int y);
+_UI_EXTERN void uiWindowCenter(uiWindow *w);
+_UI_EXTERN void uiWindowOnPositionChanged(uiWindow *w, void (*f)(uiWindow *, void *), void *data);
+_UI_EXTERN void uiWindowContentSize(uiWindow *w, int *width, int *height);
+_UI_EXTERN void uiWindowSetContentSize(uiWindow *w, int width, int height);
+_UI_EXTERN int uiWindowFullscreen(uiWindow *w);
+_UI_EXTERN void uiWindowSetFullscreen(uiWindow *w, int fullscreen);
+_UI_EXTERN void uiWindowOnContentSizeChanged(uiWindow *w, void (*f)(uiWindow *, void *), void *data);
 _UI_EXTERN void uiWindowOnClosing(uiWindow *w, int (*f)(uiWindow *w, void *data), void *data);
+_UI_EXTERN int uiWindowBorderless(uiWindow *w);
+_UI_EXTERN void uiWindowSetBorderless(uiWindow *w, int borderless);
 _UI_EXTERN void uiWindowSetChild(uiWindow *w, uiControl *child);
 _UI_EXTERN int uiWindowMargined(uiWindow *w);
 _UI_EXTERN void uiWindowSetMargined(uiWindow *w, int margined);
@@ -183,13 +195,14 @@ _UI_EXTERN uiSlider *uiNewSlider(intmax_t min, intmax_t max);
 
 typedef struct uiProgressBar uiProgressBar;
 #define uiProgressBar(this) ((uiProgressBar *) (this))
-// TODO uiProgressBarValue()
+_UI_EXTERN int uiProgressBarValue(uiProgressBar *p);
 _UI_EXTERN void uiProgressBarSetValue(uiProgressBar *p, int n);
 _UI_EXTERN uiProgressBar *uiNewProgressBar(void);
 
 typedef struct uiSeparator uiSeparator;
 #define uiSeparator(this) ((uiSeparator *) (this))
 _UI_EXTERN uiSeparator *uiNewHorizontalSeparator(void);
+_UI_EXTERN uiSeparator *uiNewVerticalSeparator(void);
 
 typedef struct uiCombobox uiCombobox;
 #define uiCombobox(this) ((uiCombobox *) (this))
@@ -614,6 +627,39 @@ _UI_EXTERN void uiColorButtonColor(uiColorButton *b, double *r, double *g, doubl
 _UI_EXTERN void uiColorButtonSetColor(uiColorButton *b, double r, double g, double bl, double a);
 _UI_EXTERN void uiColorButtonOnChanged(uiColorButton *b, void (*f)(uiColorButton *, void *), void *data);
 _UI_EXTERN uiColorButton *uiNewColorButton(void);
+
+typedef struct uiForm uiForm;
+#define uiForm(this) ((uiForm *) (this))
+_UI_EXTERN void uiFormAppend(uiForm *f, const char *label, uiControl *c, int stretchy);
+_UI_EXTERN void uiFormDelete(uiForm *f, int index);
+_UI_EXTERN int uiFormPadded(uiForm *f);
+_UI_EXTERN void uiFormSetPadded(uiForm *f, int padded);
+_UI_EXTERN uiForm *uiNewForm(void);
+
+_UI_ENUM(uiAlign) {
+	uiAlignFill,
+	uiAlignStart,
+	uiAlignCenter,
+	uiAlignEnd,
+};
+
+_UI_ENUM(uiAt) {
+	uiAtLeading,
+	uiAtTop,
+	uiAtTrailing,
+	uiAtBottom,
+};
+
+typedef struct uiGrid uiGrid;
+#define uiGrid(this) ((uiGrid *) (this))
+_UI_EXTERN void uiGridAppend(uiGrid *g, uiControl *c, int left, int top, int xspan, int yspan, int hexpand, uiAlign halign, int vexpand, uiAlign valign);
+_UI_EXTERN void uiGridInsertAt(uiGrid *g, uiControl *c, uiControl *existing, uiAt at, int xspan, int yspan, int hexpand, uiAlign halign, int vexpand, uiAlign valign);
+_UI_EXTERN int uiGridPadded(uiGrid *g);
+_UI_EXTERN void uiGridSetPadded(uiGrid *g, int padded);
+_UI_EXTERN uiGrid *uiNewGrid(void);
+
+// TODO merge
+#include "uitable.h"
 
 #ifdef __cplusplus
 }
