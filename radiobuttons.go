@@ -2,18 +2,26 @@
 
 package ui
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 // #include "ui.h"
+// extern void doRadioButtonsOnSelected(uiRadioButtons *, void *);
+// static inline void realuiRadioButtonsOnSelected(uiRadioButtons *r)
+// {
+// 	uiRadioButtonsOnSelected(r, doRadioButtonsOnSelected, NULL);
+// }
 import "C"
+
+// no need to lock this; only the GUI thread can access it
+var radioButtons = make(map[*C.uiRadioButtons]*RadioButtons)
 
 // RadioButtons is a Control that represents a set of checkable
 // buttons from which exactly one may be chosen by the user.
 type RadioButtons struct {
-	c	*C.uiControl
-	r	*C.uiRadioButtons
+	c *C.uiControl
+	r *C.uiRadioButtons
+
+	onSelected func(*RadioButtons)
 }
 
 // NewRadioButtons creates a new RadioButtons.
@@ -22,6 +30,9 @@ func NewRadioButtons() *RadioButtons {
 
 	r.r = C.uiNewRadioButtons()
 	r.c = (*C.uiControl)(unsafe.Pointer(r.r))
+
+	C.realuiRadioButtonsOnSelected(r.r)
+	radioButtons[r.r] = r
 
 	return r
 }
@@ -74,4 +85,30 @@ func (r *RadioButtons) Append(text string) {
 	ctext := C.CString(text)
 	C.uiRadioButtonsAppend(r.r, ctext)
 	freestr(ctext)
+}
+
+// Selected returns the index of the currently selected item in the
+// RadioButtons.
+func (r *RadioButtons) Selected() int {
+	return int(C.uiRadioButtonsSelected(r.r))
+}
+
+// SetSelected sets the currently select item in the RadioButtons
+// to index.
+func (r *RadioButtons) SetSelected(index int) {
+	C.uiRadioButtonsSetSelected(r.r, C.int(index))
+}
+
+// OnSelected registers f to be run when the user selects an item in
+// the RadioButtons. Only one function can be registered at a time.
+func (r *RadioButtons) OnSelected(f func(*RadioButtons)) {
+	r.onSelected = f
+}
+
+//export doRadioButtonsOnSelected
+func doRadioButtonsOnSelected(rr *C.uiRadioButtons, data unsafe.Pointer) {
+	r := radioButtons[rr]
+	if r.onSelected != nil {
+		r.onSelected(r)
+	}
 }
