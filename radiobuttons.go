@@ -39,6 +39,7 @@ func NewRadioButtons() *RadioButtons {
 
 // Destroy destroys the RadioButtons.
 func (r *RadioButtons) Destroy() {
+	delete(radioButtons, r.r)
 	C.uiControlDestroy(r.c)
 }
 
