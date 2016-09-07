@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	nomenus = flag.Bool("nomenus", false, "No menus")
+	nomenus     = flag.Bool("nomenus", false, "No menus")
 	startspaced = flag.Bool("startspaced", false, "Start with spacing")
-	swaphv = flag.Bool("swaphv", false, "Swap horizontal and vertical boxes")
+	swaphv      = flag.Bool("swaphv", false, "Swap horizontal and vertical boxes")
 )
 
 var mainbox *Box
@@ -64,9 +64,9 @@ func TestIt(t *testing.T) {
 
 var (
 	spwindows []*Window
-	sptabs []*Tab
-	spgroups []*Group
-	spboxes []*Box
+	sptabs    []*Tab
+	spgroups  []*Group
+	spboxes   []*Box
 )
 
 func newWindow(title string, width int, height int, hasMenubar bool) *Window {

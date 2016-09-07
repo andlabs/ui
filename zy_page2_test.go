@@ -5,8 +5,8 @@ package ui
 var page2group *Group
 
 var (
-	movingLabel *Label
-	movingBoxes [2]*Box
+	movingLabel   *Label
+	movingBoxes   [2]*Box
 	movingCurrent int
 )
 
@@ -22,8 +22,9 @@ func moveLabel(*Button) {
 }
 
 var moveBack bool
+
 const (
-	moveOutText = "Move Page 1 Out"
+	moveOutText  = "Move Page 1 Out"
 	moveBackText = "Move Page 1 Back"
 )
 
@@ -92,7 +93,7 @@ func makePage2() *Box {
 	button = NewButton("Open Menuless Window")
 	button.OnClicked(func(*Button) {
 		w := NewWindow("Another Window", 100, 100, true)
-//TODO		w.SetChild(makePage6())
+		//TODO		w.SetChild(makePage6())
 		w.SetMargined(true)
 		w.Show()
 	})
@@ -154,8 +155,8 @@ func makePage2() *Box {
 	page2.Append(hbox, false)
 
 	disabledTab := newTab()
-	disabledTab.Append("Disabled", NewButton("Button"));
-	disabledTab.Append("Tab", NewLabel("Label"));
+	disabledTab.Append("Disabled", NewButton("Button"))
+	disabledTab.Append("Tab", NewLabel("Label"))
 	disabledTab.Disable()
 	page2.Append(disabledTab, true)
 

@@ -18,10 +18,10 @@ import "C"
 // stretchy, they will be given equal shares of the leftover space.
 // There can also be space between each control ("padding").
 type Box struct {
-	c	*C.uiControl
-	b	*C.uiBox
+	c *C.uiControl
+	b *C.uiBox
 
-	children	[]Control
+	children []Control
 }
 
 // NewHorizontalBox creates a new horizontal Box.
@@ -102,7 +102,7 @@ func (b *Box) Append(child Control, stretchy bool) {
 
 // Delete deletes the nth control of the Box.
 func (b *Box) Delete(n int) {
-	b.children = append(b.children[:n], b.children[n + 1:]...)
+	b.children = append(b.children[:n], b.children[n+1:]...)
 	// TODO why is this uintmax_t instead of intmax_t
 	C.uiBoxDelete(b.b, C.uintmax_t(n))
 }

@@ -12,8 +12,8 @@ import "C"
 // RadioButtons is a Control that represents a set of checkable
 // buttons from which exactly one may be chosen by the user.
 type RadioButtons struct {
-	c	*C.uiControl
-	r	*C.uiRadioButtons
+	c *C.uiControl
+	r *C.uiRadioButtons
 }
 
 // NewRadioButtons creates a new RadioButtons.
