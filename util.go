@@ -20,7 +20,7 @@ import "C"
 // of the desired length, we get our C.CMalloc(). Using a slice
 // that's always initialized to zero gives us the ZeroMemory()
 // for free.
-var uimallocBytes = make([]byte, 1024)		// 1024 bytes first
+var uimallocBytes = make([]byte, 1024) // 1024 bytes first
 
 //export uimalloc
 func uimalloc(n C.size_t) unsafe.Pointer {

@@ -11,14 +11,14 @@ import "C"
 
 // Control represents a GUI control. It provdes methods
 // common to all Controls.
-// 
+//
 // To create a new Control, implement the control on
 // the libui side, then provide access to that control on
 // the Go side via an implementation of Control as
 // described.
 type Control interface {
 	// Destroy destroys the Control.
-	// 
+	//
 	// Implementations should do any necessary cleanup,
 	// then call LibuiControlDestroy.
 	Destroy()
@@ -32,30 +32,30 @@ type Control interface {
 	// Control. On OSs that use reference counting for
 	// controls, Handle does not increment the reference
 	// count; you are sharing package ui's reference.
-	// 
+	//
 	// Implementations should call LibuiControlHandle and
 	// document exactly what kind of handle is returned.
 	Handle() uintptr
 
 	// Show shows the Control.
-	// 
+	//
 	// Implementations should call LibuiControlShow.
 	Show()
 
 	// Hide shows the Control. Hidden controls do not participate
 	// in layout (that is, Box, Grid, etc. does not reserve space for
 	// hidden controls).
-	// 
+	//
 	// Implementations should call LibuiControlHide.
 	Hide()
 
 	// Enable enables the Control.
-	// 
+	//
 	// Implementations should call LibuiControlEnable.
 	Enable()
 
 	// Disable disables the Control.
-	// 
+	//
 	// Implementations should call LibuiControlDisable.
 	Disable()
 }

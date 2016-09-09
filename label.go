@@ -12,8 +12,8 @@ import "C"
 // Label is a Control that represents a line of text that cannot be
 // interacted with. TODO rest of documentation.
 type Label struct {
-	c	*C.uiControl
-	l	*C.uiLabel
+	c *C.uiControl
+	l *C.uiLabel
 }
 
 // NewLabel creates a new Label with the given text.

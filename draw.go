@@ -9,14 +9,14 @@ package ui
 // static uiDrawBrush *newBrush(void)
 // {
 // 	uiDrawBrush *b;
-// 
+//
 // 	b = (uiDrawBrush *) uimalloc(sizeof (uiDrawBrush));
 // 	return b;
 // }
 // static uiDrawBrushGradientStop *newStops(size_t n)
 // {
 // 	uiDrawBrushGradientStop *stops;
-// 
+//
 // 	stops = (uiDrawBrushGradientStop *) malloc(n * sizeof (uiDrawBrushGradientStop));
 // 	// TODO
 // 	return stops;
@@ -38,7 +38,7 @@ package ui
 // static uiDrawStrokeParams *newStrokeParams(void)
 // {
 // 	uiDrawStrokeParams *b;
-// 
+//
 // 	b = (uiDrawStrokeParams *) malloc(sizeof (uiDrawStrokeParams));
 // 	// TODO
 // 	return b;
@@ -46,7 +46,7 @@ package ui
 // static double *newDashes(size_t n)
 // {
 // 	double *dashes;
-// 
+//
 // 	dashes = (double *) malloc(n * sizeof (double));
 // 	// TODO
 // 	return dashes;
@@ -64,7 +64,7 @@ package ui
 // static uiDrawMatrix *newMatrix(void)
 // {
 // 	uiDrawMatrix *m;
-// 
+//
 // 	m = (uiDrawMatrix *) malloc(sizeof (uiDrawMatrix));
 // 	// TODO
 // 	return m;
@@ -76,7 +76,7 @@ package ui
 // static uiDrawTextFontDescriptor *newFontDescriptor(void)
 // {
 // 	uiDrawTextFontDescriptor *desc;
-// 
+//
 // 	desc = (uiDrawTextFontDescriptor *) malloc(sizeof (uiDrawTextFontDescriptor));
 // 	// TODO
 // 	return desc;
@@ -84,7 +84,7 @@ package ui
 // static uiDrawTextFont *newFont(uiDrawTextFontDescriptor *desc)
 // {
 // 	uiDrawTextFont *font;
-// 
+//
 // 	font = uiDrawLoadClosestFont(desc);
 // 	free((char *) (desc->Family));
 // 	free(desc);
@@ -93,7 +93,7 @@ package ui
 // static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont, double width)
 // {
 // 	uiDrawTextLayout *layout;
-// 
+//
 // 	layout = uiDrawNewTextLayout(text, defaultFont, width);
 // 	free(text);
 // 	return layout;
@@ -101,7 +101,7 @@ package ui
 // static uiDrawTextFontMetrics *newFontMetrics(void)
 // {
 // 	uiDrawTextFontMetrics *m;
-// 
+//
 // 	m = (uiDrawTextFontMetrics *) malloc(sizeof (uiDrawTextFontMetrics));
 // 	// TODO
 // 	return m;
@@ -113,7 +113,7 @@ package ui
 // static double *newDouble(void)
 // {
 // 	double *d;
-// 
+//
 // 	d = (double *) malloc(sizeof (double));
 // 	// TODO
 // 	return d;
@@ -135,7 +135,7 @@ import "C"
 // figures to a path, you must "end" the path to make it ready to draw
 // with.
 // TODO rewrite all that
-// 
+//
 // Or more visually, the lifecycle of a Path is
 // 	p := NewPath()
 // 	for every figure {
@@ -154,18 +154,19 @@ import "C"
 // 	dp.Context.Clip(p)
 // 	// ...
 // 	p.Free() // when done with the path
-// 
+//
 // A Path also defines its fill mode. (This should ideally be a fill
 // parameter, but some implementations prevent it.)
 // TODO talk about fill modes
 type Path struct {
-	p	*C.uiDrawPath
+	p *C.uiDrawPath
 }
 
 // TODO
-// 
+//
 // TODO disclaimer
 type FillMode uint
+
 const (
 	Winding FillMode = iota
 	Alternate
@@ -184,7 +185,7 @@ func NewPath(fillMode FillMode) *Path {
 		panic("invalid fill mode passed to ui.NewPath()")
 	}
 	return &Path{
-		p:	C.uiDrawNewPath(fm),
+		p: C.uiDrawNewPath(fm),
 	}
 }
 
@@ -270,25 +271,27 @@ func (p *Path) End() {
 // At present the only DrawContexts are surfaces associated with
 // Areas and are provided by package ui; see AreaDrawParams.
 type DrawContext struct {
-	c	*C.uiDrawContext
+	c *C.uiDrawContext
 }
 
 // BrushType defines the various types of brushes.
-// 
+//
 // TODO disclaimer
 type BrushType int
+
 const (
 	Solid BrushType = iota
 	LinearGradient
 	RadialGradient
-	Image		// presently unimplemented
+	Image // presently unimplemented
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 // TODO rename these to put LineCap at the beginning? or just Cap?
 type LineCap int
+
 const (
 	FlatCap LineCap = iota
 	RoundCap
@@ -296,9 +299,10 @@ const (
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 type LineJoin int
+
 const (
 	MiterJoin LineJoin = iota
 	RoundJoin
@@ -310,32 +314,32 @@ const DefaultMiterLimit = 10.0
 
 // TODO
 type Brush struct {
-	Type		BrushType
+	Type BrushType
 
 	// If Type is Solid.
 	// TODO
-	R		float64
-	G		float64
-	B		float64
-	A		float64
+	R float64
+	G float64
+	B float64
+	A float64
 
 	// If Type is LinearGradient or RadialGradient.
 	// TODO
-	X0			float64	// start point for both
-	Y0			float64
-	X1			float64	// linear: end point; radial: circle center
-	Y1			float64
-	OuterRadius	float64	// for radial gradients only
-	Stops		[]GradientStop
+	X0          float64 // start point for both
+	Y0          float64
+	X1          float64 // linear: end point; radial: circle center
+	Y1          float64
+	OuterRadius float64 // for radial gradients only
+	Stops       []GradientStop
 }
 
 // TODO
 type GradientStop struct {
-	Pos	float64		// between 0 and 1 inclusive
-	R	float64
-	G	float64
-	B	float64
-	A	float64
+	Pos float64 // between 0 and 1 inclusive
+	R   float64
+	G   float64
+	B   float64
+	A   float64
 }
 
 func (b *Brush) toC() *C.uiDrawBrush {
@@ -373,12 +377,12 @@ func (b *Brush) toC() *C.uiDrawBrush {
 
 // TODO
 type StrokeParams struct {
-	Cap			LineCap
-	Join			LineJoin
-	Thickness		float64
-	MiterLimit		float64
-	Dashes		[]float64
-	DashPhase	float64
+	Cap        LineCap
+	Join       LineJoin
+	Thickness  float64
+	MiterLimit float64
+	Dashes     []float64
+	DashPhase  float64
 }
 
 func (sp *StrokeParams) toC() *C.uiDrawStrokeParams {
@@ -418,12 +422,12 @@ func (c *DrawContext) Fill(p *Path, b *Brush) {
 // TODO
 // TODO should the methods of these return self for chaining?
 type Matrix struct {
-	M11		float64
-	M12		float64
-	M21		float64
-	M22		float64
-	M31		float64
-	M32		float64
+	M11 float64
+	M12 float64
+	M21 float64
+	M22 float64
+	M31 float64
+	M32 float64
 }
 
 // TODO identity matrix
@@ -514,7 +518,7 @@ func (m *Matrix) Invertible() bool {
 }
 
 // TODO
-// 
+//
 // If m is not invertible, false is returned and m is left unchanged.
 func (m *Matrix) Invert() bool {
 	cm := m.toC()
@@ -564,10 +568,10 @@ func (c *DrawContext) Restore() {
 // call (TODO verify). Use NumFamilies to get the number of families,
 // and Family to get the name of a given family by index. When
 // finished, call Free.
-// 
+//
 // There is no guarantee that the list of families is sorted. You will
 // need to do sorting yourself if you need it.
-// 
+//
 // TODO thread affinity
 type FontFamilies struct {
 	ff *C.uiDrawFontFamilies
@@ -576,7 +580,7 @@ type FontFamilies struct {
 // ListFontFamilies creates a new FontFamilies object ready for use.
 func ListFontFamilies() *FontFamilies {
 	return &FontFamilies{
-		ff:	C.uiDrawListFontFamilies(),
+		ff: C.uiDrawListFontFamilies(),
 	}
 }
 
@@ -601,14 +605,15 @@ func (f *FontFamilies) Family(n int) string {
 
 // TextWeight defines the various text weights, in order of
 // increasing weight.
-// 
+//
 // Note that if you leave this field unset, it will default to
 // TextWeightThin. If you want the normal font weight, explicitly
 // use the constant TextWeightNormal instead.
 // TODO realign these?
-// 
+//
 // TODO disclaimer
 type TextWeight int
+
 const (
 	TextWeightThin TextWeight = iota
 	TextWeightUltraLight
@@ -624,26 +629,28 @@ const (
 )
 
 // TextItalic defines the various text italic modes.
-// 
+//
 // TODO disclaimer
 type TextItalic int
+
 const (
-	TextItalicNormal TextItalic = iota
-	TextItalicOblique			// merely slanted text
-	TextItalicItalic				// true italics
+	TextItalicNormal  TextItalic = iota
+	TextItalicOblique            // merely slanted text
+	TextItalicItalic             // true italics
 )
 
 // TextStretch defines the various text stretches, in order of
 // increasing wideness.
-// 
+//
 // Note that if you leave this field unset, it will default to
 // TextStretchUltraCondensed. If you want the normal font
 // stretch, explicitly use the constant TextStretchNormal
 // instead.
 // TODO realign these?
-// 
+//
 // TODO disclaimer
 type TextStretch int
+
 const (
 	TextStretchUltraCondensed TextStretch = iota
 	TextStretchExtraCondensed
@@ -658,20 +665,20 @@ const (
 
 // FontDescriptor describes a Font.
 type FontDescriptor struct {
-	Family		string
-	Size			float64		// as a text size, for instance 12 for a 12-point font
-	Weight		TextWeight
-	Italic			TextItalic
-	Stretch		TextStretch
+	Family  string
+	Size    float64 // as a text size, for instance 12 for a 12-point font
+	Weight  TextWeight
+	Italic  TextItalic
+	Stretch TextStretch
 }
 
 // Font represents an actual font that can be drawn with.
 type Font struct {
-	f	*C.uiDrawTextFont
+	f *C.uiDrawTextFont
 }
 
 // LoadClosestFont loads a Font.
-// 
+//
 // You pass the properties of the ideal font you want to load in the
 // FontDescriptor you pass to this function. If the requested font
 // is not available on the system, the closest matching font is used.
@@ -682,17 +689,17 @@ type Font struct {
 // description are implementation defined. This also means that
 // getting a descriptor back out of a Font may return a different
 // desriptor.
-// 
+//
 // TODO guarantee that passing *that* back into LoadClosestFont() returns the same font
 func LoadClosestFont(desc *FontDescriptor) *Font {
-	d := C.newFontDescriptor()		// both of these are freed by C.newFont()
+	d := C.newFontDescriptor() // both of these are freed by C.newFont()
 	d.Family = C.CString(desc.Family)
 	d.Size = C.double(desc.Size)
 	d.Weight = C.uiDrawTextWeight(desc.Weight)
 	d.Italic = C.uiDrawTextItalic(desc.Italic)
 	d.Stretch = C.uiDrawTextStretch(desc.Stretch)
 	return &Font{
-		f:	C.newFont(d),
+		f: C.newFont(d),
 	}
 }
 
@@ -705,11 +712,11 @@ func (f *Font) Free() {
 // that use reference counting for font objects, Handle does not
 // increment the reference count; you are sharing package ui's
 // reference.
-// 
+//
 // On Windows this is a pointer to an IDWriteFont.
-// 
+//
 // On Unix systems this is a pointer to a PangoFont.
-// 
+//
 // On OS X this is a CTFontRef.
 func (f *Font) Handle() uintptr {
 	return uintptr(C.uiDrawTextFontHandle(f.f))
@@ -728,24 +735,24 @@ func (f *Font) Describe() *FontDescriptor {
 type FontMetrics struct {
 	// Ascent is the ascent of the font; that is, the distance from
 	// the top of the character cell to the baseline.
-	Ascent			float64
+	Ascent float64
 
 	// Descent is the descent of the font; that is, the distance from
 	// the baseline to the bottom of the character cell. The sum of
 	// Ascent and Descent is the height of the character cell (and
 	// thus, the maximum height of a line of text).
-	Descent			float64
+	Descent float64
 
 	// Leading is the amount of space the font designer suggests
 	// to have between lines (between the bottom of the first line's
 	// character cell and the top of the second line's character cell).
 	// This is a suggestion; it is chosen by the font designer to
 	// improve legibility.
-	Leading			float64
+	Leading float64
 
 	// TODO figure out what these are
-	UnderlinePos		float64
-	UnderlineThickness	float64
+	UnderlinePos       float64
+	UnderlineThickness float64
 }
 
 // Metrics returns metrics about the given Font.
@@ -764,7 +771,7 @@ func (f *Font) Metrics() *FontMetrics {
 
 // TextLayout is the entry point for formatting a block of text to be
 // drawn onto a DrawContext.
-// 
+//
 // The block of text to lay out and the default font that is used if no
 // font attributes are applied to a given character are provided
 // at TextLayout creation time and cannot be changed later.
@@ -772,18 +779,18 @@ func (f *Font) Metrics() *FontMetrics {
 // at any time, even after drawing the text once (unlike a DrawPath).
 // Some of these attributes also have initial values; refer to each
 // method to see what they are.
-// 
+//
 // The block of text can either be a single line or multiple
 // word-wrapped lines, each with a given maximum width.
 type TextLayout struct {
-	l	*C.uiDrawTextLayout
+	l *C.uiDrawTextLayout
 }
 
 // NewTextLayout creates a new TextLayout.
 // For details on the width parameter, see SetWidth.
 func NewTextLayout(text string, defaultFont *Font, width float64) *TextLayout {
 	l := new(TextLayout)
-	ctext := C.CString(text)		// freed by C.newTextLayout()
+	ctext := C.CString(text) // freed by C.newTextLayout()
 	l.l = C.newTextLayout(ctext, defaultFont.f, C.double(width))
 	return l
 }
@@ -806,7 +813,7 @@ func (l *TextLayout) SetWidth(width float64) {
 // even if no glyph reaches to the top of its ascent or bottom of its
 // descent; it does not return a "best fit" rectnagle for the points that
 // are actually drawn.
-// 
+//
 // For a single-line TextLayout (where the width is negative), if there
 // are no font changes throughout the TextLayout, then the height
 // returned by TextLayout is equivalent to the sum of the ascent and

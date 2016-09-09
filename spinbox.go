@@ -21,10 +21,10 @@ var spinboxes = make(map[*C.uiSpinbox]*Spinbox)
 // enter integers. The space also comes with buttons to add or
 // subtract 1 from the integer.
 type Spinbox struct {
-	c	*C.uiControl
-	s	*C.uiSpinbox
+	c *C.uiControl
+	s *C.uiSpinbox
 
-	onChanged		func(*Spinbox)
+	onChanged func(*Spinbox)
 }
 
 // NewSpinbox creates a new Spinbox. If min >= max, they are swapped.

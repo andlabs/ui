@@ -21,10 +21,10 @@ var buttons = make(map[*C.uiButton]*Button)
 // click to perform an action. A Button has a text label that should
 // describe what the button does.
 type Button struct {
-	c	*C.uiControl
-	b	*C.uiButton
+	c *C.uiControl
+	b *C.uiButton
 
-	onClicked		func(*Button)
+	onClicked func(*Button)
 }
 
 // NewButton creates a new Button with the given text as its label.
