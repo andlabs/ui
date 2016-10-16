@@ -7,7 +7,7 @@
 * darwin/amd64
 * linux/386
 * linux/amd64
-* linux/arm (only tested in on a Raspberry Pi 2)
+* linux/arm (only tested on a Raspberry Pi 2)
 * windows/386
 * windows/amd64
 
