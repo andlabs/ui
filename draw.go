@@ -9,14 +9,14 @@ package ui
 // static uiDrawBrush *newBrush(void)
 // {
 // 	uiDrawBrush *b;
-// 
+//
 // 	b = (uiDrawBrush *) uimalloc(sizeof (uiDrawBrush));
 // 	return b;
 // }
 // static uiDrawBrushGradientStop *newStops(size_t n)
 // {
 // 	uiDrawBrushGradientStop *stops;
-// 
+//
 // 	stops = (uiDrawBrushGradientStop *) malloc(n * sizeof (uiDrawBrushGradientStop));
 // 	// TODO
 // 	return stops;
@@ -38,7 +38,7 @@ package ui
 // static uiDrawStrokeParams *newStrokeParams(void)
 // {
 // 	uiDrawStrokeParams *b;
-// 
+//
 // 	b = (uiDrawStrokeParams *) malloc(sizeof (uiDrawStrokeParams));
 // 	// TODO
 // 	return b;
@@ -46,7 +46,7 @@ package ui
 // static double *newDashes(size_t n)
 // {
 // 	double *dashes;
-// 
+//
 // 	dashes = (double *) malloc(n * sizeof (double));
 // 	// TODO
 // 	return dashes;
@@ -64,7 +64,7 @@ package ui
 // static uiDrawMatrix *newMatrix(void)
 // {
 // 	uiDrawMatrix *m;
-// 
+//
 // 	m = (uiDrawMatrix *) malloc(sizeof (uiDrawMatrix));
 // 	// TODO
 // 	return m;
@@ -76,7 +76,7 @@ package ui
 // static uiDrawTextFontDescriptor *newFontDescriptor(void)
 // {
 // 	uiDrawTextFontDescriptor *desc;
-// 
+//
 // 	desc = (uiDrawTextFontDescriptor *) malloc(sizeof (uiDrawTextFontDescriptor));
 // 	// TODO
 // 	return desc;
@@ -84,7 +84,7 @@ package ui
 // static uiDrawTextFont *newFont(uiDrawTextFontDescriptor *desc)
 // {
 // 	uiDrawTextFont *font;
-// 
+//
 // 	font = uiDrawLoadClosestFont(desc);
 // 	free((char *) (desc->Family));
 // 	free(desc);
@@ -93,7 +93,7 @@ package ui
 // static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont, double width)
 // {
 // 	uiDrawTextLayout *layout;
-// 
+//
 // 	layout = uiDrawNewTextLayout(text, defaultFont, width);
 // 	free(text);
 // 	return layout;
@@ -101,7 +101,7 @@ package ui
 // static uiDrawTextFontMetrics *newFontMetrics(void)
 // {
 // 	uiDrawTextFontMetrics *m;
-// 
+//
 // 	m = (uiDrawTextFontMetrics *) malloc(sizeof (uiDrawTextFontMetrics));
 // 	// TODO
 // 	return m;
@@ -113,7 +113,7 @@ package ui
 // static double *newDouble(void)
 // {
 // 	double *d;
-// 
+//
 // 	d = (double *) malloc(sizeof (double));
 // 	// TODO
 // 	return d;
@@ -135,7 +135,7 @@ import "C"
 // figures to a path, you must "end" the path to make it ready to draw
 // with.
 // TODO rewrite all that
-// 
+//
 // Or more visually, the lifecycle of a Path is
 // 	p := NewPath()
 // 	for every figure {
@@ -154,7 +154,7 @@ import "C"
 // 	dp.Context.Clip(p)
 // 	// ...
 // 	p.Free() // when done with the path
-// 
+//
 // A Path also defines its fill mode. (This should ideally be a fill
 // parameter, but some implementations prevent it.)
 // TODO talk about fill modes
@@ -163,7 +163,7 @@ type Path struct {
 }
 
 // TODO
-// 
+//
 // TODO disclaimer
 type FillMode uint
 const (
@@ -274,7 +274,7 @@ type DrawContext struct {
 }
 
 // BrushType defines the various types of brushes.
-// 
+//
 // TODO disclaimer
 type BrushType int
 const (
@@ -285,7 +285,7 @@ const (
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 // TODO rename these to put LineCap at the beginning? or just Cap?
 type LineCap int
@@ -296,7 +296,7 @@ const (
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 type LineJoin int
 const (
@@ -514,7 +514,7 @@ func (m *Matrix) Invertible() bool {
 }
 
 // TODO
-// 
+//
 // If m is not invertible, false is returned and m is left unchanged.
 func (m *Matrix) Invert() bool {
 	cm := m.toC()
@@ -564,10 +564,10 @@ func (c *DrawContext) Restore() {
 // call (TODO verify). Use NumFamilies to get the number of families,
 // and Family to get the name of a given family by index. When
 // finished, call Free.
-// 
+//
 // There is no guarantee that the list of families is sorted. You will
 // need to do sorting yourself if you need it.
-// 
+//
 // TODO thread affinity
 type FontFamilies struct {
 	ff *C.uiDrawFontFamilies
@@ -593,7 +593,7 @@ func (f *FontFamilies) NumFamilies() int {
 
 // Family returns the name of the nth family in the list.
 func (f *FontFamilies) Family(n int) string {
-	cname := C.uiDrawFontFamiliesFamily(f.ff, C.uintmax_t(n))
+	cname := C.uiDrawFontFamiliesFamily(f.ff, C.int(n))
 	name := C.GoString(cname)
 	C.uiFreeText(cname)
 	return name
@@ -601,12 +601,12 @@ func (f *FontFamilies) Family(n int) string {
 
 // TextWeight defines the various text weights, in order of
 // increasing weight.
-// 
+//
 // Note that if you leave this field unset, it will default to
 // TextWeightThin. If you want the normal font weight, explicitly
 // use the constant TextWeightNormal instead.
 // TODO realign these?
-// 
+//
 // TODO disclaimer
 type TextWeight int
 const (
@@ -624,7 +624,7 @@ const (
 )
 
 // TextItalic defines the various text italic modes.
-// 
+//
 // TODO disclaimer
 type TextItalic int
 const (
@@ -635,13 +635,13 @@ const (
 
 // TextStretch defines the various text stretches, in order of
 // increasing wideness.
-// 
+//
 // Note that if you leave this field unset, it will default to
 // TextStretchUltraCondensed. If you want the normal font
 // stretch, explicitly use the constant TextStretchNormal
 // instead.
 // TODO realign these?
-// 
+//
 // TODO disclaimer
 type TextStretch int
 const (
@@ -671,7 +671,7 @@ type Font struct {
 }
 
 // LoadClosestFont loads a Font.
-// 
+//
 // You pass the properties of the ideal font you want to load in the
 // FontDescriptor you pass to this function. If the requested font
 // is not available on the system, the closest matching font is used.
@@ -682,7 +682,7 @@ type Font struct {
 // description are implementation defined. This also means that
 // getting a descriptor back out of a Font may return a different
 // desriptor.
-// 
+//
 // TODO guarantee that passing *that* back into LoadClosestFont() returns the same font
 func LoadClosestFont(desc *FontDescriptor) *Font {
 	d := C.newFontDescriptor()		// both of these are freed by C.newFont()
@@ -705,11 +705,11 @@ func (f *Font) Free() {
 // that use reference counting for font objects, Handle does not
 // increment the reference count; you are sharing package ui's
 // reference.
-// 
+//
 // On Windows this is a pointer to an IDWriteFont.
-// 
+//
 // On Unix systems this is a pointer to a PangoFont.
-// 
+//
 // On OS X this is a CTFontRef.
 func (f *Font) Handle() uintptr {
 	return uintptr(C.uiDrawTextFontHandle(f.f))
@@ -764,7 +764,7 @@ func (f *Font) Metrics() *FontMetrics {
 
 // TextLayout is the entry point for formatting a block of text to be
 // drawn onto a DrawContext.
-// 
+//
 // The block of text to lay out and the default font that is used if no
 // font attributes are applied to a given character are provided
 // at TextLayout creation time and cannot be changed later.
@@ -772,7 +772,7 @@ func (f *Font) Metrics() *FontMetrics {
 // at any time, even after drawing the text once (unlike a DrawPath).
 // Some of these attributes also have initial values; refer to each
 // method to see what they are.
-// 
+//
 // The block of text can either be a single line or multiple
 // word-wrapped lines, each with a given maximum width.
 type TextLayout struct {
@@ -806,7 +806,7 @@ func (l *TextLayout) SetWidth(width float64) {
 // even if no glyph reaches to the top of its ascent or bottom of its
 // descent; it does not return a "best fit" rectnagle for the points that
 // are actually drawn.
-// 
+//
 // For a single-line TextLayout (where the width is negative), if there
 // are no font changes throughout the TextLayout, then the height
 // returned by TextLayout is equivalent to the sum of the ascent and

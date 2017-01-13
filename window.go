@@ -114,6 +114,10 @@ func (w *Window) SetTitle(title string) {
 	freestr(ctitle)
 }
 
+// TODO: uiWindowContentSize, uiWindowSetContentSize
+// TODO: uiWindowFullscreen, uiWindowSetFullscreen
+// TODO: uiWindowOnContentSizeChanged
+
 // OnClosing registers f to be run when the user clicks the Window's
 // close button. Only one function can be registered at a time.
 // If f returns true, the window is destroyed with the Destroy method.

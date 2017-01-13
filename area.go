@@ -18,7 +18,7 @@ var areas = make(map[*C.uiArea]*Area)
 // and event handling are handled through an instance of a type
 // that implements AreaHandler that every Area has; see AreaHandler
 // for details.
-// 
+//
 // There are two types of areas. Non-scrolling areas are rectangular
 // and have no scrollbars. Programs can draw on and get mouse
 // events from any point in the Area, and the size of the Area is
@@ -28,7 +28,7 @@ var areas = make(map[*C.uiArea]*Area)
 // size changes; instead, you are given the area size as part of the
 // draw and mouse event handlers, for use solely within those
 // handlers.
-// 
+//
 // Scrolling areas have horziontal and vertical scrollbars. The amount
 // that can be scrolled is determined by the area's size, which is
 // decided by the programmer (both when creating the Area and by
@@ -36,7 +36,7 @@ var areas = make(map[*C.uiArea]*Area)
 // drawing and mouse events are automatically adjusted to match
 // what portion is visible, so you do not have to worry about scrolling
 // in your event handlers. AreaHandler has more information.
-// 
+//
 // The internal coordinate system of an Area is points, which are
 // floating-point and device-independent. For more details, see
 // AreaHandler. The size of a scrolling Area must be an exact integer
@@ -74,7 +74,7 @@ func NewScrollingArea(handler AreaHandler, width int, height int) *Area {
 	a.scrolling = true
 	a.ah = registerAreaHandler(handler)
 
-	a.a = C.uiNewScrollingArea(a.ah, C.intmax_t(width), C.intmax_t(height))
+	a.a = C.uiNewScrollingArea(a.ah, C.int(width), C.int(height))
 	a.c = (*C.uiControl)(unsafe.Pointer(a.a))
 
 	areas[a.a] = a
@@ -133,7 +133,7 @@ func (a *Area) SetSize(width int, height int) {
 	if !a.scrolling {
 		panic("attempt to call SetSize on non-scrolling Area")
 	}
-	C.uiAreaSetSize(a.a, C.intmax_t(width), C.intmax_t(height))
+	C.uiAreaSetSize(a.a, C.int(width), C.int(height))
 }
 
 // QueueRedrawAll queues the entire Area for redraw.

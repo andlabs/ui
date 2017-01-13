@@ -91,8 +91,8 @@ func (t *Tab) InsertAt(name string, n int, child Control) {
 		c = touiControl(child.LibuiControl())
 	}
 	cname := C.CString(name)
-	// TODO why is this uintmax_t and not intmax_t
-	C.uiTabInsertAt(t.t, cname, C.uintmax_t(n), c)
+
+	C.uiTabInsertAt(t.t, cname, C.int(n), c)
 	freestr(cname)
 	ch := make([]Control, len(t.children) + 1)
 	// and insert into t.children at the right place
@@ -105,7 +105,7 @@ func (t *Tab) InsertAt(name string, n int, child Control) {
 // Delete deletes the nth page of the Tab.
 func (t *Tab) Delete(n int) {
 	t.children = append(t.children[:n], t.children[n + 1:]...)
-	C.uiTabDelete(t.t, C.uintmax_t(n))
+	C.uiTabDelete(t.t, C.int(n))
 }
 
 // NumPages returns the number of pages in the Tab.
@@ -116,12 +116,12 @@ func (t *Tab) NumPages() int {
 // Margined returns whether page n (starting at 0) of the Tab
 // has margins around its child.
 func (t *Tab) Margined(n int) bool {
-	return tobool(C.uiTabMargined(t.t, C.uintmax_t(n)))
+	return tobool(C.uiTabMargined(t.t, C.int(n)))
 }
 
 // SetMargined controls whether page n (starting at 0) of the Tab
 // has margins around its child. The size of the margins are
 // determined by the OS and its best practices.
 func (t *Tab) SetMargined(n int, margined bool) {
-	C.uiTabSetMargined(t.t, C.uintmax_t(n), frombool(margined))
+	C.uiTabSetMargined(t.t, C.int(n), frombool(margined))
 }

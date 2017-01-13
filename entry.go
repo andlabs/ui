@@ -43,6 +43,32 @@ func NewEntry() *Entry {
 	return e
 }
 
+// NewPasswordEntry creates a new Entry suitable for entering passwords.
+func NewPasswordEntry() *Entry {
+	e := new(Entry)
+
+	e.e = C.uiNewPasswordEntry()
+	e.c = (*C.uiControl)(unsafe.Pointer(e.e))
+
+	C.realuiEntryOnChanged(e.e)
+	entries[e.e] = e
+
+	return e
+}
+
+// NewSearchEntry creates a new Entry suitable for searching.
+func NewSearchEntry() *Entry {
+	e := new(Entry)
+
+	e.e = C.uiNewSearchEntry()
+	e.c = (*C.uiControl)(unsafe.Pointer(e.e))
+
+	C.realuiEntryOnChanged(e.e)
+	entries[e.e] = e
+
+	return e
+}
+
 // Destroy destroys the Entry.
 func (e *Entry) Destroy() {
 	delete(entries, e.e)
