@@ -114,17 +114,6 @@ func (w *Window) SetTitle(title string) {
 	freestr(ctitle)
 }
 
-// SetPosition changes the position of the Window.
-func (w *Window) SetPosition(x, y int) {
-	C.uiWindowSetPosition(w.w, C.int(x), C.int(y))
-}
-
-// Center centers the Window.
-func (w *Window) Center() {
-	C.uiWindowCenter(w.w)
-}
-
-// TODO: uiWindowOnPositionChanged
 // TODO: uiWindowContentSize, uiWindowSetContentSize
 // TODO: uiWindowFullscreen, uiWindowSetFullscreen
 // TODO: uiWindowOnContentSizeChanged
