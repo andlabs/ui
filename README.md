@@ -1,5 +1,7 @@
 # ui: platform-native GUI library for Go
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/andlabs/ui)](https://goreportcard.com/report/github.com/andlabs/ui) [![GoDoc](https://godoc.org/github.com/andlabs/ui?status.svg)](https://godoc.org/github.com/andlabs/ui) 
+
 # Update 5 June 2016: You can FINALLY `go get` this package!
 
 `go get` should work out of the box for the following configurations:
