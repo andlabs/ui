@@ -1,6 +1,7 @@
 # ui: platform-native GUI library for Go
 
-# Update 17 February 2018: I fixed the Enter+Escape crashing bug on Windows, and applied the resultant Alpha 3.5 binary release to package ui. However, build issues prevented a linux/386 binary from being made, so the API updates won't come yet. The next Alpha release, which will use semver and thus be called v0.4.0, should hopefully have no such issues. Sorry!
+# Update 17 February 2018
+I fixed the Enter+Escape crashing bug on Windows, and applied the resultant Alpha 3.5 binary release to package ui. However, build issues prevented a linux/386 binary from being made, so the API updates won't come yet. The next Alpha release, which will use semver and thus be called v0.4.0, should hopefully have no such issues. Sorry!
 
 # Update 5 June 2016: You can FINALLY `go get` this package!
 
