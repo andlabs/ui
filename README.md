@@ -25,15 +25,17 @@ It is based on my [libui](https://github.com/andlabs/libui), a simple cross-plat
 
 It runs on/requires:
 
-- Windows: cgo, Windows Vista SP2 with Platform Update and newer
-- Mac OS X: cgo, Mac OS X 10.8 and newer
-- other Unixes: cgo, GTK+ 3.10 and newer
+- Windows: cgo, Windows Vista SP2 with Platform Update or newer
+- Mac OS X: cgo, Mac OS X 10.8 or newer
+- *nix (GNU/Linux, BSD etc): cgo, GTK+ 3.10 or newer
 
 It also requires Go 1.6 or newer (due to various bugs in cgo that were fixed only starting with 1.6).
 
 (this README needs some work)
 
 # Installation
+
+    go get github.com/andlabs/ui
 
 # Documentation
 
