@@ -31,6 +31,7 @@ It runs on/requires:
 	- Debian, Ubuntu, etc.: `sudo apt-get install libgtk-3-devel`
 	- Red Hat/Fedora, etc.: `sudo dnf install gtk3-devel`
 	- TODO point out this is fine for most people but refer to distro docs if more control is needed, including cross-compilation instructions
+	- TODO clean this part up and put it in the appropriate place (maybe libui itself)
 
 It also requires Go 1.6 or newer (due to various bugs in cgo that were fixed only starting with 1.6).
 
