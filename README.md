@@ -28,7 +28,7 @@ It runs on/requires:
 - Windows: cgo, Windows Vista SP2 with Platform Update and newer
 - Mac OS X: cgo, Mac OS X 10.8 and newer
 - other Unixes: cgo, GTK+ 3.10 and newer
-	- Debian, Ubuntu, etc.: `sudo apt-get install libgtk-3-devel`
+	- Debian, Ubuntu, etc.: `sudo apt-get install libgtk-3-dev`
 	- Red Hat/Fedora, etc.: `sudo dnf install gtk3-devel`
 	- TODO point out this is fine for most people but refer to distro docs if more control is needed, including cross-compilation instructions
 	- TODO clean this part up and put it in the appropriate place (maybe libui itself)
