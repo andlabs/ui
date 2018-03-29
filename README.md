@@ -39,6 +39,14 @@ It also requires Go 1.6 or newer (due to various bugs in cgo that were fixed onl
 
 # Installation
 
+Start by installing the dependencies. On a standard ubuntu installation, you are likely to be missing gtk+-3.0. Install it by doing
+
+    apt install gtk+-3.0
+    
+and download the library with go get
+
+    go get github.com/andlabs/ui
+
 # Documentation
 
 The in-code documentation needs improvement. I have written a [tutorial](https://github.com/andlabs/ui/wiki/Getting-Started) in the Wiki.
