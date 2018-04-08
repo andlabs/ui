@@ -1,5 +1,7 @@
 # ui: platform-native GUI library for Go
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/andlabs/ui)](https://goreportcard.com/report/github.com/andlabs/ui) [![GoDoc](https://godoc.org/github.com/andlabs/ui?status.svg)](https://godoc.org/github.com/andlabs/ui) 
+
 # Update 17 February 2018
 I fixed the Enter+Escape crashing bug on Windows, and applied the resultant Alpha 3.5 binary release to package ui. However, build issues prevented a linux/386 binary from being made, so the API updates won't come yet. The next Alpha release, which will use semver and thus be called v0.4.0, should hopefully have no such issues. Sorry!
 
