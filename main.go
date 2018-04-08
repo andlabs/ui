@@ -79,6 +79,14 @@ var (
 // primary purpose is to allow communication between other
 // goroutines and the GUI thread. Calling QueueMain after Quit
 // has been called results in undefined behavior.
+// 
+// If you start a goroutine in f, it also cannot call package ui
+// functions. So for instance, the following will result in
+// undefined behavior:
+// 
+// 	ui.QueueMain(func() {
+// 		go ui.MsgBox(...)
+// 	})
 func QueueMain(f func()) {
 	qmlock.Lock()
 	defer qmlock.Unlock()

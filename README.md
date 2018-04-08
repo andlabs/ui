@@ -2,6 +2,9 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/andlabs/ui)](https://goreportcard.com/report/github.com/andlabs/ui) [![GoDoc](https://godoc.org/github.com/andlabs/ui?status.svg)](https://godoc.org/github.com/andlabs/ui) 
 
+# Update 17 February 2018
+I fixed the Enter+Escape crashing bug on Windows, and applied the resultant Alpha 3.5 binary release to package ui. However, build issues prevented a linux/386 binary from being made, so the API updates won't come yet. The next Alpha release, which will use semver and thus be called v0.4.0, should hopefully have no such issues. Sorry!
+
 # Update 5 June 2016: You can FINALLY `go get` this package!
 
 `go get` should work out of the box for the following configurations:
@@ -27,6 +30,10 @@ It runs on/requires:
 - Windows: cgo, Windows Vista SP2 with Platform Update and newer
 - Mac OS X: cgo, Mac OS X 10.8 and newer
 - other Unixes: cgo, GTK+ 3.10 and newer
+	- Debian, Ubuntu, etc.: `sudo apt-get install libgtk-3-dev`
+	- Red Hat/Fedora, etc.: `sudo dnf install gtk3-devel`
+	- TODO point out this is fine for most people but refer to distro docs if more control is needed, including cross-compilation instructions
+	- TODO clean this part up and put it in the appropriate place (maybe libui itself)
 
 It also requires Go 1.6 or newer (due to various bugs in cgo that were fixed only starting with 1.6).
 
