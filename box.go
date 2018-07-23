@@ -92,12 +92,28 @@ func (b *Box) Disable() {
 
 // Append adds the given control to the end of the Box.
 func (b *Box) Append(child Control, stretchy bool) {
+	b.AppendMultipleEx(stretchy, child)
+}
+
+// Append multiple (non-stretchy) controls to the end of the Box.
+func (b *Box) AppendMultiple(children ...Control) {
+	b.AppendMultipleEx(false, children...)
+}
+
+// AppendMultiple but allows "stretchy" parameter
+func (b *Box) AppendMultipleEx(stretchy bool, children ...Control) {
 	c := (*C.uiControl)(nil)
-	if child != nil {
+
+	for _, child := range children {
+		if nil == child {
+			continue
+		}
+
 		c = touiControl(child.LibuiControl())
+
+		C.uiBoxAppend(b.b, c, frombool(stretchy))
+		b.children = append(b.children, child)
 	}
-	C.uiBoxAppend(b.b, c, frombool(stretchy))
-	b.children = append(b.children, child)
 }
 
 // Delete deletes the nth control of the Box.
