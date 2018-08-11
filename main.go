@@ -24,6 +24,13 @@ import (
 // }
 import "C"
 
+// make sure main() runs on the first thread created by the OS
+// if main() calls Main(), things will just work on macOS, where the first thread created by the OS is the only thread allowed to be the main GUI thread
+// we might as well lock the OS thread for the other platforms here too (though on those it doesn't matter *which* thread we lock to)
+func init() {
+	runtime.LockOSThread()
+}
+
 // Main initializes package ui, runs f to set up the program,
 // and executes the GUI main loop. f should set up the program's
 // initial state: open the main window, create controls, and set up
@@ -32,29 +39,19 @@ import "C"
 // nil. If package ui fails to initialize, Main returns an appropriate
 // error.
 func Main(f func()) error {
-	errchan := make(chan error)
-	go start(errchan, f)
-	return <-errchan
-}
-
-func start(errchan chan error, f func()) {
-	runtime.LockOSThread()
-
-	ensureMainThread()
-
 	// TODO HEAP SAFETY
 	opts := C.uiInitOptions{}
 	estr := C.uiInit(&opts)
 	if estr != nil {
-		errchan <- errors.New(C.GoString(estr))
+		err := errors.New(C.GoString(estr))
 		C.uiFreeInitError(estr)
-		return
+		return err
 	}
 	// set up OnShouldQuit()
 	C.realOnShouldQuit()
 	QueueMain(f)
 	C.uiMain()
-	errchan <- nil
+	return nil
 }
 
 // Quit queues a return from Main. It does not exit the program.
