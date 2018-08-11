@@ -3,10 +3,22 @@
 package ui
 
 import (
+	"time"
 	"unsafe"
 )
 
+// #include <time.h>
 // #include "ui.h"
+// static inline struct tm *allocTimeStruct(void)
+// {
+// 	/* TODO handle error */
+// 	return (struct tm *) malloc(sizeof (struct tm));
+// }
+// extern void doDateTimePickerChanged(uiDateTimePicker *, void *);
+// static inline void realuiDateTimePickerOnChanged(uiDateTimePicker *d)
+// {
+// 	uiDateTimePickerOnChanged(d, doDateTimePickerOnChanged, NULL);
+// }
 import "C"
 
 // DateTimePicker is a Control that represents a field where the user
@@ -14,6 +26,8 @@ import "C"
 type DateTimePicker struct {
 	c	*C.uiControl
 	d	*C.uiDateTimePicker
+
+	onChanged	func(*DateTimePicker)
 }
 
 // NewDateTimePicker creates a new DateTimePicker that shows
@@ -23,6 +37,8 @@ func NewDateTimePicker() *DateTimePicker {
 
 	d.d = C.uiNewDateTimePicker()
 	d.c = (*C.uiControl)(unsafe.Pointer(d.d))
+
+	C.realuiDateTimePickerOnChanged(d.d)
 
 	return d
 }
@@ -35,6 +51,8 @@ func NewDatePicker() *DateTimePicker {
 	d.d = C.uiNewDatePicker()
 	d.c = (*C.uiControl)(unsafe.Pointer(d.d))
 
+	C.realuiDateTimePickerOnChanged(d.d)
+
 	return d
 }
 
@@ -45,6 +63,8 @@ func NewTimePicker() *DateTimePicker {
 
 	d.d = C.uiNewTimePicker()
 	d.c = (*C.uiControl)(unsafe.Pointer(d.d))
+
+	C.realuiDateTimePickerOnChanged(d.d)
 
 	return d
 }
@@ -89,4 +109,52 @@ func (d *DateTimePicker) Enable() {
 // Disable disables the DateTimePicker.
 func (d *DateTimePicker) Disable() {
 	C.uiControlDisable(d.c)
+}
+
+// Time returns the time stored in the uiDateTimePicker.
+// The time is assumed to be local time.
+func (d *DateTimePicker) Time() time.Time {
+	tm := C.allocTimeStruct()
+	defer C.free(unsafe.Pointer(tm))
+	C.uiDateTimePickerTime(d.d, tm)
+	return time.Date(
+		int(tm.tm_year + 1900),
+		time.Month(tm.tm_mon + 1),
+		int(tm.tm_mday),
+		int(tm.tm_hour),
+		int(tm.tm_min),
+		int(tm.tm_sec),
+		0, time.Local)
+}
+
+// SetTime sets the time in the DateTimePicker to t.
+// t's components are read as-is; no time zone manipulations
+// are done.
+func (d *DateTimePicker) SetTime(t time.Time) {
+	tm := C.allocTimeStruct()
+	defer C.free(unsafe.Pointer(tm))
+	year, mon, mday := t.Date()
+	tm.tm_year = C.int(year - 1900)
+	tm.tm_mon = C.int(mon - 1)
+	tm.tm_mday = C.int(mday)
+	hour, min, sec := t.Time()
+	tm.tm_hour = C.int(hour)
+	tm.tm_min = C.int(min)
+	tm.tm_sec = C.int(sec)
+	tm.tm_isdst = -1
+	C.uiDateTimePickerSetTime(d.d, tm)
+}
+
+// OnChanged registers f to be run when the user changes the time in the DateTimePicker.
+// Only one function can be registered at a time.
+func (d *DateTimePicker) OnChanged(f func(*DateTimePicker)) {
+	d.onChanged = f
+}
+
+//export doDateTimePickerOnChanged
+func doDateTimePickerOnChanged(dd *C.uiDateTimePicker, data unsafe.Pointer) {
+	d := dateTimePickers[dd]
+	if d.onChanged != nil {
+		d.onChanged(d)
+	}
 }
