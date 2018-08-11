@@ -18,9 +18,8 @@ import "C"
 var comboboxes = make(map[*C.uiCombobox]*Combobox)
 
 // Combobox is a Control that represents a drop-down list of strings
-// that the user can choose one of at any time. An editable
-// Combobox also has an entry field that the user can type an alternate
-// choice into.
+// that the user can choose one of at any time. For a Combobox that
+// users can type values into, see EditableCombobox.
 type Combobox struct {
 	co	*C.uiControl
 	c	*C.uiCombobox
@@ -29,7 +28,6 @@ type Combobox struct {
 }
 
 // NewCombobox creates a new Combobox.
-// This Combobox is not editable.
 func NewCombobox() *Combobox {
 	c := new(Combobox)
 
@@ -41,20 +39,7 @@ func NewCombobox() *Combobox {
 
 	return c
 }
-/*TODO
-// NewEditableCombobox creates a new editable Combobox.
-func NewEditableCombobox() *Combobox {
-	c := new(Combobox)
 
-	c.c = C.uiNewEditableCombobox()
-	c.co = (*C.uiControl)(unsafe.Pointer(c.c))
-
-	C.realuiComboboxOnSelected(c.c)
-	comboboxes[c.c] = c
-
-	return c
-}
-*/
 // Destroy destroys the Combobox.
 func (c *Combobox) Destroy() {
 	delete(comboboxes, c.c)
@@ -72,8 +57,7 @@ func (c *Combobox) LibuiControl() uintptr {
 // On Windows this is an HWND of a standard Windows API COMBOBOX
 // class (as provided by Common Controls version 6).
 // On GTK+ this is a pointer to a GtkComboBoxText.
-// On OS X this is a pointer to a NSComboBox for editable Comboboxes
-// and to a NSPopUpButton for noneditable Comboboxes.
+// On OS X this is a pointer to a NSPopUpButton.
 func (c *Combobox) Handle() uintptr {
 	return uintptr(C.uiControlHandle(c.co))
 }
