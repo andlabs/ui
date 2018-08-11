@@ -27,6 +27,7 @@ import "C"
 // make sure main() runs on the first thread created by the OS
 // if main() calls Main(), things will just work on macOS, where the first thread created by the OS is the only thread allowed to be the main GUI thread
 // we might as well lock the OS thread for the other platforms here too (though on those it doesn't matter *which* thread we lock to)
+// TODO describe the source of this trick
 func init() {
 	runtime.LockOSThread()
 }
