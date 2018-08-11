@@ -92,7 +92,7 @@ func (c *ControlBase) Handle() uintptr {
 }
 
 func (c *ControlBase) Visible() bool {
-	return frombool(C.uiControlVisible(c.c))
+	return tobool(C.uiControlVisible(c.c))
 }
 
 func (c *ControlBase) Show() {
@@ -104,7 +104,7 @@ func (c *ControlBase) Hide() {
 }
 
 func (c *ControlBase) Enabled() bool {
-	return frombool(C.uiControlEnabled(c.c))
+	return tobool(C.uiControlEnabled(c.c))
 }
 
 func (c *ControlBase) Enable() {
