@@ -18,9 +18,8 @@ import "C"
 // stretchy, they will be given equal shares of the leftover space.
 // There can also be space between each control ("padding").
 type Box struct {
-	c	*C.uiControl
+	ControlBase
 	b	*C.uiBox
-
 	children	[]Control
 }
 
@@ -29,8 +28,8 @@ func NewHorizontalBox() *Box {
 	b := new(Box)
 
 	b.b = C.uiNewHorizontalBox()
-	b.c = (*C.uiControl)(unsafe.Pointer(b.b))
 
+	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b
 }
 
@@ -39,8 +38,8 @@ func NewVerticalBox() *Box {
 	b := new(Box)
 
 	b.b = C.uiNewVerticalBox()
-	b.c = (*C.uiControl)(unsafe.Pointer(b.b))
 
+	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b
 }
 
@@ -52,42 +51,7 @@ func (b *Box) Destroy() {
 		b.Delete(0)
 		c.Destroy()
 	}
-	C.uiControlDestroy(b.c)
-}
-
-// LibuiControl returns the libui uiControl pointer that backs
-// the Box. This is only used by package ui itself and should
-// not be called by programs.
-func (b *Box) LibuiControl() uintptr {
-	return uintptr(unsafe.Pointer(b.c))
-}
-
-// Handle returns the OS-level handle associated with this Box.
-// On Windows this is an HWND of a libui-internal class.
-// On GTK+ this is a pointer to a GtkBox.
-// On OS X this is a pointer to a NSView.
-func (b *Box) Handle() uintptr {
-	return uintptr(C.uiControlHandle(b.c))
-}
-
-// Show shows the Box.
-func (b *Box) Show() {
-	C.uiControlShow(b.c)
-}
-
-// Hide hides the Box.
-func (b *Box) Hide() {
-	C.uiControlHide(b.c)
-}
-
-// Enable enables the Box.
-func (b *Box) Enable() {
-	C.uiControlEnable(b.c)
-}
-
-// Disable disables the Box.
-func (b *Box) Disable() {
-	C.uiControlDisable(b.c)
+	b.ControlBase.Destroy()
 }
 
 // Append adds the given control to the end of the Box.

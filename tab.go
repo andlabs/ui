@@ -13,9 +13,8 @@ import "C"
 // has a label. The user can click on the tabs themselves to switch
 // pages. Individual pages can also have margins.
 type Tab struct {
-	c	*C.uiControl
+	ControlBase
 	t	*C.uiTab
-
 	children	[]Control
 }
 
@@ -24,8 +23,8 @@ func NewTab() *Tab {
 	t := new(Tab)
 
 	t.t = C.uiNewTab()
-	t.c = (*C.uiControl)(unsafe.Pointer(t.t))
 
+	t.ControlBase = NewControlBase(t, uintptr(unsafe.Pointer(t.t)))
 	return t
 }
 
@@ -37,45 +36,7 @@ func (t *Tab) Destroy() {
 		t.Delete(0)
 		c.Destroy()
 	}
-	C.uiControlDestroy(t.c)
-}
-
-// LibuiControl returns the libui uiControl pointer that backs
-// the Tab. This is only used by package ui itself and should
-// not be called by programs.
-func (t *Tab) LibuiControl() uintptr {
-	return uintptr(unsafe.Pointer(t.c))
-}
-
-// Handle returns the OS-level handle associated with this Tab.
-// On Windows this is an HWND of a standard Windows API
-// WC_TABCONTROL class (as provided by Common Controls
-// version 6). The pages are not children of this window and there
-// currently is no way to directly access them.
-// On GTK+ this is a pointer to a GtkNotebook.
-// On OS X this is a pointer to a NSTabView.
-func (t *Tab) Handle() uintptr {
-	return uintptr(C.uiControlHandle(t.c))
-}
-
-// Show shows the Tab.
-func (t *Tab) Show() {
-	C.uiControlShow(t.c)
-}
-
-// Hide hides the Tab.
-func (t *Tab) Hide() {
-	C.uiControlHide(t.c)
-}
-
-// Enable enables the Tab.
-func (t *Tab) Enable() {
-	C.uiControlEnable(t.c)
-}
-
-// Disable disables the Tab.
-func (t *Tab) Disable() {
-	C.uiControlDisable(t.c)
+	t.ControlBase.Destroy()
 }
 
 // Append adds the given page to the end of the Tab.
@@ -91,8 +52,7 @@ func (t *Tab) InsertAt(name string, n int, child Control) {
 		c = touiControl(child.LibuiControl())
 	}
 	cname := C.CString(name)
-	// TODO why is this uintmax_t and not intmax_t
-	C.uiTabInsertAt(t.t, cname, C.uintmax_t(n), c)
+	C.uiTabInsertAt(t.t, cname, C.int(n), c)
 	freestr(cname)
 	ch := make([]Control, len(t.children) + 1)
 	// and insert into t.children at the right place
