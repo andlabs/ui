@@ -2,8 +2,13 @@
 
 package ui
 
+import (
+	"unsafe"
+)
+
 // #include <stdlib.h>
 // #include "ui.h"
+// #include "util.h"
 // extern void doAreaHandlerDraw(uiAreaHandler *, uiArea *, uiAreaDrawParams *);
 // extern void doAreaHandlerMouseEvent(uiAreaHandler *, uiArea *, uiAreaMouseEvent *);
 // extern void doAreaHandlerMouseCrossed(uiAreaHandler *, uiArea *, int);
@@ -13,9 +18,7 @@ package ui
 // {
 // 	uiAreaHandler *ah;
 // 
-// 	ah = (uiAreaHandler *) malloc(sizeof (uiAreaHandler));
-// 	if (ah == NULL)		// TODO
-// 		return NULL;
+// 	ah = (uiAreaHandler *) pkguiAlloc(sizeof (uiAreaHandler));
 // 	ah->Draw = doAreaHandlerDraw;
 // 	ah->MouseEvent = doAreaHandlerMouseEvent;
 // 	ah->MouseCrossed = doAreaHandlerMouseCrossed;
@@ -159,7 +162,7 @@ type AreaDrawParams struct {
 //export doAreaHandlerDraw
 func doAreaHandlerDraw(uah *C.uiAreaHandler, ua *C.uiArea, udp *C.uiAreaDrawParams) {
 	ah := areahandlers[uah]
-	a := areas[ua]
+	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	dp := &AreaDrawParams{
 		Context:		&DrawContext{udp.Context},
 		AreaWidth:	float64(udp.AreaWidth),
@@ -210,7 +213,7 @@ func appendBits(out []uint, held C.uint64_t) []uint {
 //export doAreaHandlerMouseEvent
 func doAreaHandlerMouseEvent(uah *C.uiAreaHandler, ua *C.uiArea, ume *C.uiAreaMouseEvent) {
 	ah := areahandlers[uah]
-	a := areas[ua]
+	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	me := &AreaMouseEvent{
 		X:			float64(ume.X),
 		Y:			float64(ume.Y),
@@ -229,14 +232,14 @@ func doAreaHandlerMouseEvent(uah *C.uiAreaHandler, ua *C.uiArea, ume *C.uiAreaMo
 //export doAreaHandlerMouseCrossed
 func doAreaHandlerMouseCrossed(uah *C.uiAreaHandler, ua *C.uiArea, left C.int) {
 	ah := areahandlers[uah]
-	a := areas[ua]
+	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ah.MouseCrossed(a, tobool(left))
 }
 
 //export doAreaHandlerDragBroken
 func doAreaHandlerDragBroken(uah *C.uiAreaHandler, ua *C.uiArea) {
 	ah := areahandlers[uah]
-	a := areas[ua]
+	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ah.DragBroken(a)
 }
 
@@ -252,7 +255,7 @@ type AreaKeyEvent struct {
 //export doAreaHandlerKeyEvent
 func doAreaHandlerKeyEvent(uah *C.uiAreaHandler, ua *C.uiArea, uke *C.uiAreaKeyEvent) C.int {
 	ah := areahandlers[uah]
-	a := areas[ua]
+	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ke := &AreaKeyEvent{
 		Key:			rune(uke.Key),
 		ExtKey:		ExtKey(uke.ExtKey),
