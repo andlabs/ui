@@ -10,10 +10,10 @@ import (
 // #include <stdlib.h>
 // #include <time.h>
 // #include "ui.h"
+// #include "util.h"
 // static inline struct tm *allocTimeStruct(void)
 // {
-// 	/* TODO handle error */
-// 	return (struct tm *) malloc(sizeof (struct tm));
+// 	return (struct tm *) pkguiAlloc(sizeof (struct tm));
 // }
 // extern void doDateTimePickerOnChanged(uiDateTimePicker *, void *);
 import "C"
