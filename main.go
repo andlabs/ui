@@ -12,7 +12,9 @@ import (
 // #include "ui.h"
 // extern void doQueueMain(void *);
 // extern int doOnShouldQuit(void *);
-// extern int doOnTimer(void *);
+// // see golang/go#19835
+// typedef void (*queueMainCallback)(void *);
+// typedef int (*onShouldQuitCallback)(void *);
 import "C"
 
 // make sure main() runs on the first thread created by the OS
@@ -39,7 +41,7 @@ func Main(f func()) error {
 		C.uiFreeInitError(estr)
 		return err
 	}
-	C.uiOnShouldQuit(C.doOnShouldQuit, nil)
+	C.uiOnShouldQuit(C.onShouldQuitCallback(C.doOnShouldQuit), nil)
 	QueueMain(f)
 	C.uiMain()
 	return nil
@@ -88,7 +90,7 @@ func QueueMain(f func()) {
 		}
 	}
 	qmmap[n] = f
-	C.uiQueueMain(C.doQueueMain, unsafe.Pointer(n))
+	C.uiQueueMain(C.queueMainCallback(C.doQueueMain), unsafe.Pointer(n))
 }
 
 //export doQueueMain

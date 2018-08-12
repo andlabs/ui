@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doEditableComboboxOnChanged(uiEditableCombobox *, void *);
+// // see golang/go#19835
+// typedef void (*editableComboboxCallback)(uiEditableCombobox *, void *);
 import "C"
 
 // EditableCombobox is a Control that represents a drop-down list
@@ -25,7 +27,7 @@ func NewEditableCombobox() *EditableCombobox {
 
 	c.c = C.uiNewEditableCombobox()
 
-	C.uiEditableComboboxOnChanged(c.c, C.doEditableComboboxOnChanged, nil)
+	C.uiEditableComboboxOnChanged(c.c, C.editableComboboxCallback(C.doEditableComboboxOnChanged), nil)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c
@@ -48,7 +50,7 @@ func (e *EditableCombobox) Text() string {
 }
 
 // SetText sets the text in the entry of the EditableCombobox.
-func (e *EditableCombobox) SetText(index int) {
+func (e *EditableCombobox) SetText(text string) {
 	ctext := C.CString(text)
 	C.uiEditableComboboxSetText(e.c, ctext)
 	freestr(ctext)
@@ -58,7 +60,7 @@ func (e *EditableCombobox) SetText(index int) {
 // item or changes the text in the EditableCombobox. Only one
 // function can be registered at a time.
 func (e *EditableCombobox) OnChanged(f func(*EditableCombobox)) {
-	c.onChanged = f
+	e.onChanged = f
 }
 
 //export doEditableComboboxOnChanged

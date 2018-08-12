@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doSliderOnChanged(uiSlider *, void *);
+// // see golang/go#19835
+// typedef void (*sliderCallback)(uiSlider *, void *);
 import "C"
 
 // Slider is a Control that represents a horizontal bar that represents
@@ -25,7 +27,7 @@ func NewSlider(min int, max int) *Slider {
 
 	s.s = C.uiNewSlider(C.int(min), C.int(max))
 
-	C.uiSliderOnChanged(s.s, C.doSliderOnChanged, nil)
+	C.uiSliderOnChanged(s.s, C.sliderCallback(C.doSliderOnChanged), nil)
 
 	s.ControlBase = NewControlBase(s, uintptr(unsafe.Pointer(s.s)))
 	return s

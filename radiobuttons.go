@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doRadioButtonsOnSelected(uiRadioButtons *, void *);
+// // see golang/go#19835
+// typedef void (*radioButtonsCallback)(uiRadioButtons *, void *);
 import "C"
 
 // RadioButtons is a Control that represents a set of checkable
@@ -24,7 +26,7 @@ func NewRadioButtons() *RadioButtons {
 
 	r.r = C.uiNewRadioButtons()
 
-	C.uiRadioButtonsOnSelected(r.r, C.doRadioButtonsOnSelected, nil)
+	C.uiRadioButtonsOnSelected(r.r, C.radioButtonsCallback(C.doRadioButtonsOnSelected), nil)
 
 	r.ControlBase = NewControlBase(r, uintptr(unsafe.Pointer(r.r)))
 	return r

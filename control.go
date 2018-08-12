@@ -130,8 +130,12 @@ func (c *ControlBase) Disable() {
 // This function only works on Controls that use ControlBase.
 func ControlFromLibui(c uintptr) Control {
 	// comma-ok form to avoid creating nil entries
-	c, _ := controls[(*C.uiControl)(unsafe.Pointer(c))]
-	return c
+	cc, _ := controls[(*C.uiControl)(unsafe.Pointer(c))]
+	return cc
+}
+
+func touiControl(c uintptr) *C.uiControl {
+	return (*C.uiControl)(unsafe.Pointer(c))
 }
 
 // LibuiFreeText allows implementations of Control

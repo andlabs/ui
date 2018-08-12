@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern int doWindowOnClosing(uiWindow *, void *);
+// // see golang/go#19835
+// typedef int (*windowOnClosingCallback)(uiWindow *, void *);
 import "C"
 
 // Window is a Control that represents a top-level window.
@@ -29,7 +31,7 @@ func NewWindow(title string, width int, height int, hasMenubar bool) *Window {
 	w.w = C.uiNewWindow(ctitle, C.int(width), C.int(height), frombool(hasMenubar))
 	freestr(ctitle)
 
-	C.uiWindowOnClosing(w.w, C.doWindowOnClosing, nil)
+	C.uiWindowOnClosing(w.w, C.windowOnClosingCallback(C.doWindowOnClosing), nil)
 
 	w.ControlBase = NewControlBase(w, uintptr(unsafe.Pointer(w.w)))
 	return w

@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doButtonOnClicked(uiButton *, void *);
+// // see golang/go#19835
+// typedef void (*buttonCallback)(uiButton *, void *);
 import "C"
 
 // Button is a Control that represents a button that the user can
@@ -27,7 +29,7 @@ func NewButton(text string) *Button {
 	b.b = C.uiNewButton(ctext)
 	freestr(ctext)
 
-	C.uiButtonOnClicked(b.b, C.doButtonOnClicked, nil)
+	C.uiButtonOnClicked(b.b, C.buttonCallback(C.doButtonOnClicked), nil)
 
 	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b

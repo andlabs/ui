@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doCheckboxOnToggled(uiCheckbox *, void *);
+// // see golang/go#19835
+// typedef void (*checkboxCallback)(uiCheckbox *, void *);
 import "C"
 
 // Checkbox is a Control that represents a box with a text label at its
@@ -28,7 +30,7 @@ func NewCheckbox(text string) *Checkbox {
 	c.c = C.uiNewCheckbox(ctext)
 	freestr(ctext)
 
-	C.uiCheckboxOnToggled(c.c, C.doCheckboxOnToggled, nil)
+	C.uiCheckboxOnToggled(c.c, C.checkboxCallback(C.doCheckboxOnToggled), nil)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c

@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doSpinboxOnChanged(uiSpinbox *, void *);
+// // see golang/go#19835
+// typedef void (*spinboxCallback)(uiSpinbox *, void *);
 import "C"
 
 // Spinbox is a Control that represents a space where the user can
@@ -25,7 +27,7 @@ func NewSpinbox(min int, max int) *Spinbox {
 
 	s.s = C.uiNewSpinbox(C.int(min), C.int(max))
 
-	C.uiSpinboxOnChanged(s.s, C.doSpinboxOnChanged, nil)
+	C.uiSpinboxOnChanged(s.s, C.spinboxCallback(C.doSpinboxOnChanged), nil)
 
 	s.ControlBase = NewControlBase(s, uintptr(unsafe.Pointer(s.s)))
 	return s

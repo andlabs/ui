@@ -8,6 +8,8 @@ import (
 
 // #include "ui.h"
 // extern void doComboboxOnSelected(uiCombobox *, void *);
+// // see golang/go#19835
+// typedef void (*comboboxCallback)(uiCombobox *, void *);
 import "C"
 
 // Combobox is a Control that represents a drop-down list of strings
@@ -25,7 +27,7 @@ func NewCombobox() *Combobox {
 
 	c.c = C.uiNewCombobox()
 
-	C.uiComboboxOnSelected(c.c, C.doComboboxOnSelected, nil)
+	C.uiComboboxOnSelected(c.c, C.comboboxCallback(C.doComboboxOnSelected), nil)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c

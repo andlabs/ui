@@ -12,6 +12,8 @@ import (
 
 // #include "ui.h"
 // extern void doEntryOnChanged(uiEntry *, void *);
+// // see golang/go#19835
+// typedef void (*entryCallback)(uiEntry *, void *);
 import "C"
 
 // Entry is a Control that represents a space that the user can
@@ -27,7 +29,7 @@ func finishNewEntry(ee *C.uiEntry) *Entry {
 
 	e.e = ee
 
-	C.uiEntryOnChanged(e.e, C.doEntryOnChanged, nil)
+	C.uiEntryOnChanged(e.e, C.entryCallback(C.doEntryOnChanged), nil)
 
 	e.ControlBase = NewControlBase(e, uintptr(unsafe.Pointer(e.e)))
 	return e

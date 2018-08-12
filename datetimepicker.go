@@ -16,6 +16,8 @@ import (
 // 	return (struct tm *) pkguiAlloc(sizeof (struct tm));
 // }
 // extern void doDateTimePickerOnChanged(uiDateTimePicker *, void *);
+// // see golang/go#19835
+// typedef void (*dtpCallback)(uiDateTimePicker *, void *);
 import "C"
 
 // DateTimePicker is a Control that represents a field where the user
@@ -31,7 +33,7 @@ func finishNewDateTimePicker(dd *C.uiDateTimePicker) *DateTimePicker {
 
 	d.d = dd
 
-	C.uiDateTimePickerOnChanged(d.d, C.doDateTimePickerOnChanged, nil)
+	C.uiDateTimePickerOnChanged(d.d, C.dtpCallback(C.doDateTimePickerOnChanged), nil)
 
 	d.ControlBase = NewControlBase(d, uintptr(unsafe.Pointer(d.d)))
 	return d
@@ -40,7 +42,7 @@ func finishNewDateTimePicker(dd *C.uiDateTimePicker) *DateTimePicker {
 // NewDateTimePicker creates a new DateTimePicker that shows
 // both a date and a time.
 func NewDateTimePicker() *DateTimePicker {
-	return finishNewDateTImePicker(C.uiNewDateTimePicker())
+	return finishNewDateTimePicker(C.uiNewDateTimePicker())
 }
 
 // NewDatePicker creates a new DateTimePicker that shows
@@ -72,7 +74,7 @@ func (d *DateTimePicker) Time() time.Time {
 }
 
 // SetTime sets the time in the DateTimePicker to t.
-// t's components are read as-is via t.Date() and t.Time();
+// t's components are read as-is via t.Date() and t.Clock();
 // no time zone manipulations are done.
 func (d *DateTimePicker) SetTime(t time.Time) {
 	tm := C.allocTimeStruct()
@@ -81,7 +83,7 @@ func (d *DateTimePicker) SetTime(t time.Time) {
 	tm.tm_year = C.int(year - 1900)
 	tm.tm_mon = C.int(mon - 1)
 	tm.tm_mday = C.int(mday)
-	hour, min, sec := t.Time()
+	hour, min, sec := t.Clock()
 	tm.tm_hour = C.int(hour)
 	tm.tm_min = C.int(min)
 	tm.tm_sec = C.int(sec)
