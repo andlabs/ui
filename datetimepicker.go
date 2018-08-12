@@ -97,7 +97,7 @@ func (d *DateTimePicker) OnChanged(f func(*DateTimePicker)) {
 
 //export doDateTimePickerOnChanged
 func doDateTimePickerOnChanged(dd *C.uiDateTimePicker, data unsafe.Pointer) {
-	d := ControlFromLibui(uintptr(unsafe.Pointer(dd)).(*DateTimePicker)
+	d := ControlFromLibui(uintptr(unsafe.Pointer(dd))).(*DateTimePicker)
 	if d.onChanged != nil {
 		d.onChanged(d)
 	}

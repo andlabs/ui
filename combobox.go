@@ -44,10 +44,10 @@ func (c *Combobox) Selected() int {
 	return int(C.uiComboboxSelected(c.c))
 }
 
-// SetChecked sets the currently select item in the Combobox
+// SetSelected sets the currently selected item in the Combobox
 // to index. If index is -1 no item will be selected.
 func (c *Combobox) SetSelected(index int) {
-	C.uiComboboxSetSelected(c.c, C.intmax_t(index))
+	C.uiComboboxSetSelected(c.c, C.int(index))
 }
 
 // OnSelected registers f to be run when the user selects an item in
