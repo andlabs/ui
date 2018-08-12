@@ -33,7 +33,6 @@ func NewRadioButtons() *RadioButtons {
 }
 
 // Append adds the named button to the end of the RadioButtons.
-// If this button is the first button, it is automatically selected.
 func (r *RadioButtons) Append(text string) {
 	ctext := C.CString(text)
 	C.uiRadioButtonsAppend(r.r, ctext)
@@ -41,7 +40,7 @@ func (r *RadioButtons) Append(text string) {
 }
 
 // Selected returns the index of the currently selected option in the
-// RadioButtons, or -1 if there are no items.
+// RadioButtons, or -1 if no item is selected.
 func (r *RadioButtons) Selected() int {
 	return int(C.uiRadioButtonsSelected(r.r))
 }
