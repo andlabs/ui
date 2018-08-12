@@ -10,18 +10,9 @@ import (
 )
 
 // #include "ui.h"
-// extern void doQueued(void *);
+// extern void doQueueMain(void *);
 // extern int doOnShouldQuit(void *);
-// /* I forgot how dumb cgo is... ./main.go:73: cannot use _Cgo_ptr(_Cfpvar_fp_doQueued) (type unsafe.Pointer) as type *[0]byte in argument to _Cfunc_uiQueueMain */
-// /* I'm pretty sure this worked before... */
-// static inline void realQueueMain(void *x)
-// {
-// 	uiQueueMain(doQueued, x);
-// }
-// static inline void realOnShouldQuit(void)
-// {
-// 	uiOnShouldQuit(doOnShouldQuit, NULL);
-// }
+// extern int doOnTimer(void *);
 import "C"
 
 // make sure main() runs on the first thread created by the OS
@@ -48,8 +39,7 @@ func Main(f func()) error {
 		C.uiFreeInitError(estr)
 		return err
 	}
-	// set up OnShouldQuit()
-	C.realOnShouldQuit()
+	C.uiOnShouldQuit(C.doOnShouldQuit, nil)
 	QueueMain(f)
 	C.uiMain()
 	return nil
@@ -98,11 +88,11 @@ func QueueMain(f func()) {
 		}
 	}
 	qmmap[n] = f
-	C.realQueueMain(unsafe.Pointer(n))
+	C.uiQueueMain(C.doQueueMain, unsafe.Pointer(n))
 }
 
-//export doQueued
-func doQueued(nn unsafe.Pointer) {
+//export doQueueMain
+func doQueueMain(nn unsafe.Pointer) {
 	qmlock.Lock()
 
 	n := uintptr(nn)
@@ -136,3 +126,5 @@ func doOnShouldQuit(unused unsafe.Pointer) C.int {
 	}
 	return frombool(shouldQuitFunc())
 }
+
+// TODO Timer?

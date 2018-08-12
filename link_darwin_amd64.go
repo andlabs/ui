@@ -2,6 +2,6 @@
 
 package ui
 
-// #cgo CFLAGS: -mmacosx-version-min=10.8 -DMACOSX_DEPLOYMENT_TARGET=10.8
+// #cgo CFLAGS: -mmacosx-version-min=10.8
 // #cgo LDFLAGS: ${SRCDIR}/libui_darwin_amd64.a -framework Foundation -framework AppKit -mmacosx-version-min=10.8
 import "C"
