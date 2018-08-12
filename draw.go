@@ -4,22 +4,14 @@ package ui
 
 // #include <stdlib.h>
 // #include "ui.h"
-// // TODO figure this one out
-// extern void *uimalloc(size_t);
+// #include "util.h"
 // static uiDrawBrush *newBrush(void)
 // {
-// 	uiDrawBrush *b;
-// 
-// 	b = (uiDrawBrush *) uimalloc(sizeof (uiDrawBrush));
-// 	return b;
+// 	return (uiDrawBrush *) pkguiAlloc(sizeof (uiDrawBrush));
 // }
 // static uiDrawBrushGradientStop *newStops(size_t n)
 // {
-// 	uiDrawBrushGradientStop *stops;
-// 
-// 	stops = (uiDrawBrushGradientStop *) malloc(n * sizeof (uiDrawBrushGradientStop));
-// 	// TODO
-// 	return stops;
+// 	return (uiDrawBrushGradientStop *) pkguiAlloc(n * sizeof (uiDrawBrushGradientStop));
 // }
 // static void setStop(uiDrawBrushGradientStop *stops, size_t i, double pos, double r, double g, double b, double a)
 // {
@@ -37,19 +29,11 @@ package ui
 // }
 // static uiDrawStrokeParams *newStrokeParams(void)
 // {
-// 	uiDrawStrokeParams *b;
-// 
-// 	b = (uiDrawStrokeParams *) malloc(sizeof (uiDrawStrokeParams));
-// 	// TODO
-// 	return b;
+// 	return (uiDrawStrokeParams *) pkguiAlloc(sizeof (uiDrawStrokeParams));
 // }
 // static double *newDashes(size_t n)
 // {
-// 	double *dashes;
-// 
-// 	dashes = (double *) malloc(n * sizeof (double));
-// 	// TODO
-// 	return dashes;
+// 	return (double *) pkguiAlloc(n * sizeof (double));
 // }
 // static void setDash(double *dashes, size_t i, double dash)
 // {
@@ -63,69 +47,13 @@ package ui
 // }
 // static uiDrawMatrix *newMatrix(void)
 // {
-// 	uiDrawMatrix *m;
-// 
-// 	m = (uiDrawMatrix *) malloc(sizeof (uiDrawMatrix));
-// 	// TODO
-// 	return m;
+// 	return (uiDrawMatrix *) pkguiAlloc(sizeof (uiDrawMatrix));
 // }
 // static void freeMatrix(uiDrawMatrix *m)
 // {
 // 	free(m);
 // }
-// static uiDrawTextFontDescriptor *newFontDescriptor(void)
-// {
-// 	uiDrawTextFontDescriptor *desc;
-// 
-// 	desc = (uiDrawTextFontDescriptor *) malloc(sizeof (uiDrawTextFontDescriptor));
-// 	// TODO
-// 	return desc;
-// }
-// static uiDrawTextFont *newFont(uiDrawTextFontDescriptor *desc)
-// {
-// 	uiDrawTextFont *font;
-// 
-// 	font = uiDrawLoadClosestFont(desc);
-// 	free((char *) (desc->Family));
-// 	free(desc);
-// 	return font;
-// }
-// static uiDrawTextLayout *newTextLayout(char *text, uiDrawTextFont *defaultFont, double width)
-// {
-// 	uiDrawTextLayout *layout;
-// 
-// 	layout = uiDrawNewTextLayout(text, defaultFont, width);
-// 	free(text);
-// 	return layout;
-// }
-// static uiDrawTextFontMetrics *newFontMetrics(void)
-// {
-// 	uiDrawTextFontMetrics *m;
-// 
-// 	m = (uiDrawTextFontMetrics *) malloc(sizeof (uiDrawTextFontMetrics));
-// 	// TODO
-// 	return m;
-// }
-// static void freeFontMetrics(uiDrawTextFontMetrics *m)
-// {
-// 	free(m);
-// }
-// static double *newDouble(void)
-// {
-// 	double *d;
-// 
-// 	d = (double *) malloc(sizeof (double));
-// 	// TODO
-// 	return d;
-// }
-// static void freeDoubles(double *a, double *b)
-// {
-// 	free(a);
-// 	free(b);
-// }
 import "C"
-
-// BUG(andlabs): Ideally, all the drawing APIs should be in another package ui/draw (they all have the "uiDraw" prefix in C to achieve a similar goal of avoiding confusing programmers via namespace pollution); managing the linkage of the libui shared library itself across multiple packages is likely going to be a pain, though. (Custom controls implemented using libui won't have this issue, as they *should* only need libui present when linking the shared object, not when linking the Go wrapper. I'm not sure; I'd have to find out first.)
 
 // Path represents a geometric path in a drawing context.
 // This is the basic unit of drawing: all drawing operations consist of
@@ -553,282 +481,4 @@ func (c *DrawContext) Save() {
 // TODO
 func (c *DrawContext) Restore() {
 	C.uiDrawRestore(c.c)
-}
-
-// FontFamilies represents an enumerator over the font families
-// available for use by package ui. A FontFamilies object behaves
-// similarly to a []string, except that since family names are loaded
-// on demand (depending on the operating system), it is not an
-// actual []string. You call ListFontFamilies to obtain a FontFamilies
-// object, which should reflect the available fonts at the time of the
-// call (TODO verify). Use NumFamilies to get the number of families,
-// and Family to get the name of a given family by index. When
-// finished, call Free.
-// 
-// There is no guarantee that the list of families is sorted. You will
-// need to do sorting yourself if you need it.
-// 
-// TODO thread affinity
-type FontFamilies struct {
-	ff *C.uiDrawFontFamilies
-}
-
-// ListFontFamilies creates a new FontFamilies object ready for use.
-func ListFontFamilies() *FontFamilies {
-	return &FontFamilies{
-		ff:	C.uiDrawListFontFamilies(),
-	}
-}
-
-// Free destroys a FontFamilies. After calling Free, the FontFamilies
-// cannot be used.
-func (f *FontFamilies) Free() {
-	C.uiDrawFreeFontFamilies(f.ff)
-}
-
-// NumFamilies returns the number of font families available.
-func (f *FontFamilies) NumFamilies() int {
-	return int(C.uiDrawFontFamiliesNumFamilies(f.ff))
-}
-
-// Family returns the name of the nth family in the list.
-func (f *FontFamilies) Family(n int) string {
-	cname := C.uiDrawFontFamiliesFamily(f.ff, C.int(n))
-	name := C.GoString(cname)
-	C.uiFreeText(cname)
-	return name
-}
-
-// TextWeight defines the various text weights, in order of
-// increasing weight.
-// 
-// Note that if you leave this field unset, it will default to
-// TextWeightThin. If you want the normal font weight, explicitly
-// use the constant TextWeightNormal instead.
-// TODO realign these?
-// 
-// TODO disclaimer
-type TextWeight int
-const (
-	TextWeightThin TextWeight = iota
-	TextWeightUltraLight
-	TextWeightLight
-	TextWeightBook
-	TextWeightNormal
-	TextWeightMedium
-	TextWeightSemiBold
-	TextWeightBold
-	TextWeightUtraBold
-	TextWeightHeavy
-	TextWeightUltraHeavy
-)
-
-// TextItalic defines the various text italic modes.
-// 
-// TODO disclaimer
-type TextItalic int
-const (
-	TextItalicNormal TextItalic = iota
-	TextItalicOblique			// merely slanted text
-	TextItalicItalic				// true italics
-)
-
-// TextStretch defines the various text stretches, in order of
-// increasing wideness.
-// 
-// Note that if you leave this field unset, it will default to
-// TextStretchUltraCondensed. If you want the normal font
-// stretch, explicitly use the constant TextStretchNormal
-// instead.
-// TODO realign these?
-// 
-// TODO disclaimer
-type TextStretch int
-const (
-	TextStretchUltraCondensed TextStretch = iota
-	TextStretchExtraCondensed
-	TextStretchCondensed
-	TextStretchSemiCondensed
-	TextStretchNormal
-	TextStretchSemiExpanded
-	TextStretchExpanded
-	TextStretchExtraExpanded
-	TextStretchUltraExpanded
-)
-
-// FontDescriptor describes a Font.
-type FontDescriptor struct {
-	Family		string
-	Size			float64		// as a text size, for instance 12 for a 12-point font
-	Weight		TextWeight
-	Italic			TextItalic
-	Stretch		TextStretch
-}
-
-// Font represents an actual font that can be drawn with.
-type Font struct {
-	f	*C.uiDrawTextFont
-}
-
-// LoadClosestFont loads a Font.
-// 
-// You pass the properties of the ideal font you want to load in the
-// FontDescriptor you pass to this function. If the requested font
-// is not available on the system, the closest matching font is used.
-// This means that, for instance, if you specify a Weight of
-// TextWeightUltraHeavy and the heaviest weight available for the
-// chosen font family is actually TextWeightBold, that will be used
-// instead. The specific details of font matching beyond this
-// description are implementation defined. This also means that
-// getting a descriptor back out of a Font may return a different
-// desriptor.
-// 
-// TODO guarantee that passing *that* back into LoadClosestFont() returns the same font
-func LoadClosestFont(desc *FontDescriptor) *Font {
-	d := C.newFontDescriptor()		// both of these are freed by C.newFont()
-	d.Family = C.CString(desc.Family)
-	d.Size = C.double(desc.Size)
-	d.Weight = C.uiDrawTextWeight(desc.Weight)
-	d.Italic = C.uiDrawTextItalic(desc.Italic)
-	d.Stretch = C.uiDrawTextStretch(desc.Stretch)
-	return &Font{
-		f:	C.newFont(d),
-	}
-}
-
-// Free destroys a Font. After calling Free the Font cannot be used.
-func (f *Font) Free() {
-	C.uiDrawFreeTextFont(f.f)
-}
-
-// Handle returns the OS font object that backs this Font. On OSs
-// that use reference counting for font objects, Handle does not
-// increment the reference count; you are sharing package ui's
-// reference.
-// 
-// On Windows this is a pointer to an IDWriteFont.
-// 
-// On Unix systems this is a pointer to a PangoFont.
-// 
-// On OS X this is a CTFontRef.
-func (f *Font) Handle() uintptr {
-	return uintptr(C.uiDrawTextFontHandle(f.f))
-}
-
-// Describe returns the FontDescriptor that most closely matches
-// this Font.
-// TODO guarantees about idempotency
-// TODO rewrite that first sentence
-func (f *Font) Describe() *FontDescriptor {
-	panic("TODO unimplemented")
-}
-
-// FontMetrics holds various measurements about a Font.
-// All metrics are in the same point units used for drawing.
-type FontMetrics struct {
-	// Ascent is the ascent of the font; that is, the distance from
-	// the top of the character cell to the baseline.
-	Ascent			float64
-
-	// Descent is the descent of the font; that is, the distance from
-	// the baseline to the bottom of the character cell. The sum of
-	// Ascent and Descent is the height of the character cell (and
-	// thus, the maximum height of a line of text).
-	Descent			float64
-
-	// Leading is the amount of space the font designer suggests
-	// to have between lines (between the bottom of the first line's
-	// character cell and the top of the second line's character cell).
-	// This is a suggestion; it is chosen by the font designer to
-	// improve legibility.
-	Leading			float64
-
-	// TODO figure out what these are
-	UnderlinePos		float64
-	UnderlineThickness	float64
-}
-
-// Metrics returns metrics about the given Font.
-func (f *Font) Metrics() *FontMetrics {
-	m := new(FontMetrics)
-	mm := C.newFontMetrics()
-	C.uiDrawTextFontGetMetrics(f.f, mm)
-	m.Ascent = float64(mm.Ascent)
-	m.Descent = float64(mm.Descent)
-	m.Leading = float64(mm.Leading)
-	m.UnderlinePos = float64(mm.UnderlinePos)
-	m.UnderlineThickness = float64(mm.UnderlineThickness)
-	C.freeFontMetrics(mm)
-	return m
-}
-
-// TextLayout is the entry point for formatting a block of text to be
-// drawn onto a DrawContext.
-// 
-// The block of text to lay out and the default font that is used if no
-// font attributes are applied to a given character are provided
-// at TextLayout creation time and cannot be changed later.
-// However, you may add attributes to various points of the text
-// at any time, even after drawing the text once (unlike a DrawPath).
-// Some of these attributes also have initial values; refer to each
-// method to see what they are.
-// 
-// The block of text can either be a single line or multiple
-// word-wrapped lines, each with a given maximum width.
-type TextLayout struct {
-	l	*C.uiDrawTextLayout
-}
-
-// NewTextLayout creates a new TextLayout.
-// For details on the width parameter, see SetWidth.
-func NewTextLayout(text string, defaultFont *Font, width float64) *TextLayout {
-	l := new(TextLayout)
-	ctext := C.CString(text)		// freed by C.newTextLayout()
-	l.l = C.newTextLayout(ctext, defaultFont.f, C.double(width))
-	return l
-}
-
-// Free destroys a TextLayout. After calling Free the TextLayout
-// cannot be used.
-func (l *TextLayout) Free() {
-	C.uiDrawFreeTextLayout(l.l)
-}
-
-// SetWidth sets the maximum width of the lines of text in a
-// TextLayout. If the given width is negative, then the TextLayout
-// will draw as a single line of text instead.
-func (l *TextLayout) SetWidth(width float64) {
-	C.uiDrawTextLayoutSetWidth(l.l, C.double(width))
-}
-
-// Extents returns the width and height that the TextLayout will
-// actually take up when drawn. This measures full line allocations,
-// even if no glyph reaches to the top of its ascent or bottom of its
-// descent; it does not return a "best fit" rectnagle for the points that
-// are actually drawn.
-// 
-// For a single-line TextLayout (where the width is negative), if there
-// are no font changes throughout the TextLayout, then the height
-// returned by TextLayout is equivalent to the sum of the ascent and
-// descent of its default font's metrics. Or in other words, after
-// 	f := ui.LoadClosestFont(...)
-// 	l := ui.NewTextLayout("text", f, -1)
-// 	metrics := f.Metrics()
-// 	_, height := l.Extents()
-// metrics.Ascent+metrics.Descent and height are equivalent.
-func (l *TextLayout) Extents() (width float64, height float64) {
-	cwidth := C.newDouble()
-	cheight := C.newDouble()
-	C.uiDrawTextLayoutExtents(l.l, cwidth, cheight)
-	width = float64(*cwidth)
-	height = float64(*cheight)
-	C.freeDoubles(cwidth, cheight)
-	return width, height
-}
-
-// Text draws the given TextLayout onto c at the given point.
-// The point refers to the top-left corner of the text.
-// (TODO bounding box or typographical extent?)
-func (c *DrawContext) Text(x float64, y float64, layout *TextLayout) {
-	C.uiDrawText(c.c, C.double(x), C.double(y), layout.l)
 }
