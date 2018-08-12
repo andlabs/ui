@@ -7,7 +7,7 @@ import (
 )
 
 // #include "ui.h"
-// extern void doEditableComboboxOnChanged(uiCombobox *, void *);
+// extern void doEditableComboboxOnChanged(uiEditableCombobox *, void *);
 import "C"
 
 // EditableCombobox is a Control that represents a drop-down list

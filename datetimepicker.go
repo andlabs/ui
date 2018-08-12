@@ -7,6 +7,7 @@ import (
 	"unsafe"
 )
 
+// #include <stdlib.h>
 // #include <time.h>
 // #include "ui.h"
 // static inline struct tm *allocTimeStruct(void)
@@ -14,7 +15,7 @@ import (
 // 	/* TODO handle error */
 // 	return (struct tm *) malloc(sizeof (struct tm));
 // }
-// extern void doDateTimePickerChanged(uiDateTimePicker *, void *);
+// extern void doDateTimePickerOnChanged(uiDateTimePicker *, void *);
 import "C"
 
 // DateTimePicker is a Control that represents a field where the user

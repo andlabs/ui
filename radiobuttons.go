@@ -24,7 +24,7 @@ func NewRadioButtons() *RadioButtons {
 
 	r.r = C.uiNewRadioButtons()
 
-	C.uiRadioButtonsOnChanged(r.r, C.doRadioButtonsOnChanged, nil)
+	C.uiRadioButtonsOnSelected(r.r, C.doRadioButtonsOnSelected, nil)
 
 	r.ControlBase = NewControlBase(r, uintptr(unsafe.Pointer(r.r)))
 	return r
