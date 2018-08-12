@@ -74,7 +74,7 @@ func NewScrollingArea(handler AreaHandler, width int, height int) *Area {
 	a.scrolling = true
 	a.ah = registerAreaHandler(handler)
 
-	a.a = C.uiNewScrollingArea(a.ah, C.intmax_t(width), C.intmax_t(height))
+	a.a = C.uiNewScrollingArea(a.ah, C.int(width), C.int(height))
 	a.c = (*C.uiControl)(unsafe.Pointer(a.a))
 
 	areas[a.a] = a
@@ -133,7 +133,7 @@ func (a *Area) SetSize(width int, height int) {
 	if !a.scrolling {
 		panic("attempt to call SetSize on non-scrolling Area")
 	}
-	C.uiAreaSetSize(a.a, C.intmax_t(width), C.intmax_t(height))
+	C.uiAreaSetSize(a.a, C.int(width), C.int(height))
 }
 
 // QueueRedrawAll queues the entire Area for redraw.

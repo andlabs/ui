@@ -38,7 +38,7 @@ func (s *Spinbox) Value() int {
 
 // SetValue sets the Spinbox's current value to value.
 func (s *Spinbox) SetValue(value int) {
-	C.uiSpinboxSetValue(s.s, C.intmax_t(value))
+	C.uiSpinboxSetValue(s.s, C.int(value))
 }
 
 // OnChanged registers f to be run when the user changes the value

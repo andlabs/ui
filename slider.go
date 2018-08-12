@@ -38,7 +38,7 @@ func (s *Slider) Value() int {
 
 // SetValue sets the Slider's current value to value.
 func (s *Slider) SetValue(value int) {
-	C.uiSliderSetValue(s.s, C.intmax_t(value))
+	C.uiSliderSetValue(s.s, C.int(value))
 }
 
 // OnChanged registers f to be run when the user changes the value

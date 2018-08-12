@@ -593,7 +593,7 @@ func (f *FontFamilies) NumFamilies() int {
 
 // Family returns the name of the nth family in the list.
 func (f *FontFamilies) Family(n int) string {
-	cname := C.uiDrawFontFamiliesFamily(f.ff, C.uintmax_t(n))
+	cname := C.uiDrawFontFamiliesFamily(f.ff, C.int(n))
 	name := C.GoString(cname)
 	C.uiFreeText(cname)
 	return name

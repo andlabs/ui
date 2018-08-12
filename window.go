@@ -26,7 +26,6 @@ func NewWindow(title string, width int, height int, hasMenubar bool) *Window {
 	w := new(Window)
 
 	ctitle := C.CString(title)
-	// TODO wait why did I make these ints and not intmax_ts?
 	w.w = C.uiNewWindow(ctitle, C.int(width), C.int(height), frombool(hasMenubar))
 	freestr(ctitle)
 
