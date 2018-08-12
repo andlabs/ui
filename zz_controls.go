@@ -27,6 +27,7 @@ func makeBasicControlsPage() ui.Control {
 	group.SetMargined(true)
 	vbox.Append(group, true)
 
+group.SetChild(ui.NewNonWrappingMultilineEntry())
 /*
 	entryForm = uiNewForm();
 	uiFormSetPadded(entryForm, 1);
