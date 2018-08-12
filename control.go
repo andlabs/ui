@@ -18,6 +18,11 @@ var controls = make(map[*C.uiControl]Control)
 // The preferred way to create new Controls is to use
 // ControlBase; see ControlBase below.
 type Control interface {
+	// LibuiControl returns the uiControl pointer for the Control.
+	// This is intended for use when adding a control to a
+	// container.
+	LibuiControl() uintptr
+
 	// Destroy destroys the Control.
 	Destroy()
 
@@ -80,6 +85,10 @@ func NewControlBase(iface Control, c uintptr) ControlBase {
 	}
 	controls[b.c] = b.iface
 	return b
+}
+
+func (c *ControlBase) LibuiControl() uintptr {
+	return uintptr(unsafe.Pointer(c.c))
 }
 
 func (c *ControlBase) Destroy() {
