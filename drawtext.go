@@ -54,18 +54,25 @@ func (a *Attribute) Type() AttributeType {
 	return AttributeType(C.uiAttributeGetType(a.a))
 }
 
-////// TODOTODO
+// NewFamilyAttribute creates a new Attribute that changes the
+// font family of the text it is applied to. Font family names are
+// case-insensitive.
+func NewFamilyAttribute(family string) *Attribute {
+	fstr := C.CString(family)
+	defer freestr(fstr)
+	return &Attribute{
+		a:	C.uiNewFamilyAttribute(fstr),
+	}
+}
 
-// uiNewFamilyAttribute() creates a new uiAttribute that changes the
-// font family of the text it is applied to. family is copied; you do not
-// need to keep it alive after uiNewFamilyAttribute() returns. Font
-// family names are case-insensitive.
-_UI_EXTERN uiAttribute *uiNewFamilyAttribute(const char *family);
+// Family returns the font family stored in a.
+// It is an error to call this on an Attribute that does not hold a
+// font family.
+func (a *Attribute) Family() string {
+	return C.GoString(C.uiAttributeFamily(a.a))
+}
 
-// uiAttributeFamily() returns the font family stored in a. The
-// returned string is owned by a. It is an error to call this on a
-// uiAttribute that does not hold a font family.
-_UI_EXTERN const char *uiAttributeFamily(const uiAttribute *a);
+//////// TODOTODO
 
 // uiNewSizeAttribute() creates a new uiAttribute that changes the
 // size of the text it is applied to, in typographical points.
@@ -76,7 +83,7 @@ _UI_EXTERN uiAttribute *uiNewSizeAttribute(double size);
 _UI_EXTERN double uiAttributeSize(const uiAttribute *a);
 
 // uiTextWeight represents possible text weights. These roughly
-// map to the OSx2 text weight field of TrueType and OpenType
+// map to the OS/2 text weight field of TrueType and OpenType
 // fonts, or to CSS weight numbers. The named constants are
 // nominal values; the actual values may vary by font and by OS,
 // though this isn't particularly likely. Any value between
