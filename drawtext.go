@@ -72,22 +72,26 @@ func (a *Attribute) Family() string {
 	return C.GoString(C.uiAttributeFamily(a.a))
 }
 
-//////// TODOTODO
-
-// uiNewSizeAttribute() creates a new uiAttribute that changes the
+// NewSizeAttribute() creates a new Attribute that changes the
 // size of the text it is applied to, in typographical points.
-_UI_EXTERN uiAttribute *uiNewSizeAttribute(double size);
+func NewSizeAttribute(size float64) *Attribute {
+	return &Attribute{
+		a:	C.uiNewSizeAttribute(C.double(size)),
+	}
+}
 
-// uiAttributeSize() returns the font size stored in a. It is an error to
-// call this on a uiAttribute that does not hold a font size.
-_UI_EXTERN double uiAttributeSize(const uiAttribute *a);
+// Size returns the font size stored in a. It is an error to
+// call this on a Attribute that does not hold a font size.
+func (a *Attribute) Size() float64 {
+	return float64(C.uiAttributeSize(a.a))
+}
 
-// uiTextWeight represents possible text weights. These roughly
+// TextWeight represents possible text weights. These roughly
 // map to the OS/2 text weight field of TrueType and OpenType
 // fonts, or to CSS weight numbers. The named constants are
 // nominal values; the actual values may vary by font and by OS,
 // though this isn't particularly likely. Any value between
-// uiTextWeightMinimum and uiDrawTextWeightMaximum,
+// TextWeightMinimum and TextWeightMaximum,
 // inclusive, is allowed.
 //
 // Note that due to restrictions in early versions of Windows, some
@@ -95,32 +99,41 @@ _UI_EXTERN double uiAttributeSize(const uiAttribute *a);
 // separate font families. This is perhaps most notable with
 // Arial Black. libui does not do this, even on Windows (because the
 // DirectWrite API libui uses on Windows does not do this); to
-// specify Arial Black, use family Arial and weight uiTextWeightBlack.
-_UI_ENUM(uiTextWeight) {
-	uiTextWeightMinimum = 0,
-	uiTextWeightThin = 100,
-	uiTextWeightUltraLight = 200,
-	uiTextWeightLight = 300,
-	uiTextWeightBook = 350,
-	uiTextWeightNormal = 400,
-	uiTextWeightMedium = 500,
-	uiTextWeightSemiBold = 600,
-	uiTextWeightBold = 700,
-	uiTextWeightUltraBold = 800,
-	uiTextWeightHeavy = 900,
-	uiTextWeightUltraHeavy = 950,
-	uiTextWeightMaximum = 1000,
-};
+// specify Arial Black, use family Arial and weight TextWeightBlack.
+type TextWeight int
+const (
+	TextWeightMinimum = 0,
+	TextWeightThin = 100,
+	TextWeightUltraLight = 200,
+	TextWeightLight = 300,
+	TextWeightBook = 350,
+	TextWeightNormal = 400,
+	TextWeightMedium = 500,
+	TextWeightSemiBold = 600,
+	TextWeightBold = 700,
+	TextWeightUltraBold = 800,
+	TextWeightHeavy = 900,
+	TextWeightUltraHeavy = 950,
+	TextWeightMaximum = 1000,
+)
 
-// uiNewWeightAttribute() creates a new uiAttribute that changes the
+// NewWeightAttribute creates a new Attribute that changes the
 // weight of the text it is applied to. It is an error to specify a weight
-// outside the range [uiTextWeightMinimum,
-// uiTextWeightMaximum].
-_UI_EXTERN uiAttribute *uiNewWeightAttribute(uiTextWeight weight);
+// outside the range [TextWeightMinimum,
+// TextWeightMaximum].
+func NewWeightAttribute(weight TextWeight) *Attribute {
+	return &Attribute{
+		a:	C.uiNewWeightAttribute(C.uiTextWeight(weight)),
+	}
+}
 
-// uiAttributeWeight() returns the font weight stored in a. It is an error
+// Weight returns the font weight stored in a. It is an error
 // to call this on a uiAttribute that does not hold a font weight.
-_UI_EXTERN uiTextWeight uiAttributeWeight(const uiAttribute *a);
+func (a *Attribute) Weight() TextWeight {
+	return TextWeight(C.uiAttributeWeight(a.a))
+}
+
+////// TODOTODO
 
 // uiTextItalic represents possible italic modes for a font. Italic
 // represents "true" italics where the slanted glyphs have custom
