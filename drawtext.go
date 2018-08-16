@@ -97,9 +97,10 @@ func (a *Attribute) Size() float64 {
 // Note that due to restrictions in early versions of Windows, some
 // fonts have "special" weights be exposed in many programs as
 // separate font families. This is perhaps most notable with
-// Arial Black. libui does not do this, even on Windows (because the
-// DirectWrite API libui uses on Windows does not do this); to
-// specify Arial Black, use family Arial and weight TextWeightBlack.
+// Arial Black. Package ui does not do this, even on Windows
+// (because the DirectWrite API libui uses on Windows does not do
+// this); to specify Arial Black, use family Arial and weight
+// TextWeightBlack.
 type TextWeight int
 const (
 	TextWeightMinimum = 0,
@@ -133,59 +134,73 @@ func (a *Attribute) Weight() TextWeight {
 	return TextWeight(C.uiAttributeWeight(a.a))
 }
 
-////// TODOTODO
-
-// uiTextItalic represents possible italic modes for a font. Italic
+// TextItalic represents possible italic modes for a font. Italic
 // represents "true" italics where the slanted glyphs have custom
 // shapes, whereas oblique represents italics that are merely slanted
 // versions of the normal glyphs. Most fonts usually have one or the
 // other.
-_UI_ENUM(uiTextItalic) {
-	uiTextItalicNormal,
-	uiTextItalicOblique,
-	uiTextItalicItalic,
-};
+type TextItalic int
+const (
+	TextItalicNormal TextItalic = iota
+	TextItalicOblique
+	TextItalicItalic
+)
 
-// uiNewItalicAttribute() creates a new uiAttribute that changes the
+// NewItalicAttribute creates a new Attribute that changes the
 // italic mode of the text it is applied to. It is an error to specify an
-// italic mode not specified in uiTextItalic.
-_UI_EXTERN uiAttribute *uiNewItalicAttribute(uiTextItalic italic);
+// italic mode not specified in TextItalic.
+func NewItalicAttribute(italic TextItalic) *Attribute {
+	return &Attribute{
+		a:	C.uiNewItalicAttribute(C.uiTextItalic(italic)),
+	}
+}
 
-// uiAttributeItalic() returns the font italic mode stored in a. It is an
-// error to call this on a uiAttribute that does not hold a font italic
+// Italic returns the font italic mode stored in a. It is an
+// error to call this on an Attribute that does not hold a font italic
 // mode.
-_UI_EXTERN uiTextItalic uiAttributeItalic(const uiAttribute *a);
+func (a *Attribute) Italic() TextItalic {
+	return TextItalic(C.uiAttributeItalic(a.a))
+}
 
-// uiTextStretch represents possible stretches (also called "widths")
+// TextStretch represents possible stretches (also called "widths")
 // of a font.
 //
 // Note that due to restrictions in early versions of Windows, some
 // fonts have "special" stretches be exposed in many programs as
 // separate font families. This is perhaps most notable with
-// Arial Condensed. libui does not do this, even on Windows (because
-// the DirectWrite API libui uses on Windows does not do this); to
-// specify Arial Condensed, use family Arial and stretch
-// uiTextStretchCondensed.
-_UI_ENUM(uiTextStretch) {
-	uiTextStretchUltraCondensed,
-	uiTextStretchExtraCondensed,
-	uiTextStretchCondensed,
-	uiTextStretchSemiCondensed,
-	uiTextStretchNormal,
-	uiTextStretchSemiExpanded,
-	uiTextStretchExpanded,
-	uiTextStretchExtraExpanded,
-	uiTextStretchUltraExpanded,
-};
+// Arial Condensed. Package ui does not do this, even on Windows
+// (because the DirectWrite API package ui uses on Windows does
+// not do this); to specify Arial Condensed, use family Arial and
+// stretch TextStretchCondensed.
+type TextStretch int
+const (
+	TextStretchUltraCondensed TextStretch = iota
+	TextStretchExtraCondensed
+	TextStretchCondensed
+	TextStretchSemiCondensed
+	TextStretchNormal
+	TextStretchSemiExpanded
+	TextStretchExpanded
+	TextStretchExtraExpanded
+	TextStretchUltraExpanded
+)
 
-// uiNewStretchAttribute() creates a new uiAttribute that changes the
+// NewStretchAttribute creates a new Attribute that changes the
 // stretch of the text it is applied to. It is an error to specify a strech
-// not specified in uiTextStretch.
-_UI_EXTERN uiAttribute *uiNewStretchAttribute(uiTextStretch stretch);
+// not specified in TextStretch.
+func NewStretchAttribute(stretch TextStretch) *Attribute {
+	return &Attribute{
+		a:	C.uiNewStretchAttribute(C.uiTextStretch(stretch)),
+	}
+}
 
-// uiAttributeStretch() returns the font stretch stored in a. It is an
-// error to call this on a uiAttribute that does not hold a font stretch.
-_UI_EXTERN uiTextStretch uiAttributeStretch(const uiAttribute *a);
+// Stretch returns the font stretch stored in a. It is an
+// error to call this on an Attribute that does not hold a font stretch.
+func (a *Attribute) Stretch() TextStretch {
+	return TextStretch(C.uiAttributeStretch(a.a))
+}
+
+/////// TODOTODO
 
 // uiNewColorAttribute() creates a new uiAttribute that changes the
 // color of the text it is applied to. It is an error to specify an invalid
