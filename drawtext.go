@@ -8,90 +8,49 @@ import "C"
 // Attribute stores information about an attribute in an
 // AttributedString.
 //
-// You do not create Attributes directly; instead, you create an
-// Attribute of a given type using the specialized constructor
-// functions. For every Unicode codepoint in the AttributedString,
-// at most one value of each attribute type can be applied.
+// The following types can be used as Attributes:
 //
-// Attributes are immutable and the AttributedString takes
-// ownership of the Attribute object once assigned. Therefore,
-// you can create attributes, give them to AttributedStrings,
-// and then forget about them, like with other garbage-collected
-// objects in Go. However, Attributes are still objects managed by
-// libui underneath package ui, so if you created an Attribute without
-// adding it to an AttributedString, you must call Free on that
-// Attribute to avoid leaking resources.
-type Attribute struct {
-	a	*C.uiAttribute
+// 	- TextFamily
+// 	- TextSize
+// 	- TextWeight
+// 	- TextItalic
+// 	- TextStretch
+// 	- TextColor
+// 	- TextBackgroundColor
+// 	- TextUnderline
+// 	- TextUnderlineColor
+// 	- OpenTypeFeatures
+//
+// For every Unicode codepoint in the AttributedString, at most one
+// value of each attribute type can be applied.
+type Attribute interface {
+	toLibui() *C.uiAttribute
 }
 
-// Free frees the Attribute. You almost never need to call this.
-// For the specific scenario where this is needed, refer to the
-// top of the Attribute documentation.
-func (a *Attribute) Free() {
-	C.uiFreeAttribute(a.a)
-}
+// TextFamily is an Attribute that changes the font family of the text
+// it is applied to. Font family names are case-insensitive.
+type TextFamily string
 
-// uiAttributeType holds the possible uiAttribute types that may be
-// returned by Attribute.GetType. Refer to the documentation for
-// each type's constructor function for details on each type.
-type AttributeType int
-const (
-	AttributeTypeFamily AttributeType = iota
-	AttributeTypeSize
-	AttributeTypeWeight
-	AttributeTypeItalic
-	AttributeTypeStretch
-	AttributeTypeColor
-	AttributeTypeBackground
-	AttributeTypeUnderline
-	AttributeTypeUnderlineColor
-	AttributeTypeFeatures
-)
-
-// Type returns the type of a.
-func (a *Attribute) Type() AttributeType {
-	return AttributeType(C.uiAttributeGetType(a.a))
-}
-
-// NewFamilyAttribute creates a new Attribute that changes the
-// font family of the text it is applied to. Font family names are
-// case-insensitive.
-func NewFamilyAttribute(family string) *Attribute {
-	fstr := C.CString(family)
+func (f TextFamily) toLibui() *C.uiAttribute {
+	fstr := C.CString(string(f))
 	defer freestr(fstr)
-	return &Attribute{
-		a:	C.uiNewFamilyAttribute(fstr),
-	}
+	return C.uiNewFamilyAttribute(fstr)
 }
 
-// Family returns the font family stored in a.
-// It is an error to call this on an Attribute that does not hold a
-// font family.
-func (a *Attribute) Family() string {
-	return C.GoString(C.uiAttributeFamily(a.a))
+// TextSize is an Attribute that changes the size of the text it is
+// applied to, in typographical points.
+type TextSize float64
+
+func (s TextSize) toLibui() *C.uiAttribute {
+	return C.uiNewSizeAttribute(C.double(size))
 }
 
-// NewSizeAttribute() creates a new Attribute that changes the
-// size of the text it is applied to, in typographical points.
-func NewSizeAttribute(size float64) *Attribute {
-	return &Attribute{
-		a:	C.uiNewSizeAttribute(C.double(size)),
-	}
-}
-
-// Size returns the font size stored in a. It is an error to
-// call this on a Attribute that does not hold a font size.
-func (a *Attribute) Size() float64 {
-	return float64(C.uiAttributeSize(a.a))
-}
-
-// TextWeight represents possible text weights. These roughly
-// map to the OS/2 text weight field of TrueType and OpenType
-// fonts, or to CSS weight numbers. The named constants are
-// nominal values; the actual values may vary by font and by OS,
-// though this isn't particularly likely. Any value between
-// TextWeightMinimum and TextWeightMaximum,
+// TextWeight is an Attribute that changes the weight of the text
+// it is applied to. These roughly map to the OS/2 text weight field
+// of TrueType and OpenType fonts, or to CSS weight numbers. The
+// named constants are nominal values; the actual values may vary
+// by font and by OS, though this isn't particularly likely. Any value
+// between TextWeightMinimum and TextWeightMaximum,
 // inclusive, is allowed.
 //
 // Note that due to restrictions in early versions of Windows, some
@@ -118,27 +77,15 @@ const (
 	TextWeightMaximum = 1000,
 )
 
-// NewWeightAttribute creates a new Attribute that changes the
-// weight of the text it is applied to. It is an error to specify a weight
-// outside the range [TextWeightMinimum,
-// TextWeightMaximum].
-func NewWeightAttribute(weight TextWeight) *Attribute {
-	return &Attribute{
-		a:	C.uiNewWeightAttribute(C.uiTextWeight(weight)),
-	}
+func (w TextWeight) toLibui() *C.uiAttribute {
+	return C.uiNewWeightAttribute(C.uiTextWeight(w))
 }
 
-// Weight returns the font weight stored in a. It is an error
-// to call this on a uiAttribute that does not hold a font weight.
-func (a *Attribute) Weight() TextWeight {
-	return TextWeight(C.uiAttributeWeight(a.a))
-}
-
-// TextItalic represents possible italic modes for a font. Italic
-// represents "true" italics where the slanted glyphs have custom
-// shapes, whereas oblique represents italics that are merely slanted
-// versions of the normal glyphs. Most fonts usually have one or the
-// other.
+// TextItalic is an Attribute that changes the italic mode of the text
+// it is applied to. Italic represents "true" italics where the slanted
+// glyphs have custom shapes, whereas oblique represents italics
+// that are merely slanted versions of the normal glyphs. Most fonts
+// usually have one or the other.
 type TextItalic int
 const (
 	TextItalicNormal TextItalic = iota
@@ -146,24 +93,14 @@ const (
 	TextItalicItalic
 )
 
-// NewItalicAttribute creates a new Attribute that changes the
-// italic mode of the text it is applied to. It is an error to specify an
-// italic mode not specified in TextItalic.
-func NewItalicAttribute(italic TextItalic) *Attribute {
-	return &Attribute{
-		a:	C.uiNewItalicAttribute(C.uiTextItalic(italic)),
-	}
+func (i TextItalic) toLibui() *C.uiAttribute {
+	return C.uiNewItalicAttribute(C.uiTextItalic(i))
 }
 
-// Italic returns the font italic mode stored in a. It is an
-// error to call this on an Attribute that does not hold a font italic
-// mode.
-func (a *Attribute) Italic() TextItalic {
-	return TextItalic(C.uiAttributeItalic(a.a))
-}
+///// TODOTODO
 
-// TextStretch represents possible stretches (also called "widths")
-// of a font.
+// TextStretch is an Attribute that changes the stretch (also called
+// "width") of the text it is applied to.
 //
 // Note that due to restrictions in early versions of Windows, some
 // fonts have "special" stretches be exposed in many programs as
@@ -185,19 +122,8 @@ const (
 	TextStretchUltraExpanded
 )
 
-// NewStretchAttribute creates a new Attribute that changes the
-// stretch of the text it is applied to. It is an error to specify a strech
-// not specified in TextStretch.
-func NewStretchAttribute(stretch TextStretch) *Attribute {
-	return &Attribute{
-		a:	C.uiNewStretchAttribute(C.uiTextStretch(stretch)),
-	}
-}
-
-// Stretch returns the font stretch stored in a. It is an
-// error to call this on an Attribute that does not hold a font stretch.
-func (a *Attribute) Stretch() TextStretch {
-	return TextStretch(C.uiAttributeStretch(a.a))
+func (s TextStretch) toLibui() *C.uiAttribute {
+	return C.uiNewStretchAttribute(C.uiTextStretch(s))
 }
 
 /////// TODOTODO
