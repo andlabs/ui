@@ -16,9 +16,9 @@ import "C"
 // 	- TextItalic
 // 	- TextStretch
 // 	- TextColor
-// 	- TextBackgroundColor
-// 	- TextUnderline
-// 	- TextUnderlineColor
+// 	- TextBackground
+// 	- Underline
+// 	- UnderlineColor
 // 	- OpenTypeFeatures
 //
 // For every Unicode codepoint in the AttributedString, at most one
@@ -97,8 +97,6 @@ func (i TextItalic) toLibui() *C.uiAttribute {
 	return C.uiNewItalicAttribute(C.uiTextItalic(i))
 }
 
-///// TODOTODO
-
 // TextStretch is an Attribute that changes the stretch (also called
 // "width") of the text it is applied to.
 //
@@ -126,41 +124,47 @@ func (s TextStretch) toLibui() *C.uiAttribute {
 	return C.uiNewStretchAttribute(C.uiTextStretch(s))
 }
 
-/////// TODOTODO
+// TextColor is an Attribute that changes the color of the text it is
+// applied to.
+type TextColor struct {
+	R	float64
+	G	float64
+	B	float64
+	A	float64
+}
 
-// uiNewColorAttribute() creates a new uiAttribute that changes the
-// color of the text it is applied to. It is an error to specify an invalid
-// color.
-_UI_EXTERN uiAttribute *uiNewColorAttribute(double r, double g, double b, double a);
+func (c TextColor) toLibui() *C.uiAttribute {
+	return C.uiNewColorAttribute(C.double(c.R), C.double(c.G), C.double(c.B), C.double(c.A))
+}
 
-// uiAttributeColor() returns the text color stored in a. It is an
-// error to call this on a uiAttribute that does not hold a text color.
-_UI_EXTERN void uiAttributeColor(const uiAttribute *a, double *r, double *g, double *b, double *alpha);
+// TextBackground is an Attribute that changes the background
+// color of the text it is applied to.
+type TextBackground struct {
+	R	float64
+	G	float64
+	B	float64
+	A	float64
+}
 
-// uiNewBackgroundAttribute() creates a new uiAttribute that
-// changes the background color of the text it is applied to. It is an
-// error to specify an invalid color.
-_UI_EXTERN uiAttribute *uiNewBackgroundAttribute(double r, double g, double b, double a);
+func (b TextBackground) toLibui() *C.uiAttribute {
+	return C.uiNewBackgroundAttribute(C.double(b.R), C.double(b.G), C.double(b.b), C.double(b.A))
+}
 
-// TODO reuse uiAttributeColor() for background colors, or make a new function...
+// Underline is an Attribute that specifies a type of underline to use
+// on text.
+type Underline int
+const (
+	UnderlineNone Underline = iota
+	UnderlineSingle
+	UnderlineDouble
+	UnderlineSuggestion		// wavy or dotted underlines used for spelling/grammar checkers
+)
 
-// uiUnderline specifies a type of underline to use on text.
-_UI_ENUM(uiUnderline) {
-	uiUnderlineNone,
-	uiUnderlineSingle,
-	uiUnderlineDouble,
-	uiUnderlineSuggestion,		// wavy or dotted underlines used for spelling/grammar checkers
-};
+func (u Underline) toLibui() *C.uiAttribute {
+	return C.uiNewUnderlineAttribute(C.uiUnderline(u))
+}
 
-// uiNewUnderlineAttribute() creates a new uiAttribute that changes
-// the type of underline on the text it is applied to. It is an error to
-// specify an underline type not specified in uiUnderline.
-_UI_EXTERN uiAttribute *uiNewUnderlineAttribute(uiUnderline u);
-
-// uiAttributeUnderline() returns the underline type stored in a. It is
-// an error to call this on a uiAttribute that does not hold an underline
-// style.
-_UI_EXTERN uiUnderline uiAttributeUnderline(const uiAttribute *a);
+////////// TODOTODO
 
 // uiUnderlineColor specifies the color of any underline on the text it
 // is applied to, regardless of the type of underline. In addition to
