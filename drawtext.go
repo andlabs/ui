@@ -2,7 +2,33 @@
 
 package ui
 
+// #include <stdlib.h>
 // #include "ui.h"
+// #include "util.h"
+// typedef struct pkguiCColor pkguiCColor;
+// struct pkguiCColor { double *r; double *g; double *b; double *a; };
+// static inline pkguiCColor pkguiNewCColor(void)
+// {
+// 	pkguiCColor c;
+// 
+// 	c.r = (double *) pkguiAlloc(4 * sizeof (double));
+// 	c.g = c.r + 1;
+// 	c.b = c.g + 1;
+// 	c.a = c.b + 1;
+// 	return c;
+// }
+// static inline void pkguiFreeCColor(pkguiCColor c)
+// {
+// 	free(c.r);
+// }
+// static inline uiUnderlineColor *pkguiNewUnderlineColor(void)
+// {
+// 	return (uiUnderlineColor *) pkguiAlloc(sizeof (uiUnderlineColor));
+// }
+// static inline void pkguiFreeUnderlineColor(uiUnderlineColor *c)
+// {
+// 	free(c);
+// }
 import "C"
 
 // Attribute stores information about an attribute in an
@@ -19,6 +45,7 @@ import "C"
 // 	- TextBackground
 // 	- Underline
 // 	- UnderlineColor
+// 	- UnderlineColorCustom
 // 	- OpenTypeFeatures
 //
 // For every Unicode codepoint in the AttributedString, at most one
@@ -62,19 +89,19 @@ func (s TextSize) toLibui() *C.uiAttribute {
 // TextWeightBlack.
 type TextWeight int
 const (
-	TextWeightMinimum = 0,
-	TextWeightThin = 100,
-	TextWeightUltraLight = 200,
-	TextWeightLight = 300,
-	TextWeightBook = 350,
-	TextWeightNormal = 400,
-	TextWeightMedium = 500,
-	TextWeightSemiBold = 600,
-	TextWeightBold = 700,
-	TextWeightUltraBold = 800,
-	TextWeightHeavy = 900,
-	TextWeightUltraHeavy = 950,
-	TextWeightMaximum = 1000,
+	TextWeightMinimum TextWeight = 0
+	TextWeightThin TextWeight = 100
+	TextWeightUltraLight TextWeight = 200
+	TextWeightLight TextWeight = 300
+	TextWeightBook TextWeight = 350
+	TextWeightNormal TextWeight = 400
+	TextWeightMedium TextWeight = 500
+	TextWeightSemiBold TextWeight = 600
+	TextWeightBold TextWeight = 700
+	TextWeightUltraBold TextWeight = 800
+	TextWeightHeavy TextWeight = 900
+	TextWeightUltraHeavy TextWeight = 950
+	TextWeightMaximum TextWeight = 1000
 )
 
 func (w TextWeight) toLibui() *C.uiAttribute {
@@ -164,46 +191,49 @@ func (u Underline) toLibui() *C.uiAttribute {
 	return C.uiNewUnderlineAttribute(C.uiUnderline(u))
 }
 
-////////// TODOTODO
-
-// uiUnderlineColor specifies the color of any underline on the text it
-// is applied to, regardless of the type of underline. In addition to
-// being able to specify a custom color, you can explicitly specify
-// platform-specific colors for suggestion underlines; to use them
-// correctly, pair them with uiUnderlineSuggestion (though they can
-// be used on other types of underline as well).
+// UnderlineColor is an Attribute that changes the color of any
+// underline on the text it is applied to, regardless of the type of
+// underline. In addition to being able to specify the
+// platform-specific colors for suggestion underlines here, you can
+// also use a custom color with UnderlineColorCustom.
+// 
+// To use the constants here correctly, pair them with
+// UnderlineSuggestion (though they can be used on other types of
+// underline as well).
 // 
 // If an underline type is applied but no underline color is
 // specified, the text color is used instead. If an underline color
 // is specified without an underline type, the underline color
 // attribute is ignored, but not removed from the uiAttributedString.
-_UI_ENUM(uiUnderlineColor) {
-	uiUnderlineColorCustom,
-	uiUnderlineColorSpelling,
-	uiUnderlineColorGrammar,
-	uiUnderlineColorAuxiliary,		// for instance, the color used by smart replacements on macOS or in Microsoft Office
-};
+type UnderlineColor int
+const (
+	UnderlineColorSpelling UnderlineColor = iota + 1
+	UnderlineColorGrammar
+	UnderlineColorAuxiliary		// for instance, the color used by smart replacements on macOS or in Microsoft Office
+)
 
-// uiNewUnderlineColorAttribute() creates a new uiAttribute that
-// changes the color of the underline on the text it is applied to.
-// It is an error to specify an underline color not specified in
-// uiUnderlineColor.
-//
-// If the specified color type is uiUnderlineColorCustom, it is an
-// error to specify an invalid color value. Otherwise, the color values
-// are ignored and should be specified as zero.
-_UI_EXTERN uiAttribute *uiNewUnderlineColorAttribute(uiUnderlineColor u, double r, double g, double b, double a);
+func (u UnderlineColor) toLibui() *C.uiAttribute {
+	return C.uiNewUnderlineColorAttribute(C.uiUnderlineColor(u), 0, 0, 0, 0)
+}
 
-// uiAttributeUnderlineColor() returns the underline color stored in
-// a. It is an error to call this on a uiAttribute that does not hold an
-// underline color.
-_UI_EXTERN void uiAttributeUnderlineColor(const uiAttribute *a, uiUnderlineColor *u, double *r, double *g, double *b, double *alpha);
+// UnderlineColorCustom is an Attribute like UnderlineColor, except
+// it allows specifying a custom color.
+type UnderlineColorCustom struct {
+	R	float64
+	G	float64
+	B	float64
+	A	float64
+}
 
-// uiOpenTypeFeatures represents a set of OpenType feature
-// tag-value pairs, for applying OpenType features to text.
-// OpenType feature tags are four-character codes defined by
-// OpenType that cover things from design features like small
-// caps and swashes to language-specific glyph shapes and
+func (u UnderlineColorCustom) toLibui() *C.uiAttribute {
+	return C.uiNewUnderlineColorAttribute(C.uiUnderlineColorCustom, C.double(u.R), C.double(u.G), C.double(u.B), C.double(u.A))
+}
+
+// OpenTypeFeatures is an Attribute that represents a set of
+// OpenType feature tag-value pairs, for applying OpenType
+// features to text. OpenType feature tags are four-character codes
+// defined by OpenType that cover things from design features like
+// small caps and swashes to language-specific glyph shapes and
 // beyond. Each tag may only appear once in any given
 // uiOpenTypeFeatures instance. Each value is a 32-bit integer,
 // often used as a Boolean flag, but sometimes as an index to choose
@@ -217,67 +247,103 @@ _UI_EXTERN void uiAttributeUnderlineColor(const uiAttribute *a, uiUnderlineColor
 // for the complete list of available features, information on specific
 // features, and how to use them.
 // TODO invalid features
-typedef struct uiOpenTypeFeatures uiOpenTypeFeatures;
-
-// uiOpenTypeFeaturesForEachFunc is the type of the function
-// invoked by uiOpenTypeFeaturesForEach() for every OpenType
-// feature in otf. Refer to that function's documentation for more
-// details.
-typedef uiForEach (*uiOpenTypeFeaturesForEachFunc)(const uiOpenTypeFeatures *otf, char a, char b, char c, char d, uint32_t value, void *data);
-
-// @role uiOpenTypeFeatures constructor
-// uiNewOpenTypeFeatures() returns a new uiOpenTypeFeatures
-// instance, with no tags yet added.
-_UI_EXTERN uiOpenTypeFeatures *uiNewOpenTypeFeatures(void);
-
-// @role uiOpenTypeFeatures destructor
-// uiFreeOpenTypeFeatures() frees otf.
-_UI_EXTERN void uiFreeOpenTypeFeatures(uiOpenTypeFeatures *otf);
-
-// uiOpenTypeFeaturesClone() makes a copy of otf and returns it.
-// Changing one will not affect the other.
-_UI_EXTERN uiOpenTypeFeatures *uiOpenTypeFeaturesClone(const uiOpenTypeFeatures *otf);
-
-// uiOpenTypeFeaturesAdd() adds the given feature tag and value
-// to otf. The feature tag is specified by a, b, c, and d. If there is
-// already a value associated with the specified tag in otf, the old
-// value is removed.
-_UI_EXTERN void uiOpenTypeFeaturesAdd(uiOpenTypeFeatures *otf, char a, char b, char c, char d, uint32_t value);
-
-// uiOpenTypeFeaturesRemove() removes the given feature tag
-// and value from otf. If the tag is not present in otf,
-// uiOpenTypeFeaturesRemove() does nothing.
-_UI_EXTERN void uiOpenTypeFeaturesRemove(uiOpenTypeFeatures *otf, char a, char b, char c, char d);
-
-// uiOpenTypeFeaturesGet() determines whether the given feature
-// tag is present in otf. If it is, *value is set to the tag's value and
-// nonzero is returned. Otherwise, zero is returned.
 // 
-// Note that if uiOpenTypeFeaturesGet() returns zero, value isn't
-// changed. This is important: if a feature is not present in a
-// uiOpenTypeFeatures, the feature is NOT treated as if its
-// value was zero anyway. Script-specific font shaping rules and
-// font-specific feature settings may use a different default value
-// for a feature. You should likewise not treat a missing feature as
-// having a value of zero either. Instead, a missing feature should
-// be treated as having some unspecified default value.
-_UI_EXTERN int uiOpenTypeFeaturesGet(const uiOpenTypeFeatures *otf, char a, char b, char c, char d, uint32_t *value);
+// Note that if a feature is not present in a OpenTypeFeatures,
+// the feature is NOT treated as if its value was zero, unlike in Go.
+// Script-specific font shaping rules and font-specific feature
+// settings may use a different default value for a feature. You
+// should likewise NOT treat a missing feature as having a value of
+// zero either. Instead, a missing feature should be treated as
+// having some unspecified default value.
+// 
+// Note that despite OpenTypeFeatures being a map, its contents
+// are copied by AttributedString. Modifying an OpenTypeFeatures
+// after giving it to an AttributedString, or modifying one that comes
+// out of an AttributedString, will have no effect.
+type OpenTypeFeatures map[OpenTypeTag]uint32
 
-// uiOpenTypeFeaturesForEach() executes f for every tag-value
-// pair in otf. The enumeration order is unspecified. You cannot
-// modify otf while uiOpenTypeFeaturesForEach() is running.
-_UI_EXTERN void uiOpenTypeFeaturesForEach(const uiOpenTypeFeatures *otf, uiOpenTypeFeaturesForEachFunc f, void *data);
+func (o OpenTypeFeatures) toLibui() *C.uiAttribute {
+	otf := C.uiNewOpenTypeFeatures()
+	defer C.uiFreeOpenTypeFeatures(otf)
+	for tag, value := range o {
+		a := byte((tag >> 24) & 0xFF)
+		b := byte((tag >> 16) & 0xFF)
+		c := byte((tag >> 8) & 0xFF)
+		d := byte(tag & 0xFF)
+		C.uiOpenTypeFeaturesAdd(otf, C.char(a), C.char(b), C.char(c), C.char(d), C.uint32_t(value))
+	}
+	return C.uiNewFeaturesAttribute(otf)
+}
 
-// uiNewFeaturesAttribute() creates a new uiAttribute that changes
-// the font family of the text it is applied to. otf is copied; you may
-// free it after uiNewFeaturesAttribute() returns.
-_UI_EXTERN uiAttribute *uiNewFeaturesAttribute(const uiOpenTypeFeatures *otf);
+// OpenTypeTag represents a four-byte OpenType feature tag.
+type OpenTypeTag uint32
 
-// uiAttributeFeatures() returns the OpenType features stored in a.
-// The returned uiOpenTypeFeatures object is owned by a. It is an
-// error to call this on a uiAttribute that does not hold OpenType
-// features.
-_UI_EXTERN const uiOpenTypeFeatures *uiAttributeFeatures(const uiAttribute *a);
+// ToOpenTypeTag converts the four characters a, b, c, and d into
+// an OpenTypeTag.
+func ToOpenTypeTag(a, b, c, d byte) OpenTypeTag {
+	return (uint32(a) << 24) |
+		(uint32(b) << 16) |
+		(uint32(c) << 8) |
+		uint32(d)
+}
+
+func attributeFromLibui(a *C.uiAttribute) Attribute {
+	switch C.uiAttributeGetType(a) {
+	case C.uiAttributeTypeFamily:
+		cf := C.uiAttributeFamily(a)
+		return TextFamily(C.GoString(cf))
+	case C.uiAttributeTypeSize:
+		return TextSize(C.uiAttributeSize(a))
+	case C.uiAttributeTypeWeight:
+		return TextWeight(C.uiAttributeWeight(a))
+	case C.uiAttributeTypeItalic:
+		return TextItalic(C.uiAttributeItalic(a))
+	case C.uiAttributeTypeStretch:
+		return TextStretch(C.uiAttributeStretch(a))
+	case C.uiAttributeTypeColor:
+		cc := C.pkguiNewCColor()
+		defer C.pkguiFreeCColor(cc)
+		C.uiAttributeColor(a, c.r, c.g, c.b, c.a)
+		return TextColor{
+			R:	float64(*(c.r)),
+			G:	float64(*(c.g)),
+			B:	float64(*(c.b)),
+			A:	float64(*(c.a)),
+		}
+	case C.uiAttributeTypeBackground:
+		cc := C.pkguiNewCColor()
+		defer C.pkguiFreeCColor(cc)
+		C.uiAttributeColor(a, c.r, c.g, c.b, c.a)
+		return TextBackground{
+			R:	float64(*(c.r)),
+			G:	float64(*(c.g)),
+			B:	float64(*(c.b)),
+			A:	float64(*(c.a)),
+		}
+	case C.uiAttributeTypeUnderline:
+		return Underline(C.uiAttributeUnderline(a))
+	case C.uiAttributeTypeUnderlineColor:
+		cu := C.pkguiNewUnderlineColor()
+		defer C.pkguiFreeUnderlineColor(cu)
+		cc := C.pkguiNewCColor()
+		defer C.pkguiFreeCColor(cc)
+		C.uiAttributeUnderlineColor(a, cu, c.r, c.g, c.b, c.a)
+		if *cu == C.uiAttributeUnderlineColorCustom {
+			return UnderlineColorCustom{
+				R:	float64(*(c.r)),
+				G:	float64(*(c.g)),
+				B:	float64(*(c.b)),
+				A:	float64(*(c.a)),
+			}
+		}
+		return UnderlineColor(*cu)
+	case C.uiAttributeTypeFeatures:
+		// TODO
+	}
+	panic("unreachable")
+}
+
+///////// TODOTODO
 
 // uiAttributedString represents a string of UTF-8 text that can
 // optionally be embellished with formatting attributes. libui
