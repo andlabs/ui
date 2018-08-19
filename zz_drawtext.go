@@ -8,6 +8,8 @@ import (
 	"github.com/andlabs/ui"
 )
 
+var fontButton *ui.FontButton
+
 var attrstr *ui.AttributedString
 
 func appendWithAttributes(what string, attrs ...ui.Attribute) {
@@ -78,13 +80,7 @@ type areaHandler struct{}
 func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	tl := ui.DrawNewTextLayout(&ui.DrawTextLayoutParams{
 		String:		attrstr,
-		DefaultFont:	&ui.FontDescriptor{
-			Family:	"Helvetica",
-			Size:		12,
-			Weight:	ui.TextWeightNormal,
-			Italic:	ui.TextItalicNormal,
-			Stretch:	ui.TextStretchNormal,
-		},
+		DefaultFont:	fontButton.Font(),
 		Width:		p.AreaWidth,
 		Align:		ui.DrawTextAlignLeft,
 	})
@@ -130,13 +126,17 @@ func setupUI() {
 
 	vbox := ui.NewVerticalBox()
 	vbox.SetPadded(true)
-//	hbox.Append(vbox, false)
+	hbox.Append(vbox, false)
+
+	area := ui.NewArea(areaHandler{})
+
+	fontButton = ui.NewFontButton()
+	fontButton.OnChanged(func(*ui.FontButton) {
+		area.QueueRedrawAll()
+	})
+	vbox.Append(fontButton, false)
 
 /*
-	fontButton = uiNewFontButton();
-	uiFontButtonOnChanged(fontButton, onFontChanged, NULL);
-	uiBoxAppend(vbox, uiControl(fontButton), 0);
-
 	form = uiNewForm();
 	uiFormSetPadded(form, 1);
 	// TODO on OS X if this is set to 1 then the window can't resize; does the form not have the concept of stretchy trailing space?
@@ -152,7 +152,6 @@ func setupUI() {
 	uiFormAppend(form, "Alignment", uiControl(alignment), 0);
 */
 
-	area := ui.NewArea(areaHandler{})
 	hbox.Append(area, true)
 
 	mainwin.Show()
