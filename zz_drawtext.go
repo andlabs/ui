@@ -4,6 +4,8 @@
 
 package main
 
+// TODO probably a bug in libui: changing the font away from skia leads to a crash
+
 import (
 	"github.com/andlabs/ui"
 )
