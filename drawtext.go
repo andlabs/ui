@@ -85,7 +85,7 @@ func (f TextFamily) toLibui() *C.uiAttribute {
 type TextSize float64
 
 func (s TextSize) toLibui() *C.uiAttribute {
-	return C.uiNewSizeAttribute(C.double(size))
+	return C.uiNewSizeAttribute(C.double(s))
 }
 
 // TextWeight is an Attribute that changes the weight of the text
@@ -190,7 +190,7 @@ type TextBackground struct {
 }
 
 func (b TextBackground) toLibui() *C.uiAttribute {
-	return C.uiNewBackgroundAttribute(C.double(b.R), C.double(b.G), C.double(b.b), C.double(b.A))
+	return C.uiNewBackgroundAttribute(C.double(b.R), C.double(b.G), C.double(b.B), C.double(b.A))
 }
 
 // Underline is an Attribute that specifies a type of underline to use
@@ -297,10 +297,10 @@ type OpenTypeTag uint32
 // ToOpenTypeTag converts the four characters a, b, c, and d into
 // an OpenTypeTag.
 func ToOpenTypeTag(a, b, c, d byte) OpenTypeTag {
-	return (uint32(a) << 24) |
-		(uint32(b) << 16) |
-		(uint32(c) << 8) |
-		uint32(d)
+	return (OpenTypeTag(a) << 24) |
+		(OpenTypeTag(b) << 16) |
+		(OpenTypeTag(c) << 8) |
+		OpenTypeTag(d)
 }
 
 func attributeFromLibui(a *C.uiAttribute) Attribute {
@@ -319,22 +319,22 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 	case C.uiAttributeTypeColor:
 		cc := C.pkguiNewCColor()
 		defer C.pkguiFreeCColor(cc)
-		C.uiAttributeColor(a, c.r, c.g, c.b, c.a)
+		C.uiAttributeColor(a, cc.r, cc.g, cc.b, cc.a)
 		return TextColor{
-			R:	float64(*(c.r)),
-			G:	float64(*(c.g)),
-			B:	float64(*(c.b)),
-			A:	float64(*(c.a)),
+			R:	float64(*(cc.r)),
+			G:	float64(*(cc.g)),
+			B:	float64(*(cc.b)),
+			A:	float64(*(cc.a)),
 		}
 	case C.uiAttributeTypeBackground:
 		cc := C.pkguiNewCColor()
 		defer C.pkguiFreeCColor(cc)
-		C.uiAttributeColor(a, c.r, c.g, c.b, c.a)
+		C.uiAttributeColor(a, cc.r, cc.g, cc.b, cc.a)
 		return TextBackground{
-			R:	float64(*(c.r)),
-			G:	float64(*(c.g)),
-			B:	float64(*(c.b)),
-			A:	float64(*(c.a)),
+			R:	float64(*(cc.r)),
+			G:	float64(*(cc.g)),
+			B:	float64(*(cc.b)),
+			A:	float64(*(cc.a)),
 		}
 	case C.uiAttributeTypeUnderline:
 		return Underline(C.uiAttributeUnderline(a))
@@ -343,13 +343,13 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 		defer C.pkguiFreeUnderlineColor(cu)
 		cc := C.pkguiNewCColor()
 		defer C.pkguiFreeCColor(cc)
-		C.uiAttributeUnderlineColor(a, cu, c.r, c.g, c.b, c.a)
-		if *cu == C.uiAttributeUnderlineColorCustom {
+		C.uiAttributeUnderlineColor(a, cu, cc.r, cc.g, cc.b, cc.a)
+		if *cu == C.uiUnderlineColorCustom {
 			return UnderlineColorCustom{
-				R:	float64(*(c.r)),
-				G:	float64(*(c.g)),
-				B:	float64(*(c.b)),
-				A:	float64(*(c.a)),
+				R:	float64(*(cc.r)),
+				G:	float64(*(cc.g)),
+				B:	float64(*(cc.b)),
+				A:	float64(*(cc.a)),
 			}
 		}
 		return UnderlineColor(*cu)
@@ -477,7 +477,7 @@ func (d *FontDescriptor) fromLibui(fd *C.uiFontDescriptor) {
 
 func (d *FontDescriptor) toLibui() *C.uiFontDescriptor {
 	fd := C.pkguiNewFontDescriptor()
-	fd.Family = C.CString(d.Family)
+	fd.Family = C.CString(string(d.Family))
 	fd.Size = C.double(d.Size)
 	fd.Weight = C.uiTextWeight(d.Weight)
 	fd.Italic = C.uiTextItalic(d.Italic)
@@ -536,7 +536,7 @@ func DrawNewTextLayout(p *DrawTextLayoutParams) *DrawTextLayout {
 	defer freeLibuiFontDescriptor(dp.DefaultFont)
 	dp.Width = C.double(p.Width)
 	dp.Align = C.uiDrawTextAlign(p.Align)
-	return DrawTextLayout{
+	return &DrawTextLayout{
 		tl:	C.uiDrawNewTextLayout(dp),
 	}
 }
