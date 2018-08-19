@@ -343,10 +343,8 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 	panic("unreachable")
 }
 
-///////// TODOTODO
-
-// uiAttributedString represents a string of UTF-8 text that can
-// optionally be embellished with formatting attributes. libui
+// AttributedString represents a string of UTF-8 text that can
+// optionally be embellished with formatting attributes. Package ui
 // provides the list of formatting attributes, which cover common
 // formatting traits like boldface and color as well as advanced
 // typographical features provided by OpenType like superscripts
@@ -360,97 +358,89 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 // do not split each other apart, but different values of the same
 // attribute type do.
 //
-// The empty string can also be represented by uiAttributedString,
+// The empty string can also be represented by AttributedString,
 // but because of the no-zero-length-attribute rule, it will not have
 // attributes.
 //
-// A uiAttributedString takes ownership of all attributes given to
-// it, as it may need to duplicate or delete uiAttribute objects at
-// any time. By extension, when you free a uiAttributedString,
-// all uiAttributes within will also be freed. Each method will
-// describe its own rules in more details.
+// Unlike Go strings, AttributedStrings are mutable.
 //
-// In addition, uiAttributedString provides facilities for moving
+// AttributedString allocates resources within libui, which package
+// ui sits on top of. As such, when you are finished with an
+// AttributedString, you must free it with Free. Like other things in
+// package ui, AttributedString must only be used from the main
+// goroutine.
+//
+// In addition, AttributedString provides facilities for moving
 // between grapheme clusters, which represent a character
 // from the point of view of the end user. The cursor of a text editor
 // is always placed on a grapheme boundary, so you can use these
 // features to move the cursor left or right by one "character".
 // TODO does uiAttributedString itself need this
 //
-// uiAttributedString does not provide enough information to be able
-// to draw itself onto a uiDrawContext or respond to user actions.
-// In order to do that, you'll need to use a uiDrawTextLayout, which
-// is built from the combination of a uiAttributedString and a set of
+// AttributedString does not provide enough information to be able
+// to draw itself onto a DrawContext or respond to user actions.
+// In order to do that, you'll need to use a DrawTextLayout, which
+// is built from the combination of an AttributedString and a set of
 // layout-specific properties.
-typedef struct uiAttributedString uiAttributedString;
+type AttributedString struct {
+	s	*C.uiAttributedString
+}
 
-// uiAttributedStringForEachAttributeFunc is the type of the function
-// invoked by uiAttributedStringForEachAttribute() for every
-// attribute in s. Refer to that function's documentation for more
-// details.
-typedef uiForEach (*uiAttributedStringForEachAttributeFunc)(const uiAttributedString *s, const uiAttribute *a, size_t start, size_t end, void *data);
-
-// @role uiAttributedString constructor
-// uiNewAttributedString() creates a new uiAttributedString from
+// NewAttributedString creates a new AttributedString from
 // initialString. The string will be entirely unattributed.
-_UI_EXTERN uiAttributedString *uiNewAttributedString(const char *initialString);
+func NewAttributedString(initialString string) *AttributedString {
+	cs := C.CString(initialString)
+	defer freestr(cs)
+	return &AttributedString{
+		s:	C.uiNewAttributedString(cs),
+	}
+}
 
-// @role uiAttributedString destructor
-// uiFreeAttributedString() destroys the uiAttributedString s.
-// It will also free all uiAttributes within.
-_UI_EXTERN void uiFreeAttributedString(uiAttributedString *s);
+// Free destroys s.
+func (s *AttributedString) Free() {
+	C.uiFreeAttributedString(s.s)
+}
 
-// uiAttributedStringString() returns the textual content of s as a
-// '\0'-terminated UTF-8 string. The returned pointer is valid until
-// the next change to the textual content of s.
-_UI_EXTERN const char *uiAttributedStringString(const uiAttributedString *s);
+// String returns the textual content of s.
+func (s *AttributedString) String() string {
+	return C.GoString(C.uiAttributedStringString(s.s))
+}
 
-// uiAttributedStringLength() returns the number of UTF-8 bytes in
-// the textual content of s, excluding the terminating '\0'.
-_UI_EXTERN size_t uiAttributedStringLen(const uiAttributedString *s);
+// AppendUnattributed adds str to the end of s. The new substring
+// will be unattributed.
+func (s *AttributedString) AppendUnattributed(str string) {
+	cs := C.CString(str)
+	defer freestr(cs)
+	C.uiAttributedStringAppendUnattributed(s.s, cs)
+}
 
-// uiAttributedStringAppendUnattributed() adds the '\0'-terminated
-// UTF-8 string str to the end of s. The new substring will be
-// unattributed.
-_UI_EXTERN void uiAttributedStringAppendUnattributed(uiAttributedString *s, const char *str);
+// InsertAtUnattributed adds str to s at the byte position specified by
+// at. The new substring will be unattributed; existing attributes will
+// be moved along with their text.
+func (s *AttributedString) InsertAtUnattributed(str string, at int) {
+	cs := C.CString(str)
+	defer freestr(cs)
+	C.uiAttributedStringInsertAtUnattributed(s.s, cs, C.size_t(at))
+}
 
-// uiAttributedStringInsertAtUnattributed() adds the '\0'-terminated
-// UTF-8 string str to s at the byte position specified by at. The new
-// substring will be unattributed; existing attributes will be moved
-// along with their text.
-_UI_EXTERN void uiAttributedStringInsertAtUnattributed(uiAttributedString *s, const char *str, size_t at);
+// Delete deletes the characters and attributes of s in the byte range
+// [start, end).
+func (s *AttributedString) Delete(start, end int) {
+	C.uiAttributedStringDelete(s.s, C.size_t(start), C.size_t(end))
+}
 
-// TODO add the Append and InsertAtExtendingAttributes functions
-// TODO and add functions that take a string + length
+// SetAttribute sets a in the byte range [start, end) of s. Any existing
+// attributes in that byte range of the same type are removed.
+func (s *AttributedString) SetAttribute(a Attribute, start, end int) {
+	C.uiAttributedStringSetAttribute(s.s, a.toLibui(), C.size_t(start), C.size_t(end))
+}
 
-// uiAttributedStringDelete() deletes the characters and attributes of
-// s in the byte range [start, end).
-_UI_EXTERN void uiAttributedStringDelete(uiAttributedString *s, size_t start, size_t end);
+// TODO uiAttributedStringForEachAttribute
+// TODO uiAttributedStringNumGraphemes
+// TODO uiAttributedStringByteIndexToGrapheme
+// TODO uiAttributedStringGraphemeToByteIndex
 
-// TODO add a function to uiAttributedString to get an attribute's value at a specific index or in a specific range, so we can edit
-
-// uiAttributedStringSetAttribute() sets a in the byte range [start, end)
-// of s. Any existing attributes in that byte range of the same type are
-// removed. s takes ownership of a; you should not use it after
-// uiAttributedStringSetAttribute() returns.
-_UI_EXTERN void uiAttributedStringSetAttribute(uiAttributedString *s, uiAttribute *a, size_t start, size_t end);
-
-// uiAttributedStringForEachAttribute() enumerates all the
-// uiAttributes in s. It is an error to modify s in f. Within f, s still
-// owns the attribute; you can neither free it nor save it for later
-// use.
-// TODO reword the above for consistency (TODO and find out what I meant by that)
-// TODO define an enumeration order (or mark it as undefined); also define how consecutive runs of identical attributes are handled here and sync with the definition of uiAttributedString itself
-_UI_EXTERN void uiAttributedStringForEachAttribute(const uiAttributedString *s, uiAttributedStringForEachAttributeFunc f, void *data);
-
-// TODO const correct this somehow (the implementation needs to mutate the structure)
-_UI_EXTERN size_t uiAttributedStringNumGraphemes(uiAttributedString *s);
-
-// TODO const correct this somehow (the implementation needs to mutate the structure)
-_UI_EXTERN size_t uiAttributedStringByteIndexToGrapheme(uiAttributedString *s, size_t pos);
-
-// TODO const correct this somehow (the implementation needs to mutate the structure)
-_UI_EXTERN size_t uiAttributedStringGraphemeToByteIndex(uiAttributedString *s, size_t pos);
+//////// TODOTODO
 
 // uiFontDescriptor provides a complete description of a font where
 // one is needed. Currently, this means as the default font of a
