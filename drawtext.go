@@ -29,6 +29,22 @@ package ui
 // {
 // 	free(c);
 // }
+// static inline uiFontDescriptor *pkguiNewFontDescriptor(void)
+// {
+// 	return (uiFontDescriptor *) pkguiAlloc(sizeof (uiFontDescriptor));
+// }
+// static inline void pkguiFreeFontDescriptor(uiFontDescriptor *fd)
+// {
+// 	free(fd);
+// }
+// static inline uiDrawTextLayoutParams *pkguiNewDrawTextLayoutParams(void)
+// {
+// 	return (uiDrawTextLayoutParams *) pkguiAlloc(sizeof (uiDrawTextLayoutParams));
+// }
+// static inline void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *fd)
+// {
+// 	free(fd);
+// }
 import "C"
 
 // Attribute stores information about an attribute in an
@@ -440,85 +456,99 @@ func (s *AttributedString) SetAttribute(a Attribute, start, end int) {
 // TODO uiAttributedStringByteIndexToGrapheme
 // TODO uiAttributedStringGraphemeToByteIndex
 
-//////// TODOTODO
-
-// uiFontDescriptor provides a complete description of a font where
+// FontDescriptor provides a complete description of a font where
 // one is needed. Currently, this means as the default font of a
-// uiDrawTextLayout and as the data returned by uiFontButton.
-// All the members operate like the respective uiAttributes.
-typedef struct uiFontDescriptor uiFontDescriptor;
+// DrawTextLayout and as the data returned by FontButton.
+type FontDescriptor struct {
+	Family	TextFamily
+	Size		TextSize
+	Weight	TextWeight
+	Italic		TextItalic
+	Stretch	TextStretch
+}
 
-struct uiFontDescriptor {
-	// TODO const-correct this or figure out how to deal with this when getting a value
-	char *Family;
-	double Size;
-	uiTextWeight Weight;
-	uiTextItalic Italic;
-	uiTextStretch Stretch;
-};
+func (d *FontDescriptor) fromLibui(fd *C.uiFontDescriptor) {
+	d.Family = TextFamily(C.GoString(fd.Family))
+	d.Size = TextSize(fd.Size)
+	d.Weight = TextWeight(fd.Weight)
+	d.Italic = TextItalic(fd.Italic)
+	d.Stretch = TextStretch(fd.Stretch)
+}
 
-// uiDrawTextLayout is a concrete representation of a
-// uiAttributedString that can be displayed in a uiDrawContext.
+func (d *FontDescriptor) toLibui() *C.uiFontDescriptor {
+	fd := C.pkguiNewFontDescriptor()
+	fd.Family = C.CString(d.Family)
+	fd.Size = C.double(d.Size)
+	fd.Weight = C.uiTextWeight(d.Weight)
+	fd.Italic = C.uiTextItalic(d.Italic)
+	fd.Stretch = C.uiTextStretch(d.Stretch)
+	return fd
+}
+
+func freeLibuiFontDescriptor(fd *C.uiFontDescriptor) {
+	freestr(fd.Family)
+	C.pkguiFreeFontDescriptor(fd)
+}
+
+// DrawTextLayout is a concrete representation of an
+// AttributedString that can be displayed in a DrawContext.
 // It includes information important for the drawing of a block of
 // text, including the bounding box to wrap the text within, the
 // alignment of lines of text within that box, areas to mark as
 // being selected, and other things.
 //
-// Unlike uiAttributedString, the content of a uiDrawTextLayout is
+// Unlike AttributedString, the content of a DrawTextLayout is
 // immutable once it has been created.
 //
 // TODO talk about OS-specific differences with text drawing that libui can't account for...
-typedef struct uiDrawTextLayout uiDrawTextLayout;
+type DrawTextLayout struct {
+	tl	*C.uiDrawTextLayout
+}
 
-// uiDrawTextAlign specifies the alignment of lines of text in a
-// uiDrawTextLayout.
+// DrawTextAlign specifies the alignment of lines of text in a
+// DrawTextLayout.
 // TODO should this really have Draw in the name?
-_UI_ENUM(uiDrawTextAlign) {
-	uiDrawTextAlignLeft,
-	uiDrawTextAlignCenter,
-	uiDrawTextAlignRight,
-};
+type DrawTextAlign int
+const (
+	DrawTextAlignLeft DrawTextAlign = iota
+	DrawTextAlignCenter
+	DrawTextAlignRight
+)
 
-// uiDrawTextLayoutParams describes a uiDrawTextLayout.
+// DrawTextLayoutParams describes a DrawTextLayout.
 // DefaultFont is used to render any text that is not attributed
 // sufficiently in String. Width determines the width of the bounding
 // box of the text; the height is determined automatically.
-typedef struct uiDrawTextLayoutParams uiDrawTextLayoutParams;
+type DrawTextLayoutParams struct {
+	String		*AttributedString
+	DefaultFont	*FontDescriptor
+	Width		float64
+	Align		DrawTextAlign
+}
 
-// TODO const-correct this somehow
-struct uiDrawTextLayoutParams {
-	uiAttributedString *String;
-	uiFontDescriptor *DefaultFont;
-	double Width;
-	uiDrawTextAlign Align;
-};
-
-// @role uiDrawTextLayout constructor
-// uiDrawNewTextLayout() creates a new uiDrawTextLayout from
+// DrawNewTextLayout() creates a new DrawTextLayout from
 // the given parameters.
-//
-// TODO
-// - allow creating a layout out of a substring
-// - allow marking compositon strings
-// - allow marking selections, even after creation
-// - add the following functions:
-// 	- uiDrawTextLayoutHeightForWidth() (returns the height that a layout would need to be to display the entire string at a given width)
-// 	- uiDrawTextLayoutRangeForSize() (returns what substring would fit in a given size)
-// 	- uiDrawTextLayoutNewWithHeight() (limits amount of string used by the height)
-// - some function to fix up a range (for text editing)
-_UI_EXTERN uiDrawTextLayout *uiDrawNewTextLayout(uiDrawTextLayoutParams *params);
+func DrawNewTextLayout(p *DrawTextLayoutParams) *DrawTextLayout {
+	dp := C.pkguiNewDrawTextLayoutParams()
+	defer C.pkguiFreeDrawTextLayoutParams(dp)
+	dp.String = p.String.s
+	dp.DefaultFont = p.DefaultFont.toLibui()
+	defer freeLibuiFontDescriptor(dp.DefaultFont)
+	dp.Width = C.double(p.Width)
+	dp.Align = C.uiDrawTextAlign(p.Align)
+	return DrawTextLayout{
+		tl:	C.uiDrawNewTextLayout(dp),
+	}
+}
 
-// @role uiDrawFreeTextLayout destructor
-// uiDrawFreeTextLayout() frees tl. The underlying
-// uiAttributedString is not freed.
-_UI_EXTERN void uiDrawFreeTextLayout(uiDrawTextLayout *tl);
+// Free frees tl. The underlying AttributedString is not freed.
+func (tl *DrawTextLayout) Free() {
+	C.uiDrawFreeTextLayout(tl.tl)
+}
 
-// uiDrawText() draws tl in c with the top-left point of tl at (x, y).
-_UI_EXTERN void uiDrawText(uiDrawContext *c, uiDrawTextLayout *tl, double x, double y);
+// Text draws tl in c with the top-left point of tl at (x, y).
+func (c *DrawContext) Text(tl *DrawTextLayout, x, y float64) {
+	C.uiDrawText(c.c, tl.tl, C.double(x), C.double(y))
+}
 
-// uiDrawTextLayoutExtents() returns the width and height of tl
-// in width and height. The returned width may be smaller than
-// the width passed into uiDrawNewTextLayout() depending on
-// how the text in tl is wrapped. Therefore, you can use this
-// function to get the actual size of the text layout.
-_UI_EXTERN void uiDrawTextLayoutExtents(uiDrawTextLayout *tl, double *width, double *height);
+// TODO uiDrawTextLayoutExtents
