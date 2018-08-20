@@ -12,8 +12,11 @@ import (
 )
 
 var (
+	histogram *ui.Area
 	datapoints [10]*ui.Spinbox
 	colorButton *ui.ColorButton
+
+	currentPoint = -1
 )
 
 // some metrics
@@ -117,7 +120,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 
 	// now transform the coordinate space so (0, 0) is the top-left corner of the graph
 	m := ui.NewMatrix()
-	m.Translate(xoffLeft, yoffTop);
+	m.Translate(xoffLeft, yoffTop)
 	p.Context.Transform(m)
 
 	// now get the color for the graph itself and set up the brush
@@ -140,24 +143,20 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	p.Context.Stroke(path, brush, sp)
 	path.Free()
 
-/*
 	// now draw the point being hovered over
-	if (currentPoint != -1) {
-		double xs[10], ys[10];
-
-		pointLocations(graphWidth, graphHeight, xs, ys);
-		path = uiDrawNewPath(uiDrawFillModeWinding);
-		uiDrawPathNewFigureWithArc(path,
+	if currentPoint != -1 {
+		xs, ys := pointLocations(graphWidth, graphHeight)
+		path = ui.NewPath(ui.Winding)
+		path.NewFigureWithArc(
 			xs[currentPoint], ys[currentPoint],
 			pointRadius,
 			0, 6.23,		// TODO pi
-			0);
-		uiDrawPathEnd(path);
+			false)
+		path.End()
 		// use the same brush as for the histogram lines
-		uiDrawFill(p->Context, path, &brush);
-		uiDrawFreePath(path);
+		p.Context.Fill(path, brush)
+		path.Free()
 	}
-*/
 }
 
 func inPoint(x, y float64, xtest, ytest float64) bool {
@@ -171,24 +170,19 @@ func inPoint(x, y float64, xtest, ytest float64) bool {
 }
 
 func (areaHandler) MouseEvent(a *ui.Area, me *ui.AreaMouseEvent) {
-/*
-	double graphWidth, graphHeight;
-	double xs[10], ys[10];
-	int i;
+	graphWidth, graphHeight := graphSize(me.AreaWidth, me.AreaHeight)
+	xs, ys := pointLocations(graphWidth, graphHeight)
 
-	graphSize(e->AreaWidth, e->AreaHeight, &graphWidth, &graphHeight);
-	pointLocations(graphWidth, graphHeight, xs, ys);
+	currentPoint = -1
+	for i := 0; i < 10; i++ {
+		if inPoint(me.X, me.Y, xs[i], ys[i]) {
+			currentPoint = i
+			break
+		}
+	}
 
-	for (i = 0; i < 10; i++)
-		if (inPoint(e->X, e->Y, xs[i], ys[i]))
-			break;
-	if (i == 10)		// not in a point
-		i = -1;
-
-	currentPoint = i;
 	// TODO only redraw the relevant area
-	uiAreaQueueRedrawAll(histogram);
-*/
+	histogram.QueueRedrawAll()
 }
 
 func (areaHandler) MouseCrossed(a *ui.Area, left bool) {
@@ -225,7 +219,7 @@ func setupUI() {
 	vbox.SetPadded(true)
 	hbox.Append(vbox, false)
 
-	histogram := ui.NewArea(areaHandler{})
+	histogram = ui.NewArea(areaHandler{})
 
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < 10; i++ {
@@ -239,7 +233,7 @@ func setupUI() {
 
 	colorButton = ui.NewColorButton()
 	// TODO inline these
-	brush := mkSolidBrush(colorDodgerBlue, 1.0);
+	brush := mkSolidBrush(colorDodgerBlue, 1.0)
 	colorButton.SetColor(brush.R,
 		brush.G,
 		brush.B,
