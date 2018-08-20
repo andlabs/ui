@@ -57,6 +57,7 @@ func (b *Box) Destroy() {
 // Append adds the given control to the end of the Box.
 func (b *Box) Append(child Control, stretchy bool) {
 	c := (*C.uiControl)(nil)
+	// TODO this part is wrong for Box?
 	if child != nil {
 		c = touiControl(child.LibuiControl())
 	}

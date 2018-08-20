@@ -10,9 +10,12 @@ import (
 	"github.com/andlabs/ui"
 )
 
-var fontButton *ui.FontButton
+var (
+	fontButton *ui.FontButton
+	alignment *ui.Combobox
 
-var attrstr *ui.AttributedString
+	attrstr *ui.AttributedString
+)
 
 func appendWithAttributes(what string, attrs ...ui.Attribute) {
 	start := len(attrstr.String())
@@ -44,7 +47,7 @@ func makeAttributedString() {
 	attrstr.AppendUnattributed(", ")
 
 	appendWithAttributes("text color", ui.TextColor{0.75, 0.25, 0.5, 0.75})
-	attrstr.AppendUnattributed(", ");
+	attrstr.AppendUnattributed(", ")
 
 	appendWithAttributes("text background color", ui.TextBackground{0.5, 0.5, 0.25, 0.5})
 	attrstr.AppendUnattributed(", ")
@@ -84,7 +87,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 		String:		attrstr,
 		DefaultFont:	fontButton.Font(),
 		Width:		p.AreaWidth,
-		Align:		ui.DrawTextAlignLeft,
+		Align:		ui.DrawTextAlign(alignment.Selected()),
 	})
 	defer tl.Free()
 	p.Context.Text(tl, 0, 0)
@@ -138,21 +141,21 @@ func setupUI() {
 	})
 	vbox.Append(fontButton, false)
 
-/*
-	form = uiNewForm();
-	uiFormSetPadded(form, 1);
+	form := ui.NewForm()
+	form.SetPadded(true)
 	// TODO on OS X if this is set to 1 then the window can't resize; does the form not have the concept of stretchy trailing space?
-	uiBoxAppend(vbox, uiControl(form), 0);
+	vbox.Append(form, false)
 
-	alignment = uiNewCombobox();
+	alignment = ui.NewCombobox()
 	// note that the items match with the values of the uiDrawTextAlign values
-	uiComboboxAppend(alignment, "Left");
-	uiComboboxAppend(alignment, "Center");
-	uiComboboxAppend(alignment, "Right");
-	uiComboboxSetSelected(alignment, 0);		// start with left alignment
-	uiComboboxOnSelected(alignment, onComboboxSelected, NULL);
-	uiFormAppend(form, "Alignment", uiControl(alignment), 0);
-*/
+	alignment.Append("Left")
+	alignment.Append("Center")
+	alignment.Append("Right")
+	alignment.SetSelected(0)		// start with left alignment
+	alignment.OnSelected(func(*ui.Combobox) {
+		area.QueueRedrawAll()
+	})
+	form.Append("Alignment", alignment, false)
 
 	hbox.Append(area, true)
 

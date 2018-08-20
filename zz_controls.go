@@ -28,32 +28,16 @@ func makeBasicControlsPage() ui.Control {
 	vbox.Append(group, true)
 
 group.SetChild(ui.NewNonWrappingMultilineEntry())
-/*
-	entryForm = uiNewForm();
-	uiFormSetPadded(entryForm, 1);
-	uiGroupSetChild(group, uiControl(entryForm));
 
-	uiFormAppend(entryForm,
-		"Entry",
-		uiControl(uiNewEntry()),
-		0);
-	uiFormAppend(entryForm,
-		"Password Entry",
-		uiControl(uiNewPasswordEntry()),
-		0);
-	uiFormAppend(entryForm,
-		"Search Entry",
-		uiControl(uiNewSearchEntry()),
-		0);
-	uiFormAppend(entryForm,
-		"Multiline Entry",
-		uiControl(uiNewMultilineEntry()),
-		1);
-	uiFormAppend(entryForm,
-		"Multiline Entry No Wrap",
-		uiControl(uiNewNonWrappingMultilineEntry()),
-		1);
-*/
+	entryForm := ui.NewForm()
+	entryForm.SetPadded(true)
+	group.SetChild(entryForm)
+
+	entryForm.Append("Entry", ui.NewEntry(), false)
+	entryForm.Append("Password Entry", ui.NewPasswordEntry(), false)
+	entryForm.Append("Search Entry", ui.NewSearchEntry(), false)
+	entryForm.Append("Multiline Entry", ui.NewMultilineEntry(), true)
+	entryForm.Append("Multiline Entry No Wrap", ui.NewNonWrappingMultilineEntry(), true)
 
 	return vbox
 }
@@ -129,14 +113,10 @@ func makeDataChoosersPage() ui.Control {
 	vbox.Append(ui.NewDatePicker(), false)
 	vbox.Append(ui.NewTimePicker(), false)
 	vbox.Append(ui.NewDateTimePicker(), false)
-/*
-	uiBoxAppend(vbox,
-		uiControl(uiNewFontButton()),
-		0);
-	uiBoxAppend(vbox,
-		uiControl(uiNewColorButton()),
-		0);
+	vbox.Append(ui.NewFontButton(), false)
+	vbox.Append(ui.NewColorButton(), false)
 
+/*
 	uiBoxAppend(hbox,
 		uiControl(uiNewVerticalSeparator()),
 		0);
