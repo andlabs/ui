@@ -11,6 +11,8 @@ import (
 	"github.com/andlabs/ui"
 )
 
+var colorButton *ui.ColorButton
+
 var datapoints [10]*ui.Spinbox
 
 // some metrics
@@ -234,18 +236,17 @@ func setupUI() {
 		vbox.Append(datapoints[i], false)
 	}
 
-/*
-	colorButton = uiNewColorButton();
+	colorButton = ui.NewColorButton()
 	// TODO inline these
-	setSolidBrush(&brush, colorDodgerBlue, 1.0);
-	uiColorButtonSetColor(colorButton,
-		brush.R,
+	brush := mkSolidBrush(colorDodgerBlue, 1.0);
+	colorButton.SetColor(brush.R,
 		brush.G,
 		brush.B,
-		brush.A);
-	uiColorButtonOnChanged(colorButton, onColorChanged, NULL);
-	uiBoxAppend(vbox, uiControl(colorButton), 0);
-*/
+		brush.A)
+	colorButton.OnChanged(func(*ui.ColorButton) {
+		histogram.QueueRedrawAll()
+	})
+	vbox.Append(colorButton, false)
 
 	hbox.Append(histogram, true)
 
