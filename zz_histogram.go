@@ -11,9 +11,10 @@ import (
 	"github.com/andlabs/ui"
 )
 
-var colorButton *ui.ColorButton
-
-var datapoints [10]*ui.Spinbox
+var (
+	datapoints [10]*ui.Spinbox
+	colorButton *ui.ColorButton
+)
 
 // some metrics
 const (
@@ -119,27 +120,27 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	m.Translate(xoffLeft, yoffTop);
 	p.Context.Transform(m)
 
-/*
 	// now get the color for the graph itself and set up the brush
-	uiColorButtonColor(colorButton, &graphR, &graphG, &graphB, &graphA);
-	brush.Type = ui.Solid;
-	brush.R = graphR;
-	brush.G = graphG;
-	brush.B = graphB;
+	graphR, graphG, graphB, graphA := colorButton.Color()
+	brush.Type = ui.Solid
+	brush.R = graphR
+	brush.G = graphG
+	brush.B = graphB
 	// we set brush.A below to different values for the fill and stroke
 
 	// now create the fill for the graph below the graph line
-	path = constructGraph(graphWidth, graphHeight, 1);
-	brush.A = graphA / 2;
+	path = constructGraph(graphWidth, graphHeight, true)
+	brush.A = graphA / 2
 	p.Context.Fill(path, brush)
 	path.Free()
 
 	// now draw the histogram line
-	path = constructGraph(graphWidth, graphHeight, 0);
-	brush.A = graphA;
+	path = constructGraph(graphWidth, graphHeight, false)
+	brush.A = graphA
 	p.Context.Stroke(path, brush, sp)
 	path.Free()
 
+/*
 	// now draw the point being hovered over
 	if (currentPoint != -1) {
 		double xs[10], ys[10];
