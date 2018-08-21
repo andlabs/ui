@@ -206,10 +206,10 @@ type DrawContext struct {
 // TODO disclaimer
 type BrushType int
 const (
-	Solid BrushType = iota
-	LinearGradient
-	RadialGradient
-	Image		// presently unimplemented
+	BrushTypeSolid BrushType = iota
+	BrushTypeLinearGradient
+	BrushTypeRadialGradient
+	BrushTypeImage		// presently unimplemented
 )
 
 // TODO
@@ -270,12 +270,12 @@ func (b *Brush) toC() *C.uiDrawBrush {
 	cb := C.newBrush()
 	cb.Type = C.uiDrawBrushType(b.Type)
 	switch b.Type {
-	case Solid:
+	case BrushTypeSolid:
 		cb.R = C.double(b.R)
 		cb.G = C.double(b.G)
 		cb.B = C.double(b.B)
 		cb.A = C.double(b.A)
-	case LinearGradient, RadialGradient:
+	case BrushTypeLinearGradient, BrushTypeRadialGradient:
 		cb.X0 = C.double(b.X0)
 		cb.Y0 = C.double(b.Y0)
 		cb.X1 = C.double(b.X1)
@@ -291,7 +291,7 @@ func (b *Brush) toC() *C.uiDrawBrush {
 				C.double(s.B),
 				C.double(s.A))
 		}
-	case Image:
+	case BrushTypeImage:
 		panic("unimplemented")
 	default:
 		panic("invalid brush type in Brush.toC()")

@@ -31,7 +31,7 @@ const (
 // helper to quickly set a brush color
 func mkSolidBrush(color uint32, alpha float64) *ui.Brush {
 	brush := new(ui.Brush)
-	brush.Type = ui.Solid
+	brush.Type = ui.BrushTypeSolid
 	component := uint8((color >> 16) & 0xFF)
 	brush.R = float64(component) / 255
 	component = uint8((color >> 8) & 0xFF)
@@ -125,7 +125,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 
 	// now get the color for the graph itself and set up the brush
 	graphR, graphG, graphB, graphA := colorButton.Color()
-	brush.Type = ui.Solid
+	brush.Type = ui.BrushTypeSolid
 	brush.R = graphR
 	brush.G = graphG
 	brush.B = graphB
