@@ -8,6 +8,8 @@ import (
 	"github.com/andlabs/ui"
 )
 
+var mainwin *ui.Window
+
 func makeBasicControlsPage() ui.Control {
 	vbox := ui.NewVerticalBox()
 	vbox.SetPadded(true)
@@ -116,64 +118,80 @@ func makeDataChoosersPage() ui.Control {
 	vbox.Append(ui.NewFontButton(), false)
 	vbox.Append(ui.NewColorButton(), false)
 
-/*
-	uiBoxAppend(hbox,
-		uiControl(uiNewVerticalSeparator()),
-		0);
+	hbox.Append(ui.NewVerticalSeparator(), false)
 
-	vbox = uiNewVerticalBox();
-	uiBoxSetPadded(vbox, 1);
-	uiBoxAppend(hbox, uiControl(vbox), 1);
+	vbox = ui.NewVerticalBox()
+	vbox.SetPadded(true)
+	hbox.Append(vbox, true)
 
-	grid = uiNewGrid();
-	uiGridSetPadded(grid, 1);
-	uiBoxAppend(vbox, uiControl(grid), 0);
+	grid := ui.NewGrid()
+	grid.SetPadded(true)
+	vbox.Append(grid, false)
 
-	button = uiNewButton("Open File");
-	entry = uiNewEntry();
-	uiEntrySetReadOnly(entry, 1);
-	uiButtonOnClicked(button, onOpenFileClicked, entry);
-	uiGridAppend(grid, uiControl(button),
+	button := ui.NewButton("Open File")
+	entry := ui.NewEntry()
+	entry.SetReadOnly(true)
+	button.OnClicked(func(*ui.Button) {
+		filename := ui.OpenFile(mainwin)
+		if filename == "" {
+			filename = "(cancelled)"
+		}
+		entry.SetText(filename)
+	})
+	grid.Append(button,
 		0, 0, 1, 1,
-		0, uiAlignFill, 0, uiAlignFill);
-	uiGridAppend(grid, uiControl(entry),
+		false, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(entry,
 		1, 0, 1, 1,
-		1, uiAlignFill, 0, uiAlignFill);
+		true, ui.AlignFill, false, ui.AlignFill)
 
-	button = uiNewButton("Save File");
-	entry = uiNewEntry();
-	uiEntrySetReadOnly(entry, 1);
-	uiButtonOnClicked(button, onSaveFileClicked, entry);
-	uiGridAppend(grid, uiControl(button),
+	button = ui.NewButton("Save File")
+	entry2 := ui.NewEntry()
+	entry2.SetReadOnly(true)
+	button.OnClicked(func(*ui.Button) {
+		filename := ui.SaveFile(mainwin)
+		if filename == "" {
+			filename = "(cancelled)"
+		}
+		entry2.SetText(filename)
+	})
+	grid.Append(button,
 		0, 1, 1, 1,
-		0, uiAlignFill, 0, uiAlignFill);
-	uiGridAppend(grid, uiControl(entry),
+		false, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(entry2,
 		1, 1, 1, 1,
-		1, uiAlignFill, 0, uiAlignFill);
+		true, ui.AlignFill, false, ui.AlignFill)
 
-	msggrid = uiNewGrid();
-	uiGridSetPadded(msggrid, 1);
-	uiGridAppend(grid, uiControl(msggrid),
+	msggrid := ui.NewGrid()
+	msggrid.SetPadded(true)
+	grid.Append(msggrid,
 		0, 2, 2, 1,
-		0, uiAlignCenter, 0, uiAlignStart);
+		false, ui.AlignCenter, false, ui.AlignStart)
 
-	button = uiNewButton("Message Box");
-	uiButtonOnClicked(button, onMsgBoxClicked, NULL);
-	uiGridAppend(msggrid, uiControl(button),
+	button = ui.NewButton("Message Box")
+	button.OnClicked(func(*ui.Button) {
+		ui.MsgBox(mainwin,
+			"This is a normal message box.",
+			"More detailed information can be shown here.")
+	})
+	msggrid.Append(button,
 		0, 0, 1, 1,
-		0, uiAlignFill, 0, uiAlignFill);
-	button = uiNewButton("Error Box");
-	uiButtonOnClicked(button, onMsgBoxErrorClicked, NULL);
-	uiGridAppend(msggrid, uiControl(button),
+		false, ui.AlignFill, false, ui.AlignFill)
+	button = ui.NewButton("Error Box")
+	button.OnClicked(func(*ui.Button) {
+		ui.MsgBoxError(mainwin,
+			"This message box describes an error.",
+			"More detailed information can be shown here.")
+	})
+	msggrid.Append(button,
 		1, 0, 1, 1,
-		0, uiAlignFill, 0, uiAlignFill);
-*/
+		false, ui.AlignFill, false, ui.AlignFill)
 
 	return hbox
 }
 
 func setupUI() {
-	mainwin := ui.NewWindow("libui Control Gallery", 640, 480, true)
+	mainwin = ui.NewWindow("libui Control Gallery", 640, 480, true)
 	mainwin.OnClosing(func(*ui.Window) bool {
 		ui.Quit()
 		return true
@@ -190,10 +208,10 @@ func setupUI() {
 	tab.Append("Basic Controls", makeBasicControlsPage())
 	tab.SetMargined(0, true)
 
-	tab.Append("Numbers and Lists", makeNumbersPage());
+	tab.Append("Numbers and Lists", makeNumbersPage())
 	tab.SetMargined(1, true)
 
-	tab.Append("Data Choosers", makeDataChoosersPage());
+	tab.Append("Data Choosers", makeDataChoosersPage())
 	tab.SetMargined(2, true)
 
 	mainwin.Show()
