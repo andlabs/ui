@@ -2,30 +2,24 @@
 
 package ui
 
-// #include <stdlib.h>
 // #include "ui.h"
-// #include "util.h"
 // extern int doTableModelNumColumns(uiTableModelHandler *, uiTableModel *);
 // extern uiTableValueType doTableModelColumnType(uiTableModelHandler *, uiTableModel *, int);
 // extern int doTableModelNumRows(uiTableModelHandler *, uiTableModel *);
 // extern uiTableValue *doTableModelCellValue(uiTableModelHandler *mh, uiTableModel *m, int row, int column);
-// extern void doTableModelSetCellValue(uiTableModelHandler *, uiTableModel *, int, int, const uiTableValue *);
-// static inline uiTableModelHandler *allocTableModelHandler(void)
+// extern void doTableModelSetCellValue(uiTableModelHandler *, uiTableModel *, int, int, uiTableValue *);
+// // deal with cgo being dumb
+// static inline void realDoTableModelSetCellValue(uiTableModelHandler *mh, uiTableModel *m, int row, int column, const uiTableValue *value)
 // {
-// 	uiTableModelHandler *mh;
-// 
-// 	mh = (uiTableModelHandler *) pkguiAlloc(sizeof (uiTableModelHandler));
-// 	mh->NumColumns = doTableModelNumColumns;
-// 	mh->ColumnType = doTableModelColumnType;
-// 	mh->NumRows = doTableModelNumRows;
-// 	mh->CellValue = doTableModelCellValue;
-// 	mh->SetCellValue = doTableModelSetCellValue;
-// 	return mh;
+// 	doTableModelSetCellValue(mh, m, row, column, (uiTableValue *) value);
 // }
-// static inline void freeTableModelHandler(uiTableModelHandler *mh)
-// {
-// 	free(mh);
-// }
+// static const uiTableModelHandler pkguiTableModelHandler = {
+// 	.NumColumns = doTableModelNumColumns,
+// 	.ColumnType = doTableModelColumnType,
+// 	.NumRows = doTableModelNumRows,
+// 	.CellValue = doTableModelCellValue,
+// 	.SetCellValue = realDoTableModelSetCellValue,
+// };
 import "C"
 
 // TableValue is a type that represents a piece of data that can come
@@ -98,4 +92,109 @@ func tableValueFromLibui(value *C.uiTableValue) TableValue {
 		panic("TODO")
 	}
 	panic("unreachable")
+}
+
+// no need to lock these; only the GUI thread can access them
+var modelhandlers = make(map[*C.uiTableModel]TableModelHandler)
+var models = make(map[*C.uiTableModel]*TableModel)
+
+// TableModel is an object that provides the data for a Table.
+// This data is returned via methods you provide in the
+// TableModelHandler interface.
+//
+// TableModel represents data using a table, but this table does
+// not map directly to Table itself. Instead, you can have data
+// columns which provide instructions for how to render a given
+// Table's column — for instance, one model column can be used
+// to give certain rows of a Table a different background color.
+// Row numbers DO match with uiTable row numbers.
+//
+// Once created, the number and data types of columns of a
+// TableModel cannot change.
+//
+// Row and column numbers start at 0. A TableModel can be
+// associated with more than one Table at a time.
+type TableModel struct {
+	m	*C.uiTableModel
+}
+
+// TableModelHandler defines the methods that TableModel
+// calls when it needs data.
+type TableModelHandler interface {
+	// ColumnTypes returns a slice of value types of the data
+	// stored in the model columns of the TableModel.
+	// Each entry in the slice should ideally be a zero value for
+	// the TableValue type of the column in question; the number
+	// of elements in the slice determines the number of model
+	// columns in the TableModel. The returned slice must remain
+	// constant through the lifetime of the TableModel. This
+	// method is not guaranteed to be called depending on the
+	// system.
+	ColumnTypes(m *TableModel) []TableValue
+
+	// NumRows returns the number or rows in the TableModel.
+	// This value must be non-negative.
+	NumRows(m *TableModel) int
+
+	// CellValue returns a TableValue corresponding to the model
+	// cell at (row, column). The type of the returned TableValue
+	// must match column's value type. Under some circumstances,
+	// nil may be returned; refer to the various methods that add
+	// columns to Table for details.
+	CellValue(m *TableModel, row, column int) TableValue
+
+	// SetCellValue changes the model cell value at (row, column)
+	// in the TableModel. Within this function, either do nothing
+	// to keep the current cell value or save the new cell value as
+	// appropriate. After SetCellValue is called, the Table will
+	// itself reload the table cell. Under certain conditions, the
+	// TableValue passed in can be nil; refer to the various
+	// methods that add columns to Table for details.
+	SetCellValue(m *TableModel, row, column int, value TableValue)
+}
+
+//export doTableModelNumColumns
+func doTableModelNumColumns(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
+	mh := modelhandlers[um]
+	return C.int(len(mh.ColumnTypes(models[um])))
+}
+
+//export doTableModelColumnType
+func doTableModelColumnType(umh *C.uiTableModelHandler, um *C.uiTableModel, n C.int) C.uiTableValueType {
+	mh := modelhandlers[um]
+	c := mh.ColumnTypes(models[um])
+	switch c[n].(type) {
+	case TableString:
+		return C.uiTableValueTypeString
+	case TableImage:
+		return C.uiTableValueTypeImage
+	case TableInt:
+		return C.uiTableValueTypeInt
+	case TableColor:
+		return C.uiTableValueTypeColor
+	}
+	panic("unreachable")
+}
+
+//export doTableModelNumRows
+func doTableModelNumRows(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
+	mh := modelhandlers[um]
+	return C.int(mh.NumRows(models[um]))
+}
+
+//export doTableModelCellValue
+func doTableModelCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int) *C.uiTableValue {
+	mh := modelhandlers[um]
+	v := mh.CellValue(models[um], int(row), int(column))
+	if v == nil {
+		return nil
+	}
+	return v.toLibui()
+}
+
+//export doTableModelSetCellValue
+func doTableModelSetCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int, value *C.uiTableValue) {
+	mh := modelhandlers[um]
+	v := tableValueFromLibui(value)
+	mh.SetCellValue(models[um], int(row), int(column), v)
 }
