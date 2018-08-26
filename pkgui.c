@@ -37,6 +37,35 @@ void pkguiCheckboxOnToggled(uiCheckbox *c)
 	uiCheckboxOnToggled(c, pkguiDoCheckboxOnToggled, NULL);
 }
 
+void pkguiColorButtonOnChanged(uiColorButton *c)
+{
+	uiColorButtonOnChanged(c, pkguiDoColorButtonOnChanged, NULL);
+}
+
+typedef struct pkguiColorDoubles pkguiColorDoubles;
+struct pkguiColorDoubles {
+	double *r;
+	double *g;
+	double *b;
+	double *a;
+};
+
+pkguiColorDoubles pkguiAllocColorDoubles(void)
+{
+	pkguiColorDoubles c;
+
+	c.r = (double *) pkguiAlloc(4 * sizeof (double));
+	c.g = c.r + 1;
+	c.b = c.g + 1;
+	c.a = c.b + 1;
+	return c;
+}
+
+void pkguiFreeColorDoubles(pkguiColorDoubles c)
+{
+	free(c.r);
+}
+
 void pkguiComboboxOnSelected(uiCombobox *c)
 {
 	uiComboboxOnSelected(c, pkguiDoComboboxOnSelected, NULL);

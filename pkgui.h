@@ -22,6 +22,18 @@ extern void pkguiButtonOnClicked(uiButton *b);
 // checkbox.go
 extern void pkguiCheckboxOnToggled(uiCheckbox *c);
 
+// colorbutton.go
+extern void pkguiColorButtonOnChanged(uiColorButton *c);
+typedef struct pkguiColorDoubles pkguiColorDoubles;
+struct pkguiColorDoubles {
+	double *r;
+	double *g;
+	double *b;
+	double *a;
+};
+extern pkguiColorDoubles pkguiAllocColorDoubles(void);
+extern void pkguiFreeColorDoubles(pkguiColorDoubles c);
+
 // combobox.go
 extern void pkguiComboboxOnSelected(uiCombobox *c);
 

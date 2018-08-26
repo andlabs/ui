@@ -6,28 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include <stdlib.h>
-// #include "ui.h"
-// #include "util.h"
-// extern void doColorButtonOnChanged(uiColorButton *, void *);
-// // see golang/go#19835
-// typedef void (*colorButtonCallback)(uiColorButton *, void *);
-// typedef struct pkguiCColor pkguiCColor;
-// struct pkguiCColor { double *r; double *g; double *b; double *a; };
-// static inline pkguiCColor pkguiNewCColor(void)
-// {
-// 	pkguiCColor c;
-// 
-// 	c.r = (double *) pkguiAlloc(4 * sizeof (double));
-// 	c.g = c.r + 1;
-// 	c.b = c.g + 1;
-// 	c.a = c.b + 1;
-// 	return c;
-// }
-// static inline void pkguiFreeCColor(pkguiCColor c)
-// {
-// 	free(c.r);
-// }
+// #include "pkgui.h"
 import "C"
 
 // ColorButton is a Control that represents a button that the user can
@@ -44,7 +23,7 @@ func NewColorButton() *ColorButton {
 
 	b.b = C.uiNewColorButton()
 
-	C.uiColorButtonOnChanged(b.b, C.colorButtonCallback(C.doColorButtonOnChanged), nil)
+	C.pkguiColorButtonOnChanged(b.b)
 
 	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b
@@ -54,8 +33,8 @@ func NewColorButton() *ColorButton {
 // Colors are not alpha-premultiplied.
 // TODO rename b or bl
 func (b *ColorButton) Color() (r, g, bl, a float64) {
-	c := C.pkguiNewCColor()
-	defer C.pkguiFreeCColor(c)
+	c := C.pkguiNewColorDoubles()
+	defer C.pkguiFreeColorDoubles(c)
 	C.uiColorButtonColor(b.b, c.r, c.g, c.b, c.a)
 	return float64(*(c.r)), float64(*(c.g)), float64(*(c.b)), float64(*(c.a))
 }
@@ -74,8 +53,8 @@ func (b *ColorButton) OnChanged(f func(*ColorButton)) {
 	b.onChanged = f
 }
 
-//export doColorButtonOnChanged
-func doColorButtonOnChanged(bb *C.uiColorButton, data unsafe.Pointer) {
+//export pkguiDoColorButtonOnChanged
+func pkguiDoColorButtonOnChanged(bb *C.uiColorButton, data unsafe.Pointer) {
 	b := ControlFromLibui(uintptr(unsafe.Pointer(bb))).(*ColorButton)
 	if b.onChanged != nil {
 		b.onChanged(b)
