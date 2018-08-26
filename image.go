@@ -6,8 +6,7 @@ import (
 	"image"
 )
 
-// #include <stdlib.h>
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // Image stores an image for display on screen.

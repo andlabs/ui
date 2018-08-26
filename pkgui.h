@@ -47,4 +47,18 @@ extern void pkguiSliderOnChanged(uiSlider *s);
 // spinbox.go
 extern void pkguiSpinboxOnChanged(uiSpinbox *s);
 
+// draw.go
+extern uiDrawBrush *pkguiAllocBrush(void);
+extern void pkguiFreeBrush(uiDrawBrush *b);
+extern uiDrawBrushGradientStop *pkguiAllocGradientStops(size_t n);
+extern void pkguiFreeGradientStops(uiDrawBrushGradientStop *stops);
+extern void pkguiSetGradientStop(uiDrawBrushGradientStop *stops, size_t i, double pos, double r, double g, double b, double a);
+extern uiDrawStrokeParams *pkguiAllocStrokeParams(void);
+extern void pkguiFreeStrokeParams(uiDrawStrokeParams *p);
+extern double *pkguiAllocDashes(size_t n);
+extern void pkguiFreeDashes(double *dashes);
+extern void pkguiSetDash(double *dashes, size_t i, double dash);
+extern uiDrawMatrix *pkguiAllocMatrix(void);
+extern void pkguiFreeMatrix(uiDrawMatrix *m);
+
 #endif

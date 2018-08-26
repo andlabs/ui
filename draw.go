@@ -2,57 +2,7 @@
 
 package ui
 
-// #include <stdlib.h>
-// #include "ui.h"
-// #include "util.h"
-// static uiDrawBrush *newBrush(void)
-// {
-// 	return (uiDrawBrush *) pkguiAlloc(sizeof (uiDrawBrush));
-// }
-// static uiDrawBrushGradientStop *newStops(size_t n)
-// {
-// 	return (uiDrawBrushGradientStop *) pkguiAlloc(n * sizeof (uiDrawBrushGradientStop));
-// }
-// static void setStop(uiDrawBrushGradientStop *stops, size_t i, double pos, double r, double g, double b, double a)
-// {
-// 	stops[i].Pos = pos;
-// 	stops[i].R = r;
-// 	stops[i].G = g;
-// 	stops[i].B = b;
-// 	stops[i].A = a;
-// }
-// static void freeBrush(uiDrawBrush *b)
-// {
-// 	if (b->Type == uiDrawBrushTypeLinearGradient || b->Type == uiDrawBrushTypeRadialGradient)
-// 		free(b->Stops);
-// 	free(b);
-// }
-// static uiDrawStrokeParams *newStrokeParams(void)
-// {
-// 	return (uiDrawStrokeParams *) pkguiAlloc(sizeof (uiDrawStrokeParams));
-// }
-// static double *newDashes(size_t n)
-// {
-// 	return (double *) pkguiAlloc(n * sizeof (double));
-// }
-// static void setDash(double *dashes, size_t i, double dash)
-// {
-// 	dashes[i] = dash;
-// }
-// static void freeStrokeParams(uiDrawStrokeParams *sp)
-// {
-// 	if (sp->Dashes != NULL)
-// 		free(sp->Dashes);
-// 	free(sp);
-// }
-// static uiDrawMatrix *newMatrix(void)
-// {
-// 	return (uiDrawMatrix *) pkguiAlloc(sizeof (uiDrawMatrix));
-// }
-// static void freeMatrix(uiDrawMatrix *m)
-// {
-// 	free(m);
-// }
+// #include "pkgui.h"
 import "C"
 
 // Path represents a geometric path in a drawing context.
@@ -267,7 +217,7 @@ type GradientStop struct {
 }
 
 func (b *Brush) toC() *C.uiDrawBrush {
-	cb := C.newBrush()
+	cb := C.pkguiAllocBrush()
 	cb.Type = C.uiDrawBrushType(b.Type)
 	switch b.Type {
 	case BrushTypeSolid:
@@ -282,9 +232,9 @@ func (b *Brush) toC() *C.uiDrawBrush {
 		cb.Y1 = C.double(b.Y1)
 		cb.OuterRadius = C.double(b.OuterRadius)
 		cb.NumStops = C.size_t(len(b.Stops))
-		cb.Stops = C.newStops(cb.NumStops)
+		cb.Stops = C.pkguiAllocGradientStops(cb.NumStops)
 		for i, s := range b.Stops {
-			C.setStop(cb.Stops, C.size_t(i),
+			C.pkguiSetGradientStop(cb.Stops, C.size_t(i),
 				C.double(s.Pos),
 				C.double(s.R),
 				C.double(s.G),
@@ -299,6 +249,13 @@ func (b *Brush) toC() *C.uiDrawBrush {
 	return cb
 }
 
+func freeBrush(cb *C.uiDrawBrush) {
+	if cb.Type == C.uiDrawBrushTypeLinearGradient || cb.Type == C.uiDrawBrushTypeRadialGradient {
+		C.pkguiFreeGradientStops(cb.Stops)
+	}
+	C.pkguiFreeBrush(cb)
+}
+
 // TODO
 type StrokeParams struct {
 	Cap			LineCap
@@ -310,7 +267,7 @@ type StrokeParams struct {
 }
 
 func (sp *StrokeParams) toC() *C.uiDrawStrokeParams {
-	csp := C.newStrokeParams()
+	csp := C.pkguiAllocStrokeParams()
 	csp.Cap = C.uiDrawLineCap(sp.Cap)
 	csp.Join = C.uiDrawLineJoin(sp.Join)
 	csp.Thickness = C.double(sp.Thickness)
@@ -318,29 +275,36 @@ func (sp *StrokeParams) toC() *C.uiDrawStrokeParams {
 	csp.Dashes = nil
 	csp.NumDashes = C.size_t(len(sp.Dashes))
 	if csp.NumDashes != 0 {
-		csp.Dashes = C.newDashes(csp.NumDashes)
+		csp.Dashes = C.pkguiAllocDashes(csp.NumDashes)
 		for i, d := range sp.Dashes {
-			C.setDash(csp.Dashes, C.size_t(i), C.double(d))
+			C.pkguiSetDash(csp.Dashes, C.size_t(i), C.double(d))
 		}
 	}
 	csp.DashPhase = C.double(sp.DashPhase)
 	return csp
 }
 
+func freeStrokeParams(csp *C.uiDrawStrokeParams) {
+	if csp.Dashes != nil {
+		C.pkguiFreeDashes(csp.Dashes)
+	}
+	C.pkguiFreeStrokeParams(csp)
+}
+
 // TODO
 func (c *DrawContext) Stroke(p *Path, b *Brush, sp *StrokeParams) {
 	cb := b.toC()
+	defer freeBrush(cb)
 	csp := sp.toC()
+	defer freeStrokeParams(csp)
 	C.uiDrawStroke(c.c, p.p, cb, csp)
-	C.freeBrush(cb)
-	C.freeStrokeParams(csp)
 }
 
 // TODO
 func (c *DrawContext) Fill(p *Path, b *Brush) {
 	cb := b.toC()
+	defer freeBrush(cb)
 	C.uiDrawFill(c.c, p.p, cb)
-	C.freeBrush(cb)
 }
 
 // TODO
@@ -372,7 +336,7 @@ func (m *Matrix) SetIdentity() {
 }
 
 func (m *Matrix) toC() *C.uiDrawMatrix {
-	cm := C.newMatrix()
+	cm := C.pkguiAllocMatrix()
 	cm.M11 = C.double(m.M11)
 	cm.M12 = C.double(m.M12)
 	cm.M21 = C.double(m.M21)
@@ -389,7 +353,7 @@ func (m *Matrix) fromC(cm *C.uiDrawMatrix) {
 	m.M22 = float64(cm.M22)
 	m.M31 = float64(cm.M31)
 	m.M32 = float64(cm.M32)
-	C.freeMatrix(cm)
+	C.pkguiFreeMatrix(cm)
 }
 
 // TODO
@@ -429,7 +393,7 @@ func (m *Matrix) Multiply(m2 *Matrix) {
 	cm := m.toC()
 	cm2 := m2.toC()
 	C.uiDrawMatrixMultiply(cm, cm2)
-	C.freeMatrix(cm2)
+	C.pkguiFreeMatrix(cm2)
 	m.fromC(cm)
 }
 
@@ -437,7 +401,7 @@ func (m *Matrix) Multiply(m2 *Matrix) {
 func (m *Matrix) Invertible() bool {
 	cm := m.toC()
 	res := C.uiDrawMatrixInvertible(cm)
-	C.freeMatrix(cm)
+	C.pkguiFreeMatrix(cm)
 	return tobool(res)
 }
 
@@ -465,7 +429,7 @@ func (m *Matrix) TransformSize(x float64, y float64) (xout float64, yout float64
 func (c *DrawContext) Transform(m *Matrix) {
 	cm := m.toC()
 	C.uiDrawTransform(c.c, cm)
-	C.freeMatrix(cm)
+	C.pkguiFreeMatrix(cm)
 }
 
 // TODO

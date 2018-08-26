@@ -86,3 +86,67 @@ void pkguiSpinboxOnChanged(uiSpinbox *s)
 {
 	uiSpinboxOnChanged(s, pkguiDoSpinboxOnChanged, NULL);
 }
+
+uiDrawBrush *pkguiAllocBrush(void)
+{
+	return (uiDrawBrush *) pkguiAlloc(sizeof (uiDrawBrush));
+}
+
+void pkguiFreeBrush(uiDrawBrush *b)
+{
+	free(b);
+}
+
+uiDrawBrushGradientStop *pkguiAllocGradientStops(size_t n)
+{
+	return (uiDrawBrushGradientStop *) pkguiAlloc(n * sizeof (uiDrawBrushGradientStop));
+}
+
+void pkguiFreeGradientStops(uiDrawBrushGradientStop *stops)
+{
+	free(stops);
+}
+
+void pkguiSetGradientStop(uiDrawBrushGradientStop *stops, size_t i, double pos, double r, double g, double b, double a)
+{
+	stops[i].Pos = pos;
+	stops[i].R = r;
+	stops[i].G = g;
+	stops[i].B = b;
+	stops[i].A = a;
+}
+
+uiDrawStrokeParams *pkguiAllocStrokeParams(void)
+{
+	return (uiDrawStrokeParams *) pkguiAlloc(sizeof (uiDrawStrokeParams));
+}
+
+void pkguiFreeStrokeParams(uiDrawStrokeParams *p)
+{
+	free(p);
+}
+
+double *pkguiAllocDashes(size_t n)
+{
+	return (double *) pkguiAlloc(n * sizeof (double));
+}
+
+void pkguiFreeDashes(double *dashes)
+{
+	free(dashes);
+}
+
+void pkguiSetDash(double *dashes, size_t i, double dash)
+{
+	dashes[i] = dash;
+}
+
+uiDrawMatrix *pkguiAllocMatrix(void)
+{
+	return (uiDrawMatrix *) pkguiAlloc(sizeof (uiDrawMatrix));
+}
+
+void pkguiFreeMatrix(uiDrawMatrix *m)
+{
+	free(m);
+}
