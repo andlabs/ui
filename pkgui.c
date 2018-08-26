@@ -238,3 +238,23 @@ const uiTableModelHandler pkguiTableModelHandler = {
 	.CellValue = pkguiDoTableModelCellValue,
 	.SetCellValue = realDoTableModelSetCellValue,
 };
+
+uiTableTextColumnOptionalParams *pkguiAllocTableTextColumnOptionalParams(void)
+{
+	return (uiTableTextColumnOptionalParams *) pkguiAlloc(sizeof (uiTableTextColumnOptionalParams));
+}
+
+void pkguiFreeTableTextColumnOptionalParams(uiTableTextColumnOptionalParams *p)
+{
+	free(p);
+}
+
+uiTableParams *pkguiAllocTableParams(void)
+{
+	return (uiTableParams *) pkguiAlloc(sizeof (uiTableParams));
+}
+
+void pkguiFreeTableParams(uiTableParams *p)
+{
+	free(p);
+}

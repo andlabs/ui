@@ -92,4 +92,10 @@ extern void pkguiFreeAreaHandler(uiAreaHandler *ah);
 // tablemodel.go
 extern const uiTableModelHandler pkguiTableModelHandler;
 
+// table.go
+extern uiTableTextColumnOptionalParams *pkguiAllocTableTextColumnOptionalParams(void);
+extern void pkguiFreeTableTextColumnOptionalParams(uiTableTextColumnOptionalParams *p);
+extern uiTableParams *pkguiAllocTableParams(void);
+extern void pkguiFreeTableParams(uiTableParams *p);
+
 #endif
