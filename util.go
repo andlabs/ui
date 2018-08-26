@@ -12,8 +12,10 @@ import "C"
 //export pkguiAlloc
 func pkguiAlloc(n C.size_t) unsafe.Pointer {
 	// cgo turns C.malloc() into a panic-on-OOM version; use it
-	// TODO make sure it zero-initializes too
-	return C.malloc(n)
+	ret := C.malloc(n)
+	// and this won't zero-initialize; do it ourselves
+	C.memset(ret, 0, n)
+	return ret
 }
 
 func freestr(str *C.char) {
