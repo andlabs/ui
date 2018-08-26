@@ -7,17 +7,7 @@ import (
 	"unsafe"
 )
 
-// #include <stdlib.h>
-// #include <time.h>
-// #include "ui.h"
-// #include "util.h"
-// static inline struct tm *allocTimeStruct(void)
-// {
-// 	return (struct tm *) pkguiAlloc(sizeof (struct tm));
-// }
-// extern void doDateTimePickerOnChanged(uiDateTimePicker *, void *);
-// // see golang/go#19835
-// typedef void (*dtpCallback)(uiDateTimePicker *, void *);
+// #include "pkgui.h"
 import "C"
 
 // DateTimePicker is a Control that represents a field where the user
@@ -33,7 +23,7 @@ func finishNewDateTimePicker(dd *C.uiDateTimePicker) *DateTimePicker {
 
 	d.d = dd
 
-	C.uiDateTimePickerOnChanged(d.d, C.dtpCallback(C.doDateTimePickerOnChanged), nil)
+	C.pkguiDateTimePickerOnChanged(d.d)
 
 	d.ControlBase = NewControlBase(d, uintptr(unsafe.Pointer(d.d)))
 	return d
@@ -60,8 +50,8 @@ func NewTimePicker() *DateTimePicker {
 // Time returns the time stored in the uiDateTimePicker.
 // The time is assumed to be local time.
 func (d *DateTimePicker) Time() time.Time {
-	tm := C.allocTimeStruct()
-	defer C.free(unsafe.Pointer(tm))
+	tm := C.pkguiAllocTime()
+	defer C.pkguiFreeTime(tm)
 	C.uiDateTimePickerTime(d.d, tm)
 	return time.Date(
 		int(tm.tm_year + 1900),
@@ -77,8 +67,8 @@ func (d *DateTimePicker) Time() time.Time {
 // t's components are read as-is via t.Date() and t.Clock();
 // no time zone manipulations are done.
 func (d *DateTimePicker) SetTime(t time.Time) {
-	tm := C.allocTimeStruct()
-	defer C.free(unsafe.Pointer(tm))
+	tm := C.pkguiAllocTime()
+	defer C.pkguiFreeTime(tm)
 	year, mon, mday := t.Date()
 	tm.tm_year = C.int(year - 1900)
 	tm.tm_mon = C.int(mon - 1)
@@ -98,8 +88,8 @@ func (d *DateTimePicker) OnChanged(f func(*DateTimePicker)) {
 	d.onChanged = f
 }
 
-//export doDateTimePickerOnChanged
-func doDateTimePickerOnChanged(dd *C.uiDateTimePicker, data unsafe.Pointer) {
+//export pkguiDoDateTimePickerOnChanged
+func pkguiDoDateTimePickerOnChanged(dd *C.uiDateTimePicker, data unsafe.Pointer) {
 	d := ControlFromLibui(uintptr(unsafe.Pointer(dd))).(*DateTimePicker)
 	if d.onChanged != nil {
 		d.onChanged(d)

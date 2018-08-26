@@ -2,7 +2,7 @@
 
 package ui
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // TODO

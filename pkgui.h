@@ -3,6 +3,7 @@
 #define pkguiHFileIncluded
 
 #include <stdlib.h>
+#include <time.h>
 #include "ui.h"
 
 // main.go
@@ -22,6 +23,11 @@ extern void pkguiCheckboxOnToggled(uiCheckbox *c);
 
 // combobox.go
 extern void pkguiComboboxOnSelected(uiCombobox *c);
+
+// datetimepicker.go
+extern void pkguiDateTimePickerOnChanged(uiDateTimePicker *d);
+extern struct tm *pkguiAllocTime(void);
+extern void pkguiFreeTime(struct tm *t);
 
 // editablecombobox.go
 extern void pkguiEditableComboboxOnChanged(uiEditableCombobox *c);

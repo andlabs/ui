@@ -42,6 +42,21 @@ void pkguiComboboxOnSelected(uiCombobox *c)
 	uiComboboxOnSelected(c, pkguiDoComboboxOnSelected, NULL);
 }
 
+void pkguiDateTimePickerOnChanged(uiDateTimePicker *d)
+{
+	uiDateTimePickerOnChanged(d, pkguiDoDateTimePickerOnChanged, NULL);
+}
+
+struct tm *pkguiAllocTime(void)
+{
+	return (struct tm *) pkguiAlloc(sizeof (struct tm));
+}
+
+void pkguiFreeTime(struct tm *t)
+{
+	free(t);
+}
+
 void pkguiEditableComboboxOnChanged(uiEditableCombobox *c)
 {
 	uiEditableComboboxOnChanged(c, pkguiDoEditableComboboxOnChanged, NULL);
