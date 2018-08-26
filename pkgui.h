@@ -1,5 +1,5 @@
 // 12 august 2018
-#include <stdio.h>
+#include <stdlib.h>
 #include "ui.h"
 
 // main.go

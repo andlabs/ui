@@ -12,6 +12,7 @@ import "C"
 //export pkguiAlloc
 func pkguiAlloc(n C.size_t) unsafe.Pointer {
 	// cgo turns C.malloc() into a panic-on-OOM version; use it
+	// TODO make sure it zero-initializes too
 	return C.malloc(n)
 }
 

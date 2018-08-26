@@ -1,6 +1,6 @@
 // 26 august 2018
 #include "pkgui.h"
-#include "xxxxx"
+#include "_cgo_export.h"
 
 uiInitOptions *pkguiAllocInitOptions(void)
 {
