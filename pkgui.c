@@ -206,3 +206,21 @@ void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *p)
 {
 	free(p);
 }
+
+uiAreaHandler *pkguiAllocAreaHandler(void)
+{
+	uiAreaHandler *ah;
+
+	ah = (uiAreaHandler *) pkguiAlloc(sizeof (uiAreaHandler));
+	ah->Draw = pkguiDoAreaHandlerDraw;
+	ah->MouseEvent = pkguiDoAreaHandlerMouseEvent;
+	ah->MouseCrossed = pkguiDoAreaHandlerMouseCrossed;
+	ah->DragBroken = pkguiDoAreaHandlerDragBroken;
+	ah->KeyEvent = pkguiDoAreaHandlerKeyEvent;
+	return ah;
+}
+
+void pkguiFreeAreaHandler(uiAreaHandler *ah)
+{
+	free(ah);
+}

@@ -85,4 +85,8 @@ extern void pkguiFreeFontDescriptor(uiFontDescriptor *fd);
 extern uiDrawTextLayoutParams *pkguiNewDrawTextLayoutParams(void);
 extern void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *p);
 
+// area.go
+extern uiAreaHandler *pkguiAllocAreaHandler(void);
+extern void pkguiFreeAreaHandler(uiAreaHandler *ah);
+
 #endif

@@ -6,30 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include <stdlib.h>
-// #include "ui.h"
-// #include "util.h"
-// extern void doAreaHandlerDraw(uiAreaHandler *, uiArea *, uiAreaDrawParams *);
-// extern void doAreaHandlerMouseEvent(uiAreaHandler *, uiArea *, uiAreaMouseEvent *);
-// extern void doAreaHandlerMouseCrossed(uiAreaHandler *, uiArea *, int);
-// extern void doAreaHandlerDragBroken(uiAreaHandler *, uiArea *);
-// extern int doAreaHandlerKeyEvent(uiAreaHandler *, uiArea *, uiAreaKeyEvent *);
-// static inline uiAreaHandler *allocAreaHandler(void)
-// {
-// 	uiAreaHandler *ah;
-// 
-// 	ah = (uiAreaHandler *) pkguiAlloc(sizeof (uiAreaHandler));
-// 	ah->Draw = doAreaHandlerDraw;
-// 	ah->MouseEvent = doAreaHandlerMouseEvent;
-// 	ah->MouseCrossed = doAreaHandlerMouseCrossed;
-// 	ah->DragBroken = doAreaHandlerDragBroken;
-// 	ah->KeyEvent = doAreaHandlerKeyEvent;
-// 	return ah;
-// }
-// static inline void freeAreaHandler(uiAreaHandler *ah)
-// {
-// 	free(ah);
-// }
+// #include "pkgui.h"
 import "C"
 
 // no need to lock this; only the GUI thread can access it
@@ -122,14 +99,14 @@ type AreaHandler interface {
 }
 
 func registerAreaHandler(ah AreaHandler) *C.uiAreaHandler {
-	uah := C.allocAreaHandler()
+	uah := C.pkguiAllocAreaHandler()
 	areahandlers[uah] = ah
 	return uah
 }
 
 func unregisterAreaHandler(uah *C.uiAreaHandler) {
 	delete(areahandlers, uah)
-	C.freeAreaHandler(uah)
+	C.pkguiFreeAreaHandler(uah)
 }
 
 // AreaDrawParams provides a drawing context that can be used
@@ -159,8 +136,8 @@ type AreaDrawParams struct {
 	ClipHeight	float64
 }
 
-//export doAreaHandlerDraw
-func doAreaHandlerDraw(uah *C.uiAreaHandler, ua *C.uiArea, udp *C.uiAreaDrawParams) {
+//export pkguiDoAreaHandlerDraw
+func pkguiDoAreaHandlerDraw(uah *C.uiAreaHandler, ua *C.uiArea, udp *C.uiAreaDrawParams) {
 	ah := areahandlers[uah]
 	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	dp := &AreaDrawParams{
@@ -210,8 +187,8 @@ func appendBits(out []uint, held C.uint64_t) []uint {
 	return out
 }
 
-//export doAreaHandlerMouseEvent
-func doAreaHandlerMouseEvent(uah *C.uiAreaHandler, ua *C.uiArea, ume *C.uiAreaMouseEvent) {
+//export pkguiDoAreaHandlerMouseEvent
+func pkguiDoAreaHandlerMouseEvent(uah *C.uiAreaHandler, ua *C.uiArea, ume *C.uiAreaMouseEvent) {
 	ah := areahandlers[uah]
 	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	me := &AreaMouseEvent{
@@ -229,15 +206,15 @@ func doAreaHandlerMouseEvent(uah *C.uiAreaHandler, ua *C.uiArea, ume *C.uiAreaMo
 	ah.MouseEvent(a, me)
 }
 
-//export doAreaHandlerMouseCrossed
-func doAreaHandlerMouseCrossed(uah *C.uiAreaHandler, ua *C.uiArea, left C.int) {
+//export pkguiDoAreaHandlerMouseCrossed
+func pkguiDoAreaHandlerMouseCrossed(uah *C.uiAreaHandler, ua *C.uiArea, left C.int) {
 	ah := areahandlers[uah]
 	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ah.MouseCrossed(a, tobool(left))
 }
 
-//export doAreaHandlerDragBroken
-func doAreaHandlerDragBroken(uah *C.uiAreaHandler, ua *C.uiArea) {
+//export pkguiDoAreaHandlerDragBroken
+func pkguiDoAreaHandlerDragBroken(uah *C.uiAreaHandler, ua *C.uiArea) {
 	ah := areahandlers[uah]
 	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ah.DragBroken(a)
@@ -252,8 +229,8 @@ type AreaKeyEvent struct {
 	Up		bool
 }
 
-//export doAreaHandlerKeyEvent
-func doAreaHandlerKeyEvent(uah *C.uiAreaHandler, ua *C.uiArea, uke *C.uiAreaKeyEvent) C.int {
+//export pkguiDoAreaHandlerKeyEvent
+func pkguiDoAreaHandlerKeyEvent(uah *C.uiAreaHandler, ua *C.uiArea, uke *C.uiAreaKeyEvent) C.int {
 	ah := areahandlers[uah]
 	a := ControlFromLibui(uintptr(unsafe.Pointer(ua))).(*Area)
 	ke := &AreaKeyEvent{
