@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // Label is a Control that represents a line of text that cannot be

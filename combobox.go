@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doComboboxOnSelected(uiCombobox *, void *);
-// // see golang/go#19835
-// typedef void (*comboboxCallback)(uiCombobox *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Combobox is a Control that represents a drop-down list of strings
@@ -27,7 +24,7 @@ func NewCombobox() *Combobox {
 
 	c.c = C.uiNewCombobox()
 
-	C.uiComboboxOnSelected(c.c, C.comboboxCallback(C.doComboboxOnSelected), nil)
+	C.pkguiComboboxOnSelected(c.c)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c
@@ -58,8 +55,8 @@ func (c *Combobox) OnSelected(f func(*Combobox)) {
 	c.onSelected = f
 }
 
-//export doComboboxOnSelected
-func doComboboxOnSelected(cc *C.uiCombobox, data unsafe.Pointer) {
+//export pkguiDoComboboxOnSelected
+func pkguiDoComboboxOnSelected(cc *C.uiCombobox, data unsafe.Pointer) {
 	c := ControlFromLibui(uintptr(unsafe.Pointer(cc))).(*Combobox)
 	if c.onSelected != nil {
 		c.onSelected(c)

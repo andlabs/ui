@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // Group is a Control that holds another Control and wraps it around

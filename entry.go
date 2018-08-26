@@ -10,10 +10,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doEntryOnChanged(uiEntry *, void *);
-// // see golang/go#19835
-// typedef void (*entryCallback)(uiEntry *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Entry is a Control that represents a space that the user can
@@ -29,7 +26,7 @@ func finishNewEntry(ee *C.uiEntry) *Entry {
 
 	e.e = ee
 
-	C.uiEntryOnChanged(e.e, C.entryCallback(C.doEntryOnChanged), nil)
+	C.pkguiEntryOnChanged(e.e)
 
 	e.ControlBase = NewControlBase(e, uintptr(unsafe.Pointer(e.e)))
 	return e
@@ -74,8 +71,8 @@ func (e *Entry) OnChanged(f func(*Entry)) {
 	e.onChanged = f
 }
 
-//export doEntryOnChanged
-func doEntryOnChanged(ee *C.uiEntry, data unsafe.Pointer) {
+//export pkguiDoEntryOnChanged
+func pkguiDoEntryOnChanged(ee *C.uiEntry, data unsafe.Pointer) {
 	e := ControlFromLibui(uintptr(unsafe.Pointer(ee))).(*Entry)
 	if e.onChanged != nil {
 		e.onChanged(e)

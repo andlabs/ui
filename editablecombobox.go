@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doEditableComboboxOnChanged(uiEditableCombobox *, void *);
-// // see golang/go#19835
-// typedef void (*editableComboboxCallback)(uiEditableCombobox *, void *);
+// #include "pkgui.h"
 import "C"
 
 // EditableCombobox is a Control that represents a drop-down list
@@ -27,7 +24,7 @@ func NewEditableCombobox() *EditableCombobox {
 
 	c.c = C.uiNewEditableCombobox()
 
-	C.uiEditableComboboxOnChanged(c.c, C.editableComboboxCallback(C.doEditableComboboxOnChanged), nil)
+	C.pkguiEditableComboboxOnChanged(c.c)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c
@@ -63,8 +60,8 @@ func (e *EditableCombobox) OnChanged(f func(*EditableCombobox)) {
 	e.onChanged = f
 }
 
-//export doEditableComboboxOnChanged
-func doEditableComboboxOnChanged(cc *C.uiEditableCombobox, data unsafe.Pointer) {
+//export pkguiDoEditableComboboxOnChanged
+func pkguiDoEditableComboboxOnChanged(cc *C.uiEditableCombobox, data unsafe.Pointer) {
 	e := ControlFromLibui(uintptr(unsafe.Pointer(cc))).(*EditableCombobox)
 	if e.onChanged != nil {
 		e.onChanged(e)

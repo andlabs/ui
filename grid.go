@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // Grid is a Control that arranges other Controls in a grid.

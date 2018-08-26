@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // ProgressBar is a Control that represents a horizontal bar that
