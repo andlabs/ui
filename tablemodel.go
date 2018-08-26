@@ -2,25 +2,7 @@
 
 package ui
 
-// #include "ui.h"
-// extern int doTableModelNumColumns(uiTableModelHandler *, uiTableModel *);
-// extern uiTableValueType doTableModelColumnType(uiTableModelHandler *, uiTableModel *, int);
-// extern int doTableModelNumRows(uiTableModelHandler *, uiTableModel *);
-// extern uiTableValue *doTableModelCellValue(uiTableModelHandler *mh, uiTableModel *m, int row, int column);
-// extern void doTableModelSetCellValue(uiTableModelHandler *, uiTableModel *, int, int, uiTableValue *);
-// // deal with cgo being dumb
-// static inline void realDoTableModelSetCellValue(uiTableModelHandler *mh, uiTableModel *m, int row, int column, const uiTableValue *value)
-// {
-// 	doTableModelSetCellValue(mh, m, row, column, (uiTableValue *) value);
-// }
-// // TODO why can't this be static?
-// const uiTableModelHandler pkguiTableModelHandler = {
-// 	.NumColumns = doTableModelNumColumns,
-// 	.ColumnType = doTableModelColumnType,
-// 	.NumRows = doTableModelNumRows,
-// 	.CellValue = doTableModelCellValue,
-// 	.SetCellValue = realDoTableModelSetCellValue,
-// };
+// #include "pkgui.h"
 import "C"
 
 // TableValue is a type that represents a piece of data that can come
@@ -154,14 +136,14 @@ type TableModelHandler interface {
 	SetCellValue(m *TableModel, row, column int, value TableValue)
 }
 
-//export doTableModelNumColumns
-func doTableModelNumColumns(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
+//export pkguiDoTableModelNumColumns
+func pkguiDoTableModelNumColumns(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
 	mh := modelhandlers[um]
 	return C.int(len(mh.ColumnTypes(models[um])))
 }
 
-//export doTableModelColumnType
-func doTableModelColumnType(umh *C.uiTableModelHandler, um *C.uiTableModel, n C.int) C.uiTableValueType {
+//export pkguiDoTableModelColumnType
+func pkguiDoTableModelColumnType(umh *C.uiTableModelHandler, um *C.uiTableModel, n C.int) C.uiTableValueType {
 	mh := modelhandlers[um]
 	c := mh.ColumnTypes(models[um])
 	switch c[n].(type) {
@@ -177,14 +159,14 @@ func doTableModelColumnType(umh *C.uiTableModelHandler, um *C.uiTableModel, n C.
 	panic("unreachable")
 }
 
-//export doTableModelNumRows
-func doTableModelNumRows(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
+//export pkguiDoTableModelNumRows
+func pkguiDoTableModelNumRows(umh *C.uiTableModelHandler, um *C.uiTableModel) C.int {
 	mh := modelhandlers[um]
 	return C.int(mh.NumRows(models[um]))
 }
 
-//export doTableModelCellValue
-func doTableModelCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int) *C.uiTableValue {
+//export pkguiDoTableModelCellValue
+func pkguiDoTableModelCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int) *C.uiTableValue {
 	mh := modelhandlers[um]
 	v := mh.CellValue(models[um], int(row), int(column))
 	if v == nil {
@@ -193,8 +175,8 @@ func doTableModelCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, 
 	return v.toLibui()
 }
 
-//export doTableModelSetCellValue
-func doTableModelSetCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int, value *C.uiTableValue) {
+//export pkguiDoTableModelSetCellValue
+func pkguiDoTableModelSetCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, row, column C.int, value *C.uiTableValue) {
 	mh := modelhandlers[um]
 	v := tableValueFromLibui(value)
 	mh.SetCellValue(models[um], int(row), int(column), v)

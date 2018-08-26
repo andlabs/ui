@@ -224,3 +224,17 @@ void pkguiFreeAreaHandler(uiAreaHandler *ah)
 {
 	free(ah);
 }
+
+// cgo can't generate const, so we need this trampoline
+static void realDoTableModelSetCellValue(uiTableModelHandler *mh, uiTableModel *m, int row, int column, const uiTableValue *value)
+{
+	pkguiDoTableModelSetCellValue(mh, m, row, column, (uiTableValue *) value);
+}
+
+const uiTableModelHandler pkguiTableModelHandler = {
+	.NumColumns = pkguiDoTableModelNumColumns,
+	.ColumnType = pkguiDoTableModelColumnType,
+	.NumRows = pkguiDoTableModelNumRows,
+	.CellValue = pkguiDoTableModelCellValue,
+	.SetCellValue = realDoTableModelSetCellValue,
+};
