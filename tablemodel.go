@@ -13,7 +13,8 @@ package ui
 // {
 // 	doTableModelSetCellValue(mh, m, row, column, (uiTableValue *) value);
 // }
-// static const uiTableModelHandler pkguiTableModelHandler = {
+// // TODO why can't this be static?
+// const uiTableModelHandler pkguiTableModelHandler = {
 // 	.NumColumns = doTableModelNumColumns,
 // 	.ColumnType = doTableModelColumnType,
 // 	.NumRows = doTableModelNumRows,
@@ -197,4 +198,46 @@ func doTableModelSetCellValue(umh *C.uiTableModelHandler, um *C.uiTableModel, ro
 	mh := modelhandlers[um]
 	v := tableValueFromLibui(value)
 	mh.SetCellValue(models[um], int(row), int(column), v)
+}
+
+// NewTableModel creates a new TableModel.
+func NewTableModel(handler TableModelHandler) *TableModel {
+	m := &TableModel{
+		m:	C.uiNewTableModel(&C.pkguiTableModelHandler),
+	}
+	modelhandlers[m.m] = handler
+	models[m.m] = m
+	return m
+}
+
+// Free frees m. It is an error to Free any models associated with a
+// Table.
+func (m *TableModel) Free() {
+	delete(models, m.m)
+	delete(modelhandlers, m.m)
+	C.uiFreeTableModel(m.m)
+}
+
+// RowInserted tells any Tables associated with m that a new row
+// has been added to m at index index. You call this method when
+// the number of rows in your model has changed; after calling it,
+// NumRows should returm the new row count.
+func (m *TableModel) RowInserted(index int) {
+	C.uiTableModelRowInserted(m.m, C.int(index))
+}
+
+// RowChanged tells any Tables associated with m that the data in
+// the row at index has changed. You do not need to call this in
+// your SetCellValue handlers, but you do need to call this if your
+// data changes at some other point.
+func (m *TableModel) RowChanged(index int) {
+	C.uiTableModelRowChanged(m.m, C.int(index))
+}
+
+// RowDeleted tells any Tables associated with m that the row at
+// index index has been deleted. You call this function when the
+// number of rows in your model has changed; after calling it,
+// NumRows should returm the new row count.
+func (m *TableModel) RowDeleted(index int) {
+	C.uiTableModelRowDeleted(m.m, C.int(index))
 }
