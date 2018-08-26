@@ -29,8 +29,8 @@ const (
 )
 
 // helper to quickly set a brush color
-func mkSolidBrush(color uint32, alpha float64) *ui.Brush {
-	brush := new(ui.Brush)
+func mkSolidBrush(color uint32, alpha float64) *ui.DrawBrush {
+	brush := new(ui.DrawBrush)
 	brush.Type = ui.DrawBrushTypeSolid
 	component := uint8((color >> 16) & 0xFF)
 	brush.R = float64(component) / 255
@@ -64,9 +64,9 @@ func pointLocations(width, height float64) (xs, ys [10]float64) {
 	return xs, ys
 }
 
-func constructGraph(width, height float64, extend bool) *ui.Path {
+func constructGraph(width, height float64, extend bool) *ui.DrawPath {
 	xs, ys := pointLocations(width, height)
-	path := ui.NewPath(ui.DrawFillModeWinding)
+	path := ui.DrawNewPath(ui.DrawFillModeWinding)
 
 	path.NewFigure(xs[0], ys[0])
 	for i := 1; i < 10; i++ {
@@ -93,7 +93,7 @@ type areaHandler struct{}
 func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	// fill the area with white
 	brush := mkSolidBrush(colorWhite, 1.0)
-	path := ui.NewPath(ui.DrawFillModeWinding)
+	path := ui.DrawNewPath(ui.DrawFillModeWinding)
 	path.AddRectangle(0, 0, p.AreaWidth, p.AreaHeight)
 	path.End()
 	p.Context.Fill(path, brush)
@@ -101,16 +101,16 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 
 	graphWidth, graphHeight := graphSize(p.AreaWidth, p.AreaHeight)
 
-	sp := &ui.StrokeParams{
-		Cap:			ui.FlatCap,
-		Join:			ui.MiterJoin,
+	sp := &ui.DrawStrokeParams{
+		Cap:			ui.DrawLineCapFlat,
+		Join:			ui.DrawLineJoinMiter,
 		Thickness:	2,
-		MiterLimit:	ui.DefaultMiterLimit,
+		MiterLimit:	ui.DrawDefaultMiterLimit,
 	}
 
 	// draw the axes
 	brush = mkSolidBrush(colorBlack, 1.0)
-	path = ui.NewPath(ui.DrawFillModeWinding)
+	path = ui.DrawNewPath(ui.DrawFillModeWinding)
 	path.NewFigure(xoffLeft, yoffTop)
 	path.LineTo(xoffLeft, yoffTop + graphHeight)
 	path.LineTo(xoffLeft + graphWidth, yoffTop + graphHeight)
@@ -119,7 +119,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	path.Free()
 
 	// now transform the coordinate space so (0, 0) is the top-left corner of the graph
-	m := ui.NewMatrix()
+	m := ui.DrawNewMatrix()
 	m.Translate(xoffLeft, yoffTop)
 	p.Context.Transform(m)
 
@@ -146,7 +146,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	// now draw the point being hovered over
 	if currentPoint != -1 {
 		xs, ys := pointLocations(graphWidth, graphHeight)
-		path = ui.NewPath(ui.DrawFillModeWinding)
+		path = ui.DrawNewPath(ui.DrawFillModeWinding)
 		path.NewFigureWithArc(
 			xs[currentPoint], ys[currentPoint],
 			pointRadius,

@@ -190,7 +190,7 @@ const (
 )
 
 // TODO document
-const DefaultMiterLimit = 10.0
+const DrawDefaultMiterLimit = 10.0
 
 // TODO
 type DrawBrush struct {
