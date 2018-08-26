@@ -9,12 +9,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doQueueMain(void *);
-// extern int doOnShouldQuit(void *);
-// // see golang/go#19835
-// typedef void (*queueMainCallback)(void *);
-// typedef int (*onShouldQuitCallback)(void *);
+// #include "pkgui.h"
 import "C"
 
 // make sure main() runs on the first thread created by the OS
@@ -33,15 +28,15 @@ func init() {
 // nil. If package ui fails to initialize, Main returns an appropriate
 // error.
 func Main(f func()) error {
-	// TODO HEAP SAFETY
-	opts := C.uiInitOptions{}
-	estr := C.uiInit(&opts)
+	opts := C.pkguiAllocInitOptions()
+	estr := C.uiInit(opts)
+	C.pkguiFreeInitOptions(opts)
 	if estr != nil {
 		err := errors.New(C.GoString(estr))
 		C.uiFreeInitError(estr)
 		return err
 	}
-	C.uiOnShouldQuit(C.onShouldQuitCallback(C.doOnShouldQuit), nil)
+	C.pkguiOnShouldQuit()
 	QueueMain(f)
 	C.uiMain()
 	return nil
@@ -90,11 +85,11 @@ func QueueMain(f func()) {
 		}
 	}
 	qmmap[n] = f
-	C.uiQueueMain(C.queueMainCallback(C.doQueueMain), unsafe.Pointer(n))
+	C.pkguiQueueMain(C.uintptr_t(n))
 }
 
-//export doQueueMain
-func doQueueMain(nn unsafe.Pointer) {
+//export pkguiDoQueueMain
+func pkguiDoQueueMain(nn unsafe.Pointer) {
 	qmlock.Lock()
 
 	n := uintptr(nn)
@@ -121,8 +116,8 @@ func OnShouldQuit(f func() bool) {
 	shouldQuitFunc = f
 }
 
-//export doOnShouldQuit
-func doOnShouldQuit(unused unsafe.Pointer) C.int {
+//export pkguiDoOnShouldQuit
+func pkguiDoOnShouldQuit(unused unsafe.Pointer) C.int {
 	if shouldQuitFunc == nil {
 		return 0
 	}
