@@ -48,6 +48,9 @@ extern void pkguiEditableComboboxOnChanged(uiEditableCombobox *c);
 // entry.go
 extern void pkguiEntryOnChanged(uiEntry *e);
 
+// fontbutton.go
+extern void pkguiFontButtonOnChanged(uiFontButton *b);
+
 // multilineentry.go
 extern void pkguiMultilineEntryOnChanged(uiMultilineEntry *e);
 
@@ -73,5 +76,13 @@ extern void pkguiFreeDashes(double *dashes);
 extern void pkguiSetDash(double *dashes, size_t i, double dash);
 extern uiDrawMatrix *pkguiAllocMatrix(void);
 extern void pkguiFreeMatrix(uiDrawMatrix *m);
+
+// drawtext.go
+extern uiUnderlineColor *pkguiNewUnderlineColor(void);
+extern void pkguiFreeUnderlineColor(uiUnderlineColor *c);
+extern uiFontDescriptor *pkguiNewFontDescriptor(void);
+extern void pkguiFreeFontDescriptor(uiFontDescriptor *fd);
+extern uiDrawTextLayoutParams *pkguiNewDrawTextLayoutParams(void);
+extern void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *p);
 
 #endif

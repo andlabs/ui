@@ -2,49 +2,7 @@
 
 package ui
 
-// #include <stdlib.h>
-// #include "ui.h"
-// #include "util.h"
-// typedef struct pkguiCColor pkguiCColor;
-// struct pkguiCColor { double *r; double *g; double *b; double *a; };
-// static inline pkguiCColor pkguiNewCColor(void)
-// {
-// 	pkguiCColor c;
-// 
-// 	c.r = (double *) pkguiAlloc(4 * sizeof (double));
-// 	c.g = c.r + 1;
-// 	c.b = c.g + 1;
-// 	c.a = c.b + 1;
-// 	return c;
-// }
-// static inline void pkguiFreeCColor(pkguiCColor c)
-// {
-// 	free(c.r);
-// }
-// static inline uiUnderlineColor *pkguiNewUnderlineColor(void)
-// {
-// 	return (uiUnderlineColor *) pkguiAlloc(sizeof (uiUnderlineColor));
-// }
-// static inline void pkguiFreeUnderlineColor(uiUnderlineColor *c)
-// {
-// 	free(c);
-// }
-// static inline uiFontDescriptor *pkguiNewFontDescriptor(void)
-// {
-// 	return (uiFontDescriptor *) pkguiAlloc(sizeof (uiFontDescriptor));
-// }
-// static inline void pkguiFreeFontDescriptor(uiFontDescriptor *fd)
-// {
-// 	free(fd);
-// }
-// static inline uiDrawTextLayoutParams *pkguiNewDrawTextLayoutParams(void)
-// {
-// 	return (uiDrawTextLayoutParams *) pkguiAlloc(sizeof (uiDrawTextLayoutParams));
-// }
-// static inline void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *fd)
-// {
-// 	free(fd);
-// }
+// #include "pkgui.h"
 import "C"
 
 // Attribute stores information about an attribute in an
@@ -317,8 +275,8 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 	case C.uiAttributeTypeStretch:
 		return TextStretch(C.uiAttributeStretch(a))
 	case C.uiAttributeTypeColor:
-		cc := C.pkguiNewCColor()
-		defer C.pkguiFreeCColor(cc)
+		cc := C.pkguiAllocColorDoubles()
+		defer C.pkguiFreeColorDoubles(cc)
 		C.uiAttributeColor(a, cc.r, cc.g, cc.b, cc.a)
 		return TextColor{
 			R:	float64(*(cc.r)),
@@ -327,8 +285,8 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 			A:	float64(*(cc.a)),
 		}
 	case C.uiAttributeTypeBackground:
-		cc := C.pkguiNewCColor()
-		defer C.pkguiFreeCColor(cc)
+		cc := C.pkguiAllocColorDoubles()
+		defer C.pkguiFreeColorDoubles(cc)
 		C.uiAttributeColor(a, cc.r, cc.g, cc.b, cc.a)
 		return TextBackground{
 			R:	float64(*(cc.r)),
@@ -341,8 +299,8 @@ func attributeFromLibui(a *C.uiAttribute) Attribute {
 	case C.uiAttributeTypeUnderlineColor:
 		cu := C.pkguiNewUnderlineColor()
 		defer C.pkguiFreeUnderlineColor(cu)
-		cc := C.pkguiNewCColor()
-		defer C.pkguiFreeCColor(cc)
+		cc := C.pkguiAllocColorDoubles()
+		defer C.pkguiFreeColorDoubles(cc)
 		C.uiAttributeUnderlineColor(a, cu, cc.r, cc.g, cc.b, cc.a)
 		if *cu == C.uiUnderlineColorCustom {
 			return UnderlineColorCustom{

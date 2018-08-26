@@ -6,20 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include <stdlib.h>
-// #include "ui.h"
-// #include "util.h"
-// extern void doFontButtonOnChanged(uiFontButton *, void *);
-// // see golang/go#19835
-// typedef void (*fontButtonCallback)(uiFontButton *, void *);
-// static inline uiFontDescriptor *pkguiNewFontDescriptor(void)
-// {
-// 	return (uiFontDescriptor *) pkguiAlloc(sizeof (uiFontDescriptor));
-// }
-// static inline void pkguiFreeFontDescriptor(uiFontDescriptor *fd)
-// {
-// 	free(fd);
-// }
+// #include "pkgui.h"
 import "C"
 
 // FontButton is a Control that represents a button that the user can
@@ -36,7 +23,7 @@ func NewFontButton() *FontButton {
 
 	b.b = C.uiNewFontButton()
 
-	C.uiFontButtonOnChanged(b.b, C.fontButtonCallback(C.doFontButtonOnChanged), nil)
+	C.pkguiFontButtonOnChanged(b.b)
 
 	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b
@@ -60,8 +47,8 @@ func (b *FontButton) OnChanged(f func(*FontButton)) {
 	b.onChanged = f
 }
 
-//export doFontButtonOnChanged
-func doFontButtonOnChanged(bb *C.uiFontButton, data unsafe.Pointer) {
+//export pkguiDoFontButtonOnChanged
+func pkguiDoFontButtonOnChanged(bb *C.uiFontButton, data unsafe.Pointer) {
 	b := ControlFromLibui(uintptr(unsafe.Pointer(bb))).(*FontButton)
 	if b.onChanged != nil {
 		b.onChanged(b)

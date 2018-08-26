@@ -42,14 +42,6 @@ void pkguiColorButtonOnChanged(uiColorButton *c)
 	uiColorButtonOnChanged(c, pkguiDoColorButtonOnChanged, NULL);
 }
 
-typedef struct pkguiColorDoubles pkguiColorDoubles;
-struct pkguiColorDoubles {
-	double *r;
-	double *g;
-	double *b;
-	double *a;
-};
-
 pkguiColorDoubles pkguiAllocColorDoubles(void)
 {
 	pkguiColorDoubles c;
@@ -94,6 +86,11 @@ void pkguiEditableComboboxOnChanged(uiEditableCombobox *c)
 void pkguiEntryOnChanged(uiEntry *e)
 {
 	uiEntryOnChanged(e, pkguiDoEntryOnChanged, NULL);
+}
+
+void pkguiFontButtonOnChanged(uiFontButton *b)
+{
+	uiFontButtonOnChanged(b, pkguiDoFontButtonOnChanged, NULL);
 }
 
 void pkguiMultilineEntryOnChanged(uiMultilineEntry *e)
@@ -178,4 +175,34 @@ uiDrawMatrix *pkguiAllocMatrix(void)
 void pkguiFreeMatrix(uiDrawMatrix *m)
 {
 	free(m);
+}
+
+uiUnderlineColor *pkguiNewUnderlineColor(void)
+{
+	return (uiUnderlineColor *) pkguiAlloc(sizeof (uiUnderlineColor));
+}
+
+void pkguiFreeUnderlineColor(uiUnderlineColor *c)
+{
+	free(c);
+}
+
+uiFontDescriptor *pkguiNewFontDescriptor(void)
+{
+	return (uiFontDescriptor *) pkguiAlloc(sizeof (uiFontDescriptor));
+}
+
+void pkguiFreeFontDescriptor(uiFontDescriptor *fd)
+{
+	free(fd);
+}
+
+uiDrawTextLayoutParams *pkguiNewDrawTextLayoutParams(void)
+{
+	return (uiDrawTextLayoutParams *) pkguiAlloc(sizeof (uiDrawTextLayoutParams));
+}
+
+void pkguiFreeDrawTextLayoutParams(uiDrawTextLayoutParams *p)
+{
+	free(p);
 }

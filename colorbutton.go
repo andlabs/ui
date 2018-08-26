@@ -33,7 +33,7 @@ func NewColorButton() *ColorButton {
 // Colors are not alpha-premultiplied.
 // TODO rename b or bl
 func (b *ColorButton) Color() (r, g, bl, a float64) {
-	c := C.pkguiNewColorDoubles()
+	c := C.pkguiAllocColorDoubles()
 	defer C.pkguiFreeColorDoubles(c)
 	C.uiColorButtonColor(b.b, c.r, c.g, c.b, c.a)
 	return float64(*(c.r)), float64(*(c.g)), float64(*(c.b)), float64(*(c.a))
