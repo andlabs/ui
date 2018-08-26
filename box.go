@@ -6,7 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
+// #include "pkgui.h"
 import "C"
 
 // Box is a Control that holds a group of Controls horizontally

@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doCheckboxOnToggled(uiCheckbox *, void *);
-// // see golang/go#19835
-// typedef void (*checkboxCallback)(uiCheckbox *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Checkbox is a Control that represents a box with a text label at its
@@ -30,7 +27,7 @@ func NewCheckbox(text string) *Checkbox {
 	c.c = C.uiNewCheckbox(ctext)
 	freestr(ctext)
 
-	C.uiCheckboxOnToggled(c.c, C.checkboxCallback(C.doCheckboxOnToggled), nil)
+	C.pkguiCheckboxOnToggled(c.c)
 
 	c.ControlBase = NewControlBase(c, uintptr(unsafe.Pointer(c.c)))
 	return c
@@ -57,8 +54,8 @@ func (c *Checkbox) OnToggled(f func(*Checkbox)) {
 	c.onToggled = f
 }
 
-//export doCheckboxOnToggled
-func doCheckboxOnToggled(cc *C.uiCheckbox, data unsafe.Pointer) {
+//export pkguiDoCheckboxOnToggled
+func pkguiDoCheckboxOnToggled(cc *C.uiCheckbox, data unsafe.Pointer) {
 	c := ControlFromLibui(uintptr(unsafe.Pointer(cc))).(*Checkbox)
 	if c.onToggled != nil {
 		c.onToggled(c)

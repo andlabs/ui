@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern int doWindowOnClosing(uiWindow *, void *);
-// // see golang/go#19835
-// typedef int (*windowOnClosingCallback)(uiWindow *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Window is a Control that represents a top-level window.
@@ -31,7 +28,7 @@ func NewWindow(title string, width int, height int, hasMenubar bool) *Window {
 	w.w = C.uiNewWindow(ctitle, C.int(width), C.int(height), frombool(hasMenubar))
 	freestr(ctitle)
 
-	C.uiWindowOnClosing(w.w, C.windowOnClosingCallback(C.doWindowOnClosing), nil)
+	C.pkguiWindowOnClosing(w.w)
 
 	w.ControlBase = NewControlBase(w, uintptr(unsafe.Pointer(w.w)))
 	return w
@@ -79,8 +76,8 @@ func (w *Window) OnClosing(f func(*Window) bool) {
 	w.onClosing = f
 }
 
-//export doWindowOnClosing
-func doWindowOnClosing(ww *C.uiWindow, data unsafe.Pointer) C.int {
+//export pkguiDoWindowOnClosing
+func pkguiDoWindowOnClosing(ww *C.uiWindow, data unsafe.Pointer) C.int {
 	w := ControlFromLibui(uintptr(unsafe.Pointer(ww))).(*Window)
 	if w.onClosing == nil {
 		return 0

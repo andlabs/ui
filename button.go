@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doButtonOnClicked(uiButton *, void *);
-// // see golang/go#19835
-// typedef void (*buttonCallback)(uiButton *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Button is a Control that represents a button that the user can
@@ -29,7 +26,7 @@ func NewButton(text string) *Button {
 	b.b = C.uiNewButton(ctext)
 	freestr(ctext)
 
-	C.uiButtonOnClicked(b.b, C.buttonCallback(C.doButtonOnClicked), nil)
+	C.pkguiButtonOnClicked(b.b)
 
 	b.ControlBase = NewControlBase(b, uintptr(unsafe.Pointer(b.b)))
 	return b
@@ -56,8 +53,8 @@ func (b *Button) OnClicked(f func(*Button)) {
 	b.onClicked = f
 }
 
-//export doButtonOnClicked
-func doButtonOnClicked(bb *C.uiButton, data unsafe.Pointer) {
+//export pkguiDoButtonOnClicked
+func pkguiDoButtonOnClicked(bb *C.uiButton, data unsafe.Pointer) {
 	b := ControlFromLibui(uintptr(unsafe.Pointer(bb))).(*Button)
 	if b.onClicked != nil {
 		b.onClicked(b)
