@@ -31,7 +31,7 @@ const (
 // helper to quickly set a brush color
 func mkSolidBrush(color uint32, alpha float64) *ui.Brush {
 	brush := new(ui.Brush)
-	brush.Type = ui.BrushTypeSolid
+	brush.Type = ui.DrawBrushTypeSolid
 	component := uint8((color >> 16) & 0xFF)
 	brush.R = float64(component) / 255
 	component = uint8((color >> 8) & 0xFF)
@@ -66,7 +66,7 @@ func pointLocations(width, height float64) (xs, ys [10]float64) {
 
 func constructGraph(width, height float64, extend bool) *ui.Path {
 	xs, ys := pointLocations(width, height)
-	path := ui.NewPath(ui.Winding)
+	path := ui.NewPath(ui.DrawFillModeWinding)
 
 	path.NewFigure(xs[0], ys[0])
 	for i := 1; i < 10; i++ {
@@ -93,7 +93,7 @@ type areaHandler struct{}
 func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	// fill the area with white
 	brush := mkSolidBrush(colorWhite, 1.0)
-	path := ui.NewPath(ui.Winding)
+	path := ui.NewPath(ui.DrawFillModeWinding)
 	path.AddRectangle(0, 0, p.AreaWidth, p.AreaHeight)
 	path.End()
 	p.Context.Fill(path, brush)
@@ -110,7 +110,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 
 	// draw the axes
 	brush = mkSolidBrush(colorBlack, 1.0)
-	path = ui.NewPath(ui.Winding)
+	path = ui.NewPath(ui.DrawFillModeWinding)
 	path.NewFigure(xoffLeft, yoffTop)
 	path.LineTo(xoffLeft, yoffTop + graphHeight)
 	path.LineTo(xoffLeft + graphWidth, yoffTop + graphHeight)
@@ -125,7 +125,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 
 	// now get the color for the graph itself and set up the brush
 	graphR, graphG, graphB, graphA := colorButton.Color()
-	brush.Type = ui.BrushTypeSolid
+	brush.Type = ui.DrawBrushTypeSolid
 	brush.R = graphR
 	brush.G = graphG
 	brush.B = graphB
@@ -146,7 +146,7 @@ func (areaHandler) Draw(a *ui.Area, p *ui.AreaDrawParams) {
 	// now draw the point being hovered over
 	if currentPoint != -1 {
 		xs, ys := pointLocations(graphWidth, graphHeight)
-		path = ui.NewPath(ui.Winding)
+		path = ui.NewPath(ui.DrawFillModeWinding)
 		path.NewFigureWithArc(
 			xs[currentPoint], ys[currentPoint],
 			pointRadius,
