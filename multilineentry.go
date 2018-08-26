@@ -10,10 +10,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doMultilineEntryOnChanged(uiMultilineEntry *, void *);
-// // see golang/go#19835
-// typedef void (*multilineEntryCallback)(uiMultilineEntry *, void *);
+// #include "pkgui.h"
 import "C"
 
 // MultilineEntry is a Control that represents a space that the user
@@ -29,7 +26,7 @@ func finishNewMultilineEntry(ee *C.uiMultilineEntry) *MultilineEntry {
 
 	m.e = ee
 
-	C.uiMultilineEntryOnChanged(m.e, C.multilineEntryCallback(C.doMultilineEntryOnChanged), nil)
+	C.pkguiMultilineEntryOnChanged(m.e)
 
 	m.ControlBase = NewControlBase(m, uintptr(unsafe.Pointer(m.e)))
 	return m
@@ -78,8 +75,8 @@ func (m *MultilineEntry) OnChanged(f func(*MultilineEntry)) {
 	m.onChanged = f
 }
 
-//export doMultilineEntryOnChanged
-func doMultilineEntryOnChanged(ee *C.uiMultilineEntry, data unsafe.Pointer) {
+//export pkguiDoMultilineEntryOnChanged
+func pkguiDoMultilineEntryOnChanged(ee *C.uiMultilineEntry, data unsafe.Pointer) {
 	m := ControlFromLibui(uintptr(unsafe.Pointer(ee))).(*MultilineEntry)
 	if m.onChanged != nil {
 		m.onChanged(m)

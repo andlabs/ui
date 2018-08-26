@@ -29,4 +29,16 @@ extern void pkguiEditableComboboxOnChanged(uiEditableCombobox *c);
 // entry.go
 extern void pkguiEntryOnChanged(uiEntry *e);
 
+// multilineentry.go
+extern void pkguiMultilineEntryOnChanged(uiMultilineEntry *e);
+
+// radiobuttons.go
+extern void pkguiRadioButtonsOnSelected(uiRadioButtons *r);
+
+// slider.go
+extern void pkguiSliderOnChanged(uiSlider *s);
+
+// spinbox.go
+extern void pkguiSpinboxOnChanged(uiSpinbox *s);
+
 #endif

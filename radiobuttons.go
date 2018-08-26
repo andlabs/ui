@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doRadioButtonsOnSelected(uiRadioButtons *, void *);
-// // see golang/go#19835
-// typedef void (*radioButtonsCallback)(uiRadioButtons *, void *);
+// #include "pkgui.h"
 import "C"
 
 // RadioButtons is a Control that represents a set of checkable
@@ -26,7 +23,7 @@ func NewRadioButtons() *RadioButtons {
 
 	r.r = C.uiNewRadioButtons()
 
-	C.uiRadioButtonsOnSelected(r.r, C.radioButtonsCallback(C.doRadioButtonsOnSelected), nil)
+	C.pkguiRadioButtonsOnSelected(r.r)
 
 	r.ControlBase = NewControlBase(r, uintptr(unsafe.Pointer(r.r)))
 	return r
@@ -57,8 +54,8 @@ func (r *RadioButtons) OnSelected(f func(*RadioButtons)) {
 	r.onSelected = f
 }
 
-//export doRadioButtonsOnSelected
-func doRadioButtonsOnSelected(rr *C.uiRadioButtons, data unsafe.Pointer) {
+//export pkguiDoRadioButtonsOnSelected
+func pkguiDoRadioButtonsOnSelected(rr *C.uiRadioButtons, data unsafe.Pointer) {
 	r := ControlFromLibui(uintptr(unsafe.Pointer(rr))).(*RadioButtons)
 	if r.onSelected != nil {
 		r.onSelected(r)

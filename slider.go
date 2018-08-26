@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doSliderOnChanged(uiSlider *, void *);
-// // see golang/go#19835
-// typedef void (*sliderCallback)(uiSlider *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Slider is a Control that represents a horizontal bar that represents
@@ -27,7 +24,7 @@ func NewSlider(min int, max int) *Slider {
 
 	s.s = C.uiNewSlider(C.int(min), C.int(max))
 
-	C.uiSliderOnChanged(s.s, C.sliderCallback(C.doSliderOnChanged), nil)
+	C.pkguiSliderOnChanged(s.s)
 
 	s.ControlBase = NewControlBase(s, uintptr(unsafe.Pointer(s.s)))
 	return s
@@ -49,8 +46,8 @@ func (s *Slider) OnChanged(f func(*Slider)) {
 	s.onChanged = f
 }
 
-//export doSliderOnChanged
-func doSliderOnChanged(ss *C.uiSlider, data unsafe.Pointer) {
+//export pkguiDoSliderOnChanged
+func pkguiDoSliderOnChanged(ss *C.uiSlider, data unsafe.Pointer) {
 	s := ControlFromLibui(uintptr(unsafe.Pointer(ss))).(*Slider)
 	if s.onChanged != nil {
 		s.onChanged(s)

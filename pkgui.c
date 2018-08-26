@@ -51,3 +51,23 @@ void pkguiEntryOnChanged(uiEntry *e)
 {
 	uiEntryOnChanged(e, pkguiDoEntryOnChanged, NULL);
 }
+
+void pkguiMultilineEntryOnChanged(uiMultilineEntry *e)
+{
+	uiMultilineEntryOnChanged(e, pkguiDoMultilineEntryOnChanged, NULL);
+}
+
+void pkguiRadioButtonsOnSelected(uiRadioButtons *r)
+{
+	uiRadioButtonsOnSelected(r, pkguiDoRadioButtonsOnSelected, NULL);
+}
+
+void pkguiSliderOnChanged(uiSlider *s)
+{
+	uiSliderOnChanged(s, pkguiDoSliderOnChanged, NULL);
+}
+
+void pkguiSpinboxOnChanged(uiSpinbox *s)
+{
+	uiSpinboxOnChanged(s, pkguiDoSpinboxOnChanged, NULL);
+}

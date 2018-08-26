@@ -6,10 +6,7 @@ import (
 	"unsafe"
 )
 
-// #include "ui.h"
-// extern void doSpinboxOnChanged(uiSpinbox *, void *);
-// // see golang/go#19835
-// typedef void (*spinboxCallback)(uiSpinbox *, void *);
+// #include "pkgui.h"
 import "C"
 
 // Spinbox is a Control that represents a space where the user can
@@ -27,7 +24,7 @@ func NewSpinbox(min int, max int) *Spinbox {
 
 	s.s = C.uiNewSpinbox(C.int(min), C.int(max))
 
-	C.uiSpinboxOnChanged(s.s, C.spinboxCallback(C.doSpinboxOnChanged), nil)
+	C.pkguiSpinboxOnChanged(s.s)
 
 	s.ControlBase = NewControlBase(s, uintptr(unsafe.Pointer(s.s)))
 	return s
@@ -49,8 +46,8 @@ func (s *Spinbox) OnChanged(f func(*Spinbox)) {
 	s.onChanged = f
 }
 
-//export doSpinboxOnChanged
-func doSpinboxOnChanged(ss *C.uiSpinbox, data unsafe.Pointer) {
+//export pkguiDoSpinboxOnChanged
+func pkguiDoSpinboxOnChanged(ss *C.uiSpinbox, data unsafe.Pointer) {
 	s := ControlFromLibui(uintptr(unsafe.Pointer(ss))).(*Spinbox)
 	if s.onChanged != nil {
 		s.onChanged(s)
