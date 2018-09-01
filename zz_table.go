@@ -114,9 +114,9 @@ func appendImageNamed(i *ui.Image, which string) {
 	if err != nil {
 		panic(err)
 	}
-	nr, ok := img.(*image.NRGBA)
+	nr, ok := img.(*image.RGBA)
 	if !ok {
-		i2 := image.NewNRGBA(img.Bounds())
+		i2 := image.NewRGBA(img.Bounds())
 		draw.Draw(i2, i2.Bounds(), img, img.Bounds().Min, draw.Src)
 		nr = i2
 	}

@@ -47,7 +47,7 @@ func (i *Image) Free() {
 }
 
 // Append adds the given image as a representation of the Image.
-func (i *Image) Append(img *image.NRGBA) {
+func (i *Image) Append(img *image.RGBA) {
 	cpix := C.CBytes(img.Pix)
 	defer C.free(cpix)
 	C.uiImageAppend(i.i, cpix,
