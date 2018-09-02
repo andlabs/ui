@@ -2,7 +2,9 @@
 
 // +build OMIT
 
-// TODO possible bug in libui: the checkboxes on macOS retain their values when they shouldn't
+// TODO possible bugs in libui:
+// - the checkboxes on macOS retain their values when they shouldn't
+// - the table on GTK+ is very thin; the scrolled window needs hexpand=TRUE
 
 package main
 
