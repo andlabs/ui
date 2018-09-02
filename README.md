@@ -48,7 +48,7 @@ You do not have to worry about importing this in non-Windows-only files; it does
 
 If you wish to use your own manifest instead, you can use the one in `winmanifest` as a template to see what's required and how. You'll need to specify the template in a `.rc` file and use `windres` in MinGW-w64 to generate a `.syso` file as follows:
 
-````
+```
 windres -i resources.rc -o winmanifest_windows_GOARCH.syso -O coff
 ```
 
