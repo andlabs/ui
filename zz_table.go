@@ -108,6 +108,20 @@ func (mh *modelHandler) CellValue(m *ui.TableModel, row, column int) ui.TableVal
 }
 
 func (mh *modelHandler) SetCellValue(m *ui.TableModel, row, column int, value ui.TableValue) {
+	if row == 9 && column == 2 {
+		mh.row9Text = string(value.(ui.TableString))
+	}
+	if column == 6 {		// row background color
+		prevYellowRow := mh.yellowRow
+		mh.yellowRow = row
+		if prevYellowRow != -1 {
+			m.RowChanged(prevYellowRow)
+		}
+		m.RowChanged(mh.yellowRow)
+	}
+	if column == 7 {		// checkboxes
+		mh.checkStates[row] = int(value.(ui.TableInt))
+	}
 }
 
 func appendImageNamed(i *ui.Image, which string) {
