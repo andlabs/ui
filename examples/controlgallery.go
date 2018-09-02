@@ -6,6 +6,7 @@ package main
 
 import (
 	"github.com/andlabs/ui"
+	_ "github.com/andlabs/ui/winmanifest"
 )
 
 var mainwin *ui.Window

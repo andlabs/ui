@@ -16,6 +16,7 @@ import (
 	"bytes"
 
 	"github.com/andlabs/ui"
+	_ "github.com/andlabs/ui/winmanifest"
 )
 
 type modelHandler struct {
