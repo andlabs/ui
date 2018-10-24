@@ -13,7 +13,7 @@ import "C"
 // figures to a path, you must "end" the path to make it ready to draw
 // with.
 // TODO rewrite all that
-// 
+//
 // Or more visually, the lifecycle of a Path is
 // 	p := DrawNewPath()
 // 	for every figure {
@@ -32,18 +32,19 @@ import "C"
 // 	dp.Context.Clip(p)
 // 	// ...
 // 	p.Free() // when done with the path
-// 
+//
 // A DrawPath also defines its fill mode. (This should ideally be a fill
 // parameter, but some implementations prevent it.)
 // TODO talk about fill modes
 type DrawPath struct {
-	p	*C.uiDrawPath
+	p *C.uiDrawPath
 }
 
 // TODO
-// 
+//
 // TODO disclaimer
 type DrawFillMode uint
+
 const (
 	DrawFillModeWinding DrawFillMode = iota
 	DrawFillModeAlternate
@@ -62,7 +63,7 @@ func DrawNewPath(fillMode DrawFillMode) *DrawPath {
 		panic("invalid fill mode passed to ui.NewPath()")
 	}
 	return &DrawPath{
-		p:	C.uiDrawNewPath(fm),
+		p: C.uiDrawNewPath(fm),
 	}
 }
 
@@ -154,25 +155,27 @@ func (p *DrawPath) End() {
 // At present the only DrawContexts are surfaces associated with
 // Areas and are provided by package ui; see AreaDrawParams.
 type DrawContext struct {
-	c	*C.uiDrawContext
+	c *C.uiDrawContext
 }
 
 // DrawBrushType defines the various types of brushes.
-// 
+//
 // TODO disclaimer
 type DrawBrushType int
+
 const (
 	DrawBrushTypeSolid DrawBrushType = iota
 	DrawBrushTypeLinearGradient
 	DrawBrushTypeRadialGradient
-	DrawBrushTypeImage		// presently unimplemented
+	DrawBrushTypeImage // presently unimplemented
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 // TODO rename these to put LineCap at the beginning? or just Cap?
 type DrawLineCap int
+
 const (
 	DrawLineCapFlat DrawLineCap = iota
 	DrawLineCapRound
@@ -180,9 +183,10 @@ const (
 )
 
 // TODO
-// 
+//
 // TODO disclaimer
 type DrawLineJoin int
+
 const (
 	DrawLineJoinMiter DrawLineJoin = iota
 	DrawLineJoinRound
@@ -194,32 +198,32 @@ const DrawDefaultMiterLimit = 10.0
 
 // TODO
 type DrawBrush struct {
-	Type		DrawBrushType
+	Type DrawBrushType
 
 	// If Type is Solid.
 	// TODO
-	R		float64
-	G		float64
-	B		float64
-	A		float64
+	R float64
+	G float64
+	B float64
+	A float64
 
 	// If Type is LinearGradient or RadialGradient.
 	// TODO
-	X0			float64	// start point for both
-	Y0			float64
-	X1			float64	// linear: end point; radial: circle center
-	Y1			float64
-	OuterRadius	float64	// for radial gradients only
-	Stops		[]DrawGradientStop
+	X0          float64 // start point for both
+	Y0          float64
+	X1          float64 // linear: end point; radial: circle center
+	Y1          float64
+	OuterRadius float64 // for radial gradients only
+	Stops       []DrawGradientStop
 }
 
 // TODO
 type DrawGradientStop struct {
-	Pos	float64		// between 0 and 1 inclusive
-	R	float64
-	G	float64
-	B	float64
-	A	float64
+	Pos float64 // between 0 and 1 inclusive
+	R   float64
+	G   float64
+	B   float64
+	A   float64
 }
 
 func (b *DrawBrush) toLibui() *C.uiDrawBrush {
@@ -264,12 +268,12 @@ func freeBrush(cb *C.uiDrawBrush) {
 
 // TODO
 type DrawStrokeParams struct {
-	Cap			DrawLineCap
-	Join			DrawLineJoin
-	Thickness		float64
-	MiterLimit		float64
-	Dashes		[]float64
-	DashPhase	float64
+	Cap        DrawLineCap
+	Join       DrawLineJoin
+	Thickness  float64
+	MiterLimit float64
+	Dashes     []float64
+	DashPhase  float64
 }
 
 func (sp *DrawStrokeParams) toLibui() *C.uiDrawStrokeParams {
@@ -316,12 +320,12 @@ func (c *DrawContext) Fill(p *DrawPath, b *DrawBrush) {
 // TODO
 // TODO should the methods of these return self for chaining?
 type DrawMatrix struct {
-	M11		float64
-	M12		float64
-	M21		float64
-	M22		float64
-	M31		float64
-	M32		float64
+	M11 float64
+	M12 float64
+	M21 float64
+	M22 float64
+	M31 float64
+	M32 float64
 }
 
 // TODO identity matrix
@@ -412,7 +416,7 @@ func (m *DrawMatrix) Invertible() bool {
 }
 
 // TODO
-// 
+//
 // If m is not invertible, false is returned and m is left unchanged.
 func (m *DrawMatrix) Invert() bool {
 	cm := m.toLibui()
@@ -421,14 +425,24 @@ func (m *DrawMatrix) Invert() bool {
 	return tobool(res)
 }
 
-// TODO unimplemented
+// TODO
+//
+// Transforms a point by this matrix
 func (m *DrawMatrix) TransformPoint(x float64, y float64) (xout float64, yout float64) {
-	panic("TODO")
+	cm := m.toLibui()
+	cx, cy := C.double(x), C.double(y)
+	C.uiDrawMatrixTransformPoint(cm, &cx, &cy)
+	C.pkguiFreeMatrix(cm)
+	return float64(cx), float64(cy)
 }
 
-// TODO unimplemented
+// TODO
 func (m *DrawMatrix) TransformSize(x float64, y float64) (xout float64, yout float64) {
-	panic("TODO")
+	cm := m.toLibui()
+	cx, cy := C.double(x), C.double(y)
+	C.uiDrawMatrixTransformSize(cm, &cx, &cy)
+	C.pkguiFreeMatrix(cm)
+	return float64(cx), float64(cy)
 }
 
 // TODO
