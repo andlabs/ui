@@ -504,9 +504,14 @@ func (tl *DrawTextLayout) Free() {
 	C.uiDrawFreeTextLayout(tl.tl)
 }
 
+// Extents returns the width and height of the tl.
+func (tl *DrawTextLayout) Extents() (width, height float64) {
+	C.uiDrawTextLayoutExtents(tl.tl, (*C.double)(&width), (*C.double)(&height))
+	return width, height
+}
+
 // Text draws tl in c with the top-left point of tl at (x, y).
 func (c *DrawContext) Text(tl *DrawTextLayout, x, y float64) {
 	C.uiDrawText(c.c, tl.tl, C.double(x), C.double(y))
 }
 
-// TODO uiDrawTextLayoutExtents
