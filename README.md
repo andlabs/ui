@@ -1,5 +1,7 @@
 # ui: platform-native GUI library for Go
 
+[![GoDoc](https://godoc.org/github.com/andlabs/ui?status.svg)](https://godoc.org/github.com/andlabs/ui)
+
 This is a library that aims to provide simple GUI software development in Go. It is based on my [libui](https://github.com/andlabs/libui), a simple cross-platform library that does the same thing, but written in C.
 
 It runs on/requires:
