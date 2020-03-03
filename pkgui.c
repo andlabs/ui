@@ -88,6 +88,11 @@ void pkguiEntryOnChanged(uiEntry *e)
 	uiEntryOnChanged(e, pkguiDoEntryOnChanged, NULL);
 }
 
+void pkguiEntryOnKeyEvent(uiEntry *e)
+{
+	uiEntryOnKeyEvent(e, pkguiDoEntryOnKeyEvent);
+}
+
 void pkguiFontButtonOnChanged(uiFontButton *b)
 {
 	uiFontButtonOnChanged(b, pkguiDoFontButtonOnChanged, NULL);
