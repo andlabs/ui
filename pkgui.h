@@ -47,6 +47,7 @@ extern void pkguiEditableComboboxOnChanged(uiEditableCombobox *c);
 
 // entry.go
 extern void pkguiEntryOnChanged(uiEntry *e);
+extern void pkguiEntryOnKeyEvent(uiEntry *e);
 
 // fontbutton.go
 extern void pkguiFontButtonOnChanged(uiFontButton *b);

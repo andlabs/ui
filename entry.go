@@ -19,6 +19,7 @@ type Entry struct {
 	ControlBase
 	e	*C.uiEntry
 	onChanged		func(*Entry)
+	onKeyEvent		func(*Entry, *AreaKeyEvent) (handled bool)
 }
 
 func finishNewEntry(ee *C.uiEntry) *Entry {
@@ -27,6 +28,7 @@ func finishNewEntry(ee *C.uiEntry) *Entry {
 	e.e = ee
 
 	C.pkguiEntryOnChanged(e.e)
+	C.pkguiEntryOnKeyEvent(e.e)
 
 	e.ControlBase = NewControlBase(e, uintptr(unsafe.Pointer(e.e)))
 	return e
@@ -77,6 +79,28 @@ func pkguiDoEntryOnChanged(ee *C.uiEntry, data unsafe.Pointer) {
 	if e.onChanged != nil {
 		e.onChanged(e)
 	}
+}
+
+// OnKeyEvent registers f to be run when the user makes a change to
+// the Entry. Only one function can be registered at a time.
+func (e *Entry) OnKeyEvent(f func(*Entry, *AreaKeyEvent) (handled bool) ) {
+	e.onKeyEvent = f
+}
+
+//export pkguiDoEntryOnKeyEvent
+func pkguiDoEntryOnKeyEvent(ee *C.uiEntry, uke *C.uiAreaKeyEvent) C.int {
+	ke := &AreaKeyEvent{
+		Key:		rune(uke.Key),
+		ExtKey:		ExtKey(uke.ExtKey),
+		Modifier:	Modifiers(uke.Modifier),
+		Modifiers:	Modifiers(uke.Modifiers),
+		Up:			tobool(uke.Up),
+	}
+	e := ControlFromLibui(uintptr(unsafe.Pointer(ee))).(*Entry)
+	if e.onKeyEvent != nil {
+		return frombool(e.onKeyEvent(e, ke))
+	}
+	return frombool(false)
 }
 
 // ReadOnly returns whether the Entry can be changed.
