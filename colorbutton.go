@@ -13,8 +13,8 @@ import "C"
 // click to select a color.
 type ColorButton struct {
 	ControlBase
-	b	*C.uiColorButton
-	onChanged		func(*ColorButton)
+	b         *C.uiColorButton
+	onChanged func(*ColorButton)
 }
 
 // NewColorButton creates a new ColorButton.
@@ -31,6 +31,7 @@ func NewColorButton() *ColorButton {
 
 // Color returns the color currently selected in the ColorButton.
 // Colors are not alpha-premultiplied.
+// The output values are between 0 and 1, they map to between 0 and 255. E.g. 1 --> 255, 0.2 --> 51
 // TODO rename b or bl
 func (b *ColorButton) Color() (r, g, bl, a float64) {
 	c := C.pkguiAllocColorDoubles()
@@ -41,6 +42,7 @@ func (b *ColorButton) Color() (r, g, bl, a float64) {
 
 // SetColor sets the currently selected color in the ColorButton.
 // Colors are not alpha-premultiplied.
+// The input values are between 0 and 1, they map to between 0 and 255. E.g. 1 --> 255, 0.2 --> 51
 // TODO rename b or bl
 func (b *ColorButton) SetColor(r, g, bl, a float64) {
 	C.uiColorButtonSetColor(b.b, C.double(r), C.double(g), C.double(bl), C.double(a))

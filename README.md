@@ -30,7 +30,7 @@ should suffice.
 
 # Documentation
 
-The in-code documentation is sufficient to get started, but needs improvement.
+The in-code documentation is sufficient to get started, but needs improvement. The GoDoc documentation can be found [here](https://godoc.org/github.com/andlabs/ui).
 
 Some simple example programs are in the `examples` directory. You can `go build` each of them individually.
 
