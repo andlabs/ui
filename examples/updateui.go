@@ -81,20 +81,19 @@ func setupUI() {
 	mainWindow.SetChild(vbContainer)
 
 	showMessageButton.OnClicked(func(*ui.Button) {
-		// Update the UI using the QueueMain function
-		ui.QueueMain(func() {
-			messageLabel.SetText(message.Text())
-		})
+		// Update the UI directly as it is called from the main thread
+		messageLabel.SetText(message.Text())
 	})
 
 	clearMessageButton.OnClicked(func(*ui.Button) {
-		// Update the UI using the QueueMain function
-		ui.QueueMain(func() {
-			messageLabel.SetText("")
-		})
+		// Update the UI directly as it is called from the main thread
+		messageLabel.SetText("")
 	})
 
 	mainWindow.Show()
+
+	// Counting and updating the UI from another goroutine
+	go counter()
 }
 
 func counter() {
@@ -111,9 +110,6 @@ func counter() {
 
 func main() {
 	count = 0
-
-	// Counting and updating the UI from another goroutine
-	go counter()
 
 	ui.Main(setupUI)
 }
