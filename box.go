@@ -19,8 +19,8 @@ import "C"
 // There can also be space between each control ("padding").
 type Box struct {
 	ControlBase
-	b	*C.uiBox
-	children	[]Control
+	b        *C.uiBox
+	children []Control
 }
 
 // NewHorizontalBox creates a new horizontal Box.
@@ -67,7 +67,7 @@ func (b *Box) Append(child Control, stretchy bool) {
 
 // Delete deletes the nth control of the Box.
 func (b *Box) Delete(n int) {
-	b.children = append(b.children[:n], b.children[n + 1:]...)
+	b.children = append(b.children[:n], b.children[n+1:]...)
 	C.uiBoxDelete(b.b, C.int(n))
 }
 
@@ -82,4 +82,12 @@ func (b *Box) Padded() bool {
 // its best practices.
 func (b *Box) SetPadded(padded bool) {
 	C.uiBoxSetPadded(b.b, frombool(padded))
+}
+
+// Clear clears the children of the Box.
+func (b *Box) Clear() {
+	n := len(b.children)
+	for index := 0; index < n; index++ {
+		b.Delete(0)
+	}
 }
