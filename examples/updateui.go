@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/andlabs/ui"
+	_ "github.com/andlabs/ui/winmanifest"
 )
 
 // Example showing how to update the UI using the QueueMain function
