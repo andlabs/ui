@@ -3,8 +3,8 @@
 package ui
 
 import (
-	"runtime"
 	"errors"
+	"runtime"
 	"sync"
 	"unsafe"
 )
@@ -52,9 +52,9 @@ func Quit() {
 // These prevent the passing of Go functions into C land.
 // TODO make an actual sparse list instead of this monotonic map thingy
 var (
-	qmmap = make(map[uintptr]func())
+	qmmap     = make(map[uintptr]func())
 	qmcurrent = uintptr(0)
-	qmlock sync.Mutex
+	qmlock    sync.Mutex
 )
 
 // QueueMain queues f to be executed on the GUI thread when
@@ -64,11 +64,11 @@ var (
 // primary purpose is to allow communication between other
 // goroutines and the GUI thread. Calling QueueMain after Quit
 // has been called results in undefined behavior.
-// 
+//
 // If you start a goroutine in f, it also cannot call package ui
 // functions. So for instance, the following will result in
 // undefined behavior:
-// 
+//
 // 	ui.QueueMain(func() {
 // 		go ui.MsgBox(...)
 // 	})
