@@ -42,6 +42,11 @@ func Main(f func()) error {
 	return nil
 }
 
+// Uninit calls C.uiUninit to uninitialize all allocated objects
+func Uninit() {
+	C.uiUninit()
+}
+
 // Quit queues a return from Main. It does not exit the program.
 // It also does not immediately cause Main to return; Main will
 // return when it next can. Quit must be called from the GUI thread.
